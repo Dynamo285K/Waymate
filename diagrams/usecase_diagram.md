@@ -1,3 +1,4 @@
+```mermaid
 graph LR
     %% ===== ACTORS =====
     unUser((Unregistered User))
@@ -75,3 +76,4 @@ graph LR
     cancelRide -.->|include| cancelAllBookings
     addC -.->|include| addSPZ
     offer -.->|include| pricing
+```
