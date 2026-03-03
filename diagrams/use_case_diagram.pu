@@ -1,0 +1,16 @@
+@startuml
+left to right direction
+
+' Actors:
+
+actor "User" as user
+actor "Logged-in User" as logedin
+
+usecase "Book a ride" as book
+usecase "Offer a ride" as offer
+usecase "Show available rides" as show
+usecase "Select available rides" as select
+
+
+logedin --|> user
+@enduml
