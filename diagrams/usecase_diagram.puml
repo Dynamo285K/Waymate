@@ -1,0 +1,96 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+' ===== ACTORS =====
+actor "Unregistered User" as unUser
+actor "Registered User" as regUser
+actor "Driver" as driver
+actor "Passenger" as passenger
+actor "Admin" as admin
+
+' Actor hierarchy
+unUser --|> regUser
+regUser --|> driver
+regUser --|> passenger
+
+' ===== SYSTEM =====
+package "Splujazda sketch" {
+
+  ' --- Authentication ---
+  package "Authentication" {
+    usecase "Register" as register
+    usecase "Login" as login
+  }
+
+  ' --- Ride Management ---
+  package "Ride Management" {
+    usecase "Show available rides" as show
+    usecase "Book a ride" as book
+    usecase "Offer a ride" as offer
+    usecase "Manage ride" as manageRide
+    usecase "Manage requests" as manageRequests
+    usecase "Add car" as addC
+    usecase "Add SPZ" as addSPZ
+    usecase "Add pricing" as pricing
+    usecase "Cancel ride" as cancelRide
+    usecase "Cancel booking" as cancelBooking
+    usecase "Cancel all bookings" as cancelAllBookings
+  }
+
+  ' --- Rating ---
+  package "Rating" {
+    usecase "Rate driver" as rateD
+    usecase "Rate passenger" as rateP
+  }
+
+  ' --- Profile & Communication ---
+  package "Profile & Communication" {
+    usecase "Manage profile" as profile
+    usecase "Chat" as chat
+    usecase "Report user" as report
+  }
+
+  ' --- Administration ---
+  package "Administration" {
+    usecase "Manage statistics" as stats
+    usecase "Ban user" as ban
+  }
+}
+
+' ===== RELATIONS =====
+
+' General access
+regUser --> show
+
+' Authentication
+unUser --> register
+unUser --> login
+
+' Registered user features
+regUser --> profile
+regUser --> chat
+regUser --> report
+
+' Driver capabilities
+driver --> offer
+driver --> manageRide
+driver --> manageRequests
+driver --> addC
+driver --> rateP
+driver --> cancelRide
+cancelRide --> cancelAllBookings : <<include>>
+
+' Passenger capabilities
+passenger --> book
+passenger --> rateD
+passenger --> cancelBooking
+
+' Admin capabilities
+admin --> ban
+admin --> stats
+
+' Include relations
+addC --> addSPZ : <<include>>
+offer --> pricing : <<include>>
+@enduml
