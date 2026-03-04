@@ -1,0 +1,50 @@
+1. Authentication
+
+    Register: An Unregistered User creates a new account by providing manual credentials.
+
+    Login: An Unregistered User accesses the system using manual credentials.
+    via Google: An Unregistered User authenticates via Google OAuth. The system creates a profile automatically if it's the user's first time.
+
+2. Ride Management
+
+    Show available rides: An Unregistered User (and by extension all others) can search and browse the list of offered rides.
+
+    Book a ride: A Passenger requests a seat in a specific ride.
+
+    Offer a ride: A Driver creates a new ride offer.
+
+        Includes: Add pricing (setting the cost per passenger).
+
+    Manage ride: A Driver edits details of their offered ride (time, route, capacity).
+
+    Manage requests: A Driver approves or rejects incoming booking requests from Passengers.
+
+    Add car: A Driver adds a vehicle to their profile.
+
+        Includes: Add SPZ (entering the license plate number).
+
+    Cancel ride: A Driver cancels an entire planned ride.
+
+        Includes: Cancel all bookings (automated system notification and seat removal).
+
+    Cancel booking: A Passenger withdraws from a previously booked ride.
+
+3. Rating
+
+    Rate driver: A Passenger provides feedback and a rating for the driver after the ride.
+
+    Rate passenger: A Driver provides feedback and a rating for the passenger after the ride.
+
+4. Profile & Communication
+
+    Manage profile: A Registered User updates personal information, preferences, or contact details.
+
+    Chat: Registered Users exchange messages to coordinate trip details.
+
+    Report user: A Registered User flags another user for misconduct or violation of terms.
+
+5. Administration
+
+    Manage statistics: An Admin monitors system data, usage trends, and ride frequency.
+
+    Ban user: An Admin suspends or permanently blocks a user account based on reports, cancels or booking/rides of the user.
