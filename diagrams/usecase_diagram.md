@@ -52,8 +52,8 @@ graph LR
     %% ===== RELATIONS =====
     unUser --> register
     unUser --> login
-
-    regUser --> show
+    unUser --> show
+    
     regUser --> profile
     regUser --> chat
     regUser --> report

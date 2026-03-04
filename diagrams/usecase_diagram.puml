@@ -61,7 +61,7 @@ package "Splujazda sketch" {
 ' ===== RELATIONS =====
 
 ' General access
-regUser --> show
+unUser --> show
 
 ' Authentication
 unUser --> register
