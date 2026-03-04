@@ -40,4 +40,4 @@ Post-conditions:
 
     The Driver is notified and must now perform UC-07: Manage Requests (Accept/Reject).
 
-    A temporary chat channel may be opened for pre-trip questions.
+    A temporary chat channel may be opened for pre-ride questions.
