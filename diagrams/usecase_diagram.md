@@ -46,6 +46,8 @@ graph LR
         subgraph "Administration"
             stats[Manage statistics]
             ban[Ban user]
+            manageUsers[Manage users]
+            manageRidesAdmin[Manage Rides]
         end
     end
 
@@ -71,6 +73,8 @@ graph LR
 
     admin --> ban
     admin --> stats
+    admin --> manageRidesAdmin
+    admin --> manageUsers
 
     %% Include relations
     cancelRide -.->|include| cancelAllBookings
