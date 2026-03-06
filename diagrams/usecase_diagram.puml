@@ -55,6 +55,8 @@ package "Splujazda sketch" {
   package "Administration" {
     usecase "Manage statistics" as stats
     usecase "Ban user" as ban
+    usecase "Manage users" as manageUsers
+    usecase "Manage rides" as manageRidesAdmin
   }
 }
 
@@ -89,6 +91,9 @@ passenger --> cancelBooking
 ' Admin capabilities
 admin --> ban
 admin --> stats
+admin --> manageRidesAdmin
+admin --> manageUsers
+
 
 ' Include relations
 addC --> addSPZ : <<include>>
