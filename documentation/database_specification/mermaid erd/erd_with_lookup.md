@@ -209,6 +209,21 @@ erDiagram
         TIMESTAMP created_at
     }
 
+    BLOCKLIST {
+        UUID id PK
+        UUID blocker_user_id FK
+        UUID blocked_user_id FK
+        INTEGER block_reason_id FK
+        INTEGER block_status_id FK
+        TEXT reason_text
+        UUID created_by_user_id FK
+        TIMESTAMP revoked_at
+        UUID revoked_by_user_id FK
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+        TIMESTAMP deleted_at
+    }
+
     USER_STATUSES {
         INTEGER id PK
         VARCHAR code
@@ -261,6 +276,18 @@ erDiagram
         INTEGER id PK
         VARCHAR brand
         VARCHAR model_name
+    }
+
+    BLOCK_REASONS {
+        INTEGER id PK
+        VARCHAR code
+        VARCHAR label
+    }
+
+    BLOCK_STATUSES {
+        INTEGER id PK
+        VARCHAR code
+        VARCHAR label
     }
 
     USER_STATUSES ||--o{ USERS : "status of"
@@ -320,4 +347,11 @@ erDiagram
     BOOKING_STATUSES ||--o{ BOOKING_STATUS_HISTORY : old_status
     BOOKING_STATUSES ||--o{ BOOKING_STATUS_HISTORY : new_status
     USERS o|--o{ BOOKING_STATUS_HISTORY : changed_by
+
+    BLOCK_REASONS ||--o{ BLOCKLIST : categorizes
+    BLOCK_STATUSES ||--o{ BLOCKLIST : "status of"
+    USERS ||--o{ BLOCKLIST : blocks
+    USERS ||--o{ BLOCKLIST : is_blocked_in
+    USERS o|--o{ BLOCKLIST : created_by
+    USERS o|--o{ BLOCKLIST : revoked_by
 ```
