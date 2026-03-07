@@ -1,0 +1,215 @@
+@startuml
+hide circle
+hide methods
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+package "Core" {
+  entity "users" as USERS {
+    *id : UUID
+    --
+    email : VARCHAR
+    first_name : VARCHAR
+    last_name : VARCHAR
+    display_name : VARCHAR
+    phone : VARCHAR
+    avg_rating : NUMERIC
+    rating_count : INTEGER
+    completed_rides_count : INTEGER
+    no_show_count : INTEGER
+    user_status_id : INTEGER
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+    deleted_at : TIMESTAMP
+  }
+
+  entity "cars" as CARS {
+    *id : UUID
+    --
+    owner_id : UUID
+    model_id : INTEGER
+    spz : VARCHAR
+    country_code : VARCHAR
+    color : VARCHAR
+    seats_total : INTEGER
+    is_active : BOOLEAN
+  }
+
+  entity "rides" as RIDES {
+    *id : UUID
+    --
+    driver_id : UUID
+    car_id : UUID
+    departure_at : TIMESTAMP
+    ride_status_id : INTEGER
+    origin_stop_id : UUID
+    destination_stop_id : UUID
+    origin_city : VARCHAR
+    destination_city : VARCHAR
+    available_seats_cached : INTEGER
+    currency : VARCHAR
+  }
+
+  entity "ride_stops" as RIDE_STOPS {
+    *id : UUID
+    --
+    ride_id : UUID
+    address : VARCHAR
+    city : VARCHAR
+    country_code : VARCHAR
+    lat : NUMERIC
+    lng : NUMERIC
+    stop_order : INTEGER
+  }
+
+  entity "prices" as PRICES {
+    *id : UUID
+    --
+    ride_id : UUID
+    start_stop_id : UUID
+    end_stop_id : UUID
+    amount : NUMERIC
+    currency : VARCHAR
+  }
+
+  entity "bookings" as BOOKINGS {
+    *id : UUID
+    --
+    passenger_id : UUID
+    ride_id : UUID
+    pickup_stop_id : UUID
+    dropoff_stop_id : UUID
+    booking_status_id : INTEGER
+    seat_count : INTEGER
+    price_amount : NUMERIC
+    currency : VARCHAR
+  }
+
+  entity "reviews" as REVIEWS {
+    *id : UUID
+    --
+    ride_id : UUID
+    author_id : UUID
+    subject_id : UUID
+    rating : INTEGER
+    comment : TEXT
+  }
+}
+
+package "Messaging" {
+  entity "conversations" as CONVERSATIONS {
+    *id : UUID
+    --
+    ride_id : UUID
+    booking_id : UUID
+    conversation_type_id : INTEGER
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+  }
+
+  entity "conversation_participants" as CONVERSATION_PARTICIPANTS {
+    *id : UUID
+    --
+    conversation_id : UUID
+    user_id : UUID
+    joined_at : TIMESTAMP
+    last_read_at : TIMESTAMP
+    is_muted : BOOLEAN
+  }
+
+  entity "messages" as MESSAGES {
+    *id : UUID
+    --
+    conversation_id : UUID
+    sender_id : UUID
+    message_type_id : INTEGER
+    content : TEXT
+    sent_at : TIMESTAMP
+  }
+
+  entity "notifications" as NOTIFICATIONS {
+    *id : UUID
+    --
+    user_id : UUID
+    notification_type_id : INTEGER
+    reference_entity_type : VARCHAR
+    reference_entity_id : UUID
+    title : VARCHAR
+    body : TEXT
+    delivery_status_id : INTEGER
+    read_at : TIMESTAMP
+  }
+}
+
+package "History" {
+  entity "user_status_history" as USER_STATUS_HISTORY {
+    *id : UUID
+    --
+    user_id : UUID
+    old_status_id : INTEGER
+    new_status_id : INTEGER
+    changed_by_user_id : UUID
+    reason : TEXT
+    created_at : TIMESTAMP
+  }
+
+  entity "ride_status_history" as RIDE_STATUS_HISTORY {
+    *id : UUID
+    --
+    ride_id : UUID
+    old_status_id : INTEGER
+    new_status_id : INTEGER
+    changed_by_user_id : UUID
+    reason : TEXT
+    created_at : TIMESTAMP
+  }
+
+  entity "booking_status_history" as BOOKING_STATUS_HISTORY {
+    *id : UUID
+    --
+    booking_id : UUID
+    old_status_id : INTEGER
+    new_status_id : INTEGER
+    changed_by_user_id : UUID
+    reason : TEXT
+    created_at : TIMESTAMP
+  }
+}
+
+USERS ||--o{ CARS : owns
+USERS ||--o{ RIDES : drives
+CARS ||--o{ RIDES : assigned
+
+RIDES ||--o{ RIDE_STOPS : has
+RIDE_STOPS }o--|| RIDES : origin_stop
+RIDE_STOPS }o--|| RIDES : destination_stop
+
+RIDES ||--o{ PRICES : defines
+RIDE_STOPS ||--o{ PRICES : start_stop
+RIDE_STOPS ||--o{ PRICES : end_stop
+
+USERS ||--o{ BOOKINGS : passenger
+RIDES ||--o{ BOOKINGS : has
+RIDE_STOPS ||--o{ BOOKINGS : pickup
+RIDE_STOPS ||--o{ BOOKINGS : dropoff
+
+RIDES ||--o{ REVIEWS : has
+USERS ||--o{ REVIEWS : author
+USERS ||--o{ REVIEWS : subject
+
+RIDES ||--o{ CONVERSATIONS : ride_context
+BOOKINGS ||--o{ CONVERSATIONS : booking_context
+CONVERSATIONS ||--o{ CONVERSATION_PARTICIPANTS : has
+USERS ||--o{ CONVERSATION_PARTICIPANTS : joins
+CONVERSATIONS ||--o{ MESSAGES : contains
+USERS ||--o{ MESSAGES : sends
+USERS ||--o{ NOTIFICATIONS : receives
+
+USERS ||--o{ USER_STATUS_HISTORY : has
+RIDES ||--o{ RIDE_STATUS_HISTORY : has
+BOOKINGS ||--o{ BOOKING_STATUS_HISTORY : has
+USERS |o--o{ USER_STATUS_HISTORY : changed_by
+USERS |o--o{ RIDE_STATUS_HISTORY : changed_by
+USERS |o--o{ BOOKING_STATUS_HISTORY : changed_by
+
+@enduml
