@@ -1,4 +1,4 @@
-
+```mermaid
 erDiagram
     USERS {
         UUID id PK
@@ -320,3 +320,4 @@ erDiagram
     BOOKING_STATUSES ||--o{ BOOKING_STATUS_HISTORY : old_status
     BOOKING_STATUSES ||--o{ BOOKING_STATUS_HISTORY : new_status
     USERS o|--o{ BOOKING_STATUS_HISTORY : changed_by
+```

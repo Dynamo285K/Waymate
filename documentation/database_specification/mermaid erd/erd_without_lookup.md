@@ -1,3 +1,4 @@
+```mermaid
 erDiagram
     USERS {
         UUID id PK
@@ -244,3 +245,4 @@ erDiagram
     USERS o|--o{ USER_STATUS_HISTORY : changed_by
     USERS o|--o{ RIDE_STATUS_HISTORY : changed_by
     USERS o|--o{ BOOKING_STATUS_HISTORY : changed_by
+```mermaid
