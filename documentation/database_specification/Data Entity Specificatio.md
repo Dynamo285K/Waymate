@@ -427,3 +427,34 @@ Main entity tables represent the current state. Historical reconstruction should
 
 ### 17.5 Transactional Consistency
 For status changes, both the current-state row and corresponding history row must be written within the same database transaction.
+
+## 18. Blocklist Entity (`blocklist`)
+*Directed user-to-user blocking relationship used for trust & safety enforcement across messaging, booking, ride participation, notifications, and abuse workflows.*
+
+**Constraints:**
+* **`CHECK (blocker_user_id <> blocked_user_id)`**
+* **`CHECK (status IN ('ACTIVE', 'REVOKED'))`**
+* **`CHECK ((status = 'ACTIVE' AND revoked_at IS NULL AND revoked_by_user_id IS NULL) OR status = 'REVOKED')`**
+* **`CHECK (revoked_at IS NULL OR revoked_at >= created_at)`**
+* **`CHECK (reason_code <> 'OTHER' OR reason_text IS NOT NULL)`**
+* **`CHECK (reason_text IS NULL OR LENGTH(TRIM(reason_text)) <= 500)`**
+* Only one active block per directed pair is allowed.
+* Recommended partial uniqueness: **`UNIQUE (blocker_user_id, blocked_user_id) WHERE deleted_at IS NULL AND status = 'ACTIVE'`**
+* Blocking is directional: `A -> B` does not automatically imply `B -> A`.
+* A user may not create bookings, send messages, or initiate ride-related interaction with another user if an active block exists in either direction.
+* Block records should be retained for audit and abuse investigation; physical delete is not recommended in normal operation.
+
+| Attribute | Type | PK/FK | Nullable | Indexed | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `id` | UUID | **PK** | No | `Yes — primary key` | Unique identifier. |
+| `blocker_user_id` | UUID | **FK** | No | `Yes — blocker lookup and enforcement checks` | Refers to `users.id`. User who initiated the block. |
+| `blocked_user_id` | UUID | **FK** | No | `Yes — blocked-user lookup and enforcement checks` | Refers to `users.id`. User being blocked. |
+| `reason_code` | String | | No | `Optional — reporting and moderation analytics` | Standardized block reason. Recommended allowed values: `HARASSMENT`, `SPAM`, `SAFETY`, `FRAUD`, `ABUSE`, `OTHER`. |
+| `reason_text` | Text | | Yes | `No` | Optional free-text explanation. Required when `reason_code = 'OTHER'`. |
+| `status` | String | | No | `Yes — active block filtering` | Lifecycle state. Allowed values: `ACTIVE`, `REVOKED`. |
+| `created_by_user_id` | UUID | **FK** | Yes | `Optional — audit lookup` | Refers to `users.id`. Usually same as `blocker_user_id`, but may differ for admin-created actions. |
+| `revoked_at` | Timestamp | | Yes | `Optional — state filtering` | Time block was revoked. Must remain `NULL` while block is active. |
+| `revoked_by_user_id` | UUID | **FK** | Yes | `Optional — audit lookup` | Refers to `users.id`. Actor who revoked the block. |
+| `created_at` | Timestamp | | No | `Yes — chronology and trust/safety review` | Audit: Block creation time. |
+| `updated_at` | Timestamp | | No | `No` | Audit: Last block record update time. |
+| `deleted_at` | Timestamp | | Yes | `Optional — soft delete filtering` | Soft delete only if retention/compliance policy explicitly allows it. In standard operation, status-based lifecycle is preferred over deletion. |
