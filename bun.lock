@@ -3,13 +3,34 @@
   "configVersion": 1,
   "workspaces": {
     "": {
+      "name": "Waymate",
       "devDependencies": {
         "turbo": "^2.8.14",
         "typescript": "^5.9.3",
       },
     },
+    "apps/api": {
+      "name": "@repo/api",
+    },
+    "apps/web": {
+      "name": "@repo/web",
+    },
+    "packages/db": {
+      "name": "@repo/db",
+    },
+    "packages/shared": {
+      "name": "@repo/shared",
+    },
   },
   "packages": {
+    "@repo/api": ["@repo/api@workspace:apps/api"],
+
+    "@repo/db": ["@repo/db@workspace:packages/db"],
+
+    "@repo/shared": ["@repo/shared@workspace:packages/shared"],
+
+    "@repo/web": ["@repo/web@workspace:apps/web"],
+
     "turbo": ["turbo@2.8.14", "", { "optionalDependencies": { "turbo-darwin-64": "2.8.14", "turbo-darwin-arm64": "2.8.14", "turbo-linux-64": "2.8.14", "turbo-linux-arm64": "2.8.14", "turbo-windows-64": "2.8.14", "turbo-windows-arm64": "2.8.14" }, "bin": { "turbo": "bin/turbo" } }, "sha512-UCTxeMNYT1cKaHiIFdLCQ7ulI+jw5i5uOnJOrRXsgUD7G3+OjlUjwVd7JfeVt2McWSVGjYA3EVW/v1FSsJ5DtA=="],
 
     "turbo-darwin-64": ["turbo-darwin-64@2.8.14", "", { "os": "darwin", "cpu": "x64" }, "sha512-9sFi7n2lLfEsGWi5OEoA/eTtQU2BPKtzSYKqufMtDeRmqMT9vKjbv9gJCRkllSVE9BOXA0qXC3diyX8V8rKIKw=="],
