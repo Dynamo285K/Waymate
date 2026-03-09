@@ -1,0 +1,42 @@
+# dependencies
+node_modules
+
+# bun
+bun.lockb
+
+# turbo
+.turbo
+
+# build outputs
+dist
+build
+coverage
+
+# vite
+.vite
+
+# env files
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# database
+*.db
+*.sqlite
+*.sqlite3
+
+# drizzle generated files if you don't want them tracked
+# packages/db/drizzle
+
+# misc
+tmp
+temp
