@@ -3,18 +3,18 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "bun --watch src/index.ts",
-        "build": "bun build src/index.ts --outdir dist --target bun",
-        "start": "bun dist/index.js",
-        "typecheck": "tsc -p tsconfig.json"
+      "dev": "bun --watch src/index.ts",
+      "build": "bun build src/index.ts --outdir dist --target bun",
+      "start": "bun dist/index.js",
+      "typecheck": "tsc -p tsconfig.json"
     },
     "dependencies": {
-        "dotenv": "^16.6.1",
-        "express": "^4.21.2"
+      "dotenv": "^16.6.1",
+      "express": "^5.1.0"
     },
     "devDependencies": {
-        "@types/bun": "latest",
-        "@types/express": "^5.0.1",
-        "typescript": "^5.9.3"
+      "@types/bun": "latest",
+      "@types/express": "^5.0.1",
+      "typescript": "^5.9.3"
     }
-}
+  }
