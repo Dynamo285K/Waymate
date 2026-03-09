@@ -1,5 +1,5 @@
 export class HealthRepository {
-  getStatus() {
-    return { status: "ok" };
-  }
+    getStatus() {
+        return { status: "ok" };
+    }
 }
