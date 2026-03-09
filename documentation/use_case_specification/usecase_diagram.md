@@ -55,7 +55,7 @@ graph LR
     unUser --> register
     unUser --> login
     unUser --> show
-    
+
     regUser --> profile
     regUser --> chat
     regUser --> report

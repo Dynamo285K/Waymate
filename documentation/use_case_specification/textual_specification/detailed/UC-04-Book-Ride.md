@@ -4,7 +4,7 @@ ID: UC-04
 
 Actor: Passenger
 
-Preconditions: * User is logged in as a Registered User (Passenger).
+Preconditions: \* User is logged in as a Registered User (Passenger).
 
     User has selected a specific ride from UC-03: Show Available Rides.
 
