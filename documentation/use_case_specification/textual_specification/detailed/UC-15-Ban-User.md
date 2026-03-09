@@ -1,4 +1,3 @@
-
 Use Case Name: Ban User
 
 ID: UC-15

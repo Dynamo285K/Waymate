@@ -4,7 +4,7 @@ ID: UC-01
 
 Actor: Unregistered User (Primary), Google Auth Service (Secondary)
 
-Preconditions: * The user has an active internet connection.
+Preconditions: \* The user has an active internet connection.
 
     The user is currently on the "Login" page of the application.
 

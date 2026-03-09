@@ -2,7 +2,7 @@
     "name": "@repo/shared",
     "private": true,
     "scripts": {
-      "build": "echo shared-build",
-      "typecheck": "echo shared-typecheck"
+        "build": "echo shared-build",
+        "typecheck": "echo shared-typecheck"
     }
-  }
+}
