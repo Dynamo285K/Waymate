@@ -1,0 +1,10 @@
+
+{
+  "name": "@repo/api",
+  "private": true,
+  "scripts": {
+    "dev": "echo api-dev",
+    "build": "echo api-build",
+    "typecheck": "echo api-typecheck"
+  }
+}

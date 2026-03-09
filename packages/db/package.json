@@ -1,0 +1,11 @@
+
+{
+    "name": "@repo/db",
+    "private": true,
+    "scripts": {
+      "build": "echo db-build",
+      "typecheck": "echo db-typecheck",
+      "db:generate": "echo db-generate",
+      "db:migrate": "echo db-migrate"
+    }
+  }

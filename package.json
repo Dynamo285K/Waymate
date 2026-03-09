@@ -1,0 +1,21 @@
+{
+  "name": "Waymate",
+  "private": true,
+  "packageManager": "bun@1.3.10",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "typecheck": "turbo typecheck",
+    "db:generate": "turbo db:generate",
+    "db:migrate": "turbo db:migrate"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "turbo": "^2.8.14",
+    "typescript": "^5.9.3"
+  }
+}
