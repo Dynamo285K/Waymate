@@ -1,0 +1,9 @@
+node_modules
+dist
+build
+coverage
+.turbo
+bun.lock
+*.db
+*.sqlite
+*.sqlite3
