@@ -1,11 +1,10 @@
-
 Use Case Name: Register
 
 ID: UC-02
 
 Actor: Unregistered User
 
-Preconditions: * The user is on the "Registration" page.
+Preconditions: \* The user is on the "Registration" page.
 
     The user does not already have an active account with the provided email.
 

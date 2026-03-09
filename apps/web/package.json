@@ -1,10 +1,9 @@
-
 {
     "name": "@repo/web",
     "private": true,
     "scripts": {
-      "dev": "echo web-dev",
-      "build": "echo web-build",
-      "typecheck": "echo web-typecheck"
+        "dev": "echo web-dev",
+        "build": "echo web-build",
+        "typecheck": "echo web-typecheck"
     }
-  }
+}

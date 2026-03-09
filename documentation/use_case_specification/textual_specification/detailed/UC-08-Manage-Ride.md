@@ -1,4 +1,3 @@
-
 Use Case Name: Manage Ride
 
 ID: UC-08
