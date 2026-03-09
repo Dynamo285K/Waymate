@@ -1,9 +1,17 @@
+variables:
+  PIPELINE_NAME: "Waymate CI"
+
 workflow:
+  name: $PIPELINE_NAME
   rules:
     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push"
       when: never
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      variables:
+        PIPELINE_NAME: "Waymate MR Pipeline"
     - if: $CI_PIPELINE_SOURCE == "push"
+      variables:
+        PIPELINE_NAME: "Waymate Branch Pipeline"
 
 stages:
   - verify
@@ -20,22 +28,22 @@ default:
     - bun --version
     - bun ci
 
-lint:
+verify:lint:
   stage: verify
   script:
     - bun run lint
 
-format_check:
+verify:format:
   stage: verify
   script:
     - bun run format:check
 
-typecheck:
+verify:typecheck:
   stage: verify
   script:
     - bun run typecheck
 
-build:
+verify:build:
   stage: verify
   script:
     - bun run build
