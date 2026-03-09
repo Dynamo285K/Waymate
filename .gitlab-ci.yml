@@ -1,4 +1,3 @@
-
 workflow:
   rules:
     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push"
@@ -11,6 +10,8 @@ stages:
 
 default:
   image: oven/bun:1.3.10
+  tags:
+    - shared-fi
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
