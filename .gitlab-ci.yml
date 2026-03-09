@@ -28,22 +28,22 @@ default:
         - bun --version
         - bun ci
 
-verify:lint:
+lint:
     stage: verify
     script:
         - bun run lint
 
-verify:format:
+format:
     stage: verify
     script:
         - bun run format:check
 
-verify:typecheck:
+typecheck:
     stage: verify
     script:
         - bun run typecheck
 
-verify:build:
+build:
     stage: verify
     script:
         - bun run build
