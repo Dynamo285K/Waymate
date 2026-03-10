@@ -3,27 +3,53 @@ import { UserStatusIdSchema } from "./user-statuses.schema";
 
 export const UserIdSchema = z.uuid();
 
-export const EmailSchema = z.email();
+export const EmailSchema = z.email().max(254);
 
-export const PhoneSchema = z.string().regex(/^\+[1-9]\d{1,14}$/);
+export const PhoneSchema = z
+    .string()
+    .regex(/^\+[1-9]\d{1,14}$/)
+    .max(16);
+
+export const CapitalizedNameSchema = z
+    .string()
+    .trim()
+    .min(1)
+    .max(20)
+    .regex(/^\p{Lu}/u, "Must start with a capital letter")
+    .regex(/^\S+$/, "Must not contain spaces");
+
+export const DisplayNameSchema = z
+    .string()
+    .trim()
+    .min(1)
+    .max(20)
+    .regex(/^\S+$/, "Must not contain spaces");
+
+export const AvgRatingSchema = z
+    .number()
+    .min(0)
+    .max(5)
+    .refine((value) => Math.abs(value * 100 - Math.round(value * 100)) < 1e-8, {
+        message: "avg_rating can have at most 2 decimal places",
+    });
 
 export const UserEntitySchema = z.object({
     // Identity and authentication
     id: UserIdSchema,
     email: EmailSchema,
-    password_hash: z.string(),
+    password_hash: z.string().min(1).max(255),
     user_status_id: UserStatusIdSchema,
 
     // Profile information
-    first_name: z.string(),
-    last_name: z.string(),
-    display_name: z.string(),
+    first_name: CapitalizedNameSchema,
+    last_name: CapitalizedNameSchema,
+    display_name: DisplayNameSchema,
     phone: PhoneSchema.nullable(),
     profile_photo_url: z.url().nullable(),
-    bio: z.string().nullable(),
+    bio: z.string().max(500).nullable(),
 
     // Ratings and activity metrics
-    avg_rating: z.number().min(0).max(5),
+    avg_rating: AvgRatingSchema,
     rating_count: z.number().int().min(0),
     completed_rides_count: z.number().int().min(0),
     no_show_count: z.number().int().min(0),

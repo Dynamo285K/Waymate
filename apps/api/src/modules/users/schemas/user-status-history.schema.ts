@@ -10,7 +10,7 @@ export const UserStatusHistoryEntitySchema = z.object({
     old_status_id: UserStatusIdSchema.nullable(),
     new_status_id: UserStatusIdSchema,
     changed_by_user_id: UserIdSchema.nullable(),
-    reason: z.string().nullable(),
+    reason: z.string().max(500).nullable(),
     created_at: z.date(),
 });
 
