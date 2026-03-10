@@ -11,6 +11,6 @@
  * - Transaction-only: aggregate synchronization (avg_rating, rating_count)
  * - Transaction-only: atomic consistency between users.user_status_id and user_status_history writes
  */
-export * from './user.schema';
-export * from './user-statuses.schema';
-export * from './user-status-history.schema';
+export * from "./user.schema";
+export * from "./user-statuses.schema";
+export * from "./user-status-history.schema";

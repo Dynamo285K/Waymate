@@ -1,19 +1,17 @@
-import { z } from 'zod';
-import { UserIdSchema } from './user.schema';
-import { UserStatusSchema } from './user-statuses.schema';
+import { z } from "zod";
+import { UserIdSchema } from "./user.schema";
+import { UserStatusIdSchema } from "./user-statuses.schema";
 
-const UserStatusHistoryIdSchema = z.string().uuid();
+const UserStatusHistoryIdSchema = z.uuid();
 
 export const UserStatusHistoryEntitySchema = z.object({
-  id: UserStatusHistoryIdSchema,
-  user_id: UserIdSchema,
-  old_status_id: UserStatusSchema.nullable(),
-  new_status_id: UserStatusSchema,
-  changed_by_user_id: UserIdSchema.nullable(),
-  reason: z.string().nullable(),
-  created_at: z.date(),
-  
+    id: UserStatusHistoryIdSchema,
+    user_id: UserIdSchema,
+    old_status_id: UserStatusIdSchema.nullable(),
+    new_status_id: UserStatusIdSchema,
+    changed_by_user_id: UserIdSchema.nullable(),
+    reason: z.string().nullable(),
+    created_at: z.date(),
 });
-
 
 export type UserStatusHistory = z.infer<typeof UserStatusHistoryEntitySchema>;
