@@ -5,4 +5,14 @@ export const CityInputSchema = z
     .trim()
     .min(1)
     .max(100)
-    .regex(/^[^\x00-\x1F\x7F]+$/, "City contains invalid control characters");
+    .refine(
+        (value) => {
+            return [...value].every((char) => {
+                const code = char.charCodeAt(0);
+                return !((code >= 0 && code <= 31) || code === 127);
+            });
+        },
+        {
+            message: "City contains invalid control characters",
+        }
+    );
