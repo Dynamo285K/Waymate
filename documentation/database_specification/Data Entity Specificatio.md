@@ -11,8 +11,21 @@ _Primary registry for participants. Optimized for identity, profile display, mod
 - **`UNIQUE INDEX ON lower(email)`**: Primary login credential must be unique case-insensitively.
 - **`CHECK (rating_count >= 0)`**
 - **`CHECK (avg_rating BETWEEN 0 AND 5)`**
+- **`CHECK (char_length(email) <= 254)`**
+- **`CHECK (char_length(password_hash) BETWEEN 1 AND 255)`**
+- **`CHECK (char_length(first_name) BETWEEN 1 AND 20)`**
+- **`CHECK (char_length(last_name) BETWEEN 1 AND 20)`**
+- **`CHECK (first_name ~ '^[[:upper:]]' AND first_name !~ '\s')`**
+- **`CHECK (last_name ~ '^[[:upper:]]' AND last_name !~ '\s')`**
+- **`CHECK (char_length(display_name) BETWEEN 1 AND 20 AND display_name !~ '\s')`**
+- **`CHECK (phone IS NULL OR (phone ~ '^\+[1-9][0-9]{1,14}$' AND char_length(phone) <= 16))`**
+- **`CHECK (bio IS NULL OR char_length(bio) <= 500)`**
+- **`CHECK (avg_rating = round(avg_rating, 2))`**
 - **`CHECK (completed_rides_count >= 0)`**
 - **`CHECK (no_show_count >= 0)`**
+
+- `first_name` and `last_name` capitalization checks in SQL can be locale/collation dependent; application validation remains the canonical behavior for edge-case Unicode names.
+- `profile_photo_url` URL validation is currently better enforced in the application layer than via a database `CHECK` constraint.
 - Aggregate counters and rating fields are stored as denormalized current-state values and must be synchronized transactionally with their source events.
 
 | Attribute               | Type         | PK/FK  | Nullable | Indexed                                           | Description                                                                            |
@@ -48,6 +61,9 @@ _Vehicle details with operational display fields, activation state, and internat
 
 - **`UNIQUE (spz, country_code)`**
 - **`CHECK (seats_total > 0)`**
+- **`CHECK (char_length(spz) BETWEEN 1 AND 16)`**
+- **`CHECK (color IS NULL OR char_length(color) BETWEEN 1 AND 50)`**
+- **`CHECK (country_code ~ '^[A-Z]{3}$')`**
 
 | Attribute      | Type      | PK/FK  | Nullable | Indexed                               | Description                               |
 | :------------- | :-------- | :----- | :------- | :------------------------------------ | :---------------------------------------- |
@@ -72,6 +88,15 @@ _The core itinerary record enriched with product, search, and operational attrib
 **Constraints:**
 
 - **`CHECK (available_seats_cached >= 0)`**
+- **`CHECK (char_length(origin_city) BETWEEN 1 AND 100)`**
+- **`CHECK (char_length(destination_city) BETWEEN 1 AND 100)`**
+- **`CHECK (description IS NULL OR char_length(description) <= 500)`**
+- **`CHECK (arrival_estimate_at IS NULL OR arrival_estimate_at >= departure_at)`**
+- **`CHECK ((origin_lat IS NULL) = (origin_lng IS NULL))`**
+- **`CHECK ((destination_lat IS NULL) = (destination_lng IS NULL))`**
+- **`CHECK (origin_country_code IS NULL OR origin_country_code ~ '^[A-Z]{3}$')`**
+- **`CHECK (destination_country_code IS NULL OR destination_country_code ~ '^[A-Z]{3}$')`**
+- **`CHECK (currency ~ '^[A-Z]{3}$')`**
 - `driver_id` should be validated against `cars.owner_id` in application logic or trigger.
 - Origin and destination search fields must remain synchronized with boundary stops.
 - `origin_stop_id` and `destination_stop_id` may be nullable during draft creation, but must be non-null before a ride becomes publicly searchable or bookable.
@@ -120,6 +145,10 @@ _Defines origin, intermediate, and destination points along the route._
 - **`CHECK (stop_order >= 0)`**
 - **`CHECK (lat BETWEEN -90 AND 90)`**
 - **`CHECK (lng BETWEEN -180 AND 180)`**
+- **`CHECK (char_length(address) BETWEEN 1 AND 255)`**
+- **`CHECK (char_length(city) BETWEEN 1 AND 100)`**
+- **`CHECK (planned_arrival_at IS NULL OR planned_departure_at IS NULL OR planned_departure_at >= planned_arrival_at)`**
+- **`CHECK (country_code IS NULL OR country_code ~ '^[A-Z]{3}$')`**
 
 | Attribute              | Type         | PK/FK  | Nullable | Indexed                                | Description                            |
 | :--------------------- | :----------- | :----- | :------- | :------------------------------------- | :------------------------------------- |
@@ -146,8 +175,13 @@ _Defines optional published prices for selected ride segments. The pricing model
 
 - **`UNIQUE (ride_id, start_stop_id, end_stop_id)`**
 - **`CHECK (amount >= 0)`**
+- **`CHECK (start_stop_order >= 0)`**
+- **`CHECK (end_stop_order >= 0)`**
 - **`CHECK (start_stop_id <> end_stop_id)`**
 - **`CHECK (start_stop_order < end_stop_order)`**
+- **`CHECK (amount <= 99999999.99)`**
+- **`CHECK (amount = round(amount, 2))`**
+- **`CHECK (currency ~ '^[A-Z]{3}$')`**
 - Composite FK `(start_stop_id, ride_id)` → `ride_stops(id, ride_id)`
 - Composite FK `(end_stop_id, ride_id)` → `ride_stops(id, ride_id)`
 
@@ -176,9 +210,15 @@ _Passenger seat reservations between specific stops, including immutable pricing
 **Constraints:**
 
 - **`CHECK (pickup_stop_id <> dropoff_stop_id)`**
+- **`CHECK (pickup_order >= 0)`**
+- **`CHECK (dropoff_order >= 0)`**
 - **`CHECK (pickup_order < dropoff_order)`**
 - **`CHECK (seat_count > 0)`**
 - **`CHECK (price_amount >= 0)`**
+- **`CHECK (price_amount <= 99999999.99)`**
+- **`CHECK (price_amount = round(price_amount, 2))`**
+- **`CHECK (cancellation_reason IS NULL OR char_length(cancellation_reason) <= 500)`**
+- **`CHECK (currency ~ '^[A-Z]{3}$')`**
 - Composite FK `(pickup_stop_id, ride_id)` → `ride_stops(id, ride_id)`
 - Composite FK `(dropoff_stop_id, ride_id)` → `ride_stops(id, ride_id)`
 - Only one active booking per passenger per ride is allowed. “Active” means a non-deleted booking row representing the current booking record for that ride-passenger pair.
@@ -331,6 +371,10 @@ _Tracks internal notification delivery for app inbox and future orchestration._
 
 _Tracks user moderation and activation lifecycle changes._
 
+**Constraints:**
+
+- **`CHECK (reason IS NULL OR char_length(reason) <= 500)`**
+
 | Attribute            | Type      | PK/FK  | Nullable | Indexed                      | Description                                          |
 | :------------------- | :-------- | :----- | :------- | :--------------------------- | :--------------------------------------------------- |
 | `id`                 | UUID      | **PK** | No       | `Yes — primary key`          | Unique identifier.                                   |
@@ -347,6 +391,10 @@ _Tracks user moderation and activation lifecycle changes._
 
 _Tracks ride lifecycle changes such as planning, cancellation, and completion._
 
+**Constraints:**
+
+- **`CHECK (reason IS NULL OR char_length(reason) <= 500)`**
+
 | Attribute            | Type      | PK/FK  | Nullable | Indexed                      | Description                                        |
 | :------------------- | :-------- | :----- | :------- | :--------------------------- | :------------------------------------------------- |
 | `id`                 | UUID      | **PK** | No       | `Yes — primary key`          | Unique identifier.                                 |
@@ -362,6 +410,10 @@ _Tracks ride lifecycle changes such as planning, cancellation, and completion._
 ## 14. Booking Status History (`booking_status_history`)
 
 _Tracks booking lifecycle changes such as confirmation, rejection, cancellation, and no-show handling._
+
+**Constraints:**
+
+- **`CHECK (reason IS NULL OR char_length(reason) <= 500)`**
 
 | Attribute            | Type      | PK/FK  | Nullable | Indexed                        | Description                                              |
 | :------------------- | :-------- | :----- | :------- | :----------------------------- | :------------------------------------------------------- |
