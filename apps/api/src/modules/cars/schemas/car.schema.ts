@@ -1,8 +1,7 @@
 import { z } from "zod";
-import { UserIdSchema } from "../../users/schemas/user.schema";
+import { CarIdSchema } from "./car-id.schema";
+import { UserIdSchema } from "../../users/schemas/user-id.schema";
 import { CountryCodeSchema } from "../../../shared/schemas";
-
-export const CarIdSchema = z.uuid();
 
 export const CarEntitySchema = z.object({
     id: CarIdSchema,

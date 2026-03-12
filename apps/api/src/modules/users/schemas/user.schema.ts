@@ -1,31 +1,28 @@
 import { z } from "zod";
+import { UserIdSchema } from "./user-id.schema";
 import { UserStatusIdSchema } from "./user-statuses.schema";
 
-export const UserIdSchema = z.uuid();
+const EmailSchema = z.email().max(254);
 
-export const EmailSchema = z.email().max(254);
-
-export const PhoneSchema = z
+const PhoneSchema = z
     .string()
     .regex(/^\+[1-9]\d{1,14}$/)
     .max(16);
 
-export const CapitalizedNameSchema = z
+const CapitalizedNameSchema = z
     .string()
-    .trim()
     .min(1)
     .max(20)
     .regex(/^\p{Lu}/u, "Must start with a capital letter")
     .regex(/^\S+$/, "Must not contain spaces");
 
-export const DisplayNameSchema = z
+const DisplayNameSchema = z
     .string()
-    .trim()
     .min(1)
     .max(20)
     .regex(/^\S+$/, "Must not contain spaces");
 
-export const AvgRatingSchema = z
+const AvgRatingSchema = z
     .number()
     .min(0)
     .max(5)

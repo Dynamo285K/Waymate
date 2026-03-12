@@ -17,7 +17,7 @@ export const UserStatusCodeSchema = z.enum([
     "DELETED",
 ]);
 
-export const UserStatusCodeToIdMap = {
+export const userStatusCodeToIdMap = {
     PENDING: 1,
     ACTIVE: 2,
     SUSPENDED: 3,
@@ -25,7 +25,7 @@ export const UserStatusCodeToIdMap = {
     DELETED: 5,
 } as const satisfies Record<z.infer<typeof UserStatusCodeSchema>, number>;
 
-export const UserStatusIdToCodeMap = {
+export const userStatusIdToCodeMap = {
     1: "PENDING",
     2: "ACTIVE",
     3: "SUSPENDED",

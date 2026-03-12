@@ -1,12 +1,11 @@
 import { z } from "zod";
+import { PriceIdSchema } from "./price-id.schema";
 import { RideIdSchema } from "./ride-id.schema";
 import { RideStopIdSchema } from "./ride-stop.schema";
 import {
     CurrencySchema,
     Decimal10_2NonNegativeSchema,
 } from "../../../shared/schemas";
-
-export const PriceIdSchema = z.uuid();
 
 export const PriceEntitySchema = z
     .object({

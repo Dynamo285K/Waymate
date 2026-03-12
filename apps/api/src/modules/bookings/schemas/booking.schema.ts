@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { UserIdSchema } from "../../users/schemas/user.schema";
+import { UserIdSchema } from "../../users/schemas/user-id.schema";
 import { BookingStatusIdSchema } from "./booking-statuses.schema";
 import { BookingIdSchema } from "./booking-id.schema";
 import { RideIdSchema } from "../../rides/schemas/ride-id.schema";

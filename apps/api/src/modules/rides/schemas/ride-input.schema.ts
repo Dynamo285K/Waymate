@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CarIdSchema } from "../../cars/schemas/car.schema";
+import { CarIdSchema } from "../../cars/schemas/car-id.schema";
 import {
     CityInputSchema,
     CountryCodeInputSchema,
