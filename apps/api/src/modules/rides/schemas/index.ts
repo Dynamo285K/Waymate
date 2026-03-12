@@ -4,6 +4,7 @@ export * from "./ride.schema";
 export * from "./ride-input.schema";
 export * from "./ride-stop.schema";
 export * from "./ride-stop-input.schema";
+export * from "./price-id.schema";
 export * from "./price.schema";
 export * from "./price-input.schema";
 export * from "./ride-status-history.schema";

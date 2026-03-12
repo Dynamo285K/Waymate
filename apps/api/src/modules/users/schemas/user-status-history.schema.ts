@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { UserIdSchema } from "./user.schema";
+import { UserIdSchema } from "./user-id.schema";
 import { UserStatusIdSchema } from "./user-statuses.schema";
 
 const UserStatusHistoryIdSchema = z.uuid();
