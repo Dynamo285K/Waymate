@@ -1,17 +1,13 @@
-import express from "express";
+import { Elysia } from "elysia";
 import { env } from "./config/env";
-import { healthRouter } from "./modules/health/health.routes";
 
-const app = express();
+const app = new Elysia()
+    .get("/", () => ({
+        message: "Waymate API is running",
+    }))
+    .get("/health", () => ({
+        status: "ok",
+    }))
+    .listen(env.PORT);
 
-app.use(express.json());
-
-app.get("/", (_req, res) => {
-    res.json({ message: "Waymate API is running" });
-});
-
-app.use("/health", healthRouter);
-
-app.listen(env.PORT, () => {
-    console.log(`API running on http://localhost:${env.PORT}`);
-});
+console.log(`API running on http://${app.server?.hostname}:${app.server?.port}`);
