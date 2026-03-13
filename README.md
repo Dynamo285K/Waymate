@@ -9,20 +9,22 @@ The repository uses **Bun workspaces** together with **Turborepo** to manage mul
 This repository is currently prepared as the technical foundation for the project.  
 The monorepo structure has already been initialized and verified.
 
-The actual implementation of the frontend, backend, and database layer will be added incrementally as project functionality is developed.
+The actual implementation of the frontend, backend, database layer, and shared UI library will be added incrementally as project functionality is developed.
 
 ## Tech Stack
 
 - **Bun** — package manager and runtime
 - **Turborepo** — monorepo task orchestration
-- **TypeScript** — shared language for the codebase
+- **TypeScript** — shared language across the codebase
 
-Planned application stack:
+Current / planned application stack:
 
 - **React** — frontend
 - **Vite** — frontend tooling and dev server
-- **Express** — backend API
+- **Tailwind CSS** — frontend styling
+- **Elysia** — backend API
 - **Drizzle ORM** — database access layer
+- **Custom UI component library** — shared UI components in a separate repository `waymate-ui`
 
 ## Repository Structure
 
@@ -31,11 +33,12 @@ Planned application stack:
       api/              # backend application
 
     packages/
+      ui/               # custom UI component library
       db/               # database layer
       shared/           # shared types and utilities
 
     documentation/      # project documentation
-    UI_design/          # UI/UX design assets
+    ui-design/          # UI/UX design assets
 
     package.json        # root workspace configuration
     turbo.json          # Turborepo task configuration
@@ -43,16 +46,6 @@ Planned application stack:
     README.md
     .gitignore
     bun.lock
-
-## Requirements
-
-Before working with this repository, make sure you have the following installed:
-
-- **Git**
-- **Bun**
-- a code editor such as **VS Code**
-
-## Getting Started
 
 ### 1. Clone the repository
 
