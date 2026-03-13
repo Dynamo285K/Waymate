@@ -9,4 +9,6 @@ const app = new Elysia()
     .use(healthRoutes)
     .listen(env.PORT);
 
-console.log(`API running on http://${app.server?.hostname}:${app.server?.port}`);
+console.log(
+    `API running on http://${app.server?.hostname}:${app.server?.port}`
+);
