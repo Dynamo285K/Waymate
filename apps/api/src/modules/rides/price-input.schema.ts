@@ -3,7 +3,7 @@ import { RideStopIdSchema } from "./ride-stop.schema";
 import {
     CurrencyInputSchema,
     Decimal10_2NonNegativeSchema,
-} from "../../../shared/schemas";
+} from "../../shared/schemas";
 
 export const PriceInputSchema = z
     .object({

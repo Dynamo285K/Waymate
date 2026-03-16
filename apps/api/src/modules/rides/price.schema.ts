@@ -5,7 +5,7 @@ import { RideStopIdSchema } from "./ride-stop.schema";
 import {
     CurrencySchema,
     Decimal10_2NonNegativeSchema,
-} from "../../../shared/schemas";
+} from "../../shared/schemas";
 
 export const PriceEntitySchema = z
     .object({

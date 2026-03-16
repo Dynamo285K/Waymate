@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { BookingIdSchema } from "./booking-id.schema";
-import { UserIdSchema } from "../../users/schemas/user-id.schema";
+import { UserIdSchema } from "../users/user-id.schema";
 import { BookingStatusIdSchema } from "./booking-statuses.schema";
 
 export const BookingStatusHistoryIdSchema = z.uuid();

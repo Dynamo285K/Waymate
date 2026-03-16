@@ -2,7 +2,7 @@ import { z } from "zod";
 import {
     CityInputSchema,
     CountryCodeInputSchema,
-} from "../../../shared/schemas";
+} from "../../shared/schemas";
 
 const AddressInputSchema = z.string().trim().min(1).max(255);
 

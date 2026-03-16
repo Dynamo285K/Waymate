@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { RideIdSchema } from "../../rides/schemas/ride-id.schema";
-import { RideStopIdSchema } from "../../rides/schemas/ride-stop.schema";
+import { RideIdSchema } from "../rides/ride-id.schema";
+import { RideStopIdSchema } from "../rides/ride-stop.schema";
 
 export const BookingInputSchema = z
     .object({

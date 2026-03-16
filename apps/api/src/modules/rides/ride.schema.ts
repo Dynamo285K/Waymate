@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { RideStatusIdSchema } from "./ride-statuses.schema";
 import { RideStopIdSchema } from "./ride-stop.schema";
-import { UserIdSchema } from "../../users/schemas/user-id.schema";
-import { CarIdSchema } from "../../cars/schemas/car-id.schema";
+import { UserIdSchema } from "../users/user-id.schema";
+import { CarIdSchema } from "../cars/car-id.schema";
 import { RideIdSchema } from "./ride-id.schema";
-import { CountryCodeSchema, CurrencySchema } from "../../../shared/schemas";
+import { CountryCodeSchema, CurrencySchema } from "../../shared/schemas";
 
 const CitySchema = z.string().min(1).max(100);
 
