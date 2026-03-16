@@ -14,6 +14,7 @@
  */
 export * from "./user-id.schema";
 export * from "./user.schema";
+export * from "./user-output.schema";
 export * from "./user-input.schema";
 export * from "./user-statuses.schema";
 export * from "./user-status-history.schema";
