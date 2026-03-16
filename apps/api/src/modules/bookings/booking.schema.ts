@@ -4,10 +4,7 @@ import { BookingStatusIdSchema } from "./booking-statuses.schema";
 import { BookingIdSchema } from "./booking-id.schema";
 import { RideIdSchema } from "../rides/ride-id.schema";
 import { RideStopIdSchema } from "../rides/ride-stop.schema";
-import {
-    CurrencySchema,
-    Decimal10_2NonNegativeSchema,
-} from "../../shared/schemas";
+import { CurrencySchema, Decimal10_2NonNegativeSchema } from "../../shared";
 
 export const BookingEntitySchema = z
     .object({

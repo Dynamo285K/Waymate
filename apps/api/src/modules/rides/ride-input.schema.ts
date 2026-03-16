@@ -4,7 +4,7 @@ import {
     CityInputSchema,
     CountryCodeInputSchema,
     CurrencyInputSchema,
-} from "../../shared/schemas";
+} from "../../shared";
 
 const DescriptionInputSchema = z
     .string()

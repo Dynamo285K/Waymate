@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { CarIdSchema } from "./car-id.schema";
 import { UserIdSchema } from "../users/user-id.schema";
-import { CountryCodeSchema } from "../../shared/schemas";
+import { CountryCodeSchema } from "../../shared";
 
 export const CarEntitySchema = z.object({
     id: CarIdSchema,

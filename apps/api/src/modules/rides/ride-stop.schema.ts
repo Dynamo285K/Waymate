@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { RideIdSchema } from "./ride-id.schema";
-import { CountryCodeSchema } from "../../shared/schemas";
+import { CountryCodeSchema } from "../../shared";
 
 export const RideStopIdSchema = z.uuid();
 
