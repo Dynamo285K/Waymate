@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { UserIdSchema } from "../../users/schemas/user-id.schema";
+import { UserIdSchema } from "../users/user-id.schema";
 import { RideIdSchema } from "./ride-id.schema";
 import { RideStatusIdSchema } from "./ride-statuses.schema";
 

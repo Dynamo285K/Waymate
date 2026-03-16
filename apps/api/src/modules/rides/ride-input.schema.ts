@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { CarIdSchema } from "../../cars/schemas/car-id.schema";
+import { CarIdSchema } from "../cars/car-id.schema";
 import {
     CityInputSchema,
     CountryCodeInputSchema,
     CurrencyInputSchema,
-} from "../../../shared/schemas";
+} from "../../shared";
 
 const DescriptionInputSchema = z
     .string()

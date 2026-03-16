@@ -1,13 +1,10 @@
 import { z } from "zod";
-import { UserIdSchema } from "../../users/schemas/user-id.schema";
+import { UserIdSchema } from "../users/user-id.schema";
 import { BookingStatusIdSchema } from "./booking-statuses.schema";
 import { BookingIdSchema } from "./booking-id.schema";
-import { RideIdSchema } from "../../rides/schemas/ride-id.schema";
-import { RideStopIdSchema } from "../../rides/schemas/ride-stop.schema";
-import {
-    CurrencySchema,
-    Decimal10_2NonNegativeSchema,
-} from "../../../shared/schemas";
+import { RideIdSchema } from "../rides/ride-id.schema";
+import { RideStopIdSchema } from "../rides/ride-stop.schema";
+import { CurrencySchema, Decimal10_2NonNegativeSchema } from "../../shared";
 
 export const BookingEntitySchema = z
     .object({
