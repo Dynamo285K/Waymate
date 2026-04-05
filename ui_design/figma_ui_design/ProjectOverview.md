@@ -12,6 +12,10 @@ The following main views/pages were prepared:
 - ChatPage
 - RideRequestsPage
 - OfferRidePage
+- Login Page
+- Register Page
+- Ratings Page
+- Profile Page
 
 These pages cover the core functionality of the application, including browsing available rides, offering rides, managing personal rides, communicating through chat, and handling ride requests.
 
