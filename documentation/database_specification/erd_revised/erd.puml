@@ -1,0 +1,295 @@
+@startuml
+hide circle
+left to right direction
+
+skinparam linetype ortho
+skinparam nodesep 100
+skinparam ranksep 120
+skinparam shadowing false
+
+entity "USER" as USER {
+  *id : UUID <<PK>>
+  --
+  email : VARCHAR
+  password_hash : VARCHAR
+  first_name : VARCHAR
+  last_name : VARCHAR
+  display_name : VARCHAR
+  phone : VARCHAR
+  profile_photo_url : VARCHAR
+  bio : TEXT
+  avg_rating : NUMERIC
+  rating_count : INTEGER
+  completed_rides_count : INTEGER
+  no_show_count : INTEGER
+  email_verified_at : TIMESTAMP
+  phone_verified_at : TIMESTAMP
+  last_active_at : TIMESTAMP
+  user_status : VARCHAR
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+  deleted_at : TIMESTAMP
+}
+
+entity "CAR" as CAR {
+  *id : UUID <<PK>>
+  --
+  owner_id : UUID <<FK>>
+  model_id : INTEGER <<FK>>
+  spz : VARCHAR
+  country_code : VARCHAR
+  color : VARCHAR
+  seats_total : INTEGER
+  is_active : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+  deleted_at : TIMESTAMP
+}
+
+entity "CAR_MODEL" as CAR_MODEL {
+  *id : INTEGER <<PK>>
+  --
+  brand : VARCHAR
+  model_name : VARCHAR
+}
+
+entity "RIDE" as RIDE {
+  *id : UUID <<PK>>
+  --
+  driver_id : UUID <<FK>>
+  car_id : UUID <<FK>>
+  departure_at : TIMESTAMP
+  arrival_estimate_at : TIMESTAMP
+  ride_status : VARCHAR
+  origin_stop_id : UUID <<FK>>
+  destination_stop_id : UUID <<FK>>
+  origin_city : VARCHAR
+  destination_city : VARCHAR
+  origin_country_code : VARCHAR
+  destination_country_code : VARCHAR
+  origin_lat : NUMERIC
+  origin_lng : NUMERIC
+  destination_lat : NUMERIC
+  destination_lng : NUMERIC
+  available_seats : INTEGER
+  currency : VARCHAR
+  description : TEXT
+  instant_booking_enabled : BOOLEAN
+  luggage_allowed : BOOLEAN
+  pets_allowed : BOOLEAN
+  smoking_allowed : BOOLEAN
+  women_only : BOOLEAN
+  max_two_backseat : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+  deleted_at : TIMESTAMP
+}
+
+entity "RIDE_STOP" as RIDE_STOP {
+  *id : UUID <<PK>>
+  --
+  ride_id : UUID <<FK>>
+  address : VARCHAR
+  city : VARCHAR
+  country_code : VARCHAR
+  lat : NUMERIC
+  lng : NUMERIC
+  stop_order : INTEGER
+  planned_arrival_at : TIMESTAMP
+  planned_departure_at : TIMESTAMP
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "PRICE" as PRICE {
+  *id : UUID <<PK>>
+  --
+  ride_id : UUID <<FK>>
+  start_stop_id : UUID <<FK>>
+  end_stop_id : UUID <<FK>>
+  start_stop_order : INTEGER
+  end_stop_order : INTEGER
+  amount : NUMERIC
+  currency : VARCHAR
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "BOOKING" as BOOKING {
+  *id : UUID <<PK>>
+  --
+  passenger_id : UUID <<FK>>
+  ride_id : UUID <<FK>>
+  pickup_stop_id : UUID <<FK>>
+  dropoff_stop_id : UUID <<FK>>
+  pickup_order : INTEGER
+  dropoff_order : INTEGER
+  seat_count : INTEGER
+  booking_status : VARCHAR
+  price_amount : NUMERIC
+  currency : VARCHAR
+  confirmed_at : TIMESTAMP
+  cancelled_at : TIMESTAMP
+  cancelled_by_user_id : UUID <<FK>>
+  cancellation_reason : TEXT
+  no_show_marked_at : TIMESTAMP
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+  deleted_at : TIMESTAMP
+}
+
+entity "REVIEW" as REVIEW {
+  *id : UUID <<PK>>
+  --
+  ride_id : UUID <<FK>>
+  author_id : UUID <<FK>>
+  subject_id : UUID <<FK>>
+  rating : INTEGER
+  comment : TEXT
+  review_status : VARCHAR
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "CONVERSATION" as CONVERSATION {
+  *id : UUID <<PK>>
+  --
+  ride_id : UUID <<FK>>
+  booking_id : UUID <<FK>>
+  conversation_type : VARCHAR
+  driver_id : UUID <<FK>>
+  passenger_id : UUID <<FK>>
+  driver_last_read_at : TIMESTAMP
+  passenger_last_read_at : TIMESTAMP
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+  deleted_at : TIMESTAMP
+}
+
+entity "MESSAGE" as MESSAGE {
+  *id : UUID <<PK>>
+  --
+  conversation_id : UUID <<FK>>
+  sender_id : UUID <<FK>>
+  message_type : VARCHAR
+  content : TEXT
+  sent_at : TIMESTAMP
+  edited_at : TIMESTAMP
+  deleted_at : TIMESTAMP
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "NOTIFICATION" as NOTIFICATION {
+  *id : UUID <<PK>>
+  --
+  user_id : UUID <<FK>>
+  notification_type : VARCHAR
+  reference_entity_type : VARCHAR
+  reference_entity_id : UUID
+  title : VARCHAR
+  body : TEXT
+  delivery_status : VARCHAR
+  read_at : TIMESTAMP
+  sent_at : TIMESTAMP
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "USER_STATUS_HISTORY" as USER_STATUS_HISTORY {
+  *id : UUID <<PK>>
+  --
+  user_id : UUID <<FK>>
+  old_status : VARCHAR
+  new_status : VARCHAR
+  changed_by_user_id : UUID <<FK>>
+  reason : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "RIDE_STATUS_HISTORY" as RIDE_STATUS_HISTORY {
+  *id : UUID <<PK>>
+  --
+  ride_id : UUID <<FK>>
+  old_status : VARCHAR
+  new_status : VARCHAR
+  changed_by_user_id : UUID <<FK>>
+  reason : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "BOOKING_STATUS_HISTORY" as BOOKING_STATUS_HISTORY {
+  *id : UUID <<PK>>
+  --
+  booking_id : UUID <<FK>>
+  old_status : VARCHAR
+  new_status : VARCHAR
+  changed_by_user_id : UUID <<FK>>
+  reason : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "BLOCKLIST" as BLOCKLIST {
+  *id : UUID <<PK>>
+  --
+  blocker_user_id : UUID <<FK>>
+  blocked_user_id : UUID <<FK>>
+  block_reason : VARCHAR
+  block_status : VARCHAR
+  reason_text : TEXT
+  revoked_at : TIMESTAMP
+  revoked_by_user_id : UUID <<FK>>
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+  deleted_at : TIMESTAMP
+}
+
+USER ||--o{ CAR : owns
+CAR_MODEL ||--o{ CAR : classifies
+
+USER ||--o{ RIDE : drives
+CAR ||--o{ RIDE : assigned_to
+
+RIDE ||--o{ RIDE_STOP : has
+RIDE_STOP ||--o{ PRICE : start_stop
+RIDE_STOP ||--o{ PRICE : end_stop
+RIDE ||--o{ PRICE : defines
+
+USER ||--o{ BOOKING : makes
+RIDE ||--o{ BOOKING : receives
+RIDE_STOP ||--o{ BOOKING : pickup_stop
+RIDE_STOP ||--o{ BOOKING : dropoff_stop
+USER ||--o{ BOOKING : cancels
+
+RIDE ||--o{ REVIEW : connected_to
+USER ||--o{ REVIEW : authors
+USER ||--o{ REVIEW : receives
+
+RIDE ||--o{ CONVERSATION : relates_to
+BOOKING ||--o{ CONVERSATION : relates_to
+USER ||--o{ CONVERSATION : driver_in
+USER ||--o{ CONVERSATION : passenger_in
+
+CONVERSATION ||--o{ MESSAGE : contains
+USER ||--o{ MESSAGE : sends
+
+USER ||--o{ NOTIFICATION : receives
+
+USER ||--o{ USER_STATUS_HISTORY : has
+USER ||--o{ USER_STATUS_HISTORY : changed_by
+
+RIDE ||--o{ RIDE_STATUS_HISTORY : has
+USER ||--o{ RIDE_STATUS_HISTORY : changed_by
+
+BOOKING ||--o{ BOOKING_STATUS_HISTORY : has
+USER ||--o{ BOOKING_STATUS_HISTORY : changed_by
+
+USER ||--o{ BLOCKLIST : blocks
+USER ||--o{ BLOCKLIST : is_blocked
+USER ||--o{ BLOCKLIST : revoked_by
+
+RIDE }o--|| RIDE_STOP : start_stop
+RIDE }o--|| RIDE_STOP : end_stop
+
+@enduml
+
