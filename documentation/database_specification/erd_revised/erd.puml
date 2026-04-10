@@ -1,4 +1,5 @@
 @startuml
+!pragma layout smetana
 hide circle
 left to right direction
 
@@ -18,10 +19,6 @@ entity "USER" as USER {
   phone : VARCHAR
   profile_photo_url : VARCHAR
   bio : TEXT
-  avg_rating : NUMERIC
-  rating_count : INTEGER
-  completed_rides_count : INTEGER
-  no_show_count : INTEGER
   email_verified_at : TIMESTAMP
   phone_verified_at : TIMESTAMP
   last_active_at : TIMESTAMP
@@ -61,25 +58,9 @@ entity "RIDE" as RIDE {
   departure_at : TIMESTAMP
   arrival_estimate_at : TIMESTAMP
   ride_status : VARCHAR
-  origin_stop_id : UUID <<FK>>
-  destination_stop_id : UUID <<FK>>
-  origin_city : VARCHAR
-  destination_city : VARCHAR
-  origin_country_code : VARCHAR
-  destination_country_code : VARCHAR
-  origin_lat : NUMERIC
-  origin_lng : NUMERIC
-  destination_lat : NUMERIC
-  destination_lng : NUMERIC
-  available_seats : INTEGER
+  offered_seats : INTEGER
   currency : VARCHAR
   description : TEXT
-  instant_booking_enabled : BOOLEAN
-  luggage_allowed : BOOLEAN
-  pets_allowed : BOOLEAN
-  smoking_allowed : BOOLEAN
-  women_only : BOOLEAN
-  max_two_backseat : BOOLEAN
   created_at : TIMESTAMP
   updated_at : TIMESTAMP
   deleted_at : TIMESTAMP
@@ -107,8 +88,6 @@ entity "PRICE" as PRICE {
   ride_id : UUID <<FK>>
   start_stop_id : UUID <<FK>>
   end_stop_id : UUID <<FK>>
-  start_stop_order : INTEGER
-  end_stop_order : INTEGER
   amount : NUMERIC
   currency : VARCHAR
   created_at : TIMESTAMP
@@ -122,8 +101,6 @@ entity "BOOKING" as BOOKING {
   ride_id : UUID <<FK>>
   pickup_stop_id : UUID <<FK>>
   dropoff_stop_id : UUID <<FK>>
-  pickup_order : INTEGER
-  dropoff_order : INTEGER
   seat_count : INTEGER
   booking_status : VARCHAR
   price_amount : NUMERIC
@@ -157,8 +134,6 @@ entity "CONVERSATION" as CONVERSATION {
   ride_id : UUID <<FK>>
   booking_id : UUID <<FK>>
   conversation_type : VARCHAR
-  driver_id : UUID <<FK>>
-  passenger_id : UUID <<FK>>
   driver_last_read_at : TIMESTAMP
   passenger_last_read_at : TIMESTAMP
   created_at : TIMESTAMP
@@ -250,7 +225,7 @@ CAR_MODEL ||--o{ CAR : classifies
 USER ||--o{ RIDE : drives
 CAR ||--o{ RIDE : assigned_to
 
-RIDE ||--o{ RIDE_STOP : has
+RIDE ||--o{ RIDE_STOP : contains (ordered by stop_order)
 RIDE_STOP ||--o{ PRICE : start_stop
 RIDE_STOP ||--o{ PRICE : end_stop
 RIDE ||--o{ PRICE : defines
@@ -267,8 +242,6 @@ USER ||--o{ REVIEW : receives
 
 RIDE ||--o{ CONVERSATION : relates_to
 BOOKING ||--o{ CONVERSATION : relates_to
-USER ||--o{ CONVERSATION : driver_in
-USER ||--o{ CONVERSATION : passenger_in
 
 CONVERSATION ||--o{ MESSAGE : contains
 USER ||--o{ MESSAGE : sends
@@ -288,8 +261,4 @@ USER ||--o{ BLOCKLIST : blocks
 USER ||--o{ BLOCKLIST : is_blocked
 USER ||--o{ BLOCKLIST : revoked_by
 
-RIDE }o--|| RIDE_STOP : start_stop
-RIDE }o--|| RIDE_STOP : end_stop
-
 @enduml
-

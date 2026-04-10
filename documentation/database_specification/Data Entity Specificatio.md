@@ -1,565 +1,433 @@
-Data Entity Specification
+# Data Entity Specification
+
+This document reflects the revised ERD in `documentation/database_specification/erd_revised/erd.puml`.
 
 ---
 
 ## 1. User Entity (`users`)
 
-_Primary registry for participants. Optimized for identity, profile display, moderation-aware lifecycle handling, and future profile extensibility._
+Primary participant registry for identity, profile, and account lifecycle state.
 
 **Constraints:**
 
-- **`UNIQUE INDEX ON lower(email)`**: Primary login credential must be unique case-insensitively.
-- **`CHECK (rating_count >= 0)`**
-- **`CHECK (avg_rating BETWEEN 0 AND 5)`**
-- **`CHECK (char_length(email) <= 254)`**
-- **`CHECK (char_length(password_hash) BETWEEN 1 AND 255)`**
-- **`CHECK (char_length(first_name) BETWEEN 1 AND 20)`**
-- **`CHECK (char_length(last_name) BETWEEN 1 AND 20)`**
-- **`CHECK (first_name ~ '^[[:upper:]]' AND first_name !~ '\s')`**
-- **`CHECK (last_name ~ '^[[:upper:]]' AND last_name !~ '\s')`**
-- **`CHECK (char_length(display_name) BETWEEN 1 AND 20 AND display_name !~ '\s')`**
-- **`CHECK (phone IS NULL OR (phone ~ '^\+[1-9][0-9]{1,14}$' AND char_length(phone) <= 16))`**
-- **`CHECK (bio IS NULL OR char_length(bio) <= 500)`**
-- **`CHECK (avg_rating = round(avg_rating, 2))`**
-- **`CHECK (completed_rides_count >= 0)`**
-- **`CHECK (no_show_count >= 0)`**
+- `UNIQUE INDEX ON lower(email)`
+- `CHECK (char_length(email) <= 254)`
+- `CHECK (char_length(password_hash) BETWEEN 1 AND 255)`
+- `CHECK (char_length(first_name) BETWEEN 1 AND 20)`
+- `CHECK (char_length(last_name) BETWEEN 1 AND 20)`
+- `CHECK (char_length(display_name) BETWEEN 1 AND 20)`
+- `CHECK (first_name ~ '^[[:upper:]]' AND first_name !~ '\s')`
+- `CHECK (last_name ~ '^[[:upper:]]' AND last_name !~ '\s')`
+- `CHECK (display_name !~ '\s')`
+- `CHECK (phone IS NULL OR (phone ~ '^\+[1-9][0-9]{1,14}$' AND char_length(phone) <= 16))`
+- `CHECK (bio IS NULL OR char_length(bio) <= 500)`
 
-- `first_name` and `last_name` capitalization checks in SQL can be locale/collation dependent; application validation remains the canonical behavior for edge-case Unicode names.
-- `profile_photo_url` URL validation is currently better enforced in the application layer than via a database `CHECK` constraint.
-- Aggregate counters and rating fields are stored as denormalized current-state values and must be synchronized transactionally with their source events.
-
-| Attribute               | Type         | PK/FK  | Nullable | Indexed                                           | Description                                                                            |
-| :---------------------- | :----------- | :----- | :------- | :------------------------------------------------ | :------------------------------------------------------------------------------------- |
-| `id`                    | UUID         | **PK** | No       | `Yes — primary key`                               | Unique identifier.                                                                     |
-| `email`                 | String       |        | No       | `Yes — unique login and lookup`                   | Primary login credential.                                                              |
-| `password_hash`         | String       |        | No       | `No`                                              | Argon2/BCrypt secure hash.                                                             |
-| `first_name`            | String       |        | No       | `No`                                              | First name.                                                                            |
-| `last_name`             | String       |        | No       | `No`                                              | Last name.                                                                             |
-| `display_name`          | String       |        | No       | `Optional — profile search/display`               | Public profile name shown in UI.                                                       |
-| `phone`                 | String       |        | Yes      | `Optional — verification and duplicate detection` | Contact number in E.164 format. Nullable if not provided or not used for verification. |
-| `profile_photo_url`     | String       |        | Yes      | `No`                                              | Public profile image reference.                                                        |
-| `bio`                   | Text         |        | Yes      | `No`                                              | Optional public profile text.                                                          |
-| `avg_rating`            | Decimal(3,2) |        | No       | `No`                                              | Pre-calculated average rating.                                                         |
-| `rating_count`          | Integer      |        | No       | `No`                                              | Total number of reviews received.                                                      |
-| `completed_rides_count` | Integer      |        | No       | `No`                                              | Total completed rides as driver or passenger.                                          |
-| `no_show_count`         | Integer      |        | No       | `No`                                              | Counter for operational trust scoring.                                                 |
-| `email_verified_at`     | Timestamp    |        | Yes      | `Optional — admin filtering`                      | Email verification time.                                                               |
-| `phone_verified_at`     | Timestamp    |        | Yes      | `Optional — admin filtering`                      | Phone verification time. Present only if phone verification was completed.             |
-| `last_active_at`        | Timestamp    |        | Yes      | `No`                                              | Last seen activity time.                                                               |
-| `user_status_id`        | Integer      | **FK** | No       | `Yes — joins and admin filtering`                 | Refers to `user_statuses.id`.                                                          |
-| `created_at`            | Timestamp    |        | No       | `Yes — chronology and admin listing`              | Audit: Registration time.                                                              |
-| `updated_at`            | Timestamp    |        | No       | `No`                                              | Audit: Last profile update time.                                                       |
-| `deleted_at`            | Timestamp    |        | Yes      | `Optional — soft delete filtering`                | Soft delete for compliance.                                                            |
+| Attribute           | Type      | PK/FK  | Nullable | Indexed      | Description                   |
+| :------------------ | :-------- | :----- | :------- | :----------- | :---------------------------- |
+| `id`                | UUID      | **PK** | No       | Yes          | Unique identifier.            |
+| `email`             | String    |        | No       | Yes (unique) | Login credential.             |
+| `password_hash`     | String    |        | No       | No           | Secure password hash.         |
+| `first_name`        | String    |        | No       | No           | User first name.              |
+| `last_name`         | String    |        | No       | No           | User last name.               |
+| `display_name`      | String    |        | No       | Optional     | Public profile name.          |
+| `phone`             | String    |        | Yes      | Optional     | Contact phone number.         |
+| `profile_photo_url` | String    |        | Yes      | No           | Profile image URL.            |
+| `bio`               | Text      |        | Yes      | No           | Optional profile text.        |
+| `email_verified_at` | Timestamp |        | Yes      | Optional     | Email verification timestamp. |
+| `phone_verified_at` | Timestamp |        | Yes      | Optional     | Phone verification timestamp. |
+| `last_active_at`    | Timestamp |        | Yes      | Optional     | Last seen activity.           |
+| `user_status`       | String    |        | No       | Yes          | Account status value.         |
+| `created_at`        | Timestamp |        | No       | Yes          | Record creation time.         |
+| `updated_at`        | Timestamp |        | No       | No           | Last update time.             |
+| `deleted_at`        | Timestamp |        | Yes      | Optional     | Soft-delete timestamp.        |
 
 ---
 
-## 2. Vehicle Entity (`cars`)
+## 2. Car Model Entity (`car_models`)
 
-_Vehicle details with operational display fields, activation state, and international registration support._
+Reference list of vehicle brands and model names.
 
 **Constraints:**
 
-- **`UNIQUE (spz, country_code)`**
-- **`CHECK (seats_total > 0)`**
-- **`CHECK (char_length(spz) BETWEEN 1 AND 16)`**
-- **`CHECK (color IS NULL OR char_length(color) BETWEEN 1 AND 50)`**
-- **`CHECK (country_code ~ '^[A-Z]{3}$')`**
+- `UNIQUE (brand, model_name)`
+- `CHECK (char_length(brand) BETWEEN 1 AND 100)`
+- `CHECK (char_length(model_name) BETWEEN 1 AND 100)`
 
-| Attribute      | Type      | PK/FK  | Nullable | Indexed                               | Description                               |
-| :------------- | :-------- | :----- | :------- | :------------------------------------ | :---------------------------------------- |
-| `id`           | UUID      | **PK** | No       | `Yes — primary key`                   | Unique identifier.                        |
-| `owner_id`     | UUID      | **FK** | No       | `Yes — owner lookup and joins`        | Refers to `users.id`.                     |
-| `model_id`     | Integer   | **FK** | No       | `Optional — joins`                    | Refers to `car_models.id`.                |
-| `spz`          | String    |        | No       | `Yes — uniqueness with country`       | License plate string.                     |
-| `country_code` | String(3) |        | No       | `Yes — uniqueness with plate`         | ISO 3166-1 alpha-3 code.                  |
-| `color`        | String    |        | Yes      | `No`                                  | Vehicle color for rider recognition.      |
-| `seats_total`  | Integer   |        | No       | `No`                                  | Maximum passenger capacity.               |
-| `is_active`    | Boolean   |        | No       | `Optional — active vehicle filtering` | Whether the car can be assigned to rides. |
-| `created_at`   | Timestamp |        | No       | `Optional — chronology`               | Audit: Vehicle creation time.             |
-| `updated_at`   | Timestamp |        | No       | `No`                                  | Audit: Last vehicle update time.          |
-| `deleted_at`   | Timestamp |        | Yes      | `Optional — soft delete filtering`    | Soft delete.                              |
+| Attribute    | Type    | PK/FK  | Nullable | Indexed | Description                 |
+| :----------- | :------ | :----- | :------- | :------ | :-------------------------- |
+| `id`         | Integer | **PK** | No       | Yes     | Unique identifier.          |
+| `brand`      | String  |        | No       | Yes     | Vehicle manufacturer brand. |
+| `model_name` | String  |        | No       | Yes     | Vehicle model name.         |
 
 ---
 
-## 3. Ride Entity (`rides`)
+## 3. Car Entity (`cars`)
 
-_The core itinerary record enriched with product, search, and operational attributes._
+Vehicles owned by users and used for ride publishing.
 
 **Constraints:**
 
-- **`CHECK (available_seats_cached >= 0)`**
-- **`CHECK (char_length(origin_city) BETWEEN 1 AND 100)`**
-- **`CHECK (char_length(destination_city) BETWEEN 1 AND 100)`**
-- **`CHECK (description IS NULL OR char_length(description) <= 500)`**
-- **`CHECK (arrival_estimate_at IS NULL OR arrival_estimate_at >= departure_at)`**
-- **`CHECK ((origin_lat IS NULL) = (origin_lng IS NULL))`**
-- **`CHECK ((destination_lat IS NULL) = (destination_lng IS NULL))`**
-- **`CHECK (origin_country_code IS NULL OR origin_country_code ~ '^[A-Z]{3}$')`**
-- **`CHECK (destination_country_code IS NULL OR destination_country_code ~ '^[A-Z]{3}$')`**
-- **`CHECK (currency ~ '^[A-Z]{3}$')`**
-- `driver_id` should be validated against `cars.owner_id` in application logic or trigger.
-- Origin and destination search fields must remain synchronized with boundary stops.
-- `origin_stop_id` and `destination_stop_id` may be nullable during draft creation, but must be non-null before a ride becomes publicly searchable or bookable.
+- `UNIQUE (spz, country_code)`
+- `CHECK (seats_total > 0)`
+- `CHECK (char_length(spz) BETWEEN 1 AND 16)`
+- `CHECK (country_code ~ '^[A-Z]{3}$')`
+- `CHECK (color IS NULL OR char_length(color) BETWEEN 1 AND 50)`
 
-| Attribute                  | Type         | PK/FK  | Nullable | Indexed                               | Description                                                                 |
-| :------------------------- | :----------- | :----- | :------- | :------------------------------------ | :-------------------------------------------------------------------------- |
-| `id`                       | UUID         | **PK** | No       | `Yes — primary key`                   | Unique trip ID.                                                             |
-| `driver_id`                | UUID         | **FK** | No       | `Yes — joins and driver ride listing` | Refers to `users.id`.                                                       |
-| `car_id`                   | UUID         | **FK** | No       | `Optional — joins`                    | Refers to `cars.id`.                                                        |
-| `departure_at`             | Timestamp    |        | No       | `Yes — time filtering and ordering`   | Scheduled departure time from origin.                                       |
-| `arrival_estimate_at`      | Timestamp    |        | Yes      | `Optional — schedule display`         | Estimated arrival time at destination.                                      |
-| `ride_status_id`           | Integer      | **FK** | No       | `Yes — status filtering`              | Refers to `ride_statuses.id`.                                               |
-| `origin_stop_id`           | UUID         | **FK** | Yes      | `No`                                  | Search optimization pointer to first stop.                                  |
-| `destination_stop_id`      | UUID         | **FK** | Yes      | `No`                                  | Search optimization pointer to last stop.                                   |
-| `origin_city`              | String       |        | No       | `Yes — route search`                  | Denormalized search field.                                                  |
-| `destination_city`         | String       |        | No       | `Yes — route search`                  | Denormalized search field.                                                  |
-| `origin_country_code`      | String(3)    |        | Yes      | `Optional — geographic filtering`     | Denormalized search field.                                                  |
-| `destination_country_code` | String(3)    |        | Yes      | `Optional — geographic filtering`     | Denormalized search field.                                                  |
-| `origin_lat`               | Decimal(9,6) |        | Yes      | `Optional — location search`          | Search optimization coordinate.                                             |
-| `origin_lng`               | Decimal(9,6) |        | Yes      | `Optional — location search`          | Search optimization coordinate.                                             |
-| `destination_lat`          | Decimal(9,6) |        | Yes      | `Optional — location search`          | Search optimization coordinate.                                             |
-| `destination_lng`          | Decimal(9,6) |        | Yes      | `Optional — location search`          | Search optimization coordinate.                                             |
-| `available_seats_cached`   | Integer      |        | No       | `Yes — availability filtering`        | Cached minimum available seats across all currently bookable ride segments. |
-| `currency`                 | String(3)    |        | No       | `No`                                  | Default ride display currency.                                              |
-| `description`              | Text         |        | Yes      | `Optional — text search`              | Driver notes and trip context.                                              |
-| `instant_booking_enabled`  | Boolean      |        | No       | `Optional — booking mode filtering`   | Whether bookings can auto-confirm.                                          |
-| `luggage_allowed`          | Boolean      |        | No       | `Optional — ride filtering`           | Whether luggage is allowed.                                                 |
-| `pets_allowed`             | Boolean      |        | No       | `Optional — ride filtering`           | Whether pets are allowed.                                                   |
-| `smoking_allowed`          | Boolean      |        | No       | `Optional — ride filtering`           | Whether smoking is allowed.                                                 |
-| `women_only`               | Boolean      |        | No       | `Optional — safety/product filtering` | Optional trust/safety product rule.                                         |
-| `max_two_backseat`         | Boolean      |        | No       | `Optional — comfort filtering`        | Comfort preference toggle.                                                  |
-| `created_at`               | Timestamp    |        | No       | `Yes — chronology and admin listing`  | Audit: Ride creation time.                                                  |
-| `updated_at`               | Timestamp    |        | No       | `No`                                  | Audit: Last ride update time.                                               |
-| `deleted_at`               | Timestamp    |        | Yes      | `Optional — soft delete filtering`    | Soft delete.                                                                |
+| Attribute      | Type      | PK/FK  | Nullable | Indexed  | Description                      |
+| :------------- | :-------- | :----- | :------- | :------- | :------------------------------- |
+| `id`           | UUID      | **PK** | No       | Yes      | Unique identifier.               |
+| `owner_id`     | UUID      | **FK** | No       | Yes      | Refers to `users.id`.            |
+| `model_id`     | Integer   | **FK** | No       | Yes      | Refers to `car_models.id`.       |
+| `spz`          | String    |        | No       | Yes      | License plate value.             |
+| `country_code` | String(3) |        | No       | Yes      | ISO 3166-1 alpha-3 country code. |
+| `color`        | String    |        | Yes      | No       | Vehicle color.                   |
+| `seats_total`  | Integer   |        | No       | No       | Total physical seat capacity.    |
+| `is_active`    | Boolean   |        | No       | Optional | Car can be used for new rides.   |
+| `created_at`   | Timestamp |        | No       | Optional | Record creation time.            |
+| `updated_at`   | Timestamp |        | No       | No       | Last update time.                |
+| `deleted_at`   | Timestamp |        | Yes      | Optional | Soft-delete timestamp.           |
 
 ---
 
-## 4. Ride Stop Entity (`ride_stops`)
+## 4. Ride Entity (`rides`)
 
-_Defines origin, intermediate, and destination points along the route._
+Core ride publication data.
 
 **Constraints:**
 
-- **`UNIQUE (ride_id, stop_order)`**
-- **`UNIQUE (id, ride_id)`**
-- **`CHECK (stop_order >= 0)`**
-- **`CHECK (lat BETWEEN -90 AND 90)`**
-- **`CHECK (lng BETWEEN -180 AND 180)`**
-- **`CHECK (char_length(address) BETWEEN 1 AND 255)`**
-- **`CHECK (char_length(city) BETWEEN 1 AND 100)`**
-- **`CHECK (planned_arrival_at IS NULL OR planned_departure_at IS NULL OR planned_departure_at >= planned_arrival_at)`**
-- **`CHECK (country_code IS NULL OR country_code ~ '^[A-Z]{3}$')`**
+- `CHECK (offered_seats > 0)`
+- `CHECK (arrival_estimate_at IS NULL OR arrival_estimate_at >= departure_at)`
+- `CHECK (currency ~ '^[A-Z]{3}$')`
+- `CHECK (description IS NULL OR char_length(description) <= 500)`
+- `offered_seats` should not exceed related `cars.seats_total`.
 
-| Attribute              | Type         | PK/FK  | Nullable | Indexed                                | Description                            |
-| :--------------------- | :----------- | :----- | :------- | :------------------------------------- | :------------------------------------- |
-| `id`                   | UUID         | **PK** | No       | `Yes — primary key`                    | Unique identifier.                     |
-| `ride_id`              | UUID         | **FK** | No       | `Yes — joins and ordered stop loading` | Refers to `rides.id`.                  |
-| `address`              | String       |        | No       | `No`                                   | Human-readable full location.          |
-| `city`                 | String       |        | No       | `Optional — stop search and reporting` | Search-friendly city field.            |
-| `country_code`         | String(3)    |        | Yes      | `Optional — geographic filtering`      | ISO 3166-1 alpha-3 code.               |
-| `lat`                  | Decimal(9,6) |        | No       | `Optional — location search`           | Latitude.                              |
-| `lng`                  | Decimal(9,6) |        | No       | `Optional — location search`           | Longitude.                             |
-| `stop_order`           | Integer      |        | No       | `Yes — route ordering and uniqueness`  | Sequence index (`0 = Start`).          |
-| `planned_arrival_at`   | Timestamp    |        | Yes      | `Optional — route scheduling`          | Planned arrival time at this stop.     |
-| `planned_departure_at` | Timestamp    |        | Yes      | `Optional — route scheduling`          | Planned departure time from this stop. |
-| `created_at`           | Timestamp    |        | No       | `No`                                   | Audit: Stop creation time.             |
-| `updated_at`           | Timestamp    |        | No       | `No`                                   | Audit: Last stop update time.          |
+| Attribute             | Type      | PK/FK  | Nullable | Indexed  | Description                |
+| :-------------------- | :-------- | :----- | :------- | :------- | :------------------------- |
+| `id`                  | UUID      | **PK** | No       | Yes      | Unique ride ID.            |
+| `driver_id`           | UUID      | **FK** | No       | Yes      | Refers to `users.id`.      |
+| `car_id`              | UUID      | **FK** | No       | Yes      | Refers to `cars.id`.       |
+| `departure_at`        | Timestamp |        | No       | Yes      | Planned departure time.    |
+| `arrival_estimate_at` | Timestamp |        | Yes      | Optional | Estimated arrival time.    |
+| `ride_status`         | String    |        | No       | Yes      | Current ride status value. |
+| `offered_seats`       | Integer   |        | No       | Yes      | Seats offered for booking. |
+| `currency`            | String(3) |        | No       | No       | ISO 4217 currency code.    |
+| `description`         | Text      |        | Yes      | Optional | Optional ride note.        |
+| `created_at`          | Timestamp |        | No       | Yes      | Record creation time.      |
+| `updated_at`          | Timestamp |        | No       | No       | Last update time.          |
+| `deleted_at`          | Timestamp |        | Yes      | Optional | Soft-delete timestamp.     |
 
 ---
 
-## 5. Pricing Entity (`prices`)
+## 5. Ride Stop Entity (`ride_stops`)
 
-_Defines optional published prices for selected ride segments. The pricing model is intentionally scope-limited for MVP and does not require a fully populated matrix of all stop combinations._
+Ordered route stops for each ride.
 
 **Constraints:**
 
-- **`UNIQUE (ride_id, start_stop_id, end_stop_id)`**
-- **`CHECK (amount >= 0)`**
-- **`CHECK (start_stop_order >= 0)`**
-- **`CHECK (end_stop_order >= 0)`**
-- **`CHECK (start_stop_id <> end_stop_id)`**
-- **`CHECK (start_stop_order < end_stop_order)`**
-- **`CHECK (amount <= 99999999.99)`**
-- **`CHECK (amount = round(amount, 2))`**
-- **`CHECK (currency ~ '^[A-Z]{3}$')`**
-- Composite FK `(start_stop_id, ride_id)` → `ride_stops(id, ride_id)`
-- Composite FK `(end_stop_id, ride_id)` → `ride_stops(id, ride_id)`
+- `UNIQUE (ride_id, stop_order)`
+- `CHECK (stop_order >= 0)`
+- `CHECK (lat BETWEEN -90 AND 90)`
+- `CHECK (lng BETWEEN -180 AND 180)`
+- `CHECK (char_length(address) BETWEEN 1 AND 255)`
+- `CHECK (char_length(city) BETWEEN 1 AND 100)`
+- `CHECK (planned_arrival_at IS NULL OR planned_departure_at IS NULL OR planned_departure_at >= planned_arrival_at)`
+- `CHECK (country_code IS NULL OR country_code ~ '^[A-Z]{3}$')`
+- City values are trimmed and must not contain control characters (enforced in input validation; DB expression can vary by collation/encoding).
 
-| Attribute          | Type          | PK/FK  | Nullable | Indexed                              | Description                              |
-| :----------------- | :------------ | :----- | :------- | :----------------------------------- | :--------------------------------------- |
-| `id`               | UUID          | **PK** | No       | `Yes — primary key`                  | Unique identifier.                       |
-| `ride_id`          | UUID          | **FK** | No       | `Yes — ride price loading`           | Link to trip.                            |
-| `start_stop_id`    | UUID          | **FK** | No       | `Yes — segment uniqueness and joins` | Pickup stop. Must belong to `ride_id`.   |
-| `end_stop_id`      | UUID          | **FK** | No       | `Yes — segment uniqueness and joins` | Drop-off stop. Must belong to `ride_id`. |
-| `start_stop_order` | Integer       |        | No       | `No`                                 | Denormalized stop order.                 |
-| `end_stop_order`   | Integer       |        | No       | `No`                                 | Denormalized stop order.                 |
-| `amount`           | Decimal(10,2) |        | No       | `Optional — price filtering/sorting` | Segment price value.                     |
-| `currency`         | String(3)     |        | No       | `No`                                 | ISO 4217 currency code.                  |
-| `created_at`       | Timestamp     |        | No       | `No`                                 | Audit: Price creation time.              |
-| `updated_at`       | Timestamp     |        | No       | `No`                                 | Audit: Last price update time.           |
-
-**MVP rule:**
-For MVP, prices are stored only for segments explicitly offered by the driver. The system does not require a complete price definition for every possible stop pair.
+| Attribute              | Type         | PK/FK  | Nullable | Indexed  | Description                             |
+| :--------------------- | :----------- | :----- | :------- | :------- | :-------------------------------------- |
+| `id`                   | UUID         | **PK** | No       | Yes      | Unique stop ID.                         |
+| `ride_id`              | UUID         | **FK** | No       | Yes      | Refers to `rides.id`.                   |
+| `address`              | String       |        | No       | No       | Human-readable location address.        |
+| `city`                 | String       |        | No       | Yes      | City label used for search/filtering.   |
+| `country_code`         | String(3)    |        | Yes      | Yes      | ISO 3166-1 alpha-3 country code.        |
+| `lat`                  | Decimal(9,6) |        | No       | Yes      | Latitude.                               |
+| `lng`                  | Decimal(9,6) |        | No       | Yes      | Longitude.                              |
+| `stop_order`           | Integer      |        | No       | Yes      | Ordered position in route (`0` origin). |
+| `planned_arrival_at`   | Timestamp    |        | Yes      | Optional | Planned arrival at stop.                |
+| `planned_departure_at` | Timestamp    |        | Yes      | Optional | Planned departure from stop.            |
+| `created_at`           | Timestamp    |        | No       | No       | Record creation time.                   |
+| `updated_at`           | Timestamp    |        | No       | No       | Last update time.                       |
 
 ---
 
-## 6. Booking Entity (`bookings`)
+## 6. Price Entity (`prices`)
 
-_Passenger seat reservations between specific stops, including immutable pricing snapshots and cancellation metadata._
+Published prices for ride stop-to-stop segments.
 
 **Constraints:**
 
-- **`CHECK (pickup_stop_id <> dropoff_stop_id)`**
-- **`CHECK (pickup_order >= 0)`**
-- **`CHECK (dropoff_order >= 0)`**
-- **`CHECK (pickup_order < dropoff_order)`**
-- **`CHECK (seat_count > 0)`**
-- **`CHECK (price_amount >= 0)`**
-- **`CHECK (price_amount <= 99999999.99)`**
-- **`CHECK (price_amount = round(price_amount, 2))`**
-- **`CHECK (cancellation_reason IS NULL OR char_length(cancellation_reason) <= 500)`**
-- **`CHECK (currency ~ '^[A-Z]{3}$')`**
-- Composite FK `(pickup_stop_id, ride_id)` → `ride_stops(id, ride_id)`
-- Composite FK `(dropoff_stop_id, ride_id)` → `ride_stops(id, ride_id)`
-- Only one active booking per passenger per ride is allowed. “Active” means a non-deleted booking row representing the current booking record for that ride-passenger pair.
+- `UNIQUE (ride_id, start_stop_id, end_stop_id)`
+- `CHECK (amount >= 0)`
+- `CHECK (amount <= 99999999.99)`
+- `CHECK (amount = round(amount, 2))`
+- `CHECK (start_stop_id <> end_stop_id)`
+- `CHECK (currency ~ '^[A-Z]{3}$')`
+- Segment order (`start_stop` before `end_stop`) must be validated by DB logic or application logic.
 
-| Attribute              | Type          | PK/FK  | Nullable | Indexed                               | Description                              |
-| :--------------------- | :------------ | :----- | :------- | :------------------------------------ | :--------------------------------------- |
-| `id`                   | UUID          | **PK** | No       | `Yes — primary key`                   | Unique identifier.                       |
-| `passenger_id`         | UUID          | **FK** | No       | `Yes — passenger booking lookup`      | Refers to `users.id`.                    |
-| `ride_id`              | UUID          | **FK** | No       | `Yes — ride booking management`       | Contextual trip.                         |
-| `pickup_stop_id`       | UUID          | **FK** | No       | `Optional — joins and validation`     | Pickup stop. Must belong to `ride_id`.   |
-| `dropoff_stop_id`      | UUID          | **FK** | No       | `Optional — joins and validation`     | Drop-off stop. Must belong to `ride_id`. |
-| `pickup_order`         | Integer       |        | No       | `Yes — segment capacity calculation`  | Denormalized pickup `stop_order`.        |
-| `dropoff_order`        | Integer       |        | No       | `Yes — segment capacity calculation`  | Denormalized drop-off `stop_order`.      |
-| `seat_count`           | Integer       |        | No       | `No`                                  | Seats reserved.                          |
-| `booking_status_id`    | Integer       | **FK** | No       | `Yes — state filtering`               | Refers to `booking_statuses.id`.         |
-| `price_amount`         | Decimal(10,2) |        | No       | `Optional — reporting and sorting`    | Immutable booking price snapshot.        |
-| `currency`             | String(3)     |        | No       | `No`                                  | Immutable booking currency snapshot.     |
-| `confirmed_at`         | Timestamp     |        | Yes      | `Optional — state filtering`          | Time booking was confirmed.              |
-| `cancelled_at`         | Timestamp     |        | Yes      | `Optional — state filtering`          | Time booking was cancelled.              |
-| `cancelled_by_user_id` | UUID          | **FK** | Yes      | `Optional — audit lookup`             | Actor initiating cancellation.           |
-| `cancellation_reason`  | Text          |        | Yes      | `No`                                  | Optional human-readable reason.          |
-| `no_show_marked_at`    | Timestamp     |        | Yes      | `Optional — state filtering`          | Time booking was marked no-show.         |
-| `created_at`           | Timestamp     |        | No       | `Yes — chronology and admin listing`  | Audit: Reservation creation time.        |
-| `updated_at`           | Timestamp     |        | No       | `No`                                  | Audit: Last booking update time.         |
-| `deleted_at`           | Timestamp     |        | Yes      | `Optional — active booking filtering` | Soft delete if business policy uses it.  |
+| Attribute       | Type          | PK/FK  | Nullable | Indexed  | Description                |
+| :-------------- | :------------ | :----- | :------- | :------- | :------------------------- |
+| `id`            | UUID          | **PK** | No       | Yes      | Unique identifier.         |
+| `ride_id`       | UUID          | **FK** | No       | Yes      | Refers to `rides.id`.      |
+| `start_stop_id` | UUID          | **FK** | No       | Yes      | Refers to `ride_stops.id`. |
+| `end_stop_id`   | UUID          | **FK** | No       | Yes      | Refers to `ride_stops.id`. |
+| `amount`        | Decimal(10,2) |        | No       | Optional | Segment price value.       |
+| `currency`      | String(3)     |        | No       | No       | ISO 4217 currency code.    |
+| `created_at`    | Timestamp     |        | No       | No       | Record creation time.      |
+| `updated_at`    | Timestamp     |        | No       | No       | Last update time.          |
 
 ---
 
-## 7. Review Entity (`reviews`)
+## 7. Booking Entity (`bookings`)
 
-_Peer-to-peer post-ride feedback with moderation-aware visibility and simple role support._
+Passenger reservations for specific ride segments.
 
 **Constraints:**
 
-- **`UNIQUE (ride_id, author_id, subject_id)`**
-- **`CHECK (rating BETWEEN 1 AND 5)`**
-- **`CHECK (author_id <> subject_id)`**
-- Reviews may only be created after the ride is completed and only between users who were actual completed participants of that ride.
+- `CHECK (pickup_stop_id <> dropoff_stop_id)`
+- `CHECK (seat_count > 0)`
+- `CHECK (price_amount >= 0)`
+- `CHECK (price_amount <= 99999999.99)`
+- `CHECK (price_amount = round(price_amount, 2))`
+- `CHECK (cancellation_reason IS NULL OR char_length(cancellation_reason) <= 500)`
+- `CHECK (currency ~ '^[A-Z]{3}$')`
+- `CHECK (seat_count = floor(seat_count))`
+- Pickup stop must be before dropoff stop by `ride_stops.stop_order`.
 
-| Attribute          | Type      | PK/FK  | Nullable | Indexed                              | Description                     |
-| :----------------- | :-------- | :----- | :------- | :----------------------------------- | :------------------------------ |
-| `id`               | UUID      | **PK** | No       | `Yes — primary key`                  | Unique identifier.              |
-| `ride_id`          | UUID      | **FK** | No       | `Optional — contextual lookup`       | Contextual trip ID.             |
-| `author_id`        | UUID      | **FK** | No       | `Optional — moderation/audit lookup` | User giving the rating.         |
-| `subject_id`       | UUID      | **FK** | No       | `Yes — reviews by subject`           | User receiving the rating.      |
-| `rating`           | Integer   |        | No       | `Yes — sorting/analytics`            | Score `1` to `5`.               |
-| `comment`          | Text      |        | Yes      | `No`                                 | Qualitative feedback.           |
-| `review_status_id` | Integer   | **FK** | No       | `Optional — moderation filtering`    | Refers to `review_statuses.id`. |
-| `created_at`       | Timestamp |        | No       | `Yes — chronology`                   | Audit: Review creation time.    |
-| `updated_at`       | Timestamp |        | No       | `No`                                 | Audit: Last review update time. |
+| Attribute              | Type          | PK/FK  | Nullable | Indexed  | Description                     |
+| :--------------------- | :------------ | :----- | :------- | :------- | :------------------------------ |
+| `id`                   | UUID          | **PK** | No       | Yes      | Unique identifier.              |
+| `passenger_id`         | UUID          | **FK** | No       | Yes      | Refers to `users.id`.           |
+| `ride_id`              | UUID          | **FK** | No       | Yes      | Refers to `rides.id`.           |
+| `pickup_stop_id`       | UUID          | **FK** | No       | Yes      | Pickup stop (`ride_stops.id`).  |
+| `dropoff_stop_id`      | UUID          | **FK** | No       | Yes      | Dropoff stop (`ride_stops.id`). |
+| `seat_count`           | Integer       |        | No       | No       | Number of reserved seats.       |
+| `booking_status`       | String        |        | No       | Yes      | Current booking status value.   |
+| `price_amount`         | Decimal(10,2) |        | No       | Optional | Price snapshot at booking time. |
+| `currency`             | String(3)     |        | No       | No       | Currency snapshot (ISO 4217).   |
+| `confirmed_at`         | Timestamp     |        | Yes      | Optional | Confirmation timestamp.         |
+| `cancelled_at`         | Timestamp     |        | Yes      | Optional | Cancellation timestamp.         |
+| `cancelled_by_user_id` | UUID          | **FK** | Yes      | Optional | Refers to `users.id`.           |
+| `cancellation_reason`  | Text          |        | Yes      | No       | Optional cancellation reason.   |
+| `no_show_marked_at`    | Timestamp     |        | Yes      | Optional | No-show marking timestamp.      |
+| `created_at`           | Timestamp     |        | No       | Yes      | Record creation time.           |
+| `updated_at`           | Timestamp     |        | No       | No       | Last update time.               |
+| `deleted_at`           | Timestamp     |        | Yes      | Optional | Soft-delete timestamp.          |
 
 ---
 
-## 8. Conversation Entity (`conversations`)
+## 8. Review Entity (`reviews`)
 
-_Stable thread container for direct communication between ride-related participants. Membership is explicitly stored in `conversation_participants`._
+Post-ride user feedback.
 
 **Constraints:**
 
-- Conversation membership is enforced through `conversation_participants`.
-- In MVP, conversations are intended primarily for direct participant messaging related to a ride or booking context.
-- In standard ride messaging flows, a conversation should reference at least one contextual entity (`ride_id` or `booking_id`).
+- `UNIQUE (ride_id, author_id, subject_id)`
+- `CHECK (rating BETWEEN 1 AND 5)`
+- `CHECK (author_id <> subject_id)`
 
-| Attribute              | Type      | PK/FK  | Nullable | Indexed                                    | Description                        |
-| :--------------------- | :-------- | :----- | :------- | :----------------------------------------- | :--------------------------------- |
-| `id`                   | UUID      | **PK** | No       | `Yes — primary key`                        | Unique identifier.                 |
-| `ride_id`              | UUID      | **FK** | Yes      | `Yes — ride conversation lookup`           | Related ride context.              |
-| `booking_id`           | UUID      | **FK** | Yes      | `Yes — booking conversation lookup`        | Related booking context.           |
-| `conversation_type_id` | Integer   | **FK** | No       | `Optional — type filtering`                | Refers to `conversation_types.id`. |
-| `created_at`           | Timestamp |        | No       | `No`                                       | Conversation creation time.        |
-| `updated_at`           | Timestamp |        | No       | `Yes — thread ordering by latest activity` | Last activity time.                |
-| `deleted_at`           | Timestamp |        | Yes      | `Optional — soft delete filtering`         | Soft delete if applicable.         |
+| Attribute       | Type      | PK/FK  | Nullable | Indexed | Description                  |
+| :-------------- | :-------- | :----- | :------- | :------ | :--------------------------- |
+| `id`            | UUID      | **PK** | No       | Yes     | Unique identifier.           |
+| `ride_id`       | UUID      | **FK** | No       | Yes     | Refers to `rides.id`.        |
+| `author_id`     | UUID      | **FK** | No       | Yes     | Refers to `users.id`.        |
+| `subject_id`    | UUID      | **FK** | No       | Yes     | Refers to `users.id`.        |
+| `rating`        | Integer   |        | No       | Yes     | Integer score (`1..5`).      |
+| `comment`       | Text      |        | Yes      | No      | Optional feedback text.      |
+| `review_status` | String    |        | No       | Yes     | Current review status value. |
+| `created_at`    | Timestamp |        | No       | Yes     | Record creation time.        |
+| `updated_at`    | Timestamp |        | No       | No      | Last update time.            |
 
 ---
 
-## 9. Conversation Participant Entity (`conversation_participants`)
+## 9. Conversation Entity (`conversations`)
 
-_Defines membership of users in conversations and supports access control and per-user read tracking._
+Thread container for ride/booking context communication.
 
 **Constraints:**
 
-- **`UNIQUE (conversation_id, user_id)`**
-- Conversation must contain at least two participants unless explicitly used for support or system workflows.
+- At least one context reference should be present (`ride_id` or `booking_id`).
 
-| Attribute         | Type      | PK/FK  | Nullable | Indexed                                 | Description                                            |
-| :---------------- | :-------- | :----- | :------- | :-------------------------------------- | :----------------------------------------------------- |
-| `id`              | UUID      | **PK** | No       | `Yes — primary key`                     | Unique identifier.                                     |
-| `conversation_id` | UUID      | **FK** | No       | `Yes — membership lookup`               | Refers to `conversations.id`.                          |
-| `user_id`         | UUID      | **FK** | No       | `Yes — user conversation lookup`        | Refers to `users.id`.                                  |
-| `joined_at`       | Timestamp |        | No       | `No`                                    | Time user became a participant.                        |
-| `last_read_at`    | Timestamp |        | Yes      | `Optional — unread/read detection`      | Per-user read marker for the conversation.             |
-| `is_muted`        | Boolean   |        | No       | `Optional — user conversation settings` | Whether notifications are muted for this conversation. |
-| `created_at`      | Timestamp |        | No       | `No`                                    | Audit creation time.                                   |
-| `updated_at`      | Timestamp |        | No       | `No`                                    | Audit update time.                                     |
+| Attribute                | Type      | PK/FK  | Nullable | Indexed  | Description              |
+| :----------------------- | :-------- | :----- | :------- | :------- | :----------------------- |
+| `id`                     | UUID      | **PK** | No       | Yes      | Unique conversation ID.  |
+| `ride_id`                | UUID      | **FK** | Yes      | Yes      | Refers to `rides.id`.    |
+| `booking_id`             | UUID      | **FK** | Yes      | Yes      | Refers to `bookings.id`. |
+| `conversation_type`      | String    |        | No       | Yes      | Conversation type value. |
+| `driver_last_read_at`    | Timestamp |        | Yes      | Optional | Driver read marker.      |
+| `passenger_last_read_at` | Timestamp |        | Yes      | Optional | Passenger read marker.   |
+| `created_at`             | Timestamp |        | No       | No       | Record creation time.    |
+| `updated_at`             | Timestamp |        | No       | Yes      | Last activity time.      |
+| `deleted_at`             | Timestamp |        | Yes      | Optional | Soft-delete timestamp.   |
 
 ---
 
 ## 10. Message Entity (`messages`)
 
-_Internal conversation messages with simple edit and soft-delete support. The MVP messaging model is intentionally limited and uses conversation-level read tracking instead of per-message delivery state._
+Messages exchanged inside conversations.
 
 **Constraints:**
 
-- Sender must be a member of the conversation.
-- Message visibility is restricted to conversation participants.
-- Soft deletion is global at the message row level in MVP.
+- Sender must be a valid participant of the conversation context.
 
-| Attribute         | Type      | PK/FK  | Nullable | Indexed                              | Description                                               |
-| :---------------- | :-------- | :----- | :------- | :----------------------------------- | :-------------------------------------------------------- |
-| `id`              | UUID      | **PK** | No       | `Yes — primary key`                  | Unique message ID.                                        |
-| `conversation_id` | UUID      | **FK** | No       | `Yes — thread loading`               | Refers to `conversations.id`.                             |
-| `sender_id`       | UUID      | **FK** | No       | `Yes — sender history and audit`     | Message author; must belong to conversation participants. |
-| `message_type_id` | Integer   | **FK** | No       | `No`                                 | Refers to `message_types.id`.                             |
-| `content`         | Text      |        | No       | `Optional — text search`             | Message body.                                             |
-| `sent_at`         | Timestamp |        | No       | `Yes — chronological thread loading` | Sent timestamp.                                           |
-| `edited_at`       | Timestamp |        | Yes      | `No`                                 | Edit timestamp.                                           |
-| `deleted_at`      | Timestamp |        | Yes      | `Optional — soft delete filtering`   | Soft delete timestamp.                                    |
-| `created_at`      | Timestamp |        | No       | `No`                                 | Audit creation time.                                      |
-| `updated_at`      | Timestamp |        | No       | `No`                                 | Audit update time.                                        |
+| Attribute         | Type      | PK/FK  | Nullable | Indexed  | Description                   |
+| :---------------- | :-------- | :----- | :------- | :------- | :---------------------------- |
+| `id`              | UUID      | **PK** | No       | Yes      | Unique message ID.            |
+| `conversation_id` | UUID      | **FK** | No       | Yes      | Refers to `conversations.id`. |
+| `sender_id`       | UUID      | **FK** | No       | Yes      | Refers to `users.id`.         |
+| `message_type`    | String    |        | No       | Optional | Message type value.           |
+| `content`         | Text      |        | No       | Optional | Message body.                 |
+| `sent_at`         | Timestamp |        | No       | Yes      | Sent timestamp.               |
+| `edited_at`       | Timestamp |        | Yes      | No       | Last edit timestamp.          |
+| `deleted_at`      | Timestamp |        | Yes      | Optional | Soft-delete timestamp.        |
+| `created_at`      | Timestamp |        | No       | No       | Record creation time.         |
+| `updated_at`      | Timestamp |        | No       | No       | Last update time.             |
 
 ---
 
 ## 11. Notification Entity (`notifications`)
 
-_Tracks internal notification delivery for app inbox and future orchestration._
+Internal notification delivery records.
+
+| Attribute               | Type      | PK/FK  | Nullable | Indexed  | Description                |
+| :---------------------- | :-------- | :----- | :------- | :------- | :------------------------- |
+| `id`                    | UUID      | **PK** | No       | Yes      | Unique identifier.         |
+| `user_id`               | UUID      | **FK** | No       | Yes      | Refers to `users.id`.      |
+| `notification_type`     | String    |        | No       | Yes      | Notification type value.   |
+| `reference_entity_type` | String    |        | Yes      | Optional | Related entity type label. |
+| `reference_entity_id`   | UUID      |        | Yes      | Optional | Related entity ID.         |
+| `title`                 | String    |        | No       | No       | Notification title.        |
+| `body`                  | Text      |        | No       | No       | Notification content.      |
+| `delivery_status`       | String    |        | No       | Yes      | Delivery status value.     |
+| `read_at`               | Timestamp |        | Yes      | Yes      | Read timestamp.            |
+| `sent_at`               | Timestamp |        | Yes      | Optional | Dispatch timestamp.        |
+| `created_at`            | Timestamp |        | No       | Yes      | Record creation time.      |
+| `updated_at`            | Timestamp |        | No       | No       | Last update time.          |
+
+---
+
+## 12. User Status History Entity (`user_status_history`)
+
+Append-only history of user status transitions.
+
+| Attribute            | Type      | PK/FK  | Nullable | Indexed  | Description             |
+| :------------------- | :-------- | :----- | :------- | :------- | :---------------------- |
+| `id`                 | UUID      | **PK** | No       | Yes      | Unique identifier.      |
+| `user_id`            | UUID      | **FK** | No       | Yes      | Refers to `users.id`.   |
+| `old_status`         | String    |        | Yes      | No       | Previous status value.  |
+| `new_status`         | String    |        | No       | Yes      | New status value.       |
+| `changed_by_user_id` | UUID      | **FK** | Yes      | Optional | Refers to `users.id`.   |
+| `reason`             | Text      |        | Yes      | No       | Optional change reason. |
+| `created_at`         | Timestamp |        | No       | Yes      | Change timestamp.       |
+
+---
+
+## 13. Ride Status History Entity (`ride_status_history`)
+
+Append-only history of ride status transitions.
+
+| Attribute            | Type      | PK/FK  | Nullable | Indexed  | Description             |
+| :------------------- | :-------- | :----- | :------- | :------- | :---------------------- |
+| `id`                 | UUID      | **PK** | No       | Yes      | Unique identifier.      |
+| `ride_id`            | UUID      | **FK** | No       | Yes      | Refers to `rides.id`.   |
+| `old_status`         | String    |        | Yes      | No       | Previous status value.  |
+| `new_status`         | String    |        | No       | Yes      | New status value.       |
+| `changed_by_user_id` | UUID      | **FK** | Yes      | Optional | Refers to `users.id`.   |
+| `reason`             | Text      |        | Yes      | No       | Optional change reason. |
+| `created_at`         | Timestamp |        | No       | Yes      | Change timestamp.       |
+
+---
+
+## 14. Booking Status History Entity (`booking_status_history`)
+
+Append-only history of booking status transitions.
+
+| Attribute            | Type      | PK/FK  | Nullable | Indexed  | Description              |
+| :------------------- | :-------- | :----- | :------- | :------- | :----------------------- |
+| `id`                 | UUID      | **PK** | No       | Yes      | Unique identifier.       |
+| `booking_id`         | UUID      | **FK** | No       | Yes      | Refers to `bookings.id`. |
+| `old_status`         | String    |        | Yes      | No       | Previous status value.   |
+| `new_status`         | String    |        | No       | Yes      | New status value.        |
+| `changed_by_user_id` | UUID      | **FK** | Yes      | Optional | Refers to `users.id`.    |
+| `reason`             | Text      |        | Yes      | No       | Optional change reason.  |
+| `created_at`         | Timestamp |        | No       | Yes      | Change timestamp.        |
+
+---
+
+## 15. Blocklist Entity (`blocklist`)
+
+Directed user-to-user blocking records used for trust and safety enforcement.
 
 **Constraints:**
 
-- Notification fan-out may later be extended into provider-specific delivery tables if needed.
-- `messages` represent user communication inside conversations, while `notifications` represent system-generated alerts outside the conversation thread model.
+- `CHECK (blocker_user_id <> blocked_user_id)`
+- `CHECK (revoked_at IS NULL OR revoked_at >= created_at)`
+- `CHECK (reason_text IS NULL OR length(trim(reason_text)) <= 500)`
+- One active block per directed pair is recommended.
 
-| Attribute               | Type      | PK/FK  | Nullable | Indexed                          | Description                                    |
-| :---------------------- | :-------- | :----- | :------- | :------------------------------- | :--------------------------------------------- |
-| `id`                    | UUID      | **PK** | No       | `Yes — primary key`              | Unique identifier.                             |
-| `user_id`               | UUID      | **FK** | No       | `Yes — recipient inbox lookup`   | Notification recipient.                        |
-| `notification_type_id`  | Integer   | **FK** | No       | `Optional — type filtering`      | Refers to `notification_types.id`.             |
-| `reference_entity_type` | String    |        | Yes      | `Optional — source tracing`      | Related logical entity name.                   |
-| `reference_entity_id`   | UUID      |        | Yes      | `Optional — source tracing`      | Related entity row ID.                         |
-| `title`                 | String    |        | No       | `No`                             | Notification title.                            |
-| `body`                  | Text      |        | No       | `No`                             | Notification body.                             |
-| `delivery_status_id`    | Integer   | **FK** | No       | `Yes — delivery state filtering` | Refers to `notification_delivery_statuses.id`. |
-| `read_at`               | Timestamp |        | Yes      | `Yes — unread/read filtering`    | In-app read time.                              |
-| `sent_at`               | Timestamp |        | Yes      | `Optional — delivery tracking`   | Delivery dispatch time.                        |
-| `created_at`            | Timestamp |        | No       | `Yes — inbox ordering`           | Notification creation time.                    |
-| `updated_at`            | Timestamp |        | No       | `No`                             | Last delivery state update.                    |
-
----
-
-## 12. User Status History (`user_status_history`)
-
-_Tracks user moderation and activation lifecycle changes._
-
-**Constraints:**
-
-- **`CHECK (reason IS NULL OR char_length(reason) <= 500)`**
-
-| Attribute            | Type      | PK/FK  | Nullable | Indexed                      | Description                                          |
-| :------------------- | :-------- | :----- | :------- | :--------------------------- | :--------------------------------------------------- |
-| `id`                 | UUID      | **PK** | No       | `Yes — primary key`          | Unique identifier.                                   |
-| `user_id`            | UUID      | **FK** | No       | `Yes — user history lookup`  | Refers to `users.id`.                                |
-| `old_status_id`      | Integer   | **FK** | Yes      | `No`                         | Previous status from `user_statuses.id`.             |
-| `new_status_id`      | Integer   | **FK** | No       | `Optional — state filtering` | New status from `user_statuses.id`.                  |
-| `changed_by_user_id` | UUID      | **FK** | Yes      | `Optional — audit lookup`    | Actor who performed the change.                      |
-| `reason`             | Text      |        | Yes      | `No`                         | Optional reason for moderation or activation change. |
-| `created_at`         | Timestamp |        | No       | `Yes — chronology`           | Audit: Status change time.                           |
+| Attribute            | Type      | PK/FK  | Nullable | Indexed  | Description                     |
+| :------------------- | :-------- | :----- | :------- | :------- | :------------------------------ |
+| `id`                 | UUID      | **PK** | No       | Yes      | Unique identifier.              |
+| `blocker_user_id`    | UUID      | **FK** | No       | Yes      | Refers to `users.id`.           |
+| `blocked_user_id`    | UUID      | **FK** | No       | Yes      | Refers to `users.id`.           |
+| `block_reason`       | String    |        | No       | Yes      | Block reason value.             |
+| `block_status`       | String    |        | No       | Yes      | Block status value.             |
+| `reason_text`        | Text      |        | Yes      | No       | Optional free-text explanation. |
+| `revoked_at`         | Timestamp |        | Yes      | Optional | Block revocation timestamp.     |
+| `revoked_by_user_id` | UUID      | **FK** | Yes      | Optional | Refers to `users.id`.           |
+| `created_at`         | Timestamp |        | No       | Yes      | Record creation time.           |
+| `updated_at`         | Timestamp |        | No       | No       | Last update time.               |
+| `deleted_at`         | Timestamp |        | Yes      | Optional | Soft-delete timestamp.          |
 
 ---
 
-## 13. Ride Status History (`ride_status_history`)
+## 16. Integrity and Concurrency Rules
 
-_Tracks ride lifecycle changes such as planning, cancellation, and completion._
+### 16.1 Capacity Control
 
-**Constraints:**
+Booking confirmation should run inside one transaction with locking to avoid overbooking.
 
-- **`CHECK (reason IS NULL OR char_length(reason) <= 500)`**
+Recommended flow:
 
-| Attribute            | Type      | PK/FK  | Nullable | Indexed                      | Description                                        |
-| :------------------- | :-------- | :----- | :------- | :--------------------------- | :------------------------------------------------- |
-| `id`                 | UUID      | **PK** | No       | `Yes — primary key`          | Unique identifier.                                 |
-| `ride_id`            | UUID      | **FK** | No       | `Yes — ride history lookup`  | Refers to `rides.id`.                              |
-| `old_status_id`      | Integer   | **FK** | Yes      | `No`                         | Previous status from `ride_statuses.id`.           |
-| `new_status_id`      | Integer   | **FK** | No       | `Optional — state filtering` | New status from `ride_statuses.id`.                |
-| `changed_by_user_id` | UUID      | **FK** | Yes      | `Optional — audit lookup`    | Actor who performed the change.                    |
-| `reason`             | Text      |        | Yes      | `No`                         | Optional reason for cancellation or status change. |
-| `created_at`         | Timestamp |        | No       | `Yes — chronology`           | Audit: Status change time.                         |
+1. Lock relevant ride and active ride bookings.
+2. Compute overlapping segment occupancy from bookings and `ride_stops.stop_order`.
+3. Confirm only if `max_segment_occupancy + requested_seat_count <= rides.offered_seats`.
+4. Write current booking status plus history row in the same transaction.
 
----
+### 16.2 Stop Consistency
 
-## 14. Booking Status History (`booking_status_history`)
+For `prices` and `bookings`, stop IDs must belong to the same `ride_id` and preserve correct segment order.
 
-_Tracks booking lifecycle changes such as confirmation, rejection, cancellation, and no-show handling._
+### 16.3 Status and History Consistency
 
-**Constraints:**
+When `user_status`, `ride_status`, or `booking_status` changes, insert a row into the corresponding history table in the same transaction.
 
-- **`CHECK (reason IS NULL OR char_length(reason) <= 500)`**
+### 16.4 Messaging Access Control
 
-| Attribute            | Type      | PK/FK  | Nullable | Indexed                        | Description                                              |
-| :------------------- | :-------- | :----- | :------- | :----------------------------- | :------------------------------------------------------- |
-| `id`                 | UUID      | **PK** | No       | `Yes — primary key`            | Unique identifier.                                       |
-| `booking_id`         | UUID      | **FK** | No       | `Yes — booking history lookup` | Refers to `bookings.id`.                                 |
-| `old_status_id`      | Integer   | **FK** | Yes      | `No`                           | Previous status from `booking_statuses.id`.              |
-| `new_status_id`      | Integer   | **FK** | No       | `Optional — state filtering`   | New status from `booking_statuses.id`.                   |
-| `changed_by_user_id` | UUID      | **FK** | Yes      | `Optional — audit lookup`      | Actor who performed the change.                          |
-| `reason`             | Text      |        | Yes      | `No`                           | Optional reason for rejection, cancellation, or no-show. |
-| `created_at`         | Timestamp |        | No       | `Yes — chronology`             | Audit: Status change time.                               |
+A message can be sent only if sender belongs to conversation context and block policy does not prohibit communication.
+
+### 16.5 Blocklist Enforcement
+
+At runtime, interaction checks should be bidirectional: if active block exists in either direction between two users, new direct interaction should be denied.
 
 ---
 
-## 15. Lookup Tables (3NF)
-
-_Centralized enumerations and reference dimensions._
-
-- `user_statuses`: `PENDING`, `ACTIVE`, `SUSPENDED`, `BANNED`, `DELETED`
-- `ride_statuses`: `PLANNED`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`
-- `booking_statuses`: `PENDING`, `CONFIRMED`, `REJECTED`, `CANCELLED`, `COMPLETED`, `NO_SHOW`
-- `review_statuses`: `VISIBLE`, `HIDDEN`, `REMOVED`
-- `conversation_types`: `RIDE`, `BOOKING`, `SUPPORT`
-- `message_types`: `TEXT`, `SYSTEM`
-- `notification_types`: `BOOKING_REQUEST`, `BOOKING_CONFIRMED`, `BOOKING_CANCELLED`, `MESSAGE_RECEIVED`, `RIDE_UPDATED`, `REVIEW_RECEIVED`
-- `notification_delivery_statuses`: `PENDING`, `SENT`, `FAILED`, `READ`
-- `block_statuses`: `ACTIVE`, `REVOKED`
-- `block_reasons`: `HARASSMENT`, `SPAM`, `SAFETY`, `FRAUD`, `ABUSE`, `OTHER`
-- `car_models`: centralized brand/model repository
-
----
-
-## 16. Integrity & Concurrency Logic
-
-### 16.1 Capacity Control (Race Condition Prevention)
-
-To prevent overbooking, seat confirmation should occur within a serializable transaction using pessimistic locking.
-
-Because bookings are segment-based, capacity must be validated across the requested interval, not by summing all confirmed seats on the entire ride. The system must ensure that the maximum concurrent seat usage across all overlapping segments does not exceed `cars.seats_total`.
-
-**Required flow:**
-
-1. `SELECT seats_total FROM cars WHERE id = ? FOR UPDATE;`
-2. Lock relevant active bookings for the ride.
-3. Compute overlapping occupancy for all segments between `pickup_order` and `dropoff_order`.
-4. If `max_segment_occupancy + requested_seat_count <= seats_total`, insert or confirm booking and commit.
-5. Refresh `rides.available_seats_cached` atomically or within the same committed workflow.
-
-### 16.2 Rating Synchronization
-
-When a row is inserted, updated, hidden, or removed in `reviews`, the aggregates in `users.avg_rating` and `users.rating_count` must be synchronized via trigger or within the same application transaction.
-
-### 16.3 Stop-to-Ride Integrity
-
-For both `prices` and `bookings`, stop consistency must be enforced at the database level through composite foreign keys referencing `ride_stops(id, ride_id)`.
-
-### 16.4 Denormalized Stop Order Synchronization
-
-For both `prices` and `bookings`, denormalized stop order columns must be written atomically and remain synchronized with the referenced stops.
-
-### 16.5 Search Field Synchronization
-
-Search fields on `rides` must be refreshed whenever:
-
-- ride boundary stops change
-- ride departure time changes
-- ride status changes
-- price graph changes if ride-level cached values depend on them
-- seat availability changes
-
-### 16.6 Messaging Access Control
-
-Conversation membership must be enforced through `conversation_participants`.
-
-A user may send a message only if:
-
-- the user is an active participant of the conversation,
-- the related ride or booking is visible to that user,
-- the user account is not suspended or banned,
-- no active block exists between the sender and the intended recipient set for the conversation where block enforcement applies.
-
-Conversation read state in MVP is tracked via `conversation_participants.last_read_at` rather than per-message recipient delivery rows.
-
-### 16.7 Blocklist Enforcement
-
-Block enforcement is directional at the record level but interaction restriction must be evaluated bidirectionally at runtime. If an active block exists in either direction between two users, the application must reject creation of new direct ride-related interactions between them, including:
-
-- booking creation,
-- booking request initiation,
-- new conversation creation,
-- sending new messages where product policy applies.
-
-Existing conversations, bookings, or future rides affected by a newly created block require explicit product policy and operational handling.
-
----
-
-## 17. Audit & History Rules
+## 17. Audit Rules
 
 ### 17.1 Minimum Audit Columns
 
-All core business entities should maintain `created_at` and `updated_at`. Soft-deletable entities should also maintain `deleted_at`.
+All core entities keep `created_at` and `updated_at`. Soft-deletable entities also keep `deleted_at`.
 
 ### 17.2 Append-Only History
 
-Status history tables should be append-only. Existing history rows should never be updated or deleted except under extraordinary administrative procedures.
+History entities (`user_status_history`, `ride_status_history`, `booking_status_history`) are append-only.
 
 ### 17.3 Actor Tracking
 
-Whenever possible, changes should record the acting user via `changed_by_user_id`. System-generated changes may use `NULL` or a dedicated system actor.
+Lifecycle changes should store `changed_by_user_id` where available. System actions may use `NULL`.
 
-### 17.4 Current State vs Historical State
+---
 
-Main entity tables represent the current state. Historical reconstruction should rely on:
+## 18. Enumerations (Application-Level)
 
-- status history tables for lifecycle transitions
-- entity timestamps and snapshot fields for lightweight auditability
-
-### 17.5 Transactional Consistency
-
-For status changes, both the current-state row and corresponding history row must be written within the same database transaction.
-
-## 18. Blocklist Entity (`blocklist`)
-
-_Directed user-to-user blocking relationship used for trust & safety enforcement across messaging, booking, ride participation, notifications, and abuse workflows._
-
-**Constraints:**
-
-- **`CHECK (blocker_user_id <> blocked_user_id)`**
-- **`CHECK (revoked_at IS NULL OR revoked_at >= created_at)`**
-- **`CHECK (reason_text IS NULL OR LENGTH(TRIM(reason_text)) <= 500)`**
-- Only one active block per directed pair is allowed.
-- Recommended partial uniqueness: **`UNIQUE (blocker_user_id, blocked_user_id) WHERE deleted_at IS NULL AND block_status_id = <ACTIVE_STATUS_ID>`**
-- Blocking is directional: `A -> B` does not automatically imply `B -> A`.
-- A user may not create bookings, send messages, or initiate ride-related interaction with another user if an active block exists in either direction.
-- Block records should be retained for audit and abuse investigation; physical delete is not recommended in normal operation.
-
-| Attribute            | Type      | PK/FK  | Nullable | Indexed                                            | Description                                                                                                                                     |
-| :------------------- | :-------- | :----- | :------- | :------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                 | UUID      | **PK** | No       | `Yes — primary key`                                | Unique identifier.                                                                                                                              |
-| `blocker_user_id`    | UUID      | **FK** | No       | `Yes — blocker lookup and enforcement checks`      | Refers to `users.id`. User who initiated the block.                                                                                             |
-| `blocked_user_id`    | UUID      | **FK** | No       | `Yes — blocked-user lookup and enforcement checks` | Refers to `users.id`. User being blocked.                                                                                                       |
-| `block_reason_id`    | Integer   | **FK** | No       | `Yes — reporting and moderation analytics`         | Refers to `block_reasons.id`. Standardized reason category for the block.                                                                       |
-| `block_status_id`    | Integer   | **FK** | No       | `Yes — active block filtering`                     | Refers to `block_statuses.id`. Lifecycle state of the block.                                                                                    |
-| `reason_text`        | Text      |        | Yes      | `No`                                               | Optional free-text explanation. Recommended for additional moderation context.                                                                  |
-| `created_by_user_id` | UUID      | **FK** | Yes      | `Optional — audit lookup`                          | Refers to `users.id`. Usually same as `blocker_user_id`, but may differ for admin-created actions.                                              |
-| `revoked_at`         | Timestamp |        | Yes      | `Optional — state filtering`                       | Time block was revoked. Must remain `NULL` while block is active.                                                                               |
-| `revoked_by_user_id` | UUID      | **FK** | Yes      | `Optional — audit lookup`                          | Refers to `users.id`. Actor who revoked the block.                                                                                              |
-| `created_at`         | Timestamp |        | No       | `Yes — chronology and trust/safety review`         | Audit: Block creation time.                                                                                                                     |
-| `updated_at`         | Timestamp |        | No       | `No`                                               | Audit: Last block record update time.                                                                                                           |
-| `deleted_at`         | Timestamp |        | Yes      | `Optional — soft delete filtering`                 | Soft delete only if retention/compliance policy explicitly allows it. In standard operation, status-based lifecycle is preferred over deletion. |
+In revised ERD, status/type columns are string values stored directly in business tables. Controlled vocabularies should be enforced in application/domain logic and optionally by DB `CHECK` constraints.
