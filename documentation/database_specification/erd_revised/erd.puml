@@ -19,10 +19,6 @@ entity "USER" as USER {
   phone : VARCHAR
   profile_photo_url : VARCHAR
   bio : TEXT
-  avg_rating : NUMERIC
-  rating_count : INTEGER
-  completed_rides_count : INTEGER
-  no_show_count : INTEGER
   email_verified_at : TIMESTAMP
   phone_verified_at : TIMESTAMP
   last_active_at : TIMESTAMP
@@ -138,8 +134,6 @@ entity "CONVERSATION" as CONVERSATION {
   ride_id : UUID <<FK>>
   booking_id : UUID <<FK>>
   conversation_type : VARCHAR
-  driver_id : UUID <<FK>>
-  passenger_id : UUID <<FK>>
   driver_last_read_at : TIMESTAMP
   passenger_last_read_at : TIMESTAMP
   created_at : TIMESTAMP
@@ -248,8 +242,6 @@ USER ||--o{ REVIEW : receives
 
 RIDE ||--o{ CONVERSATION : relates_to
 BOOKING ||--o{ CONVERSATION : relates_to
-USER ||--o{ CONVERSATION : driver_in
-USER ||--o{ CONVERSATION : passenger_in
 
 CONVERSATION ||--o{ MESSAGE : contains
 USER ||--o{ MESSAGE : sends
