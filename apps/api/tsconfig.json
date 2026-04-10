@@ -4,5 +4,5 @@
         "types": ["bun"],
         "outDir": "dist"
     },
-    "include": ["src"]
+    "include": ["src", "drizzle.config.ts"]
 }
