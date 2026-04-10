@@ -1,4 +1,5 @@
 @startuml
+!pragma layout smetana
 hide circle
 left to right direction
 
@@ -61,25 +62,9 @@ entity "RIDE" as RIDE {
   departure_at : TIMESTAMP
   arrival_estimate_at : TIMESTAMP
   ride_status : VARCHAR
-  origin_stop_id : UUID <<FK>>
-  destination_stop_id : UUID <<FK>>
-  origin_city : VARCHAR
-  destination_city : VARCHAR
-  origin_country_code : VARCHAR
-  destination_country_code : VARCHAR
-  origin_lat : NUMERIC
-  origin_lng : NUMERIC
-  destination_lat : NUMERIC
-  destination_lng : NUMERIC
-  available_seats : INTEGER
+  offered_seats : INTEGER
   currency : VARCHAR
   description : TEXT
-  instant_booking_enabled : BOOLEAN
-  luggage_allowed : BOOLEAN
-  pets_allowed : BOOLEAN
-  smoking_allowed : BOOLEAN
-  women_only : BOOLEAN
-  max_two_backseat : BOOLEAN
   created_at : TIMESTAMP
   updated_at : TIMESTAMP
   deleted_at : TIMESTAMP
@@ -250,7 +235,7 @@ CAR_MODEL ||--o{ CAR : classifies
 USER ||--o{ RIDE : drives
 CAR ||--o{ RIDE : assigned_to
 
-RIDE ||--o{ RIDE_STOP : has
+RIDE ||--o{ RIDE_STOP : contains (ordered by stop_order)
 RIDE_STOP ||--o{ PRICE : start_stop
 RIDE_STOP ||--o{ PRICE : end_stop
 RIDE ||--o{ PRICE : defines
@@ -288,8 +273,4 @@ USER ||--o{ BLOCKLIST : blocks
 USER ||--o{ BLOCKLIST : is_blocked
 USER ||--o{ BLOCKLIST : revoked_by
 
-RIDE }o--|| RIDE_STOP : start_stop
-RIDE }o--|| RIDE_STOP : end_stop
-
 @enduml
-
