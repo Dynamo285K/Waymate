@@ -1,5 +1,13 @@
 import { sql } from "drizzle-orm";
-import { check, index, pgTable, text, timestamp, uuid, uniqueIndex } from "drizzle-orm/pg-core";
+import {
+    check,
+    index,
+    pgTable,
+    text,
+    timestamp,
+    uuid,
+    uniqueIndex,
+} from "drizzle-orm/pg-core";
 import { userStatusEnum } from "./enums";
 
 export const users = pgTable(
@@ -26,7 +34,7 @@ export const users = pgTable(
         uniqueIndex("users_email_lower_uq").on(sql`lower(${table.email})`),
         index("users_status_idx").on(table.userStatus),
         index("users_created_at_idx").on(table.createdAt),
-        
+
         check("users_email_len_chk", sql`char_length(${table.email}) <= 254`),
         check(
             "users_password_hash_len_chk",
@@ -52,11 +60,17 @@ export const users = pgTable(
             "users_last_name_format_chk",
             sql`${table.lastName} ~ '^[[:upper:]]' AND ${table.lastName} !~ '\\s'`
         ),
-        check("users_display_name_no_space_chk", sql`${table.displayName} !~ '\\s'`),
+        check(
+            "users_display_name_no_space_chk",
+            sql`${table.displayName} !~ '\\s'`
+        ),
         check(
             "users_phone_format_chk",
             sql`${table.phone} IS NULL OR (${table.phone} ~ '^\\+[1-9][0-9]{1,14}$' AND char_length(${table.phone}) <= 16)`
         ),
-        check("users_bio_len_chk", sql`${table.bio} IS NULL OR char_length(${table.bio}) <= 500`),
+        check(
+            "users_bio_len_chk",
+            sql`${table.bio} IS NULL OR char_length(${table.bio}) <= 500`
+        ),
     ]
 );

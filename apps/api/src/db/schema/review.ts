@@ -33,13 +33,20 @@ export const reviews = pgTable(
         updatedAt: timestamp("updated_at").defaultNow().notNull(),
     },
     (table) => [
-        uniqueIndex("reviews_ride_author_subject_uq").on(table.rideId, table.authorId, table.subjectId),
+        uniqueIndex("reviews_ride_author_subject_uq").on(
+            table.rideId,
+            table.authorId,
+            table.subjectId
+        ),
         index("reviews_subject_id_idx").on(table.subjectId),
         index("reviews_rating_idx").on(table.rating),
         index("reviews_status_idx").on(table.reviewStatus),
         index("reviews_created_at_idx").on(table.createdAt),
-        
+
         check("reviews_rating_chk", sql`${table.rating} BETWEEN 1 AND 5`),
-        check("reviews_author_subject_distinct_chk", sql`${table.authorId} <> ${table.subjectId}`),
+        check(
+            "reviews_author_subject_distinct_chk",
+            sql`${table.authorId} <> ${table.subjectId}`
+        ),
     ]
 );

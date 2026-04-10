@@ -46,6 +46,9 @@ export const rides = pgTable(
             sql`${table.arrivalEstimateAt} IS NULL OR ${table.arrivalEstimateAt} >= ${table.departureAt}`
         ),
         check("rides_currency_chk", sql`${table.currency} ~ '^[A-Z]{3}$'`),
-        check("rides_description_len_chk", sql`${table.description} IS NULL OR char_length(${table.description}) <= 500`),
+        check(
+            "rides_description_len_chk",
+            sql`${table.description} IS NULL OR char_length(${table.description}) <= 500`
+        ),
     ]
 );

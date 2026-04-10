@@ -1,5 +1,12 @@
 import { sql } from "drizzle-orm";
-import { check, index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+    check,
+    index,
+    pgTable,
+    text,
+    timestamp,
+    uuid,
+} from "drizzle-orm/pg-core";
 import { users } from "./user";
 import { blockReasonEnum, blockStatusEnum } from "./enums";
 
@@ -28,8 +35,17 @@ export const blocklist = pgTable(
         index("blocklist_reason_idx").on(table.blockReason),
         index("blocklist_status_idx").on(table.blockStatus),
         index("blocklist_created_at_idx").on(table.createdAt),
-        check("blocklist_no_self_block_chk", sql`${table.blockerUserId} <> ${table.blockedUserId}`),
-        check("blocklist_revoked_at_chk", sql`${table.revokedAt} IS NULL OR ${table.revokedAt} >= ${table.createdAt}`),
-        check("blocklist_reason_text_len_chk", sql`${table.reasonText} IS NULL OR char_length(trim(${table.reasonText})) <= 500`),
+        check(
+            "blocklist_no_self_block_chk",
+            sql`${table.blockerUserId} <> ${table.blockedUserId}`
+        ),
+        check(
+            "blocklist_revoked_at_chk",
+            sql`${table.revokedAt} IS NULL OR ${table.revokedAt} >= ${table.createdAt}`
+        ),
+        check(
+            "blocklist_reason_text_len_chk",
+            sql`${table.reasonText} IS NULL OR char_length(trim(${table.reasonText})) <= 500`
+        ),
     ]
 );

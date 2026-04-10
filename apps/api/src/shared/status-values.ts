@@ -22,17 +22,9 @@ export const bookingStatusValues = [
     "NO_SHOW",
 ] as const;
 
-export const reviewStatusValues = [
-    "VISIBLE",
-    "HIDDEN",
-    "REMOVED",
-] as const;
+export const reviewStatusValues = ["VISIBLE", "HIDDEN", "REMOVED"] as const;
 
-export const conversationTypeValues = [
-    "RIDE",
-    "BOOKING",
-    "SUPPORT",
-] as const;
+export const conversationTypeValues = ["RIDE", "BOOKING", "SUPPORT"] as const;
 
 export const messageTypeValues = ["TEXT", "SYSTEM"] as const;
 

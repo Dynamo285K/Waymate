@@ -33,14 +33,26 @@ export const cars = pgTable(
         deletedAt: timestamp("deleted_at"),
     },
     (table) => [
-        uniqueIndex("cars_spz_country_code_uq").on(table.spz, table.countryCode),
+        uniqueIndex("cars_spz_country_code_uq").on(
+            table.spz,
+            table.countryCode
+        ),
         index("cars_owner_id_idx").on(table.ownerId),
         index("cars_model_id_idx").on(table.modelId),
         // Index for Country Code is not neccesary as it's part of the unique index with SPZ
-        
+
         check("cars_seats_total_chk", sql`${table.seatsTotal} > 0`),
-        check("cars_spz_len_chk", sql`char_length(${table.spz}) BETWEEN 1 AND 16`),
-        check("cars_country_code_chk", sql`${table.countryCode} ~ '^[A-Z]{3}$'`),
-        check("cars_color_len_chk", sql`${table.color} IS NULL OR char_length(${table.color}) BETWEEN 1 AND 50`),
+        check(
+            "cars_spz_len_chk",
+            sql`char_length(${table.spz}) BETWEEN 1 AND 16`
+        ),
+        check(
+            "cars_country_code_chk",
+            sql`${table.countryCode} ~ '^[A-Z]{3}$'`
+        ),
+        check(
+            "cars_color_len_chk",
+            sql`${table.color} IS NULL OR char_length(${table.color}) BETWEEN 1 AND 50`
+        ),
     ]
 );

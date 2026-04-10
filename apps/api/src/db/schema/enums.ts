@@ -20,13 +20,22 @@ export const bookingStatusEnum = pgEnum("booking_status", bookingStatusValues);
 
 export const reviewStatusEnum = pgEnum("review_status", reviewStatusValues);
 
-export const conversationTypeEnum = pgEnum("conversation_type", conversationTypeValues);
+export const conversationTypeEnum = pgEnum(
+    "conversation_type",
+    conversationTypeValues
+);
 
 export const messageTypeEnum = pgEnum("message_type", messageTypeValues);
 
-export const notificationTypeEnum = pgEnum("notification_type", notificationTypeValues);
+export const notificationTypeEnum = pgEnum(
+    "notification_type",
+    notificationTypeValues
+);
 
-export const deliveryStatusEnum = pgEnum("delivery_status", deliveryStatusValues);
+export const deliveryStatusEnum = pgEnum(
+    "delivery_status",
+    deliveryStatusValues
+);
 
 export const blockReasonEnum = pgEnum("block_reason", blockReasonValues);
 

@@ -32,11 +32,16 @@ export const bookings = pgTable(
             .references(() => rideStops.id),
         seatCount: integer("seat_count").notNull(),
         bookingStatus: bookingStatusEnum("booking_status").notNull(),
-        priceAmount: numeric("price_amount", { precision: 10, scale: 2 }).notNull(),
+        priceAmount: numeric("price_amount", {
+            precision: 10,
+            scale: 2,
+        }).notNull(),
         currency: text("currency").notNull(),
         confirmedAt: timestamp("confirmed_at"),
         cancelledAt: timestamp("cancelled_at"),
-        cancelledByUserId: uuid("cancelled_by_user_id").references(() => users.id),
+        cancelledByUserId: uuid("cancelled_by_user_id").references(
+            () => users.id
+        ),
         cancellationReason: text("cancellation_reason"),
         noShowMarkedAt: timestamp("no_show_marked_at"),
         createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -50,10 +55,16 @@ export const bookings = pgTable(
         index("bookings_dropoff_stop_id_idx").on(table.dropoffStopId),
         index("bookings_status_idx").on(table.bookingStatus),
         index("bookings_created_at_idx").on(table.createdAt),
-        
-        check("bookings_distinct_stops_chk", sql`${table.pickupStopId} <> ${table.dropoffStopId}`),
+
+        check(
+            "bookings_distinct_stops_chk",
+            sql`${table.pickupStopId} <> ${table.dropoffStopId}`
+        ),
         check("bookings_seat_count_chk", sql`${table.seatCount} > 0`),
-        check("bookings_price_non_negative_chk", sql`${table.priceAmount} >= 0`),
+        check(
+            "bookings_price_non_negative_chk",
+            sql`${table.priceAmount} >= 0`
+        ),
         check("bookings_currency_chk", sql`${table.currency} ~ '^[A-Z]{3}$'`),
         check(
             "bookings_cancellation_reason_len_chk",

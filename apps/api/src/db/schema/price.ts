@@ -31,12 +31,19 @@ export const prices = pgTable(
         updatedAt: timestamp("updated_at").defaultNow().notNull(),
     },
     (table) => [
-        uniqueIndex("prices_ride_start_end_uq").on(table.rideId, table.startStopId, table.endStopId),
+        uniqueIndex("prices_ride_start_end_uq").on(
+            table.rideId,
+            table.startStopId,
+            table.endStopId
+        ),
         index("prices_start_stop_id_idx").on(table.startStopId),
         index("prices_end_stop_id_idx").on(table.endStopId),
-        
+
         check("prices_amount_non_negative_chk", sql`${table.amount} >= 0`),
-        check("prices_distinct_stops_chk", sql`${table.startStopId} <> ${table.endStopId}`),
+        check(
+            "prices_distinct_stops_chk",
+            sql`${table.startStopId} <> ${table.endStopId}`
+        ),
         check("prices_currency_chk", sql`${table.currency} ~ '^[A-Z]{3}$'`),
     ]
 );

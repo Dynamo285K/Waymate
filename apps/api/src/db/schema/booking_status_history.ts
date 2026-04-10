@@ -1,5 +1,12 @@
 import { sql } from "drizzle-orm";
-import { check, index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+    check,
+    index,
+    pgTable,
+    text,
+    timestamp,
+    uuid,
+} from "drizzle-orm/pg-core";
 import { bookings } from "./booking";
 import { users } from "./user";
 import { bookingStatusEnum } from "./enums";
@@ -21,7 +28,10 @@ export const bookingStatusHistory = pgTable(
         index("booking_status_history_booking_id_idx").on(table.bookingId),
         index("booking_status_history_new_status_idx").on(table.newStatus),
         index("booking_status_history_created_at_idx").on(table.createdAt),
-        
-        check("booking_status_history_reason_len_chk", sql`${table.reason} IS NULL OR char_length(${table.reason}) <= 500`),
+
+        check(
+            "booking_status_history_reason_len_chk",
+            sql`${table.reason} IS NULL OR char_length(${table.reason}) <= 500`
+        ),
     ]
 );

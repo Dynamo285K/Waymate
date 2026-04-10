@@ -19,18 +19,26 @@ export const usersRelations = relations(users, ({ many }) => ({
     cars: many(cars),
     drivenRides: many(rides),
     bookingsAsPassenger: many(bookings),
-    bookingsCancelledByUser: many(bookings, { relationName: "booking_cancelled_by_user" }),
+    bookingsCancelledByUser: many(bookings, {
+        relationName: "booking_cancelled_by_user",
+    }),
     authoredReviews: many(reviews, { relationName: "review_author" }),
     receivedReviews: many(reviews, { relationName: "review_subject" }),
     messages: many(messages),
     notifications: many(notifications),
-    userStatusHistory: many(userStatusHistory, { relationName: "user_status_history_subject" }),
-    userStatusChangesByUser: many(userStatusHistory, { relationName: "user_status_history_changed_by" }),
+    userStatusHistory: many(userStatusHistory, {
+        relationName: "user_status_history_subject",
+    }),
+    userStatusChangesByUser: many(userStatusHistory, {
+        relationName: "user_status_history_changed_by",
+    }),
     rideStatusChangesByUser: many(rideStatusHistory),
     bookingStatusChangesByUser: many(bookingStatusHistory),
     blocklistAsBlocker: many(blocklist, { relationName: "blocklist_blocker" }),
     blocklistAsBlocked: many(blocklist, { relationName: "blocklist_blocked" }),
-    blocklistAsRevoker: many(blocklist, { relationName: "blocklist_revoked_by" }),
+    blocklistAsRevoker: many(blocklist, {
+        relationName: "blocklist_revoked_by",
+    }),
 }));
 
 export const carModelsRelations = relations(carModels, ({ many }) => ({
@@ -73,8 +81,12 @@ export const rideStopsRelations = relations(rideStops, ({ one, many }) => ({
     }),
     pricesAsStartStop: many(prices, { relationName: "price_start_stop" }),
     pricesAsEndStop: many(prices, { relationName: "price_end_stop" }),
-    bookingsAsPickupStop: many(bookings, { relationName: "booking_pickup_stop" }),
-    bookingsAsDropoffStop: many(bookings, { relationName: "booking_dropoff_stop" }),
+    bookingsAsPickupStop: many(bookings, {
+        relationName: "booking_pickup_stop",
+    }),
+    bookingsAsDropoffStop: many(bookings, {
+        relationName: "booking_dropoff_stop",
+    }),
 }));
 
 export const pricesRelations = relations(prices, ({ one }) => ({
@@ -139,17 +151,20 @@ export const reviewsRelations = relations(reviews, ({ one }) => ({
     }),
 }));
 
-export const conversationsRelations = relations(conversations, ({ one, many }) => ({
-    ride: one(rides, {
-        fields: [conversations.rideId],
-        references: [rides.id],
-    }),
-    booking: one(bookings, {
-        fields: [conversations.bookingId],
-        references: [bookings.id],
-    }),
-    messages: many(messages),
-}));
+export const conversationsRelations = relations(
+    conversations,
+    ({ one, many }) => ({
+        ride: one(rides, {
+            fields: [conversations.rideId],
+            references: [rides.id],
+        }),
+        booking: one(bookings, {
+            fields: [conversations.bookingId],
+            references: [bookings.id],
+        }),
+        messages: many(messages),
+    })
+);
 
 export const messagesRelations = relations(messages, ({ one }) => ({
     conversation: one(conversations, {
@@ -169,40 +184,49 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
     }),
 }));
 
-export const userStatusHistoryRelations = relations(userStatusHistory, ({ one }) => ({
-    user: one(users, {
-        fields: [userStatusHistory.userId],
-        references: [users.id],
-        relationName: "user_status_history_subject",
-    }),
-    changedByUser: one(users, {
-        fields: [userStatusHistory.changedByUserId],
-        references: [users.id],
-        relationName: "user_status_history_changed_by",
-    }),
-}));
+export const userStatusHistoryRelations = relations(
+    userStatusHistory,
+    ({ one }) => ({
+        user: one(users, {
+            fields: [userStatusHistory.userId],
+            references: [users.id],
+            relationName: "user_status_history_subject",
+        }),
+        changedByUser: one(users, {
+            fields: [userStatusHistory.changedByUserId],
+            references: [users.id],
+            relationName: "user_status_history_changed_by",
+        }),
+    })
+);
 
-export const rideStatusHistoryRelations = relations(rideStatusHistory, ({ one }) => ({
-    ride: one(rides, {
-        fields: [rideStatusHistory.rideId],
-        references: [rides.id],
-    }),
-    changedByUser: one(users, {
-        fields: [rideStatusHistory.changedByUserId],
-        references: [users.id],
-    }),
-}));
+export const rideStatusHistoryRelations = relations(
+    rideStatusHistory,
+    ({ one }) => ({
+        ride: one(rides, {
+            fields: [rideStatusHistory.rideId],
+            references: [rides.id],
+        }),
+        changedByUser: one(users, {
+            fields: [rideStatusHistory.changedByUserId],
+            references: [users.id],
+        }),
+    })
+);
 
-export const bookingStatusHistoryRelations = relations(bookingStatusHistory, ({ one }) => ({
-    booking: one(bookings, {
-        fields: [bookingStatusHistory.bookingId],
-        references: [bookings.id],
-    }),
-    changedByUser: one(users, {
-        fields: [bookingStatusHistory.changedByUserId],
-        references: [users.id],
-    }),
-}));
+export const bookingStatusHistoryRelations = relations(
+    bookingStatusHistory,
+    ({ one }) => ({
+        booking: one(bookings, {
+            fields: [bookingStatusHistory.bookingId],
+            references: [bookings.id],
+        }),
+        changedByUser: one(users, {
+            fields: [bookingStatusHistory.changedByUserId],
+            references: [users.id],
+        }),
+    })
+);
 
 export const blocklistRelations = relations(blocklist, ({ one }) => ({
     blockerUser: one(users, {

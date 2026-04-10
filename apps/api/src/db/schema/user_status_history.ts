@@ -1,5 +1,12 @@
 import { sql } from "drizzle-orm";
-import { check, index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+    check,
+    index,
+    pgTable,
+    text,
+    timestamp,
+    uuid,
+} from "drizzle-orm/pg-core";
 import { users } from "./user";
 import { userStatusEnum } from "./enums";
 
@@ -21,6 +28,9 @@ export const userStatusHistory = pgTable(
         index("user_status_history_new_status_idx").on(table.newStatus),
         index("user_status_history_created_at_idx").on(table.createdAt),
 
-        check("user_status_history_reason_len_chk", sql`${table.reason} IS NULL OR char_length(${table.reason}) <= 500`)
+        check(
+            "user_status_history_reason_len_chk",
+            sql`${table.reason} IS NULL OR char_length(${table.reason}) <= 500`
+        ),
     ]
 );

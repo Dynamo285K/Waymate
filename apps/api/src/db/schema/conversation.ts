@@ -1,5 +1,12 @@
 import { sql } from "drizzle-orm";
-import { check, index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+    check,
+    index,
+    pgTable,
+    text,
+    timestamp,
+    uuid,
+} from "drizzle-orm/pg-core";
 import { rides } from "./ride";
 import { bookings } from "./booking";
 import { conversationTypeEnum } from "./enums";
@@ -22,7 +29,7 @@ export const conversations = pgTable(
         index("conversations_booking_id_idx").on(table.bookingId),
         index("conversations_type_idx").on(table.conversationType),
         index("conversations_updated_at_idx").on(table.updatedAt),
-        
+
         check(
             "conversations_context_present_chk",
             sql`${table.rideId} IS NOT NULL OR ${table.bookingId} IS NOT NULL`
