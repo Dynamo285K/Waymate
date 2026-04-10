@@ -92,8 +92,6 @@ entity "PRICE" as PRICE {
   ride_id : UUID <<FK>>
   start_stop_id : UUID <<FK>>
   end_stop_id : UUID <<FK>>
-  start_stop_order : INTEGER
-  end_stop_order : INTEGER
   amount : NUMERIC
   currency : VARCHAR
   created_at : TIMESTAMP
@@ -107,8 +105,6 @@ entity "BOOKING" as BOOKING {
   ride_id : UUID <<FK>>
   pickup_stop_id : UUID <<FK>>
   dropoff_stop_id : UUID <<FK>>
-  pickup_order : INTEGER
-  dropoff_order : INTEGER
   seat_count : INTEGER
   booking_status : VARCHAR
   price_amount : NUMERIC
