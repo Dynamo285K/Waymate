@@ -5,12 +5,10 @@ export const BookingOutputSchema = BookingBaseSchema.pick({
     id: true,
     passenger_id: true,
     ride_id: true,
-    booking_status_id: true,
+    booking_status: true,
 
     pickup_stop_id: true,
     dropoff_stop_id: true,
-    pickup_order: true,
-    dropoff_order: true,
 
     seat_count: true,
     price_amount: true,

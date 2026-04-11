@@ -1,12 +1,9 @@
 import { z } from "zod";
-import { RideStatusIdSchema } from "./ride-statuses.schema";
-import { RideStopIdSchema } from "./ride-stop.schema";
+import { RideStatusSchema } from "./ride-statuses.schema";
 import { UserIdSchema } from "../users/user-id.schema";
 import { CarIdSchema } from "../cars/car-id.schema";
 import { RideIdSchema } from "./ride-id.schema";
-import { CountryCodeSchema, CurrencySchema } from "../../shared";
-
-const CitySchema = z.string().min(1).max(100);
+import { CurrencySchema } from "../../shared";
 
 const DescriptionSchema = z.string().max(500).nullable();
 
@@ -15,38 +12,18 @@ export const RideEntitySchema = z.object({
     id: RideIdSchema,
     driver_id: UserIdSchema,
     car_id: CarIdSchema,
-    ride_status_id: RideStatusIdSchema,
+    ride_status: RideStatusSchema,
 
     // Schedule
     departure_at: z.date(),
     arrival_estimate_at: z.date().nullable(),
 
-    // Route and stop references
-    origin_stop_id: RideStopIdSchema.nullable(),
-    destination_stop_id: RideStopIdSchema.nullable(),
-
-    // Route search/location fields
-    origin_city: CitySchema,
-    destination_city: CitySchema,
-    origin_country_code: CountryCodeSchema.nullable(),
-    destination_country_code: CountryCodeSchema.nullable(),
-    origin_lat: z.number().min(-90).max(90).nullable(),
-    origin_lng: z.number().min(-180).max(180).nullable(),
-    destination_lat: z.number().min(-90).max(90).nullable(),
-    destination_lng: z.number().min(-180).max(180).nullable(),
-
     // Capacity and pricing
-    available_seats_cached: z.number().int().min(0),
+    offered_seats: z.number().int().min(1),
     currency: CurrencySchema,
 
-    // Ride details and preferences
+    // Ride details
     description: DescriptionSchema,
-    instant_booking_enabled: z.boolean(),
-    luggage_allowed: z.boolean(),
-    pets_allowed: z.boolean(),
-    smoking_allowed: z.boolean(),
-    women_only: z.boolean(),
-    max_two_backseat: z.boolean(),
 
     // Timestamps
     created_at: z.date(),

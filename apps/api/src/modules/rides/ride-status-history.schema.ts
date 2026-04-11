@@ -1,17 +1,22 @@
 import { z } from "zod";
 import { UserIdSchema } from "../users/user-id.schema";
 import { RideIdSchema } from "./ride-id.schema";
-import { RideStatusIdSchema } from "./ride-statuses.schema";
+import { RideStatusSchema } from "./ride-statuses.schema";
 
 const RideStatusHistoryIdSchema = z.uuid();
 
 export const RideStatusHistoryEntitySchema = z.object({
+    // Identity and relationships
     id: RideStatusHistoryIdSchema,
     ride_id: RideIdSchema,
-    old_status_id: RideStatusIdSchema.nullable(),
-    new_status_id: RideStatusIdSchema,
+
+    // Status transition
+    old_status: RideStatusSchema.nullable(),
+    new_status: RideStatusSchema,
     changed_by_user_id: UserIdSchema.nullable(),
-    reason: z.string().max(500).nullable(), // Should be updated in DB schema as well
+    reason: z.string().max(500).nullable(),
+
+    // Timestamps
     created_at: z.date(),
 });
 

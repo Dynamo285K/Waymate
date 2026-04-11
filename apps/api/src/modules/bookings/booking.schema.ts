@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { UserIdSchema } from "../users/user-id.schema";
-import { BookingStatusIdSchema } from "./booking-statuses.schema";
+import { BookingStatusSchema } from "./booking-statuses.schema";
 import { BookingIdSchema } from "./booking-id.schema";
 import { RideIdSchema } from "../rides/ride-id.schema";
 import { RideStopIdSchema } from "../rides/ride-stop.schema";
@@ -11,13 +11,11 @@ export const BookingBaseSchema = z.object({
     id: BookingIdSchema,
     passenger_id: UserIdSchema,
     ride_id: RideIdSchema,
-    booking_status_id: BookingStatusIdSchema,
+    booking_status: BookingStatusSchema,
 
     // Route and stop selection
     pickup_stop_id: RideStopIdSchema,
     dropoff_stop_id: RideStopIdSchema,
-    pickup_order: z.number().int().min(0),
-    dropoff_order: z.number().int().min(0),
 
     // Capacity and pricing
     seat_count: z.number().int().min(1),
@@ -43,9 +41,6 @@ export const BookingEntitySchema = BookingBaseSchema.refine(
         message: "pickup_stop_id and dropoff_stop_id must be different",
         path: ["dropoff_stop_id"],
     }
-).refine((v) => v.pickup_order < v.dropoff_order, {
-    message: "pickup_order must be lower than dropoff_order",
-    path: ["dropoff_order"],
-});
+);
 
 export type Booking = z.infer<typeof BookingEntitySchema>;

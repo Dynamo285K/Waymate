@@ -4,7 +4,7 @@ import { UserEntitySchema } from "./user.schema";
 export const UserOutputSchema = UserEntitySchema.pick({
     id: true,
     email: true,
-    user_status_id: true,
+    user_status: true,
 
     first_name: true,
     last_name: true,
@@ -12,11 +12,6 @@ export const UserOutputSchema = UserEntitySchema.pick({
     phone: true,
     profile_photo_url: true,
     bio: true,
-
-    avg_rating: true,
-    rating_count: true,
-    completed_rides_count: true,
-    no_show_count: true,
 
     email_verified_at: true,
     phone_verified_at: true,

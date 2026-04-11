@@ -5,14 +5,21 @@ import { RideStopIdSchema } from "./ride-stop.schema";
 import { CurrencySchema, Decimal10_2NonNegativeSchema } from "../../shared";
 
 export const PriceBaseSchema = z.object({
+    // Identity and relationships
     id: PriceIdSchema,
     ride_id: RideIdSchema,
     start_stop_id: RideStopIdSchema,
     end_stop_id: RideStopIdSchema,
+
+    // Segment ordering
     start_stop_order: z.number().int().min(0),
     end_stop_order: z.number().int().min(0),
+
+    // Price details
     amount: Decimal10_2NonNegativeSchema,
     currency: CurrencySchema,
+
+    // Timestamps
     created_at: z.date(),
     updated_at: z.date(),
 });
