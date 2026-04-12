@@ -11,9 +11,4 @@
  * - DB-only: case-insensitive email uniqueness (e.g. UNIQUE INDEX ON lower(email))
  * - Transaction-only: atomic consistency between users.user_status and user_status_history writes
  */
-export * from "./user-id.schema";
 export * from "./user.schema";
-export * from "./user-output.schema";
-export * from "./user-input.schema";
-export * from "./user-statuses.schema";
-export * from "./user-status-history.schema";
