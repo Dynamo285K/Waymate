@@ -47,6 +47,17 @@ Current / planned application stack:
     .gitignore
     bun.lock
 
+## UI Library
+
+This project uses a shared UI component library:
+
+👉 https://gitlab.fi.muni.cz/xbartel/waymate-ui
+
+### Local development
+
+```bash
+bun link waymate-ui
+
 ### 1. Clone the repository
 
     git clone <repository-url>
@@ -55,3 +66,4 @@ Current / planned application stack:
 ### 2. Install dependencies
 
     bun install
+```
