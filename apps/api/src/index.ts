@@ -1,14 +1,21 @@
 import { Elysia } from "elysia";
-import { env } from "./config/env";
-import { healthRoutes } from "./modules/health/health.routes";
+import { isAuthenticated } from "./modules/auth/auth.middleware";
 
 const app = new Elysia()
-    .get("/", () => ({
-        message: "Waymate API is running",
-    }))
-    .use(healthRoutes)
-    .listen(env.PORT);
+    .use(isAuthenticated)
+    .get("/", () => ({ status: "Waymate API is online" }))
+    .get(
+        "/api/me",
+        ({ user }) => ({
+            message: `Hello ${user.displayName ?? user.firstName ?? user.email}!`,
+            data: user,
+        }),
+        {
+            auth: true,
+        }
+    )
+    .listen(3000);
 
 console.log(
-    `API running on http://${app.server?.hostname}:${app.server?.port}`
+    `Waymate API is running at ${app.server?.hostname}:${app.server?.port}`
 );
