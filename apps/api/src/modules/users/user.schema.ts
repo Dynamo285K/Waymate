@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { userStatusValues } from "../../shared";
 
+// User ID is UUID in DB schema.
 export const UserIdSchema = z.uuid();
 export type UserId = z.infer<typeof UserIdSchema>;
 
@@ -50,76 +51,83 @@ const DisplayNameInputSchema = z
     .regex(/^\S+$/, "Must not contain spaces");
 
 export const UserEntitySchema = z.object({
-    // Identity and authentication
+    // --- Better-Auth povinné polia ---
     id: UserIdSchema,
+    name: z.string(),
     email: EmailSchema,
-    password_hash: z.string().min(1).max(255),
-    user_status: UserStatusSchema,
+    emailVerified: z.boolean(),
+    image: z.string().nullable(),
+    // password_hash je odstránené, patrí do account tabuľky
 
-    // Profile information
-    first_name: CapitalizedNameSchema,
-    last_name: CapitalizedNameSchema,
-    display_name: DisplayNameSchema,
+    // --- Tvoje Waymate profilové informácie ---
+    firstName: CapitalizedNameSchema.nullable(),
+    lastName: CapitalizedNameSchema.nullable(),
+    displayName: DisplayNameSchema.nullable(),
     phone: PhoneSchema.nullable(),
-    profile_photo_url: z.url().nullable(),
+    profilePhotoUrl: z.url().nullable(),
     bio: z.string().max(500).nullable(),
+    userStatus: UserStatusSchema,
 
-    // Verification and activity
-    email_verified_at: z.date().nullable(),
-    phone_verified_at: z.date().nullable(),
-    last_active_at: z.date().nullable(),
+    // --- Verifikácie a aktivita ---
+    emailVerifiedAt: z.date().nullable(),
+    phoneVerifiedAt: z.date().nullable(),
+    lastActiveAt: z.date().nullable(),
 
-    // Timestamps
-    created_at: z.date(),
-    updated_at: z.date(),
-    deleted_at: z.date().nullable(),
+    // --- Časové pečiatky ---
+    createdAt: z.date(),
+    updatedAt: z.date(),
+    deletedAt: z.date().nullable(),
 });
 
 export const UserOutputSchema = UserEntitySchema.pick({
     id: true,
+    name: true,
     email: true,
-    user_status: true,
+    emailVerified: true,
+    image: true,
+    userStatus: true,
 
-    first_name: true,
-    last_name: true,
-    display_name: true,
+    firstName: true,
+    lastName: true,
+    displayName: true,
     phone: true,
-    profile_photo_url: true,
+    profilePhotoUrl: true,
     bio: true,
 
-    email_verified_at: true,
-    phone_verified_at: true,
-    last_active_at: true,
+    emailVerifiedAt: true,
+    phoneVerifiedAt: true,
+    lastActiveAt: true,
 
-    created_at: true,
+    createdAt: true,
+    updatedAt: true,
 });
 
-export const UserInputSchema = z.object({
+const UserMutableFieldsSchema = z.object({
     email: EmailInputSchema,
-    password: z.string().min(8).max(128),
-    first_name: CapitalizedNameInputSchema,
-    last_name: CapitalizedNameInputSchema,
-    display_name: DisplayNameInputSchema,
+    firstName: CapitalizedNameInputSchema.nullable(),
+    lastName: CapitalizedNameInputSchema.nullable(),
+    displayName: DisplayNameInputSchema.nullable(),
     phone: PhoneInputSchema.nullable(),
-    profile_photo_url: z.string().trim().url().nullable(),
+    profilePhotoUrl: z.string().trim().nullable(),
     bio: z.string().trim().max(500).nullable(),
+    userStatus: UserStatusSchema,
 });
 
-export const UserStatusHistoryIdSchema = z.uuid();
+export const UserInputSchema = UserMutableFieldsSchema.partial();
+
+// 3. ZMENA: Aj tu prepisujeme na camelCase, aby to sedelo s Drizzle
+export const UserStatusHistoryIdSchema = z.string();
 
 export const UserStatusHistoryEntitySchema = z.object({
-    // Identity and relationships
     id: UserStatusHistoryIdSchema,
-    user_id: UserIdSchema,
+    userId: UserIdSchema,
 
-    // Status transition
-    old_status: UserStatusSchema.nullable(),
-    new_status: UserStatusSchema,
-    changed_by_user_id: UserIdSchema.nullable(),
+    oldStatus: UserStatusSchema.nullable(),
+    newStatus: UserStatusSchema,
+    changedByUserId: UserIdSchema.nullable(),
     reason: z.string().max(500).nullable(),
 
-    // Timestamps
-    created_at: z.date(),
+    createdAt: z.date(),
 });
 
 export type User = z.infer<typeof UserEntitySchema>;
