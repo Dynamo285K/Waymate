@@ -1,19 +1,11 @@
 import { Elysia } from "elysia";
-import { isAuthenticated } from "./modules/auth/auth.middleware";
+import { auth } from "./modules/auth/auth"; // Uprav cestu podľa toho, kde máš auth.ts
+import { UserRoutes } from "./modules/users/user.routes";
 
 const app = new Elysia()
-    .use(isAuthenticated)
     .get("/", () => ({ status: "Waymate API is online" }))
-    .get(
-        "/api/me",
-        ({ user }) => ({
-            message: `Hello ${user.displayName ?? user.firstName ?? user.email}!`,
-            data: user,
-        }),
-        {
-            auth: true,
-        }
-    )
+    .mount(auth.handler)
+    .use(UserRoutes)
     .listen(3000);
 
 console.log(
