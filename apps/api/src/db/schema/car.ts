@@ -12,6 +12,7 @@ import {
 import { sql } from "drizzle-orm";
 import { users } from "./user";
 import { carModels } from "./car_model";
+import { carColorEnum } from "./enums";
 
 export const cars = pgTable(
     "cars",
@@ -25,7 +26,7 @@ export const cars = pgTable(
             .references(() => carModels.id),
         spz: text("spz").notNull(),
         countryCode: text("country_code").notNull(),
-        color: text("color"),
+        color: carColorEnum("color"),
         seatsTotal: integer("seats_total").notNull(),
         isActive: boolean("is_active").notNull().default(true),
         createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -49,10 +50,6 @@ export const cars = pgTable(
         check(
             "cars_country_code_chk",
             sql`${table.countryCode} ~ '^[A-Z]{3}$'`
-        ),
-        check(
-            "cars_color_len_chk",
-            sql`${table.color} IS NULL OR char_length(${table.color}) BETWEEN 1 AND 50`
         ),
     ]
 );

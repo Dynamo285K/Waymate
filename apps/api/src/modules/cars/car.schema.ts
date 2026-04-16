@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { UserIdSchema } from "../users/user.schema";
 import { CountryCodeSchema } from "../../shared";
+import { carColors } from "../../shared/status-values";
 
 export const CarIdSchema = z.uuid();
 export type CarId = z.infer<typeof CarIdSchema>;
@@ -9,52 +10,33 @@ export const CarModelIdSchema = z.number().int().positive();
 export type CarModelId = z.infer<typeof CarModelIdSchema>;
 
 export const CarModelEntitySchema = z.object({
-    // Identity
     id: CarModelIdSchema,
-
-    // Model details
     brand: z.string().trim().min(1).max(100),
-    model_name: z.string().trim().min(1).max(100),
-});
-
-export const CarModelOutputSchema = CarModelEntitySchema.pick({
-    id: true,
-    brand: true,
-    model_name: true,
+    modelName: z.string().trim().min(1).max(100),
 });
 
 export const CarEntitySchema = z.object({
-    // Identity and ownership
     id: CarIdSchema,
-    owner_id: UserIdSchema,
-    model_id: z.number().int(),
-
-    // Vehicle details
+    ownerId: UserIdSchema,
+    modelId: CarModelIdSchema,
     spz: z.string().min(1).max(16),
-    country_code: CountryCodeSchema,
-    color: z.string().min(1).max(50).nullable(),
-    seats_total: z.number().int().gt(0),
-    is_active: z.boolean(),
-
-    // Timestamps
-    created_at: z.date(),
-    updated_at: z.date(),
-    deleted_at: z.date().nullable(),
+    countryCode: CountryCodeSchema,
+    color: z.enum(carColors).nullable(),
+    seatsTotal: z.number().int().gt(0),
+    isActive: z.boolean(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+    deletedAt: z.date().nullable(),
 });
 
-export const CarOutputSchema = CarEntitySchema.pick({
-    id: true,
-    owner_id: true,
-    model_id: true,
-    spz: true,
-    country_code: true,
-    color: true,
-    seats_total: true,
-    is_active: true,
-    created_at: true,
+export const CreateCarBodySchema = z.object({
+    modelId: CarModelIdSchema,
+    spz: z.string().min(2).max(16).transform(val => val.toUpperCase()), // automaticky zmení na VEĽKÉ
+    countryCode: z.string().min(1).max(5).default("SK"),
+    color: z.enum(carColors).nullable(),
+    seatsTotal: z.number().int().min(2).max(9).default(4),
 });
+
 
 export type Car = z.infer<typeof CarEntitySchema>;
-export type CarOutput = z.infer<typeof CarOutputSchema>;
 export type CarModelEntity = z.infer<typeof CarModelEntitySchema>;
-export type CarModelOutput = z.infer<typeof CarModelOutputSchema>;

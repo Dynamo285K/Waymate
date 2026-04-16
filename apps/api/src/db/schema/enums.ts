@@ -10,6 +10,7 @@ import {
     reviewStatusValues,
     rideStatusValues,
     userStatusValues,
+    carColors
 } from "../../shared/status-values";
 
 export const userStatusEnum = pgEnum("user_status", userStatusValues);
@@ -40,3 +41,5 @@ export const deliveryStatusEnum = pgEnum(
 export const blockReasonEnum = pgEnum("block_reason", blockReasonValues);
 
 export const blockStatusEnum = pgEnum("block_status", blockStatusValues);
+
+export const carColorEnum = pgEnum("car_color", carColors);
