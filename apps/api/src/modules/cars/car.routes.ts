@@ -10,6 +10,7 @@ import {
     CarIdParamsSchema,
     UpdateCarStatusBodySchema,
 } from "./car.schema";
+import { CountryCodeList, CountryCodeSchema } from "../../shared";
 
 const ErrorResponseSchema = z.object({
     error: z.string(),
@@ -37,6 +38,7 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
         CreateCarBody: CreateCarBodySchema,
         UpdateCarStatusBody: UpdateCarStatusBodySchema,
         ErrorResponse: ErrorResponseSchema,
+        CountryCodeList: CountryCodeSchema.array(),
     })
     .onError(({ code, status }) => {
         if (code === "VALIDATION" || code === "PARSE") {
@@ -54,6 +56,21 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
     .use(isAuthenticated)
     .guard({ auth: true }, (app) =>
         app
+            .get(
+                "/country-codes",
+                () => {
+                    return CountryCodeList;
+                },
+                {
+                    response: {
+                        200: "CountryCodeList",
+                    },
+                    detail: {
+                        description:
+                            "Returns all available European country codes for license plates",
+                    },
+                }
+            )
             .get(
                 "/brands",
                 async () => {

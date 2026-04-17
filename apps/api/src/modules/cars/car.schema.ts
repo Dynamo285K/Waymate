@@ -7,7 +7,18 @@ export const CarIdSchema = z.uuid();
 export type CarId = z.infer<typeof CarIdSchema>;
 
 export const CarModelIdSchema = z.number().int().positive();
+
 export type CarModelId = z.infer<typeof CarModelIdSchema>;
+
+const CarPlateSchema = z
+    .string()
+    .trim()
+    .toUpperCase()
+    .min(2)
+    .max(12)
+    .regex(/^[A-Z0-9]+$/, "Plate can contain only letters and numbers");
+
+export type CarPlate = z.infer<typeof CarPlateSchema>;
 
 export const CarModelSchema = z.object({
     id: CarModelIdSchema,
@@ -19,7 +30,7 @@ export const CarSchema = z.object({
     id: CarIdSchema,
     ownerId: UserIdSchema,
     modelId: CarModelIdSchema,
-    spz: z.string().min(1).max(16),
+    spz: CarPlateSchema,
     countryCode: CountryCodeSchema,
     color: z.enum(carColors),
     seatsTotal: z.number().int().gt(0),
@@ -37,7 +48,7 @@ export const CarListItemSchema = z.object({
     brand: z.string().trim().min(1).max(100),
     modelName: z.string().trim().min(1).max(100),
 
-    spz: z.string().min(1).max(16),
+    spz: CarPlateSchema,
     countryCode: CountryCodeSchema,
     color: z.enum(carColors),
     seatsTotal: z.number().int().gt(0),
@@ -49,11 +60,7 @@ export const CarListItemSchema = z.object({
 
 export const CreateCarBodySchema = z.object({
     modelId: CarModelIdSchema,
-    spz: z
-        .string()
-        .min(2)
-        .max(16)
-        .transform((val) => val.toUpperCase()), // automaticky zmení na VEĽKÉ
+    spz: CarPlateSchema,
     countryCode: CountryCodeSchema.default("SK"),
     color: z.enum(carColors),
     seatsTotal: z.number().int().min(2).max(9).default(4),
