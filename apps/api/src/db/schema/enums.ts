@@ -10,7 +10,9 @@ import {
     reviewStatusValues,
     rideStatusValues,
     userStatusValues,
+    carColors,
 } from "../../shared/status-values";
+import { CountryCodes } from "../../shared";
 
 export const userStatusEnum = pgEnum("user_status", userStatusValues);
 
@@ -40,3 +42,7 @@ export const deliveryStatusEnum = pgEnum(
 export const blockReasonEnum = pgEnum("block_reason", blockReasonValues);
 
 export const blockStatusEnum = pgEnum("block_status", blockStatusValues);
+
+export const carColorEnum = pgEnum("car_color", carColors);
+
+export const countryCodeEnum = pgEnum("country_code", CountryCodes);
