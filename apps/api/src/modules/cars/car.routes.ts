@@ -38,7 +38,7 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
         CreateCarBody: CreateCarBodySchema,
         UpdateCarStatusBody: UpdateCarStatusBodySchema,
         ErrorResponse: ErrorResponseSchema,
-        CountryCodeList: CountryCodeSchema.array(),
+        CountryCodeResponseList: CountryCodeSchema.array(),
     })
     .onError(({ code, status }) => {
         if (code === "VALIDATION" || code === "PARSE") {
@@ -63,7 +63,7 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
                 },
                 {
                     response: {
-                        200: "CountryCodeList",
+                        200: "CountryCodeResponseList",
                     },
                     detail: {
                         description:

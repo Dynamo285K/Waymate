@@ -35,6 +35,7 @@ export const CountryCodes = [
 ] as const;
 
 export const CountryCodeSchema = z.enum(CountryCodes);
+export const CountryCodeInputSchema = CountryCodeSchema;
 export type CountryCode = z.infer<typeof CountryCodeSchema>;
 
 // Mutable list for API responses that expect `CountryCode[]`.
