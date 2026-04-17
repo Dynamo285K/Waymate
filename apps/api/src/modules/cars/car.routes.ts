@@ -106,8 +106,11 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
                     try {
                         const car = await CarService.createCar(user.id, body);
                         return status(201, car);
-                    } catch (error: any) {
-                        const message = String(error?.message ?? "");
+                    } catch (error) {
+                        const message =
+                            error instanceof Error
+                                ? error.message
+                                : String(error);
 
                         if (
                             message.includes("foreign key") ||
