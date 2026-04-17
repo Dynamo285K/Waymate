@@ -10,7 +10,7 @@ import {
     reviewStatusValues,
     rideStatusValues,
     userStatusValues,
-    carColors
+    carColors,
 } from "../../shared/status-values";
 
 export const userStatusEnum = pgEnum("user_status", userStatusValues);

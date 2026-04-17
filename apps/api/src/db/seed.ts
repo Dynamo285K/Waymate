@@ -8,12 +8,16 @@ async function main() {
 
     try {
         console.log("Clearing old models and resetting IDs...");
-        await db.execute(sql`TRUNCATE TABLE car_models RESTART IDENTITY CASCADE`);
+        await db.execute(
+            sql`TRUNCATE TABLE car_models RESTART IDENTITY CASCADE`
+        );
 
         console.log(`Inserting ${carData.length} car models...`);
         await db.insert(carModels).values(carData);
-        
-        console.log("All car models successfully reset and seeded into the database.");
+
+        console.log(
+            "All car models successfully reset and seeded into the database."
+        );
     } catch (error) {
         console.error("Error during seeding:", error);
     } finally {

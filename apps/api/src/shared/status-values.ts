@@ -56,6 +56,15 @@ export const blockReasonValues = [
 export const blockStatusValues = ["ACTIVE", "REVOKED"] as const;
 
 export const carColors = [
-    "WHITE", "BLACK", "SILVER", "GRAY", "RED", 
-    "BLUE", "BROWN", "GREEN", "YELLOW", "ORANGE", "OTHER"
+    "WHITE",
+    "BLACK",
+    "SILVER",
+    "GRAY",
+    "RED",
+    "BLUE",
+    "BROWN",
+    "GREEN",
+    "YELLOW",
+    "ORANGE",
+    "OTHER",
 ] as const;
