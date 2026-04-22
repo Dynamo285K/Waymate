@@ -7,6 +7,7 @@ import {
     timestamp,
     uniqueIndex,
     uuid,
+    integer,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { rides } from "./ride";
@@ -25,7 +26,7 @@ export const prices = pgTable(
         endStopId: uuid("end_stop_id")
             .notNull()
             .references(() => rideStops.id),
-        amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+        amount: integer("amount").notNull(),
         currency: text("currency").notNull(),
         createdAt: timestamp("created_at").defaultNow().notNull(),
         updatedAt: timestamp("updated_at").defaultNow().notNull(),

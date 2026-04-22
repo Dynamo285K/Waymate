@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { z } from "zod";
 import { CarService } from "./car.service";
-import { isAuthenticated } from "../auth/auth.middleware";
+import { isFullyOnboarded } from "../auth/auth.middleware";
 import {
     CarSchema,
     CarListItemSchema,
@@ -53,8 +53,8 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
             return status(500, { error: "Internal server error" });
         }
     })
-    .use(isAuthenticated)
-    .guard({ auth: true }, (app) =>
+    .use(isFullyOnboarded)
+    .guard({ auth: true, onboarded: true }, (app) =>
         app
             .get(
                 "/country-codes",
@@ -129,6 +129,8 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
                                 ? error.message
                                 : String(error);
 
+                        console.error("POST /cars/me failed:", error);
+
                         if (
                             message.includes("foreign key") ||
                             message.includes("violates foreign key")
@@ -155,6 +157,7 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
                     response: {
                         201: "Car",
                         400: "ErrorResponse",
+                        403: "ErrorResponse",
                         409: "ErrorResponse",
                         500: "ErrorResponse",
                     },
