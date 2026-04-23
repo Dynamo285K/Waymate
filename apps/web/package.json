@@ -11,8 +11,11 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "i18next": "^26.0.7",
         "react": "^19.2.0",
         "react-dom": "^19.2.0",
+        "react-i18next": "^17.0.4",
+        "react-router-dom": "^7.14.2",
         "waymate-ui": "link:../waymate-ui"
     },
     "devDependencies": {

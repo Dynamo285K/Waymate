@@ -1,0 +1,85 @@
+{
+    "login": {
+        "title": "Přihlaste se ke svému účtu",
+        "emailLabel": "E-mail",
+        "emailPlaceholder": "Zadejte svůj e-mail",
+        "passwordLabel": "Heslo",
+        "passwordPlaceholder": "Zadejte své heslo",
+        "forgotPassword": "Zapomněli jste heslo?",
+        "loginButton": "Přihlásit se",
+        "loginWithGoogle": "Přihlásit přes Google",
+        "or": "nebo",
+        "noAccount": "Nemáte účet?",
+        "createAccount": "Vytvořit účet"
+    },
+    "register": {
+        "title": "Vytvořit účet",
+        "fullName": "Celé jméno",
+        "email": "E-mail",
+        "password": "Heslo",
+        "confirmPassword": "Potvrdit heslo",
+        "createAccountButton": "Vytvořit účet",
+        "continueWithGoogle": "Pokračovat přes Google",
+        "or": "nebo",
+        "alreadyHaveAccount": "Již máte účet?",
+        "login": "Přihlásit se"
+    },
+    "home": {
+        "navbar": {
+            "login": "Přihlásit se",
+            "register": "Registrovat"
+        },
+        "hero": {
+            "title": "NAJDI SVOU JÍZDU",
+            "subtitle": "Spojte se s řidiči jedoucími vaším směrem"
+        },
+        "search": {
+            "from": "Místo nástupu",
+            "to": "Místo výstupu",
+            "button": "Hledat",
+            "date": "dd.mm.rr"
+        },
+        "at": "v",
+        "popularRoutes": "Oblíbené trasy",
+        "stats": {
+            "drivers": "řidičů",
+            "satisfaction": "spokojenost",
+            "co2Saved": "CO2 ušetřeno"
+        },
+        "availableRides": {
+            "title": "Dostupné jízdy",
+            "subtitle": "Najděte jízdy nabízené řidiči dnes.",
+            "viewAll": "zobrazit všechny jízdy →",
+            "seatsLeft": "{{count}} míst zbývá",
+            "book": "Rezervovat"
+        },
+        "features": {
+            "title": "Cestujte chytřeji. Sdílejte jízdy.",
+            "subtitle": "Proč jezdit s námi?",
+            "verifiedDrivers": {
+                "title": "Ověření řidiči",
+                "description": "Profily řidičů jsou ověřeny, takže víte, s kým jedete."
+            },
+            "fairPricing": {
+                "title": "Férové ceny",
+                "description": "Žádné skryté poplatky. Cena, kterou vidíte, je cena, kterou zaplatíte."
+            },
+            "ecoFriendly": {
+                "title": "Ekologické cestování",
+                "description": "Sdílení jízd snižuje emise."
+            },
+            "directChat": {
+                "title": "Přímý chat",
+                "description": "Domluvte si podrobnosti cesty před odjezdem."
+            },
+            "fastBooking": {
+                "title": "Rychlé rezervace",
+                "description": "Rezervujte si místo jen na pár kliknutí."
+            },
+            "ratings": {
+                "title": "Hodnocení",
+                "description": "Transparentní recenze od ostatních uživatelů."
+            }
+        }
+    }
+}

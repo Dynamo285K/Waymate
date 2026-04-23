@@ -1,22 +1,55 @@
-import { Button, ChatHeader, AvailableRideCard } from "waymate-ui";
+import { useState } from "react";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { HomePage } from "./pages/HomePage";
+import { LoginPage } from "./pages/LoginPage";
+import { RegisterPage } from "./pages/RegisterPage";
+import i18n from "./i18n";
+import type { Language } from "waymate-ui";
 
-function App() {
+function AppRoutes() {
+    const [language, setLanguage] = useState<Language>("en");
+    const [theme, setTheme] = useState<"light" | "dark">("light");
+    const navigate = useNavigate();
+
+    function handleLanguageChange(lang: Language) {
+        setLanguage(lang);
+        i18n.changeLanguage(lang);
+    }
+
+    function handleThemeToggle() {
+        setTheme((t) => (t === "light" ? "dark" : "light"));
+    }
+
+    const sharedProps = {
+        language,
+        theme,
+        onLanguageChange: handleLanguageChange,
+        onThemeToggle: handleThemeToggle,
+    };
+
     return (
-        <main className="min-h-screen flex flex-col items-center justify-center gap-8 bg-slate-100">
-            <div className="rounded-xl bg-white p-8 shadow-md text-center">
-                <h1 className="text-4xl font-bold text-slate-900">Waymate</h1>
-                <p className="mt-4 text-lg text-slate-600">
-                    Frontend foundation with Tailwind CSS is running.
-                </p>
-                <Button
-                    className="mt-6"
-                    onClick={() => alert("Hello, Waymate!")}
-                >
-                    Click Me
-                </Button>
-            </div>
-        </main>
+        <Routes>
+            <Route
+                path="/"
+                element={
+                    <HomePage
+                        {...sharedProps}
+                        onLogin={() => navigate("/login")}
+                        onRegister={() => navigate("/register")}
+                        onLogoClick={() => navigate("/")}
+                    />
+                }
+            />
+            <Route path="/login" element={<LoginPage {...sharedProps} />} />
+            <Route path="/register" element={<RegisterPage {...sharedProps} />} />
+        </Routes>
     );
 }
 
-export default App;
+export default function App() {
+    return (
+        <BrowserRouter>
+            <AppRoutes />
+        </BrowserRouter>
+    );
+}
