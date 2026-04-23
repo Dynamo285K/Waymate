@@ -37,7 +37,7 @@ import { RideErrors } from "./ride.errors";
  * @param timeframe - Either "UPCOMING" (future rides) or "PAST" (completed rides). Defaults to "UPCOMING"
  * @returns Array of RideListItem objects with stops and pricing details
  */
-export const findRidesByDriverId = async (
+const findRidesByDriverId = async (
     driverId: string,
     timeframe: RideTimeframe = "UPCOMING"
 ): Promise<RideListItem[]> => {
@@ -106,7 +106,7 @@ export const findRidesByDriverId = async (
  * @param rideId - The ID of the ride to fetch
  * @returns RidePassengersView object containing ride details and passenger information, or null if ride not found
  */
-export const findRidePassengersByRideId = async (
+const findRidePassengersByRideId = async (
     rideId: string,
     driverId: string
 ): Promise<RidePassengersView | null> => {
@@ -217,7 +217,7 @@ const dropoffStops = aliasedTable(rideStopsTable, "dropoff_stops");
  * @param travelDate - Requested travel date
  * @returns Array of RideSearchResultItem sorted by departure time (ascending)
  */
-export const searchRides = async (
+const searchRides = async (
     startCity: string,
     destinationCity: string,
     travelDate: Date // Date received from frontend
@@ -319,7 +319,7 @@ export const searchRides = async (
  * @param input - CreateRideInput object containing driver ID, car ID, stops, prices, and ride details
  * @returns The ID of the newly created ride
  */
-export const createRide = async (input: CreateRideInput) => {
+const createRide = async (input: CreateRideInput) => {
     // Keep ride creation and all dependent inserts atomic.
     const createdRideId = await db.transaction(async (tx) => {
         const car = await tx.query.cars.findFirst({
@@ -478,7 +478,7 @@ export const cancelBooking = async (
  * @param reason - Optional reason for cancellation
  * @returns ID of the cancelled ride
  */
-export const cancelRide = async (
+const cancelRide = async (
     rideId: string,
     driverId: string,
     reason?: string
@@ -568,4 +568,12 @@ export const cancelRide = async (
 
         return updatedRide.id;
     });
+};
+
+export const RideRepository = {
+    findRidesByDriverId,
+    findRidePassengersByRideId,
+    searchRides,
+    createRide,
+    cancelRide,
 };
