@@ -1,9 +1,11 @@
+import type { CountryCode } from "../../shared";
+
 export interface Car {
     id: string;
     ownerId: string;
     modelId: number;
     spz: string;
-    countryCode: string;
+    countryCode: CountryCode;
     color:
         | "WHITE"
         | "BLACK"
@@ -27,7 +29,7 @@ export interface Car {
 export interface CreateCarBody {
     modelId: number;
     spz: string;
-    countryCode: string;
+    countryCode: CountryCode;
     color?:
         | "WHITE"
         | "BLACK"

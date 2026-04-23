@@ -16,72 +16,72 @@ export type BookingStatus = z.infer<typeof BookingStatusSchema>;
 export const BookingBaseSchema = z.object({
     // Identity and relationships
     id: BookingIdSchema,
-    passenger_id: UserIdSchema,
-    ride_id: RideIdSchema,
-    booking_status: BookingStatusSchema,
+    passengerId: UserIdSchema,
+    rideId: RideIdSchema,
+    bookingStatus: BookingStatusSchema,
 
     // Route and stop selection
-    pickup_stop_id: RideStopIdSchema,
-    dropoff_stop_id: RideStopIdSchema,
+    pickupStopId: RideStopIdSchema,
+    dropoffStopId: RideStopIdSchema,
 
     // Capacity and pricing
-    seat_count: z.number().int().min(1),
-    price_amount: Decimal10_2NonNegativeSchema,
+    seatCount: z.number().int().min(1),
+    priceAmount: Decimal10_2NonNegativeSchema,
     currency: CurrencySchema,
 
     // Booking lifecycle
-    confirmed_at: z.date().nullable(),
-    cancelled_at: z.date().nullable(),
-    cancelled_by_user_id: UserIdSchema.nullable(),
-    cancellation_reason: z.string().max(500).nullable(),
-    no_show_marked_at: z.date().nullable(),
+    confirmedAt: z.date().nullable(),
+    cancelledAt: z.date().nullable(),
+    cancelledByUserId: UserIdSchema.nullable(),
+    cancellationReason: z.string().max(500).nullable(),
+    noShowMarkedAt: z.date().nullable(),
 
     // Timestamps
-    created_at: z.date(),
-    updated_at: z.date(),
-    deleted_at: z.date().nullable(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+    deletedAt: z.date().nullable(),
 });
 
 export const BookingEntitySchema = BookingBaseSchema.refine(
-    (v) => v.pickup_stop_id !== v.dropoff_stop_id,
+    (v) => v.pickupStopId !== v.dropoffStopId,
     {
-        message: "pickup_stop_id and dropoff_stop_id must be different",
-        path: ["dropoff_stop_id"],
+        message: "pickupStopId and dropoffStopId must be different",
+        path: ["dropoffStopId"],
     }
 );
 
 export const BookingOutputSchema = BookingBaseSchema.pick({
     id: true,
-    passenger_id: true,
-    ride_id: true,
-    booking_status: true,
+    passengerId: true,
+    rideId: true,
+    bookingStatus: true,
 
-    pickup_stop_id: true,
-    dropoff_stop_id: true,
+    pickupStopId: true,
+    dropoffStopId: true,
 
-    seat_count: true,
-    price_amount: true,
+    seatCount: true,
+    priceAmount: true,
     currency: true,
 
-    confirmed_at: true,
-    cancelled_at: true,
-    cancelled_by_user_id: true,
-    cancellation_reason: true,
-    no_show_marked_at: true,
+    confirmedAt: true,
+    cancelledAt: true,
+    cancelledByUserId: true,
+    cancellationReason: true,
+    noShowMarkedAt: true,
 
-    created_at: true,
+    createdAt: true,
 });
 
 export const BookingInputSchema = z
     .object({
-        ride_id: RideIdSchema,
-        pickup_stop_id: RideStopIdSchema,
-        dropoff_stop_id: RideStopIdSchema,
-        seat_count: z.number().int().min(1),
+        rideId: RideIdSchema,
+        pickupStopId: RideStopIdSchema,
+        dropoffStopId: RideStopIdSchema,
+        seatCount: z.number().int().min(1),
     })
-    .refine((v) => v.pickup_stop_id !== v.dropoff_stop_id, {
-        message: "pickup_stop_id and dropoff_stop_id must be different",
-        path: ["dropoff_stop_id"],
+    .refine((v) => v.pickupStopId !== v.dropoffStopId, {
+        message: "pickupStopId and dropoffStopId must be different",
+        path: ["dropoffStopId"],
     });
 
 export const BookingStatusHistoryIdSchema = z.uuid();
@@ -89,16 +89,16 @@ export const BookingStatusHistoryIdSchema = z.uuid();
 export const BookingStatusHistoryEntitySchema = z.object({
     // Identity and relationships
     id: BookingStatusHistoryIdSchema,
-    booking_id: BookingIdSchema,
+    bookingId: BookingIdSchema,
 
     // Status transition
-    old_status: BookingStatusSchema.nullable(),
-    new_status: BookingStatusSchema,
-    changed_by_user_id: UserIdSchema.nullable(),
+    oldStatus: BookingStatusSchema.nullable(),
+    newStatus: BookingStatusSchema,
+    changedByUserId: UserIdSchema.nullable(),
     reason: z.string().max(500).nullable(),
 
     // Timestamps
-    created_at: z.date(),
+    createdAt: z.date(),
 });
 
 export type Booking = z.infer<typeof BookingEntitySchema>;

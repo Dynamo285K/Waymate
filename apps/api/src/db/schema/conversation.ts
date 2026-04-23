@@ -1,12 +1,5 @@
 import { sql } from "drizzle-orm";
-import {
-    check,
-    index,
-    pgTable,
-    text,
-    timestamp,
-    uuid,
-} from "drizzle-orm/pg-core";
+import { check, index, pgTable, timestamp, uuid } from "drizzle-orm/pg-core";
 import { rides } from "./ride";
 import { bookings } from "./booking";
 import { conversationTypeEnum } from "./enums";

@@ -1,8 +1,8 @@
 import {
     check,
+    doublePrecision,
     index,
     integer,
-    numeric,
     pgTable,
     text,
     timestamp,
@@ -11,6 +11,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { rides } from "./ride";
+import { countryCodeEnum } from "./enums";
 
 export const rideStops = pgTable(
     "ride_stops",
@@ -21,9 +22,9 @@ export const rideStops = pgTable(
             .references(() => rides.id),
         address: text("address").notNull(),
         city: text("city").notNull(),
-        countryCode: text("country_code"),
-        lat: numeric("lat", { precision: 9, scale: 6 }).notNull(),
-        lng: numeric("lng", { precision: 9, scale: 6 }).notNull(),
+        countryCode: countryCodeEnum("country_code"),
+        lat: doublePrecision("lat").notNull(),
+        lng: doublePrecision("lng").notNull(),
         stopOrder: integer("stop_order").notNull(),
         plannedArrivalAt: timestamp("planned_arrival_at"),
         plannedDepartureAt: timestamp("planned_departure_at"),
@@ -54,10 +55,6 @@ export const rideStops = pgTable(
         check(
             "ride_stops_planned_time_order_chk",
             sql`${table.plannedArrivalAt} IS NULL OR ${table.plannedDepartureAt} IS NULL OR ${table.plannedDepartureAt} >= ${table.plannedArrivalAt}`
-        ),
-        check(
-            "ride_stops_country_code_chk",
-            sql`${table.countryCode} IS NULL OR ${table.countryCode} ~ '^[A-Z]{3}$'`
         ),
     ]
 );

@@ -1,4 +1,4 @@
-import { HealthService } from "./health.service";
+import type { HealthService } from "./health.service";
 
 export class HealthController {
     constructor(private readonly healthService: HealthService) {}
