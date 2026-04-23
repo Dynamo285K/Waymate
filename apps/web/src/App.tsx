@@ -1,4 +1,4 @@
-import { Button, ChatHeader, AvailableRideCard } from "@waymate/ui";
+import { Button } from "@waymate/ui";
 
 function App() {
     return (
