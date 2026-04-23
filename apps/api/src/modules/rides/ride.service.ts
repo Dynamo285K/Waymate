@@ -1,4 +1,4 @@
-import * as RideRepository from "./ride.repository";
+import { RideRepository } from "./ride.repository";
 import type { CreateRideBody, SearchRidesQuery } from "./ride.schema";
 import type { RideTimeframe } from "./ride.types";
 

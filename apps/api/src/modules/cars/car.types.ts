@@ -1,53 +1,22 @@
-import type { CountryCode } from "../../shared";
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import type { cars } from "../../db/schema/car";
+import type { carModels } from "../../db/schema/car_model";
 
-export interface Car {
-    id: string;
-    ownerId: string;
-    modelId: number;
-    spz: string;
-    countryCode: CountryCode;
-    color:
-        | "WHITE"
-        | "BLACK"
-        | "SILVER"
-        | "GRAY"
-        | "RED"
-        | "BLUE"
-        | "BROWN"
-        | "GREEN"
-        | "YELLOW"
-        | "ORANGE"
-        | "OTHER"
-        | null;
-    seatsTotal: number;
-    isActive: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt: Date | null;
-}
+// ==========================================
+// 1. BASE DATABASE TYPES (SELECT)
+// ==========================================
+export type Car = InferSelectModel<typeof cars>;
+export type CarModel = InferSelectModel<typeof carModels>;
 
-export interface CreateCarBody {
-    modelId: number;
-    spz: string;
-    countryCode: CountryCode;
-    color?:
-        | "WHITE"
-        | "BLACK"
-        | "SILVER"
-        | "GRAY"
-        | "RED"
-        | "BLUE"
-        | "BROWN"
-        | "GREEN"
-        | "YELLOW"
-        | "ORANGE"
-        | "OTHER"
-        | null;
-    seatsTotal: number;
-}
+// ==========================================
+// 2. DATABASE TYPES FOR INSERTION (INSERT)
+// ==========================================
+export type CarInsert = InferInsertModel<typeof cars>;
 
-export interface CarModel {
-    id: number;
+// ==========================================
+// 3. COMPOSITE TYPES (SERVICE / REPOSITORY)
+// ==========================================
+export type CarListItem = Omit<Car, "deletedAt"> & {
     brand: string;
     modelName: string;
-}
+};
