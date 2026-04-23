@@ -156,7 +156,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                             body.reason
                         );
                         return { id: cancelledId, status: "CANCELLED" };
-                    } catch (error: any) {
+                    } catch (error) {
                         const message =
                             error instanceof Error
                                 ? error.message

@@ -1,4 +1,4 @@
-import { HealthRepository } from "./health.repository";
+import type { HealthRepository } from "./health.repository";
 
 export class HealthService {
     constructor(private readonly healthRepository: HealthRepository) {}

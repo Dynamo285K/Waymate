@@ -1,12 +1,12 @@
-import { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import { rides } from "../../db/schema/ride";
-import { rideStops } from "../../db/schema/ride_stop";
-import { prices } from "../../db/schema/price";
-import { rideStatusHistory } from "../../db/schema/ride_status_history";
-import { CountryCode } from "../../shared";
-import { bookingStatusValues } from "../../shared/status-values";
-import { Car } from "../cars";
-import { User } from "../users";
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import type { rides } from "../../db/schema/ride";
+import type { rideStops } from "../../db/schema/ride_stop";
+import type { prices } from "../../db/schema/price";
+import type { rideStatusHistory } from "../../db/schema/ride_status_history";
+import type { CountryCode } from "../../shared";
+import type { bookingStatusValues } from "../../shared/status-values";
+import type { Car } from "../cars";
+import type { User } from "../users";
 
 // ==========================================
 // 1. BASE DATABASE TYPES (SELECT - what the DB returns)

@@ -19,7 +19,7 @@ import { users as usersTable } from "../../db/schema/user";
 import { rideStatusHistory as rideStatusHistoryTable } from "../../db/schema/ride_status_history";
 import { bookingStatusHistory as bookingStatusHistoryTable } from "../../db/schema";
 import { cars as carsTable } from "../../db/schema/car";
-import {
+import type {
     RideListItem,
     RideTimeframe,
     RidePassengersView,

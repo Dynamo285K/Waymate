@@ -1,7 +1,6 @@
 import {
     check,
     index,
-    numeric,
     pgTable,
     text,
     timestamp,

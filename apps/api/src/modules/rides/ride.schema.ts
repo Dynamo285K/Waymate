@@ -20,8 +20,6 @@ export const RideStatusSchema = z.enum(rideStatusValues);
 export type RideStatus = z.infer<typeof RideStatusSchema>;
 
 const DescriptionSchema = z.string().max(500).nullable();
-const DescriptionInputSchema = z.string().trim().max(500).nullable();
-const AddressInputSchema = z.string().trim().min(1).max(255);
 
 export const RideSchema = z.object({
     // Identity and ownership

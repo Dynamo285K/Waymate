@@ -1,4 +1,4 @@
-import { CountryCode } from "../../shared";
+import type { CountryCode } from "../../shared";
 
 export interface Car {
     id: string;
