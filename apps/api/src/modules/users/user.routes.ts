@@ -45,6 +45,7 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
                     response: {
                         200: "User",
                         404: "ErrorResponse",
+                        500: "ErrorResponse",
                     },
                     detail: { description: "Returns the current user data" },
                 }
@@ -69,6 +70,7 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
                     response: {
                         200: "User",
                         404: "ErrorResponse",
+                        500: "ErrorResponse",
                     },
                     detail: {
                         description: "Updates user data during onboarding",
@@ -95,6 +97,7 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
                     response: {
                         200: "User",
                         404: "ErrorResponse",
+                        500: "ErrorResponse",
                     },
                     detail: {
                         description: "Updates the current user's profile",
