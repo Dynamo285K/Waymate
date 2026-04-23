@@ -8,7 +8,10 @@ function App() {
                 <p className="mt-4 text-lg text-slate-600">
                     Frontend foundation with Tailwind CSS is running.
                 </p>
-                <Button className="mt-6" onClick={() => alert("Hello, Waymate!")}>
+                <Button
+                    className="mt-6"
+                    onClick={() => alert("Hello, Waymate!")}
+                >
                     Click Me
                 </Button>
             </div>
