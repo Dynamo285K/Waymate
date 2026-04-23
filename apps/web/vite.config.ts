@@ -8,6 +8,6 @@ export default defineConfig({
         dedupe: ["react", "react-dom"],
     },
     optimizeDeps: {
-        include: ["waymate-ui"],
+        include: ["@waymate/ui"],
     },
 });
