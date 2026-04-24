@@ -80,8 +80,3 @@ export const UserStatusHistoryEntitySchema = z.object({
 
     createdAt: z.date(),
 });
-
-export type User = z.infer<typeof UserEntitySchema>;
-export type OnboardingUserBody = z.infer<typeof OnboardingUserBodySchema>;
-export type UpdateUserBody = z.infer<typeof UpdateUserBodySchema>;
-export type UserStatusHistory = z.infer<typeof UserStatusHistoryEntitySchema>;

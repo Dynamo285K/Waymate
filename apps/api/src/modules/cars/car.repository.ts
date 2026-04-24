@@ -3,7 +3,7 @@ import { db } from "../../db";
 import { cars as carsTable } from "../../db/schema/car";
 import { carModels as carModelsTable } from "../../db/schema/car_model";
 
-import type { Car, CarModel, CarListItem, CreateCarBody } from "./car.schema";
+import type { Car, CarModel, CarListItem, CreateCarBody } from "./car.types";
 
 const findAllCarBrandNames = async (): Promise<{ brand: string }[]> => {
     return await db

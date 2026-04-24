@@ -17,7 +17,6 @@ export const PriceIdSchema = z.uuid();
 export type PriceId = z.infer<typeof PriceIdSchema>;
 
 export const RideStatusSchema = z.enum(rideStatusValues);
-export type RideStatus = z.infer<typeof RideStatusSchema>;
 
 const DescriptionSchema = z.string().max(500).nullable();
 

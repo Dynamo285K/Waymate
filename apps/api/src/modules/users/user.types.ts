@@ -1,38 +1,17 @@
-export interface User {
-    id: string;
-    name: string;
-    email: string;
-    emailVerified: boolean;
-    image: string | null;
-    createdAt: Date;
-    updatedAt: Date;
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import type { users } from "../../db/schema/user";
 
-    firstName: string | null;
-    lastName: string | null;
-    displayName: string | null;
-    phone: string | null;
-    profilePhotoUrl: string | null;
-    bio: string | null;
+export type User = InferSelectModel<typeof users>;
+export type UserInsert = InferInsertModel<typeof users>;
 
-    emailVerifiedAt: Date | null;
-    phoneVerifiedAt: Date | null;
-    lastActiveAt: Date | null;
-    userStatus: "PENDING" | "ACTIVE" | "SUSPENDED" | "BANNED" | "DELETED";
-    deletedAt: Date | null;
-}
+export type OnboardingUserBody = Pick<
+    UserInsert,
+    "firstName" | "lastName" | "phone" | "bio"
+>;
 
-export interface OnboardingUserBody {
-    firstName: string;
-    lastName: string;
-    phone?: string;
-    bio?: string;
-}
-
-export interface UpdateUserBody {
-    firstName?: string;
-    lastName?: string;
-    displayName?: string;
-    phone?: string;
-    bio?: string;
-    profilePhotoUrl?: string;
-}
+export type UpdateUserBody = Partial<
+    Pick<
+        UserInsert,
+        "firstName" | "lastName" | "displayName" | "phone" | "bio" | "profilePhotoUrl"
+    >
+>;

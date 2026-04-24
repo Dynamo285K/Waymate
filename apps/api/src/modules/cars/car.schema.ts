@@ -73,9 +73,3 @@ export const CarIdParamsSchema = z.object({
 export const UpdateCarStatusBodySchema = z.object({
     isActive: z.boolean(),
 });
-export type Car = z.infer<typeof CarSchema>;
-export type CarListItem = z.infer<typeof CarListItemSchema>;
-export type CarModel = z.infer<typeof CarModelSchema>;
-export type CreateCarBody = z.infer<typeof CreateCarBodySchema>;
-export type CarIdParams = z.infer<typeof CarIdParamsSchema>;
-export type UpdateCarStatusBody = z.infer<typeof UpdateCarStatusBodySchema>;
