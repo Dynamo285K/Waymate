@@ -24,6 +24,66 @@
         "alreadyHaveAccount": "Už máte účet?",
         "login": "Prihlásiť sa"
     },
+    "profile": {
+        "editProfile": "Upraviť profil",
+        "memberSince": "Člen od",
+        "viewAllRatings": "zobraziť všetky hodnotenia",
+        "aboutMe": "O mne",
+        "myUpcomingRides": "Moje nadchádzajúce jazdy",
+        "myCars": "Moje autá",
+        "addCar": "Pridať auto",
+        "backToProfile": "← Späť na môj profil",
+        "manage": "Spravovať",
+        "cancelRide": "Zrušiť jazdu"
+    },
+    "ratings": {
+        "title": "Moje hodnotenia",
+        "totalRatings": "Celkom hodnotení"
+    },
+    "rateDriver": {
+        "title": "Ohodnoťte svojho vodiča",
+        "submit": "Odoslať hodnotenie",
+        "placeholder": "Napíšte recenziu..."
+    },
+    "myRides": {
+        "title": "Moje jazdy",
+        "upcoming": "Nadchádzajúce",
+        "past": "Minulé",
+        "seatsLeft": "{{count}} miest zostáva",
+        "pendingConfirmation": "Čaká na potvrdenie",
+        "cancelBooking": "Zrušiť rezerváciu",
+        "rateDriver": "Ohodnotiť vodiča"
+    },
+    "bookGuest": {
+        "title": "Vytvorte účet pre rezerváciu",
+        "message": "Na rezerváciu jazdy musíte byť registrovaní. Trvá to len minútu!",
+        "login": "Prihlásiť sa",
+        "register": "Registrovať"
+    },
+    "rides": {
+        "found": "Nájdených {{count}} jázd"
+    },
+    "chat": {
+        "messages": "Správy",
+        "typeMessage": "Napíšte správu...",
+        "viewProfile": "Zobraziť profil",
+        "blockUser": "Zablokovať používateľa",
+        "reportUser": "Nahlásiť používateľa"
+    },
+    "roles": {
+        "passenger": "Cestujúci",
+        "driver": "Vodič"
+    },
+    "nav": {
+        "findRide": "Nájsť jazdu",
+        "myRides": "Moje jazdy",
+        "chat": "Čet",
+        "profile": "Môj profil",
+        "messages": "Správy",
+        "ratings": "Hodnotenia",
+        "settings": "Nastavenia",
+        "logout": "Odhlásiť sa"
+    },
     "home": {
         "navbar": {
             "login": "Prihlásiť sa",

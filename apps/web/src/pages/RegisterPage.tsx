@@ -10,12 +10,20 @@ type RegisterPageProps = {
     onThemeToggle: () => void;
 };
 
-export function RegisterPage({ language, theme, onLanguageChange, onThemeToggle }: RegisterPageProps) {
+export function RegisterPage({
+    language,
+    theme,
+    onLanguageChange,
+    onThemeToggle,
+}: RegisterPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
 
     return (
-        <div data-theme={theme} className="min-h-screen bg-(--color-bg)">
+        <div
+            data-theme={theme}
+            className="min-h-screen bg-(--color-bg)"
+        >
             <AuthNavbar
                 language={language}
                 onLanguageChange={onLanguageChange}
@@ -33,7 +41,9 @@ export function RegisterPage({ language, theme, onLanguageChange, onThemeToggle 
                         fullNamePlaceholder: t("register.fullName"),
                         emailPlaceholder: t("register.email"),
                         passwordPlaceholder: t("register.password"),
-                        confirmPasswordPlaceholder: t("register.confirmPassword"),
+                        confirmPasswordPlaceholder: t(
+                            "register.confirmPassword"
+                        ),
                         createAccountButton: t("register.createAccountButton"),
                         continueWithGoogle: t("register.continueWithGoogle"),
                         or: t("register.or"),

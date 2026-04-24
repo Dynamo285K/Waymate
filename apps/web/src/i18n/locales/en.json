@@ -24,6 +24,66 @@
         "alreadyHaveAccount": "Already have an account?",
         "login": "Login"
     },
+    "profile": {
+        "editProfile": "Edit profile",
+        "memberSince": "Member since",
+        "viewAllRatings": "view all ratings",
+        "aboutMe": "About me",
+        "myUpcomingRides": "My Upcoming Rides",
+        "myCars": "My cars",
+        "addCar": "Add car",
+        "backToProfile": "← Back to My Profile",
+        "manage": "Manage",
+        "cancelRide": "Cancel ride"
+    },
+    "ratings": {
+        "title": "My Ratings",
+        "totalRatings": "Total Ratings"
+    },
+    "rateDriver": {
+        "title": "Rate your driver",
+        "submit": "Submit rating",
+        "placeholder": "Write a review..."
+    },
+    "myRides": {
+        "title": "My Rides",
+        "upcoming": "Upcoming",
+        "past": "Past",
+        "seatsLeft": "{{count}} seats left",
+        "pendingConfirmation": "Pending confirmation",
+        "cancelBooking": "Cancel booking",
+        "rateDriver": "Rate driver"
+    },
+    "bookGuest": {
+        "title": "Create an account to book",
+        "message": "You need to be registered to book rides. It only takes a minute!",
+        "login": "Log in",
+        "register": "Register"
+    },
+    "rides": {
+        "found": "{{count}} rides found"
+    },
+    "chat": {
+        "messages": "Messages",
+        "typeMessage": "Type a message...",
+        "viewProfile": "View profile",
+        "blockUser": "Block user",
+        "reportUser": "Report user"
+    },
+    "roles": {
+        "passenger": "Passenger",
+        "driver": "Driver"
+    },
+    "nav": {
+        "findRide": "Find ride",
+        "myRides": "My rides",
+        "chat": "Chat",
+        "profile": "My profile",
+        "messages": "Messages",
+        "ratings": "Ratings",
+        "settings": "Settings",
+        "logout": "Logout"
+    },
     "home": {
         "navbar": {
             "login": "Log in",

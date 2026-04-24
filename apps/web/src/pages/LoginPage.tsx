@@ -10,12 +10,20 @@ type LoginPageProps = {
     onThemeToggle: () => void;
 };
 
-export function LoginPage({ language, theme, onLanguageChange, onThemeToggle }: LoginPageProps) {
+export function LoginPage({
+    language,
+    theme,
+    onLanguageChange,
+    onThemeToggle,
+}: LoginPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
 
     return (
-        <div data-theme={theme} className="min-h-screen bg-(--color-bg)">
+        <div
+            data-theme={theme}
+            className="min-h-screen bg-(--color-bg)"
+        >
             <AuthNavbar
                 language={language}
                 onLanguageChange={onLanguageChange}

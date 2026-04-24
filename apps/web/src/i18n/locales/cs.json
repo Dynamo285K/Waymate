@@ -24,6 +24,66 @@
         "alreadyHaveAccount": "Již máte účet?",
         "login": "Přihlásit se"
     },
+    "profile": {
+        "editProfile": "Upravit profil",
+        "memberSince": "Člen od",
+        "viewAllRatings": "zobrazit všechna hodnocení",
+        "aboutMe": "O mně",
+        "myUpcomingRides": "Moje nadcházející jízdy",
+        "myCars": "Moje auta",
+        "addCar": "Přidat auto",
+        "backToProfile": "← Zpět na můj profil",
+        "manage": "Spravovat",
+        "cancelRide": "Zrušit jízdu"
+    },
+    "ratings": {
+        "title": "Moje hodnocení",
+        "totalRatings": "Celkem hodnocení"
+    },
+    "rateDriver": {
+        "title": "Ohodnoťte svého řidiče",
+        "submit": "Odeslat hodnocení",
+        "placeholder": "Napište recenzi..."
+    },
+    "myRides": {
+        "title": "Moje jízdy",
+        "upcoming": "Nadcházející",
+        "past": "Minulé",
+        "seatsLeft": "{{count}} míst zbývá",
+        "pendingConfirmation": "Čeká na potvrzení",
+        "cancelBooking": "Zrušit rezervaci",
+        "rateDriver": "Ohodnotit řidiče"
+    },
+    "bookGuest": {
+        "title": "Vytvořte účet pro rezervaci",
+        "message": "Pro rezervaci jízdy musíte být registrováni. Trvá to jen minutu!",
+        "login": "Přihlásit se",
+        "register": "Registrovat"
+    },
+    "rides": {
+        "found": "Nalezeno {{count}} jízd"
+    },
+    "chat": {
+        "messages": "Zprávy",
+        "typeMessage": "Napište zprávu...",
+        "viewProfile": "Zobrazit profil",
+        "blockUser": "Zablokovat uživatele",
+        "reportUser": "Nahlásit uživatele"
+    },
+    "roles": {
+        "passenger": "Cestující",
+        "driver": "Řidič"
+    },
+    "nav": {
+        "findRide": "Najít jízdu",
+        "myRides": "Moje jízdy",
+        "chat": "Čet",
+        "profile": "Můj profil",
+        "messages": "Zprávy",
+        "ratings": "Hodnocení",
+        "settings": "Nastavení",
+        "logout": "Odhlásit se"
+    },
     "home": {
         "navbar": {
             "login": "Přihlásit se",
