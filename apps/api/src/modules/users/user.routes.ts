@@ -2,7 +2,6 @@ import { Elysia } from "elysia";
 import { z } from "zod";
 import { UserService } from "./user.service";
 import { isAuthenticated } from "../auth/auth.middleware";
-import { UserErrors } from "./user.errors";
 import {
     OnboardingUserBodySchema,
     UpdateUserBodySchema,
@@ -21,7 +20,6 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
         UpdateUserBody: UpdateUserBodySchema,
         ErrorResponse: ErrorResponseSchema,
     })
-    // 1. Globálny Error Handler (Konzistentný s cars, rides a bookings)
     .onError(({ code, status }) => {
         if (code === "VALIDATION" || code === "PARSE") {
             return status(400, { error: "Invalid request data" });
@@ -43,21 +41,22 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
                         const dbUser = await UserService.getUserById(user.id);
 
                         if (!dbUser) {
-                            // Používame funkciu status namiesto set.status
                             return status(404, { error: "User not found" });
                         }
 
                         return dbUser;
                     } catch (error) {
                         console.error("Error fetching user:", error);
-                        return status(500, { error: "Failed to fetch user data" });
+                        return status(500, {
+                            error: "Failed to fetch user data",
+                        });
                     }
                 },
                 {
-                    response: { 
-                        200: "User", 
+                    response: {
+                        200: "User",
                         404: "ErrorResponse",
-                        500: "ErrorResponse" 
+                        500: "ErrorResponse",
                     },
                     detail: { description: "Returns the current user data" },
                 }
@@ -67,18 +66,23 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
                 "/me/onboarding",
                 async ({ user, body, status }) => {
                     try {
-                        const updatedUser = await UserService.onboardUser(user.id, body);
+                        const updatedUser = await UserService.onboardUser(
+                            user.id,
+                            body
+                        );
                         return status(200, updatedUser);
                     } catch (error) {
                         console.error("Error during onboarding:", error);
-                        return status(500, { error: "Failed to update onboarding data" });
+                        return status(500, {
+                            error: "Failed to update onboarding data",
+                        });
                     }
                 },
                 {
                     body: "OnboardingUserBody",
-                    response: { 
+                    response: {
                         200: "User",
-                        500: "ErrorResponse" 
+                        500: "ErrorResponse",
                     },
                     detail: {
                         description: "Updates user data during onboarding",
@@ -90,18 +94,23 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
                 "/me/profile",
                 async ({ user, body, status }) => {
                     try {
-                        const updatedUser = await UserService.updateUserProfile(user.id, body);
+                        const updatedUser = await UserService.updateUserProfile(
+                            user.id,
+                            body
+                        );
                         return status(200, updatedUser);
                     } catch (error) {
                         console.error("Error updating profile:", error);
-                        return status(500, { error: "Failed to update user profile" });
+                        return status(500, {
+                            error: "Failed to update user profile",
+                        });
                     }
                 },
                 {
                     body: "UpdateUserBody",
-                    response: { 
+                    response: {
                         200: "User",
-                        500: "ErrorResponse"
+                        500: "ErrorResponse",
                     },
                     detail: {
                         description: "Updates the current user's profile",

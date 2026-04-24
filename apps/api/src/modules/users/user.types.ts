@@ -12,6 +12,11 @@ export type OnboardingUserBody = Pick<
 export type UpdateUserBody = Partial<
     Pick<
         UserInsert,
-        "firstName" | "lastName" | "displayName" | "phone" | "bio" | "profilePhotoUrl"
+        | "firstName"
+        | "lastName"
+        | "displayName"
+        | "phone"
+        | "bio"
+        | "profilePhotoUrl"
     >
 >;

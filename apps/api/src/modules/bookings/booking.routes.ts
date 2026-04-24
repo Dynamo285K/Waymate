@@ -10,7 +10,10 @@ import {
     BookingActionResponseSchema,
 } from "./booking.schema";
 
-export const BookingRoutes = new Elysia({ prefix: "/bookings", tags: ["Bookings"] })
+export const BookingRoutes = new Elysia({
+    prefix: "/bookings",
+    tags: ["Bookings"],
+})
     .model({
         BookingIdParams: BookingIdParamsSchema,
         CreateBookingBody: CreateBookingBodySchema,
@@ -41,36 +44,57 @@ export const BookingRoutes = new Elysia({ prefix: "/bookings", tags: ["Bookings"
                 "/",
                 async ({ user, body, status }) => {
                     try {
-                        const bookingId = await BookingService.createBookingRequest({
-                            rideId: body.rideId,
-                            pickupStopId: body.pickupStopId,
-                            dropoffStopId: body.dropoffStopId,
-                            seatCount: body.seatCount,
-                            passengerId: user.id,
+                        const bookingId =
+                            await BookingService.createBookingRequest({
+                                rideId: body.rideId,
+                                pickupStopId: body.pickupStopId,
+                                dropoffStopId: body.dropoffStopId,
+                                seatCount: body.seatCount,
+                                passengerId: user.id,
+                            });
+                        return status(201, {
+                            id: bookingId,
+                            status: "PENDING",
                         });
-                        return status(201, { id: bookingId, status: "PENDING" });
                     } catch (error) {
-                        const message = error instanceof Error ? error.message : String(error);
+                        const message =
+                            error instanceof Error
+                                ? error.message
+                                : String(error);
                         console.error("Error while creating booking:", error);
 
                         // Error Translation
-                        if (message === BookingErrors.RideNotFoundOrUnavailable) {
-                            return status(404, { error: "Ride not found or no longer available" });
+                        if (
+                            message === BookingErrors.RideNotFoundOrUnavailable
+                        ) {
+                            return status(404, {
+                                error: "Ride not found or no longer available",
+                            });
                         }
                         if (message === BookingErrors.InvalidStops) {
-                            return status(400, { error: "Invalid pickup or dropoff stops" });
+                            return status(400, {
+                                error: "Invalid pickup or dropoff stops",
+                            });
                         }
                         if (message === BookingErrors.PriceNotFound) {
-                            return status(400, { error: "Price for this route is not set" });
+                            return status(400, {
+                                error: "Price for this route is not set",
+                            });
                         }
                         if (message === BookingErrors.NotEnoughSeats) {
-                            return status(409, { error: "Not enough seats available" });
+                            return status(409, {
+                                error: "Not enough seats available",
+                            });
                         }
                         if (message === BookingErrors.AlreadyBooked) {
-                            return status(409, { error: "You have already requested to join this ride" });
+                            return status(409, {
+                                error: "You have already requested to join this ride",
+                            });
                         }
 
-                        return status(500, { error: "Failed to create booking request" });
+                        return status(500, {
+                            error: "Failed to create booking request",
+                        });
                     }
                 },
                 {
@@ -83,7 +107,8 @@ export const BookingRoutes = new Elysia({ prefix: "/bookings", tags: ["Bookings"
                         500: "ErrorResponse",
                     },
                     detail: {
-                        description: "Passenger creates a pending request to join a ride. Price is calculated automatically.",
+                        description:
+                            "Passenger creates a pending request to join a ride. Price is calculated automatically.",
                     },
                 }
             )
@@ -92,26 +117,39 @@ export const BookingRoutes = new Elysia({ prefix: "/bookings", tags: ["Bookings"
                 "/:id/cancel",
                 async ({ user, params, body, status }) => {
                     try {
-                        const cancelledId = await BookingService.cancelBookingByPassenger(
-                            params.id,
-                            user.id,
-                            body.reason
-                        );
-                        return status(200, { id: cancelledId, status: "CANCELLED" });
+                        const cancelledId =
+                            await BookingService.cancelBookingByPassenger(
+                                params.id,
+                                user.id,
+                                body.reason
+                            );
+                        return status(200, {
+                            id: cancelledId,
+                            status: "CANCELLED",
+                        });
                     } catch (error) {
-                        const message = error instanceof Error ? error.message : String(error);
+                        const message =
+                            error instanceof Error
+                                ? error.message
+                                : String(error);
 
                         if (message === BookingErrors.BookingNotFound) {
                             return status(404, { error: "Booking not found" });
                         }
                         if (message === BookingErrors.UnauthorizedAction) {
-                            return status(403, { error: "You can only cancel your own bookings" });
+                            return status(403, {
+                                error: "You can only cancel your own bookings",
+                            });
                         }
                         if (message === BookingErrors.AlreadyCancelled) {
-                            return status(400, { error: "Booking is already cancelled" });
+                            return status(400, {
+                                error: "Booking is already cancelled",
+                            });
                         }
 
-                        return status(500, { error: "Failed to cancel booking" });
+                        return status(500, {
+                            error: "Failed to cancel booking",
+                        });
                     }
                 },
                 {
@@ -138,22 +176,39 @@ export const BookingRoutes = new Elysia({ prefix: "/bookings", tags: ["Bookings"
                 "/:id/confirm",
                 async ({ user, params, status }) => {
                     try {
-                        const confirmedId = await BookingService.confirmBooking(params.id, user.id);
-                        return status(200, { id: confirmedId, status: "CONFIRMED" });
+                        const confirmedId = await BookingService.confirmBooking(
+                            params.id,
+                            user.id
+                        );
+                        return status(200, {
+                            id: confirmedId,
+                            status: "CONFIRMED",
+                        });
                     } catch (error) {
-                        const message = error instanceof Error ? error.message : String(error);
+                        const message =
+                            error instanceof Error
+                                ? error.message
+                                : String(error);
 
                         if (message === BookingErrors.UnauthorizedAction) {
-                            return status(403, { error: "Not authorized to manage this ride" });
+                            return status(403, {
+                                error: "Not authorized to manage this ride",
+                            });
                         }
                         if (message === BookingErrors.InvalidStatusTransition) {
-                            return status(400, { error: "Booking not found or not in PENDING state" });
+                            return status(400, {
+                                error: "Booking not found or not in PENDING state",
+                            });
                         }
                         if (message === BookingErrors.NotEnoughSeats) {
-                            return status(409, { error: "Not enough seats available to confirm this booking" });
+                            return status(409, {
+                                error: "Not enough seats available to confirm this booking",
+                            });
                         }
 
-                        return status(500, { error: "Failed to confirm booking" });
+                        return status(500, {
+                            error: "Failed to confirm booking",
+                        });
                     }
                 },
                 {
@@ -166,7 +221,8 @@ export const BookingRoutes = new Elysia({ prefix: "/bookings", tags: ["Bookings"
                         500: "ErrorResponse",
                     },
                     detail: {
-                        description: "Driver confirms a passenger's pending booking request",
+                        description:
+                            "Driver confirms a passenger's pending booking request",
                     },
                 }
             )
@@ -180,18 +236,30 @@ export const BookingRoutes = new Elysia({ prefix: "/bookings", tags: ["Bookings"
                             user.id,
                             body.reason
                         );
-                        return status(200, { id: rejectedId, status: "CANCELLED" });
+                        return status(200, {
+                            id: rejectedId,
+                            status: "CANCELLED",
+                        });
                     } catch (error) {
-                        const message = error instanceof Error ? error.message : String(error);
+                        const message =
+                            error instanceof Error
+                                ? error.message
+                                : String(error);
 
                         if (message === BookingErrors.UnauthorizedAction) {
-                            return status(403, { error: "Not authorized to manage this ride" });
+                            return status(403, {
+                                error: "Not authorized to manage this ride",
+                            });
                         }
                         if (message === BookingErrors.InvalidStatusTransition) {
-                            return status(400, { error: "Booking not found or not in PENDING state" });
+                            return status(400, {
+                                error: "Booking not found or not in PENDING state",
+                            });
                         }
 
-                        return status(500, { error: "Failed to reject booking" });
+                        return status(500, {
+                            error: "Failed to reject booking",
+                        });
                     }
                 },
                 {
@@ -204,7 +272,8 @@ export const BookingRoutes = new Elysia({ prefix: "/bookings", tags: ["Bookings"
                         500: "ErrorResponse",
                     },
                     detail: {
-                        description: "Driver rejects a passenger's pending booking request",
+                        description:
+                            "Driver rejects a passenger's pending booking request",
                     },
                 }
             )

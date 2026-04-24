@@ -12,7 +12,9 @@ import type { CreateBookingInput } from "./booking.types";
  * Creates a booking request from a passenger for a ride.
  * Resolves the ride price and validates the ride, stops, capacity, and duplicate requests inside one transaction.
  */
-const createBookingRequest = async (input: CreateBookingInput): Promise<string> => {
+const createBookingRequest = async (
+    input: CreateBookingInput
+): Promise<string> => {
     return await db.transaction(async (tx) => {
         // Fetch the ride and lock it for writing.
         const [ride] = await tx
@@ -22,7 +24,12 @@ const createBookingRequest = async (input: CreateBookingInput): Promise<string> 
                 offeredSeats: ridesTable.offeredSeats,
             })
             .from(ridesTable)
-            .where(and(eq(ridesTable.id, input.rideId), isNull(ridesTable.deletedAt)))
+            .where(
+                and(
+                    eq(ridesTable.id, input.rideId),
+                    isNull(ridesTable.deletedAt)
+                )
+            )
             .for("update");
 
         if (!ride || ride.rideStatus !== "PLANNED") {
@@ -31,12 +38,18 @@ const createBookingRequest = async (input: CreateBookingInput): Promise<string> 
 
         // Verify that both stops belong to this ride and are in the correct order.
         const stops = await tx
-            .select({ id: rideStopsTable.id, stopOrder: rideStopsTable.stopOrder })
+            .select({
+                id: rideStopsTable.id,
+                stopOrder: rideStopsTable.stopOrder,
+            })
             .from(rideStopsTable)
             .where(
                 and(
                     eq(rideStopsTable.rideId, input.rideId),
-                    inArray(rideStopsTable.id, [input.pickupStopId, input.dropoffStopId])
+                    inArray(rideStopsTable.id, [
+                        input.pickupStopId,
+                        input.dropoffStopId,
+                    ])
                 )
             );
 
@@ -83,7 +96,10 @@ const createBookingRequest = async (input: CreateBookingInput): Promise<string> 
                 )
             );
 
-        const currentlyConfirmedSeats = confirmedBookings.reduce((sum, b) => sum + b.seatCount, 0);
+        const currentlyConfirmedSeats = confirmedBookings.reduce(
+            (sum, b) => sum + b.seatCount,
+            0
+        );
 
         if (currentlyConfirmedSeats + input.seatCount > ride.offeredSeats) {
             throw new Error(BookingErrors.NotEnoughSeats);
@@ -132,7 +148,10 @@ const createBookingRequest = async (input: CreateBookingInput): Promise<string> 
 /**
  * 2. Driver confirms the passenger request (PENDING -> CONFIRMED).
  */
-const confirmBooking = async (bookingId: string, driverId: string): Promise<string> => {
+const confirmBooking = async (
+    bookingId: string,
+    driverId: string
+): Promise<string> => {
     return await db.transaction(async (tx) => {
         // Fetch the booking and lock it to prevent race conditions on double submit.
         const [booking] = await tx
@@ -170,7 +189,10 @@ const confirmBooking = async (bookingId: string, driverId: string): Promise<stri
                 )
             );
 
-        const currentlyConfirmedSeats = confirmedBookings.reduce((sum, b) => sum + b.seatCount, 0);
+        const currentlyConfirmedSeats = confirmedBookings.reduce(
+            (sum, b) => sum + b.seatCount,
+            0
+        );
 
         if (currentlyConfirmedSeats + booking.seatCount > ride.offeredSeats) {
             throw new Error(BookingErrors.NotEnoughSeats);
@@ -201,7 +223,11 @@ const confirmBooking = async (bookingId: string, driverId: string): Promise<stri
 /**
  * 3. Driver rejects the passenger request (PENDING -> CANCELLED).
  */
-const rejectBooking = async (bookingId: string, driverId: string, reason?: string): Promise<string> => {
+const rejectBooking = async (
+    bookingId: string,
+    driverId: string,
+    reason?: string
+): Promise<string> => {
     return await db.transaction(async (tx) => {
         // Lock the booking.
         const [booking] = await tx
@@ -252,7 +278,11 @@ const rejectBooking = async (bookingId: string, driverId: string, reason?: strin
 /**
  * 4. Passenger cancels their own booking (PENDING / CONFIRMED -> CANCELLED).
  */
-const cancelBookingByPassenger = async (bookingId: string, passengerId: string, reason?: string): Promise<string> => {
+const cancelBookingByPassenger = async (
+    bookingId: string,
+    passengerId: string,
+    reason?: string
+): Promise<string> => {
     return await db.transaction(async (tx) => {
         // Lock the booking.
         const [booking] = await tx

@@ -33,6 +33,6 @@ export const CancelBookingBodySchema = z.object({
 // ==========================================
 export const BookingActionResponseSchema = z.object({
     id: z.uuid(),
-    
+
     status: z.enum(bookingStatusValues),
 });

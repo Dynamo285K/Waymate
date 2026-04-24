@@ -10,4 +10,5 @@ export const BookingErrors = {
     PriceNotFound: "BOOKING_PRICE_NOT_FOUND",
 } as const;
 
-export type BookingErrorCode = (typeof BookingErrors)[keyof typeof BookingErrors];
+export type BookingErrorCode =
+    (typeof BookingErrors)[keyof typeof BookingErrors];

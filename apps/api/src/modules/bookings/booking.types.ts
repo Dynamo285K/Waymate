@@ -8,13 +8,17 @@ import type { Ride } from "../rides/ride.types";
 // 1. BASE DATABASE TYPES (SELECT)
 // ==========================================
 export type Booking = InferSelectModel<typeof bookings>;
-export type BookingStatusHistory = InferSelectModel<typeof bookingStatusHistory>;
+export type BookingStatusHistory = InferSelectModel<
+    typeof bookingStatusHistory
+>;
 
 // ==========================================
 // 2. DATABASE TYPES FOR INSERTION (INSERT)
 // ==========================================
 export type BookingInsert = InferInsertModel<typeof bookings>;
-export type BookingStatusHistoryInsert = InferInsertModel<typeof bookingStatusHistory>;
+export type BookingStatusHistoryInsert = InferInsertModel<
+    typeof bookingStatusHistory
+>;
 
 // ==========================================
 // 3. SPECIFIC PROPERTIES AND ALIASES
