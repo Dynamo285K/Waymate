@@ -7,7 +7,10 @@ import {
     BookingIdParamsSchema,
     CreateBookingBodySchema,
     CancelBookingBodySchema,
+    BookingTimeframeQuerySchema,
     BookingActionResponseSchema,
+    PassengerBookingListItemSchema,
+    PassengerBookingListSchema,
 } from "./booking.schema";
 
 export const BookingRoutes = new Elysia({
@@ -18,11 +21,14 @@ export const BookingRoutes = new Elysia({
         BookingIdParams: BookingIdParamsSchema,
         CreateBookingBody: CreateBookingBodySchema,
         CancelBookingBody: CancelBookingBodySchema,
+        BookingTimeframeQuery: BookingTimeframeQuerySchema,
         BookingActionResponse: BookingActionResponseSchema,
+        PassengerBookingListItem: PassengerBookingListItemSchema,
+        PassengerBookingList: PassengerBookingListSchema,
         ErrorResponse: ErrorResponseSchema,
     })
     // Global error handler (consistent with cars and rides).
-    .onError(({ code, status }) => {
+    .onError(({ code, status, error }) => {
         if (code === "VALIDATION" || code === "PARSE") {
             return status(400, { error: "Invalid request data" });
         }
@@ -30,6 +36,7 @@ export const BookingRoutes = new Elysia({
             return status(401, { error: "Unauthorized" });
         }
         if (code === "INTERNAL_SERVER_ERROR" || code === "UNKNOWN") {
+            console.error("FATAL ERROR V BOOKINGS:", error);
             return status(500, { error: "Internal server error" });
         }
     })
@@ -39,6 +46,26 @@ export const BookingRoutes = new Elysia({
             // ==========================================
             // PASSENGER ROUTES
             // ==========================================
+
+            .get(
+                "/me",
+                async ({ user, query }) => {
+                    return await BookingService.getPassengerBookings(
+                        user.id,
+                        query.timeframe
+                    );
+                },
+                {
+                    query: "BookingTimeframeQuery",
+                    response: {
+                        200: "PassengerBookingList",
+                    },
+                    detail: {
+                        description:
+                            "Returns bookings created by the authenticated passenger filtered by timeframe",
+                    },
+                }
+            )
 
             .post(
                 "/",

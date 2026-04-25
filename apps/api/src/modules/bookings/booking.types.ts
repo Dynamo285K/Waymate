@@ -24,6 +24,7 @@ export type BookingStatusHistoryInsert = InferInsertModel<
 // 3. SPECIFIC PROPERTIES AND ALIASES
 // ==========================================
 export type BookingStatus = Booking["bookingStatus"];
+export type BookingTimeframe = "UPCOMING" | "PAST" | "ALL";
 
 // ==========================================
 // 4. SERVICE / REPOSITORY CONTRACTS (COMPOSITE TYPES)
@@ -37,7 +38,12 @@ export type CreateBookingInput = Pick<
 >;
 
 // Defines how a single booking appears in the passenger's "My rides" list.
-export type PassengerBookingListItem = Booking & {
+export type PassengerBookingListItem = {
+    id: string;
+    bookingStatus: BookingStatus;
+    priceAmount: number;
+    currency: string;
+    seatsLeft: number;
     ride: Pick<Ride, "id" | "departureAt" | "rideStatus">;
     driver: Pick<User, "id" | "firstName" | "lastName" | "profilePhotoUrl">;
     pickupCity: string;

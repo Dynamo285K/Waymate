@@ -1,5 +1,18 @@
 import { BookingRepository } from "./booking.repository";
-import type { CreateBookingInput } from "./booking.types";
+import type { BookingTimeframe, CreateBookingInput } from "./booking.types";
+
+/**
+ * Returns bookings created by the authenticated passenger.
+ */
+const getPassengerBookings = async (
+    passengerId: string,
+    timeframe?: BookingTimeframe
+) => {
+    return await BookingRepository.findBookingsByPassengerId(
+        passengerId,
+        timeframe
+    );
+};
 
 /**
  * Creates a pending booking request for a passenger.
@@ -48,6 +61,7 @@ const cancelBookingByPassenger = async (
 
 // Export the functions in the same style as RideService and UserService.
 export const BookingService = {
+    getPassengerBookings,
     createBookingRequest,
     confirmBooking,
     rejectBooking,

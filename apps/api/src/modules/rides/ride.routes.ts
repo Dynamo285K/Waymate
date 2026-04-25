@@ -9,6 +9,7 @@ import {
     RideSchema,
     CreateRideBodySchema,
     SearchRidesQuerySchema,
+    RideSearchResultItemSchema,
     RideIdParamsSchema,
     CancelRideBodySchema,
     TimeframeQuerySchema,
@@ -19,6 +20,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
         Ride: RideSchema,
         CreateRideBody: CreateRideBodySchema,
         SearchRidesQuery: SearchRidesQuerySchema,
+        RideSearchResultList: RideSearchResultItemSchema.array(),
         CancelRideBody: CancelRideBodySchema,
         RideIdParams: RideIdParamsSchema,
         TimeframeQuery: TimeframeQuerySchema,
@@ -49,6 +51,9 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                 },
                 {
                     query: "SearchRidesQuery",
+                    response: {
+                        200: "RideSearchResultList",
+                    },
                     detail: {
                         description:
                             "Search rides between two cities on a specific date",

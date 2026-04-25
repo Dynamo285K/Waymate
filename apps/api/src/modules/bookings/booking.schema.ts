@@ -1,6 +1,11 @@
 import { z } from "zod";
-import { RideIdSchema, RideStopIdSchema } from "../rides/ride.schema";
-import { bookingStatusValues } from "../../shared";
+import {
+    RideIdSchema,
+    RideStopIdSchema,
+    RideStatusSchema,
+} from "../rides/ride.schema";
+import { bookingStatusValues, CurrencySchema } from "../../shared";
+import { UserIdSchema } from "../users/user.schema";
 
 // ==========================================
 // 1. URL PARAMETERS
@@ -28,6 +33,10 @@ export const CancelBookingBodySchema = z.object({
     reason: z.string().max(500, "Cancellation reason is too long").optional(),
 });
 
+export const BookingTimeframeQuerySchema = z.object({
+    timeframe: z.enum(["UPCOMING", "PAST", "ALL"]).default("UPCOMING"),
+});
+
 // ==========================================
 // 3. RESPONSE SCHEMAS (Outputs for Swagger)
 // ==========================================
@@ -36,3 +45,27 @@ export const BookingActionResponseSchema = z.object({
 
     status: z.enum(bookingStatusValues),
 });
+
+export const PassengerBookingListItemSchema = z.object({
+    id: z.uuid(),
+    bookingStatus: z.enum(bookingStatusValues),
+    priceAmount: z.number().int(),
+    currency: CurrencySchema,
+    seatsLeft: z.number().int(),
+    ride: z.object({
+        id: RideIdSchema,
+        departureAt: z.date(),
+        rideStatus: RideStatusSchema,
+    }),
+    driver: z.object({
+        id: UserIdSchema,
+        firstName: z.string().nullable(),
+        lastName: z.string().nullable(),
+        profilePhotoUrl: z.string().nullable(),
+    }),
+    pickupCity: z.string(),
+    dropoffCity: z.string(),
+});
+
+export const PassengerBookingListSchema =
+    PassengerBookingListItemSchema.array();

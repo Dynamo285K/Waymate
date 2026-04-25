@@ -2,6 +2,7 @@ import {
     eq,
     and,
     isNull,
+    isNotNull,
     asc,
     desc,
     gte,
@@ -247,11 +248,13 @@ export const searchRides = async (
             },
 
             pickupStop: {
+                pickupStopId: pickupStops.id,
                 city: pickupStops.city,
                 plannedDepartureAt: pickupStops.plannedDepartureAt,
             },
 
             dropoffStop: {
+                dropoffStopId: dropoffStops.id,
                 city: dropoffStops.city,
                 plannedArrivalAt: dropoffStops.plannedArrivalAt,
             },
@@ -296,6 +299,8 @@ export const searchRides = async (
                 // Ride must not be soft-deleted
                 isNull(ridesTable.deletedAt),
                 eq(ridesTable.rideStatus, "PLANNED"), // Only planned rides
+                isNotNull(usersTable.firstName),
+                isNotNull(usersTable.lastName),
 
                 // Valid direction: pickup must be before dropoff
                 lt(pickupStops.stopOrder, dropoffStops.stopOrder),

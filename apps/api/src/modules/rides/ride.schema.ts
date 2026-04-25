@@ -85,6 +85,31 @@ export const SearchRidesQuerySchema = z.object({
     travelDate: z.coerce.date(), // Prekonvertuje "2024-05-20" na Date
 });
 
+export const RideSearchResultItemSchema = z.object({
+    rideId: RideIdSchema,
+    departureAt: z.date(),
+    rideStatus: RideStatusSchema,
+    offeredSeats: z.number(),
+    driver: z.object({
+        id: UserIdSchema,
+        firstName: z.string(),
+        lastName: z.string(),
+        profilePhotoUrl: z.string().nullable(),
+    }),
+    pickupStop: z.object({
+        pickupStopId: RideStopIdSchema,
+        city: z.string(),
+        plannedDepartureAt: z.date().nullable(),
+    }),
+    dropoffStop: z.object({
+        dropoffStopId: RideStopIdSchema,
+        city: z.string(),
+        plannedArrivalAt: z.date().nullable(),
+    }),
+    priceAmount: z.number().nullable(),
+    currency: CurrencySchema,
+});
+
 export const RideStopSchema = z.object({
     // Identity and relationships
     id: RideStopIdSchema,

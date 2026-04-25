@@ -1,12 +1,112 @@
-import { eq, and, isNull, inArray } from "drizzle-orm";
+import {
+    eq,
+    and,
+    isNull,
+    inArray,
+    desc,
+    aliasedTable,
+    gte,
+    lt,
+    sql,
+} from "drizzle-orm";
 import { db } from "../../db";
 import { bookings as bookingsTable } from "../../db/schema/booking";
 import { rides as ridesTable } from "../../db/schema/ride";
 import { rideStops as rideStopsTable } from "../../db/schema/ride_stop";
 import { prices as pricesTable } from "../../db/schema/price";
+import { users as usersTable } from "../../db/schema/user";
 import { bookingStatusHistory as bookingStatusHistoryTable } from "../../db/schema";
 import { BookingErrors } from "./booking.errors";
-import type { CreateBookingInput } from "./booking.types";
+import type {
+    CreateBookingInput,
+    PassengerBookingListItem,
+    BookingTimeframe,
+} from "./booking.types";
+
+const pickupStops = aliasedTable(rideStopsTable, "booking_pickup_stops");
+const dropoffStops = aliasedTable(rideStopsTable, "booking_dropoff_stops");
+
+/**
+ * Returns bookings created by a passenger, including ride/driver summary and city names.
+ */
+const findBookingsByPassengerId = async (
+    passengerId: string,
+    timeframe: BookingTimeframe = "UPCOMING"
+): Promise<PassengerBookingListItem[]> => {
+    const now = new Date();
+
+    // Aggregate occupied seats per ride from active confirmed/completed bookings.
+    const capacityByRide = db
+        .select({
+            rideId: bookingsTable.rideId,
+            occupiedSeats:
+                sql<number>`COALESCE(SUM(${bookingsTable.seatCount}), 0)::int`.as(
+                    "occupiedSeats"
+                ),
+        })
+        .from(bookingsTable)
+        .where(
+            and(
+                inArray(bookingsTable.bookingStatus, [
+                    "CONFIRMED",
+                    "COMPLETED",
+                ]),
+                isNull(bookingsTable.deletedAt)
+            )
+        )
+        .groupBy(bookingsTable.rideId)
+        .as("capacity_by_ride");
+
+    const filters = [
+        eq(bookingsTable.passengerId, passengerId),
+        isNull(bookingsTable.deletedAt),
+        isNull(ridesTable.deletedAt),
+    ];
+
+    if (timeframe === "UPCOMING") {
+        filters.push(gte(ridesTable.departureAt, now));
+        filters.push(
+            inArray(bookingsTable.bookingStatus, ["PENDING", "CONFIRMED"])
+        );
+    } else if (timeframe === "PAST") {
+        filters.push(lt(ridesTable.departureAt, now));
+    }
+
+    const rows = await db
+        .select({
+            id: bookingsTable.id,
+            bookingStatus: bookingsTable.bookingStatus,
+            priceAmount: bookingsTable.priceAmount,
+            currency: bookingsTable.currency,
+            ride: {
+                id: ridesTable.id,
+                departureAt: ridesTable.departureAt,
+                rideStatus: ridesTable.rideStatus,
+            },
+            driver: {
+                id: usersTable.id,
+                firstName: usersTable.firstName,
+                lastName: usersTable.lastName,
+                profilePhotoUrl: usersTable.profilePhotoUrl,
+            },
+            pickupCity: pickupStops.city,
+            dropoffCity: dropoffStops.city,
+            seatsLeft: sql<number>`GREATEST(0, ${ridesTable.offeredSeats} - COALESCE(${capacityByRide.occupiedSeats}, 0))::int`,
+        })
+        .from(bookingsTable)
+        .innerJoin(ridesTable, eq(bookingsTable.rideId, ridesTable.id))
+        .innerJoin(usersTable, eq(ridesTable.driverId, usersTable.id))
+        .leftJoin(capacityByRide, eq(capacityByRide.rideId, ridesTable.id))
+        .innerJoin(pickupStops, eq(bookingsTable.pickupStopId, pickupStops.id))
+        .innerJoin(
+            dropoffStops,
+            eq(bookingsTable.dropoffStopId, dropoffStops.id)
+        )
+        .where(and(...filters))
+        .orderBy(desc(bookingsTable.createdAt));
+
+    return rows as PassengerBookingListItem[];
+};
 
 /**
  * Creates a booking request from a passenger for a ride.
@@ -330,6 +430,7 @@ const cancelBookingByPassenger = async (
 };
 
 export const BookingRepository = {
+    findBookingsByPassengerId,
     createBookingRequest,
     confirmBooking,
     rejectBooking,
