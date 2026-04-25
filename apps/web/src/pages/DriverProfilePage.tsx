@@ -1,23 +1,15 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
-    PassengerNavbar,
+    DriverNavbar,
     ProfileHeroCard,
     CarCard,
     RideCard,
     Button,
 } from "waymate-ui";
 import type { Language } from "waymate-ui";
+import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import i18n from "../i18n";
-
-type PassengerProfilePageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-    userName?: string;
-    userEmail?: string;
-};
 
 const LOCALE_MAP: Record<string, string> = {
     en: "en-US",
@@ -25,7 +17,7 @@ const LOCALE_MAP: Record<string, string> = {
     cz: "cs-CZ",
 };
 
-function formatRideDate(date: Date, atLabel: string): string {
+function formatDate(date: Date, atLabel: string) {
     const locale = LOCALE_MAP[i18n.language] ?? "en-US";
     const datePart = new Intl.DateTimeFormat(locale, {
         day: "numeric",
@@ -58,70 +50,50 @@ const UPCOMING_RIDES = [
     },
 ];
 
-export function PassengerProfilePage({
+type Props = {
+    language: Language;
+    theme: "light" | "dark";
+    onLanguageChange: (l: Language) => void;
+    onThemeToggle: () => void;
+    userName?: string;
+    userEmail?: string;
+};
+
+export function DriverProfilePage({
     language,
     theme,
     onLanguageChange,
     onThemeToggle,
     userName = "Tomáš Olbert",
-    userEmail = "najviacpracujuci@gmail.com",
-}: PassengerProfilePageProps) {
+    userEmail = "nejviacpracujuci@gmail.com",
+}: Props) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-
-    const navbarProps = {
-        activeTab: "find-ride" as const,
+    const navbarProps = useDriverNavbarProps({
         language,
         onLanguageChange,
-        role: "passenger" as const,
-        onRoleChange: (r: "passenger" | "driver") =>
-            r === "driver" && navigate("/driver"),
         theme,
         onThemeToggle,
         userName,
         userEmail,
-        onLogoClick: () => navigate("/passenger"),
-        onFindRideClick: () => navigate("/passenger"),
-        onMyRidesClick: () => navigate("/passenger/rides"),
-        onChatClick: () => navigate("/passenger/chat"),
-        onMessagesClick: () => navigate("/passenger/chat"),
-        onRatingsClick: () => navigate("/passenger/ratings"),
-        onProfileClick: () => navigate("/passenger/profile"),
-        onLogoutClick: () => navigate("/"),
-        labels: {
-            passenger: t("roles.passenger"),
-            driver: t("roles.driver"),
-            findRide: t("nav.findRide"),
-            myRides: t("nav.myRides"),
-            chat: t("nav.chat"),
-            profile: t("nav.profile"),
-            dropdownMyRides: t("nav.myRides"),
-            messages: t("nav.messages"),
-            ratings: t("nav.ratings"),
-            settings: t("nav.settings"),
-            logout: t("nav.logout"),
-        },
-    };
+    });
 
     return (
         <div
             data-theme={theme}
             className="min-h-screen bg-(--color-bg)"
         >
-            <PassengerNavbar {...navbarProps} />
+            <DriverNavbar {...navbarProps} />
 
             <div className="w-full px-4 sm:max-w-5xl sm:mx-auto sm:px-8 py-8 sm:py-12 flex flex-col gap-6">
-                {/* Hero card */}
                 <ProfileHeroCard
                     name={userName}
                     email={userEmail}
                     rating="4.9"
                     memberSince="2026"
-                    onViewRatingsClick={() => navigate("/passenger/ratings")}
+                    onViewRatingsClick={() => navigate("/driver/ratings")}
                     onEditProfileClick={() =>
-                        navigate("/profile/edit", {
-                            state: { role: "passenger" },
-                        })
+                        navigate("/profile/edit", { state: { role: "driver" } })
                     }
                     labels={{
                         viewAllRatings: t("profile.viewAllRatings"),
@@ -130,7 +102,6 @@ export function PassengerProfilePage({
                     }}
                 />
 
-                {/* About me */}
                 <div className="bg-(--color-card) rounded-2xl p-6 border border-(--color-border)">
                     <h2 className="text-base font-semibold text-(--color-text-primary) mb-3">
                         {t("profile.aboutMe")}
@@ -142,9 +113,7 @@ export function PassengerProfilePage({
                     </p>
                 </div>
 
-                {/* Two-column: rides + cars */}
                 <div className="flex flex-col lg:flex-row gap-6">
-                    {/* My Upcoming Rides */}
                     <div className="flex-1 flex flex-col gap-4">
                         <h2 className="text-lg font-bold text-(--color-text-primary)">
                             {t("profile.myUpcomingRides")}
@@ -155,13 +124,12 @@ export function PassengerProfilePage({
                                 variant="driver-upcoming"
                                 from={ride.from}
                                 to={ride.to}
-                                datetime={formatRideDate(
-                                    ride.date,
-                                    t("home.at")
-                                )}
+                                datetime={formatDate(ride.date, t("home.at"))}
                                 price={ride.price}
                                 seatsLeft={ride.seatsLeft}
-                                onViewPassengers={() => {}}
+                                onViewPassengers={() =>
+                                    navigate("/driver/rides/passengers")
+                                }
                                 onCancelRide={() => {}}
                                 labels={{
                                     seatsLeft: (count) =>
@@ -175,7 +143,6 @@ export function PassengerProfilePage({
                         ))}
                     </div>
 
-                    {/* My Cars */}
                     <div className="lg:w-72 flex flex-col gap-4">
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-bold text-(--color-text-primary)">
@@ -184,7 +151,7 @@ export function PassengerProfilePage({
                             <Button
                                 onClick={() =>
                                     navigate("/car/add", {
-                                        state: { role: "passenger" },
+                                        state: { role: "driver" },
                                     })
                                 }
                             >

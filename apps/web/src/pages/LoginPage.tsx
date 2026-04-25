@@ -35,7 +35,7 @@ export function LoginPage({
                 <LoginBox
                     onLoginClick={() => {}}
                     onGoogleLoginClick={() => {}}
-                    onForgotPasswordClick={() => {}}
+                    onForgotPasswordClick={() => navigate("/forgot-password")}
                     onCreateAccountClick={() => navigate("/register")}
                     labels={{
                         title: t("login.title"),

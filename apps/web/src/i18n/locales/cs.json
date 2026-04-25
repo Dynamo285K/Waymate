@@ -24,6 +24,112 @@
         "alreadyHaveAccount": "Již máte účet?",
         "login": "Přihlásit se"
     },
+    "admin": {
+        "dashboard": "Přehled",
+        "rides": "Jízdy",
+        "users": "Uživatelé",
+        "reports": "Hlášení",
+        "account": "Můj účet",
+        "settings": "Nastavení",
+        "logout": "Odhlásit se",
+        "adminRole": "Admin",
+        "weeklyrRides": "Jízdy tento týden",
+        "weeklyRevenue": "Příjmy tento týden",
+        "popularRoutes": "Oblíbené trasy",
+        "ridesCount": "{{count}} jízd",
+        "userMetrics": "Metriky uživatelů",
+        "totalRegistered": "Celkem registrováno",
+        "activeUsers": "Aktivní uživatelé (24h)",
+        "drivers": "Řidiči",
+        "passengers": "Cestující",
+        "pendingVerification": "Čeká na ověření",
+        "bannedAccounts": "Zablokované účty",
+        "exportReport": "Exportovat zprávu (PDF / CSV)"
+    },
+    "forgotPassword": {
+        "step1Title": "Zapomněli jste heslo?",
+        "step1Subtitle": "Žádný problém. Zadejte svou e-mailovou adresu a my vám pošleme kód pro obnovení.",
+        "emailLabel": "E-mailová adresa",
+        "emailPlaceholder": "vas@email.com",
+        "sendCode": "Odeslat kód",
+        "backToLogin": "← Zpět na přihlášení",
+        "step2Title": "Zkontrolujte svůj e-mail",
+        "step2Subtitle": "Poslali jsme 6místný kód na",
+        "verifyCode": "Ověřit kód",
+        "resendIn": "Neobdrželi jste? Znovu odeslat za",
+        "resend": "Znovu odeslat",
+        "demoCode": "Demo: použijte kód",
+        "step3Title": "Nastavte nové heslo",
+        "step3Subtitle": "Zvolte silné heslo, které jste dosud nepoužili.",
+        "newPassword": "Nové heslo",
+        "confirmPassword": "Potvrdit heslo",
+        "setPassword": "Nastavit nové heslo"
+    },
+    "editProfile": {
+        "title": "Upravit profil",
+        "fullName": "Celé jméno",
+        "email": "E-mailová adresa",
+        "phone": "Telefonní číslo",
+        "licensePlate": "Registrační značka (SPZ)",
+        "aboutMe": "O mně",
+        "save": "Uložit změny",
+        "cancel": "Zrušit"
+    },
+    "offerRide": {
+        "title": "Nabídnout jízdu",
+        "subtitle": "Sdílejte cestu a vydělávejte peníze",
+        "publish": "Zveřejnit jízdu"
+    },
+    "rideRequests": {
+        "title": "Žádosti o jízdu",
+        "subtitle": "Spravujte požadavky na rezervaci od cestujících.",
+        "seatsRequired": "{{count}} míst požadováno",
+        "accept": "Přijmout",
+        "decline": "Odmítnout"
+    },
+    "driverRides": {
+        "title": "Moje jízdy",
+        "upcoming": "Nadcházející",
+        "past": "Minulé",
+        "viewPassengers": "Zobrazit cestující",
+        "cancelRide": "Zrušit jízdu",
+        "ratePassengers": "Ohodnotit cestující",
+        "seatsLeft": "{{count}} míst zbývá",
+        "full": "Plné",
+        "passengers": "Cestující",
+        "backToMyRides": "← Zpět na moje jízdy",
+        "passengersCount": "{{count}} cestujících",
+        "sendMessage": "Poslat zprávu",
+        "cancelBooking": "Zrušit rezervaci",
+        "seatsReserved": "{{count}} míst rezervováno",
+        "ratePassengersTitle": "Ohodnotit cestující",
+        "kmTraveled": "{{km}} km ujeto",
+        "earned": "{{amount}}€ vyděláno",
+        "writeReview": "Napište recenzi...",
+        "submitRating": "Odeslat hodnocení"
+    },
+    "driver": {
+        "nav": {
+            "offerRide": "Nabídnout jízdu",
+            "myRides": "Moje jízdy",
+            "rideRequests": "Žádosti o jízdu",
+            "chat": "Čet"
+        },
+        "home": {
+            "title": "SDÍLEJTE SVOU JÍZDU",
+            "subtitle": "Sdílejte cestu a vydělávejte peníze",
+            "createRide": "Vytvořit novou jízdu",
+            "upcomingRides": "Nadcházející jízdy",
+            "viewAllRides": "zobrazit všechny jízdy →",
+            "rideRequests": "Žádosti o jízdu",
+            "rideRequestsSubtitle": "Najděte jízdy nabízené řidiči dnes.",
+            "viewAllRequests": "zobrazit všechny žádosti →",
+            "seatsRequired": "{{count}} míst požadováno",
+            "cancelRide": "Zrušit jízdu",
+            "accept": "Přijmout",
+            "decline": "Odmítnout"
+        }
+    },
     "profile": {
         "editProfile": "Upravit profil",
         "memberSince": "Člen od",
@@ -129,7 +235,7 @@
                 "description": "Sdílení jízd snižuje emise."
             },
             "directChat": {
-                "title": "Přímý chat",
+                "title": "Přímý čet",
                 "description": "Domluvte si podrobnosti cesty před odjezdem."
             },
             "fastBooking": {
