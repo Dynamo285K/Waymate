@@ -1,11 +1,35 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { randomUUID } from "crypto";
+import { env } from "../../config/env";
 import { db } from "../../db";
 import * as schema from "../../db/schema";
 
+const googleProvider =
+    env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+        ? {
+              google: {
+                  clientId: env.GOOGLE_CLIENT_ID,
+                  clientSecret: env.GOOGLE_CLIENT_SECRET,
+                  mapProfileToUser: (profile: {
+                      given_name?: string;
+                      family_name?: string;
+                      name?: string;
+                      picture?: string;
+                  }) => ({
+                      firstName: profile.given_name,
+                      lastName: profile.family_name,
+                      displayName: profile.name
+                          ?.replace(/\s+/g, "")
+                          .slice(0, 15),
+                      profilePhotoUrl: profile.picture,
+                  }),
+              },
+          }
+        : {};
+
 export const auth = betterAuth({
-    baseURL: process.env.BETTER_AUTH_URL,
+    baseURL: env.BETTER_AUTH_URL,
 
     database: drizzleAdapter(db, {
         provider: "pg",
@@ -38,18 +62,5 @@ export const auth = betterAuth({
         requireEmailVerification: false,
     },
 
-    socialProviders: {
-        google: {
-            clientId: process.env.GOOGLE_CLIENT_ID as string,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-            mapProfileToUser: (profile) => {
-                return {
-                    firstName: profile.given_name,
-                    lastName: profile.family_name,
-                    displayName: profile.name?.replace(/\s+/g, "").slice(0, 15),
-                    profilePhotoUrl: profile.picture,
-                };
-            },
-        },
-    },
+    socialProviders: googleProvider,
 });
