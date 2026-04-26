@@ -1,5 +1,5 @@
 import { CarRepository } from "./car.repository";
-import type { CreateCarBody, UpdateCarStatusBody } from "./car.types";
+import type { CreateCarBody, UpdateCarStatusBody } from "./car.schema";
 
 const getAllCarBrandNames = async () => {
     return await CarRepository.findAllCarBrandNames();

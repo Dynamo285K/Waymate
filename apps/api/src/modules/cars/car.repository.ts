@@ -2,8 +2,9 @@ import { eq, and, isNull } from "drizzle-orm";
 import { db } from "../../db";
 import { cars as carsTable } from "../../db/schema/car";
 import { carModels as carModelsTable } from "../../db/schema/car_model";
-
-import type { Car, CarModel, CarListItem, CreateCarBody } from "./car.types";
+import type { Car, CarModel, CarListItem } from "./car.types";
+import type { CreateCarBody } from "./car.schema";
+import { CarErrors } from "./car.errors";
 
 const findAllCarBrandNames = async (): Promise<{ brand: string }[]> => {
     return await db
@@ -21,7 +22,7 @@ const findCarModelsByBrand = async (brandName: string): Promise<CarModel[]> => {
 };
 
 const findCarsByUserId = async (userId: string): Promise<CarListItem[]> => {
-    return (await db
+    const result = await db
         .select({
             id: carsTable.id,
             ownerId: carsTable.ownerId,
@@ -35,36 +36,49 @@ const findCarsByUserId = async (userId: string): Promise<CarListItem[]> => {
             isActive: carsTable.isActive,
             createdAt: carsTable.createdAt,
             updatedAt: carsTable.updatedAt,
-            deletedAt: carsTable.deletedAt,
         })
         .from(carsTable)
         .innerJoin(carModelsTable, eq(carsTable.modelId, carModelsTable.id))
-        .where(
-            and(eq(carsTable.ownerId, userId), isNull(carsTable.deletedAt))
-        )) as CarListItem[];
+        .where(and(eq(carsTable.ownerId, userId), isNull(carsTable.deletedAt)));
+
+    return result as CarListItem[];
 };
 
 const createCar = async (userId: string, data: CreateCarBody): Promise<Car> => {
-    const [newCar] = await db
-        .insert(carsTable)
-        .values({
-            ownerId: userId,
-            modelId: data.modelId,
-            spz: data.spz,
-            countryCode: data.countryCode,
-            color: data.color,
-            seatsTotal: data.seatsTotal,
-        })
-        .returning();
+    try {
+        const [newCar] = await db
+            .insert(carsTable)
+            .values({
+                ownerId: userId,
+                modelId: data.modelId,
+                spz: data.spz,
+                countryCode: data.countryCode,
+                color: data.color,
+                seatsTotal: data.seatsTotal,
+            })
+            .returning();
 
-    return newCar as Car;
+        return newCar as Car;
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (
+            message.includes("foreign key") ||
+            message.includes("violates foreign key")
+        ) {
+            throw new Error(CarErrors.ModelNotFound);
+        }
+        if (message.includes("duplicate key") || message.includes("unique")) {
+            throw new Error(CarErrors.DuplicatePlate);
+        }
+        throw error;
+    }
 };
 
 const updateCarStatus = async (
     carId: string,
     userId: string,
     isActive: boolean
-): Promise<Car | undefined> => {
+): Promise<Car | null> => {
     const [updatedCar] = await db
         .update(carsTable)
         .set({
@@ -80,13 +94,13 @@ const updateCarStatus = async (
         )
         .returning();
 
-    return updatedCar as Car;
+    return updatedCar ?? null;
 };
 
 const deleteCar = async (
     carId: string,
     userId: string
-): Promise<Car | undefined> => {
+): Promise<Car | null> => {
     const [deletedCar] = await db
         .update(carsTable)
         .set({
@@ -103,7 +117,7 @@ const deleteCar = async (
         )
         .returning();
 
-    return deletedCar as Car;
+    return deletedCar ?? null;
 };
 
 export const CarRepository = {
