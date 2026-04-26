@@ -18,7 +18,7 @@
         "react-i18next": "^17.0.4",
         "react-router-dom": "^7.14.2",
         "recharts": "^3.8.1",
-        "waymate-ui": "link:../waymate-ui"
+        "waymate-ui": "npm:@waymate/ui@^0.1.3"
     },
     "devDependencies": {
         "@eslint/js": "^9.39.1",

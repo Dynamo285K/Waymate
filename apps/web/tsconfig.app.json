@@ -22,11 +22,7 @@
         "noUnusedParameters": true,
         "erasableSyntaxOnly": true,
         "noFallthroughCasesInSwitch": true,
-        "noUncheckedSideEffectImports": true,
-
-        "paths": {
-            "waymate-ui": ["../../../waymate-ui/src/index.ts"]
-        }
+        "noUncheckedSideEffectImports": true
     },
     "include": ["src"]
 }
