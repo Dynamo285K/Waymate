@@ -1,11 +1,13 @@
 {
-    "permissions": {
-        "allow": [
-            "Bash(bun run *)",
-            "Read(//c/Users/tanic/OneDrive/Počítač/waymate-ui/**)",
-            "Read(//c/Users/tanic/OneDrive/Počítač/waymate-ui/src/styles/**)",
-            "Read(//c/Users/tanic/OneDrive/Počítač/waymate-ui/src/styles//**)",
-            "Bash(npm run *)"
-        ]
-    }
+  "permissions": {
+    "allow": [
+      "Bash(bun run *)",
+      "Read(//c/Users/tanic/OneDrive/Počítač/waymate-ui/**)",
+      "Read(//c/Users/tanic/OneDrive/Počítač/waymate-ui/src/styles/**)",
+      "Read(//c/Users/tanic/OneDrive/Počítač/waymate-ui/src/styles//**)",
+      "Bash(npm run *)",
+      "Bash(bunx eslint *)",
+      "Bash(bunx prettier *)"
+    ]
+  }
 }
