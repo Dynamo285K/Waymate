@@ -34,7 +34,7 @@ const confirmBooking = async (
 };
 
 /**
- * Driver rejects the passenger request (PENDING -> CANCELLED).
+ * Driver rejects the passenger request (PENDING -> REJECTED).
  */
 const rejectBooking = async (
     bookingId: string,

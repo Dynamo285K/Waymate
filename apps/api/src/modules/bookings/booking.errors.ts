@@ -8,6 +8,7 @@ export const BookingErrors = {
     AlreadyCancelled: "BOOKING_ALREADY_CANCELLED",
     InvalidStatusTransition: "BOOKING_INVALID_STATUS_TRANSITION",
     PriceNotFound: "BOOKING_PRICE_NOT_FOUND",
+    SelfBookingNotAllowed: "BOOKING_SELF_BOOKING_NOT_ALLOWED",
 } as const;
 
 export type BookingErrorCode =

@@ -7,6 +7,7 @@ import {
     BookingIdParamsSchema,
     CreateBookingBodySchema,
     CancelBookingBodySchema,
+    RejectBookingBodySchema,
     BookingTimeframeQuerySchema,
     BookingActionResponseSchema,
     PassengerBookingListItemSchema,
@@ -21,6 +22,7 @@ export const BookingRoutes = new Elysia({
         BookingIdParams: BookingIdParamsSchema,
         CreateBookingBody: CreateBookingBodySchema,
         CancelBookingBody: CancelBookingBodySchema,
+        RejectBookingBody: RejectBookingBodySchema,
         BookingTimeframeQuery: BookingTimeframeQuerySchema,
         BookingActionResponse: BookingActionResponseSchema,
         PassengerBookingListItem: PassengerBookingListItemSchema,
@@ -106,6 +108,11 @@ export const BookingRoutes = new Elysia({
                                 error: "Price for this route is not set",
                             });
                         }
+                        if (message === BookingErrors.SelfBookingNotAllowed) {
+                            return status(400, {
+                                error: "You cannot book your own ride",
+                            });
+                        }
                         if (message === BookingErrors.NotEnoughSeats) {
                             return status(409, {
                                 error: "Not enough seats available",
@@ -171,6 +178,11 @@ export const BookingRoutes = new Elysia({
                                 error: "Booking is already cancelled",
                             });
                         }
+                        if (message === BookingErrors.InvalidStatusTransition) {
+                            return status(400, {
+                                error: "Only pending or confirmed bookings can be cancelled",
+                            });
+                        }
 
                         return status(500, {
                             error: "Failed to cancel booking",
@@ -225,6 +237,13 @@ export const BookingRoutes = new Elysia({
                                 error: "Booking not found or not in PENDING state",
                             });
                         }
+                        if (
+                            message === BookingErrors.RideNotFoundOrUnavailable
+                        ) {
+                            return status(404, {
+                                error: "Ride not found or no longer available",
+                            });
+                        }
                         if (message === BookingErrors.NotEnoughSeats) {
                             return status(409, {
                                 error: "Not enough seats available to confirm this booking",
@@ -242,6 +261,7 @@ export const BookingRoutes = new Elysia({
                         200: "BookingActionResponse",
                         400: "ErrorResponse",
                         403: "ErrorResponse",
+                        404: "ErrorResponse",
                         409: "ErrorResponse",
                         500: "ErrorResponse",
                     },
@@ -263,7 +283,7 @@ export const BookingRoutes = new Elysia({
                         );
                         return status(200, {
                             id: rejectedId,
-                            status: "CANCELLED",
+                            status: "REJECTED",
                         });
                     } catch (error) {
                         const message =
@@ -281,6 +301,13 @@ export const BookingRoutes = new Elysia({
                                 error: "Booking not found or not in PENDING state",
                             });
                         }
+                        if (
+                            message === BookingErrors.RideNotFoundOrUnavailable
+                        ) {
+                            return status(404, {
+                                error: "Ride not found or no longer available",
+                            });
+                        }
 
                         return status(500, {
                             error: "Failed to reject booking",
@@ -289,11 +316,12 @@ export const BookingRoutes = new Elysia({
                 },
                 {
                     params: "BookingIdParams",
-                    body: "CancelBookingBody",
+                    body: "RejectBookingBody",
                     response: {
                         200: "BookingActionResponse",
                         400: "ErrorResponse",
                         403: "ErrorResponse",
+                        404: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {

@@ -67,15 +67,15 @@ through a GitLab Personal Access Token.
    matching row, replace `<token>`, and run it once. After that, **open a new
    terminal** so the variable is loaded.
 
-   | Shell / OS | Command |
-   |---|---|
-   | Linux + bash | `echo 'export CI_JOB_TOKEN=<token>' >> ~/.bashrc` |
-   | macOS + bash | `echo 'export CI_JOB_TOKEN=<token>' >> ~/.bash_profile` |
-   | Windows CMD | `setx CI_JOB_TOKEN <token>` |
+    | Shell / OS   | Command                                                 |
+    | ------------ | ------------------------------------------------------- |
+    | Linux + bash | `echo 'export CI_JOB_TOKEN=<token>' >> ~/.bashrc`       |
+    | macOS + bash | `echo 'export CI_JOB_TOKEN=<token>' >> ~/.bash_profile` |
+    | Windows CMD  | `setx CI_JOB_TOKEN <token>`                             |
 
-   Do **not** commit the token, and do **not** put it into the project `.npmrc`
-   — that file uses `${CI_JOB_TOKEN}` on purpose so each developer (and CI)
-   provides their own value.
+    Do **not** commit the token, and do **not** put it into the project `.npmrc`
+    — that file uses `${CI_JOB_TOKEN}` on purpose so each developer (and CI)
+    provides their own value.
 
 ### 3. Install dependencies
 

@@ -33,6 +33,10 @@ export const CancelBookingBodySchema = z.object({
     reason: z.string().max(500, "Cancellation reason is too long").optional(),
 });
 
+export const RejectBookingBodySchema = z.object({
+    reason: z.string().max(500, "Rejection reason is too long").optional(),
+});
+
 export const BookingTimeframeQuerySchema = z.object({
     timeframe: z.enum(["UPCOMING", "PAST", "ALL"]).default("UPCOMING"),
 });

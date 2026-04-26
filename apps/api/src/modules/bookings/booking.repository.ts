@@ -129,6 +129,7 @@ const createBookingRequest = async (
         const [ride] = await tx
             .select({
                 id: ridesTable.id,
+                driverId: ridesTable.driverId,
                 rideStatus: ridesTable.rideStatus,
                 offeredSeats: ridesTable.offeredSeats,
             })
@@ -143,6 +144,10 @@ const createBookingRequest = async (
 
         if (!ride || ride.rideStatus !== "PLANNED") {
             throw new Error(BookingErrors.RideNotFoundOrUnavailable);
+        }
+
+        if (ride.driverId === input.passengerId) {
+            throw new Error(BookingErrors.SelfBookingNotAllowed);
         }
 
         // Verify that both stops belong to this ride and are in the correct order.
@@ -201,7 +206,8 @@ const createBookingRequest = async (
             .where(
                 and(
                     eq(bookingsTable.rideId, input.rideId),
-                    eq(bookingsTable.bookingStatus, "CONFIRMED")
+                    eq(bookingsTable.bookingStatus, "CONFIRMED"),
+                    isNull(bookingsTable.deletedAt)
                 )
             );
 
@@ -219,7 +225,8 @@ const createBookingRequest = async (
             where: and(
                 eq(bookingsTable.rideId, input.rideId),
                 eq(bookingsTable.passengerId, input.passengerId),
-                inArray(bookingsTable.bookingStatus, ["PENDING", "CONFIRMED"])
+                inArray(bookingsTable.bookingStatus, ["PENDING", "CONFIRMED"]),
+                isNull(bookingsTable.deletedAt)
             ),
         });
 
@@ -266,7 +273,12 @@ const confirmBooking = async (
         const [booking] = await tx
             .select()
             .from(bookingsTable)
-            .where(eq(bookingsTable.id, bookingId))
+            .where(
+                and(
+                    eq(bookingsTable.id, bookingId),
+                    isNull(bookingsTable.deletedAt)
+                )
+            )
             .for("update");
 
         if (!booking || booking.bookingStatus !== "PENDING") {
@@ -278,14 +290,28 @@ const confirmBooking = async (
             .select({
                 id: ridesTable.id,
                 driverId: ridesTable.driverId,
+                rideStatus: ridesTable.rideStatus,
                 offeredSeats: ridesTable.offeredSeats,
             })
             .from(ridesTable)
-            .where(eq(ridesTable.id, booking.rideId))
+            .where(
+                and(
+                    eq(ridesTable.id, booking.rideId),
+                    isNull(ridesTable.deletedAt)
+                )
+            )
             .for("update");
 
-        if (!ride || ride.driverId !== driverId) {
+        if (!ride) {
+            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
+        }
+
+        if (ride.driverId !== driverId) {
             throw new Error(BookingErrors.UnauthorizedAction);
+        }
+
+        if (ride.rideStatus !== "PLANNED") {
+            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
         }
 
         const confirmedBookings = await tx
@@ -294,7 +320,8 @@ const confirmBooking = async (
             .where(
                 and(
                     eq(bookingsTable.rideId, ride.id),
-                    eq(bookingsTable.bookingStatus, "CONFIRMED")
+                    eq(bookingsTable.bookingStatus, "CONFIRMED"),
+                    isNull(bookingsTable.deletedAt)
                 )
             );
 
@@ -330,7 +357,7 @@ const confirmBooking = async (
 };
 
 /**
- * 3. Driver rejects the passenger request (PENDING -> CANCELLED).
+ * 3. Driver rejects the passenger request (PENDING -> REJECTED).
  */
 const rejectBooking = async (
     bookingId: string,
@@ -342,7 +369,12 @@ const rejectBooking = async (
         const [booking] = await tx
             .select()
             .from(bookingsTable)
-            .where(eq(bookingsTable.id, bookingId))
+            .where(
+                and(
+                    eq(bookingsTable.id, bookingId),
+                    isNull(bookingsTable.deletedAt)
+                )
+            )
             .for("update");
 
         if (!booking || booking.bookingStatus !== "PENDING") {
@@ -350,12 +382,29 @@ const rejectBooking = async (
         }
 
         const [ride] = await tx
-            .select({ driverId: ridesTable.driverId })
+            .select({
+                driverId: ridesTable.driverId,
+                rideStatus: ridesTable.rideStatus,
+            })
             .from(ridesTable)
-            .where(eq(ridesTable.id, booking.rideId));
+            .where(
+                and(
+                    eq(ridesTable.id, booking.rideId),
+                    isNull(ridesTable.deletedAt)
+                )
+            )
+            .for("update");
 
-        if (!ride || ride.driverId !== driverId) {
+        if (!ride) {
+            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
+        }
+
+        if (ride.driverId !== driverId) {
             throw new Error(BookingErrors.UnauthorizedAction);
+        }
+
+        if (ride.rideStatus !== "PLANNED") {
+            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
         }
 
         const rejectionReason = reason || "Driver rejected booking";
@@ -363,10 +412,7 @@ const rejectBooking = async (
         const [updatedBooking] = await tx
             .update(bookingsTable)
             .set({
-                bookingStatus: "CANCELLED",
-                cancelledAt: new Date(),
-                cancelledByUserId: driverId,
-                cancellationReason: rejectionReason,
+                bookingStatus: "REJECTED",
                 updatedAt: new Date(),
             })
             .where(eq(bookingsTable.id, bookingId))
@@ -375,7 +421,7 @@ const rejectBooking = async (
         await tx.insert(bookingStatusHistoryTable).values({
             bookingId: updatedBooking.id,
             oldStatus: "PENDING",
-            newStatus: "CANCELLED",
+            newStatus: "REJECTED",
             changedByUserId: driverId,
             reason: rejectionReason,
         });
@@ -397,7 +443,12 @@ const cancelBookingByPassenger = async (
         const [booking] = await tx
             .select()
             .from(bookingsTable)
-            .where(eq(bookingsTable.id, bookingId))
+            .where(
+                and(
+                    eq(bookingsTable.id, bookingId),
+                    isNull(bookingsTable.deletedAt)
+                )
+            )
             .for("update");
 
         if (!booking) {
@@ -410,6 +461,10 @@ const cancelBookingByPassenger = async (
 
         if (booking.bookingStatus === "CANCELLED") {
             throw new Error(BookingErrors.AlreadyCancelled);
+        }
+
+        if (!["PENDING", "CONFIRMED"].includes(booking.bookingStatus)) {
+            throw new Error(BookingErrors.InvalidStatusTransition);
         }
 
         const cancelReason = reason || "Passenger cancelled their booking";

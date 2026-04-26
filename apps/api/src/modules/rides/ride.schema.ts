@@ -268,24 +268,6 @@ export const RidePassengersViewSchema = z.object({
     ),
 });
 
-export const RideSearchResultItemSchema = z.object({
-    rideId: RideIdSchema,
-    departureAt: z.date(),
-    rideStatus: RideStatusSchema,
-    offeredSeats: z.number().int(),
-    driver: PublicDriverProfileSchema,
-    pickupStop: z.object({
-        city: z.string(),
-        plannedDepartureAt: z.date().nullable(),
-    }),
-    dropoffStop: z.object({
-        city: z.string(),
-        plannedArrivalAt: z.date().nullable(),
-    }),
-    priceAmount: z.number().int().nullable(),
-    currency: CurrencySchema,
-});
-
 export const RideSearchResultListSchema = z.array(RideSearchResultItemSchema);
 
 export const CreateRideResponseSchema = z.object({

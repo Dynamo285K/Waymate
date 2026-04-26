@@ -535,7 +535,8 @@ const cancelRide = async (
         const activeBookings = await tx.query.bookings.findMany({
             where: and(
                 eq(bookingsTable.rideId, rideId),
-                inArray(bookingsTable.bookingStatus, ["PENDING", "CONFIRMED"])
+                inArray(bookingsTable.bookingStatus, ["PENDING", "CONFIRMED"]),
+                isNull(bookingsTable.deletedAt)
             ),
             columns: { id: true, bookingStatus: true },
         });
