@@ -5,6 +5,7 @@ import { carModels as carModelsTable } from "../../db/schema/car_model";
 import type { Car, CarModel, CarListItem } from "./car.types";
 import type { CreateCarBody } from "./car.schema";
 import { CarErrors } from "./car.errors";
+import { hasPostgresErrorCode, PostgresErrorCodes } from "../../db/errors";
 
 const findAllCarBrandNames = async (): Promise<{ brand: string }[]> => {
     return await db
@@ -60,14 +61,12 @@ const createCar = async (userId: string, data: CreateCarBody): Promise<Car> => {
 
         return newCar as Car;
     } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
         if (
-            message.includes("foreign key") ||
-            message.includes("violates foreign key")
+            hasPostgresErrorCode(error, PostgresErrorCodes.ForeignKeyViolation)
         ) {
             throw new Error(CarErrors.ModelNotFound);
         }
-        if (message.includes("duplicate key") || message.includes("unique")) {
+        if (hasPostgresErrorCode(error, PostgresErrorCodes.UniqueViolation)) {
             throw new Error(CarErrors.DuplicatePlate);
         }
         throw error;
