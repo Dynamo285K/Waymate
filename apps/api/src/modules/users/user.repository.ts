@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { users as usersTable } from "../../db/schema/user";
-import type { User, OnboardingUserBody, UpdateUserBody } from "./user.types";
+import type { User, OnboardingUserInput, UpdateUserInput } from "./user.types";
 
 const findUserById = async (id: string) => {
     const rows = await db
@@ -13,8 +13,8 @@ const findUserById = async (id: string) => {
 
 const updateOnboardingInfo = async (
     userId: string,
-    data: OnboardingUserBody
-): Promise<User> => {
+    data: OnboardingUserInput
+): Promise<User | null> => {
     const [updatedUser] = await db
         .update(usersTable)
         .set({
@@ -25,20 +25,20 @@ const updateOnboardingInfo = async (
         .where(eq(usersTable.id, userId))
         .returning();
 
-    return updatedUser as User;
+    return updatedUser ?? null;
 };
 
 const updateUserProfile = async (
     userId: string,
-    data: UpdateUserBody
-): Promise<User> => {
+    data: UpdateUserInput
+): Promise<User | null> => {
     const [updatedUser] = await db
         .update(usersTable)
         .set(data)
         .where(eq(usersTable.id, userId))
         .returning();
 
-    return updatedUser as User;
+    return updatedUser ?? null;
 };
 
 export const UserRepository = {

@@ -1,21 +1,17 @@
 import { Elysia } from "elysia";
-import { z } from "zod";
 import { UserService } from "./user.service";
 import { isAuthenticated } from "../auth/auth.middleware";
+import { UserErrors } from "./user.errors";
+import { ErrorResponseSchema } from "../../shared";
 import {
     OnboardingUserBodySchema,
     UpdateUserBodySchema,
     UserEntitySchema,
 } from "./user.schema";
 
-const ErrorResponseSchema = z.object({
-    error: z.string(),
-});
-
 export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
     .model({
         User: UserEntitySchema,
-        UserList: UserEntitySchema.array(),
         OnboardingUserBody: OnboardingUserBodySchema,
         UpdateUserBody: UpdateUserBodySchema,
         ErrorResponse: ErrorResponseSchema,
@@ -37,20 +33,13 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
             .get(
                 "/me",
                 async ({ user, status }) => {
-                    try {
-                        const dbUser = await UserService.getUserById(user.id);
+                    const dbUser = await UserService.getUserById(user.id);
 
-                        if (!dbUser) {
-                            return status(404, { error: "User not found" });
-                        }
-
-                        return dbUser;
-                    } catch (error) {
-                        console.error("Error fetching user:", error);
-                        return status(500, {
-                            error: "Failed to fetch user data",
-                        });
+                    if (!dbUser) {
+                        return status(404, { error: UserErrors.UserNotFound });
                     }
+
+                    return dbUser;
                 },
                 {
                     response: {
@@ -65,28 +54,26 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
             .patch(
                 "/me/onboarding",
                 async ({ user, body, status }) => {
-                    try {
-                        const updatedUser = await UserService.onboardUser(
-                            user.id,
-                            body
-                        );
-                        return status(200, updatedUser);
-                    } catch (error) {
-                        console.error("Error during onboarding:", error);
-                        return status(500, {
-                            error: "Failed to update onboarding data",
-                        });
+                    const updatedUser = await UserService.onboardUser(
+                        user.id,
+                        body
+                    );
+
+                    if (!updatedUser) {
+                        return status(404, { error: UserErrors.UserNotFound });
                     }
+
+                    return updatedUser;
                 },
                 {
                     body: "OnboardingUserBody",
                     response: {
                         200: "User",
+                        404: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
-                        description:
-                            "Updates user data during onboarding (first name, last name, and phone are required)",
+                        description: "Updates user data during onboarding",
                     },
                 }
             )
@@ -94,23 +81,22 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
             .patch(
                 "/me/profile",
                 async ({ user, body, status }) => {
-                    try {
-                        const updatedUser = await UserService.updateUserProfile(
-                            user.id,
-                            body
-                        );
-                        return status(200, updatedUser);
-                    } catch (error) {
-                        console.error("Error updating profile:", error);
-                        return status(500, {
-                            error: "Failed to update user profile",
-                        });
+                    const updatedUser = await UserService.updateUserProfile(
+                        user.id,
+                        body
+                    );
+
+                    if (!updatedUser) {
+                        return status(404, { error: UserErrors.UserNotFound });
                     }
+
+                    return updatedUser;
                 },
                 {
                     body: "UpdateUserBody",
                     response: {
                         200: "User",
+                        404: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
