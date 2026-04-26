@@ -7,7 +7,7 @@ import sk from "./locales/sk.json";
 i18n.use(initReactI18next).init({
     resources: {
         en: { translation: en },
-        cz: { translation: cs },
+        cs: { translation: cs },
         sk: { translation: sk },
     },
     lng: "en",
