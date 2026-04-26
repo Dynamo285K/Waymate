@@ -85,7 +85,8 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
                         500: "ErrorResponse",
                     },
                     detail: {
-                        description: "Updates user data during onboarding",
+                        description:
+                            "Updates user data during onboarding (first name, last name, and phone are required)",
                     },
                 }
             )

@@ -28,7 +28,7 @@ export const BookingRoutes = new Elysia({
         ErrorResponse: ErrorResponseSchema,
     })
     // Global error handler (consistent with cars and rides).
-    .onError(({ code, status, error }) => {
+    .onError(({ code, status }) => {
         if (code === "VALIDATION" || code === "PARSE") {
             return status(400, { error: "Invalid request data" });
         }
@@ -36,7 +36,6 @@ export const BookingRoutes = new Elysia({
             return status(401, { error: "Unauthorized" });
         }
         if (code === "INTERNAL_SERVER_ERROR" || code === "UNKNOWN") {
-            console.error("FATAL ERROR V BOOKINGS:", error);
             return status(500, { error: "Internal server error" });
         }
     })
@@ -88,7 +87,6 @@ export const BookingRoutes = new Elysia({
                             error instanceof Error
                                 ? error.message
                                 : String(error);
-                        console.error("Error while creating booking:", error);
 
                         // Error Translation
                         if (

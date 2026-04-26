@@ -21,7 +21,6 @@ const updateOnboardingInfo = async (
             firstName: data.firstName,
             lastName: data.lastName,
             phone: data.phone,
-            bio: data.bio,
         })
         .where(eq(usersTable.id, userId))
         .returning();

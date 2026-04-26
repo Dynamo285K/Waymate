@@ -70,6 +70,15 @@ const findBookingsByPassengerId = async (
         );
     } else if (timeframe === "PAST") {
         filters.push(lt(ridesTable.departureAt, now));
+        filters.push(
+            inArray(bookingsTable.bookingStatus, [
+                "CONFIRMED",
+                "COMPLETED",
+                "REJECTED",
+                "CANCELLED",
+                "NO_SHOW",
+            ])
+        );
     }
 
     const rows = await db
@@ -313,7 +322,7 @@ const confirmBooking = async (
             oldStatus: "PENDING",
             newStatus: "CONFIRMED",
             changedByUserId: driverId,
-            reason: "Vodič potvrdil žiadosť o jazdu",
+            reason: "Driver confirmed booking",
         });
 
         return updatedBooking.id;
@@ -349,7 +358,7 @@ const rejectBooking = async (
             throw new Error(BookingErrors.UnauthorizedAction);
         }
 
-        const rejectionReason = reason || "Vodič zamietol žiadosť";
+        const rejectionReason = reason || "Driver rejected booking";
 
         const [updatedBooking] = await tx
             .update(bookingsTable)
@@ -403,7 +412,7 @@ const cancelBookingByPassenger = async (
             throw new Error(BookingErrors.AlreadyCancelled);
         }
 
-        const cancelReason = reason || "Pasažier zrušil svoju rezerváciu";
+        const cancelReason = reason || "Passenger cancelled their booking";
 
         const [updatedBooking] = await tx
             .update(bookingsTable)

@@ -6,7 +6,7 @@ export type UserInsert = InferInsertModel<typeof users>;
 
 export type OnboardingUserBody = Pick<
     UserInsert,
-    "firstName" | "lastName" | "phone" | "bio"
+    "firstName" | "lastName" | "phone"
 >;
 
 export type UpdateUserBody = Partial<
