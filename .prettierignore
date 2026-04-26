@@ -8,3 +8,4 @@ bun.lock
 *.sqlite
 *.sqlite3
 ui-design
+.claude/settings.local.json 
