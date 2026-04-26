@@ -63,10 +63,10 @@ export const UpdateUserBodySchema = z.object({
     displayName: DisplayNameSchema.optional(),
     phone: PhoneSchema.optional(),
     bio: z.string().trim().max(500).optional(),
-    profilePhotoUrl: z.string().url().optional(),
+    profilePhotoUrl: z.url().optional(),
 });
 
-export const UserStatusHistoryIdSchema = z.string();
+export const UserStatusHistoryIdSchema = z.uuid();
 
 export const UserStatusHistoryEntitySchema = z.object({
     id: UserStatusHistoryIdSchema,
