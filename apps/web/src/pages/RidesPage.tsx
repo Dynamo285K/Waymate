@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { AuthNavbar, AvailableRideCard, Button } from "waymate-ui";
 import type { Language } from "waymate-ui";
 import i18n from "../i18n";

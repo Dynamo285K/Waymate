@@ -136,7 +136,9 @@ export function DriverProfilePage({
                                         t("home.availableRides.seatsLeft", {
                                             count,
                                         }),
-                                    viewPassengers: t("profile.manage"),
+                                    viewPassengers: t(
+                                        "driverRides.viewPassengers"
+                                    ),
                                     cancelRide: t("profile.cancelRide"),
                                 }}
                             />

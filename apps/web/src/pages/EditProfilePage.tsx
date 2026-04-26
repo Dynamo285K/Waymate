@@ -150,7 +150,6 @@ export function EditProfilePage({
                         />
                         <Input
                             label={t("editProfile.phone")}
-                            type="tel"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
                         />
