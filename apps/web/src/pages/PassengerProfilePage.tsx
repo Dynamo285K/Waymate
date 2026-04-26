@@ -1,12 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import {
-    PassengerNavbar,
-    ProfileHeroCard,
-    CarCard,
-    RideCard,
-    Button,
-} from "waymate-ui";
+import { PassengerNavbar, ProfileHeroCard, RideCard } from "waymate-ui";
 import type { Language } from "waymate-ui";
 import i18n from "../i18n";
 
@@ -47,6 +41,9 @@ const UPCOMING_RIDES = [
         date: new Date(2026, 2, 15, 8, 0),
         price: 10,
         seatsLeft: 2,
+        driverName: "Martin Kováč",
+        driverRating: 4.9,
+        status: "confirmed" as const,
     },
     {
         id: 2,
@@ -55,6 +52,9 @@ const UPCOMING_RIDES = [
         date: new Date(2026, 2, 21, 10, 0),
         price: 12,
         seatsLeft: 1,
+        driverName: "Eva Szabóová",
+        driverRating: 4.8,
+        status: "pending" as const,
     },
 ];
 
@@ -142,57 +142,36 @@ export function PassengerProfilePage({
                     </p>
                 </div>
 
-                {/* Two-column: rides + cars */}
-                <div className="flex flex-col lg:flex-row gap-6">
-                    {/* My Upcoming Rides */}
-                    <div className="flex-1 flex flex-col gap-4">
-                        <h2 className="text-lg font-bold text-(--color-text-primary)">
-                            {t("profile.myUpcomingRides")}
-                        </h2>
-                        {UPCOMING_RIDES.map((ride) => (
-                            <RideCard
-                                key={ride.id}
-                                variant="driver-upcoming"
-                                from={ride.from}
-                                to={ride.to}
-                                datetime={formatRideDate(
-                                    ride.date,
-                                    t("home.at")
-                                )}
-                                price={ride.price}
-                                seatsLeft={ride.seatsLeft}
-                                onViewPassengers={() => {}}
-                                onCancelRide={() => {}}
-                                labels={{
-                                    seatsLeft: (count) =>
-                                        t("home.availableRides.seatsLeft", {
-                                            count,
-                                        }),
-                                    viewPassengers: t("profile.manage"),
-                                    cancelRide: t("profile.cancelRide"),
-                                }}
-                            />
-                        ))}
-                    </div>
-
-                    {/* My Cars */}
-                    <div className="lg:w-72 flex flex-col gap-4">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-bold text-(--color-text-primary)">
-                                {t("profile.myCars")}
-                            </h2>
-                            <Button
-                                onClick={() =>
-                                    navigate("/car/add", {
-                                        state: { role: "passenger" },
-                                    })
-                                }
-                            >
-                                {t("profile.addCar")}
-                            </Button>
-                        </div>
-                        <CarCard model="Skoda Fabia" />
-                    </div>
+                {/* My Upcoming Rides */}
+                <div className="flex flex-col gap-4">
+                    <h2 className="text-lg font-bold text-(--color-text-primary)">
+                        {t("profile.myUpcomingRides")}
+                    </h2>
+                    {UPCOMING_RIDES.map((ride) => (
+                        <RideCard
+                            key={ride.id}
+                            variant="passenger-upcoming"
+                            from={ride.from}
+                            to={ride.to}
+                            datetime={formatRideDate(ride.date, t("home.at"))}
+                            price={ride.price}
+                            seatsLeft={ride.seatsLeft}
+                            driverName={ride.driverName}
+                            driverRating={ride.driverRating}
+                            status={ride.status}
+                            onCancelBooking={() => {}}
+                            labels={{
+                                seatsLeft: (count) =>
+                                    t("home.availableRides.seatsLeft", {
+                                        count,
+                                    }),
+                                pendingConfirmation: t(
+                                    "myRides.pendingConfirmation"
+                                ),
+                                cancelBooking: t("myRides.cancelBooking"),
+                            }}
+                        />
+                    ))}
                 </div>
             </div>
         </div>

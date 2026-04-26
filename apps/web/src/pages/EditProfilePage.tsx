@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
-import { PassengerNavbar, DriverNavbar, Input, Button } from "waymate-ui";
+import {
+    PassengerNavbar,
+    DriverNavbar,
+    AdminNavbar,
+    Input,
+    Button,
+} from "waymate-ui";
 import type { Language } from "waymate-ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 
@@ -26,10 +32,14 @@ export function EditProfilePage({
     const navigate = useNavigate();
     const location = useLocation();
     const role =
-        (location.state as { role?: "passenger" | "driver" } | null)?.role ??
-        "passenger";
+        (location.state as { role?: "passenger" | "driver" | "admin" } | null)
+            ?.role ?? "passenger";
     const backPath =
-        role === "driver" ? "/driver/profile" : "/passenger/profile";
+        role === "driver"
+            ? "/driver/profile"
+            : role === "admin"
+              ? "/admin/account"
+              : "/passenger/profile";
 
     const [name, setName] = useState(userName);
     const [email, setEmail] = useState(userEmail);
@@ -70,6 +80,32 @@ export function EditProfilePage({
         >
             {role === "driver" ? (
                 <DriverNavbar {...driverNavbarProps} />
+            ) : role === "admin" ? (
+                <AdminNavbar
+                    language={language}
+                    onLanguageChange={onLanguageChange}
+                    theme={theme}
+                    onThemeToggle={onThemeToggle}
+                    userName={userName}
+                    userEmail={userEmail}
+                    onLogoClick={() => navigate("/admin")}
+                    onDashboardClick={() => navigate("/admin")}
+                    onRidesClick={() => navigate("/admin/rides")}
+                    onUsersClick={() => navigate("/admin/users")}
+                    onReportsClick={() => navigate("/admin/reports")}
+                    onProfileClick={() => navigate("/admin/account")}
+                    onLogoutClick={() => navigate("/")}
+                    labels={{
+                        adminRole: t("admin.adminRole"),
+                        dashboard: t("admin.dashboard"),
+                        rides: t("admin.rides"),
+                        users: t("admin.users"),
+                        reports: t("admin.reports"),
+                        account: t("admin.account"),
+                        settings: t("admin.settings"),
+                        logout: t("admin.logout"),
+                    }}
+                />
             ) : (
                 <PassengerNavbar
                     activeTab="find-ride"
@@ -125,17 +161,19 @@ export function EditProfilePage({
                         />
                     </div>
 
-                    {/* About me textarea */}
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold text-(--color-text-primary)">
-                            {t("editProfile.aboutMe")}
-                        </label>
-                        <textarea
-                            className="w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) p-3 text-sm resize-y min-h-[100px] outline-none focus:border-(--color-primary) focus:ring-2 focus:ring-green-100 transition-colors font-[Inter,sans-serif]"
-                            value={about}
-                            onChange={(e) => setAbout(e.target.value)}
-                        />
-                    </div>
+                    {/* About me textarea — hidden for admin */}
+                    {role !== "admin" && (
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-semibold text-(--color-text-primary)">
+                                {t("editProfile.aboutMe")}
+                            </label>
+                            <textarea
+                                className="w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) p-3 text-sm resize-y min-h-25 outline-none focus:border-(--color-primary) focus:ring-2 focus:ring-green-100 transition-colors font-[Inter,sans-serif]"
+                                value={about}
+                                onChange={(e) => setAbout(e.target.value)}
+                            />
+                        </div>
+                    )}
 
                     {/* Actions */}
                     <div className="flex justify-end gap-3 pt-2">

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
+import { OnboardingPage } from "./pages/OnboardingPage";
 import { RidesPage } from "./pages/RidesPage";
 import { PassengerHomePage } from "./pages/PassengerHomePage";
 import { PassengerChatPage } from "./pages/PassengerChatPage";
@@ -183,6 +184,10 @@ function AppRoutes() {
             <Route
                 path="/register"
                 element={<RegisterPage {...sharedProps} />}
+            />
+            <Route
+                path="/onboarding"
+                element={<OnboardingPage {...sharedProps} />}
             />
         </Routes>
     );

@@ -129,15 +129,16 @@ const RIDES: Ride[] = [
 ];
 
 function StatusBadge({ status }: { status: RideStatus }) {
+    const { t } = useTranslation();
     const styles: Record<RideStatus, string> = {
         upcoming: "border border-green-500 text-green-600 bg-green-50",
         completed: "bg-gray-100 text-gray-500",
         cancelled: "bg-red-50 text-red-500",
     };
     const labels: Record<RideStatus, string> = {
-        upcoming: "Upcoming",
-        completed: "Completed",
-        cancelled: "Cancelled",
+        upcoming: t("admin.upcoming"),
+        completed: t("admin.completed"),
+        cancelled: t("admin.cancelled"),
     };
     return (
         <span
@@ -157,6 +158,7 @@ function RideModal({
     onClose: () => void;
     onForceCancel: (id: number) => void;
 }) {
+    const { t } = useTranslation();
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div
@@ -169,7 +171,11 @@ function RideModal({
             >
                 <div className="flex justify-between items-start mb-6">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
-                        Ride #{ride.id} — {ride.from} → {ride.to}
+                        {t("admin.rideTitle", {
+                            id: ride.id,
+                            from: ride.from,
+                            to: ride.to,
+                        })}
                     </h2>
                     <button
                         onClick={onClose}
@@ -181,16 +187,19 @@ function RideModal({
 
                 <div className="grid grid-cols-2 gap-x-8 gap-y-4 mb-6">
                     {[
-                        ["DRIVER", ride.driver],
-                        ["DATE", ride.date],
-                        ["TIME", ride.time],
-                        ["PRICE", `${ride.price}€`],
+                        [t("admin.driver"), ride.driver],
+                        [t("admin.date"), ride.date],
+                        [t("admin.time"), ride.time],
+                        [t("admin.price"), `${ride.price}€`],
                         [
-                            "SEATS",
-                            `${ride.seatsTaken}/${ride.seatsTotal} taken`,
+                            t("admin.seats"),
+                            t("admin.seatsTaken", {
+                                taken: ride.seatsTaken,
+                                total: ride.seatsTotal,
+                            }),
                         ],
                         [
-                            "STATUS",
+                            t("admin.status"),
                             <StatusBadge
                                 key="s"
                                 status={ride.status}
@@ -211,7 +220,9 @@ function RideModal({
                 {ride.passengers.length > 0 && (
                     <div className="mb-5">
                         <p className="text-xs font-bold text-(--color-text-secondary) tracking-wider mb-3">
-                            CONFIRMED PASSENGERS ({ride.passengers.length})
+                            {t("admin.confirmedPassengers", {
+                                count: ride.passengers.length,
+                            })}
                         </p>
                         <div className="flex flex-col gap-2">
                             {ride.passengers.map((p) => (
@@ -233,9 +244,8 @@ function RideModal({
                 )}
 
                 <div className="bg-green-50 border border-green-200 rounded-xl p-3 mb-6 text-sm text-green-700">
-                    <span className="font-bold">Admin note: </span>
-                    Intervention logged in ride history. Force Cancel triggers
-                    automatic cancellation for all passengers.
+                    <span className="font-bold">{t("admin.adminNote")}: </span>
+                    {t("admin.adminNoteText")}
                 </div>
 
                 <div className="flex gap-3 justify-end">
@@ -243,7 +253,7 @@ function RideModal({
                         variant="secondary"
                         onClick={onClose}
                     >
-                        Close
+                        {t("admin.close")}
                     </Button>
                     {ride.status === "upcoming" && (
                         <Button
@@ -253,7 +263,7 @@ function RideModal({
                                 onClose();
                             }}
                         >
-                            ✕ Force Cancel
+                            ✕ {t("admin.forceCancel")}
                         </Button>
                     )}
                 </div>
@@ -271,6 +281,7 @@ function ModifyRideModal({
     onClose: () => void;
     onSave: (id: number, data: Partial<Ride>) => void;
 }) {
+    const { t } = useTranslation();
     const [from, setFrom] = useState(ride.from);
     const [to, setTo] = useState(ride.to);
     const [date, setDate] = useState(ride.date);
@@ -293,7 +304,7 @@ function ModifyRideModal({
             >
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
-                        Modify Ride #{ride.id}
+                        {t("admin.modifyRide", { id: ride.id })}
                     </h2>
                     <button
                         onClick={onClose}
@@ -305,7 +316,7 @@ function ModifyRideModal({
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
                     <div>
-                        <label className={labelClass}>From</label>
+                        <label className={labelClass}>{t("admin.from")}</label>
                         <input
                             className={inputClass}
                             value={from}
@@ -313,7 +324,7 @@ function ModifyRideModal({
                         />
                     </div>
                     <div>
-                        <label className={labelClass}>To</label>
+                        <label className={labelClass}>{t("admin.to")}</label>
                         <input
                             className={inputClass}
                             value={to}
@@ -321,7 +332,7 @@ function ModifyRideModal({
                         />
                     </div>
                     <div>
-                        <label className={labelClass}>Date</label>
+                        <label className={labelClass}>{t("admin.date")}</label>
                         <input
                             className={inputClass}
                             value={date}
@@ -329,7 +340,7 @@ function ModifyRideModal({
                         />
                     </div>
                     <div>
-                        <label className={labelClass}>Time</label>
+                        <label className={labelClass}>{t("admin.time")}</label>
                         <input
                             className={inputClass}
                             value={time}
@@ -343,7 +354,7 @@ function ModifyRideModal({
                         variant="secondary"
                         onClick={onClose}
                     >
-                        Cancel
+                        {t("admin.cancel")}
                     </Button>
                     <Button
                         onClick={() => {
@@ -351,7 +362,7 @@ function ModifyRideModal({
                             onClose();
                         }}
                     >
-                        Save Changes
+                        {t("admin.saveChanges")}
                     </Button>
                 </div>
             </div>
@@ -412,10 +423,10 @@ export function AdminRidesPage({
     }
 
     const FILTERS: { key: "all" | RideStatus; label: string }[] = [
-        { key: "all", label: "All" },
-        { key: "upcoming", label: "Upcoming" },
-        { key: "completed", label: "Completed" },
-        { key: "cancelled", label: "Cancelled" },
+        { key: "all", label: t("admin.all") },
+        { key: "upcoming", label: t("admin.upcoming") },
+        { key: "completed", label: t("admin.completed") },
+        { key: "cancelled", label: t("admin.cancelled") },
     ];
 
     return (
@@ -443,10 +454,10 @@ export function AdminRidesPage({
 
             <div className="w-full px-4 sm:max-w-6xl sm:mx-auto sm:px-8 py-8">
                 <h1 className="text-2xl font-bold text-(--color-text-primary)">
-                    Global Ride Management
+                    {t("admin.ridesTitle")}
                 </h1>
                 <p className="text-(--color-text-secondary) text-sm mt-1 mb-6">
-                    View, modify and force-cancel any ride on the platform.
+                    {t("admin.ridesSubtitle")}
                 </p>
 
                 {/* Filters + Search */}
@@ -485,7 +496,7 @@ export function AdminRidesPage({
                         </svg>
                         <input
                             className="bg-transparent border-none outline-none text-sm text-(--color-text-primary) w-full"
-                            placeholder="Search driver, route..."
+                            placeholder={t("admin.searchRides")}
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
@@ -499,13 +510,13 @@ export function AdminRidesPage({
                             <tr className="border-b border-(--color-border)">
                                 {[
                                     "#",
-                                    "DRIVER",
-                                    "ROUTE",
-                                    "DATE & TIME",
-                                    "SEATS",
-                                    "PRICE",
-                                    "STATUS",
-                                    "ACTIONS",
+                                    t("admin.driver"),
+                                    t("admin.route"),
+                                    t("admin.dateTime"),
+                                    t("admin.seats"),
+                                    t("admin.price"),
+                                    t("admin.status"),
+                                    t("admin.actions"),
                                 ].map((h) => (
                                     <th
                                         key={h}
@@ -562,7 +573,7 @@ export function AdminRidesPage({
                                                 }
                                                 className="px-3 py-1.5 border border-(--color-border) rounded-lg text-sm font-medium text-(--color-text-secondary) hover:bg-(--color-border) transition-colors whitespace-nowrap"
                                             >
-                                                View
+                                                {t("admin.view")}
                                             </button>
                                             {ride.status === "upcoming" && (
                                                 <>
@@ -592,7 +603,7 @@ export function AdminRidesPage({
                                                         }
                                                         className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-semibold transition-colors whitespace-nowrap"
                                                     >
-                                                        Force Cancel
+                                                        {t("admin.forceCancel")}
                                                     </button>
                                                 </>
                                             )}

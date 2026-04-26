@@ -195,7 +195,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                             {t("forgotPassword.step2Subtitle")}
                         </p>
                         <p className="text-sm font-bold text-(--color-text-primary) mb-6">
-                            {email || "tanicka879@gmail.com"}
+                            {email}
                         </p>
 
                         <div className="flex gap-2 mb-4">
@@ -216,13 +216,6 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                     className={`w-11 h-12 text-center text-lg font-bold rounded-xl border-2 outline-none transition-colors bg-(--color-input-bg) text-(--color-text-primary) ${digit ? "border-(--color-primary)" : "border-(--color-border)"} focus:border-(--color-primary)`}
                                 />
                             ))}
-                        </div>
-
-                        <div className="text-xs text-(--color-text-secondary) bg-(--color-border) rounded-lg px-3 py-2 mb-4 w-full text-center">
-                            {t("forgotPassword.demoCode")}{" "}
-                            <span className="font-bold text-(--color-text-primary)">
-                                1 2 3 4 5 6
-                            </span>
                         </div>
 
                         <Button

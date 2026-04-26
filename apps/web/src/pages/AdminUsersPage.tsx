@@ -129,23 +129,29 @@ const USERS: User[] = [
 ];
 
 function StatusBadge({ status }: { status: UserStatus }) {
+    const { t } = useTranslation();
     const s: Record<UserStatus, string> = {
         active: "border border-green-400 text-green-600 bg-green-50",
         banned: "bg-red-100 text-red-600",
         pending: "bg-amber-100 text-amber-600",
     };
+    const labels: Record<UserStatus, string> = {
+        active: t("admin.active"),
+        banned: t("admin.banned"),
+        pending: t("admin.pending"),
+    };
     return (
         <span
             className={`text-xs font-semibold px-2.5 py-1 rounded-full ${s[status]}`}
         >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
+            {labels[status]}
         </span>
     );
 }
 
 function RatingDisplay({ rating }: { rating: number | null }) {
     if (rating === null)
-        return <span className="text-(--color-text-secondary)">★ —</span>;
+        return <span className="text-(--color-text-secondary)">★ -</span>;
     const color = rating >= 4 ? "text-green-600" : "text-red-500";
     return <span className={`font-semibold ${color}`}>★ {rating}</span>;
 }
@@ -162,6 +168,7 @@ function UserProfileModal({
     onBan: () => void;
     onSave: (id: number, data: Partial<User>) => void;
 }) {
+    const { t } = useTranslation();
     const [editing, setEditing] = useState(false);
     const [name, setName] = useState(user.name);
     const [email, setEmail] = useState(user.email);
@@ -191,7 +198,9 @@ function UserProfileModal({
             >
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
-                        {editing ? "Edit Profile" : "User Profile"}
+                        {editing
+                            ? t("admin.editProfile")
+                            : t("admin.userProfile")}
                     </h2>
                     <button
                         onClick={editing ? () => setEditing(false) : onClose}
@@ -222,23 +231,19 @@ function UserProfileModal({
                     <>
                         <div className="grid grid-cols-2 gap-x-8 gap-y-4 mb-6">
                             {[
-                                ["PHONE", user.phone],
+                                [t("admin.phone"), user.phone],
+                                [t("admin.role"), t(`admin.${user.role}`)],
+                                [t("admin.spzPlate"), user.spz ?? "-"],
+                                [t("admin.memberSince"), user.memberSince],
+                                [t("admin.totalRides"), String(user.rides)],
                                 [
-                                    "ROLE",
-                                    user.role.charAt(0).toUpperCase() +
-                                        user.role.slice(1),
-                                ],
-                                ["SPZ / PLATE", user.spz ?? "—"],
-                                ["MEMBER SINCE", user.memberSince],
-                                ["TOTAL RIDES", String(user.rides)],
-                                [
-                                    "RATING",
+                                    t("admin.rating"),
                                     user.rating !== null
                                         ? String(user.rating)
-                                        : "—",
+                                        : "-",
                                 ],
                             ].map(([label, value]) => (
-                                <div key={label}>
+                                <div key={String(label)}>
                                     <p className={labelClass}>{label}</p>
                                     <p className="text-sm font-semibold text-(--color-text-primary)">
                                         {value}
@@ -251,17 +256,17 @@ function UserProfileModal({
                                 variant="secondary"
                                 onClick={() => setEditing(true)}
                             >
-                                ✎ Edit Profile
+                                ✎ {t("admin.editProfile")}
                             </Button>
                             <Button variant="secondary">
-                                ↺ Reset Password
+                                ↺ {t("admin.resetPassword")}
                             </Button>
                             {user.status !== "banned" && (
                                 <Button
                                     variant="red"
                                     onClick={onBan}
                                 >
-                                    Ban User
+                                    {t("admin.banUser")}
                                 </Button>
                             )}
                         </div>
@@ -271,7 +276,9 @@ function UserProfileModal({
                     <>
                         <div className="grid grid-cols-2 gap-4 mb-6">
                             <div>
-                                <label className={labelClass}>NAME</label>
+                                <label className={labelClass}>
+                                    {t("admin.name")}
+                                </label>
                                 <input
                                     className={inputClass}
                                     value={name}
@@ -279,7 +286,9 @@ function UserProfileModal({
                                 />
                             </div>
                             <div>
-                                <label className={labelClass}>EMAIL</label>
+                                <label className={labelClass}>
+                                    {t("admin.email")}
+                                </label>
                                 <input
                                     className={inputClass}
                                     type="email"
@@ -288,7 +297,9 @@ function UserProfileModal({
                                 />
                             </div>
                             <div>
-                                <label className={labelClass}>PHONE</label>
+                                <label className={labelClass}>
+                                    {t("admin.phone")}
+                                </label>
                                 <input
                                     className={inputClass}
                                     value={phone}
@@ -296,7 +307,9 @@ function UserProfileModal({
                                 />
                             </div>
                             <div>
-                                <label className={labelClass}>ROLE</label>
+                                <label className={labelClass}>
+                                    {t("admin.role")}
+                                </label>
                                 <select
                                     className={inputClass + " cursor-pointer"}
                                     value={role}
@@ -304,13 +317,17 @@ function UserProfileModal({
                                         setRole(e.target.value as UserRole)
                                     }
                                 >
-                                    <option value="driver">Driver</option>
-                                    <option value="passenger">Passenger</option>
+                                    <option value="driver">
+                                        {t("admin.driver")}
+                                    </option>
+                                    <option value="passenger">
+                                        {t("admin.passenger")}
+                                    </option>
                                 </select>
                             </div>
                             <div className="col-span-2">
                                 <label className={labelClass}>
-                                    SPZ / PLATE
+                                    {t("admin.spzPlate")}
                                 </label>
                                 <input
                                     className={inputClass}
@@ -327,9 +344,11 @@ function UserProfileModal({
                                 variant="secondary"
                                 onClick={() => setEditing(false)}
                             >
-                                Cancel
+                                {t("admin.cancel")}
                             </Button>
-                            <Button onClick={handleSave}>Save Changes</Button>
+                            <Button onClick={handleSave}>
+                                {t("admin.saveChanges")}
+                            </Button>
                         </div>
                     </>
                 )}
@@ -348,6 +367,7 @@ function BanUserModal({
     onClose: () => void;
     onConfirm: (id: number) => void;
 }) {
+    const { t } = useTranslation();
     const [banType, setBanType] = useState<"temporary" | "permanent">(
         "temporary"
     );
@@ -369,7 +389,7 @@ function BanUserModal({
             >
                 <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
-                        Ban User — {user.name}
+                        {t("admin.banUser")} — {user.name}
                     </h2>
                     <button
                         onClick={onClose}
@@ -380,28 +400,29 @@ function BanUserModal({
                 </div>
 
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-5 text-sm text-red-700">
-                    This will immediately terminate all sessions, cancel all
-                    active rides and bookings, and notify affected passengers.
+                    {t("admin.banWarning")}
                 </div>
 
                 <div className="mb-4">
                     <p className="text-sm font-semibold text-(--color-text-primary) mb-2">
-                        Ban Type
+                        {t("admin.banType")}
                     </p>
                     <div className="flex gap-5">
-                        {(["temporary", "permanent"] as const).map((t) => (
+                        {(["temporary", "permanent"] as const).map((type) => (
                             <label
-                                key={t}
+                                key={type}
                                 className="flex items-center gap-2 cursor-pointer text-sm text-(--color-text-primary)"
                             >
                                 <input
                                     type="radio"
                                     name="banType"
-                                    checked={banType === t}
-                                    onChange={() => setBanType(t)}
+                                    checked={banType === type}
+                                    onChange={() => setBanType(type)}
                                     className="accent-green-500 w-4 h-4"
                                 />
-                                {t.charAt(0).toUpperCase() + t.slice(1)}
+                                {type === "temporary"
+                                    ? t("admin.temporary")
+                                    : t("admin.permanent")}
                             </label>
                         ))}
                     </div>
@@ -410,7 +431,7 @@ function BanUserModal({
                 {banType === "temporary" && (
                     <div className="mb-4">
                         <label className="text-sm font-semibold text-(--color-text-primary) mb-1.5 block">
-                            Duration (days)
+                            {t("admin.duration")}
                         </label>
                         <input
                             className={inputClass}
@@ -424,11 +445,11 @@ function BanUserModal({
 
                 <div className="mb-6">
                     <label className="text-sm font-semibold text-(--color-text-primary) mb-1.5 block">
-                        Reason for Ban
+                        {t("admin.reasonForBan")}
                     </label>
                     <textarea
                         className={inputClass + " resize-y min-h-25"}
-                        placeholder="Describe the reason (visible to user)..."
+                        placeholder={t("admin.reasonPlaceholder")}
                         value={reason}
                         onChange={(e) => setReason(e.target.value)}
                     />
@@ -439,7 +460,7 @@ function BanUserModal({
                         variant="secondary"
                         onClick={onClose}
                     >
-                        Cancel
+                        {t("admin.cancel")}
                     </Button>
                     <Button
                         variant="red"
@@ -448,7 +469,7 @@ function BanUserModal({
                             onClose();
                         }}
                     >
-                        ⊘ Confirm Ban
+                        ⊘ {t("admin.confirmBan")}
                     </Button>
                 </div>
             </div>
@@ -541,10 +562,10 @@ export function AdminUsersPage({
 
             <div className="w-full px-4 sm:max-w-6xl sm:mx-auto sm:px-8 py-8">
                 <h1 className="text-2xl font-bold text-(--color-text-primary)">
-                    User Management
+                    {t("admin.usersTitle")}
                 </h1>
                 <p className="text-(--color-text-secondary) text-sm mt-1 mb-6">
-                    Search, filter, verify and manage user accounts.
+                    {t("admin.usersSubtitle")}
                 </p>
 
                 {/* Filters */}
@@ -568,7 +589,7 @@ export function AdminUsersPage({
                         </svg>
                         <input
                             className="bg-transparent border-none outline-none text-sm text-(--color-text-primary) w-full"
-                            placeholder="Search name, email, SPZ..."
+                            placeholder={t("admin.searchUsers")}
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
@@ -579,19 +600,23 @@ export function AdminUsersPage({
                             value={roleFilter}
                             onChange={(e) => setRoleFilter(e.target.value)}
                         >
-                            <option value="all">All</option>
-                            <option value="driver">Driver</option>
-                            <option value="passenger">Passenger</option>
+                            <option value="all">{t("admin.all")}</option>
+                            <option value="driver">{t("admin.driver")}</option>
+                            <option value="passenger">
+                                {t("admin.passenger")}
+                            </option>
                         </select>
                         <select
                             className={selectClass}
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
                         >
-                            <option value="all">All</option>
-                            <option value="active">Active</option>
-                            <option value="banned">Banned</option>
-                            <option value="pending">Pending</option>
+                            <option value="all">{t("admin.all")}</option>
+                            <option value="active">{t("admin.active")}</option>
+                            <option value="banned">{t("admin.banned")}</option>
+                            <option value="pending">
+                                {t("admin.pending")}
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -602,14 +627,14 @@ export function AdminUsersPage({
                         <thead>
                             <tr className="border-b border-(--color-border)">
                                 {[
-                                    "USER",
-                                    "ROLE",
-                                    "EMAIL",
+                                    t("admin.user"),
+                                    t("admin.role"),
+                                    t("admin.email"),
                                     "SPZ",
-                                    "RATING",
-                                    "RIDES",
-                                    "STATUS",
-                                    "ACTIONS",
+                                    t("admin.rating"),
+                                    t("admin.rides"),
+                                    t("admin.status"),
+                                    t("admin.actions"),
                                 ].map((h) => (
                                     <th
                                         key={h}
@@ -638,14 +663,13 @@ export function AdminUsersPage({
                                         </div>
                                     </td>
                                     <td className="px-5 py-4 text-(--color-text-secondary)">
-                                        {user.role.charAt(0).toUpperCase() +
-                                            user.role.slice(1)}
+                                        {t(`admin.${user.role}`)}
                                     </td>
                                     <td className="px-5 py-4 text-(--color-text-secondary)">
                                         {user.email}
                                     </td>
                                     <td className="px-5 py-4 text-(--color-text-secondary) font-mono text-xs">
-                                        {user.spz ?? "–"}
+                                        {user.spz ?? "-"}
                                     </td>
                                     <td className="px-5 py-4">
                                         <RatingDisplay rating={user.rating} />
@@ -664,7 +688,7 @@ export function AdminUsersPage({
                                                 }
                                                 className="px-3 py-1.5 border border-(--color-border) rounded-lg text-sm font-medium text-(--color-text-secondary) hover:bg-(--color-border) transition-colors"
                                             >
-                                                View
+                                                {t("admin.view")}
                                             </button>
                                             {user.status === "banned" ? (
                                                 <button
@@ -673,7 +697,7 @@ export function AdminUsersPage({
                                                     }
                                                     className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-semibold transition-colors"
                                                 >
-                                                    Unban
+                                                    {t("admin.unban")}
                                                 </button>
                                             ) : (
                                                 <button
@@ -682,7 +706,7 @@ export function AdminUsersPage({
                                                     }
                                                     className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-semibold transition-colors"
                                                 >
-                                                    Ban
+                                                    {t("admin.ban")}
                                                 </button>
                                             )}
                                         </div>

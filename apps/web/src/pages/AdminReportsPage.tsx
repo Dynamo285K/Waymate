@@ -14,15 +14,20 @@ type AdminReportsPageProps = {
 };
 
 type ReportStatus = "open" | "resolved";
+type ReportType =
+    | "inappropriateBehavior"
+    | "noShow"
+    | "overcharging"
+    | "leftLuggage";
 
 type Report = {
     id: number;
     reporter: string;
     against: string;
-    type: string;
+    type: ReportType;
     date: string;
     status: ReportStatus;
-    description: string;
+    descriptionKey: string;
 };
 
 const REPORTS: Report[] = [
@@ -30,62 +35,58 @@ const REPORTS: Report[] = [
         id: 201,
         reporter: "Jana Horáková",
         against: "Peter Novák",
-        type: "Inappropriate behavior",
+        type: "inappropriateBehavior",
         date: "22.4.2026",
         status: "open",
-        description:
-            "Driver was rude and used offensive language during the ride.",
+        descriptionKey: "admin.reportDescriptions.rudeDriver",
     },
     {
         id: 202,
         reporter: "Lukáš Blaho",
         against: "Peter Novák",
-        type: "No-show",
+        type: "noShow",
         date: "22.4.2026",
         status: "open",
-        description:
-            "The driver never arrived at the pickup location and didn't respond to messages.",
+        descriptionKey: "admin.reportDescriptions.driverNoShow",
     },
     {
         id: 203,
         reporter: "Monika Červená",
         against: "Tomáš Varga",
-        type: "Overcharging",
+        type: "overcharging",
         date: "20.4.2026",
         status: "resolved",
-        description:
-            "Driver charged more than the agreed price without explanation.",
+        descriptionKey: "admin.reportDescriptions.overcharging",
     },
     {
         id: 204,
         reporter: "Eva Szabóová",
         against: "Jana Horáková",
-        type: "Left luggage behind",
+        type: "leftLuggage",
         date: "19.4.2026",
         status: "resolved",
-        description:
-            "Passenger forgot a bag in the car and the driver refused to return it.",
+        descriptionKey: "admin.reportDescriptions.leftLuggage",
     },
     {
         id: 205,
         reporter: "Martin Kováč",
         against: "Lukáš Blaho",
-        type: "No-show",
+        type: "noShow",
         date: "18.4.2026",
         status: "open",
-        description:
-            "Passenger booked a seat but never appeared and didn't cancel in advance.",
+        descriptionKey: "admin.reportDescriptions.passengerNoShow",
     },
 ];
 
 function StatusBadge({ status }: { status: ReportStatus }) {
+    const { t } = useTranslation();
     return status === "open" ? (
         <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-600">
-            Open
+            {t("admin.open")}
         </span>
     ) : (
         <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500">
-            Resolved
+            {t("admin.resolved")}
         </span>
     );
 }
@@ -99,6 +100,7 @@ function ReportModal({
     onClose: () => void;
     onResolve: (id: number) => void;
 }) {
+    const { t } = useTranslation();
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div
@@ -111,7 +113,7 @@ function ReportModal({
             >
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
-                        Report #{report.id}
+                        {t("admin.reportTitle", { id: report.id })}
                     </h2>
                     <button
                         onClick={onClose}
@@ -123,12 +125,15 @@ function ReportModal({
 
                 <div className="grid grid-cols-2 gap-x-8 gap-y-4 mb-5">
                     {[
-                        ["REPORTED BY", report.reporter],
-                        ["AGAINST", report.against],
-                        ["TYPE", report.type],
-                        ["DATE", report.date],
+                        [t("admin.reportedBy"), report.reporter],
+                        [t("admin.against"), report.against],
                         [
-                            "STATUS",
+                            t("admin.type"),
+                            t(`admin.reportTypes.${report.type}`),
+                        ],
+                        [t("admin.date"), report.date],
+                        [
+                            t("admin.status"),
                             <StatusBadge
                                 key="s"
                                 status={report.status}
@@ -148,10 +153,10 @@ function ReportModal({
 
                 <div className="mb-6">
                     <p className="text-xs font-bold text-(--color-text-secondary) tracking-wider mb-2">
-                        DESCRIPTION
+                        {t("admin.description")}
                     </p>
                     <div className="bg-(--color-bg) border border-(--color-border) rounded-xl px-4 py-3 text-sm text-(--color-text-secondary) italic">
-                        {report.description}
+                        {t(report.descriptionKey)}
                     </div>
                 </div>
 
@@ -160,7 +165,7 @@ function ReportModal({
                         variant="secondary"
                         onClick={onClose}
                     >
-                        Close
+                        {t("admin.close")}
                     </Button>
                     {report.status === "open" && (
                         <Button
@@ -169,7 +174,7 @@ function ReportModal({
                                 onClose();
                             }}
                         >
-                            ✓ Mark Resolved
+                            ✓ {t("admin.markResolved")}
                         </Button>
                     )}
                 </div>
@@ -217,9 +222,9 @@ export function AdminReportsPage({
     }
 
     const FILTERS: { key: "all" | ReportStatus; label: string }[] = [
-        { key: "all", label: "All" },
-        { key: "open", label: "Open" },
-        { key: "resolved", label: "Resolved" },
+        { key: "all", label: t("admin.all") },
+        { key: "open", label: t("admin.open") },
+        { key: "resolved", label: t("admin.resolved") },
     ];
 
     return (
@@ -247,10 +252,10 @@ export function AdminReportsPage({
 
             <div className="w-full px-4 sm:max-w-5xl sm:mx-auto sm:px-8 py-8">
                 <h1 className="text-2xl font-bold text-(--color-text-primary)">
-                    Reports
+                    {t("admin.reportsTitle")}
                 </h1>
                 <p className="text-(--color-text-secondary) text-sm mt-1 mb-6">
-                    Review user reports and dispute resolutions.
+                    {t("admin.reportsSubtitle")}
                 </p>
 
                 {/* Filters + badge */}
@@ -272,8 +277,13 @@ export function AdminReportsPage({
                     </div>
                     {openCount > 0 && (
                         <span className="flex items-center gap-1.5 bg-red-50 border border-red-200 text-red-600 text-sm font-semibold px-3 py-1.5 rounded-xl">
-                            🚩 {openCount} open report
-                            {openCount !== 1 ? "s" : ""}
+                            {openCount === 1
+                                ? t("admin.openReports", {
+                                      count: openCount,
+                                  })
+                                : t("admin.openReportsPlural", {
+                                      count: openCount,
+                                  })}
                         </span>
                     )}
                 </div>
@@ -285,12 +295,12 @@ export function AdminReportsPage({
                             <tr className="border-b border-(--color-border)">
                                 {[
                                     "#",
-                                    "REPORTER",
-                                    "AGAINST",
-                                    "TYPE",
-                                    "DATE",
-                                    "STATUS",
-                                    "ACTIONS",
+                                    t("admin.reporter"),
+                                    t("admin.against"),
+                                    t("admin.type"),
+                                    t("admin.date"),
+                                    t("admin.status"),
+                                    t("admin.actions"),
                                 ].map((h) => (
                                     <th
                                         key={h}
@@ -317,7 +327,7 @@ export function AdminReportsPage({
                                         {report.against}
                                     </td>
                                     <td className="px-5 py-4 text-(--color-text-secondary)">
-                                        {report.type}
+                                        {t(`admin.reportTypes.${report.type}`)}
                                     </td>
                                     <td className="px-5 py-4 text-(--color-text-secondary) whitespace-nowrap">
                                         {report.date}
@@ -333,7 +343,7 @@ export function AdminReportsPage({
                                                 }
                                                 className="px-3 py-1.5 border border-(--color-border) rounded-lg text-sm font-medium text-(--color-text-secondary) hover:bg-(--color-border) transition-colors"
                                             >
-                                                Review
+                                                {t("admin.review")}
                                             </button>
                                             {report.status === "open" && (
                                                 <button
@@ -342,7 +352,7 @@ export function AdminReportsPage({
                                                     }
                                                     className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-semibold transition-colors"
                                                 >
-                                                    Resolve
+                                                    {t("admin.resolve")}
                                                 </button>
                                             )}
                                         </div>
