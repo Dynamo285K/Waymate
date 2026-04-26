@@ -1,9 +1,9 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(bun run *)",
-      "Bash(bunx eslint *)",
-      "Bash(bunx prettier *)"
-    ]
-  }
+    "permissions": {
+        "allow": [
+            "Bash(bun run *)",
+            "Bash(bunx eslint *)",
+            "Bash(bunx prettier *)"
+        ]
+    }
 }

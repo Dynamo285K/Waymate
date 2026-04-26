@@ -22,17 +22,20 @@ bun run format:check # Prettier check (used in CI)
 ```
 
 Database (run from `apps/api/`):
+
 ```bash
 bun run db:generate  # generate Drizzle migrations
 bun run db:migrate   # apply migrations
 ```
 
 Start the local database (PostgreSQL via Docker):
+
 ```bash
 docker compose up -d
 ```
 
 The API requires a `.env` file in `apps/api/` — copy from `.env.example`:
+
 ```
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/spolujazda_db
 BETTER_AUTH_URL=http://localhost:3000
@@ -57,14 +60,14 @@ packages/shared/ — stub package (shared types not yet extracted)
 
 Every domain module follows the same layered pattern:
 
-| File | Responsibility |
-|---|---|
-| `*.routes.ts` | HTTP route definitions, request validation, error-to-status mapping |
-| `*.service.ts` | Business logic orchestration |
-| `*.repository.ts` | All database queries (Drizzle ORM) |
-| `*.schema.ts` | Zod schemas for request/response validation |
-| `*.types.ts` | TypeScript types derived from schemas |
-| `*.errors.ts` | Plain string error constants thrown by the repository |
+| File              | Responsibility                                                      |
+| ----------------- | ------------------------------------------------------------------- |
+| `*.routes.ts`     | HTTP route definitions, request validation, error-to-status mapping |
+| `*.service.ts`    | Business logic orchestration                                        |
+| `*.repository.ts` | All database queries (Drizzle ORM)                                  |
+| `*.schema.ts`     | Zod schemas for request/response validation                         |
+| `*.types.ts`      | TypeScript types derived from schemas                               |
+| `*.errors.ts`     | Plain string error constants thrown by the repository               |
 
 Current modules: `auth`, `users`, `cars`, `rides`, `bookings` (stub), `health`.
 
@@ -73,6 +76,7 @@ Current modules: `auth`, `users`, `cars`, `rides`, `bookings` (stub), `health`.
 Auth is handled by **better-auth** (`apps/api/src/modules/auth/auth.ts`) with a Drizzle adapter targeting PostgreSQL. It supports email/password and Google OAuth.
 
 Two Elysia macros guard routes:
+
 - `isAuthenticated` — requires a valid session; injects `user` and `session` into context
 - `isFullyOnboarded` — additionally requires `user.firstName` and `user.lastName` to be set; returns `403 ONBOARDING_REQUIRED` otherwise
 
