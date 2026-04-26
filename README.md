@@ -55,21 +55,27 @@ cd waymate
 
 `@waymate/ui` is published to the GitLab Package Registry of the
 [`waymate-ui`](https://gitlab.fi.muni.cz/xbartel/waymate-ui) project. The
-project's `.npmrc` configures the registry, but each developer needs their own
-GitLab Personal Access Token to download packages locally. (CI uses the
-auto-injected `CI_JOB_TOKEN`.)
+project's `.npmrc` reads the auth token from the `CI_JOB_TOKEN` environment
+variable. CI sets this automatically; locally you need to provide it yourself
+through a GitLab Personal Access Token.
 
 1. Open <https://gitlab.fi.muni.cz/-/user_settings/personal_access_tokens>.
 2. Create a token with scope **`read_api`** (read-only access to the registry
    is enough). Copy the value — GitLab shows it only once.
-3. Add the token to your **personal** `~/.npmrc` (not the one in the repo):
+3. Export it as `CI_JOB_TOKEN` so Bun can substitute it into `.npmrc` at
+   install time. The exact command depends on your shell / OS — pick the
+   matching row, replace `<token>`, and run it once. After that, **open a new
+   terminal** so the variable is loaded.
 
-   ```
-   //gitlab.fi.muni.cz/api/v4/projects/48090/packages/npm/:_authToken=<your-token>
-   ```
+   | Shell / OS | Command |
+   |---|---|
+   | Linux + bash | `echo 'export CI_JOB_TOKEN=<token>' >> ~/.bashrc` |
+   | macOS + bash | `echo 'export CI_JOB_TOKEN=<token>' >> ~/.bash_profile` |
+   | Windows CMD | `setx CI_JOB_TOKEN <token>` |
 
-   The user-level `~/.npmrc` overrides the repo `.npmrc` for your local
-   environment, so the repo file keeps using `${CI_JOB_TOKEN}` for CI.
+   Do **not** commit the token, and do **not** put it into the project `.npmrc`
+   — that file uses `${CI_JOB_TOKEN}` on purpose so each developer (and CI)
+   provides their own value.
 
 ### 3. Install dependencies
 
