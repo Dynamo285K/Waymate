@@ -5,7 +5,6 @@ export const UserIdSchema = z.uuid();
 export type UserId = z.infer<typeof UserIdSchema>;
 
 export const UserStatusSchema = z.enum(userStatusValues);
-export type UserStatus = z.infer<typeof UserStatusSchema>;
 
 const EmailSchema = z.email().max(254);
 
@@ -81,7 +80,5 @@ export const UserStatusHistoryEntitySchema = z.object({
     createdAt: z.date(),
 });
 
-export type User = z.infer<typeof UserEntitySchema>;
 export type OnboardingUserBody = z.infer<typeof OnboardingUserBodySchema>;
 export type UpdateUserBody = z.infer<typeof UpdateUserBodySchema>;
-export type UserStatusHistory = z.infer<typeof UserStatusHistoryEntitySchema>;

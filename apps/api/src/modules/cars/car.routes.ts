@@ -1,7 +1,8 @@
 import { Elysia } from "elysia";
-import { z } from "zod";
 import { CarService } from "./car.service";
-import { isAuthenticated } from "../auth/auth.middleware";
+import { isFullyOnboarded } from "../auth/auth.middleware";
+import { CarErrors } from "./car.errors";
+import { ErrorResponseSchema } from "../../shared";
 import {
     CarSchema,
     CarListItemSchema,
@@ -9,20 +10,10 @@ import {
     CreateCarBodySchema,
     CarIdParamsSchema,
     UpdateCarStatusBodySchema,
+    CarBrandNameListSchema,
+    CarBrandParamsSchema,
 } from "./car.schema";
 import { CountryCodeList, CountryCodeSchema } from "../../shared";
-
-const ErrorResponseSchema = z.object({
-    error: z.string(),
-});
-
-const CarBrandSchema = z.object({
-    brand: z.string(),
-});
-
-const CarBrandParamsSchema = z.object({
-    brand: z.string().min(1),
-});
 
 export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
     .model({
@@ -31,89 +22,63 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
         CarListItemList: CarListItemSchema.array(),
         CarModel: CarModelSchema,
         CarModelList: CarModelSchema.array(),
-        CarBrand: CarBrandSchema,
-        CarBrandNameList: CarBrandSchema.array(),
-        CarBrandParams: CarBrandParamsSchema,
         CarIdParams: CarIdParamsSchema,
         CreateCarBody: CreateCarBodySchema,
         UpdateCarStatusBody: UpdateCarStatusBodySchema,
         ErrorResponse: ErrorResponseSchema,
         CountryCodeResponseList: CountryCodeSchema.array(),
+        CarBrandNameList: CarBrandNameListSchema,
+        CarBrandParams: CarBrandParamsSchema,
     })
     .onError(({ code, status }) => {
         if (code === "VALIDATION" || code === "PARSE") {
             return status(400, { error: "Invalid request data" });
         }
-
         if (code === 401) {
             return status(401, { error: "Unauthorized" });
         }
-
         if (code === "INTERNAL_SERVER_ERROR" || code === "UNKNOWN") {
             return status(500, { error: "Internal server error" });
         }
     })
-    .use(isAuthenticated)
-    .guard({ auth: true }, (app) =>
+    .use(isFullyOnboarded)
+    .guard({ auth: true, onboarded: true }, (app) =>
         app
-            .get(
-                "/country-codes",
-                () => {
-                    return CountryCodeList;
+            .get("/country-codes", () => CountryCodeList, {
+                response: { 200: "CountryCodeResponseList" },
+                detail: {
+                    description: "Returns all available European country codes",
                 },
-                {
-                    response: {
-                        200: "CountryCodeResponseList",
-                    },
-                    detail: {
-                        description:
-                            "Returns all available European country codes for license plates",
-                    },
-                }
-            )
+            })
+
             .get(
                 "/brands",
-                async () => {
-                    return await CarService.getAllCarBrandNames();
-                },
+                async () => await CarService.getAllCarBrandNames(),
                 {
-                    response: {
-                        200: "CarBrandNameList",
-                    },
-                    detail: {
-                        description: "Returns all available car brands",
-                    },
+                    response: { 200: "CarBrandNameList" }, // Definované v predchádzajúcom modeli
+                    detail: { description: "Returns all available car brands" },
                 }
             )
 
             .get(
                 "/brands/:brand/models",
-                async ({ params }) => {
-                    return await CarService.getCarModelsByBrand(params.brand);
-                },
+                async ({ params }) =>
+                    await CarService.getCarModelsByBrand(params.brand),
                 {
                     params: "CarBrandParams",
-                    response: {
-                        200: "CarModelList",
-                    },
+                    response: { 200: "CarModelList" },
                     detail: {
                         description: "Returns car models for a given brand",
                     },
                 }
             )
+
             .get(
                 "/me",
-                async ({ user }) => {
-                    const cars = await CarService.getCarsByUserId(user.id);
-                    return cars;
-                },
+                async ({ user }) => await CarService.getCarsByUserId(user.id),
                 {
-                    response: {
-                        200: "CarListItemList",
-                    },
-                    detail: {
-                        description: "Returns the current user's cars",
-                    },
+                    response: { 200: "CarListItemList" },
+                    detail: { description: "Returns the current user's cars" },
                 }
             )
 
@@ -129,19 +94,12 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
                                 ? error.message
                                 : String(error);
 
-                        if (
-                            message.includes("foreign key") ||
-                            message.includes("violates foreign key")
-                        ) {
+                        if (message === CarErrors.ModelNotFound) {
                             return status(400, {
                                 error: "Selected car model does not exist",
                             });
                         }
-
-                        if (
-                            message.includes("duplicate key") ||
-                            message.includes("unique")
-                        ) {
+                        if (message === CarErrors.DuplicatePlate) {
                             return status(409, {
                                 error: "Car with this plate and country code already exists",
                             });

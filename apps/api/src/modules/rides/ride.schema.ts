@@ -2,12 +2,9 @@ import { z } from "zod";
 import { UserIdSchema } from "../users/user.schema";
 import { CarIdSchema } from "../cars/car.schema";
 import {
-    CityInputSchema,
-    CountryCodeInputSchema,
     CountryCodeSchema,
-    CurrencyInputSchema,
     CurrencySchema,
-    Decimal10_2NonNegativeSchema,
+    bookingStatusValues,
     rideStatusValues,
 } from "../../shared";
 
@@ -21,217 +18,256 @@ export const PriceIdSchema = z.uuid();
 export type PriceId = z.infer<typeof PriceIdSchema>;
 
 export const RideStatusSchema = z.enum(rideStatusValues);
-export type RideStatus = z.infer<typeof RideStatusSchema>;
 
 const DescriptionSchema = z.string().max(500).nullable();
-const DescriptionInputSchema = z.string().trim().max(500).nullable();
-const AddressInputSchema = z.string().trim().min(1).max(255);
 
-export const RideEntitySchema = z.object({
+export const RideSchema = z.object({
     // Identity and ownership
     id: RideIdSchema,
-    driver_id: UserIdSchema,
-    car_id: CarIdSchema,
-    ride_status: RideStatusSchema,
+    driverId: UserIdSchema,
+    carId: CarIdSchema,
+    rideStatus: RideStatusSchema,
 
     // Schedule
-    departure_at: z.date(),
-    arrival_estimate_at: z.date().nullable(),
+    departureAt: z.date(),
+    arrivalEstimateAt: z.date().nullable(),
 
     // Capacity and pricing
-    offered_seats: z.number().int().min(1),
+    offeredSeats: z.number().int().min(1),
     currency: CurrencySchema,
 
     // Ride details
     description: DescriptionSchema,
 
     // Timestamps
-    created_at: z.date(),
-    updated_at: z.date(),
-    deleted_at: z.date().nullable(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+    deletedAt: z.date().nullable(),
 });
 
-export const RideOutputSchema = RideEntitySchema.pick({
-    id: true,
-    driver_id: true,
-    car_id: true,
-    ride_status: true,
+export const CreateRideBodySchema = z.object({
+    carId: CarIdSchema,
+    departureAt: z.coerce.date(),
+    arrivalEstimateAt: z.coerce.date().nullable().optional(),
+    offeredSeats: z.number().int().min(1),
+    currency: CurrencySchema,
+    description: z.string().trim().max(500).nullable().optional(),
 
-    departure_at: true,
-    arrival_estimate_at: true,
+    stops: z
+        .array(
+            z.object({
+                address: z.string().min(1).max(255),
+                city: z.string().min(1).max(100),
+                countryCode: CountryCodeSchema.nullable().optional(),
+                lat: z.number().min(-90).max(90),
+                lng: z.number().min(-180).max(180),
+                plannedArrivalAt: z.coerce.date().nullable().optional(),
+                plannedDepartureAt: z.coerce.date().nullable().optional(),
+            })
+        )
+        .min(2, "Ride must have at least a start and an end stop"),
 
-    offered_seats: true,
-    currency: true,
-
-    description: true,
-
-    created_at: true,
+    prices: z
+        .array(
+            z.object({
+                startStopOrder: z.number().int().min(0),
+                endStopOrder: z.number().int().min(0),
+                amount: z.number().int().min(0, "Price cannot be negative"),
+                currency: CurrencySchema.optional(),
+            })
+        )
+        .optional(),
 });
 
-export const RideInputSchema = z
-    .object({
-        car_id: CarIdSchema,
+export const SearchRidesQuerySchema = z.object({
+    startCity: z.string().min(1),
+    destinationCity: z.string().min(1),
+    travelDate: z.coerce.date(),
+});
 
-        departure_at: z.date(),
-        arrival_estimate_at: z.date().nullable(),
-
-        offered_seats: z.number().int().min(1),
-
-        currency: CurrencyInputSchema,
-        description: DescriptionInputSchema,
-    })
-    .superRefine((input, ctx) => {
-        if (
-            input.arrival_estimate_at !== null &&
-            input.arrival_estimate_at < input.departure_at
-        ) {
-            ctx.addIssue({
-                code: "custom",
-                path: ["arrival_estimate_at"],
-                message: "arrival_estimate_at cannot be before departure_at",
-            });
-        }
-    });
-
-export const RideStopEntitySchema = z.object({
+export const RideStopSchema = z.object({
     // Identity and relationships
     id: RideStopIdSchema,
-    ride_id: RideIdSchema,
+    rideId: RideIdSchema,
 
     // Stop location
     address: z.string().min(1).max(255),
     city: z.string().min(1).max(100),
-    country_code: CountryCodeSchema.nullable(),
+    countryCode: CountryCodeSchema.nullable(),
     lat: z.number().min(-90).max(90),
     lng: z.number().min(-180).max(180),
 
     // Stop planning
-    stop_order: z.number().int().min(0),
-    planned_arrival_at: z.date().nullable(),
-    planned_departure_at: z.date().nullable(),
+    stopOrder: z.number().int().min(0),
+    plannedArrivalAt: z.date().nullable(),
+    plannedDepartureAt: z.date().nullable(),
 
     // Timestamps
-    created_at: z.date(),
-    updated_at: z.date(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
 });
-
-export const RideStopOutputSchema = RideStopEntitySchema.pick({
-    id: true,
-    ride_id: true,
-    address: true,
-    city: true,
-    country_code: true,
-    lat: true,
-    lng: true,
-    stop_order: true,
-    planned_arrival_at: true,
-    planned_departure_at: true,
-});
-
-export const RideStopInputSchema = z
-    .object({
-        address: AddressInputSchema,
-        city: CityInputSchema,
-        country_code: CountryCodeInputSchema.nullable(),
-        lat: z.number().min(-90).max(90),
-        lng: z.number().min(-180).max(180),
-        stop_order: z.number().int().min(0),
-        planned_arrival_at: z.date().nullable(),
-        planned_departure_at: z.date().nullable(),
-    })
-    .superRefine((input, ctx) => {
-        if (
-            input.planned_arrival_at !== null &&
-            input.planned_departure_at !== null &&
-            input.planned_departure_at < input.planned_arrival_at
-        ) {
-            ctx.addIssue({
-                code: "custom",
-                path: ["planned_departure_at"],
-                message:
-                    "planned_departure_at cannot be before planned_arrival_at",
-            });
-        }
-    });
 
 export const PriceBaseSchema = z.object({
     // Identity and relationships
     id: PriceIdSchema,
-    ride_id: RideIdSchema,
-    start_stop_id: RideStopIdSchema,
-    end_stop_id: RideStopIdSchema,
-
-    // Segment ordering
-    start_stop_order: z.number().int().min(0),
-    end_stop_order: z.number().int().min(0),
+    rideId: RideIdSchema,
+    startStopId: RideStopIdSchema,
+    endStopId: RideStopIdSchema,
 
     // Price details
-    amount: Decimal10_2NonNegativeSchema,
+    amount: z.number().int().min(0),
     currency: CurrencySchema,
 
     // Timestamps
-    created_at: z.date(),
-    updated_at: z.date(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
 });
 
-export const PriceEntitySchema = PriceBaseSchema.refine(
-    (value) => value.start_stop_id !== value.end_stop_id,
+export const PriceSchema = PriceBaseSchema.refine(
+    (value) => value.startStopId !== value.endStopId,
     {
-        message: "start_stop_id and end_stop_id must be different",
-        path: ["end_stop_id"],
+        message: "startStopId and endStopId must be different",
+        path: ["endStopId"],
     }
-).refine((value) => value.start_stop_order < value.end_stop_order, {
-    message: "start_stop_order must be lower than end_stop_order",
-    path: ["end_stop_order"],
-});
-
-export const PriceOutputSchema = PriceBaseSchema.pick({
-    id: true,
-    ride_id: true,
-    start_stop_id: true,
-    end_stop_id: true,
-    start_stop_order: true,
-    end_stop_order: true,
-    amount: true,
-    currency: true,
-});
-
-export const PriceInputSchema = z
-    .object({
-        start_stop_id: RideStopIdSchema,
-        end_stop_id: RideStopIdSchema,
-        amount: Decimal10_2NonNegativeSchema,
-        currency: CurrencyInputSchema,
-    })
-    .refine((value) => value.start_stop_id !== value.end_stop_id, {
-        message: "start_stop_id and end_stop_id must be different",
-        path: ["end_stop_id"],
-    });
+);
 
 export const RideStatusHistoryIdSchema = z.uuid();
 
 export const RideStatusHistoryEntitySchema = z.object({
     // Identity and relationships
     id: RideStatusHistoryIdSchema,
-    ride_id: RideIdSchema,
+    rideId: RideIdSchema,
 
     // Status transition
-    old_status: RideStatusSchema.nullable(),
-    new_status: RideStatusSchema,
-    changed_by_user_id: UserIdSchema.nullable(),
+    oldStatus: RideStatusSchema.nullable(),
+    newStatus: RideStatusSchema,
+    changedByUserId: UserIdSchema.nullable(),
     reason: z.string().max(500).nullable(),
 
     // Timestamps
-    created_at: z.date(),
+    createdAt: z.date(),
 });
 
-export type Ride = z.infer<typeof RideEntitySchema>;
-export type RideOutput = z.infer<typeof RideOutputSchema>;
-export type RideInput = z.infer<typeof RideInputSchema>;
-export type RideStop = z.infer<typeof RideStopEntitySchema>;
-export type RideStopOutput = z.infer<typeof RideStopOutputSchema>;
-export type RideStopInput = z.infer<typeof RideStopInputSchema>;
-export type Price = z.infer<typeof PriceEntitySchema>;
-export type PriceOutput = z.infer<typeof PriceOutputSchema>;
-export type PriceInput = z.infer<typeof PriceInputSchema>;
-export type RideStatusHistory = z.infer<typeof RideStatusHistoryEntitySchema>;
+export const RideIdParamsSchema = z.object({
+    id: RideIdSchema,
+});
+
+export const CancelRideBodySchema = z.object({
+    reason: z.string().trim().max(500).optional(),
+});
+
+export const TimeframeQuerySchema = z.object({
+    timeframe: z.enum(["UPCOMING", "PAST", "ALL"]).default("UPCOMING"),
+});
+
+export type RideIdParams = z.infer<typeof RideIdParamsSchema>;
+export type CancelRideBody = z.infer<typeof CancelRideBodySchema>;
+export type TimeframeQuery = z.infer<typeof TimeframeQuerySchema>;
+
+export type CreateRideBody = z.infer<typeof CreateRideBodySchema>;
+export type SearchRidesQuery = z.infer<typeof SearchRidesQuerySchema>;
+
+// ==========================================
+// Output schemas (SWAGGER / RESPONSE)
+// ==========================================
+
+export const PublicDriverProfileSchema = z.object({
+    id: UserIdSchema,
+    firstName: z.string().nullable(),
+    lastName: z.string().nullable(),
+    profilePhotoUrl: z.url().nullable(),
+});
+
+export const RideListItemSchema = RideSchema.extend({
+    rideStops: z.array(
+        z.object({
+            city: z.string(),
+            stopOrder: z.number().int(),
+        })
+    ),
+    bookings: z.array(
+        z.object({
+            id: z.uuid(),
+            seatCount: z.number().int(),
+        })
+    ),
+    prices: z.array(
+        z.object({
+            amount: z.number().int(),
+            currency: CurrencySchema,
+            startStopId: RideStopIdSchema,
+            endStopId: RideStopIdSchema,
+        })
+    ),
+});
+
+export const RideListItemListSchema = z.array(RideListItemSchema);
+
+export const RidePassengersViewSchema = z.object({
+    ride: z.object({
+        id: RideIdSchema,
+        departureAt: z.date(),
+        rideStatus: RideStatusSchema,
+        offeredSeats: z.number().int(),
+        currency: CurrencySchema,
+        rideStops: z.array(
+            z.object({
+                id: RideStopIdSchema,
+                city: z.string(),
+                stopOrder: z.number().int(),
+            })
+        ),
+    }),
+    passengerCount: z.number().int(),
+    passengers: z.array(
+        z.object({
+            bookingId: z.uuid(),
+            bookingStatus: z.enum(bookingStatusValues),
+            seatCount: z.number().int(),
+            passenger: PublicDriverProfileSchema,
+            pickupStop: z
+                .object({
+                    id: RideStopIdSchema,
+                    city: z.string(),
+                    stopOrder: z.number().int(),
+                })
+                .nullable(),
+            dropoffStop: z
+                .object({
+                    id: RideStopIdSchema,
+                    city: z.string(),
+                    stopOrder: z.number().int(),
+                })
+                .nullable(),
+        })
+    ),
+});
+
+export const RideSearchResultItemSchema = z.object({
+    rideId: RideIdSchema,
+    departureAt: z.date(),
+    rideStatus: RideStatusSchema,
+    offeredSeats: z.number().int(),
+    driver: PublicDriverProfileSchema,
+    pickupStop: z.object({
+        city: z.string(),
+        plannedDepartureAt: z.date().nullable(),
+    }),
+    dropoffStop: z.object({
+        city: z.string(),
+        plannedArrivalAt: z.date().nullable(),
+    }),
+    priceAmount: z.number().int().nullable(),
+    currency: CurrencySchema,
+});
+
+export const RideSearchResultListSchema = z.array(RideSearchResultItemSchema);
+
+export const CreateRideResponseSchema = z.object({
+    id: RideIdSchema,
+});
+
+export const CancelRideResponseSchema = z.object({
+    id: RideIdSchema,
+    status: z.literal("CANCELLED"),
+});

@@ -7,7 +7,6 @@ export const CarIdSchema = z.uuid();
 export type CarId = z.infer<typeof CarIdSchema>;
 
 export const CarModelIdSchema = z.number().int().positive();
-
 export type CarModelId = z.infer<typeof CarModelIdSchema>;
 
 const CarPlateSchema = z
@@ -26,13 +25,21 @@ export const CarModelSchema = z.object({
     modelName: z.string().trim().min(1).max(100),
 });
 
+export const CarBrandNameListSchema = z.array(
+    z.object({ brand: z.string().min(1) })
+);
+
+export const CarBrandParamsSchema = z.object({
+    brand: z.string().min(1),
+});
+
 export const CarSchema = z.object({
     id: CarIdSchema,
     ownerId: UserIdSchema,
     modelId: CarModelIdSchema,
     spz: CarPlateSchema,
     countryCode: CountryCodeSchema,
-    color: z.enum(carColors),
+    color: z.enum(carColors).nullable(),
     seatsTotal: z.number().int().gt(0),
     isActive: z.boolean().default(true),
     createdAt: z.date(),
@@ -50,12 +57,11 @@ export const CarListItemSchema = z.object({
 
     spz: CarPlateSchema,
     countryCode: CountryCodeSchema,
-    color: z.enum(carColors),
+    color: z.enum(carColors).nullable(),
     seatsTotal: z.number().int().gt(0),
     isActive: z.boolean(),
     createdAt: z.date(),
     updatedAt: z.date(),
-    deletedAt: z.date().nullable(),
 });
 
 export const CreateCarBodySchema = z.object({
@@ -73,9 +79,10 @@ export const CarIdParamsSchema = z.object({
 export const UpdateCarStatusBodySchema = z.object({
     isActive: z.boolean(),
 });
-export type Car = z.infer<typeof CarSchema>;
-export type CarListItem = z.infer<typeof CarListItemSchema>;
-export type CarModel = z.infer<typeof CarModelSchema>;
+
+// ==========================================
+// Output API types (REQUEST PAYLOADS)
+// ==========================================
 export type CreateCarBody = z.infer<typeof CreateCarBodySchema>;
 export type CarIdParams = z.infer<typeof CarIdParamsSchema>;
 export type UpdateCarStatusBody = z.infer<typeof UpdateCarStatusBodySchema>;

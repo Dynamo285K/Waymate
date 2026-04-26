@@ -1,51 +1,22 @@
-export interface Car {
-    id: string;
-    ownerId: string;
-    modelId: number;
-    spz: string;
-    countryCode: string;
-    color:
-        | "WHITE"
-        | "BLACK"
-        | "SILVER"
-        | "GRAY"
-        | "RED"
-        | "BLUE"
-        | "BROWN"
-        | "GREEN"
-        | "YELLOW"
-        | "ORANGE"
-        | "OTHER"
-        | null;
-    seatsTotal: number;
-    isActive: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt: Date | null;
-}
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import type { cars } from "../../db/schema/car";
+import type { carModels } from "../../db/schema/car_model";
 
-export interface CreateCarBody {
-    modelId: number;
-    spz: string;
-    countryCode: string;
-    color?:
-        | "WHITE"
-        | "BLACK"
-        | "SILVER"
-        | "GRAY"
-        | "RED"
-        | "BLUE"
-        | "BROWN"
-        | "GREEN"
-        | "YELLOW"
-        | "ORANGE"
-        | "OTHER"
-        | null;
-    seatsTotal: number;
-}
+// ==========================================
+// 1. BASE DATABASE TYPES (SELECT)
+// ==========================================
+export type Car = InferSelectModel<typeof cars>;
+export type CarModel = InferSelectModel<typeof carModels>;
 
-export interface CarModel {
-    id: number;
+// ==========================================
+// 2. DATABASE TYPES FOR INSERTION (INSERT)
+// ==========================================
+export type CarInsert = InferInsertModel<typeof cars>;
+
+// ==========================================
+// 3. COMPOSITE TYPES (SERVICE / REPOSITORY)
+// ==========================================
+export type CarListItem = Omit<Car, "deletedAt"> & {
     brand: string;
     modelName: string;
-}
+};

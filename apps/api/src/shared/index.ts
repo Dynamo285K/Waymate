@@ -3,3 +3,4 @@ export * from "./country-code.schema";
 export * from "./currency.schema";
 export * from "./decimal.schema";
 export * from "./status-values";
+export * from "./error-response.schema";

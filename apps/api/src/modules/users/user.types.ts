@@ -1,38 +1,36 @@
-export interface User {
-    id: string;
-    name: string;
-    email: string;
-    emailVerified: boolean;
-    image: string | null;
-    createdAt: Date;
-    updatedAt: Date;
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import type { users } from "../../db/schema/user";
 
-    firstName: string | null;
-    lastName: string | null;
-    displayName: string | null;
-    phone: string | null;
-    profilePhotoUrl: string | null;
-    bio: string | null;
+// ==========================================
+// 1. BASE DATABASE TYPES (SELECT - what the DB returns)
+// ==========================================
+export type User = InferSelectModel<typeof users>;
 
-    emailVerifiedAt: Date | null;
-    phoneVerifiedAt: Date | null;
-    lastActiveAt: Date | null;
-    userStatus: "PENDING" | "ACTIVE" | "SUSPENDED" | "BANNED" | "DELETED";
-    deletedAt: Date | null;
-}
+// ==========================================
+// 2. DATABASE TYPES FOR INSERTION (INSERT)
+// ==========================================
+export type UserInsert = InferInsertModel<typeof users>;
 
-export interface OnboardingUserBody {
-    firstName: string;
-    lastName: string;
-    phone?: string;
-    bio?: string;
-}
+// ==========================================
+// 3. SPECIFIC PROPERTIES AND ALIASES
+// ==========================================
+export type UserStatus = User["userStatus"];
 
-export interface UpdateUserBody {
-    firstName?: string;
-    lastName?: string;
-    displayName?: string;
-    phone?: string;
-    bio?: string;
-    profilePhotoUrl?: string;
-}
+// ==========================================
+// 4. SERVICE / REPOSITORY CONTRACTS (COMPOSITE TYPES)
+// ==========================================
+
+export type OnboardingUserInput = Pick<UserInsert, "firstName" | "lastName"> &
+    Partial<Pick<UserInsert, "phone" | "bio">>;
+
+export type UpdateUserInput = Partial<
+    Pick<
+        UserInsert,
+        | "firstName"
+        | "lastName"
+        | "displayName"
+        | "phone"
+        | "bio"
+        | "profilePhotoUrl"
+    >
+>;
