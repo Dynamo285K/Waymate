@@ -43,3 +43,6 @@ temp
 
 # local bun config (contains auth tokens)
 bunfig.toml
+
+# Claude
+.claude/settings.local.json 
