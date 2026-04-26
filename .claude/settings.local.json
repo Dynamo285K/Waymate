@@ -1,5 +1,11 @@
 {
     "permissions": {
-        "allow": ["Bash(bun run *)"]
+        "allow": [
+            "Bash(bun run *)",
+            "Read(//c/Users/tanic/OneDrive/Počítač/waymate-ui/**)",
+            "Read(//c/Users/tanic/OneDrive/Počítač/waymate-ui/src/styles/**)",
+            "Read(//c/Users/tanic/OneDrive/Počítač/waymate-ui/src/styles//**)",
+            "Bash(npm run *)"
+        ]
     }
 }

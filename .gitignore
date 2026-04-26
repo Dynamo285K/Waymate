@@ -40,3 +40,6 @@ Thumbs.db
 # misc
 tmp
 temp
+
+# local bun config (contains auth tokens)
+bunfig.toml
