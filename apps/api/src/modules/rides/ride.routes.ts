@@ -1,9 +1,7 @@
 import { Elysia } from "elysia";
-import { z } from "zod";
 import { RideService } from "./ride.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
 import { RideErrors } from "./ride.errors";
-
 import { ErrorResponseSchema } from "../../shared";
 import {
     RideSchema,
@@ -13,6 +11,11 @@ import {
     RideIdParamsSchema,
     CancelRideBodySchema,
     TimeframeQuerySchema,
+    RideListItemListSchema,
+    RidePassengersViewSchema,
+    RideSearchResultListSchema,
+    CreateRideResponseSchema,
+    CancelRideResponseSchema,
 } from "./ride.schema";
 
 export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
@@ -25,6 +28,11 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
         RideIdParams: RideIdParamsSchema,
         TimeframeQuery: TimeframeQuerySchema,
         ErrorResponse: ErrorResponseSchema,
+        RideListItemList: RideListItemListSchema,
+        RidePassengersView: RidePassengersViewSchema,
+        RideSearchResultList: RideSearchResultListSchema,
+        CreateRideResponse: CreateRideResponseSchema,
+        CancelRideResponse: CancelRideResponseSchema,
     })
     .onError(({ code, status }) => {
         if (code === "VALIDATION" || code === "PARSE") {
@@ -40,10 +48,6 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
     .use(isFullyOnboarded)
     .guard({ auth: true, onboarded: true }, (app) =>
         app
-            // ==========================================
-            // 1. STATIC ROUTES (must be defined before /:id routes)
-            // ==========================================
-
             .get(
                 "/search",
                 async ({ query }) => {
@@ -53,6 +57,8 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                     query: "SearchRidesQuery",
                     response: {
                         200: "RideSearchResultList",
+                        400: "ErrorResponse",
+                        500: "ErrorResponse",
                     },
                     detail: {
                         description:
@@ -71,6 +77,11 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                 },
                 {
                     query: "TimeframeQuery",
+                    response: {
+                        200: "RideListItemList",
+                        401: "ErrorResponse",
+                        500: "ErrorResponse",
+                    },
                     detail: {
                         description:
                             "Returns rides created by the authenticated driver",
@@ -113,7 +124,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                 {
                     body: "CreateRideBody",
                     response: {
-                        201: z.object({ id: z.string() }),
+                        201: "CreateRideResponse",
                         400: "ErrorResponse",
                         403: "ErrorResponse",
                         500: "ErrorResponse",
@@ -123,10 +134,6 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                     },
                 }
             )
-
-            // ==========================================
-            // 2. DYNAMIC ROUTES (contain /:id)
-            // ==========================================
 
             .get(
                 "/:id/passengers",
@@ -144,6 +151,11 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                 },
                 {
                     params: "RideIdParams",
+                    response: {
+                        200: "RidePassengersView",
+                        404: "ErrorResponse",
+                        500: "ErrorResponse",
+                    },
                     detail: {
                         description:
                             "Returns ride details including all confirmed passengers",
@@ -183,7 +195,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                     params: "RideIdParams",
                     body: "CancelRideBody",
                     response: {
-                        200: z.object({ id: z.string(), status: z.string() }),
+                        200: "CancelRideResponse",
                         400: "ErrorResponse",
                         404: "ErrorResponse",
                         500: "ErrorResponse",

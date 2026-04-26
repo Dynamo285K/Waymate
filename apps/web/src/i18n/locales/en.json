@@ -1,0 +1,60 @@
+{
+    "home": {
+        "hero": {
+            "title": "FIND YOUR RIDE",
+            "subtitle": "Connect with drivers heading your way"
+        },
+        "search": {
+            "from": "Pickup location",
+            "to": "Dropoff location",
+            "button": "Search",
+            "date": "dd.mm.yy"
+        },
+        "navbar": {
+            "login": "Log in",
+            "register": "Register"
+        },
+        "at": "at",
+        "popularRoutes": "Popular routes",
+        "stats": {
+            "drivers": "drivers",
+            "satisfaction": "satisfaction",
+            "co2Saved": "CO2 saved"
+        },
+        "availableRides": {
+            "title": "Available rides",
+            "subtitle": "Find rides offered by drivers today.",
+            "viewAll": "view all rides →",
+            "seatsLeft": "{{count}} seats left",
+            "book": "Book"
+        },
+        "features": {
+            "title": "Travel smarter. Share rides.",
+            "subtitle": "Why ride with us?",
+            "verifiedDrivers": {
+                "title": "Verified drivers",
+                "description": "Driver profiles are verified so you know who you ride with."
+            },
+            "fairPricing": {
+                "title": "Fair pricing",
+                "description": "No hidden fees. The price you see is the price you pay."
+            },
+            "ecoFriendly": {
+                "title": "Eco-friendly travel",
+                "description": "Sharing rides reduces emissions."
+            },
+            "directChat": {
+                "title": "Direct chat",
+                "description": "Discuss trip details before the ride."
+            },
+            "fastBooking": {
+                "title": "Fast booking",
+                "description": "Reserve your seat in just a few clicks."
+            },
+            "ratings": {
+                "title": "Ratings",
+                "description": "Transparent reviews from other users."
+            }
+        }
+    }
+}

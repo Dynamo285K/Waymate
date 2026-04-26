@@ -1,0 +1,60 @@
+{
+    "home": {
+        "hero": {
+            "title": "NÁJDI SVOJU JAZDU",
+            "subtitle": "Spoj sa s vodičmi cestujúcimi tvojim smerom"
+        },
+        "search": {
+            "from": "Miesto nástupu",
+            "to": "Miesto výstupu",
+            "button": "Hľadať",
+            "date": "dd.mm.rr"
+        },
+        "navbar": {
+            "login": "Prihlásiť sa",
+            "register": "Registrovať"
+        },
+        "at": "o",
+        "popularRoutes": "Obľúbené trasy",
+        "stats": {
+            "drivers": "vodičov",
+            "satisfaction": "spokojnosť",
+            "co2Saved": "CO2 ušetrené"
+        },
+        "availableRides": {
+            "title": "Dostupné jazdy",
+            "subtitle": "Nájdi jazdy ponúkané vodičmi dnes.",
+            "viewAll": "zobraziť všetky jazdy →",
+            "seatsLeft": "{{count}} miest zostáva",
+            "book": "Rezervovať"
+        },
+        "features": {
+            "title": "Cestuj múdrejšie. Zdieľaj jazdy.",
+            "subtitle": "Prečo jazdiť s nami?",
+            "verifiedDrivers": {
+                "title": "Overení vodiči",
+                "description": "Profily vodičov sú overené, takže vieš, s kým cestuješ."
+            },
+            "fairPricing": {
+                "title": "Férové ceny",
+                "description": "Žiadne skryté poplatky. Cena, ktorú vidíš, je cena, ktorú zaplatíš."
+            },
+            "ecoFriendly": {
+                "title": "Ekologické cestovanie",
+                "description": "Zdieľanie jázd znižuje emisie."
+            },
+            "directChat": {
+                "title": "Priamy chat",
+                "description": "Dohovor si detaily cesty pred odchodom."
+            },
+            "fastBooking": {
+                "title": "Rýchla rezervácia",
+                "description": "Rezervuj si miesto len na pár klikov."
+            },
+            "ratings": {
+                "title": "Hodnotenia",
+                "description": "Transparentné recenzie od ostatných používateľov."
+            }
+        }
+    }
+}

@@ -39,7 +39,7 @@ export const CarSchema = z.object({
     modelId: CarModelIdSchema,
     spz: CarPlateSchema,
     countryCode: CountryCodeSchema,
-    color: z.enum(carColors),
+    color: z.enum(carColors).nullable(),
     seatsTotal: z.number().int().gt(0),
     isActive: z.boolean().default(true),
     createdAt: z.date(),
@@ -57,7 +57,7 @@ export const CarListItemSchema = z.object({
 
     spz: CarPlateSchema,
     countryCode: CountryCodeSchema,
-    color: z.enum(carColors),
+    color: z.enum(carColors).nullable(),
     seatsTotal: z.number().int().gt(0),
     isActive: z.boolean(),
     createdAt: z.date(),
