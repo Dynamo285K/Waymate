@@ -83,15 +83,30 @@ export function signUpWithEmail(params: {
     email: string;
     password: string;
 }) {
+    const { firstName, lastName } = splitFullName(params.name);
+
     return authFetch<AuthResponse>("/sign-up/email", {
         method: "POST",
         body: JSON.stringify({
             name: params.name,
+            firstName,
+            lastName,
             email: params.email,
             password: params.password,
             callbackURL: `${window.location.origin}/onboarding`,
         }),
     });
+}
+
+function splitFullName(fullName: string) {
+    const parts = fullName.trim().split(/\s+/).filter(Boolean);
+    const formatNamePart = (value: string) =>
+        value ? value.charAt(0).toLocaleUpperCase() + value.slice(1) : "";
+
+    return {
+        firstName: formatNamePart(parts[0] ?? "") || undefined,
+        lastName: formatNamePart(parts.slice(1).join("")) || undefined,
+    };
 }
 
 export function signInWithEmail(params: { email: string; password: string }) {

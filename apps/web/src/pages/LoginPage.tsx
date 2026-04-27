@@ -3,7 +3,11 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { AuthNavbar, LoginBox } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
-import { signInWithEmail, signInWithGoogle } from "../lib/auth";
+import {
+    getPostAuthPath,
+    signInWithEmail,
+    signInWithGoogle,
+} from "../lib/auth";
 
 type LoginPageProps = {
     language: Language;
@@ -56,7 +60,7 @@ export function LoginPage({
                 email: email.trim(),
                 password,
             });
-            navigate("/passenger");
+            navigate(await getPostAuthPath());
         } catch (error) {
             setErrors({
                 form: error instanceof Error ? error.message : t("login.error"),

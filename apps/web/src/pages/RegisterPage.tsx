@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import { AuthNavbar, RegisterBox } from "@waymate/ui";
+import { AuthNavbar, Button, RegisterBox } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import {
     getPostAuthPath,
@@ -28,6 +28,7 @@ export function RegisterPage({
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [registeredEmail, setRegisteredEmail] = useState("");
     const [errors, setErrors] = useState<{
         fullName?: string;
         email?: string;
@@ -74,7 +75,7 @@ export function RegisterPage({
                 email: email.trim(),
                 password,
             });
-            navigate(await getPostAuthPath());
+            setRegisteredEmail(email.trim());
         } catch (error) {
             setErrors({
                 form:
@@ -125,37 +126,62 @@ export function RegisterPage({
             />
 
             <div className="flex items-center justify-center min-h-[calc(100vh-72px)] px-4 py-12">
-                <RegisterBox
-                    fullName={fullName}
-                    email={email}
-                    password={password}
-                    confirmPassword={confirmPassword}
-                    fullNameError={errors.fullName}
-                    emailError={errors.email}
-                    passwordError={errors.password}
-                    confirmPasswordError={errors.confirmPassword}
-                    message={errors.form}
-                    isSubmitting={isSubmitting}
-                    onFullNameChange={setFullName}
-                    onEmailChange={setEmail}
-                    onPasswordChange={setPassword}
-                    onConfirmPasswordChange={setConfirmPassword}
-                    onSubmit={handleCreateAccount}
-                    onGoogleRegisterClick={handleGoogleRegister}
-                    onLoginClick={() => navigate("/login")}
-                    labels={{
-                        title: t("register.title"),
-                        fullName: t("register.fullName"),
-                        email: t("register.email"),
-                        password: t("register.password"),
-                        confirmPassword: t("register.confirmPassword"),
-                        createAccountButton: t("register.createAccountButton"),
-                        continueWithGoogle: t("register.continueWithGoogle"),
-                        or: t("register.or"),
-                        alreadyHaveAccount: t("register.alreadyHaveAccount"),
-                        login: t("register.login"),
-                    }}
-                />
+                {registeredEmail ? (
+                    <section className="w-full max-w-md rounded-2xl border border-(--color-border) bg-(--color-card) p-8 text-center shadow-xl">
+                        <h1 className="text-2xl font-bold text-(--color-text-primary)">
+                            {t("register.checkEmailTitle")}
+                        </h1>
+                        <p className="mt-3 text-sm text-(--color-text-secondary)">
+                            {t("register.checkEmailText", {
+                                email:
+                                    registeredEmail || t("register.yourEmail"),
+                            })}
+                        </p>
+                        <div className="mt-6">
+                            <Button onClick={() => navigate("/login")}>
+                                {t("register.backToLogin")}
+                            </Button>
+                        </div>
+                    </section>
+                ) : (
+                    <RegisterBox
+                        fullName={fullName}
+                        email={email}
+                        password={password}
+                        confirmPassword={confirmPassword}
+                        fullNameError={errors.fullName}
+                        emailError={errors.email}
+                        passwordError={errors.password}
+                        confirmPasswordError={errors.confirmPassword}
+                        message={errors.form}
+                        isSubmitting={isSubmitting}
+                        onFullNameChange={setFullName}
+                        onEmailChange={setEmail}
+                        onPasswordChange={setPassword}
+                        onConfirmPasswordChange={setConfirmPassword}
+                        onSubmit={handleCreateAccount}
+                        onGoogleRegisterClick={handleGoogleRegister}
+                        onLoginClick={() => navigate("/login")}
+                        labels={{
+                            title: t("register.title"),
+                            fullName: t("register.fullName"),
+                            email: t("register.email"),
+                            password: t("register.password"),
+                            confirmPassword: t("register.confirmPassword"),
+                            createAccountButton: t(
+                                "register.createAccountButton"
+                            ),
+                            continueWithGoogle: t(
+                                "register.continueWithGoogle"
+                            ),
+                            or: t("register.or"),
+                            alreadyHaveAccount: t(
+                                "register.alreadyHaveAccount"
+                            ),
+                            login: t("register.login"),
+                        }}
+                    />
+                )}
             </div>
         </div>
     );
