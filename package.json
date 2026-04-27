@@ -7,7 +7,11 @@
         "packages/*"
     ],
     "scripts": {
+<<<<<<< HEAD
         "db:setup": "bun scripts/db-setup.mjs",
+=======
+        "db:setup": "bash scripts/db-setup.sh",
+>>>>>>> main
         "dev": "turbo dev",
         "build": "turbo build",
         "typecheck": "turbo typecheck",
@@ -25,6 +29,7 @@
         "better-auth": "^1.6.8",
         "drizzle-orm": "^0.45.2",
         "postgres": "^3.4.9",
+        "resend": "^6.12.2",
         "tailwindcss": "^4.2.4",
         "zod": "^4.3.6"
     },
