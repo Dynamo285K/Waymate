@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { AuthNavbar, RegisterBox } from "@waymate/ui";
@@ -16,6 +19,13 @@ type RegisterPageProps = {
     onThemeToggle: () => void;
 };
 
+type FormValues = {
+    fullName: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+};
+
 export function RegisterPage({
     language,
     theme,
@@ -24,73 +34,68 @@ export function RegisterPage({
 }: RegisterPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [fullName, setFullName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [errors, setErrors] = useState<{
-        fullName?: string;
-        email?: string;
-        password?: string;
-        confirmPassword?: string;
-        form?: string;
-    }>({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
-    function validateForm() {
-        const nextErrors: typeof errors = {};
-        const trimmedName = fullName.trim();
-        const trimmedEmail = email.trim();
+    const formSchema = z
+        .object({
+            fullName: z.string().trim().min(1, t("register.requiredError")),
+            email: z
+                .string()
+                .trim()
+                .refine((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
+                    message: t("register.invalidEmail"),
+                }),
+            password: z.string().min(8, t("register.passwordTooShort")),
+            confirmPassword: z.string(),
+        })
+        .refine((values) => values.password === values.confirmPassword, {
+            path: ["confirmPassword"],
+            message: t("register.passwordMismatch"),
+        });
 
-        if (!trimmedName) {
-            nextErrors.fullName = t("register.requiredError");
-        }
+    const {
+        handleSubmit,
+        watch,
+        setValue,
+        setError,
+        clearErrors,
+        formState: { errors, isSubmitting },
+    } = useForm<FormValues>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            fullName: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+        },
+    });
 
-        if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-            nextErrors.email = t("register.invalidEmail");
-        }
+    const fullName = watch("fullName");
+    const email = watch("email");
+    const password = watch("password");
+    const confirmPassword = watch("confirmPassword");
 
-        if (password.length < 8) {
-            nextErrors.password = t("register.passwordTooShort");
-        }
-
-        if (password !== confirmPassword) {
-            nextErrors.confirmPassword = t("register.passwordMismatch");
-        }
-
-        setErrors(nextErrors);
-        return Object.keys(nextErrors).length === 0;
-    }
-
-    async function handleCreateAccount() {
-        if (!validateForm()) return;
-
-        setErrors({});
-        setIsSubmitting(true);
-
+    const onSubmit: SubmitHandler<FormValues> = async (values) => {
         try {
             await signUpWithEmail({
-                name: fullName.trim(),
-                email: email.trim(),
-                password,
+                name: values.fullName.trim(),
+                email: values.email.trim(),
+                password: values.password,
             });
             navigate(await getPostAuthPath());
         } catch (error) {
-            setErrors({
-                form:
+            setError("root", {
+                message:
                     error instanceof Error
                         ? error.message
                         : t("register.error"),
             });
-        } finally {
-            setIsSubmitting(false);
         }
-    }
+    };
 
     async function handleGoogleRegister() {
-        setErrors({});
-        setIsSubmitting(true);
-
+        clearErrors();
+        setIsGoogleLoading(true);
         try {
             const response = await signInWithGoogle();
             if (response.url) {
@@ -101,15 +106,17 @@ export function RegisterPage({
         } catch (error) {
             const message =
                 error instanceof Error ? error.message : t("register.error");
-            setErrors({
-                form:
+            setError("root", {
+                message:
                     message === "Google login is not configured on the API."
                         ? t("register.googleNotConfigured")
                         : message,
             });
-            setIsSubmitting(false);
+            setIsGoogleLoading(false);
         }
     }
+
+    const submitting = isSubmitting || isGoogleLoading;
 
     return (
         <div
@@ -130,17 +137,19 @@ export function RegisterPage({
                     email={email}
                     password={password}
                     confirmPassword={confirmPassword}
-                    fullNameError={errors.fullName}
-                    emailError={errors.email}
-                    passwordError={errors.password}
-                    confirmPasswordError={errors.confirmPassword}
-                    message={errors.form}
-                    isSubmitting={isSubmitting}
-                    onFullNameChange={setFullName}
-                    onEmailChange={setEmail}
-                    onPasswordChange={setPassword}
-                    onConfirmPasswordChange={setConfirmPassword}
-                    onSubmit={handleCreateAccount}
+                    fullNameError={errors.fullName?.message}
+                    emailError={errors.email?.message}
+                    passwordError={errors.password?.message}
+                    confirmPasswordError={errors.confirmPassword?.message}
+                    message={errors.root?.message}
+                    isSubmitting={submitting}
+                    onFullNameChange={(value) => setValue("fullName", value)}
+                    onEmailChange={(value) => setValue("email", value)}
+                    onPasswordChange={(value) => setValue("password", value)}
+                    onConfirmPasswordChange={(value) =>
+                        setValue("confirmPassword", value)
+                    }
+                    onSubmit={handleSubmit(onSubmit)}
                     onGoogleRegisterClick={handleGoogleRegister}
                     onLoginClick={() => navigate("/login")}
                     labels={{
