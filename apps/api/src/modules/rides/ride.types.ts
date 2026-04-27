@@ -56,6 +56,7 @@ export type RidePassengersHeader = Pick<
     "id" | "departureAt" | "rideStatus" | "offeredSeats" | "currency"
 > & {
     rideStops: Pick<RideStop, "id" | "city" | "stopOrder">[];
+    canReview: boolean;
 };
 
 export type RidePassengerItem = {
@@ -65,6 +66,7 @@ export type RidePassengerItem = {
     passenger: Pick<User, "id" | "firstName" | "lastName" | "profilePhotoUrl">;
     pickupStop: Pick<RideStop, "id" | "city" | "stopOrder"> | null;
     dropoffStop: Pick<RideStop, "id" | "city" | "stopOrder"> | null;
+    myReviewOfPassenger: { id: string; rating: number } | null;
 };
 
 export type RidePassengersView = {
@@ -84,6 +86,8 @@ export type RideSearchResultItem = {
         firstName: string;
         lastName: string;
         profilePhotoUrl: string | null;
+        averageRating: number | null;
+        reviewCount: number;
     };
 
     pickupStop: {

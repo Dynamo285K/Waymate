@@ -95,6 +95,8 @@ export const RideSearchResultItemSchema = z.object({
         firstName: z.string(),
         lastName: z.string(),
         profilePhotoUrl: z.string().nullable(),
+        averageRating: z.number().nullable(),
+        reviewCount: z.number().int(),
     }),
     pickupStop: z.object({
         pickupStopId: RideStopIdSchema,
@@ -242,6 +244,7 @@ export const RidePassengersViewSchema = z.object({
                 stopOrder: z.number().int(),
             })
         ),
+        canReview: z.boolean(),
     }),
     passengerCount: z.number().int(),
     passengers: z.array(
@@ -262,6 +265,12 @@ export const RidePassengersViewSchema = z.object({
                     id: RideStopIdSchema,
                     city: z.string(),
                     stopOrder: z.number().int(),
+                })
+                .nullable(),
+            myReviewOfPassenger: z
+                .object({
+                    id: z.uuid(),
+                    rating: z.number().int().min(1).max(5),
                 })
                 .nullable(),
         })
