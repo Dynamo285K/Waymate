@@ -2,7 +2,7 @@ import { API_BASE_URL, apiFetch } from "./api";
 
 const AUTH_BASE_URL =
     import.meta.env.VITE_AUTH_BASE_URL?.replace(/\/$/, "") ??
-    API_BASE_URL;
+    `${API_BASE_URL}/api/auth`;
 
 export type AuthUser = {
     id: string;
@@ -81,7 +81,6 @@ export function signUpWithEmail(params: {
             name: params.name,
             email: params.email,
             password: params.password,
-            callbackURL: `${window.location.origin}/onboarding`,
         }),
     });
 }
@@ -95,7 +94,6 @@ export function signInWithEmail(params: {
         body: JSON.stringify({
             email: params.email,
             password: params.password,
-            callbackURL: `${window.location.origin}/onboarding`,
             rememberMe: true,
         }),
     });
