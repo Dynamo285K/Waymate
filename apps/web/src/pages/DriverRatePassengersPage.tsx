@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "../lib/router-compat";
 import { DriverNavbar, RatePassengerCard, StatCard } from "waymate-ui";
 import type { Language } from "waymate-ui";
 

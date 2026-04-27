@@ -6,15 +6,18 @@ import { CarRoutes } from "./modules/cars/car.routes";
 import { RideRoutes } from "./modules/rides/ride.routes";
 import { BookingRoutes } from "./modules/bookings/booking.routes";
 
-const app = new Elysia()
+export const app = new Elysia()
     .get("/", () => ({ status: "Waymate API is online" }))
     .mount(auth.handler)
     .use(UserRoutes)
     .use(CarRoutes)
     .use(RideRoutes)
-    .use(BookingRoutes)
-    .listen(env.PORT);
+    .use(BookingRoutes);
+
+export type App = typeof app;
+
+const server = app.listen(env.PORT);
 
 console.log(
-    `Waymate API is running at ${app.server?.hostname}:${app.server?.port}`
+    `Waymate API is running at ${server.server?.hostname}:${server.server?.port}`
 );
