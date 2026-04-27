@@ -83,7 +83,39 @@ through a GitLab Personal Access Token.
 bun install
 ```
 
-### 4. Run the project
+### 4. Set up the database
+
+The API talks to a local PostgreSQL running in Docker. You need:
+
+- **Docker** with Compose v2 — install [Docker Desktop](https://docs.docker.com/get-docker/)
+  (macOS / Windows) or Docker Engine + the compose plugin (Linux). Verify with
+  `docker compose version`.
+- The Docker daemon must be running before you continue.
+
+Then from the repo root run:
+
+```bash
+bun run db:setup
+```
+
+The script (`scripts/db-setup.sh`) will:
+
+1. Check that Docker is installed and running.
+2. Create `apps/api/.env` from `apps/api/.env.example` if it doesn't exist yet.
+3. Start the `db` service via `docker compose up -d`.
+4. Wait until Postgres is accepting connections.
+
+After it finishes, the database is reachable at
+`postgres://postgres:postgres@localhost:5432/spolujazda_db`. The data is
+persisted in the `postgres_data` Docker volume — re-running the script is
+safe and will not wipe existing data. Stop the database with
+`docker compose down` (add `-v` only if you intentionally want to drop the
+volume).
+
+If you need Google OAuth locally, also fill `GOOGLE_CLIENT_ID` /
+`GOOGLE_CLIENT_SECRET` in `apps/api/.env`.
+
+### 5. Run the project
 
 ```bash
 bun run dev
