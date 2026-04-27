@@ -1,9 +1,12 @@
+import { Resend } from "resend";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { randomUUID } from "crypto";
 import { env } from "../../config/env";
 import { db } from "../../db";
 import * as schema from "../../db/schema";
+
+const resend = new Resend(env.RESEND_API_KEY);
 
 const googleProvider =
     env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
@@ -59,7 +62,23 @@ export const auth = betterAuth({
 
     emailAndPassword: {
         enabled: true,
-        requireEmailVerification: false,
+        requireEmailVerification: true,
+    },
+
+    emailVerification: {
+        sendOnSignUp: true,
+        sendVerificationEmail: async ({ user, url }) => {
+            try {
+                await resend.emails.send({
+                    from: "onboarding@resend.dev",
+                    to: user.email,
+                    subject: "Verify Email",
+                    html: `<p>Click here for verification: <a href="${url}">Verify Email</a></p>`,
+                });
+            } catch (err) {
+                console.error("Failed to send verification email:", err);
+            }
+        },
     },
 
     socialProviders: googleProvider,
