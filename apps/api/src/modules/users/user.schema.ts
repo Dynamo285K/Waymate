@@ -53,8 +53,7 @@ export const UserEntitySchema = z.object({
 export const OnboardingUserBodySchema = z.object({
     firstName: CapitalizedNameSchema,
     lastName: CapitalizedNameSchema,
-    phone: PhoneSchema.optional(),
-    bio: z.string().trim().max(500).optional(),
+    phone: PhoneSchema,
 });
 
 export const UpdateUserBodySchema = z.object({

@@ -39,7 +39,11 @@ export const isFullyOnboarded = new Elysia({ name: "require-onboarding" })
                     });
                 }
 
-                if (!result.user.firstName || !result.user.lastName) {
+                if (
+                    !result.user.firstName ||
+                    !result.user.lastName ||
+                    !result.user.phone
+                ) {
                     return status(403, {
                         error: "ONBOARDING_REQUIRED",
                     });

@@ -2,7 +2,7 @@ import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import type { users } from "../../db/schema/user";
 
 // ==========================================
-// 1. BASE DATABASE TYPES (SELECT - what the DB returns)
+// 1. BASE DATABASE TYPES (SELECT)
 // ==========================================
 export type User = InferSelectModel<typeof users>;
 
@@ -19,9 +19,10 @@ export type UserStatus = User["userStatus"];
 // ==========================================
 // 4. SERVICE / REPOSITORY CONTRACTS (COMPOSITE TYPES)
 // ==========================================
-
-export type OnboardingUserInput = Pick<UserInsert, "firstName" | "lastName"> &
-    Partial<Pick<UserInsert, "phone" | "bio">>;
+export type OnboardingUserInput = Pick<
+    UserInsert,
+    "firstName" | "lastName" | "phone"
+>;
 
 export type UpdateUserInput = Partial<
     Pick<

@@ -26,7 +26,7 @@ export const cars = pgTable(
             .references(() => carModels.id),
         spz: text("spz").notNull(),
         countryCode: countryCodeEnum("country_code").notNull(),
-        color: carColorEnum("color"),
+        color: carColorEnum("color").notNull(),
         seatsTotal: integer("seats_total").notNull(),
         isActive: boolean("is_active").notNull().default(true),
         createdAt: timestamp("created_at").defaultNow().notNull(),

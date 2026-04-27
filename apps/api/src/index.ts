@@ -4,6 +4,7 @@ import { auth } from "./modules/auth/auth";
 import { UserRoutes } from "./modules/users/user.routes";
 import { CarRoutes } from "./modules/cars/car.routes";
 import { RideRoutes } from "./modules/rides/ride.routes";
+import { BookingRoutes } from "./modules/bookings/booking.routes";
 
 const app = new Elysia()
     .get("/", () => ({ status: "Waymate API is online" }))
@@ -11,6 +12,7 @@ const app = new Elysia()
     .use(UserRoutes)
     .use(CarRoutes)
     .use(RideRoutes)
+    .use(BookingRoutes)
     .listen(env.PORT);
 
 console.log(

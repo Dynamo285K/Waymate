@@ -79,13 +79,20 @@ export type RideSearchResultItem = {
     rideStatus: RideStatus;
     offeredSeats: number;
 
-    driver: PublicDriverProfile;
+    driver: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        profilePhotoUrl: string | null;
+    };
 
     pickupStop: {
+        pickupStopId: string;
         city: string;
         plannedDepartureAt: Date | null;
     };
     dropoffStop: {
+        dropoffStopId: string;
         city: string;
         plannedArrivalAt: Date | null;
     };

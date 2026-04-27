@@ -51,30 +51,37 @@ git clone <repository-url>
 cd waymate
 ```
 
-### 2. Install dependencies
+### 2. Authenticate to the GitLab Package Registry
+
+`@waymate/ui` is published to the GitLab Package Registry of the
+[`waymate-ui`](https://gitlab.fi.muni.cz/xbartel/waymate-ui) project. The
+project's `.npmrc` reads the auth token from the `CI_JOB_TOKEN` environment
+variable. CI sets this automatically; locally you need to provide it yourself
+through a GitLab Personal Access Token.
+
+1. Open <https://gitlab.fi.muni.cz/-/user_settings/personal_access_tokens>.
+2. Create a token with scope **`read_api`** (read-only access to the registry
+   is enough). Copy the value — GitLab shows it only once.
+3. Export it as `CI_JOB_TOKEN` so Bun can substitute it into `.npmrc` at
+   install time. The exact command depends on your shell / OS — pick the
+   matching row, replace `<token>`, and run it once. After that, **open a new
+   terminal** so the variable is loaded.
+
+    | Shell / OS   | Command                                                 |
+    | ------------ | ------------------------------------------------------- |
+    | Linux + bash | `echo 'export CI_JOB_TOKEN=<token>' >> ~/.bashrc`       |
+    | macOS + bash | `echo 'export CI_JOB_TOKEN=<token>' >> ~/.bash_profile` |
+    | Windows CMD  | `setx CI_JOB_TOKEN <token>`                             |
+
+    Do **not** commit the token, and do **not** put it into the project `.npmrc`
+    — that file uses `${CI_JOB_TOKEN}` on purpose so each developer (and CI)
+    provides their own value.
+
+### 3. Install dependencies
 
 ```bash
 bun install
 ```
-
-### 3. Set up the UI component library
-
-This project uses `waymate-ui` — a shared component library in a separate repository.
-
-Clone it next to this repository:
-
-```bash
-cd ..
-git clone https://gitlab.fi.muni.cz/xbartel/waymate-ui
-cd waymate-ui
-bun install
-bun run build
-bun link
-cd ../waymate
-bun link waymate-ui
-```
-
-> Both repositories must be cloned into the same parent directory.
 
 ### 4. Run the project
 
@@ -84,7 +91,7 @@ bun run dev
 
 ## UI Library
 
-Source repository: https://gitlab.fi.muni.cz/xbartel/waymate-ui
+Source repository: <https://gitlab.fi.muni.cz/xbartel/waymate-ui>
 
 Components are imported directly:
 
