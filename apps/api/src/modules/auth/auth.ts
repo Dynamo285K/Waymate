@@ -7,6 +7,24 @@ import { db } from "../../db";
 import * as schema from "../../db/schema";
 
 const resend = new Resend(env.RESEND_API_KEY);
+const authEmailFrom = "onboarding@resend.dev";
+
+async function sendAuthEmail({
+    to,
+    subject,
+    html,
+}: {
+    to: string;
+    subject: string;
+    html: string;
+}) {
+    await resend.emails.send({
+        from: authEmailFrom,
+        to,
+        subject,
+        html,
+    });
+}
 
 const googleProvider =
     env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
@@ -64,21 +82,26 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true,
         requireEmailVerification: true,
+
+        sendResetPassword: async ({ user, url }) => {
+            await sendAuthEmail({
+                to: user.email,
+                subject: "Password reset",
+                html: `<p>Click here to reset your password: <a href="${url}">Reset Password</a></p>`,
+            });
+        },
     },
 
     emailVerification: {
         sendOnSignUp: true,
+        sendOnSignIn: true,
+        autoSignInAfterVerification: true,
         sendVerificationEmail: async ({ user, url }) => {
-            try {
-                await resend.emails.send({
-                    from: "onboarding@resend.dev",
-                    to: user.email,
-                    subject: "Verify Email",
-                    html: `<p>Click here for verification: <a href="${url}">Verify Email</a></p>`,
-                });
-            } catch (err) {
-                console.error("Failed to send verification email:", err);
-            }
+            await sendAuthEmail({
+                to: user.email,
+                subject: "Verify Email",
+                html: `<p>Click here for verification: <a href="${url}">Verify Email</a></p>`,
+            });
         },
     },
 
