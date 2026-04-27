@@ -4,6 +4,7 @@ import { useNavigate } from "../lib/router-compat";
 import { DriverNavbar, RideCard, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useDriverRides } from "../hooks/useDriverRides";
+import { useCancelRide } from "../hooks/useCancelRide";
 import { formatRideDate } from "../lib/date-format";
 import { toUiLanguage } from "../lib/language";
 
@@ -27,8 +28,12 @@ export function DriverMyRidesPage({
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [tab, setTab] = useState("upcoming");
+    const [cancellingRideId, setCancellingRideId] = useState<string | null>(
+        null
+    );
     const timeframe = tab === "past" ? "PAST" : "UPCOMING";
     const { data: rides, isLoading, isError } = useDriverRides(timeframe);
+    const cancelRide = useCancelRide();
     const displayedRides =
         rides?.map((ride) => {
             const sortedStops = [...ride.rideStops].sort(
@@ -69,6 +74,18 @@ export function DriverMyRidesPage({
         settings: t("nav.settings"),
         logout: t("nav.logout"),
     };
+
+    function handleCancelRide(rideId: string) {
+        if (cancelRide.isPending && cancellingRideId === rideId) return;
+
+        setCancellingRideId(rideId);
+        cancelRide.mutate(
+            { rideId },
+            {
+                onSettled: () => setCancellingRideId(null),
+            }
+        );
+    }
 
     return (
         <div
@@ -132,6 +149,15 @@ export function DriverMyRidesPage({
                         </p>
                     )}
 
+                    {cancelRide.isError && (
+                        <p className="text-(--color-text-secondary)">
+                            {t(
+                                "driverRides.cancelError",
+                                "Failed to cancel ride. Please try again."
+                            )}
+                        </p>
+                    )}
+
                     {!isLoading && !isError && displayedRides.length === 0 && (
                         <p className="text-(--color-text-secondary)">
                             {t("driverRides.noResults")}
@@ -141,6 +167,10 @@ export function DriverMyRidesPage({
                     {!isLoading &&
                         !isError &&
                         displayedRides.map((ride) => {
+                            const isCancelling =
+                                cancelRide.isPending &&
+                                cancellingRideId === ride.id;
+
                             return tab === "upcoming" ? (
                                 <RideCard
                                     key={ride.id}
@@ -158,7 +188,9 @@ export function DriverMyRidesPage({
                                             state: { ride },
                                         })
                                     }
-                                    onCancelRide={() => {}}
+                                    onCancelRide={() =>
+                                        handleCancelRide(ride.id)
+                                    }
                                     labels={{
                                         seatsLeft: (count) =>
                                             t("driverRides.seatsLeft", {
@@ -168,7 +200,12 @@ export function DriverMyRidesPage({
                                         viewPassengers: t(
                                             "driverRides.viewPassengers"
                                         ),
-                                        cancelRide: t("driverRides.cancelRide"),
+                                        cancelRide: isCancelling
+                                            ? t(
+                                                  "driverRides.cancelling",
+                                                  "Cancelling..."
+                                              )
+                                            : t("driverRides.cancelRide"),
                                     }}
                                 />
                             ) : (
