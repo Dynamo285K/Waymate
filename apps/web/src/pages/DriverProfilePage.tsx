@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import {
@@ -9,26 +10,9 @@ import {
 } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
+import { useCancelRide } from "../hooks/useCancelRide";
+import { useDriverRides } from "../hooks/useDriverRides";
 import { formatRideDate as formatDate } from "../lib/date-format";
-
-const UPCOMING_RIDES = [
-    {
-        id: 1,
-        from: "Martin",
-        to: "Brno",
-        date: new Date(2026, 2, 15, 8, 0),
-        price: 10,
-        seatsLeft: 2,
-    },
-    {
-        id: 2,
-        from: "Brno",
-        to: "Martin",
-        date: new Date(2026, 2, 21, 10, 0),
-        price: 12,
-        seatsLeft: 1,
-    },
-];
 
 type Props = {
     language: Language;
@@ -49,6 +33,15 @@ export function DriverProfilePage({
 }: Props) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const [cancellingRideId, setCancellingRideId] = useState<string | null>(
+        null
+    );
+    const {
+        data: rides,
+        isLoading: ridesLoading,
+        isError: ridesError,
+    } = useDriverRides("UPCOMING");
+    const cancelRide = useCancelRide();
     const navbarProps = useDriverNavbarProps({
         language,
         onLanguageChange,
@@ -57,6 +50,41 @@ export function DriverProfilePage({
         userName,
         userEmail,
     });
+    const upcomingRides =
+        rides?.map((ride) => {
+            const sortedStops = [...ride.rideStops].sort(
+                (a, b) => a.stopOrder - b.stopOrder
+            );
+            const from = sortedStops[0]?.city ?? "";
+            const to = sortedStops[sortedStops.length - 1]?.city ?? "";
+            const confirmedSeats = ride.bookings.reduce(
+                (sum, booking) => sum + booking.seatCount,
+                0
+            );
+            const remainingSeats = ride.offeredSeats - confirmedSeats;
+
+            return {
+                id: ride.id,
+                from,
+                to,
+                date: ride.departureAt,
+                price: ride.prices[0]?.amount ?? 0,
+                seatsLeft:
+                    remainingSeats > 0 ? remainingSeats : ("full" as const),
+            };
+        }) ?? [];
+
+    function handleCancelRide(rideId: string) {
+        if (cancelRide.isPending && cancellingRideId === rideId) return;
+
+        setCancellingRideId(rideId);
+        cancelRide.mutate(
+            { rideId },
+            {
+                onSettled: () => setCancellingRideId(null),
+            }
+        );
+    }
 
     return (
         <div
@@ -98,31 +126,84 @@ export function DriverProfilePage({
                         <h2 className="text-lg font-bold text-(--color-text-primary)">
                             {t("profile.myUpcomingRides")}
                         </h2>
-                        {UPCOMING_RIDES.map((ride) => (
-                            <RideCard
-                                key={ride.id}
-                                variant="driver-upcoming"
-                                from={ride.from}
-                                to={ride.to}
-                                datetime={formatDate(ride.date, t("home.at"))}
-                                price={ride.price}
-                                seatsLeft={ride.seatsLeft}
-                                onViewPassengers={() =>
-                                    navigate("/driver/rides/passengers")
-                                }
-                                onCancelRide={() => {}}
-                                labels={{
-                                    seatsLeft: (count) =>
-                                        t("home.availableRides.seatsLeft", {
-                                            count,
-                                        }),
-                                    viewPassengers: t(
-                                        "driverRides.viewPassengers"
-                                    ),
-                                    cancelRide: t("profile.cancelRide"),
-                                }}
-                            />
-                        ))}
+                        {ridesLoading && (
+                            <p className="text-(--color-text-secondary)">
+                                {t("driverRides.loading")}
+                            </p>
+                        )}
+
+                        {ridesError && (
+                            <p className="text-(--color-text-secondary)">
+                                {t("driverRides.error")}
+                            </p>
+                        )}
+
+                        {cancelRide.isError && (
+                            <p className="text-(--color-text-secondary)">
+                                {t(
+                                    "driverRides.cancelError",
+                                    "Failed to cancel ride. Please try again."
+                                )}
+                            </p>
+                        )}
+
+                        {!ridesLoading &&
+                            !ridesError &&
+                            upcomingRides.length === 0 && (
+                                <p className="text-(--color-text-secondary)">
+                                    {t("driverRides.noResults")}
+                                </p>
+                            )}
+
+                        {!ridesLoading &&
+                            !ridesError &&
+                            upcomingRides.map((ride) => {
+                                const isCancelling =
+                                    cancelRide.isPending &&
+                                    cancellingRideId === ride.id;
+
+                                return (
+                                    <RideCard
+                                        key={ride.id}
+                                        variant="driver-upcoming"
+                                        from={ride.from}
+                                        to={ride.to}
+                                        datetime={formatDate(
+                                            new Date(ride.date),
+                                            t("home.at")
+                                        )}
+                                        price={ride.price}
+                                        seatsLeft={ride.seatsLeft}
+                                        onViewPassengers={() =>
+                                            navigate(
+                                                "/driver/rides/passengers",
+                                                {
+                                                    state: { ride },
+                                                }
+                                            )
+                                        }
+                                        onCancelRide={() =>
+                                            handleCancelRide(ride.id)
+                                        }
+                                        labels={{
+                                            seatsLeft: (count) =>
+                                                t("driverRides.seatsLeft", {
+                                                    count,
+                                                }),
+                                            full: t("driverRides.full"),
+                                            viewPassengers: t(
+                                                "driverRides.viewPassengers"
+                                            ),
+                                            cancelRide: isCancelling
+                                                ? t(
+                                                      "driverRides.cancelling",
+                                                      "Cancelling..."
+                                                  )
+                                                : t("profile.cancelRide"),
+                                        }}
+                                    />
+                                );
+                            })}
                     </div>
 
                     <div className="lg:w-72 flex flex-col gap-4">
