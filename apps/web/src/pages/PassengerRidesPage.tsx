@@ -7,6 +7,7 @@ import { useRideSearch } from "../hooks/useRideSearch";
 import { AVAILABLE_RIDES } from "../lib/available-rides";
 import { formatRideDate } from "../lib/date-format";
 import { toUiLanguage } from "../lib/language";
+import { useLogout } from "../hooks/useLogout";
 
 type PassengerRidesPageProps = {
     language: Language;
@@ -27,6 +28,7 @@ export function PassengerRidesPage({
 }: PassengerRidesPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
     const [searchParams] = useSearchParams();
     const createBooking = useCreateBooking();
 
@@ -67,7 +69,7 @@ export function PassengerRidesPage({
                 onMessagesClick={() => navigate("/passenger/chat")}
                 onProfileClick={() => navigate("/passenger/profile")}
                 onRatingsClick={() => navigate("/passenger/ratings")}
-                onLogoutClick={() => navigate("/")}
+                onLogoutClick={logout}
                 labels={{
                     passenger: t("roles.passenger"),
                     driver: t("roles.driver"),

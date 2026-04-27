@@ -9,6 +9,7 @@ import {
     MessageComposer,
 } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
+import { useLogout } from "../hooks/useLogout";
 
 type Message = {
     id: number;
@@ -109,6 +110,7 @@ export function DriverChatPage({
 }: DriverChatPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
     const [activeId, setActiveId] = useState<string | null>(null);
     const [conversations, setConversations] = useState(CONVERSATIONS);
 
@@ -187,7 +189,7 @@ export function DriverChatPage({
                 onMessagesClick={() => navigate("/driver/chat")}
                 onProfileClick={() => navigate("/driver/profile")}
                 onRatingsClick={() => navigate("/driver/ratings")}
-                onLogoutClick={() => navigate("/")}
+                onLogoutClick={logout}
                 labels={navbarLabels}
             />
 

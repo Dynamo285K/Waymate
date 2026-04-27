@@ -21,7 +21,9 @@ export async function apiFetch<T>(
         const message =
             data && typeof data.error === "string"
                 ? data.error
-                : "Request failed";
+                : data && typeof data.message === "string"
+                  ? data.message
+                  : "Request failed";
         throw new Error(message);
     }
 

@@ -1,25 +1,19 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import { AuthNavbar, Button, RegisterBox } from "@waymate/ui";
+import { AuthNavbar, RegisterBox } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
-import { apiFetch } from "../lib/api";
+import {
+    getPostAuthPath,
+    signInWithGoogle,
+    signUpWithEmail,
+} from "../lib/auth";
 
 type RegisterPageProps = {
     language: Language;
     theme: "light" | "dark";
     onLanguageChange: (lang: Language) => void;
     onThemeToggle: () => void;
-};
-
-type SignUpResponse = {
-    user: {
-        email: string;
-    };
-};
-
-type SocialSignInResponse = {
-    url?: string;
 };
 
 export function RegisterPage({
@@ -34,73 +28,85 @@ export function RegisterPage({
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [message, setMessage] = useState("");
-    const [verificationEmail, setVerificationEmail] = useState("");
+    const [errors, setErrors] = useState<{
+        fullName?: string;
+        email?: string;
+        password?: string;
+        confirmPassword?: string;
+        form?: string;
+    }>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    async function handleCreateAccount() {
-        setMessage("");
+    function validateForm() {
+        const nextErrors: typeof errors = {};
+        const trimmedName = fullName.trim();
+        const trimmedEmail = email.trim();
 
-        if (!fullName.trim() || !email.trim() || !password) {
-            setMessage(t("register.requiredError"));
-            return;
+        if (!trimmedName) {
+            nextErrors.fullName = t("register.requiredError");
+        }
+
+        if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+            nextErrors.email = t("register.invalidEmail");
+        }
+
+        if (password.length < 8) {
+            nextErrors.password = t("register.passwordTooShort");
         }
 
         if (password !== confirmPassword) {
-            setMessage(t("register.passwordMismatch"));
-            return;
+            nextErrors.confirmPassword = t("register.passwordMismatch");
         }
 
-        setIsSubmitting(true);
-        try {
-            const callbackURL = `${window.location.origin}/onboarding`;
-            const response = await apiFetch<SignUpResponse>("/sign-up/email", {
-                method: "POST",
-                body: JSON.stringify({
-                    name: fullName.trim(),
-                    email: email.trim(),
-                    password,
-                    callbackURL,
-                }),
-            });
+        setErrors(nextErrors);
+        return Object.keys(nextErrors).length === 0;
+    }
 
-            setVerificationEmail(response.user.email);
+    async function handleCreateAccount() {
+        if (!validateForm()) return;
+
+        setErrors({});
+        setIsSubmitting(true);
+
+        try {
+            await signUpWithEmail({
+                name: fullName.trim(),
+                email: email.trim(),
+                password,
+            });
+            navigate(await getPostAuthPath());
         } catch (error) {
-            setMessage(
-                error instanceof Error ? error.message : t("register.error")
-            );
+            setErrors({
+                form:
+                    error instanceof Error
+                        ? error.message
+                        : t("register.error"),
+            });
         } finally {
             setIsSubmitting(false);
         }
     }
 
     async function handleGoogleRegister() {
-        setMessage("");
+        setErrors({});
         setIsSubmitting(true);
-        try {
-            const callbackURL = `${window.location.origin}/onboarding`;
-            const response = await apiFetch<SocialSignInResponse>(
-                "/sign-in/social",
-                {
-                    method: "POST",
-                    body: JSON.stringify({
-                        provider: "google",
-                        callbackURL,
-                        newUserCallbackURL: callbackURL,
-                    }),
-                }
-            );
 
+        try {
+            const response = await signInWithGoogle();
             if (response.url) {
                 window.location.href = response.url;
                 return;
             }
-
-            setVerificationEmail(email || t("register.yourEmail"));
+            navigate(await getPostAuthPath());
         } catch (error) {
-            setMessage(
-                error instanceof Error ? error.message : t("register.error")
-            );
+            const message =
+                error instanceof Error ? error.message : t("register.error");
+            setErrors({
+                form:
+                    message === "Google login is not configured on the API."
+                        ? t("register.googleNotConfigured")
+                        : message,
+            });
             setIsSubmitting(false);
         }
     }
@@ -124,13 +130,17 @@ export function RegisterPage({
                     email={email}
                     password={password}
                     confirmPassword={confirmPassword}
-                    message={message}
+                    fullNameError={errors.fullName}
+                    emailError={errors.email}
+                    passwordError={errors.password}
+                    confirmPasswordError={errors.confirmPassword}
+                    message={errors.form}
                     isSubmitting={isSubmitting}
                     onFullNameChange={setFullName}
                     onEmailChange={setEmail}
                     onPasswordChange={setPassword}
                     onConfirmPasswordChange={setConfirmPassword}
-                    onCreateAccountClick={handleCreateAccount}
+                    onSubmit={handleCreateAccount}
                     onGoogleRegisterClick={handleGoogleRegister}
                     onLoginClick={() => navigate("/login")}
                     labels={{
@@ -147,30 +157,6 @@ export function RegisterPage({
                     }}
                 />
             </div>
-
-            {verificationEmail && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-                    <div className="relative w-full max-w-sm rounded-2xl border border-(--color-border) bg-(--color-card) p-6 text-center shadow-2xl">
-                        <h2 className="text-xl font-bold text-(--color-text-primary)">
-                            {t("register.checkEmailTitle")}
-                        </h2>
-                        <p className="mt-2 text-sm text-(--color-text-secondary)">
-                            {t("register.checkEmailText", {
-                                email: verificationEmail,
-                            })}
-                        </p>
-                        <div className="mt-6">
-                            <Button
-                                fullWidth
-                                onClick={() => navigate("/login")}
-                            >
-                                {t("register.backToLogin")}
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

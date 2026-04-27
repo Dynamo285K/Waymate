@@ -3,6 +3,7 @@ import { useNavigate } from "../lib/router-compat";
 import { useTranslation } from "react-i18next";
 import { AdminNavbar, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
+import { useLogout } from "../hooks/useLogout";
 
 type AdminReportsPageProps = {
     language: Language;
@@ -193,6 +194,7 @@ export function AdminReportsPage({
 }: AdminReportsPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
     const [filter, setFilter] = useState<"all" | ReportStatus>("all");
     const [viewReport, setViewReport] = useState<Report | null>(null);
     const [reports, setReports] = useState(REPORTS);
@@ -246,7 +248,7 @@ export function AdminReportsPage({
                 onUsersClick={() => navigate("/admin/users")}
                 onReportsClick={() => navigate("/admin/reports")}
                 onProfileClick={() => navigate("/admin/account")}
-                onLogoutClick={() => navigate("/")}
+                onLogoutClick={logout}
                 labels={navLabels}
             />
 

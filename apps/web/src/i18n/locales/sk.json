@@ -10,7 +10,11 @@
         "loginWithGoogle": "Prihlásiť cez Google",
         "or": "alebo",
         "noAccount": "Nemáte účet?",
-        "createAccount": "Vytvoriť účet"
+        "createAccount": "Vytvoriť účet",
+        "invalidEmail": "Zadajte platný e-mail.",
+        "passwordTooShort": "Heslo musí mať aspoň 8 znakov.",
+        "googleNotConfigured": "Prihlásenie cez Google ešte nie je nakonfigurované.",
+        "error": "Prihlásenie zlyhalo. Skontrolujte údaje a skúste to znova."
     },
     "register": {
         "title": "Vytvoriť účet",
@@ -25,6 +29,9 @@
         "login": "Prihlásiť sa",
         "requiredError": "Vyplňte všetky polia.",
         "passwordMismatch": "Heslá sa nezhodujú.",
+        "invalidEmail": "Zadajte platný e-mail.",
+        "passwordTooShort": "Heslo musí mať aspoň 8 znakov.",
+        "googleNotConfigured": "Registrácia cez Google ešte nie je nakonfigurovaná.",
         "error": "Registrácia zlyhala. Skúste to znova.",
         "checkEmailTitle": "Skontrolujte e-mail",
         "checkEmailText": "Poslali sme overovací odkaz na {{email}}. Overte e-mailovú adresu a potom dokončite profil.",

@@ -9,6 +9,7 @@ import {
 } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { formatRideDate as formatDate } from "../lib/date-format";
+import { useLogout } from "../hooks/useLogout";
 
 type DriverHomePageProps = {
     language: Language;
@@ -197,6 +198,7 @@ export function DriverHomePage({
 }: DriverHomePageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
     const [requests, setRequests] = useState(RIDE_REQUESTS);
 
     const navbarLabels = {
@@ -252,7 +254,7 @@ export function DriverHomePage({
                 onMessagesClick={() => navigate("/driver/chat")}
                 onProfileClick={() => navigate("/driver/profile")}
                 onRatingsClick={() => navigate("/driver/ratings")}
-                onLogoutClick={() => navigate("/")}
+                onLogoutClick={logout}
                 labels={navbarLabels}
             />
 

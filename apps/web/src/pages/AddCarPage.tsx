@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from "../lib/router-compat";
 import { PassengerNavbar, DriverNavbar, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
+import { useLogout } from "../hooks/useLogout";
 import { api } from "../lib/eden";
 import { unwrap } from "../lib/eden-query";
 
@@ -76,6 +77,7 @@ export function AddCarPage({
 }: AddCarPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
     const location = useLocation();
     const role =
         (location.state as { role?: "passenger" | "driver" } | null)?.role ??
@@ -132,7 +134,7 @@ export function AddCarPage({
                     onFindRideClick={() => navigate("/passenger")}
                     onMyRidesClick={() => navigate("/passenger/rides")}
                     onChatClick={() => navigate("/passenger/chat")}
-                    onLogoutClick={() => navigate("/")}
+                    onLogoutClick={logout}
                 />
             )}
 

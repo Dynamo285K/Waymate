@@ -11,6 +11,7 @@ import type { Language } from "@waymate/ui";
 import { usePassengerBookings } from "../hooks/usePassengerBookings";
 import { formatRideDate } from "../lib/date-format";
 import { toUiLanguage } from "../lib/language";
+import { useLogout } from "../hooks/useLogout";
 
 type PassengerMyRidesPageProps = {
     language: Language;
@@ -43,6 +44,7 @@ export function PassengerMyRidesPage({
 }: PassengerMyRidesPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
     const location = useLocation();
     const [tab, setTab] = useState("upcoming");
     const [ratingModalOpen, setRatingModalOpen] = useState(false);
@@ -121,7 +123,7 @@ export function PassengerMyRidesPage({
                 onMessagesClick={() => navigate("/passenger/chat")}
                 onProfileClick={() => navigate("/passenger/profile")}
                 onRatingsClick={() => navigate("/passenger/ratings")}
-                onLogoutClick={() => navigate("/")}
+                onLogoutClick={logout}
                 labels={{
                     passenger: t("roles.passenger"),
                     driver: t("roles.driver"),

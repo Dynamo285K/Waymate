@@ -4,6 +4,7 @@ import { DriverNavbar, PassengerCard, StatCard } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useRidePassengers } from "../hooks/useRidePassengers";
 import { toUiLanguage } from "../lib/language";
+import { useLogout } from "../hooks/useLogout";
 
 type DriverPassengersPageProps = {
     language: Language;
@@ -64,6 +65,7 @@ export function DriverPassengersPage({
 }: DriverPassengersPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
     const location = useLocation();
     const ride = (
         location.state as {
@@ -116,7 +118,7 @@ export function DriverPassengersPage({
                 onMessagesClick={() => navigate("/driver/chat")}
                 onProfileClick={() => navigate("/driver/profile")}
                 onRatingsClick={() => navigate("/driver/ratings")}
-                onLogoutClick={() => navigate("/")}
+                onLogoutClick={logout}
                 labels={navbarLabels}
             />
 

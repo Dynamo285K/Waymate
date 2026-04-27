@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import { AdminNavbar } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
+import { useLogout } from "../hooks/useLogout";
 
 type AdminDashboardPageProps = {
     language: Language;
@@ -85,6 +86,7 @@ export function AdminDashboardPage({
 }: AdminDashboardPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
     const [, setTab] = useState("dashboard");
 
     const navLabels = {
@@ -123,7 +125,7 @@ export function AdminDashboardPage({
                 onUsersClick={() => navigate("/admin/users")}
                 onReportsClick={() => navigate("/admin/reports")}
                 onProfileClick={() => navigate("/admin/account")}
-                onLogoutClick={() => navigate("/")}
+                onLogoutClick={logout}
                 labels={navLabels}
             />
 

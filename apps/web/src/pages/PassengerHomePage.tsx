@@ -3,6 +3,7 @@ import { useNavigate } from "../lib/router-compat";
 import { PassengerNavbar } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { HomeContent } from "../components/HomeContent";
+import { useLogout } from "../hooks/useLogout";
 
 type PassengerHomePageProps = {
     language: Language;
@@ -23,6 +24,7 @@ export function PassengerHomePage({
 }: PassengerHomePageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
 
     return (
         <div
@@ -46,7 +48,7 @@ export function PassengerHomePage({
                 onMessagesClick={() => navigate("/passenger/chat")}
                 onProfileClick={() => navigate("/passenger/profile")}
                 onRatingsClick={() => navigate("/passenger/ratings")}
-                onLogoutClick={() => navigate("/")}
+                onLogoutClick={logout}
                 labels={{
                     passenger: t("roles.passenger"),
                     driver: t("roles.driver"),

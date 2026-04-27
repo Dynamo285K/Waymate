@@ -7,6 +7,7 @@ import { useDriverRides } from "../hooks/useDriverRides";
 import { useCancelRide } from "../hooks/useCancelRide";
 import { formatRideDate } from "../lib/date-format";
 import { toUiLanguage } from "../lib/language";
+import { useLogout } from "../hooks/useLogout";
 
 type DriverMyRidesPageProps = {
     language: Language;
@@ -27,6 +28,7 @@ export function DriverMyRidesPage({
 }: DriverMyRidesPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
     const [tab, setTab] = useState("upcoming");
     const [cancellingRideId, setCancellingRideId] = useState<string | null>(
         null
@@ -112,7 +114,7 @@ export function DriverMyRidesPage({
                 onMessagesClick={() => navigate("/driver/chat")}
                 onProfileClick={() => navigate("/driver/profile")}
                 onRatingsClick={() => navigate("/driver/ratings")}
-                onLogoutClick={() => navigate("/")}
+                onLogoutClick={logout}
                 labels={navbarLabels}
             />
 
