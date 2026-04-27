@@ -1,0 +1,135 @@
+import {
+    createRootRoute,
+    createRoute,
+    createRouter,
+    Outlet,
+} from "@tanstack/react-router";
+import { LayoutProvider, useLayout } from "./lib/layout-context";
+import { useNavigate } from "./lib/router-compat";
+import { HomePage } from "./pages/HomePage";
+import { LoginPage } from "./pages/LoginPage";
+import { RegisterPage } from "./pages/RegisterPage";
+import { OnboardingPage } from "./pages/OnboardingPage";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
+import { RidesPage } from "./pages/RidesPage";
+import { PassengerHomePage } from "./pages/PassengerHomePage";
+import { PassengerChatPage } from "./pages/PassengerChatPage";
+import { PassengerRidesPage } from "./pages/PassengerRidesPage";
+import { PassengerMyRidesPage } from "./pages/PassengerMyRidesPage";
+import { PassengerProfilePage } from "./pages/PassengerProfilePage";
+import { PassengerRatingsPage } from "./pages/PassengerRatingsPage";
+import { DriverHomePage } from "./pages/DriverHomePage";
+import { DriverChatPage } from "./pages/DriverChatPage";
+import { DriverMyRidesPage } from "./pages/DriverMyRidesPage";
+import { DriverPassengersPage } from "./pages/DriverPassengersPage";
+import { DriverRatePassengersPage } from "./pages/DriverRatePassengersPage";
+import { DriverOfferRidePage } from "./pages/DriverOfferRidePage";
+import { DriverRideRequestsPage } from "./pages/DriverRideRequestsPage";
+import { DriverProfilePage } from "./pages/DriverProfilePage";
+import { DriverRatingsPage } from "./pages/DriverRatingsPage";
+import { EditProfilePage } from "./pages/EditProfilePage";
+import { AddCarPage } from "./pages/AddCarPage";
+import { AdminDashboardPage } from "./pages/AdminDashboardPage";
+import { AdminRidesPage } from "./pages/AdminRidesPage";
+import { AdminUsersPage } from "./pages/AdminUsersPage";
+import { AdminReportsPage } from "./pages/AdminReportsPage";
+import { AdminAccountPage } from "./pages/AdminAccountPage";
+
+const rootRoute = createRootRoute({
+    component: () => (
+        <LayoutProvider>
+            <Outlet />
+        </LayoutProvider>
+    ),
+});
+
+function HomeRoute() {
+    const layout = useLayout();
+    const navigate = useNavigate();
+    return (
+        <HomePage
+            {...layout}
+            onLogin={() => navigate("/login")}
+            onRegister={() => navigate("/register")}
+            onLogoClick={() => navigate("/")}
+            onSearch={(from, to) => {
+                const params = new URLSearchParams();
+                if (from) params.set("from", from);
+                if (to) params.set("to", to);
+                navigate(`/rides?${params.toString()}`);
+            }}
+            onViewAllRides={() => navigate("/rides")}
+        />
+    );
+}
+
+const audienceRoutes: ReadonlyArray<{
+    path: string;
+    Component: React.ComponentType<{
+        language: ReturnType<typeof useLayout>["language"];
+        theme: ReturnType<typeof useLayout>["theme"];
+        onLanguageChange: ReturnType<typeof useLayout>["onLanguageChange"];
+        onThemeToggle: ReturnType<typeof useLayout>["onThemeToggle"];
+    }>;
+}> = [
+    { path: "/rides", Component: RidesPage },
+    { path: "/passenger", Component: PassengerHomePage },
+    { path: "/passenger/rides", Component: PassengerMyRidesPage },
+    { path: "/passenger/rides/search", Component: PassengerRidesPage },
+    { path: "/passenger/chat", Component: PassengerChatPage },
+    { path: "/passenger/profile", Component: PassengerProfilePage },
+    { path: "/passenger/ratings", Component: PassengerRatingsPage },
+    { path: "/driver", Component: DriverHomePage },
+    { path: "/driver/chat", Component: DriverChatPage },
+    { path: "/driver/rides", Component: DriverMyRidesPage },
+    { path: "/driver/rides/passengers", Component: DriverPassengersPage },
+    { path: "/driver/rides/rate", Component: DriverRatePassengersPage },
+    { path: "/driver/offer", Component: DriverOfferRidePage },
+    { path: "/driver/requests", Component: DriverRideRequestsPage },
+    { path: "/driver/profile", Component: DriverProfilePage },
+    { path: "/driver/ratings", Component: DriverRatingsPage },
+    { path: "/profile/edit", Component: EditProfilePage },
+    { path: "/car/add", Component: AddCarPage },
+    { path: "/admin", Component: AdminDashboardPage },
+    { path: "/admin/rides", Component: AdminRidesPage },
+    { path: "/admin/users", Component: AdminUsersPage },
+    { path: "/admin/reports", Component: AdminReportsPage },
+    { path: "/admin/account", Component: AdminAccountPage },
+    { path: "/login", Component: LoginPage },
+    { path: "/forgot-password", Component: ForgotPasswordPage },
+    { path: "/register", Component: RegisterPage },
+    { path: "/onboarding", Component: OnboardingPage },
+];
+
+function makeAudienceComponent(
+    Component: (typeof audienceRoutes)[number]["Component"]
+) {
+    return function AudienceRouteComponent() {
+        const layout = useLayout();
+        return <Component {...layout} />;
+    };
+}
+
+const homeRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/",
+    component: HomeRoute,
+});
+
+const childRoutes = audienceRoutes.map(({ path, Component }) =>
+    createRoute({
+        getParentRoute: () => rootRoute,
+        path,
+        component: makeAudienceComponent(Component),
+    })
+);
+
+const routeTree = rootRoute.addChildren([homeRoute, ...childRoutes]);
+
+export const router = createRouter({ routeTree });
+
+declare module "@tanstack/react-router" {
+    interface Register {
+        router: typeof router;
+    }
+}

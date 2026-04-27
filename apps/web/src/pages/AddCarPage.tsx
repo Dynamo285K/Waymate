@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate, useLocation } from "../lib/router-compat";
 import { PassengerNavbar, DriverNavbar, Button } from "waymate-ui";
 import type { Language } from "waymate-ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
+import { api } from "../lib/eden";
+import { unwrap } from "../lib/eden-query";
 
 type AddCarPageProps = {
     language: Language;
@@ -14,7 +17,7 @@ type AddCarPageProps = {
     userEmail?: string;
 };
 
-const CAR_MAKES = [
+const FALLBACK_CAR_MAKES = [
     "Škoda",
     "Volkswagen",
     "BMW",
@@ -85,6 +88,13 @@ export function AddCarPage({
     const [seats, setSeats] = useState<number | null>(null);
     const [color, setColor] = useState<string | null>(null);
     const [plate, setPlate] = useState("");
+
+    const brandsQuery = useQuery({
+        queryKey: ["cars", "brands"],
+        queryFn: () => unwrap(api.cars.brands.get()),
+    });
+    const carMakes =
+        brandsQuery.data?.map((row) => row.brand) ?? FALLBACK_CAR_MAKES;
 
     const driverNavbarProps = useDriverNavbarProps({
         language,
@@ -163,7 +173,7 @@ export function AddCarPage({
                                                 "Select make..."
                                             )}
                                         </option>
-                                        {CAR_MAKES.map((m) => (
+                                        {carMakes.map((m) => (
                                             <option
                                                 key={m}
                                                 value={m}

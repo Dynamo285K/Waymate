@@ -69,7 +69,9 @@ Every domain module follows the same layered pattern:
 | `*.types.ts`      | TypeScript types derived from schemas                               |
 | `*.errors.ts`     | Plain string error constants thrown by the repository               |
 
-Current modules: `auth`, `users`, `cars`, `rides`, `bookings` (stub), `health`.
+Current modules: `auth`, `users`, `cars`, `rides`, `bookings`, `health`.
+
+The Elysia app is exported as `app` and `type App = typeof app` from `apps/api/src/index.ts` so the web client can consume route types via Eden (see Frontend section).
 
 ### Authentication and authorization
 
@@ -100,9 +102,34 @@ The project uses **Zod v4**. Use `z.uuid()`, `z.url()`, `z.email()` directly (no
 
 ### Frontend (`apps/web/`)
 
-- Minimal scaffold — the actual UI is not yet implemented beyond a placeholder.
+- React 19 + Vite. UI scaffolding only; pages are placeholders being wired to real data feature by feature.
 - Uses **`@waymate/ui`** (external component library from a separate GitLab repo `waymate-ui`). Must be cloned, built, and linked locally with `bun link` as described in the README.
 - i18n via **react-i18next** with three locales: `en`, `cs`, `sk` (files in `apps/web/src/i18n/locales/`).
+
+#### Data layer
+
+- **`@elysiajs/eden` (treaty client)** — typed RPC client over the API. The `App` type is imported from `@repo/api` (workspace dep) and gives end-to-end types without codegen. Source of truth: `apps/web/src/lib/eden.ts`.
+- **TanStack Query** — server state. Wrap Eden calls with the `unwrap` helper from `apps/web/src/lib/eden-query.ts` inside `useQuery`/`useMutation`. The `QueryClient` is created in `apps/web/src/lib/query-client.ts` and provided from `main.tsx`.
+- **Do not use `fetch` directly.** The legacy `apps/web/src/lib/api.ts` (`apiFetch`) only remains for the auth pages (RegisterPage, OnboardingPage) because better-auth is `.mount`-ed and outside Eden's type tree. New code should use Eden + TanStack Query.
+
+Example:
+
+```ts
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/eden";
+import { unwrap } from "@/lib/eden-query";
+
+const { data } = useQuery({
+    queryKey: ["cars", "brands"],
+    queryFn: () => unwrap(api.cars.brands.get()),
+});
+```
+
+#### Routing
+
+- **TanStack Router** — code-based routing in `apps/web/src/router.tsx`. Pages live in `apps/web/src/pages/`; the router file maps URLs to page components and injects layout state + navigation callbacks.
+- **`react-router-dom` is NOT installed.** Pages currently import `useNavigate`/`useLocation`/`useSearchParams` from `apps/web/src/lib/router-compat.ts` — a shim that mirrors react-router-dom v7's API on top of TanStack Router. New code should prefer TanStack Router APIs (`useNavigate` from `@tanstack/react-router`, typed search params via `Route.useSearch()`); the shim is a transitional helper.
+- **Layout state** (`language`, `theme`) lives in `LayoutProvider` (`apps/web/src/lib/layout-context.tsx`). Pages access it via `useLayout()` (or by being instantiated through the router with layout props injected). Do not lift this state back to `App.tsx`.
 
 ### CI (GitLab)
 
