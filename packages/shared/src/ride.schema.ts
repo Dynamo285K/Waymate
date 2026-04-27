@@ -1,12 +1,9 @@
 import { z } from "zod";
-import { UserIdSchema } from "../users/user.schema";
-import { CarIdSchema } from "../cars/car.schema";
-import {
-    CountryCodeSchema,
-    CurrencySchema,
-    bookingStatusValues,
-    rideStatusValues,
-} from "../../shared";
+import { UserIdSchema } from "./user.schema";
+import { CarIdSchema } from "./car.schema";
+import { CountryCodeSchema } from "./country-code.schema";
+import { CurrencySchema } from "./currency.schema";
+import { bookingStatusValues, rideStatusValues } from "./status-values";
 
 export const RideIdSchema = z.uuid();
 export type RideId = z.infer<typeof RideIdSchema>;

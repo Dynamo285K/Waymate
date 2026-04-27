@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { reviewStatusValues } from "../../shared";
-import { UserIdSchema } from "../users/user.schema";
-import { RideIdSchema } from "../rides/ride.schema";
+import { reviewStatusValues } from "./status-values";
+import { UserIdSchema } from "./user.schema";
+import { RideIdSchema } from "./ride.schema";
 
 // ==========================================
 // 0. PRIMITIVES

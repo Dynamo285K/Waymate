@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { userStatusValues } from "../../shared";
+import { userStatusValues } from "./status-values";
 
 export const UserIdSchema = z.uuid();
 export type UserId = z.infer<typeof UserIdSchema>;

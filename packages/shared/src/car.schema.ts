@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { UserIdSchema } from "../users/user.schema";
-import { CountryCodeSchema } from "../../shared";
-import { carColors } from "../../shared/status-values";
+import { UserIdSchema } from "./user.schema";
+import { CountryCodeSchema } from "./country-code.schema";
+import { carColors } from "./status-values";
 
 export const CarIdSchema = z.uuid();
 export type CarId = z.infer<typeof CarIdSchema>;

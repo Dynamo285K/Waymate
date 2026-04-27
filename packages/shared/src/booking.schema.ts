@@ -3,9 +3,10 @@ import {
     RideIdSchema,
     RideStopIdSchema,
     RideStatusSchema,
-} from "../rides/ride.schema";
-import { bookingStatusValues, CurrencySchema } from "../../shared";
-import { UserIdSchema } from "../users/user.schema";
+} from "./ride.schema";
+import { bookingStatusValues } from "./status-values";
+import { CurrencySchema } from "./currency.schema";
+import { UserIdSchema } from "./user.schema";
 
 // ==========================================
 // 1. URL PARAMETERS
