@@ -66,9 +66,17 @@ export const PassengerBookingListItemSchema = z.object({
         firstName: z.string().nullable(),
         lastName: z.string().nullable(),
         profilePhotoUrl: z.string().nullable(),
+        averageRating: z.number().nullable(),
+        reviewCount: z.number().int(),
     }),
     pickupCity: z.string(),
     dropoffCity: z.string(),
+    myReviewOfDriver: z
+        .object({
+            id: z.uuid(),
+            rating: z.number().int().min(1).max(5),
+        })
+        .nullable(),
 });
 
 export const PassengerBookingListSchema =

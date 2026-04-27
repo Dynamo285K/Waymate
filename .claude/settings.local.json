@@ -4,7 +4,8 @@
       "Bash(bun run *)",
       "Bash(bunx eslint *)",
       "Bash(bunx prettier *)",
-      "Bash(bun install *)"
+      "Bash(bun install *)",
+      "Bash(bunx tsc *)"
     ]
   }
 }
