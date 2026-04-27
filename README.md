@@ -96,7 +96,7 @@ Source repository: <https://gitlab.fi.muni.cz/xbartel/waymate-ui>
 Components are imported directly:
 
 ```tsx
-import { Button } from "waymate-ui";
+import { Button } from "@waymate/ui";
 ```
 
 Styles are loaded automatically via `apps/web/src/main.tsx`.

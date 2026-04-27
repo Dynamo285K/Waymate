@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import { AuthNavbar, LoginBox } from "waymate-ui";
-import type { Language } from "waymate-ui";
+import { AuthNavbar, LoginBox } from "@waymate/ui";
+import type { Language } from "@waymate/ui";
 
 type LoginPageProps = {
     language: Language;

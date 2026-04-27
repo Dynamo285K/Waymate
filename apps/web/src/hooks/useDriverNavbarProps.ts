@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import type { Language } from "waymate-ui";
+import type { Language } from "@waymate/ui";
 
 export function useDriverNavbarProps(params: {
     activeTab?: "offer-ride" | "my-rides" | "ride-requests" | "chat";

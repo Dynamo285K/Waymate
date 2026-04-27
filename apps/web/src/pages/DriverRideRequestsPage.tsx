@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { DriverNavbar, RideRequestCard } from "waymate-ui";
-import type { Language } from "waymate-ui";
+import { DriverNavbar, RideRequestCard } from "@waymate/ui";
+import type { Language } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import i18n from "../i18n";
 

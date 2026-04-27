@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import { PassengerNavbar } from "waymate-ui";
-import type { Language } from "waymate-ui";
+import { PassengerNavbar } from "@waymate/ui";
+import type { Language } from "@waymate/ui";
 import { HomeContent } from "../components/HomeContent";
 
 type PassengerHomePageProps = {
@@ -80,10 +80,11 @@ export function PassengerHomePage({
                         },
                     })
                 }
-                onSearch={(from, to) => {
+                onSearch={(from, to, date) => {
                     const params = new URLSearchParams();
                     if (from) params.set("from", from);
                     if (to) params.set("to", to);
+                    if (date) params.set("date", date.toISOString());
                     navigate(`/passenger/rides/search?${params.toString()}`);
                 }}
                 onViewAllRides={() => navigate("/passenger/rides/search")}

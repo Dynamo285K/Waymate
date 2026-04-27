@@ -300,8 +300,15 @@
         "login": "Log in",
         "register": "Register"
     },
+    "bookings": {
+        "createError": "Could not create the booking request. Please try again."
+    },
     "rides": {
-        "found": "{{count}} rides found"
+        "found": "{{count}} rides found",
+        "loading": "Searching for rides...",
+        "error": "Failed to load rides. Please log in and try again.",
+        "noResults": "No rides found for this route and date.",
+        "noSearchParams": "Enter a departure, destination and date to find rides."
     },
     "chat": {
         "messages": "Messages",

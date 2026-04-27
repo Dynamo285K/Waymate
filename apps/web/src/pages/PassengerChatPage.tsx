@@ -7,8 +7,8 @@ import {
     ChatHeader,
     MessageBubble,
     MessageComposer,
-} from "waymate-ui";
-import type { Language } from "waymate-ui";
+} from "@waymate/ui";
+import type { Language } from "@waymate/ui";
 
 type Message = {
     id: number;

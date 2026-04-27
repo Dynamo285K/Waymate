@@ -6,8 +6,8 @@ import {
     RideCard,
     RideRequestCard,
     FeatureCard,
-} from "waymate-ui";
-import type { Language } from "waymate-ui";
+} from "@waymate/ui";
+import type { Language } from "@waymate/ui";
 import i18n from "../i18n";
 
 type DriverHomePageProps = {

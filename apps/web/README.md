@@ -81,4 +81,4 @@ Copy `.env.example` to `.env.local` if you need to override defaults:
 
 ## UI library
 
-Components come from `waymate-ui` (private GitLab package — see root README for `CI_JOB_TOKEN` setup).
+Components come from `@waymate/ui` (private GitLab package — see root README for `CI_JOB_TOKEN` setup).

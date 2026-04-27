@@ -52,10 +52,11 @@ function HomeRoute() {
             onLogin={() => navigate("/login")}
             onRegister={() => navigate("/register")}
             onLogoClick={() => navigate("/")}
-            onSearch={(from, to) => {
+            onSearch={(from, to, date) => {
                 const params = new URLSearchParams();
                 if (from) params.set("from", from);
                 if (to) params.set("to", to);
+                if (date) params.set("date", date.toISOString());
                 navigate(`/rides?${params.toString()}`);
             }}
             onViewAllRides={() => navigate("/rides")}

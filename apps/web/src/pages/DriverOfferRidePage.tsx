@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { cs, enUS, sk as skLocale } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
-import { DriverNavbar, Button, OfferRideForm } from "waymate-ui";
-import type { Language, OfferRideCar } from "waymate-ui";
+import { DriverNavbar, Button, OfferRideForm } from "@waymate/ui";
+import type { Language, OfferRideCar } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 
 type Props = {

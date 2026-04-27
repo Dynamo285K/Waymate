@@ -7,8 +7,8 @@ import {
     AdminNavbar,
     Input,
     Button,
-} from "waymate-ui";
-import type { Language } from "waymate-ui";
+} from "@waymate/ui";
+import type { Language } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 
 type EditProfilePageProps = {

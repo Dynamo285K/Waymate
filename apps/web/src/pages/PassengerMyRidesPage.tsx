@@ -1,8 +1,13 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "../lib/router-compat";
-import { PassengerNavbar, RideCard, Button, RateDriverModal } from "waymate-ui";
-import type { Language } from "waymate-ui";
+import {
+    PassengerNavbar,
+    RideCard,
+    Button,
+    RateDriverModal,
+} from "@waymate/ui";
+import type { Language } from "@waymate/ui";
 import i18n from "../i18n";
 
 type PassengerMyRidesPageProps = {

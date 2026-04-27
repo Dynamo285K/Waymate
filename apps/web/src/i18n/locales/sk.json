@@ -300,8 +300,15 @@
         "login": "Prihlásiť sa",
         "register": "Registrovať"
     },
+    "bookings": {
+        "createError": "Nepodarilo sa vytvoriť žiadosť o rezerváciu. Skúste to znova."
+    },
     "rides": {
-        "found": "Nájdených {{count}} jázd"
+        "found": "Nájdených {{count}} jázd",
+        "loading": "Hľadám jazdy...",
+        "error": "Nepodarilo sa načítať jazdy. Prihláste sa a skúste znova.",
+        "noResults": "Pre túto trasu a dátum neboli nájdené žiadne jazdy.",
+        "noSearchParams": "Zadajte odchod, cieľ a dátum pre vyhľadanie jázd."
     },
     "chat": {
         "messages": "Správy",

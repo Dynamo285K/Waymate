@@ -7,23 +7,15 @@ import {
     StatCard,
     AvailableRideCard,
     FeatureCard,
-} from "waymate-ui";
-import type { Language } from "waymate-ui";
+} from "@waymate/ui";
+import type { Language } from "@waymate/ui";
+import type { AvailableRide } from "../lib/available-rides";
 
 type HomeContentProps = {
     language: Language;
     onSearch?: (from: string, to: string, date: Date | undefined) => void;
     onViewAllRides?: () => void;
-    onBook?: (ride: {
-        id: number;
-        from: string;
-        to: string;
-        date: Date;
-        seatsLeft: number;
-        driverName: string;
-        driverRating: number;
-        price: number;
-    }) => void;
+    onBook?: (ride: AvailableRide) => void;
 };
 
 const POPULAR_ROUTES = [

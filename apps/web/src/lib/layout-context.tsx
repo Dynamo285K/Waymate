@@ -1,7 +1,7 @@
 import { createContext, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import i18n from "../i18n";
-import type { Language } from "waymate-ui";
+import type { Language } from "@waymate/ui";
 
 export type Theme = "light" | "dark";
 

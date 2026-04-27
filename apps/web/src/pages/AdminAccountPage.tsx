@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import { AdminNavbar, Avatar, Button } from "waymate-ui";
-import type { Language } from "waymate-ui";
+import { AdminNavbar, Avatar, Button } from "@waymate/ui";
+import type { Language } from "@waymate/ui";
 
 type AdminAccountPageProps = {
     language: Language;
