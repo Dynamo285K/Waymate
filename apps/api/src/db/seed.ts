@@ -69,7 +69,11 @@ async function main() {
 
             // Find model ids for specific models we want to use
             const octaviaRow = await tx
-                .select({ id: carModels.id, brand: carModels.brand, modelName: carModels.modelName })
+                .select({
+                    id: carModels.id,
+                    brand: carModels.brand,
+                    modelName: carModels.modelName,
+                })
                 .from(carModels)
                 .where(
                     and(
@@ -79,7 +83,11 @@ async function main() {
                 );
 
             const golfRow = await tx
-                .select({ id: carModels.id, brand: carModels.brand, modelName: carModels.modelName })
+                .select({
+                    id: carModels.id,
+                    brand: carModels.brand,
+                    modelName: carModels.modelName,
+                })
                 .from(carModels)
                 .where(
                     and(
@@ -89,7 +97,11 @@ async function main() {
                 );
 
             const corollaRow = await tx
-                .select({ id: carModels.id, brand: carModels.brand, modelName: carModels.modelName })
+                .select({
+                    id: carModels.id,
+                    brand: carModels.brand,
+                    modelName: carModels.modelName,
+                })
                 .from(carModels)
                 .where(
                     and(
