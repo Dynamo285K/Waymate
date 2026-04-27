@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "../lib/router-compat";
 import {
@@ -19,6 +21,14 @@ type EditProfilePageProps = {
     onThemeToggle: () => void;
     userName?: string;
     userEmail?: string;
+};
+
+type FormValues = {
+    name: string;
+    email: string;
+    phone: string;
+    plate: string;
+    about: string;
 };
 
 export function EditProfilePage({
@@ -43,13 +53,33 @@ export function EditProfilePage({
               ? "/admin/account"
               : "/passenger/profile";
 
-    const [name, setName] = useState(userName);
-    const [email, setEmail] = useState(userEmail);
-    const [phone, setPhone] = useState("+421 900 123 456");
-    const [plate, setPlate] = useState("BA-123AB");
-    const [about, setAbout] = useState(
-        "Easygoing traveler who enjoys meeting new people on the road. Reliable, communicative, and always respectful during rides."
-    );
+    const formSchema = z.object({
+        name: z.string().trim().min(1, t("register.requiredError")),
+        email: z
+            .string()
+            .trim()
+            .refine((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
+                message: t("login.invalidEmail"),
+            }),
+        phone: z.string(),
+        plate: z.string(),
+        about: z.string().max(500),
+    });
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+    } = useForm<FormValues>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            name: userName,
+            email: userEmail,
+            phone: "+421 900 123 456",
+            plate: "BA-123AB",
+            about: "Easygoing traveler who enjoys meeting new people on the road. Reliable, communicative, and always respectful during rides.",
+        },
+    });
 
     const driverNavbarProps = useDriverNavbarProps({
         activeTab: undefined,
@@ -73,6 +103,10 @@ export function EditProfilePage({
         ratings: t("nav.ratings"),
         settings: t("nav.settings"),
         logout: t("nav.logout"),
+    };
+
+    const onSubmit: SubmitHandler<FormValues> = () => {
+        navigate(backPath);
     };
 
     return (
@@ -100,8 +134,8 @@ export function EditProfilePage({
                     labels={{
                         adminRole: t("admin.adminRole"),
                         dashboard: t("admin.dashboard"),
-                        rides: t("admin.rides"),
                         users: t("admin.users"),
+                        rides: t("admin.rides"),
                         reports: t("admin.reports"),
                         account: t("admin.account"),
                         settings: t("admin.settings"),
@@ -136,29 +170,43 @@ export function EditProfilePage({
                     {t("editProfile.title")}
                 </h1>
 
-                <div className="bg-(--color-card) rounded-2xl p-6 sm:p-8 border border-(--color-border) flex flex-col gap-6">
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    noValidate
+                    className="bg-(--color-card) rounded-2xl p-6 sm:p-8 border border-(--color-border) flex flex-col gap-6"
+                >
                     {/* Two-column grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <Input
-                            label={t("editProfile.fullName")}
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                        />
-                        <Input
-                            label={t("editProfile.email")}
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
+                        <div>
+                            <Input
+                                label={t("editProfile.fullName")}
+                                {...register("name")}
+                            />
+                            {errors.name && (
+                                <p className="mt-1 text-xs font-semibold text-red-500">
+                                    {errors.name.message}
+                                </p>
+                            )}
+                        </div>
+                        <div>
+                            <Input
+                                label={t("editProfile.email")}
+                                type="email"
+                                {...register("email")}
+                            />
+                            {errors.email && (
+                                <p className="mt-1 text-xs font-semibold text-red-500">
+                                    {errors.email.message}
+                                </p>
+                            )}
+                        </div>
                         <Input
                             label={t("editProfile.phone")}
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
+                            {...register("phone")}
                         />
                         <Input
                             label={t("editProfile.licensePlate")}
-                            value={plate}
-                            onChange={(e) => setPlate(e.target.value)}
+                            {...register("plate")}
                         />
                     </div>
 
@@ -170,25 +218,33 @@ export function EditProfilePage({
                             </label>
                             <textarea
                                 className="w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) p-3 text-sm resize-y min-h-25 outline-none focus:border-(--color-primary) focus:ring-2 focus:ring-green-100 transition-colors font-[Inter,sans-serif]"
-                                value={about}
-                                onChange={(e) => setAbout(e.target.value)}
+                                {...register("about")}
                             />
+                            {errors.about && (
+                                <p className="text-xs font-semibold text-red-500">
+                                    {errors.about.message}
+                                </p>
+                            )}
                         </div>
                     )}
 
                     {/* Actions */}
                     <div className="flex justify-end gap-3 pt-2">
                         <Button
+                            type="button"
                             variant="secondary"
                             onClick={() => navigate(backPath)}
                         >
                             {t("editProfile.cancel")}
                         </Button>
-                        <Button onClick={() => navigate(backPath)}>
+                        <Button
+                            type="submit"
+                            disabled={isSubmitting}
+                        >
                             {t("editProfile.save")}
                         </Button>
                     </div>
-                </div>
+                </form>
             </section>
         </div>
     );

@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "../lib/router-compat";
@@ -16,6 +18,14 @@ type AddCarPageProps = {
     onThemeToggle: () => void;
     userName?: string;
     userEmail?: string;
+};
+
+type FormValues = {
+    make: string;
+    model: string;
+    seats: number;
+    color: string | null;
+    plate: string;
 };
 
 const FALLBACK_CAR_MAKES = [
@@ -85,11 +95,47 @@ export function AddCarPage({
     const backPath =
         role === "driver" ? "/driver/profile" : "/passenger/profile";
 
-    const [make, setMake] = useState("");
-    const [model, setModel] = useState("");
-    const [seats, setSeats] = useState<number | null>(null);
-    const [color, setColor] = useState<string | null>(null);
-    const [plate, setPlate] = useState("");
+    const formSchema = z.object({
+        make: z.string().min(1, t("addCar.errorMake", "Select a make")),
+        model: z.string().min(1, t("addCar.errorModel", "Select a model")),
+        seats: z
+            .number()
+            .int()
+            .min(1, t("addCar.errorSeats", "Pick passenger seats"))
+            .max(8),
+        color: z.string().nullable(),
+        plate: z
+            .string()
+            .min(2, t("addCar.errorPlate", "Enter a license plate"))
+            .regex(
+                /^[A-Z0-9-]+$/,
+                t(
+                    "addCar.errorPlateFormat",
+                    "Use only letters, numbers and dashes"
+                )
+            ),
+    });
+
+    const {
+        register,
+        handleSubmit,
+        watch,
+        setValue,
+        formState: { errors, isSubmitting },
+    } = useForm<FormValues>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            make: "",
+            model: "",
+            seats: 0,
+            color: null,
+            plate: "",
+        },
+    });
+
+    const make = watch("make");
+    const seats = watch("seats");
+    const color = watch("color");
 
     const brandsQuery = useQuery({
         queryKey: ["cars", "brands"],
@@ -106,6 +152,10 @@ export function AddCarPage({
         userName,
         userEmail,
     });
+
+    const onSubmit: SubmitHandler<FormValues> = () => {
+        navigate(backPath);
+    };
 
     const inputClass =
         "w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) px-3 py-3 text-sm outline-none focus:border-(--color-primary) focus:ring-2 focus:ring-green-100 transition-colors font-[Inter,sans-serif] appearance-none";
@@ -140,6 +190,7 @@ export function AddCarPage({
 
             <section className="w-full px-4 sm:max-w-2xl sm:mx-auto sm:px-8 py-8 sm:py-12">
                 <button
+                    type="button"
                     onClick={() => navigate(backPath)}
                     className="text-(--color-text-secondary) text-sm mb-6 hover:text-(--color-text-primary) transition-colors"
                 >
@@ -149,7 +200,11 @@ export function AddCarPage({
                     {t("addCar.title", "Add car")}
                 </h1>
 
-                <div className="bg-(--color-card) rounded-2xl border border-(--color-border) overflow-hidden">
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    noValidate
+                    className="bg-(--color-card) rounded-2xl border border-(--color-border) overflow-hidden"
+                >
                     {/* Make & Model */}
                     <div className="p-6 border-b border-(--color-border)">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -163,11 +218,10 @@ export function AddCarPage({
                                         className={
                                             inputClass + " pr-10 cursor-pointer"
                                         }
-                                        value={make}
-                                        onChange={(e) => {
-                                            setMake(e.target.value);
-                                            setModel("");
-                                        }}
+                                        {...register("make", {
+                                            onChange: () =>
+                                                setValue("model", ""),
+                                        })}
                                     >
                                         <option value="">
                                             {t(
@@ -188,6 +242,11 @@ export function AddCarPage({
                                         ▾
                                     </span>
                                 </div>
+                                {errors.make && (
+                                    <p className="mt-1 text-xs font-semibold text-red-500">
+                                        {errors.make.message}
+                                    </p>
+                                )}
                             </div>
                             <div>
                                 <label className={labelClass}>
@@ -200,11 +259,8 @@ export function AddCarPage({
                                             inputClass +
                                             " pr-10 cursor-pointer disabled:opacity-50"
                                         }
-                                        value={model}
-                                        onChange={(e) =>
-                                            setModel(e.target.value)
-                                        }
                                         disabled={!make}
+                                        {...register("model")}
                                     >
                                         <option value="">
                                             {t(
@@ -225,6 +281,11 @@ export function AddCarPage({
                                         ▾
                                     </span>
                                 </div>
+                                {errors.model && (
+                                    <p className="mt-1 text-xs font-semibold text-red-500">
+                                        {errors.model.message}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -246,7 +307,11 @@ export function AddCarPage({
                                 <button
                                     key={n}
                                     type="button"
-                                    onClick={() => setSeats(n)}
+                                    onClick={() =>
+                                        setValue("seats", n, {
+                                            shouldValidate: true,
+                                        })
+                                    }
                                     className={`w-12 h-12 rounded-xl border-2 font-semibold text-sm transition-all ${
                                         seats === n
                                             ? "border-(--color-primary) bg-green-50 text-(--color-primary)"
@@ -257,6 +322,11 @@ export function AddCarPage({
                                 </button>
                             ))}
                         </div>
+                        {errors.seats && (
+                            <p className="mt-2 text-xs font-semibold text-red-500">
+                                {errors.seats.message}
+                            </p>
+                        )}
                     </div>
 
                     {/* Color */}
@@ -272,7 +342,7 @@ export function AddCarPage({
                                 <button
                                     key={c.name}
                                     type="button"
-                                    onClick={() => setColor(c.name)}
+                                    onClick={() => setValue("color", c.name)}
                                     className="flex flex-col items-center gap-1"
                                 >
                                     <span
@@ -306,11 +376,11 @@ export function AddCarPage({
                             <input
                                 className={inputClass + " flex-1"}
                                 placeholder="BA-123AB"
-                                value={plate}
-                                onChange={(e) =>
-                                    setPlate(e.target.value.toUpperCase())
-                                }
                                 maxLength={10}
+                                {...register("plate", {
+                                    setValueAs: (value: string) =>
+                                        value.toUpperCase(),
+                                })}
                             />
                         </div>
                         <p className="text-xs text-(--color-text-secondary) mt-1.5">
@@ -319,18 +389,24 @@ export function AddCarPage({
                                 XX-000AA
                             </span>
                         </p>
+                        {errors.plate && (
+                            <p className="mt-1 text-xs font-semibold text-red-500">
+                                {errors.plate.message}
+                            </p>
+                        )}
                     </div>
 
                     {/* Action */}
                     <div className="p-6 flex justify-end">
                         <Button
+                            type="submit"
                             variant="black"
-                            onClick={() => navigate(backPath)}
+                            disabled={isSubmitting}
                         >
                             ✓ {t("addCar.addButton", "Add car")}
                         </Button>
                     </div>
-                </div>
+                </form>
             </section>
         </div>
     );

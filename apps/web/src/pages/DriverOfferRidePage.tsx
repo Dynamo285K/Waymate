@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { cs, enUS, sk as skLocale } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import { DriverNavbar, Button, OfferRideForm } from "@waymate/ui";
@@ -13,6 +14,20 @@ type Props = {
     onThemeToggle: () => void;
     userName?: string;
     userEmail?: string;
+};
+
+type FormValues = {
+    pickup: string;
+    dropoff: string;
+    date: Date | undefined;
+    time: string;
+    seats: string;
+    price: string;
+    carMode: "saved" | "manual";
+    selectedCarId: string;
+    manualBrand: string;
+    manualModel: string;
+    manualPlate: string;
 };
 
 const INITIAL_DRIVER_CARS: OfferRideCar[] = [
@@ -59,23 +74,37 @@ export function DriverOfferRidePage({
 
     const [driverCars, setDriverCars] =
         useState<OfferRideCar[]>(INITIAL_DRIVER_CARS);
-    const [carMode, setCarMode] = useState<"saved" | "manual">(
-        INITIAL_DRIVER_CARS.length > 0 ? "saved" : "manual"
-    );
-    const [selectedCarId, setSelectedCarId] = useState(
-        INITIAL_DRIVER_CARS[0]?.id ?? ""
-    );
-    const [manualBrand, setManualBrand] = useState("");
-    const [manualModel, setManualModel] = useState("");
-    const [manualPlate, setManualPlate] = useState("");
-    const [pickup, setPickup] = useState("");
-    const [dropoff, setDropoff] = useState("");
-    const [rideDate, setRideDate] = useState<Date | undefined>();
-    const [rideTime, setRideTime] = useState("");
-    const [seats, setSeats] = useState("");
-    const [price, setPrice] = useState("");
     const [showSaveCarPrompt, setShowSaveCarPrompt] = useState(false);
     const [publishedMessage, setPublishedMessage] = useState("");
+
+    const { watch, setValue, setError, clearErrors, formState } =
+        useForm<FormValues>({
+            defaultValues: {
+                pickup: "",
+                dropoff: "",
+                date: undefined,
+                time: "",
+                seats: "",
+                price: "",
+                carMode: INITIAL_DRIVER_CARS.length > 0 ? "saved" : "manual",
+                selectedCarId: INITIAL_DRIVER_CARS[0]?.id ?? "",
+                manualBrand: "",
+                manualModel: "",
+                manualPlate: "",
+            },
+        });
+
+    const pickup = watch("pickup");
+    const dropoff = watch("dropoff");
+    const date = watch("date");
+    const time = watch("time");
+    const seats = watch("seats");
+    const price = watch("price");
+    const carMode = watch("carMode");
+    const selectedCarId = watch("selectedCarId");
+    const manualBrand = watch("manualBrand");
+    const manualModel = watch("manualModel");
+    const manualPlate = watch("manualPlate");
 
     const datePickerLocale =
         LOCALES[language as keyof typeof LOCALES] ??
@@ -89,6 +118,7 @@ export function DriverOfferRidePage({
 
     function handlePublish() {
         setPublishedMessage("");
+        clearErrors();
 
         if (
             carMode === "manual" &&
@@ -97,6 +127,15 @@ export function DriverOfferRidePage({
             manualPlate.trim()
         ) {
             const plate = manualPlate.trim().toUpperCase();
+            if (!/^[A-Z0-9-]+$/.test(plate)) {
+                setError("manualPlate", {
+                    message: t(
+                        "offerRide.invalidPlate",
+                        "Use only letters, numbers and dashes"
+                    ),
+                });
+                return;
+            }
             const alreadySaved = driverCars.some(
                 (car) =>
                     car.brand.toLowerCase() ===
@@ -129,8 +168,8 @@ export function DriverOfferRidePage({
                 plate,
             };
             setDriverCars((cars) => [...cars, newCar]);
-            setSelectedCarId(newCar.id);
-            setCarMode("saved");
+            setValue("selectedCarId", newCar.id);
+            setValue("carMode", "saved");
         }
 
         publishRide();
@@ -175,30 +214,37 @@ export function DriverOfferRidePage({
                         publishLabel: t("offerRide.publish"),
                     }}
                     pickup={pickup}
-                    onPickupChange={setPickup}
+                    onPickupChange={(value) => setValue("pickup", value)}
                     dropoff={dropoff}
-                    onDropoffChange={setDropoff}
-                    date={rideDate}
-                    onDateChange={setRideDate}
+                    onDropoffChange={(value) => setValue("dropoff", value)}
+                    date={date}
+                    onDateChange={(value) => setValue("date", value)}
                     dateLocale={datePickerLocale}
                     today={OFFER_RIDE_TODAY}
-                    time={rideTime}
-                    onTimeChange={setRideTime}
+                    time={time}
+                    onTimeChange={(value) => setValue("time", value)}
                     seats={seats}
-                    onSeatsChange={setSeats}
+                    onSeatsChange={(value) => setValue("seats", value)}
                     price={price}
-                    onPriceChange={setPrice}
+                    onPriceChange={(value) => setValue("price", value)}
                     savedCars={driverCars}
                     carMode={carMode}
-                    onCarModeChange={setCarMode}
+                    onCarModeChange={(mode) => setValue("carMode", mode)}
                     selectedCarId={selectedCarId}
-                    onSelectedCarChange={setSelectedCarId}
+                    onSelectedCarChange={(id) => setValue("selectedCarId", id)}
                     manualBrand={manualBrand}
-                    onManualBrandChange={setManualBrand}
+                    onManualBrandChange={(value) =>
+                        setValue("manualBrand", value)
+                    }
                     manualModel={manualModel}
-                    onManualModelChange={setManualModel}
+                    onManualModelChange={(value) =>
+                        setValue("manualModel", value)
+                    }
                     manualPlate={manualPlate}
-                    onManualPlateChange={setManualPlate}
+                    onManualPlateChange={(value) =>
+                        setValue("manualPlate", value)
+                    }
+                    manualPlateError={formState.errors.manualPlate?.message}
                     publishedMessage={publishedMessage}
                     onPublishClick={handlePublish}
                 />
