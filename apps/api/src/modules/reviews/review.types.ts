@@ -1,7 +1,7 @@
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import type { reviews } from "../../db/schema/review";
 import type { User } from "../users/user.types";
-import type { RideId } from "../rides/ride.schema";
+import type { RideId } from "@repo/shared";
 
 // ==========================================
 // 1. BASE DATABASE TYPES (SELECT)

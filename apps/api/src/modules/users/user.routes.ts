@@ -2,12 +2,12 @@ import { Elysia } from "elysia";
 import { UserService } from "./user.service";
 import { isAuthenticated } from "../auth/auth.middleware";
 import { UserErrors } from "./user.errors";
-import { ErrorResponseSchema } from "../../shared";
 import {
+    ErrorResponseSchema,
     OnboardingUserBodySchema,
     UpdateUserBodySchema,
     UserEntitySchema,
-} from "./user.schema";
+} from "@repo/shared";
 
 export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
     .model({

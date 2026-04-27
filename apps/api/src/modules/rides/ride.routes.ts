@@ -2,8 +2,8 @@ import { Elysia } from "elysia";
 import { RideService } from "./ride.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
 import { RideErrors } from "./ride.errors";
-import { ErrorResponseSchema } from "../../shared";
 import {
+    ErrorResponseSchema,
     RideSchema,
     CreateRideBodySchema,
     SearchRidesQuerySchema,
@@ -15,7 +15,7 @@ import {
     RideSearchResultListSchema,
     CreateRideResponseSchema,
     CancelRideResponseSchema,
-} from "./ride.schema";
+} from "@repo/shared";
 
 export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
     .model({

@@ -2,8 +2,8 @@ import { Elysia } from "elysia";
 import { BookingService } from "./booking.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
 import { BookingErrors } from "./booking.errors";
-import { ErrorResponseSchema } from "../../shared";
 import {
+    ErrorResponseSchema,
     BookingIdParamsSchema,
     CreateBookingBodySchema,
     CancelBookingBodySchema,
@@ -12,7 +12,7 @@ import {
     BookingActionResponseSchema,
     PassengerBookingListItemSchema,
     PassengerBookingListSchema,
-} from "./booking.schema";
+} from "@repo/shared";
 
 export const BookingRoutes = new Elysia({
     prefix: "/bookings",

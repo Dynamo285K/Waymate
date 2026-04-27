@@ -11,8 +11,8 @@ import {
     rideStatusValues,
     userStatusValues,
     carColors,
-} from "../../shared/status-values";
-import { CountryCodes } from "../../shared";
+    CountryCodes,
+} from "@repo/shared";
 
 export const userStatusEnum = pgEnum("user_status", userStatusValues);
 

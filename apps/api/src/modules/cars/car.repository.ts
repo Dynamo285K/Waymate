@@ -3,7 +3,7 @@ import { db } from "../../db";
 import { cars as carsTable } from "../../db/schema/car";
 import { carModels as carModelsTable } from "../../db/schema/car_model";
 import type { Car, CarModel, CarListItem } from "./car.types";
-import type { CreateCarBody } from "./car.schema";
+import type { CreateCarBody } from "@repo/shared";
 import { CarErrors } from "./car.errors";
 import { hasPostgresErrorCode, PostgresErrorCodes } from "../../db/errors";
 

@@ -12,6 +12,7 @@
         "typecheck": "tsc -p tsconfig.json"
     },
     "dependencies": {
+        "@repo/shared": "workspace:*",
         "dotenv": "^16.6.1",
         "elysia": "^1.0.0"
     },
