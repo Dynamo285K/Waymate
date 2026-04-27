@@ -2,6 +2,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "../lib/router-compat";
 import { DriverNavbar, PassengerCard, StatCard } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
+import { useRidePassengers } from "../hooks/useRidePassengers";
+import { toUiLanguage } from "../lib/language";
 
 type DriverPassengersPageProps = {
     language: Language;
@@ -11,12 +13,6 @@ type DriverPassengersPageProps = {
     userName?: string;
     userEmail?: string;
 };
-
-const PASSENGERS = [
-    { id: 1, name: "Bob Smith", rating: 4.9, seatsReserved: 1 },
-    { id: 2, name: "Alice Brown", rating: 5, seatsReserved: 1 },
-    { id: 3, name: "Carol Davis", rating: 4.8, seatsReserved: 1 },
-];
 
 function UsersIcon() {
     return (
@@ -71,9 +67,14 @@ export function DriverPassengersPage({
     const location = useLocation();
     const ride = (
         location.state as {
-            ride?: { from: string; to: string; datetime?: string };
+            ride?: { id: string; from: string; to: string; datetime?: string };
         } | null
     )?.ride;
+    const {
+        data: passengersView,
+        isLoading,
+        isError,
+    } = useRidePassengers(ride?.id);
 
     const navbarLabels = {
         passenger: t("roles.passenger"),
@@ -97,7 +98,7 @@ export function DriverPassengersPage({
         >
             <DriverNavbar
                 activeTab="my-rides"
-                language={language}
+                language={toUiLanguage(language)}
                 onLanguageChange={onLanguageChange}
                 role="driver"
                 onRoleChange={(r) =>
@@ -147,28 +148,80 @@ export function DriverPassengersPage({
                                 <UsersIcon />
                             </IconBox>
                         }
-                        value={String(PASSENGERS.length)}
+                        value={String(passengersView?.passengerCount ?? 0)}
                         label={t("driverRides.passengers")}
                     />
                 </div>
 
                 <div className="flex flex-col gap-4">
-                    {PASSENGERS.map((p) => (
-                        <PassengerCard
-                            key={p.id}
-                            name={p.name}
-                            rating={p.rating}
-                            seatsReserved={p.seatsReserved}
-                            onSendMessage={() => navigate("/driver/chat")}
-                            onCancelBooking={() => {}}
-                            labels={{
-                                seatsReserved: (count) =>
-                                    t("driverRides.seatsReserved", { count }),
-                                sendMessage: t("driverRides.sendMessage"),
-                                cancelBooking: t("driverRides.cancelBooking"),
-                            }}
-                        />
-                    ))}
+                    {!ride?.id && (
+                        <p className="text-(--color-text-secondary)">
+                            {t(
+                                "driverRides.passengersError",
+                                "Select a ride to view passengers."
+                            )}
+                        </p>
+                    )}
+
+                    {isLoading && (
+                        <p className="text-(--color-text-secondary)">
+                            {t("driverRides.loading")}
+                        </p>
+                    )}
+
+                    {isError && (
+                        <p className="text-(--color-text-secondary)">
+                            {t(
+                                "driverRides.passengersError",
+                                "Failed to load passengers. Please try again."
+                            )}
+                        </p>
+                    )}
+
+                    {!isLoading &&
+                        !isError &&
+                        passengersView?.passengers.length === 0 && (
+                            <p className="text-(--color-text-secondary)">
+                                {t(
+                                    "driverRides.noPassengers",
+                                    "No passengers yet."
+                                )}
+                            </p>
+                        )}
+
+                    {!isLoading &&
+                        !isError &&
+                        passengersView?.passengers.map((booking) => {
+                            const passengerName =
+                                `${booking.passenger.firstName ?? ""} ${
+                                    booking.passenger.lastName ?? ""
+                                }`.trim() || t("roles.passenger");
+
+                            return (
+                                <PassengerCard
+                                    key={booking.bookingId}
+                                    name={passengerName}
+                                    rating={0}
+                                    seatsReserved={booking.seatCount}
+                                    onSendMessage={() =>
+                                        navigate("/driver/chat")
+                                    }
+                                    onCancelBooking={() => {}}
+                                    labels={{
+                                        seatsReserved: (count) =>
+                                            t("driverRides.seatsReserved", {
+                                                count,
+                                            }),
+                                        sendMessage: t(
+                                            "driverRides.sendMessage"
+                                        ),
+                                        cancelBooking: t(
+                                            "driverRides.cancelBooking"
+                                        ),
+                                    }}
+                                />
+                            );
+                        })}
                 </div>
             </section>
         </div>
