@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { PassengerNavbar, ProfileHeroCard, RideCard } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
-import i18n from "../i18n";
+import { formatRideDate } from "../lib/date-format";
 
 type PassengerProfilePageProps = {
     language: Language;
@@ -12,26 +12,6 @@ type PassengerProfilePageProps = {
     userName?: string;
     userEmail?: string;
 };
-
-const LOCALE_MAP: Record<string, string> = {
-    en: "en-US",
-    sk: "sk-SK",
-    cz: "cs-CZ",
-};
-
-function formatRideDate(date: Date, atLabel: string): string {
-    const locale = LOCALE_MAP[i18n.language] ?? "en-US";
-    const datePart = new Intl.DateTimeFormat(locale, {
-        day: "numeric",
-        month: "long",
-    }).format(date);
-    const timePart = new Intl.DateTimeFormat(locale, {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-    }).format(date);
-    return `${datePart} ${atLabel} ${timePart}`;
-}
 
 const UPCOMING_RIDES = [
     {

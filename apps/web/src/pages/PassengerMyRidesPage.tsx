@@ -9,7 +9,8 @@ import {
 } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { usePassengerBookings } from "../hooks/usePassengerBookings";
-import i18n from "../i18n";
+import { formatRideDate } from "../lib/date-format";
+import { toUiLanguage } from "../lib/language";
 
 type PassengerMyRidesPageProps = {
     language: Language;
@@ -19,26 +20,6 @@ type PassengerMyRidesPageProps = {
     userName?: string;
     userEmail?: string;
 };
-
-const LOCALE_MAP: Record<string, string> = {
-    en: "en-US",
-    sk: "sk-SK",
-    cz: "cs-CZ",
-};
-
-function formatRideDate(date: Date, atLabel: string): string {
-    const locale = LOCALE_MAP[i18n.language] ?? "en-US";
-    const datePart = new Intl.DateTimeFormat(locale, {
-        day: "numeric",
-        month: "long",
-    }).format(date);
-    const timePart = new Intl.DateTimeFormat(locale, {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-    }).format(date);
-    return `${datePart} ${atLabel} ${timePart}`;
-}
 
 type UpcomingRide = {
     id: number | string;
@@ -125,7 +106,7 @@ export function PassengerMyRidesPage({
         >
             <PassengerNavbar
                 activeTab="my-rides"
-                language={language}
+                language={toUiLanguage(language)}
                 onLanguageChange={onLanguageChange}
                 role="passenger"
                 onRoleChange={(r) => r === "driver" && navigate("/driver")}

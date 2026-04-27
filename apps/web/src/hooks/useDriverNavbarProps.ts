@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import type { Language } from "@waymate/ui";
+import { toUiLanguage } from "../lib/language";
 
 export function useDriverNavbarProps(params: {
     activeTab?: "offer-ride" | "my-rides" | "ride-requests" | "chat";
@@ -16,6 +17,7 @@ export function useDriverNavbarProps(params: {
 
     return {
         ...params,
+        language: toUiLanguage(params.language),
         role: "driver" as const,
         onRoleChange: (r: "passenger" | "driver") =>
             r === "passenger" && navigate("/passenger"),

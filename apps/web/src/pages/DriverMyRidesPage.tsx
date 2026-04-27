@@ -4,7 +4,8 @@ import { useNavigate } from "../lib/router-compat";
 import { DriverNavbar, RideCard, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useDriverRides } from "../hooks/useDriverRides";
-import i18n from "../i18n";
+import { formatRideDate } from "../lib/date-format";
+import { toUiLanguage } from "../lib/language";
 
 type DriverMyRidesPageProps = {
     language: Language;
@@ -14,26 +15,6 @@ type DriverMyRidesPageProps = {
     userName?: string;
     userEmail?: string;
 };
-
-const LOCALE_MAP: Record<string, string> = {
-    en: "en-US",
-    sk: "sk-SK",
-    cz: "cs-CZ",
-};
-
-function formatDate(date: Date, atLabel: string): string {
-    const locale = LOCALE_MAP[i18n.language] ?? "en-US";
-    const datePart = new Intl.DateTimeFormat(locale, {
-        day: "numeric",
-        month: "long",
-    }).format(date);
-    const timePart = new Intl.DateTimeFormat(locale, {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-    }).format(date);
-    return `${datePart} ${atLabel} ${timePart}`;
-}
 
 export function DriverMyRidesPage({
     language,
@@ -96,7 +77,7 @@ export function DriverMyRidesPage({
         >
             <DriverNavbar
                 activeTab="my-rides"
-                language={language}
+                language={toUiLanguage(language)}
                 onLanguageChange={onLanguageChange}
                 role="driver"
                 onRoleChange={(r) =>
@@ -166,7 +147,7 @@ export function DriverMyRidesPage({
                                     variant="driver-upcoming"
                                     from={ride.from}
                                     to={ride.to}
-                                    datetime={formatDate(
+                                    datetime={formatRideDate(
                                         new Date(ride.date),
                                         t("home.at")
                                     )}
@@ -196,7 +177,7 @@ export function DriverMyRidesPage({
                                     variant="driver-past"
                                     from={ride.from}
                                     to={ride.to}
-                                    datetime={formatDate(
+                                    datetime={formatRideDate(
                                         new Date(ride.date),
                                         t("home.at")
                                     )}

@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { enUS, sk as skLocale, cs } from "date-fns/locale";
-import i18n from "../i18n";
 import {
     SearchBox,
     PopularRouteChip,
@@ -10,6 +9,8 @@ import {
 } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import type { AvailableRide } from "../lib/available-rides";
+import { formatRideDate } from "../lib/date-format";
+import { toUiLanguage } from "../lib/language";
 
 type HomeContentProps = {
     language: Language;
@@ -68,26 +69,7 @@ const AVAILABLE_RIDES = [
     },
 ];
 
-const LOCALE_MAP: Record<string, string> = {
-    en: "en-US",
-    sk: "sk-SK",
-    cz: "cs-CZ",
-};
-const DATE_FNS_LOCALE_MAP = { en: enUS, sk: skLocale, cz: cs };
-
-function formatRideDate(date: Date, atLabel: string): string {
-    const locale = LOCALE_MAP[i18n.language] ?? "en-US";
-    const datePart = new Intl.DateTimeFormat(locale, {
-        day: "numeric",
-        month: "long",
-    }).format(date);
-    const timePart = new Intl.DateTimeFormat(locale, {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-    }).format(date);
-    return `${datePart} ${atLabel} ${timePart}`;
-}
+const DATE_FNS_LOCALE_MAP = { en: enUS, sk: skLocale, cs };
 
 function IconBox({
     bg,
@@ -251,7 +233,17 @@ export function HomeContent({
                         onSearch={(from, to, date) =>
                             onSearch?.(from, to, date)
                         }
-                        locale={DATE_FNS_LOCALE_MAP[language] ?? enUS}
+                        locale={
+                            DATE_FNS_LOCALE_MAP[
+                                toUiLanguage(
+                                    language
+                                ) as keyof typeof DATE_FNS_LOCALE_MAP
+                            ] ??
+                            DATE_FNS_LOCALE_MAP[
+                                language as keyof typeof DATE_FNS_LOCALE_MAP
+                            ] ??
+                            enUS
+                        }
                         labels={{
                             from: t("home.search.from"),
                             to: t("home.search.to"),

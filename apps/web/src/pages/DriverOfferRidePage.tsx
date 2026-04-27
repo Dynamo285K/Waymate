@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { DriverNavbar, Button, OfferRideForm } from "@waymate/ui";
 import type { Language, OfferRideCar } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
+import { toUiLanguage } from "../lib/language";
 
 type Props = {
     language: Language;
@@ -33,7 +34,6 @@ const LOCALES = {
     en: enUS,
     sk: skLocale,
     cs,
-    cz: cs,
 } as const;
 
 const OFFER_RIDE_TODAY = new Date(2026, 3, 26);
@@ -77,7 +77,10 @@ export function DriverOfferRidePage({
     const [showSaveCarPrompt, setShowSaveCarPrompt] = useState(false);
     const [publishedMessage, setPublishedMessage] = useState("");
 
-    const datePickerLocale = LOCALES[language as keyof typeof LOCALES] ?? enUS;
+    const datePickerLocale =
+        LOCALES[language as keyof typeof LOCALES] ??
+        LOCALES[toUiLanguage(language) as keyof typeof LOCALES] ??
+        enUS;
 
     function publishRide() {
         setShowSaveCarPrompt(false);
