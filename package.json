@@ -7,11 +7,7 @@
         "packages/*"
     ],
     "scripts": {
-<<<<<<< HEAD
         "db:setup": "bun scripts/db-setup.mjs",
-=======
-        "db:setup": "bash scripts/db-setup.sh",
->>>>>>> main
         "dev": "turbo dev",
         "build": "turbo build",
         "typecheck": "turbo typecheck",

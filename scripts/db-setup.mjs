@@ -31,17 +31,18 @@ function requireOk(result, message) {
 
 requireOk(
     run("docker", ["--version"], { capture: true }),
-    "Docker is not installed. Install Docker Desktop and re-run this script.",
+    "Docker is not installed. Install Docker Desktop and re-run this script."
 );
 
 requireOk(
     run("docker", ["compose", "version"], { capture: true }),
-    "Docker Compose v2 is not available (`docker compose`). Update Docker Desktop or install the compose plugin.",
+    "Docker Compose v2 is not available (`docker compose`). Update Docker Desktop or install the compose plugin."
 );
 
 const dockerInfo = run("docker", ["info"], { capture: true });
 if (dockerInfo.status !== 0) {
-    const output = `${dockerInfo.stdout ?? ""}${dockerInfo.stderr ?? ""}`.trim();
+    const output =
+        `${dockerInfo.stdout ?? ""}${dockerInfo.stderr ?? ""}`.trim();
 
     if (/permission denied/i.test(output)) {
         err("Docker daemon is running but your user cannot access it.");
@@ -49,7 +50,9 @@ if (dockerInfo.status !== 0) {
     }
 
     if (/cannot connect|is the docker daemon running/i.test(output)) {
-        err("Docker daemon is not running. Start Docker Desktop and re-run this script.");
+        err(
+            "Docker daemon is not running. Start Docker Desktop and re-run this script."
+        );
         process.exit(1);
     }
 
@@ -68,25 +71,44 @@ if (!existsSync(apiEnv)) {
 }
 
 log("Starting Postgres via docker compose");
-requireOk(run("docker", ["compose", "up", "-d"]), "Failed to start Postgres via docker compose.");
+requireOk(
+    run("docker", ["compose", "up", "-d"]),
+    "Failed to start Postgres via docker compose."
+);
 
 log("Waiting for Postgres to accept connections");
 const maxAttempts = 30;
 for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     const ready = run(
         "docker",
-        ["compose", "exec", "-T", "db", "pg_isready", "-U", "postgres", "-d", "spolujazda_db"],
-        { capture: true },
+        [
+            "compose",
+            "exec",
+            "-T",
+            "db",
+            "pg_isready",
+            "-U",
+            "postgres",
+            "-d",
+            "spolujazda_db",
+        ],
+        { capture: true }
     );
 
     if (ready.status === 0) {
-        log("Database is ready at postgres://postgres:postgres@localhost:5432/spolujazda_db");
-        log("Setup complete. Next: `bun install` (if you haven't yet) and `bun run dev`.");
+        log(
+            "Database is ready at postgres://postgres:postgres@localhost:5432/spolujazda_db"
+        );
+        log(
+            "Setup complete. Next: `bun install` (if you haven't yet) and `bun run dev`."
+        );
         process.exit(0);
     }
 
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 1000));
 }
 
-err(`Postgres did not become ready within ${maxAttempts} seconds. Check \`docker compose logs db\`.`);
+err(
+    `Postgres did not become ready within ${maxAttempts} seconds. Check \`docker compose logs db\`.`
+);
 process.exit(1);

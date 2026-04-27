@@ -25,6 +25,14 @@ export type CurrentUser = AuthUser & {
     phone: string | null;
 };
 
+export function hasCompletedOnboarding(
+    user: Pick<CurrentUser, "firstName" | "lastName" | "phone">
+) {
+    return Boolean(
+        user.firstName?.trim() && user.lastName?.trim() && user.phone?.trim()
+    );
+}
+
 async function authFetch<T>(
     path: string,
     options: RequestInit = {}
@@ -81,14 +89,12 @@ export function signUpWithEmail(params: {
             name: params.name,
             email: params.email,
             password: params.password,
+            callbackURL: `${window.location.origin}/onboarding`,
         }),
     });
 }
 
-export function signInWithEmail(params: {
-    email: string;
-    password: string;
-}) {
+export function signInWithEmail(params: { email: string; password: string }) {
     return authFetch<AuthResponse>("/sign-in/email", {
         method: "POST",
         body: JSON.stringify({
@@ -123,7 +129,7 @@ export function getCurrentUser() {
 export async function getPostAuthPath() {
     const user = await getCurrentUser();
 
-    if (!user.firstName || !user.lastName || !user.phone) {
+    if (!hasCompletedOnboarding(user)) {
         return "/onboarding";
     }
 
