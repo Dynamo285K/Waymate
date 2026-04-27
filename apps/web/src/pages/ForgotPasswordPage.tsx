@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import { Button } from "waymate-ui";
-import type { Language } from "waymate-ui";
+import { Button } from "@waymate/ui";
+import type { Language } from "@waymate/ui";
 
 type ForgotPasswordPageProps = {
     language: Language;

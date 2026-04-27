@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "../lib/router-compat";
 import { useTranslation } from "react-i18next";
-import { AdminNavbar, Avatar, Button } from "waymate-ui";
-import type { Language } from "waymate-ui";
+import { AdminNavbar, Avatar, Button } from "@waymate/ui";
+import type { Language } from "@waymate/ui";
+import { useLogout } from "../hooks/useLogout";
 
 type AdminRidesPageProps = {
     language: Language;
@@ -380,6 +381,7 @@ export function AdminRidesPage({
 }: AdminRidesPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
     const [filter, setFilter] = useState<"all" | RideStatus>("all");
     const [search, setSearch] = useState("");
     const [viewRide, setViewRide] = useState<Ride | null>(null);
@@ -448,7 +450,7 @@ export function AdminRidesPage({
                 onUsersClick={() => navigate("/admin/users")}
                 onReportsClick={() => navigate("/admin/reports")}
                 onProfileClick={() => navigate("/admin/account")}
-                onLogoutClick={() => navigate("/")}
+                onLogoutClick={logout}
                 labels={navLabels}
             />
 

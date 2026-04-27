@@ -6,9 +6,10 @@ import {
     RideCard,
     RideRequestCard,
     FeatureCard,
-} from "waymate-ui";
-import type { Language } from "waymate-ui";
-import i18n from "../i18n";
+} from "@waymate/ui";
+import type { Language } from "@waymate/ui";
+import { formatRideDate as formatDate } from "../lib/date-format";
+import { useLogout } from "../hooks/useLogout";
 
 type DriverHomePageProps = {
     language: Language;
@@ -18,26 +19,6 @@ type DriverHomePageProps = {
     userName?: string;
     userEmail?: string;
 };
-
-const LOCALE_MAP: Record<string, string> = {
-    en: "en-US",
-    sk: "sk-SK",
-    cz: "cs-CZ",
-};
-
-function formatDate(date: Date, atLabel: string): string {
-    const locale = LOCALE_MAP[i18n.language] ?? "en-US";
-    const datePart = new Intl.DateTimeFormat(locale, {
-        day: "numeric",
-        month: "long",
-    }).format(date);
-    const timePart = new Intl.DateTimeFormat(locale, {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-    }).format(date);
-    return `${datePart} ${atLabel} ${timePart}`;
-}
 
 const UPCOMING_RIDES = [
     {
@@ -217,6 +198,7 @@ export function DriverHomePage({
 }: DriverHomePageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
     const [requests, setRequests] = useState(RIDE_REQUESTS);
 
     const navbarLabels = {
@@ -272,7 +254,7 @@ export function DriverHomePage({
                 onMessagesClick={() => navigate("/driver/chat")}
                 onProfileClick={() => navigate("/driver/profile")}
                 onRatingsClick={() => navigate("/driver/ratings")}
-                onLogoutClick={() => navigate("/")}
+                onLogoutClick={logout}
                 labels={navbarLabels}
             />
 

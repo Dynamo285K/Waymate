@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import { DriverNavbar, RideCard, Button } from "waymate-ui";
-import type { Language } from "waymate-ui";
-import i18n from "../i18n";
+import { DriverNavbar, RideCard, Button } from "@waymate/ui";
+import type { Language } from "@waymate/ui";
+import { useDriverRides } from "../hooks/useDriverRides";
+import { useCancelRide } from "../hooks/useCancelRide";
+import { formatRideDate } from "../lib/date-format";
+import { toUiLanguage } from "../lib/language";
+import { useLogout } from "../hooks/useLogout";
 
 type DriverMyRidesPageProps = {
     language: Language;
@@ -13,62 +17,6 @@ type DriverMyRidesPageProps = {
     userName?: string;
     userEmail?: string;
 };
-
-const LOCALE_MAP: Record<string, string> = {
-    en: "en-US",
-    sk: "sk-SK",
-    cz: "cs-CZ",
-};
-
-function formatDate(date: Date, atLabel: string): string {
-    const locale = LOCALE_MAP[i18n.language] ?? "en-US";
-    const datePart = new Intl.DateTimeFormat(locale, {
-        day: "numeric",
-        month: "long",
-    }).format(date);
-    const timePart = new Intl.DateTimeFormat(locale, {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-    }).format(date);
-    return `${datePart} ${atLabel} ${timePart}`;
-}
-
-const UPCOMING = [
-    {
-        id: "u1",
-        from: "Martin",
-        to: "Brno",
-        date: new Date(2026, 2, 15, 8, 0),
-        price: 10,
-        seatsLeft: 2 as number | "full",
-    },
-    {
-        id: "u2",
-        from: "Brno",
-        to: "Martin",
-        date: new Date(2026, 2, 21, 10, 0),
-        price: 12,
-        seatsLeft: "full" as number | "full",
-    },
-];
-
-const PAST = [
-    {
-        id: "p1",
-        from: "Martin",
-        to: "Brno",
-        date: new Date(2026, 2, 15, 8, 0),
-        price: 10,
-    },
-    {
-        id: "p2",
-        from: "Brno",
-        to: "Martin",
-        date: new Date(2026, 2, 21, 10, 0),
-        price: 12,
-    },
-];
 
 export function DriverMyRidesPage({
     language,
@@ -80,7 +28,39 @@ export function DriverMyRidesPage({
 }: DriverMyRidesPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
     const [tab, setTab] = useState("upcoming");
+    const [cancellingRideId, setCancellingRideId] = useState<string | null>(
+        null
+    );
+    const timeframe = tab === "past" ? "PAST" : "UPCOMING";
+    const { data: rides, isLoading, isError } = useDriverRides(timeframe);
+    const cancelRide = useCancelRide();
+    const displayedRides =
+        rides?.map((ride) => {
+            const sortedStops = [...ride.rideStops].sort(
+                (a, b) => a.stopOrder - b.stopOrder
+            );
+            const from = sortedStops[0]?.city ?? "";
+            const to = sortedStops[sortedStops.length - 1]?.city ?? "";
+            const confirmedSeats = ride.bookings.reduce(
+                (sum, booking) => sum + booking.seatCount,
+                0
+            );
+            const remainingSeats = ride.offeredSeats - confirmedSeats;
+            const seatsLeft: number | "full" =
+                remainingSeats > 0 ? remainingSeats : "full";
+            const price = ride.prices[0]?.amount ?? 0;
+
+            return {
+                id: ride.id,
+                from,
+                to,
+                date: ride.departureAt,
+                price,
+                seatsLeft,
+            };
+        }) ?? [];
 
     const navbarLabels = {
         passenger: t("roles.passenger"),
@@ -97,6 +77,18 @@ export function DriverMyRidesPage({
         logout: t("nav.logout"),
     };
 
+    function handleCancelRide(rideId: string) {
+        if (cancelRide.isPending && cancellingRideId === rideId) return;
+
+        setCancellingRideId(rideId);
+        cancelRide.mutate(
+            { rideId },
+            {
+                onSettled: () => setCancellingRideId(null),
+            }
+        );
+    }
+
     return (
         <div
             data-theme={theme}
@@ -104,7 +96,7 @@ export function DriverMyRidesPage({
         >
             <DriverNavbar
                 activeTab="my-rides"
-                language={language}
+                language={toUiLanguage(language)}
                 onLanguageChange={onLanguageChange}
                 role="driver"
                 onRoleChange={(r) =>
@@ -122,7 +114,7 @@ export function DriverMyRidesPage({
                 onMessagesClick={() => navigate("/driver/chat")}
                 onProfileClick={() => navigate("/driver/profile")}
                 onRatingsClick={() => navigate("/driver/ratings")}
-                onLogoutClick={() => navigate("/")}
+                onLogoutClick={logout}
                 labels={navbarLabels}
             />
 
@@ -147,55 +139,101 @@ export function DriverMyRidesPage({
                 </div>
 
                 <div className="flex flex-col gap-4">
-                    {tab === "upcoming" &&
-                        UPCOMING.map((ride) => (
-                            <RideCard
-                                key={ride.id}
-                                variant="driver-upcoming"
-                                from={ride.from}
-                                to={ride.to}
-                                datetime={formatDate(ride.date, t("home.at"))}
-                                price={ride.price}
-                                seatsLeft={ride.seatsLeft}
-                                onViewPassengers={() =>
-                                    navigate("/driver/rides/passengers", {
-                                        state: { ride },
-                                    })
-                                }
-                                onCancelRide={() => {}}
-                                labels={{
-                                    seatsLeft: (count) =>
-                                        t("driverRides.seatsLeft", { count }),
-                                    full: t("driverRides.full"),
-                                    viewPassengers: t(
-                                        "driverRides.viewPassengers"
-                                    ),
-                                    cancelRide: t("driverRides.cancelRide"),
-                                }}
-                            />
-                        ))}
+                    {isLoading && (
+                        <p className="text-(--color-text-secondary)">
+                            {t("driverRides.loading")}
+                        </p>
+                    )}
 
-                    {tab === "past" &&
-                        PAST.map((ride) => (
-                            <RideCard
-                                key={ride.id}
-                                variant="driver-past"
-                                from={ride.from}
-                                to={ride.to}
-                                datetime={formatDate(ride.date, t("home.at"))}
-                                price={ride.price}
-                                onRatePassengers={() =>
-                                    navigate("/driver/rides/rate", {
-                                        state: { ride },
-                                    })
-                                }
-                                labels={{
-                                    ratePassengers: t(
-                                        "driverRides.ratePassengers"
-                                    ),
-                                }}
-                            />
-                        ))}
+                    {isError && (
+                        <p className="text-(--color-text-secondary)">
+                            {t("driverRides.error")}
+                        </p>
+                    )}
+
+                    {cancelRide.isError && (
+                        <p className="text-(--color-text-secondary)">
+                            {t(
+                                "driverRides.cancelError",
+                                "Failed to cancel ride. Please try again."
+                            )}
+                        </p>
+                    )}
+
+                    {!isLoading && !isError && displayedRides.length === 0 && (
+                        <p className="text-(--color-text-secondary)">
+                            {t("driverRides.noResults")}
+                        </p>
+                    )}
+
+                    {!isLoading &&
+                        !isError &&
+                        displayedRides.map((ride) => {
+                            const isCancelling =
+                                cancelRide.isPending &&
+                                cancellingRideId === ride.id;
+
+                            return tab === "upcoming" ? (
+                                <RideCard
+                                    key={ride.id}
+                                    variant="driver-upcoming"
+                                    from={ride.from}
+                                    to={ride.to}
+                                    datetime={formatRideDate(
+                                        new Date(ride.date),
+                                        t("home.at")
+                                    )}
+                                    price={ride.price}
+                                    seatsLeft={ride.seatsLeft}
+                                    onViewPassengers={() =>
+                                        navigate("/driver/rides/passengers", {
+                                            state: { ride },
+                                        })
+                                    }
+                                    onCancelRide={() =>
+                                        handleCancelRide(ride.id)
+                                    }
+                                    labels={{
+                                        seatsLeft: (count) =>
+                                            t("driverRides.seatsLeft", {
+                                                count,
+                                            }),
+                                        full: t("driverRides.full"),
+                                        viewPassengers: t(
+                                            "driverRides.viewPassengers"
+                                        ),
+                                        cancelRide: isCancelling
+                                            ? t(
+                                                  "driverRides.cancelling",
+                                                  "Cancelling..."
+                                              )
+                                            : t("driverRides.cancelRide"),
+                                    }}
+                                />
+                            ) : (
+                                <RideCard
+                                    key={ride.id}
+                                    variant="driver-past"
+                                    from={ride.from}
+                                    to={ride.to}
+                                    datetime={formatRideDate(
+                                        new Date(ride.date),
+                                        t("home.at")
+                                    )}
+                                    price={ride.price}
+                                    onRatePassengers={() =>
+                                        navigate("/driver/rides/rate", {
+                                            state: { ride },
+                                        })
+                                    }
+                                    labels={{
+                                        ratePassengers: t(
+                                            "driverRides.ratePassengers"
+                                        ),
+                                    }}
+                                />
+                            );
+                        })}
                 </div>
             </section>
         </div>

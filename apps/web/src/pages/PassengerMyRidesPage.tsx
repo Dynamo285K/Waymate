@@ -1,9 +1,17 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "../lib/router-compat";
-import { PassengerNavbar, RideCard, Button, RateDriverModal } from "waymate-ui";
-import type { Language } from "waymate-ui";
-import i18n from "../i18n";
+import {
+    PassengerNavbar,
+    RideCard,
+    Button,
+    RateDriverModal,
+} from "@waymate/ui";
+import type { Language } from "@waymate/ui";
+import { usePassengerBookings } from "../hooks/usePassengerBookings";
+import { formatRideDate } from "../lib/date-format";
+import { toUiLanguage } from "../lib/language";
+import { useLogout } from "../hooks/useLogout";
 
 type PassengerMyRidesPageProps = {
     language: Language;
@@ -14,28 +22,8 @@ type PassengerMyRidesPageProps = {
     userEmail?: string;
 };
 
-const LOCALE_MAP: Record<string, string> = {
-    en: "en-US",
-    sk: "sk-SK",
-    cz: "cs-CZ",
-};
-
-function formatRideDate(date: Date, atLabel: string): string {
-    const locale = LOCALE_MAP[i18n.language] ?? "en-US";
-    const datePart = new Intl.DateTimeFormat(locale, {
-        day: "numeric",
-        month: "long",
-    }).format(date);
-    const timePart = new Intl.DateTimeFormat(locale, {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-    }).format(date);
-    return `${datePart} ${atLabel} ${timePart}`;
-}
-
 type UpcomingRide = {
-    id: number;
+    id: number | string;
     from: string;
     to: string;
     date: Date | string;
@@ -45,52 +33,6 @@ type UpcomingRide = {
     seatsLeft: number;
     status: "pending" | "confirmed";
 };
-
-const UPCOMING_RIDES: UpcomingRide[] = [
-    {
-        id: 1,
-        from: "Martin",
-        to: "Brno",
-        date: new Date(2026, 2, 15, 8, 0),
-        price: 10,
-        driverName: "Sarah Johnson",
-        driverRating: 4.9,
-        seatsLeft: 2,
-        status: "pending",
-    },
-    {
-        id: 2,
-        from: "Brno",
-        to: "Martin",
-        date: new Date(2026, 2, 21, 10, 0),
-        price: 12,
-        driverName: "Mike Chen",
-        driverRating: 4.8,
-        seatsLeft: 1,
-        status: "confirmed",
-    },
-];
-
-const PAST_RIDES = [
-    {
-        id: 3,
-        from: "Martin",
-        to: "Brno",
-        date: new Date(2026, 2, 15, 8, 0),
-        price: 10,
-        driverName: "Sarah Johnson",
-        driverRating: 4.9,
-    },
-    {
-        id: 4,
-        from: "Brno",
-        to: "Martin",
-        date: new Date(2026, 2, 21, 10, 0),
-        price: 12,
-        driverName: "Mike Chen",
-        driverRating: 4.8,
-    },
-];
 
 export function PassengerMyRidesPage({
     language,
@@ -102,25 +44,55 @@ export function PassengerMyRidesPage({
 }: PassengerMyRidesPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
     const location = useLocation();
     const [tab, setTab] = useState("upcoming");
     const [ratingModalOpen, setRatingModalOpen] = useState(false);
     const [ratingDriverName, setRatingDriverName] = useState("");
-    const [upcomingRides, setUpcomingRides] = useState(UPCOMING_RIDES);
+    const [optimisticRide, setOptimisticRide] = useState<UpcomingRide | null>(
+        null
+    );
+    const timeframe = tab === "past" ? "PAST" : "UPCOMING";
+    const {
+        data: bookings,
+        isLoading,
+        isError,
+    } = usePassengerBookings(timeframe);
 
     useEffect(() => {
-        const booked = (
-            location.state as { bookedRide?: (typeof UPCOMING_RIDES)[0] } | null
-        )?.bookedRide;
+        const booked = (location.state as { bookedRide?: UpcomingRide } | null)
+            ?.bookedRide;
         if (booked) {
-            setUpcomingRides((prev) => {
-                const alreadyExists = prev.some((r) => r.id === booked.id);
-                return alreadyExists ? prev : [booked, ...prev];
-            });
+            setOptimisticRide(booked);
             setTab("upcoming");
             window.history.replaceState({}, "");
         }
     }, [location.state]);
+
+    const bookingRides = bookings?.map((booking) => ({
+        id: booking.id,
+        from: booking.pickupCity,
+        to: booking.dropoffCity,
+        date: booking.ride.departureAt,
+        price: booking.priceAmount,
+        driverName:
+            `${booking.driver.firstName ?? ""} ${booking.driver.lastName ?? ""}`.trim(),
+        driverRating: 0,
+        seatsLeft: booking.seatsLeft,
+        status:
+            booking.bookingStatus === "CONFIRMED"
+                ? ("confirmed" as const)
+                : ("pending" as const),
+    }));
+    const displayedRides =
+        tab === "upcoming" && optimisticRide
+            ? [
+                  optimisticRide,
+                  ...(bookingRides ?? []).filter(
+                      (ride) => ride.id !== optimisticRide.id
+                  ),
+              ]
+            : (bookingRides ?? []);
 
     const rideLabels = {
         seatsLeft: (count: number) => t("myRides.seatsLeft", { count }),
@@ -136,7 +108,7 @@ export function PassengerMyRidesPage({
         >
             <PassengerNavbar
                 activeTab="my-rides"
-                language={language}
+                language={toUiLanguage(language)}
                 onLanguageChange={onLanguageChange}
                 role="passenger"
                 onRoleChange={(r) => r === "driver" && navigate("/driver")}
@@ -151,7 +123,7 @@ export function PassengerMyRidesPage({
                 onMessagesClick={() => navigate("/passenger/chat")}
                 onProfileClick={() => navigate("/passenger/profile")}
                 onRatingsClick={() => navigate("/passenger/ratings")}
-                onLogoutClick={() => navigate("/")}
+                onLogoutClick={logout}
                 labels={{
                     passenger: t("roles.passenger"),
                     driver: t("roles.driver"),
@@ -188,8 +160,28 @@ export function PassengerMyRidesPage({
                 </div>
 
                 <div className="flex flex-col gap-4 mt-6">
-                    {tab === "upcoming" &&
-                        upcomingRides.map((ride) => (
+                    {isLoading && (
+                        <p className="text-(--color-text-secondary)">
+                            {t("myRides.loading")}
+                        </p>
+                    )}
+
+                    {isError && (
+                        <p className="text-(--color-text-secondary)">
+                            {t("myRides.error")}
+                        </p>
+                    )}
+
+                    {!isLoading && !isError && displayedRides.length === 0 && (
+                        <p className="text-(--color-text-secondary)">
+                            {t("myRides.noResults")}
+                        </p>
+                    )}
+
+                    {!isLoading &&
+                        !isError &&
+                        tab === "upcoming" &&
+                        displayedRides.map((ride) => (
                             <RideCard
                                 key={ride.id}
                                 variant="passenger-upcoming"
@@ -211,8 +203,10 @@ export function PassengerMyRidesPage({
                             />
                         ))}
 
-                    {tab === "past" &&
-                        PAST_RIDES.map((ride) => (
+                    {!isLoading &&
+                        !isError &&
+                        tab === "past" &&
+                        displayedRides.map((ride) => (
                             <RideCard
                                 key={ride.id}
                                 variant="passenger-past"

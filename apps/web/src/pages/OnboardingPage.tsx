@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import { AuthNavbar, Button } from "waymate-ui";
-import type { Language } from "waymate-ui";
+import { AuthNavbar, Button } from "@waymate/ui";
+import type { Language } from "@waymate/ui";
 import { apiFetch } from "../lib/api";
+import { hasCompletedOnboarding } from "../lib/auth";
 
 type OnboardingPageProps = {
     language: Language;
@@ -14,7 +15,6 @@ type OnboardingPageProps = {
 
 type CurrentUser = {
     name: string;
-    emailVerified: boolean;
     firstName: string | null;
     lastName: string | null;
     phone: string | null;
@@ -31,7 +31,13 @@ function splitFullName(fullName: string) {
 }
 
 function normalizePhone(phone: string) {
-    return phone.replace(/[\s()-]/g, "");
+    const normalized = phone.replace(/[\s()-]/g, "");
+
+    if (/^0\d{9}$/.test(normalized)) {
+        return `+421${normalized.slice(1)}`;
+    }
+
+    return normalized;
 }
 
 export function OnboardingPage({
@@ -45,7 +51,7 @@ export function OnboardingPage({
     const [fullName, setFullName] = useState("");
     const [phone, setPhone] = useState("");
     const [message, setMessage] = useState("");
-    const [emailVerified, setEmailVerified] = useState(false);
+    const [isLoadingProfile, setIsLoadingProfile] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -54,37 +60,38 @@ export function OnboardingPage({
         apiFetch<CurrentUser>("/users/me")
             .then((user) => {
                 if (!isMounted) return;
+                if (hasCompletedOnboarding(user)) {
+                    navigate("/passenger", { replace: true });
+                    return;
+                }
+
                 const name =
                     [user.firstName, user.lastName].filter(Boolean).join(" ") ||
                     user.name ||
                     "";
-                setEmailVerified(user.emailVerified);
                 setFullName(name);
                 setPhone(user.phone ?? "");
-                if (!user.emailVerified) {
-                    setMessage(t("onboarding.verifyEmailFirst"));
-                }
             })
             .catch(() => {
                 if (isMounted) {
                     setMessage(t("onboarding.loginRequired"));
+                }
+            })
+            .finally(() => {
+                if (isMounted) {
+                    setIsLoadingProfile(false);
                 }
             });
 
         return () => {
             isMounted = false;
         };
-    }, [t]);
+    }, [navigate, t]);
 
     async function handleSubmit() {
         setMessage("");
         const { firstName, lastName } = splitFullName(fullName);
         const normalizedPhone = normalizePhone(phone);
-
-        if (!emailVerified) {
-            setMessage(t("onboarding.verifyEmailFirst"));
-            return;
-        }
 
         if (!firstName || !lastName || !normalizedPhone) {
             setMessage(t("onboarding.requiredError"));
@@ -133,60 +140,62 @@ export function OnboardingPage({
             />
 
             <main className="flex min-h-[calc(100vh-72px)] items-center justify-center px-4 py-12">
-                <section className="w-full max-w-xl rounded-2xl border border-(--color-border) bg-(--color-card) p-6 shadow-xl sm:p-8">
-                    <h1 className="text-2xl font-bold text-(--color-text-primary)">
-                        {t("onboarding.title")}
-                    </h1>
-                    <p className="mt-2 text-sm text-(--color-text-secondary)">
-                        {t("onboarding.subtitle")}
-                    </p>
-
-                    <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        <label className="flex flex-col gap-2">
-                            <span className="text-sm font-semibold text-(--color-text-primary)">
-                                {t("onboarding.fullName")}
-                            </span>
-                            <input
-                                className={inputClass}
-                                value={fullName}
-                                onChange={(event) =>
-                                    setFullName(event.target.value)
-                                }
-                                autoComplete="name"
-                            />
-                        </label>
-
-                        <label className="flex flex-col gap-2">
-                            <span className="text-sm font-semibold text-(--color-text-primary)">
-                                {t("onboarding.phone")}
-                            </span>
-                            <input
-                                className={inputClass}
-                                value={phone}
-                                onChange={(event) =>
-                                    setPhone(event.target.value)
-                                }
-                                type="tel"
-                                autoComplete="tel"
-                            />
-                        </label>
-                    </div>
-
-                    {message && (
-                        <p className="mt-5 text-sm font-semibold text-red-500">
-                            {message}
+                {!isLoadingProfile && (
+                    <section className="w-full max-w-xl rounded-2xl border border-(--color-border) bg-(--color-card) p-6 shadow-xl sm:p-8">
+                        <h1 className="text-2xl font-bold text-(--color-text-primary)">
+                            {t("onboarding.title")}
+                        </h1>
+                        <p className="mt-2 text-sm text-(--color-text-secondary)">
+                            {t("onboarding.subtitle")}
                         </p>
-                    )}
 
-                    <div className="mt-8 flex justify-end">
-                        <Button
-                            onClick={handleSubmit}
-                            disabled={isSubmitting || !emailVerified}
-                        >
-                            {t("onboarding.save")}
-                        </Button>
-                    </div>
-                </section>
+                        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
+                            <label className="flex flex-col gap-2">
+                                <span className="text-sm font-semibold text-(--color-text-primary)">
+                                    {t("onboarding.fullName")}
+                                </span>
+                                <input
+                                    className={inputClass}
+                                    value={fullName}
+                                    onChange={(event) =>
+                                        setFullName(event.target.value)
+                                    }
+                                    autoComplete="name"
+                                />
+                            </label>
+
+                            <label className="flex flex-col gap-2">
+                                <span className="text-sm font-semibold text-(--color-text-primary)">
+                                    {t("onboarding.phone")}
+                                </span>
+                                <input
+                                    className={inputClass}
+                                    value={phone}
+                                    onChange={(event) =>
+                                        setPhone(event.target.value)
+                                    }
+                                    type="tel"
+                                    autoComplete="tel"
+                                />
+                            </label>
+                        </div>
+
+                        {message && (
+                            <p className="mt-5 text-sm font-semibold text-red-500">
+                                {message}
+                            </p>
+                        )}
+
+                        <div className="mt-8 flex justify-end">
+                            <Button
+                                onClick={handleSubmit}
+                                disabled={isSubmitting}
+                            >
+                                {t("onboarding.save")}
+                            </Button>
+                        </div>
+                    </section>
+                )}
             </main>
         </div>
     );

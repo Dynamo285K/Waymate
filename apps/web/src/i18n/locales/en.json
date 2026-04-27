@@ -10,7 +10,11 @@
         "loginWithGoogle": "Login with Google",
         "or": "or",
         "noAccount": "Don't have an account?",
-        "createAccount": "Create account"
+        "createAccount": "Create account",
+        "invalidEmail": "Enter a valid email address.",
+        "passwordTooShort": "Password must be at least 8 characters.",
+        "googleNotConfigured": "Google login is not configured yet.",
+        "error": "Login failed. Please check your credentials and try again."
     },
     "register": {
         "title": "Create account",
@@ -25,6 +29,9 @@
         "login": "Login",
         "requiredError": "Please fill in all fields.",
         "passwordMismatch": "Passwords do not match.",
+        "invalidEmail": "Enter a valid email address.",
+        "passwordTooShort": "Password must be at least 8 characters.",
+        "googleNotConfigured": "Google registration is not configured yet.",
         "error": "Registration failed. Please try again.",
         "checkEmailTitle": "Check your email",
         "checkEmailText": "We sent a verification link to {{email}}. Verify your email address, then finish your profile.",
@@ -225,6 +232,9 @@
         "title": "My Rides",
         "upcoming": "Upcoming",
         "past": "Past",
+        "loading": "Loading rides...",
+        "error": "Failed to load your rides. Please try again.",
+        "noResults": "No rides found.",
         "viewPassengers": "View passengers",
         "cancelRide": "Cancel ride",
         "ratePassengers": "Rate passengers",
@@ -289,6 +299,9 @@
         "title": "My Rides",
         "upcoming": "Upcoming",
         "past": "Past",
+        "loading": "Loading rides...",
+        "error": "Failed to load your rides. Please try again.",
+        "noResults": "No rides found.",
         "seatsLeft": "{{count}} seats left",
         "pendingConfirmation": "Pending confirmation",
         "cancelBooking": "Cancel booking",
@@ -300,8 +313,15 @@
         "login": "Log in",
         "register": "Register"
     },
+    "bookings": {
+        "createError": "Could not create the booking request. Please try again."
+    },
     "rides": {
-        "found": "{{count}} rides found"
+        "found": "{{count}} rides found",
+        "loading": "Searching for rides...",
+        "error": "Failed to load rides. Please log in and try again.",
+        "noResults": "No rides found for this route and date.",
+        "noSearchParams": "Enter a departure, destination and date to find rides."
     },
     "chat": {
         "messages": "Messages",

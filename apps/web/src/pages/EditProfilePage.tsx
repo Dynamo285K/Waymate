@@ -7,9 +7,10 @@ import {
     AdminNavbar,
     Input,
     Button,
-} from "waymate-ui";
-import type { Language } from "waymate-ui";
+} from "@waymate/ui";
+import type { Language } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
+import { useLogout } from "../hooks/useLogout";
 
 type EditProfilePageProps = {
     language: Language;
@@ -30,6 +31,7 @@ export function EditProfilePage({
 }: EditProfilePageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
     const location = useLocation();
     const role =
         (location.state as { role?: "passenger" | "driver" | "admin" } | null)
@@ -94,7 +96,7 @@ export function EditProfilePage({
                     onUsersClick={() => navigate("/admin/users")}
                     onReportsClick={() => navigate("/admin/reports")}
                     onProfileClick={() => navigate("/admin/account")}
-                    onLogoutClick={() => navigate("/")}
+                    onLogoutClick={logout}
                     labels={{
                         adminRole: t("admin.adminRole"),
                         dashboard: t("admin.dashboard"),
@@ -124,7 +126,7 @@ export function EditProfilePage({
                     onMessagesClick={() => navigate("/passenger/chat")}
                     onProfileClick={() => navigate("/passenger/profile")}
                     onRatingsClick={() => navigate("/passenger/ratings")}
-                    onLogoutClick={() => navigate("/")}
+                    onLogoutClick={logout}
                     labels={passengerNavbarLabels}
                 />
             )}

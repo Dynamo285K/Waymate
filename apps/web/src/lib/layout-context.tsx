@@ -1,7 +1,8 @@
 import { createContext, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import i18n from "../i18n";
-import type { Language } from "waymate-ui";
+import type { Language } from "@waymate/ui";
+import { toI18nLanguage } from "./language";
 
 export type Theme = "light" | "dark";
 
@@ -23,8 +24,9 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
             language,
             theme,
             onLanguageChange: (lang) => {
-                setLanguage(lang);
-                i18n.changeLanguage(lang);
+                const i18nLanguage = toI18nLanguage(lang);
+                setLanguage(i18nLanguage as Language);
+                i18n.changeLanguage(i18nLanguage);
             },
             onThemeToggle: () =>
                 setTheme((current) => (current === "light" ? "dark" : "light")),

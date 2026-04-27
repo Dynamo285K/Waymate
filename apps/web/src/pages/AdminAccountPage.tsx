@@ -1,7 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import { AdminNavbar, Avatar, Button } from "waymate-ui";
-import type { Language } from "waymate-ui";
+import { AdminNavbar, Avatar, Button } from "@waymate/ui";
+import type { Language } from "@waymate/ui";
+import { useLogout } from "../hooks/useLogout";
 
 type AdminAccountPageProps = {
     language: Language;
@@ -22,6 +23,7 @@ export function AdminAccountPage({
 }: AdminAccountPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
 
     const navLabels = {
         adminRole: t("admin.adminRole"),
@@ -52,7 +54,7 @@ export function AdminAccountPage({
                 onUsersClick={() => navigate("/admin/users")}
                 onReportsClick={() => navigate("/admin/reports")}
                 onProfileClick={() => navigate("/admin/account")}
-                onLogoutClick={() => navigate("/")}
+                onLogoutClick={logout}
                 labels={navLabels}
             />
 

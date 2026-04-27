@@ -10,7 +10,11 @@
         "loginWithGoogle": "Přihlásit přes Google",
         "or": "nebo",
         "noAccount": "Nemáte účet?",
-        "createAccount": "Vytvořit účet"
+        "createAccount": "Vytvořit účet",
+        "invalidEmail": "Zadejte platný e-mail.",
+        "passwordTooShort": "Heslo musí mít alespoň 8 znaků.",
+        "googleNotConfigured": "Přihlášení přes Google ještě není nakonfigurované.",
+        "error": "Přihlášení selhalo. Zkontrolujte údaje a zkuste to znovu."
     },
     "register": {
         "title": "Vytvořit účet",
@@ -25,6 +29,9 @@
         "login": "Přihlásit se",
         "requiredError": "Vyplňte všechna pole.",
         "passwordMismatch": "Hesla se neshodují.",
+        "invalidEmail": "Zadejte platný e-mail.",
+        "passwordTooShort": "Heslo musí mít alespoň 8 znaků.",
+        "googleNotConfigured": "Registrace přes Google ještě není nakonfigurovaná.",
         "error": "Registrace selhala. Zkuste to znovu.",
         "checkEmailTitle": "Zkontrolujte e-mail",
         "checkEmailText": "Poslali jsme ověřovací odkaz na {{email}}. Ověřte e-mailovou adresu a potom dokončete profil.",
@@ -225,6 +232,9 @@
         "title": "Moje jízdy",
         "upcoming": "Nadcházející",
         "past": "Minulé",
+        "loading": "Načítám jízdy...",
+        "error": "Nepodařilo se načíst vaše jízdy. Zkuste to znovu.",
+        "noResults": "Nebyly nalezeny žádné jízdy.",
         "viewPassengers": "Zobrazit cestující",
         "cancelRide": "Zrušit jízdu",
         "ratePassengers": "Ohodnotit cestující",
@@ -289,6 +299,9 @@
         "title": "Moje jízdy",
         "upcoming": "Nadcházející",
         "past": "Minulé",
+        "loading": "Načítám jízdy...",
+        "error": "Nepodařilo se načíst vaše jízdy. Zkuste to znovu.",
+        "noResults": "Nebyly nalezeny žádné jízdy.",
         "seatsLeft": "{{count}} míst zbývá",
         "pendingConfirmation": "Čeká na potvrzení",
         "cancelBooking": "Zrušit rezervaci",
@@ -300,8 +313,15 @@
         "login": "Přihlásit se",
         "register": "Registrovat"
     },
+    "bookings": {
+        "createError": "Nepodařilo se vytvořit žádost o rezervaci. Zkuste to znovu."
+    },
     "rides": {
-        "found": "Nalezeno {{count}} jízd"
+        "found": "Nalezeno {{count}} jízd",
+        "loading": "Hledám jízdy...",
+        "error": "Nepodařilo se načíst jízdy. Přihlaste se a zkuste znovu.",
+        "noResults": "Pro tuto trasu a datum nebyly nalezeny žádné jízdy.",
+        "noSearchParams": "Zadejte odjezd, cíl a datum pro vyhledání jízd."
     },
     "chat": {
         "messages": "Zprávy",

@@ -7,8 +7,9 @@ import {
     ChatHeader,
     MessageBubble,
     MessageComposer,
-} from "waymate-ui";
-import type { Language } from "waymate-ui";
+} from "@waymate/ui";
+import type { Language } from "@waymate/ui";
+import { useLogout } from "../hooks/useLogout";
 
 type Message = {
     id: number;
@@ -109,6 +110,7 @@ export function PassengerChatPage({
 }: PassengerChatPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
     const [activeId, setActiveId] = useState<string | null>(null);
     const [conversations, setConversations] = useState(CONVERSATIONS);
 
@@ -167,7 +169,7 @@ export function PassengerChatPage({
         onMessagesClick: () => navigate("/passenger/chat"),
         onProfileClick: () => navigate("/passenger/profile"),
         onRatingsClick: () => navigate("/passenger/ratings"),
-        onLogoutClick: () => navigate("/"),
+        onLogoutClick: logout,
         labels: {
             passenger: t("roles.passenger"),
             driver: t("roles.driver"),

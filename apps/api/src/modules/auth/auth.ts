@@ -33,6 +33,7 @@ const googleProvider =
 
 export const auth = betterAuth({
     baseURL: env.BETTER_AUTH_URL,
+    trustedOrigins: [env.WEB_ORIGIN],
 
     database: drizzleAdapter(db, {
         provider: "pg",

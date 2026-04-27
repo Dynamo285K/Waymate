@@ -1,7 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "../lib/router-compat";
-import { DriverNavbar, RatePassengerCard, StatCard } from "waymate-ui";
-import type { Language } from "waymate-ui";
+import { DriverNavbar, RatePassengerCard, StatCard } from "@waymate/ui";
+import type { Language } from "@waymate/ui";
+import { useLogout } from "../hooks/useLogout";
 
 type DriverRatePassengersPageProps = {
     language: Language;
@@ -113,6 +114,7 @@ export function DriverRatePassengersPage({
 }: DriverRatePassengersPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
     const location = useLocation();
     const ride = (
         location.state as { ride?: { from: string; to: string } } | null
@@ -158,7 +160,7 @@ export function DriverRatePassengersPage({
                 onMessagesClick={() => navigate("/driver/chat")}
                 onProfileClick={() => navigate("/driver/profile")}
                 onRatingsClick={() => navigate("/driver/ratings")}
-                onLogoutClick={() => navigate("/")}
+                onLogoutClick={logout}
                 labels={navbarLabels}
             />
 

@@ -1,7 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import { PassengerNavbar, RatingSummaryCard, RatingCard } from "waymate-ui";
-import type { Language } from "waymate-ui";
+import { PassengerNavbar, RatingSummaryCard, RatingCard } from "@waymate/ui";
+import type { Language } from "@waymate/ui";
+import { useLogout } from "../hooks/useLogout";
 
 type PassengerRatingsPageProps = {
     language: Language;
@@ -49,6 +50,7 @@ export function PassengerRatingsPage({
 }: PassengerRatingsPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const logout = useLogout();
 
     const avgRating = +(
         RATINGS.reduce((s, r) => s + r.rating, 0) / RATINGS.length
@@ -76,7 +78,7 @@ export function PassengerRatingsPage({
                 onMessagesClick={() => navigate("/passenger/chat")}
                 onRatingsClick={() => navigate("/passenger/ratings")}
                 onProfileClick={() => navigate("/passenger/profile")}
-                onLogoutClick={() => navigate("/")}
+                onLogoutClick={logout}
                 labels={{
                     passenger: t("roles.passenger"),
                     driver: t("roles.driver"),

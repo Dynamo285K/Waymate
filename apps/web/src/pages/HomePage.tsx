@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AuthNavbar, Button } from "waymate-ui";
-import type { Language } from "waymate-ui";
+import { AuthNavbar, Button } from "@waymate/ui";
+import type { Language } from "@waymate/ui";
 import { HomeContent } from "../components/HomeContent";
 
 type HomePageProps = {
