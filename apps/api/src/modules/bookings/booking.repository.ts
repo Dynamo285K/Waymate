@@ -15,6 +15,7 @@ import { rides as ridesTable } from "../../db/schema/ride";
 import { rideStops as rideStopsTable } from "../../db/schema/ride_stop";
 import { prices as pricesTable } from "../../db/schema/price";
 import { users as usersTable } from "../../db/schema/user";
+import { reviews as reviewsTable } from "../../db/schema/review";
 import { bookingStatusHistory as bookingStatusHistoryTable } from "../../db/schema";
 import { BookingErrors } from "./booking.errors";
 import type {
@@ -25,6 +26,10 @@ import type {
 
 const pickupStops = aliasedTable(rideStopsTable, "booking_pickup_stops");
 const dropoffStops = aliasedTable(rideStopsTable, "booking_dropoff_stops");
+const myReviewOfDriverTable = aliasedTable(
+    reviewsTable,
+    "booking_my_review_of_driver"
+);
 
 /**
  * Returns bookings created by a passenger, including ride/driver summary and city names.
@@ -56,6 +61,22 @@ const findBookingsByPassengerId = async (
         )
         .groupBy(bookingsTable.rideId)
         .as("capacity_by_ride");
+
+    // Aggregate visible reviews per subject (driver) for the rating badge.
+    const driverRatings = db
+        .select({
+            subjectId: reviewsTable.subjectId,
+            averageRating: sql<number>`AVG(${reviewsTable.rating})::float`.as(
+                "averageRating"
+            ),
+            reviewCount: sql<number>`COUNT(${reviewsTable.id})::int`.as(
+                "reviewCount"
+            ),
+        })
+        .from(reviewsTable)
+        .where(eq(reviewsTable.reviewStatus, "VISIBLE"))
+        .groupBy(reviewsTable.subjectId)
+        .as("driver_ratings");
 
     const filters = [
         eq(bookingsTable.passengerId, passengerId),
@@ -97,24 +118,52 @@ const findBookingsByPassengerId = async (
                 firstName: usersTable.firstName,
                 lastName: usersTable.lastName,
                 profilePhotoUrl: usersTable.profilePhotoUrl,
+                averageRating: driverRatings.averageRating,
+                reviewCount: sql<number>`COALESCE(${driverRatings.reviewCount}, 0)::int`,
             },
             pickupCity: pickupStops.city,
             dropoffCity: dropoffStops.city,
             seatsLeft: sql<number>`GREATEST(0, ${ridesTable.offeredSeats} - COALESCE(${capacityByRide.occupiedSeats}, 0))::int`,
+            myReviewOfDriverId: myReviewOfDriverTable.id,
+            myReviewOfDriverRating: myReviewOfDriverTable.rating,
         })
         .from(bookingsTable)
         .innerJoin(ridesTable, eq(bookingsTable.rideId, ridesTable.id))
         .innerJoin(usersTable, eq(ridesTable.driverId, usersTable.id))
         .leftJoin(capacityByRide, eq(capacityByRide.rideId, ridesTable.id))
+        .leftJoin(
+            driverRatings,
+            eq(driverRatings.subjectId, ridesTable.driverId)
+        )
         .innerJoin(pickupStops, eq(bookingsTable.pickupStopId, pickupStops.id))
         .innerJoin(
             dropoffStops,
             eq(bookingsTable.dropoffStopId, dropoffStops.id)
         )
+        .leftJoin(
+            myReviewOfDriverTable,
+            and(
+                eq(myReviewOfDriverTable.rideId, ridesTable.id),
+                eq(myReviewOfDriverTable.authorId, passengerId),
+                eq(myReviewOfDriverTable.subjectId, ridesTable.driverId),
+                eq(myReviewOfDriverTable.reviewStatus, "VISIBLE")
+            )
+        )
         .where(and(...filters))
         .orderBy(desc(bookingsTable.createdAt));
 
-    return rows as PassengerBookingListItem[];
+    return rows.map(
+        ({ myReviewOfDriverId, myReviewOfDriverRating, ...rest }) => ({
+            ...rest,
+            myReviewOfDriver:
+                myReviewOfDriverId !== null && myReviewOfDriverRating !== null
+                    ? {
+                          id: myReviewOfDriverId,
+                          rating: myReviewOfDriverRating,
+                      }
+                    : null,
+        })
+    ) as PassengerBookingListItem[];
 };
 
 /**

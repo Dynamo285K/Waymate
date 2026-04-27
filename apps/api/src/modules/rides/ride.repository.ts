@@ -9,6 +9,7 @@ import {
     lt,
     inArray,
     ne,
+    sql,
     aliasedTable,
 } from "drizzle-orm";
 import { db } from "../../db";
@@ -17,9 +18,11 @@ import { rideStops as rideStopsTable } from "../../db/schema/ride_stop";
 import { prices as pricesTable } from "../../db/schema/price";
 import { bookings as bookingsTable } from "../../db/schema/booking";
 import { users as usersTable } from "../../db/schema/user";
+import { reviews as reviewsTable } from "../../db/schema/review";
 import { rideStatusHistory as rideStatusHistoryTable } from "../../db/schema/ride_status_history";
 import { bookingStatusHistory as bookingStatusHistoryTable } from "../../db/schema";
 import { cars as carsTable } from "../../db/schema/car";
+import { REVIEW_WINDOW_DAYS } from "../reviews/review.repository";
 import type {
     RideListItem,
     RideTimeframe,
@@ -180,6 +183,38 @@ const findRidePassengersByRideId = async (
         0
     );
 
+    // Fetch the driver's reviews of the listed passengers in one extra query.
+    const passengerIds = result.bookings.map((b) => b.passenger.id);
+    const driverReviews =
+        passengerIds.length > 0
+            ? await db
+                  .select({
+                      id: reviewsTable.id,
+                      subjectId: reviewsTable.subjectId,
+                      rating: reviewsTable.rating,
+                  })
+                  .from(reviewsTable)
+                  .where(
+                      and(
+                          eq(reviewsTable.rideId, rideId),
+                          eq(reviewsTable.authorId, driverId),
+                          inArray(reviewsTable.subjectId, passengerIds),
+                          eq(reviewsTable.reviewStatus, "VISIBLE")
+                      )
+                  )
+            : [];
+
+    const reviewBySubject = new Map(
+        driverReviews.map((r) => [r.subjectId, { id: r.id, rating: r.rating }])
+    );
+
+    // Driver may submit reviews only when the ride is COMPLETED and within the rating window.
+    const windowClosesAt = new Date(
+        result.departureAt.getTime() + REVIEW_WINDOW_DAYS * 24 * 60 * 60 * 1000
+    );
+    const canReview =
+        result.rideStatus === "COMPLETED" && new Date() <= windowClosesAt;
+
     // Map DB response into API-facing passenger view model.
     const view: RidePassengersView = {
         ride: {
@@ -189,6 +224,7 @@ const findRidePassengersByRideId = async (
             offeredSeats: result.offeredSeats,
             currency: result.currency,
             rideStops: result.rideStops,
+            canReview,
         },
         passengerCount: totalPassengers,
         passengers: result.bookings.map((b) => ({
@@ -198,6 +234,7 @@ const findRidePassengersByRideId = async (
             passenger: b.passenger,
             pickupStop: b.pickupStop,
             dropoffStop: b.dropoffStop,
+            myReviewOfPassenger: reviewBySubject.get(b.passenger.id) ?? null,
         })),
     };
 
@@ -231,6 +268,22 @@ const searchRides = async (
     const endOfDay = new Date(travelDate);
     endOfDay.setHours(23, 59, 59, 999);
 
+    // Aggregate visible reviews per driver for the rating badge.
+    const driverRatings = db
+        .select({
+            subjectId: reviewsTable.subjectId,
+            averageRating: sql<number>`AVG(${reviewsTable.rating})::float`.as(
+                "averageRating"
+            ),
+            reviewCount: sql<number>`COUNT(${reviewsTable.id})::int`.as(
+                "reviewCount"
+            ),
+        })
+        .from(reviewsTable)
+        .where(eq(reviewsTable.reviewStatus, "VISIBLE"))
+        .groupBy(reviewsTable.subjectId)
+        .as("driver_ratings");
+
     // 3. Main database query
     const result = await db
         .select({
@@ -245,6 +298,8 @@ const searchRides = async (
                 firstName: usersTable.firstName,
                 lastName: usersTable.lastName,
                 profilePhotoUrl: usersTable.profilePhotoUrl,
+                averageRating: driverRatings.averageRating,
+                reviewCount: sql<number>`COALESCE(${driverRatings.reviewCount}, 0)::int`,
             },
 
             pickupStop: {
@@ -264,6 +319,9 @@ const searchRides = async (
         .from(ridesTable)
         // Join driver profile
         .innerJoin(usersTable, eq(ridesTable.driverId, usersTable.id))
+
+        // Join driver rating aggregate (LEFT — driver may have no reviews yet)
+        .leftJoin(driverRatings, eq(driverRatings.subjectId, usersTable.id))
 
         // Join pickup stop filtered by requested start city
         .innerJoin(
