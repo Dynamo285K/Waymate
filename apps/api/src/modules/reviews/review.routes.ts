@@ -2,15 +2,15 @@ import { Elysia } from "elysia";
 import { ReviewService } from "./review.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
 import { ReviewErrors } from "./review.errors";
-import { ErrorResponseSchema } from "../../shared";
 import {
+    ErrorResponseSchema,
     AuthoredReviewListSchema,
     CreateReviewBodySchema,
     ReviewActionResponseSchema,
     ReviewIdParamsSchema,
     SubjectUserIdParamsSchema,
     UserReviewsViewSchema,
-} from "./review.schema";
+} from "@repo/shared";
 
 export const ReviewRoutes = new Elysia({
     prefix: "/reviews",

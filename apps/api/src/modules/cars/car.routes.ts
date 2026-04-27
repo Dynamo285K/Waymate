@@ -2,8 +2,8 @@ import { Elysia } from "elysia";
 import { CarService } from "./car.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
 import { CarErrors } from "./car.errors";
-import { ErrorResponseSchema } from "../../shared";
 import {
+    ErrorResponseSchema,
     CarSchema,
     CarListItemSchema,
     CarModelSchema,
@@ -12,8 +12,9 @@ import {
     UpdateCarStatusBodySchema,
     CarBrandNameListSchema,
     CarBrandParamsSchema,
-} from "./car.schema";
-import { CountryCodeList, CountryCodeSchema } from "../../shared";
+    CountryCodeList,
+    CountryCodeSchema,
+} from "@repo/shared";
 
 export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
     .model({
