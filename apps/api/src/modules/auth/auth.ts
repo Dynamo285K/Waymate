@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { randomUUID } from "crypto";
 import { env } from "../../config/env";
 import { db } from "../../db";
@@ -72,11 +73,7 @@ export const auth = betterAuth({
 
     emailAndPassword: {
         enabled: true,
-        // Keep `false` so better-auth surfaces USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL
-        // on duplicate sign-ups instead of the silent 200 generic-duplicate response
-        // that kicks in when this is `true`. `sendOnSignUp` below still sends the
-        // verification email after a successful sign-up.
-        requireEmailVerification: false,
+        requireEmailVerification: true,
 
         sendResetPassword: async ({ user, url }) => {
             await sendAuthEmail({
@@ -101,4 +98,27 @@ export const auth = betterAuth({
     },
 
     socialProviders: googleProvider,
+
+    hooks: {
+        // With `requireEmailVerification: true` better-auth intentionally returns
+        // a synthetic 200 response on duplicate sign-ups to prevent email
+        // enumeration. We trade that off for a real error so the UI can show
+        // "email already in use".
+        before: createAuthMiddleware(async (ctx) => {
+            if (ctx.path !== "/sign-up/email") return;
+
+            const email = ctx.body?.email;
+            if (typeof email !== "string") return;
+
+            const existing = await ctx.context.internalAdapter.findUserByEmail(
+                email.toLowerCase()
+            );
+            if (existing?.user) {
+                throw new APIError("UNPROCESSABLE_ENTITY", {
+                    code: "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL",
+                    message: "User already exists. Use another email.",
+                });
+            }
+        }),
+    },
 });
