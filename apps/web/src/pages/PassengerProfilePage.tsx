@@ -37,12 +37,7 @@ export function PassengerProfilePage({
     const displayName = userName ?? t("profile.fallbackName", "User");
     const displayEmail = userEmail ?? "";
     const memberSince = formatMemberSince(userCreatedAt, language);
-    const aboutMe =
-        userBio?.trim() ||
-        t(
-            "profile.defaultBio",
-            "Easygoing traveler who enjoys meeting new people on the road. Reliable, communicative, and always respectful during rides."
-        );
+    const aboutMe = userBio?.trim();
     const {
         data: bookings,
         isLoading: ridesLoading,
@@ -134,14 +129,16 @@ export function PassengerProfilePage({
                     }}
                 />
 
-                <div className="bg-(--color-card) rounded-2xl p-6 border border-(--color-border)">
-                    <h2 className="text-base font-semibold text-(--color-text-primary) mb-3">
-                        {t("profile.aboutMe")}
-                    </h2>
-                    <p className="text-(--color-text-secondary) text-sm leading-relaxed">
-                        {aboutMe}
-                    </p>
-                </div>
+                {aboutMe && (
+                    <div className="bg-(--color-card) rounded-2xl p-6 border border-(--color-border)">
+                        <h2 className="text-base font-semibold text-(--color-text-primary) mb-3">
+                            {t("profile.aboutMe")}
+                        </h2>
+                        <p className="text-(--color-text-secondary) text-sm leading-relaxed">
+                            {aboutMe}
+                        </p>
+                    </div>
+                )}
 
                 <div className="flex flex-col gap-4">
                     <h2 className="text-lg font-bold text-(--color-text-primary)">

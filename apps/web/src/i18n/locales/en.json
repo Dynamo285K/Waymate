@@ -41,10 +41,11 @@
     "onboarding": {
         "title": "Finish your profile",
         "subtitle": "Before you continue, add the required details for your account.",
-        "fullName": "Full name",
+        "firstName": "First name",
+        "lastName": "Last name",
         "phone": "Phone number",
         "save": "Save and continue",
-        "requiredError": "Enter your full name and phone number.",
+        "requiredError": "Enter your first name, last name, and phone number.",
         "phoneError": "Use an international phone number, for example +421900123456.",
         "verifyEmailFirst": "Verify your email address first, then complete your profile.",
         "loginRequired": "Please log in after verifying your email, then complete your profile.",

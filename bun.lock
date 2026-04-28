@@ -7,7 +7,7 @@
       "dependencies": {
         "@elysiajs/swagger": "^1.3.1",
         "@tailwindcss/vite": "^4.2.4",
-        "@waymate/ui": "^0.1.10",
+        "@waymate/ui": "0.1.11",
         "better-auth": "^1.6.8",
         "drizzle-orm": "^0.45.2",
         "postgres": "^3.4.9",
@@ -49,7 +49,7 @@
         "@tanstack/react-query": "^5.66.0",
         "@tanstack/react-query-devtools": "^5.66.0",
         "@tanstack/react-router": "^1.99.0",
-        "@waymate/ui": "^0.1.10",
+        "@waymate/ui": "0.1.11",
         "date-fns": "^4.1.0",
         "i18next": "^26.0.7",
         "react": "^19.2.0",
@@ -465,7 +465,7 @@
 
     "@vitejs/plugin-react": ["@vitejs/plugin-react@5.2.0", "", { "dependencies": { "@babel/core": "^7.29.0", "@babel/plugin-transform-react-jsx-self": "^7.27.1", "@babel/plugin-transform-react-jsx-source": "^7.27.1", "@rolldown/pluginutils": "1.0.0-rc.3", "@types/babel__core": "^7.20.5", "react-refresh": "^0.18.0" }, "peerDependencies": { "vite": "^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0" } }, "sha512-YmKkfhOAi3wsB1PhJq5Scj3GXMn3WvtQ/JC0xoopuHoXSdmtdStOpFrYaT1kie2YgFBcIe64ROzMYRjCrYOdYw=="],
 
-    "@waymate/ui": ["@waymate/ui@0.1.10", "https://gitlab.fi.muni.cz/api/v4/projects/48090/packages/npm/@waymate/ui/-/@waymate/ui-0.1.10.tgz", { "dependencies": { "date-fns": "^4.1.0", "fs-extra": "^11.3.4", "lucide-react": "^1.8.0", "react-day-picker": "^9.14.0" }, "peerDependencies": { "react": "^19.0.0", "react-dom": "^19.0.0" } }, "sha1-T0h5MvMAi7pBa3OW9rHVVPeZUTE="],
+    "@waymate/ui": ["@waymate/ui@0.1.11", "https://gitlab.fi.muni.cz/api/v4/projects/48090/packages/npm/@waymate/ui/-/@waymate/ui-0.1.11.tgz", { "dependencies": { "date-fns": "^4.1.0", "fs-extra": "^11.3.4", "lucide-react": "^1.8.0", "react-day-picker": "^9.14.0" }, "peerDependencies": { "react": "^19.0.0", "react-dom": "^19.0.0" } }, "sha1-E+VYtE5//BHGgEmgKHoo/bc8iTk="],
 
     "acorn": ["acorn@8.16.0", "", { "bin": { "acorn": "bin/acorn" } }, "sha512-UVJyE9MttOsBQIDKw1skb9nAwQuR5wuGD3+82K6JgJlm/Y+KI92oNsMNGZCYdDsVtRHSak0pcV5Dno5+4jh9sw=="],
 

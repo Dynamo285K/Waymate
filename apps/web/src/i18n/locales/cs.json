@@ -41,10 +41,11 @@
     "onboarding": {
         "title": "Dokončete profil",
         "subtitle": "Před pokračováním doplňte povinné údaje účtu.",
-        "fullName": "Celé jméno",
+        "firstName": "Jméno",
+        "lastName": "Příjmení",
         "phone": "Telefonní číslo",
         "save": "Uložit a pokračovat",
-        "requiredError": "Zadejte celé jméno a telefonní číslo.",
+        "requiredError": "Zadejte jméno, příjmení a telefonní číslo.",
         "phoneError": "Použijte mezinárodní formát, například +421900123456.",
         "verifyEmailFirst": "Nejprve ověřte e-mailovou adresu, potom dokončete profil.",
         "loginRequired": "Po ověření e-mailu se přihlaste a dokončete profil.",

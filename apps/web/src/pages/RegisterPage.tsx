@@ -17,7 +17,6 @@ type RegisterPageProps = {
 };
 
 type RegisterErrors = {
-    fullName?: string;
     email?: string;
     password?: string;
     confirmPassword?: string;
@@ -32,7 +31,6 @@ export function RegisterPage({
 }: RegisterPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -43,12 +41,9 @@ export function RegisterPage({
 
     async function handleCreateAccount() {
         const nextErrors: RegisterErrors = {};
+        const trimmedEmail = email.trim();
 
-        if (!fullName.trim()) {
-            nextErrors.fullName = t("register.requiredError");
-        }
-
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+        if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
             nextErrors.email = t("register.invalidEmail");
         }
 
@@ -69,11 +64,10 @@ export function RegisterPage({
         setIsSubmitting(true);
         try {
             await signUpWithEmail({
-                name: fullName.trim(),
-                email: email.trim(),
+                email: trimmedEmail,
                 password,
             });
-            setRegisteredEmail(email.trim());
+            setRegisteredEmail(trimmedEmail);
         } catch (error) {
             setErrors({
                 form:
@@ -144,17 +138,14 @@ export function RegisterPage({
                     </section>
                 ) : (
                     <RegisterBox
-                        fullName={fullName}
                         email={email}
                         password={password}
                         confirmPassword={confirmPassword}
-                        fullNameError={errors.fullName}
                         emailError={errors.email}
                         passwordError={errors.password}
                         confirmPasswordError={errors.confirmPassword}
                         message={errors.form}
                         isSubmitting={submitting}
-                        onFullNameChange={setFullName}
                         onEmailChange={setEmail}
                         onPasswordChange={setPassword}
                         onConfirmPasswordChange={setConfirmPassword}
@@ -163,7 +154,6 @@ export function RegisterPage({
                         onLoginClick={() => navigate("/login")}
                         labels={{
                             title: t("register.title"),
-                            fullName: t("register.fullName"),
                             email: t("register.email"),
                             password: t("register.password"),
                             confirmPassword: t("register.confirmPassword"),
