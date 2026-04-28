@@ -168,7 +168,7 @@ export function PassengerChatPage({
         onChatClick: () => navigate("/passenger/chat"),
         onMessagesClick: () => navigate("/passenger/chat"),
         onProfileClick: () => navigate("/passenger/profile"),
-        onRatingsClick: () => navigate("/passenger/ratings"),
+        onRatingsClick: () => navigate("/passenger/ratings?view=authored"),
         onLogoutClick: logout,
         labels: {
             passenger: t("roles.passenger"),

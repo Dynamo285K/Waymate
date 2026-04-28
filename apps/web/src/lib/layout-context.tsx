@@ -13,6 +13,7 @@ export type LayoutContextValue = {
     theme: Theme;
     onLanguageChange: (lang: Language) => void;
     onThemeToggle: () => void;
+    userId?: string;
     userName?: string;
     userEmail?: string;
     userPhone?: string;
@@ -46,6 +47,7 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
         () => ({
             language,
             theme,
+            userId: currentUser?.id,
             userName,
             userEmail: currentUser?.email,
             userPhone: currentUser?.phone ?? undefined,
@@ -63,6 +65,7 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
             currentUser?.bio,
             currentUser?.createdAt,
             currentUser?.email,
+            currentUser?.id,
             currentUser?.phone,
             language,
             theme,

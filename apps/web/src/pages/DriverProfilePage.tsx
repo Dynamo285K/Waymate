@@ -16,6 +16,7 @@ import { useDriverRides } from "../hooks/useDriverRides";
 import { formatRideDate as formatDate } from "../lib/date-format";
 import { api } from "../lib/eden";
 import { unwrap } from "../lib/eden-query";
+import { useUserReviews } from "../hooks/useReviews";
 
 type Props = {
     language: Language;
@@ -26,6 +27,7 @@ type Props = {
     userEmail?: string;
     userBio?: string;
     userCreatedAt?: string | Date;
+    userId?: string;
 };
 
 type UserCarRow = {
@@ -43,6 +45,7 @@ export function DriverProfilePage({
     userEmail,
     userBio,
     userCreatedAt,
+    userId,
 }: Props) {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -68,6 +71,11 @@ export function DriverProfilePage({
         queryKey: ["cars", "me"],
         queryFn: () => unwrap(api.cars.me.get()) as Promise<UserCarRow[]>,
     });
+    const { data: receivedReviews } = useUserReviews(userId);
+    const profileRating =
+        receivedReviews?.averageRating != null
+            ? receivedReviews.averageRating.toFixed(1)
+            : "0.0";
     const navbarProps = useDriverNavbarProps({
         language,
         onLanguageChange,
@@ -123,9 +131,11 @@ export function DriverProfilePage({
                 <ProfileHeroCard
                     name={displayName}
                     email={displayEmail}
-                    rating="4.9"
+                    rating={profileRating}
                     memberSince={memberSince}
-                    onViewRatingsClick={() => navigate("/driver/ratings")}
+                    onViewRatingsClick={() =>
+                        navigate("/driver/ratings?view=received")
+                    }
                     onEditProfileClick={() =>
                         navigate("/profile/edit", { state: { role: "driver" } })
                     }

@@ -6,6 +6,7 @@ import { usePassengerBookings } from "../hooks/usePassengerBookings";
 import { formatRideDate } from "../lib/date-format";
 import { toUiLanguage } from "../lib/language";
 import { useLogout } from "../hooks/useLogout";
+import { useUserReviews } from "../hooks/useReviews";
 
 type PassengerProfilePageProps = {
     language: Language;
@@ -16,6 +17,7 @@ type PassengerProfilePageProps = {
     userEmail?: string;
     userBio?: string;
     userCreatedAt?: string | Date;
+    userId?: string;
 };
 
 export function PassengerProfilePage({
@@ -27,6 +29,7 @@ export function PassengerProfilePage({
     userEmail,
     userBio,
     userCreatedAt,
+    userId,
 }: PassengerProfilePageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -45,6 +48,11 @@ export function PassengerProfilePage({
         isLoading: ridesLoading,
         isError: ridesError,
     } = usePassengerBookings("UPCOMING");
+    const { data: receivedReviews } = useUserReviews(userId);
+    const profileRating =
+        receivedReviews?.averageRating != null
+            ? receivedReviews.averageRating.toFixed(1)
+            : "0.0";
     const upcomingRides =
         bookings?.map((booking) => ({
             id: booking.id,
@@ -80,7 +88,7 @@ export function PassengerProfilePage({
         onMyRidesClick: () => navigate("/passenger/rides"),
         onChatClick: () => navigate("/passenger/chat"),
         onMessagesClick: () => navigate("/passenger/chat"),
-        onRatingsClick: () => navigate("/passenger/ratings"),
+        onRatingsClick: () => navigate("/passenger/ratings?view=authored"),
         onProfileClick: () => navigate("/passenger/profile"),
         onLogoutClick: logout,
         labels: {
@@ -109,9 +117,11 @@ export function PassengerProfilePage({
                 <ProfileHeroCard
                     name={displayName}
                     email={displayEmail}
-                    rating="4.9"
+                    rating={profileRating}
                     memberSince={memberSince}
-                    onViewRatingsClick={() => navigate("/passenger/ratings")}
+                    onViewRatingsClick={() =>
+                        navigate("/passenger/ratings?view=received")
+                    }
                     onEditProfileClick={() =>
                         navigate("/profile/edit", {
                             state: { role: "passenger" },

@@ -113,7 +113,7 @@ export function DriverMyRidesPage({
                 onChatClick={() => navigate("/driver/chat")}
                 onMessagesClick={() => navigate("/driver/chat")}
                 onProfileClick={() => navigate("/driver/profile")}
-                onRatingsClick={() => navigate("/driver/ratings")}
+                onRatingsClick={() => navigate("/driver/ratings?view=authored")}
                 onLogoutClick={logout}
                 labels={navbarLabels}
             />

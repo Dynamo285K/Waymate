@@ -1,55 +1,32 @@
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "../lib/router-compat";
+import { useNavigate, useSearchParams } from "../lib/router-compat";
 import { DriverNavbar, RatingSummaryCard, RatingCard } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
+import { useMyAuthoredReviews, useUserReviews } from "../hooks/useReviews";
 
 type DriverRatingsPageProps = {
     language: Language;
     theme: "light" | "dark";
     onLanguageChange: (lang: Language) => void;
     onThemeToggle: () => void;
+    userId?: string;
     userName?: string;
     userEmail?: string;
 };
-
-const RATINGS = [
-    {
-        id: 1,
-        name: "Bob Smith",
-        from: "Martin",
-        to: "Brno",
-        rating: 5,
-        review: "Excellent driver, very punctual and friendly!",
-    },
-    {
-        id: 2,
-        name: "Alice Brown",
-        from: "Brno",
-        to: "Martin",
-        rating: 4,
-        review: "Good ride, clean car. Would recommend.",
-    },
-    {
-        id: 3,
-        name: "Carol Davis",
-        from: "Brno",
-        to: "Praha",
-        rating: 5,
-        review: "Perfect journey, great music and conversation.",
-    },
-];
 
 export function DriverRatingsPage({
     language,
     theme,
     onLanguageChange,
     onThemeToggle,
+    userId,
     userName,
     userEmail,
 }: DriverRatingsPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const navbarProps = useDriverNavbarProps({
         language,
         onLanguageChange,
@@ -58,10 +35,40 @@ export function DriverRatingsPage({
         userName,
         userEmail,
     });
-
-    const avgRating = +(
-        RATINGS.reduce((s, r) => s + r.rating, 0) / RATINGS.length
-    ).toFixed(1);
+    const view =
+        searchParams.get("view") === "received" ? "received" : "authored";
+    const receivedReviews = useUserReviews(userId);
+    const authoredReviews = useMyAuthoredReviews();
+    const isReceived = view === "received";
+    const isLoading = isReceived
+        ? receivedReviews.isLoading
+        : authoredReviews.isLoading;
+    const isError = isReceived
+        ? receivedReviews.isError
+        : authoredReviews.isError;
+    const ratings = isReceived
+        ? (receivedReviews.data?.reviews.map((review) => ({
+              id: review.id,
+              name: formatName(review.author.firstName, review.author.lastName),
+              rating: review.rating,
+              review: review.comment ?? "",
+              rideId: review.rideId,
+          })) ?? [])
+        : (authoredReviews.data?.map((review) => ({
+              id: review.id,
+              name: formatName(
+                  review.subject.firstName,
+                  review.subject.lastName
+              ),
+              rating: review.rating,
+              review: review.comment ?? "",
+              rideId: review.rideId,
+          })) ?? []);
+    const averageRating = isReceived
+        ? (receivedReviews.data?.averageRating ?? 0)
+        : ratings.length > 0
+          ? ratings.reduce((sum, item) => sum + item.rating, 0) / ratings.length
+          : 0;
 
     return (
         <div
@@ -79,28 +86,51 @@ export function DriverRatingsPage({
                 </button>
 
                 <h1 className="text-2xl font-bold text-(--color-text-primary) mb-6">
-                    {t("ratings.title")}
+                    {isReceived
+                        ? t("ratings.title")
+                        : t("ratings.myRatings", "My ratings")}
                 </h1>
 
                 <RatingSummaryCard
-                    rating={avgRating}
-                    totalRatings={RATINGS.length}
+                    rating={Number(averageRating.toFixed(1))}
+                    totalRatings={ratings.length}
                     totalRatingsLabel={t("ratings.totalRatings")}
                 />
 
                 <div className="flex flex-col gap-4 mt-6">
-                    {RATINGS.map((r) => (
-                        <RatingCard
-                            key={r.id}
-                            name={r.name}
-                            from={r.from}
-                            to={r.to}
-                            rating={r.rating}
-                            review={r.review}
-                        />
-                    ))}
+                    {isLoading && (
+                        <p className="text-(--color-text-secondary)">
+                            {t("ratings.loading", "Loading ratings...")}
+                        </p>
+                    )}
+                    {isError && (
+                        <p className="text-(--color-text-secondary)">
+                            {t("ratings.error", "Could not load ratings.")}
+                        </p>
+                    )}
+                    {!isLoading && !isError && ratings.length === 0 && (
+                        <p className="text-(--color-text-secondary)">
+                            {t("ratings.empty", "No ratings yet.")}
+                        </p>
+                    )}
+                    {!isLoading &&
+                        !isError &&
+                        ratings.map((rating) => (
+                            <RatingCard
+                                key={rating.id}
+                                name={rating.name}
+                                from={t("ratings.ride", "Ride")}
+                                to={rating.rideId.slice(0, 8)}
+                                rating={rating.rating}
+                                review={rating.review}
+                            />
+                        ))}
                 </div>
             </section>
         </div>
     );
+}
+
+function formatName(firstName: string | null, lastName: string | null) {
+    return [firstName, lastName].filter(Boolean).join(" ").trim() || "User";
 }

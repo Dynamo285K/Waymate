@@ -71,6 +71,7 @@ const audienceRoutes: ReadonlyArray<{
         theme: ReturnType<typeof useLayout>["theme"];
         onLanguageChange: ReturnType<typeof useLayout>["onLanguageChange"];
         onThemeToggle: ReturnType<typeof useLayout>["onThemeToggle"];
+        userId?: ReturnType<typeof useLayout>["userId"];
         userName?: ReturnType<typeof useLayout>["userName"];
         userEmail?: ReturnType<typeof useLayout>["userEmail"];
         userPhone?: ReturnType<typeof useLayout>["userPhone"];
