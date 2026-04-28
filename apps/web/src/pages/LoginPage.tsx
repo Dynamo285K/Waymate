@@ -83,7 +83,7 @@ export function LoginPage({
                 window.location.href = response.url;
                 return;
             }
-            navigate("/passenger");
+            navigate(await getPostAuthPath());
         } catch (error) {
             const message =
                 error instanceof Error ? error.message : t("login.error");
