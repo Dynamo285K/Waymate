@@ -1,9 +1,8 @@
-import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { PassengerNavbar } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { HomeContent } from "../components/HomeContent";
-import { useLogout } from "../hooks/useLogout";
+import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 import { useCreateBooking } from "../hooks/useCreateBooking";
 
 type PassengerHomePageProps = {
@@ -23,9 +22,16 @@ export function PassengerHomePage({
     userName,
     userEmail,
 }: PassengerHomePageProps) {
-    const { t } = useTranslation();
     const navigate = useNavigate();
-    const logout = useLogout();
+    const navbarProps = usePassengerNavbarProps({
+        activeTab: "find-ride",
+        language,
+        onLanguageChange,
+        theme,
+        onThemeToggle,
+        userName,
+        userEmail,
+    });
     const createBooking = useCreateBooking();
 
     return (
@@ -33,40 +39,7 @@ export function PassengerHomePage({
             data-theme={theme}
             className="min-h-screen bg-(--color-bg)"
         >
-            <PassengerNavbar
-                activeTab="find-ride"
-                language={language}
-                onLanguageChange={onLanguageChange}
-                role="passenger"
-                onRoleChange={(r) => r === "driver" && navigate("/driver")}
-                theme={theme}
-                onThemeToggle={onThemeToggle}
-                userName={userName}
-                userEmail={userEmail}
-                onLogoClick={() => navigate("/passenger")}
-                onFindRideClick={() => navigate("/passenger")}
-                onMyRidesClick={() => navigate("/passenger/rides")}
-                onChatClick={() => navigate("/passenger/chat")}
-                onMessagesClick={() => navigate("/passenger/chat")}
-                onProfileClick={() => navigate("/passenger/profile")}
-                onRatingsClick={() =>
-                    navigate("/passenger/ratings?view=authored")
-                }
-                onLogoutClick={logout}
-                labels={{
-                    passenger: t("roles.passenger"),
-                    driver: t("roles.driver"),
-                    findRide: t("nav.findRide"),
-                    myRides: t("nav.myRides"),
-                    chat: t("nav.chat"),
-                    profile: t("nav.profile"),
-                    dropdownMyRides: t("nav.myRides"),
-                    messages: t("nav.messages"),
-                    ratings: t("nav.ratings"),
-                    settings: t("nav.settings"),
-                    logout: t("nav.logout"),
-                }}
-            />
+            <PassengerNavbar {...navbarProps} />
             <HomeContent
                 language={language}
                 onBook={(ride) => {

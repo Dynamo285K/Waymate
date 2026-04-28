@@ -8,10 +8,23 @@ import {
     FeatureCard,
 } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
-import type { AvailableRide } from "../lib/available-rides";
 import { formatRideDate } from "../lib/date-format";
 import { toUiLanguage } from "../lib/language";
 import { useAvailableRides } from "../hooks/useAvailableRides";
+
+type AvailableRide = {
+    id: string | number;
+    rideId?: string;
+    pickupStopId?: string;
+    dropoffStopId?: string;
+    from: string;
+    to: string;
+    date: Date;
+    seatsLeft: number;
+    driverName: string;
+    driverRating: number;
+    price: number;
+};
 
 type HomeContentProps = {
     language: Language;

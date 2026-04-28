@@ -1,6 +1,4 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "../lib/router-compat";
 import {
     BarChart,
     Bar,
@@ -12,7 +10,7 @@ import {
 } from "recharts";
 import { AdminNavbar } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
-import { useLogout } from "../hooks/useLogout";
+import { useAdminNavbarProps } from "../hooks/useAdminNavbarProps";
 
 type AdminDashboardPageProps = {
     language: Language;
@@ -85,20 +83,15 @@ export function AdminDashboardPage({
     userEmail = "admin@waymate.com",
 }: AdminDashboardPageProps) {
     const { t } = useTranslation();
-    const navigate = useNavigate();
-    const logout = useLogout();
-    const [, setTab] = useState("dashboard");
-
-    const navLabels = {
-        adminRole: t("admin.adminRole"),
-        dashboard: t("admin.dashboard"),
-        rides: t("admin.rides"),
-        users: t("admin.users"),
-        reports: t("admin.reports"),
-        account: t("admin.account"),
-        settings: t("admin.settings"),
-        logout: t("admin.logout"),
-    };
+    const navbarProps = useAdminNavbarProps({
+        activeTab: "dashboard",
+        language,
+        onLanguageChange,
+        theme,
+        onThemeToggle,
+        userName,
+        userEmail,
+    });
 
     const chartColor = "var(--color-primary)";
     const chartCursorFill =
@@ -110,26 +103,7 @@ export function AdminDashboardPage({
             data-theme={theme}
             className="min-h-screen bg-(--color-bg)"
         >
-            <AdminNavbar
-                activeTab="dashboard"
-                language={language}
-                onLanguageChange={onLanguageChange}
-                theme={theme}
-                onThemeToggle={onThemeToggle}
-                userName={userName}
-                userEmail={userEmail}
-                onLogoClick={() => navigate("/admin")}
-                onDashboardClick={() => {
-                    setTab("dashboard");
-                    navigate("/admin");
-                }}
-                onRidesClick={() => navigate("/admin/rides")}
-                onUsersClick={() => navigate("/admin/users")}
-                onReportsClick={() => navigate("/admin/reports")}
-                onProfileClick={() => navigate("/admin/account")}
-                onLogoutClick={logout}
-                labels={navLabels}
-            />
+            <AdminNavbar {...navbarProps} />
 
             <div className="w-full px-4 sm:max-w-6xl sm:mx-auto sm:px-8 py-8 flex flex-col gap-6">
                 {/* Charts row */}

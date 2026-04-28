@@ -5,6 +5,7 @@ import { AuthNavbar, AvailableRideCard, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useRideSearch } from "../hooks/useRideSearch";
 import { useAvailableRides } from "../hooks/useAvailableRides";
+import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
 import { formatRideDate } from "../lib/date-format";
 
 type RidesPageProps = {
@@ -28,6 +29,15 @@ export function RidesPage({
 }: RidesPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const authNavbarProps = useAuthNavbarProps({
+        language,
+        onLanguageChange,
+        theme,
+        onThemeToggle,
+        onLogin,
+        onRegister,
+        onLogoClick,
+    });
     const [searchParams] = useSearchParams();
     const [showGuestModal, setShowGuestModal] = useState(false);
 
@@ -76,19 +86,7 @@ export function RidesPage({
             data-theme={theme}
             className="min-h-screen bg-(--color-bg)"
         >
-            <AuthNavbar
-                language={language}
-                onLanguageChange={onLanguageChange}
-                theme={theme}
-                onThemeToggle={onThemeToggle}
-                onLogin={onLogin}
-                onRegister={onRegister}
-                onLogoClick={onLogoClick}
-                labels={{
-                    login: t("home.navbar.login"),
-                    register: t("home.navbar.register"),
-                }}
-            />
+            <AuthNavbar {...authNavbarProps} />
 
             <section className="w-full px-4 sm:max-w-3xl sm:mx-auto sm:px-8 py-8 sm:py-12">
                 <h2 className="text-2xl font-bold text-(--color-text-primary)">

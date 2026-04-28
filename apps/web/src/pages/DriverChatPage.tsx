@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "../lib/router-compat";
 import {
     DriverNavbar,
     ConversationSidebar,
@@ -9,7 +8,7 @@ import {
     MessageComposer,
 } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
-import { useLogout } from "../hooks/useLogout";
+import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 
 type Message = {
     id: number;
@@ -109,8 +108,15 @@ export function DriverChatPage({
     userEmail,
 }: DriverChatPageProps) {
     const { t } = useTranslation();
-    const navigate = useNavigate();
-    const logout = useLogout();
+    const navbarProps = useDriverNavbarProps({
+        activeTab: "chat",
+        language,
+        onLanguageChange,
+        theme,
+        onThemeToggle,
+        userName,
+        userEmail,
+    });
     const [activeId, setActiveId] = useState<string | null>(null);
     const [conversations, setConversations] = useState(CONVERSATIONS);
 
@@ -143,21 +149,6 @@ export function DriverChatPage({
         );
     }
 
-    const navbarLabels = {
-        passenger: t("roles.passenger"),
-        driver: t("roles.driver"),
-        offerRide: t("driver.nav.offerRide"),
-        myRides: t("driver.nav.myRides"),
-        rideRequests: t("driver.nav.rideRequests"),
-        chat: t("driver.nav.chat"),
-        profile: t("nav.profile"),
-        dropdownMyRides: t("driver.nav.myRides"),
-        messages: t("nav.messages"),
-        ratings: t("nav.ratings"),
-        settings: t("nav.settings"),
-        logout: t("nav.logout"),
-    };
-
     const chatHeaderLabels = {
         viewProfile: t("chat.viewProfile"),
         blockUser: t("chat.blockUser"),
@@ -169,29 +160,7 @@ export function DriverChatPage({
             data-theme={theme}
             className="min-h-screen bg-(--color-bg) flex flex-col"
         >
-            <DriverNavbar
-                activeTab="chat"
-                language={language}
-                onLanguageChange={onLanguageChange}
-                role="driver"
-                onRoleChange={(r) =>
-                    r === "passenger" && navigate("/passenger")
-                }
-                theme={theme}
-                onThemeToggle={onThemeToggle}
-                userName={userName}
-                userEmail={userEmail}
-                onLogoClick={() => navigate("/driver")}
-                onOfferRideClick={() => navigate("/driver")}
-                onMyRidesClick={() => navigate("/driver/rides")}
-                onRideRequestsClick={() => navigate("/driver/requests")}
-                onChatClick={() => navigate("/driver/chat")}
-                onMessagesClick={() => navigate("/driver/chat")}
-                onProfileClick={() => navigate("/driver/profile")}
-                onRatingsClick={() => navigate("/driver/ratings?view=authored")}
-                onLogoutClick={logout}
-                labels={navbarLabels}
-            />
+            <DriverNavbar {...navbarProps} />
 
             {/* Desktop: split view */}
             <div
