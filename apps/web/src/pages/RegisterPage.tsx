@@ -63,18 +63,21 @@ export function RegisterPage({
         setErrors({});
         setIsSubmitting(true);
         try {
-            await signUpWithEmail({
+            const { error } = await signUpWithEmail({
                 email: trimmedEmail,
                 password,
             });
+
+            if (error) {
+                if (error.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL") {
+                    setErrors({ email: t("register.emailAlreadyInUse") });
+                    return;
+                }
+                setErrors({ form: error.message ?? t("register.error") });
+                return;
+            }
+
             setRegisteredEmail(trimmedEmail);
-        } catch (error) {
-            setErrors({
-                form:
-                    error instanceof Error
-                        ? error.message
-                        : t("register.error"),
-            });
         } finally {
             setIsSubmitting(false);
         }
@@ -84,21 +87,24 @@ export function RegisterPage({
         setErrors({});
         setIsGoogleLoading(true);
         try {
-            const response = await signInWithGoogle();
-            if (response.url) {
-                window.location.href = response.url;
+            const { data, error } = await signInWithGoogle();
+
+            if (error) {
+                const message =
+                    error.status === 400 || error.status === 404
+                        ? t("register.googleNotConfigured")
+                        : (error.message ?? t("register.error"));
+                setErrors({ form: message });
                 return;
             }
+
+            if (data?.url) {
+                window.location.href = data.url;
+                return;
+            }
+
             navigate(await getPostAuthPath());
-        } catch (error) {
-            const message =
-                error instanceof Error ? error.message : t("register.error");
-            setErrors({
-                form:
-                    message === "Google login is not configured on the API."
-                        ? t("register.googleNotConfigured")
-                        : message,
-            });
+        } finally {
             setIsGoogleLoading(false);
         }
     }

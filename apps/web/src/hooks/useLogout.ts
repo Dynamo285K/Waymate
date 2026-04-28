@@ -5,10 +5,7 @@ export function useLogout() {
     const navigate = useNavigate();
 
     return async () => {
-        try {
-            await signOut();
-        } finally {
-            navigate("/login");
-        }
+        await signOut();
+        navigate("/login");
     };
 }

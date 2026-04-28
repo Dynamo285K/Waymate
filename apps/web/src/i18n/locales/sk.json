@@ -31,6 +31,7 @@
         "passwordMismatch": "Heslá sa nezhodujú.",
         "invalidEmail": "Zadajte platný e-mail.",
         "passwordTooShort": "Heslo musí mať aspoň 8 znakov.",
+        "emailAlreadyInUse": "Tento e-mail sa už používa.",
         "googleNotConfigured": "Registrácia cez Google ešte nie je nakonfigurovaná.",
         "error": "Registrácia zlyhala. Skúste to znova.",
         "checkEmailTitle": "Skontrolujte e-mail",

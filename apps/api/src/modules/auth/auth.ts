@@ -72,7 +72,11 @@ export const auth = betterAuth({
 
     emailAndPassword: {
         enabled: true,
-        requireEmailVerification: true,
+        // Keep `false` so better-auth surfaces USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL
+        // on duplicate sign-ups instead of the silent 200 generic-duplicate response
+        // that kicks in when this is `true`. `sendOnSignUp` below still sends the
+        // verification email after a successful sign-up.
+        requireEmailVerification: false,
 
         sendResetPassword: async ({ user, url }) => {
             await sendAuthEmail({

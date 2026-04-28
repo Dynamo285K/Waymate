@@ -60,39 +60,43 @@ export function LoginPage({
     const password = watch("password");
 
     const onSubmit: SubmitHandler<FormValues> = async (values) => {
-        try {
-            await signInWithEmail({
-                email: values.email.trim(),
-                password: values.password,
-            });
-            navigate(await getPostAuthPath());
-        } catch (error) {
+        const { error } = await signInWithEmail({
+            email: values.email.trim(),
+            password: values.password,
+        });
+
+        if (error) {
             setError("root", {
-                message:
-                    error instanceof Error ? error.message : t("login.error"),
+                message: error.message ?? t("login.error"),
             });
+            return;
         }
+
+        navigate(await getPostAuthPath());
     };
 
     async function handleGoogleLogin() {
         clearErrors();
         setIsGoogleLoading(true);
         try {
-            const response = await signInWithGoogle();
-            if (response.url) {
-                window.location.href = response.url;
+            const { data, error } = await signInWithGoogle();
+
+            if (error) {
+                const message =
+                    error.status === 400 || error.status === 404
+                        ? t("login.googleNotConfigured")
+                        : (error.message ?? t("login.error"));
+                setError("root", { message });
                 return;
             }
+
+            if (data?.url) {
+                window.location.href = data.url;
+                return;
+            }
+
             navigate(await getPostAuthPath());
-        } catch (error) {
-            const message =
-                error instanceof Error ? error.message : t("login.error");
-            setError("root", {
-                message:
-                    message === "Google login is not configured on the API."
-                        ? t("login.googleNotConfigured")
-                        : message,
-            });
+        } finally {
             setIsGoogleLoading(false);
         }
     }

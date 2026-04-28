@@ -31,6 +31,7 @@
         "passwordMismatch": "Passwords do not match.",
         "invalidEmail": "Enter a valid email address.",
         "passwordTooShort": "Password must be at least 8 characters.",
+        "emailAlreadyInUse": "This email is already in use.",
         "googleNotConfigured": "Google registration is not configured yet.",
         "error": "Registration failed. Please try again.",
         "checkEmailTitle": "Check your email",
