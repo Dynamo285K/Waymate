@@ -26,7 +26,7 @@ function ProgressDots({ step }: { step: 1 | 2 | 3 }) {
 
 function IconCircle({ children }: { children: React.ReactNode }) {
     return (
-        <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-5 text-green-600">
+        <div className="w-16 h-16 rounded-full bg-(--color-success-bg) flex items-center justify-center mx-auto mb-5 text-(--color-success-text)">
             {children}
         </div>
     );

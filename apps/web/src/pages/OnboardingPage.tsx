@@ -188,7 +188,7 @@ export function OnboardingPage({
                                     {...register("fullName")}
                                 />
                                 {errors.fullName && (
-                                    <span className="text-xs font-semibold text-red-500">
+                                    <span className="text-xs font-semibold text-(--color-red)">
                                         {errors.fullName.message}
                                     </span>
                                 )}
@@ -205,7 +205,7 @@ export function OnboardingPage({
                                     {...register("phone")}
                                 />
                                 {errors.phone && (
-                                    <span className="text-xs font-semibold text-red-500">
+                                    <span className="text-xs font-semibold text-(--color-red)">
                                         {errors.phone.message}
                                     </span>
                                 )}
@@ -213,7 +213,7 @@ export function OnboardingPage({
                         </div>
 
                         {submitError && (
-                            <p className="mt-5 text-sm font-semibold text-red-500">
+                            <p className="mt-5 text-sm font-semibold text-(--color-red)">
                                 {submitError}
                             </p>
                         )}
