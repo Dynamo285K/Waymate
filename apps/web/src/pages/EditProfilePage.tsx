@@ -25,14 +25,6 @@ type EditProfilePageProps = {
     userBio?: string;
 };
 
-type FormValues = {
-    name: string;
-    email: string;
-    phone: string;
-    plate: string;
-    about: string;
-};
-
 export function EditProfilePage({
     language,
     theme,
@@ -131,10 +123,6 @@ export function EditProfilePage({
         logout: t("nav.logout"),
     };
 
-    const onSubmit: SubmitHandler<FormValues> = () => {
-        navigate(backPath);
-    };
-
     return (
         <div
             data-theme={theme}
@@ -196,11 +184,7 @@ export function EditProfilePage({
                     {t("editProfile.title")}
                 </h1>
 
-                <form
-                    onSubmit={handleSubmit(onSubmit)}
-                    noValidate
-                    className="bg-(--color-card) rounded-2xl p-6 sm:p-8 border border-(--color-border) flex flex-col gap-6"
-                >
+                <div className="bg-(--color-card) rounded-2xl p-6 sm:p-8 border border-(--color-border) flex flex-col gap-6">
                     {/* Two-column grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Input
@@ -217,7 +201,8 @@ export function EditProfilePage({
                         />
                         <Input
                             label={t("editProfile.phone")}
-                            {...register("phone")}
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
                         />
                     </div>
 
@@ -229,13 +214,9 @@ export function EditProfilePage({
                             </label>
                             <textarea
                                 className="w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) p-3 text-sm resize-y min-h-25 outline-none focus:border-(--color-primary) focus:ring-2 focus:ring-green-100 transition-colors font-[Inter,sans-serif]"
-                                {...register("about")}
+                                value={about}
+                                onChange={(e) => setAbout(e.target.value)}
                             />
-                            {errors.about && (
-                                <p className="text-xs font-semibold text-red-500">
-                                    {errors.about.message}
-                                </p>
-                            )}
                         </div>
                     )}
 

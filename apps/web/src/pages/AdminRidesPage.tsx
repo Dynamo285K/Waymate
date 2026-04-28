@@ -132,7 +132,8 @@ const RIDES: Ride[] = [
 function StatusBadge({ status }: { status: RideStatus }) {
     const { t } = useTranslation();
     const styles: Record<RideStatus, string> = {
-        upcoming: "border border-(--color-success-border) text-(--color-success-text) bg-(--color-success-bg)",
+        upcoming:
+            "border border-(--color-success-border) text-(--color-success-text) bg-(--color-success-bg)",
         completed: "bg-(--color-secondary-hover) text-(--color-text-secondary)",
         cancelled: "bg-red-50 text-red-500",
     };
