@@ -278,7 +278,7 @@ export function AdminReportsPage({
                         ))}
                     </div>
                     {openCount > 0 && (
-                        <span className="flex items-center gap-1.5 bg-red-50 border border-red-200 text-red-600 text-sm font-semibold px-3 py-1.5 rounded-xl">
+                        <span className="flex items-center gap-1.5 bg-(--color-danger-bg) border border-(--color-danger-border) text-(--color-danger-text) text-sm font-semibold px-3 py-1.5 rounded-xl">
                             {openCount === 1
                                 ? t("admin.openReports", {
                                       count: openCount,

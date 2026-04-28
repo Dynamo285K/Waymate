@@ -133,7 +133,7 @@ function StatusBadge({ status }: { status: UserStatus }) {
     const { t } = useTranslation();
     const s: Record<UserStatus, string> = {
         active: "border border-(--color-success-border) text-(--color-success-text) bg-(--color-success-bg)",
-        banned: "bg-red-100 text-red-600",
+        banned: "border border-(--color-danger-border) bg-(--color-danger-bg) text-(--color-danger-text)",
         pending: "bg-(--color-warning-bg) text-(--color-warning-text)",
     };
     const labels: Record<UserStatus, string> = {
@@ -401,7 +401,7 @@ function BanUserModal({
                     </button>
                 </div>
 
-                <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-5 text-sm text-red-700">
+                <div className="bg-(--color-danger-bg) border border-(--color-danger-border) rounded-xl p-4 mb-5 text-sm text-(--color-danger-text)">
                     {t("admin.banWarning")}
                 </div>
 
@@ -707,7 +707,7 @@ export function AdminUsersPage({
                                                     onClick={() =>
                                                         setBanUser(user)
                                                     }
-                                                    className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-semibold transition-colors"
+                                                    className="px-3 py-1.5 bg-(--color-red) hover:bg-(--color-red)/90 text-(--color-card) rounded-lg text-sm font-semibold transition-colors"
                                                 >
                                                     {t("admin.ban")}
                                                 </button>
