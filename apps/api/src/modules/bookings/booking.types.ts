@@ -53,3 +53,18 @@ export type PassengerBookingListItem = {
     dropoffCity: string;
     myReviewOfDriver: { id: string; rating: number } | null;
 };
+
+export type DriverRideRequestItem = {
+    id: string; // Booking ID used for confirm/reject operations
+    rideId: string;
+    seatCount: number;
+    passenger: Pick<
+        User,
+        "id" | "firstName" | "lastName" | "profilePhotoUrl"
+    > & {
+        averageRating: number | null;
+    };
+    pickupCity: string;
+    dropoffCity: string;
+    departureAt: Date;
+};
