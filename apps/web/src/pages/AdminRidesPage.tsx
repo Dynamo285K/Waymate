@@ -135,7 +135,8 @@ function StatusBadge({ status }: { status: RideStatus }) {
         upcoming:
             "border border-(--color-success-border) text-(--color-success-text) bg-(--color-success-bg)",
         completed: "bg-(--color-secondary-hover) text-(--color-text-secondary)",
-        cancelled: "bg-red-50 text-red-500",
+        cancelled:
+            "border border-(--color-danger-border) bg-(--color-danger-bg) text-(--color-danger-text)",
     };
     const labels: Record<RideStatus, string> = {
         upcoming: t("admin.upcoming"),
@@ -601,7 +602,7 @@ export function AdminRidesPage({
                                                                 ride.id
                                                             )
                                                         }
-                                                        className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-semibold transition-colors whitespace-nowrap"
+                                                        className="px-3 py-1.5 bg-(--color-red) hover:bg-(--color-red)/90 text-(--color-card) rounded-lg text-sm font-semibold transition-colors whitespace-nowrap"
                                                     >
                                                         {t("admin.forceCancel")}
                                                     </button>

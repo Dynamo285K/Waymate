@@ -100,7 +100,8 @@ export function AdminDashboardPage({
         logout: t("admin.logout"),
     };
 
-    const chartColor = "#11ad32";
+    const chartColor = "var(--color-primary)";
+    const chartCursorFill = "color-mix(in srgb, var(--color-primary) 8%, transparent)";
     const gridColor = "var(--color-border)";
 
     return (
@@ -160,7 +161,7 @@ export function AdminDashboardPage({
                                 />
                                 <YAxis hide />
                                 <Tooltip
-                                    cursor={{ fill: "rgba(17,173,50,0.08)" }}
+                                    cursor={{ fill: chartCursorFill }}
                                     contentStyle={{
                                         borderRadius: 10,
                                         border: "1px solid var(--color-border)",
@@ -204,7 +205,7 @@ export function AdminDashboardPage({
                                 />
                                 <YAxis hide />
                                 <Tooltip
-                                    cursor={{ fill: "rgba(17,173,50,0.08)" }}
+                                    cursor={{ fill: chartCursorFill }}
                                     contentStyle={{
                                         borderRadius: 10,
                                         border: "1px solid var(--color-border)",
