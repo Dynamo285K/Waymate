@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "../lib/router-compat";
 import {
@@ -11,6 +12,7 @@ import {
 import type { Language } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { useLogout } from "../hooks/useLogout";
+import { updateCurrentUserProfile } from "../lib/auth";
 
 type EditProfilePageProps = {
     language: Language;
@@ -19,6 +21,8 @@ type EditProfilePageProps = {
     onThemeToggle: () => void;
     userName?: string;
     userEmail?: string;
+    userPhone?: string;
+    userBio?: string;
 };
 
 export function EditProfilePage({
@@ -26,11 +30,14 @@ export function EditProfilePage({
     theme,
     onLanguageChange,
     onThemeToggle,
-    userName = "Tomáš Olbert",
-    userEmail = "nejviacpracujuci@gmail.com",
+    userName,
+    userEmail,
+    userPhone,
+    userBio,
 }: EditProfilePageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const logout = useLogout();
     const location = useLocation();
     const role =
@@ -43,13 +50,54 @@ export function EditProfilePage({
               ? "/admin/account"
               : "/passenger/profile";
 
-    const [name, setName] = useState(userName);
-    const [email, setEmail] = useState(userEmail);
-    const [phone, setPhone] = useState("+421 900 123 456");
-    const [plate, setPlate] = useState("BA-123AB");
-    const [about, setAbout] = useState(
-        "Easygoing traveler who enjoys meeting new people on the road. Reliable, communicative, and always respectful during rides."
-    );
+    const [name, setName] = useState(userName ?? "");
+    const [email, setEmail] = useState(userEmail ?? "");
+    const [phone, setPhone] = useState(userPhone ?? "");
+    const [about, setAbout] = useState(userBio ?? "");
+
+    const updateProfile = useMutation({
+        mutationFn: updateCurrentUserProfile,
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ["users", "me"] });
+            navigate(backPath);
+        },
+    });
+
+    useEffect(() => {
+        if (userName) {
+            setName(userName);
+        }
+    }, [userName]);
+
+    useEffect(() => {
+        if (userEmail) {
+            setEmail(userEmail);
+        }
+    }, [userEmail]);
+
+    useEffect(() => {
+        if (userPhone) {
+            setPhone(userPhone);
+        }
+    }, [userPhone]);
+
+    useEffect(() => {
+        if (userBio) {
+            setAbout(userBio);
+        }
+    }, [userBio]);
+
+    function handleSave() {
+        const { firstName, lastName } = splitFullName(name);
+
+        updateProfile.mutate({
+            firstName,
+            lastName,
+            displayName: firstName,
+            phone: phone.trim(),
+            bio: about.trim(),
+        });
+    }
 
     const driverNavbarProps = useDriverNavbarProps({
         activeTab: undefined,
@@ -148,17 +196,13 @@ export function EditProfilePage({
                             label={t("editProfile.email")}
                             type="email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            disabled
+                            onChange={() => {}}
                         />
                         <Input
                             label={t("editProfile.phone")}
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
-                        />
-                        <Input
-                            label={t("editProfile.licensePlate")}
-                            value={plate}
-                            onChange={(e) => setPlate(e.target.value)}
                         />
                     </div>
 
@@ -184,12 +228,39 @@ export function EditProfilePage({
                         >
                             {t("editProfile.cancel")}
                         </Button>
-                        <Button onClick={() => navigate(backPath)}>
-                            {t("editProfile.save")}
+                        <Button
+                            onClick={handleSave}
+                            disabled={updateProfile.isPending}
+                        >
+                            {updateProfile.isPending
+                                ? t("editProfile.saving", "Saving...")
+                                : t("editProfile.save")}
                         </Button>
                     </div>
+
+                    {updateProfile.isError && (
+                        <p className="text-sm font-semibold text-red-500">
+                            {t(
+                                "editProfile.saveError",
+                                "Could not save profile changes."
+                            )}
+                        </p>
+                    )}
                 </div>
             </section>
         </div>
     );
+}
+
+function splitFullName(fullName: string) {
+    const parts = fullName.trim().split(/\s+/).filter(Boolean);
+    const formatNamePart = (value: string) =>
+        value ? value.charAt(0).toLocaleUpperCase() + value.slice(1) : "";
+    const firstName = formatNamePart(parts[0] ?? "");
+    const lastName = formatNamePart(parts.slice(1).join(""));
+
+    return {
+        firstName: firstName || undefined,
+        lastName: lastName || undefined,
+    };
 }

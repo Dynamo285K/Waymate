@@ -14,6 +14,8 @@ type PassengerProfilePageProps = {
     onThemeToggle: () => void;
     userName?: string;
     userEmail?: string;
+    userBio?: string;
+    userCreatedAt?: string | Date;
 };
 
 export function PassengerProfilePage({
@@ -21,12 +23,23 @@ export function PassengerProfilePage({
     theme,
     onLanguageChange,
     onThemeToggle,
-    userName = "Tomáš Olbert",
-    userEmail = "najviacpracujuci@gmail.com",
+    userName,
+    userEmail,
+    userBio,
+    userCreatedAt,
 }: PassengerProfilePageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const logout = useLogout();
+    const displayName = userName ?? t("profile.fallbackName", "User");
+    const displayEmail = userEmail ?? "";
+    const memberSince = formatMemberSince(userCreatedAt, language);
+    const aboutMe =
+        userBio?.trim() ||
+        t(
+            "profile.defaultBio",
+            "Easygoing traveler who enjoys meeting new people on the road. Reliable, communicative, and always respectful during rides."
+        );
     const {
         data: bookings,
         isLoading: ridesLoading,
@@ -94,10 +107,10 @@ export function PassengerProfilePage({
 
             <div className="w-full px-4 sm:max-w-5xl sm:mx-auto sm:px-8 py-8 sm:py-12 flex flex-col gap-6">
                 <ProfileHeroCard
-                    name={userName}
-                    email={userEmail}
+                    name={displayName}
+                    email={displayEmail}
                     rating="4.9"
-                    memberSince="2026"
+                    memberSince={memberSince}
                     onViewRatingsClick={() => navigate("/passenger/ratings")}
                     onEditProfileClick={() =>
                         navigate("/profile/edit", {
@@ -116,9 +129,7 @@ export function PassengerProfilePage({
                         {t("profile.aboutMe")}
                     </h2>
                     <p className="text-(--color-text-secondary) text-sm leading-relaxed">
-                        Easygoing traveler who enjoys meeting new people on the
-                        road. Reliable, communicative, and always respectful
-                        during rides.
+                        {aboutMe}
                     </p>
                 </div>
 
@@ -181,4 +192,19 @@ export function PassengerProfilePage({
             </div>
         </div>
     );
+}
+
+function formatMemberSince(
+    value: string | Date | undefined,
+    language: Language
+) {
+    if (!value) return "";
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+
+    return new Intl.DateTimeFormat(language, {
+        month: "long",
+        year: "numeric",
+    }).format(date);
 }

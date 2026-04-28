@@ -12,6 +12,8 @@ export type AuthUser = {
     firstName?: string | null;
     lastName?: string | null;
     phone?: string | null;
+    bio?: string | null;
+    createdAt?: string | Date;
 };
 
 type AuthResponse = {
@@ -23,6 +25,9 @@ export type CurrentUser = AuthUser & {
     firstName: string | null;
     lastName: string | null;
     phone: string | null;
+    displayName: string | null;
+    bio: string | null;
+    createdAt: string | Date;
 };
 
 export function hasCompletedOnboarding(
@@ -139,6 +144,19 @@ export function signOut() {
 
 export function getCurrentUser() {
     return apiFetch<CurrentUser>("/users/me");
+}
+
+export function updateCurrentUserProfile(params: {
+    firstName?: string;
+    lastName?: string;
+    displayName?: string;
+    phone?: string;
+    bio?: string;
+}) {
+    return apiFetch<CurrentUser>("/users/me/profile", {
+        method: "PATCH",
+        body: JSON.stringify(params),
+    });
 }
 
 export async function getPostAuthPath() {

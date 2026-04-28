@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "../lib/router-compat";
 import {
     DriverNavbar,
@@ -13,6 +14,8 @@ import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { useCancelRide } from "../hooks/useCancelRide";
 import { useDriverRides } from "../hooks/useDriverRides";
 import { formatRideDate as formatDate } from "../lib/date-format";
+import { api } from "../lib/eden";
+import { unwrap } from "../lib/eden-query";
 
 type Props = {
     language: Language;
@@ -21,6 +24,14 @@ type Props = {
     onThemeToggle: () => void;
     userName?: string;
     userEmail?: string;
+    userBio?: string;
+    userCreatedAt?: string | Date;
+};
+
+type UserCarRow = {
+    id: string;
+    brand: string;
+    modelName: string;
 };
 
 export function DriverProfilePage({
@@ -28,11 +39,22 @@ export function DriverProfilePage({
     theme,
     onLanguageChange,
     onThemeToggle,
-    userName = "Tomáš Olbert",
-    userEmail = "nejviacpracujuci@gmail.com",
+    userName,
+    userEmail,
+    userBio,
+    userCreatedAt,
 }: Props) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const displayName = userName ?? t("profile.fallbackName", "User");
+    const displayEmail = userEmail ?? "";
+    const memberSince = formatMemberSince(userCreatedAt, language);
+    const aboutMe =
+        userBio?.trim() ||
+        t(
+            "profile.defaultBio",
+            "Easygoing traveler who enjoys meeting new people on the road. Reliable, communicative, and always respectful during rides."
+        );
     const [cancellingRideId, setCancellingRideId] = useState<string | null>(
         null
     );
@@ -42,6 +64,10 @@ export function DriverProfilePage({
         isError: ridesError,
     } = useDriverRides("UPCOMING");
     const cancelRide = useCancelRide();
+    const carsQuery = useQuery<UserCarRow[]>({
+        queryKey: ["cars", "me"],
+        queryFn: () => unwrap(api.cars.me.get()) as Promise<UserCarRow[]>,
+    });
     const navbarProps = useDriverNavbarProps({
         language,
         onLanguageChange,
@@ -95,10 +121,10 @@ export function DriverProfilePage({
 
             <div className="w-full px-4 sm:max-w-5xl sm:mx-auto sm:px-8 py-8 sm:py-12 flex flex-col gap-6">
                 <ProfileHeroCard
-                    name={userName}
-                    email={userEmail}
+                    name={displayName}
+                    email={displayEmail}
                     rating="4.9"
-                    memberSince="2026"
+                    memberSince={memberSince}
                     onViewRatingsClick={() => navigate("/driver/ratings")}
                     onEditProfileClick={() =>
                         navigate("/profile/edit", { state: { role: "driver" } })
@@ -115,9 +141,7 @@ export function DriverProfilePage({
                         {t("profile.aboutMe")}
                     </h2>
                     <p className="text-(--color-text-secondary) text-sm leading-relaxed">
-                        Easygoing traveler who enjoys meeting new people on the
-                        road. Reliable, communicative, and always respectful
-                        during rides.
+                        {aboutMe}
                     </p>
                 </div>
 
@@ -221,10 +245,50 @@ export function DriverProfilePage({
                                 {t("profile.addCar")}
                             </Button>
                         </div>
-                        <CarCard model="Skoda Fabia" />
+                        {carsQuery.isLoading && (
+                            <p className="text-(--color-text-secondary)">
+                                {t("profile.loadingCars", "Loading cars...")}
+                            </p>
+                        )}
+                        {carsQuery.isError && (
+                            <p className="text-(--color-text-secondary)">
+                                {t("profile.carsError", "Could not load cars.")}
+                            </p>
+                        )}
+                        {!carsQuery.isLoading &&
+                            !carsQuery.isError &&
+                            carsQuery.data?.length === 0 && (
+                                <p className="text-(--color-text-secondary)">
+                                    {t(
+                                        "profile.noCars",
+                                        "You have no saved cars yet."
+                                    )}
+                                </p>
+                            )}
+                        {carsQuery.data?.map((car) => (
+                            <CarCard
+                                key={car.id}
+                                model={`${car.brand} ${car.modelName}`}
+                            />
+                        ))}
                     </div>
                 </div>
             </div>
         </div>
     );
+}
+
+function formatMemberSince(
+    value: string | Date | undefined,
+    language: Language
+) {
+    if (!value) return "";
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+
+    return new Intl.DateTimeFormat(language, {
+        month: "long",
+        year: "numeric",
+    }).format(date);
 }
