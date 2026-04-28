@@ -12,6 +12,7 @@ import {
     BookingActionResponseSchema,
     PassengerBookingListItemSchema,
     PassengerBookingListSchema,
+    DriverRideRequestListSchema,
 } from "@repo/shared";
 
 export const BookingRoutes = new Elysia({
@@ -27,6 +28,7 @@ export const BookingRoutes = new Elysia({
         BookingActionResponse: BookingActionResponseSchema,
         PassengerBookingListItem: PassengerBookingListItemSchema,
         PassengerBookingList: PassengerBookingListSchema,
+        DriverRideRequestList: DriverRideRequestListSchema,
         ErrorResponse: ErrorResponseSchema,
     })
     // Global error handler (consistent with cars and rides).
@@ -48,6 +50,24 @@ export const BookingRoutes = new Elysia({
             // PASSENGER ROUTES
             // ==========================================
 
+            .get(
+                "/requests",
+                async ({ user }) => {
+                    return await BookingService.getPendingRequestsForDriver(
+                        user.id
+                    );
+                },
+                {
+                    response: {
+                        200: "DriverRideRequestList",
+                        500: "ErrorResponse",
+                    },
+                    detail: {
+                        description:
+                            "Returns all pending booking requests for rides offered by the authenticated driver",
+                    },
+                }
+            )
             .get(
                 "/me",
                 async ({ user, query }) => {

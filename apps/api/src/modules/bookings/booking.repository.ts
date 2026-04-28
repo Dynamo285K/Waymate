@@ -8,6 +8,7 @@ import {
     gte,
     lt,
     sql,
+    asc,
 } from "drizzle-orm";
 import { db } from "../../db";
 import { bookings as bookingsTable } from "../../db/schema/booking";
@@ -19,6 +20,7 @@ import { reviews as reviewsTable } from "../../db/schema/review";
 import { bookingStatusHistory as bookingStatusHistoryTable } from "../../db/schema";
 import { BookingErrors } from "./booking.errors";
 import type {
+    DriverRideRequestItem,
     CreateBookingInput,
     PassengerBookingListItem,
     BookingTimeframe,
@@ -34,6 +36,65 @@ const myReviewOfDriverTable = aliasedTable(
 /**
  * Returns bookings created by a passenger, including ride/driver summary and city names.
  */
+
+const findPendingRequestsForDriver = async (
+    driverId: string
+): Promise<DriverRideRequestItem[]> => {
+    // Aggregate passenger ratings for rating badge.
+    const passengerRatings = db
+        .select({
+            subjectId: reviewsTable.subjectId,
+            averageRating: sql<number>`AVG(${reviewsTable.rating})::float`.as(
+                "averageRating"
+            ),
+        })
+        .from(reviewsTable)
+        .where(eq(reviewsTable.reviewStatus, "VISIBLE"))
+        .groupBy(reviewsTable.subjectId)
+        .as("passenger_ratings");
+
+    // Main query joining rides, bookings, and stops.
+    const rows = await db
+        .select({
+            id: bookingsTable.id,
+            rideId: bookingsTable.rideId,
+            seatCount: bookingsTable.seatCount,
+            passenger: {
+                id: usersTable.id,
+                firstName: usersTable.firstName,
+                lastName: usersTable.lastName,
+                profilePhotoUrl: usersTable.profilePhotoUrl,
+                averageRating: passengerRatings.averageRating,
+            },
+            pickupCity: pickupStops.city,
+            dropoffCity: dropoffStops.city,
+            departureAt: ridesTable.departureAt,
+        })
+        .from(bookingsTable)
+        .innerJoin(ridesTable, eq(bookingsTable.rideId, ridesTable.id))
+        .innerJoin(usersTable, eq(bookingsTable.passengerId, usersTable.id))
+        .leftJoin(
+            passengerRatings,
+            eq(passengerRatings.subjectId, usersTable.id)
+        )
+        .innerJoin(pickupStops, eq(bookingsTable.pickupStopId, pickupStops.id))
+        .innerJoin(
+            dropoffStops,
+            eq(bookingsTable.dropoffStopId, dropoffStops.id)
+        )
+        .where(
+            and(
+                eq(ridesTable.driverId, driverId),
+                eq(bookingsTable.bookingStatus, "PENDING"),
+                isNull(bookingsTable.deletedAt),
+                isNull(ridesTable.deletedAt)
+            )
+        )
+        .orderBy(asc(ridesTable.departureAt), asc(bookingsTable.createdAt));
+
+    return rows as DriverRideRequestItem[];
+};
+
 const findBookingsByPassengerId = async (
     passengerId: string,
     timeframe: BookingTimeframe = "UPCOMING"
@@ -543,6 +604,7 @@ const cancelBookingByPassenger = async (
 };
 
 export const BookingRepository = {
+    findPendingRequestsForDriver,
     findBookingsByPassengerId,
     createBookingRequest,
     confirmBooking,

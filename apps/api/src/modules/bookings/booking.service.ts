@@ -1,9 +1,14 @@
 import { BookingRepository } from "./booking.repository";
 import type { BookingTimeframe, CreateBookingInput } from "./booking.types";
 
+const getPendingRequestsForDriver = async (driverId: string) => {
+    return await BookingRepository.findPendingRequestsForDriver(driverId);
+};
+
 /**
  * Returns bookings created by the authenticated passenger.
  */
+
 const getPassengerBookings = async (
     passengerId: string,
     timeframe?: BookingTimeframe
@@ -61,6 +66,7 @@ const cancelBookingByPassenger = async (
 
 // Export the functions in the same style as RideService and UserService.
 export const BookingService = {
+    getPendingRequestsForDriver,
     getPassengerBookings,
     createBookingRequest,
     confirmBooking,

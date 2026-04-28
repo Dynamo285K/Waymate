@@ -82,3 +82,21 @@ export const PassengerBookingListItemSchema = z.object({
 
 export const PassengerBookingListSchema =
     PassengerBookingListItemSchema.array();
+
+export const DriverRideRequestItemSchema = z.object({
+    id: z.uuid(),
+    rideId: RideIdSchema,
+    seatCount: z.number().int(),
+    passenger: z.object({
+        id: UserIdSchema,
+        firstName: z.string().nullable(),
+        lastName: z.string().nullable(),
+        profilePhotoUrl: z.string().nullable(),
+        averageRating: z.number().nullable(),
+    }),
+    pickupCity: z.string(),
+    dropoffCity: z.string(),
+    departureAt: z.date(),
+});
+
+export const DriverRideRequestListSchema = DriverRideRequestItemSchema.array();

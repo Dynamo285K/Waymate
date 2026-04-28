@@ -101,7 +101,8 @@ export function AdminDashboardPage({
     };
 
     const chartColor = "var(--color-primary)";
-    const chartCursorFill = "color-mix(in srgb, var(--color-primary) 8%, transparent)";
+    const chartCursorFill =
+        "color-mix(in srgb, var(--color-primary) 8%, transparent)";
     const gridColor = "var(--color-border)";
 
     return (
