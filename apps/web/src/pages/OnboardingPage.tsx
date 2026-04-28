@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
@@ -85,7 +86,7 @@ export function OnboardingPage({
         };
     }, [navigate, t]);
 
-    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         setSubmitError("");
 

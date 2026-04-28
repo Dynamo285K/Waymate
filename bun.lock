@@ -45,7 +45,6 @@
         "@elysiajs/eden": "^1.4.0",
         "@hookform/resolvers": "^5.2.2",
         "@repo/api": "workspace:*",
-        "@repo/shared": "workspace:*",
         "@tanstack/react-query": "^5.66.0",
         "@tanstack/react-query-devtools": "^5.66.0",
         "@tanstack/react-router": "^1.99.0",
