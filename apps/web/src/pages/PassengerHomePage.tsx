@@ -4,6 +4,7 @@ import { PassengerNavbar } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { HomeContent } from "../components/HomeContent";
 import { useLogout } from "../hooks/useLogout";
+import { useCreateBooking } from "../hooks/useCreateBooking";
 
 type PassengerHomePageProps = {
     language: Language;
@@ -25,6 +26,7 @@ export function PassengerHomePage({
     const { t } = useTranslation();
     const navigate = useNavigate();
     const logout = useLogout();
+    const createBooking = useCreateBooking();
 
     return (
         <div
@@ -67,23 +69,45 @@ export function PassengerHomePage({
             />
             <HomeContent
                 language={language}
-                onBook={(ride) =>
-                    navigate("/passenger/rides", {
-                        state: {
-                            bookedRide: {
-                                id: Date.now(),
-                                from: ride.from,
-                                to: ride.to,
-                                date: ride.date.toISOString(),
-                                price: ride.price,
-                                driverName: ride.driverName,
-                                driverRating: ride.driverRating,
-                                seatsLeft: ride.seatsLeft,
-                                status: "pending",
-                            },
+                onBook={(ride) => {
+                    if (
+                        !ride.rideId ||
+                        !ride.pickupStopId ||
+                        !ride.dropoffStopId
+                    ) {
+                        return;
+                    }
+
+                    createBooking.mutate(
+                        {
+                            rideId: ride.rideId,
+                            pickupStopId: ride.pickupStopId,
+                            dropoffStopId: ride.dropoffStopId,
                         },
-                    })
-                }
+                        {
+                            onSuccess: (booking) => {
+                                navigate("/passenger/rides", {
+                                    state: {
+                                        bookedRide: {
+                                            id: booking.id,
+                                            rideId: ride.rideId,
+                                            pickupStopId: ride.pickupStopId,
+                                            dropoffStopId: ride.dropoffStopId,
+                                            from: ride.from,
+                                            to: ride.to,
+                                            date: ride.date.toISOString(),
+                                            price: ride.price,
+                                            driverName: ride.driverName,
+                                            driverRating: ride.driverRating,
+                                            seatsLeft: ride.seatsLeft,
+                                            status: "pending",
+                                        },
+                                    },
+                                });
+                            },
+                        }
+                    );
+                }}
                 onSearch={(from, to, date) => {
                     const params = new URLSearchParams();
                     if (from) params.set("from", from);

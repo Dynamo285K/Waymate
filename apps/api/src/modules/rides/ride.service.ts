@@ -3,6 +3,13 @@ import type { CreateRideBody, SearchRidesQuery } from "@repo/shared";
 import type { RideTimeframe } from "./ride.types";
 
 /**
+ * Retrieves public upcoming rides available for booking.
+ */
+const getAvailableRides = async () => {
+    return await RideRepository.findAvailableRides();
+};
+
+/**
  * Retrieves rides for a specific driver (split into upcoming/past).
  */
 const getDriverRides = async (driverId: string, timeframe?: RideTimeframe) => {
@@ -53,6 +60,7 @@ const cancelRide = async (
 
 // Export all service functions as a single object.
 export const RideService = {
+    getAvailableRides,
     getDriverRides,
     getRidePassengers,
     searchRides,

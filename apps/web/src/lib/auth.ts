@@ -60,6 +60,20 @@ export function signOut() {
     return authClient.signOut();
 }
 
+export function requestPasswordReset(params: { email: string }) {
+    return authClient.requestPasswordReset({
+        email: params.email,
+        redirectTo: `${window.location.origin}/forgot-password`,
+    });
+}
+
+export function resetPassword(params: { token: string; newPassword: string }) {
+    return authClient.resetPassword({
+        token: params.token,
+        newPassword: params.newPassword,
+    });
+}
+
 export async function getCurrentUser() {
     return (await unwrap(api.users.me.get())) as CurrentUser;
 }

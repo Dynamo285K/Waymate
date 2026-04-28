@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
+import { requestPasswordReset, resetPassword } from "../lib/auth";
 
 type ForgotPasswordPageProps = {
     language: Language;
@@ -45,10 +46,12 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [step, setStep] = useState<1 | 2 | 3>(1);
-    const [code, setCode] = useState(["", "", "", "", "", ""]);
     const [countdown, setCountdown] = useState(59);
     const [showPw, setShowPw] = useState(false);
-    const codeRefs = useRef<(HTMLInputElement | null)[]>([]);
+    const [isSendingReset, setIsSendingReset] = useState(false);
+    const [isResettingPassword, setIsResettingPassword] = useState(false);
+    const [resetError, setResetError] = useState<string | null>(null);
+    const [resetToken, setResetToken] = useState<string | null>(null);
 
     const formSchema = z
         .object({
@@ -77,6 +80,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
     });
 
     const enteredEmail = watch("email");
+    const newPassword = watch("newPassword");
 
     useEffect(() => {
         if (step !== 2) return;
@@ -88,28 +92,73 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
         return () => clearInterval(timer);
     }, [step]);
 
-    function handleCodeInput(idx: number, val: string) {
-        const digit = val.replace(/\D/g, "").slice(-1);
-        const next = [...code];
-        next[idx] = digit;
-        setCode(next);
-        if (digit && idx < 5) codeRefs.current[idx + 1]?.focus();
-    }
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get("token");
+        const error = params.get("error");
 
-    function handleCodeKey(idx: number, e: React.KeyboardEvent) {
-        if (e.key === "Backspace" && !code[idx] && idx > 0) {
-            codeRefs.current[idx - 1]?.focus();
+        if (token) {
+            setResetToken(token);
+            setStep(3);
+        } else if (error) {
+            setResetError(
+                t(
+                    "forgotPassword.invalidToken",
+                    "This reset link is invalid or expired. Please request a new one."
+                )
+            );
         }
-    }
+    }, [t]);
 
     async function handleSendCode() {
         const ok = await trigger("email");
-        if (ok) setStep(2);
+        if (!ok || isSendingReset) return;
+
+        setIsSendingReset(true);
+        setResetError(null);
+
+        const { error } = await requestPasswordReset({ email: enteredEmail });
+
+        setIsSendingReset(false);
+
+        if (error) {
+            setResetError(
+                t(
+                    "forgotPassword.error",
+                    "Could not send reset email. Please try again."
+                )
+            );
+            return;
+        }
+
+        setStep(2);
     }
 
     async function handleSetPassword() {
         const ok = await trigger(["newPassword", "confirmPassword"]);
-        if (ok) navigate("/login");
+        if (!ok || !resetToken || isResettingPassword) return;
+
+        setIsResettingPassword(true);
+        setResetError(null);
+
+        const { error } = await resetPassword({
+            token: resetToken,
+            newPassword,
+        });
+
+        setIsResettingPassword(false);
+
+        if (error) {
+            setResetError(
+                t(
+                    "forgotPassword.resetError",
+                    "Could not reset your password. Please request a new link."
+                )
+            );
+            return;
+        }
+
+        navigate("/login");
     }
 
     const inputClass =
@@ -199,8 +248,15 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                             fullWidth
                             onClick={handleSendCode}
                         >
-                            ➤ {t("forgotPassword.sendCode")}
+                            {isSendingReset
+                                ? t("forgotPassword.sending", "Sending...")
+                                : `➤ ${t("forgotPassword.sendCode")}`}
                         </Button>
+                        {resetError && (
+                            <p className="mt-3 text-xs font-semibold text-red-500">
+                                {resetError}
+                            </p>
+                        )}
                         <button
                             className="mt-4 text-sm text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors"
                             onClick={() => navigate("/login")}
@@ -240,37 +296,20 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                             {t("forgotPassword.step2Title")}
                         </h1>
                         <p className="text-sm text-(--color-text-secondary) mb-1">
-                            {t("forgotPassword.step2Subtitle")}
+                            {t(
+                                "forgotPassword.resetLinkSent",
+                                "We sent a password reset link to"
+                            )}
                         </p>
                         <p className="text-sm font-bold text-(--color-text-primary) mb-6">
                             {enteredEmail}
                         </p>
 
-                        <div className="flex gap-2 mb-4">
-                            {code.map((digit, i) => (
-                                <input
-                                    key={i}
-                                    ref={(el) => {
-                                        codeRefs.current[i] = el;
-                                    }}
-                                    type="text"
-                                    inputMode="numeric"
-                                    maxLength={1}
-                                    value={digit}
-                                    onChange={(e) =>
-                                        handleCodeInput(i, e.target.value)
-                                    }
-                                    onKeyDown={(e) => handleCodeKey(i, e)}
-                                    className={`w-11 h-12 text-center text-lg font-bold rounded-xl border-2 outline-none transition-colors bg-(--color-input-bg) text-(--color-text-primary) ${digit ? "border-(--color-primary)" : "border-(--color-border)"} focus:border-(--color-primary)`}
-                                />
-                            ))}
-                        </div>
-
                         <Button
                             fullWidth
-                            onClick={() => setStep(3)}
+                            onClick={() => navigate("/login")}
                         >
-                            ✓ {t("forgotPassword.verifyCode")}
+                            {t("forgotPassword.backToLogin")}
                         </Button>
 
                         <p className="mt-4 text-xs text-(--color-text-secondary)">
@@ -282,7 +321,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                             ) : (
                                 <button
                                     className="font-bold text-(--color-primary) hover:underline"
-                                    onClick={() => setCountdown(59)}
+                                    onClick={handleSendCode}
                                 >
                                     {t("forgotPassword.resend")}
                                 </button>
@@ -375,8 +414,18 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                             fullWidth
                             onClick={handleSetPassword}
                         >
-                            ✓ {t("forgotPassword.setPassword")}
+                            {isResettingPassword
+                                ? t(
+                                      "forgotPassword.settingPassword",
+                                      "Setting password..."
+                                  )
+                                : `✓ ${t("forgotPassword.setPassword")}`}
                         </Button>
+                        {resetError && (
+                            <p className="mt-3 text-xs font-semibold text-red-500">
+                                {resetError}
+                            </p>
+                        )}
                     </>
                 )}
             </div>

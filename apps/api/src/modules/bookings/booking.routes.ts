@@ -230,6 +230,74 @@ export const BookingRoutes = new Elysia({
             // ==========================================
 
             .patch(
+                "/:id/driver/cancel",
+                async ({ user, params, body, status }) => {
+                    try {
+                        const cancelledId =
+                            await BookingService.cancelBookingByDriver(
+                                params.id,
+                                user.id,
+                                body.reason
+                            );
+                        return status(200, {
+                            id: cancelledId,
+                            status: "CANCELLED",
+                        });
+                    } catch (error) {
+                        const message =
+                            error instanceof Error
+                                ? error.message
+                                : String(error);
+
+                        if (message === BookingErrors.BookingNotFound) {
+                            return status(404, { error: "Booking not found" });
+                        }
+                        if (message === BookingErrors.UnauthorizedAction) {
+                            return status(403, {
+                                error: "Not authorized to manage this ride",
+                            });
+                        }
+                        if (message === BookingErrors.AlreadyCancelled) {
+                            return status(400, {
+                                error: "Booking is already cancelled",
+                            });
+                        }
+                        if (message === BookingErrors.InvalidStatusTransition) {
+                            return status(400, {
+                                error: "Only pending or confirmed bookings can be cancelled",
+                            });
+                        }
+                        if (
+                            message === BookingErrors.RideNotFoundOrUnavailable
+                        ) {
+                            return status(404, {
+                                error: "Ride not found or no longer available",
+                            });
+                        }
+
+                        return status(500, {
+                            error: "Failed to cancel booking",
+                        });
+                    }
+                },
+                {
+                    params: "BookingIdParams",
+                    body: "CancelBookingBody",
+                    response: {
+                        200: "BookingActionResponse",
+                        400: "ErrorResponse",
+                        403: "ErrorResponse",
+                        404: "ErrorResponse",
+                        500: "ErrorResponse",
+                    },
+                    detail: {
+                        description:
+                            "Driver cancels a pending or confirmed passenger booking for their own ride",
+                    },
+                }
+            )
+
+            .patch(
                 "/:id/confirm",
                 async ({ user, params, status }) => {
                     try {

@@ -5,6 +5,7 @@ import type { Language } from "@waymate/ui";
 import { useRidePassengers } from "../hooks/useRidePassengers";
 import { toUiLanguage } from "../lib/language";
 import { useLogout } from "../hooks/useLogout";
+import { useCancelBookingByDriver } from "../hooks/useCancelBookingByDriver";
 
 type DriverPassengersPageProps = {
     language: Language;
@@ -77,6 +78,7 @@ export function DriverPassengersPage({
         isLoading,
         isError,
     } = useRidePassengers(ride?.id);
+    const cancelBooking = useCancelBookingByDriver();
 
     const navbarLabels = {
         passenger: t("roles.passenger"),
@@ -180,6 +182,15 @@ export function DriverPassengersPage({
                         </p>
                     )}
 
+                    {cancelBooking.isError && (
+                        <p className="text-(--color-text-secondary)">
+                            {t(
+                                "driverRides.cancelBookingError",
+                                "Failed to cancel booking. Please try again."
+                            )}
+                        </p>
+                    )}
+
                     {!isLoading &&
                         !isError &&
                         passengersView?.passengers.length === 0 && (
@@ -208,7 +219,13 @@ export function DriverPassengersPage({
                                     onSendMessage={() =>
                                         navigate("/driver/chat")
                                     }
-                                    onCancelBooking={() => {}}
+                                    onCancelBooking={() =>
+                                        cancelBooking.mutate({
+                                            bookingId: booking.bookingId,
+                                            rideId: ride?.id,
+                                            reason: "Driver cancelled passenger booking",
+                                        })
+                                    }
                                     labels={{
                                         seatsReserved: (count) =>
                                             t("driverRides.seatsReserved", {
