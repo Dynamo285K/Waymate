@@ -18,7 +18,7 @@
         "@tanstack/react-router": "^1.99.0",
         "@hookform/resolvers": "^5.2.2",
         "@repo/shared": "workspace:*",
-        "@waymate/ui": "^0.1.7",
+        "@waymate/ui": "^0.1.10",
         "date-fns": "^4.1.0",
         "i18next": "^26.0.7",
         "react": "^19.2.0",

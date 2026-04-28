@@ -107,7 +107,7 @@ export function DriverMyRidesPage({
                 userName={userName}
                 userEmail={userEmail}
                 onLogoClick={() => navigate("/driver")}
-                onOfferRideClick={() => navigate("/driver")}
+                onOfferRideClick={() => navigate("/driver/offer")}
                 onMyRidesClick={() => navigate("/driver/rides")}
                 onRideRequestsClick={() => navigate("/driver/requests")}
                 onChatClick={() => navigate("/driver/chat")}

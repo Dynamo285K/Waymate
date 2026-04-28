@@ -71,6 +71,11 @@ const audienceRoutes: ReadonlyArray<{
         theme: ReturnType<typeof useLayout>["theme"];
         onLanguageChange: ReturnType<typeof useLayout>["onLanguageChange"];
         onThemeToggle: ReturnType<typeof useLayout>["onThemeToggle"];
+        userName?: ReturnType<typeof useLayout>["userName"];
+        userEmail?: ReturnType<typeof useLayout>["userEmail"];
+        userPhone?: ReturnType<typeof useLayout>["userPhone"];
+        userBio?: ReturnType<typeof useLayout>["userBio"];
+        userCreatedAt?: ReturnType<typeof useLayout>["userCreatedAt"];
     }>;
 }> = [
     { path: "/rides", Component: RidesPage },

@@ -1,6 +1,5 @@
-import { useForm, type SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { useEffect, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "../lib/router-compat";
 import {
@@ -13,6 +12,7 @@ import {
 import type { Language } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { useLogout } from "../hooks/useLogout";
+import { updateCurrentUserProfile } from "../lib/auth";
 
 type EditProfilePageProps = {
     language: Language;
@@ -21,6 +21,8 @@ type EditProfilePageProps = {
     onThemeToggle: () => void;
     userName?: string;
     userEmail?: string;
+    userPhone?: string;
+    userBio?: string;
 };
 
 type FormValues = {
@@ -36,11 +38,14 @@ export function EditProfilePage({
     theme,
     onLanguageChange,
     onThemeToggle,
-    userName = "Tomáš Olbert",
-    userEmail = "nejviacpracujuci@gmail.com",
+    userName,
+    userEmail,
+    userPhone,
+    userBio,
 }: EditProfilePageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const logout = useLogout();
     const location = useLocation();
     const role =
@@ -53,33 +58,54 @@ export function EditProfilePage({
               ? "/admin/account"
               : "/passenger/profile";
 
-    const formSchema = z.object({
-        name: z.string().trim().min(1, t("register.requiredError")),
-        email: z
-            .string()
-            .trim()
-            .refine((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
-                message: t("login.invalidEmail"),
-            }),
-        phone: z.string(),
-        plate: z.string(),
-        about: z.string().max(500),
-    });
+    const [name, setName] = useState(userName ?? "");
+    const [email, setEmail] = useState(userEmail ?? "");
+    const [phone, setPhone] = useState(userPhone ?? "");
+    const [about, setAbout] = useState(userBio ?? "");
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-    } = useForm<FormValues>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            name: userName,
-            email: userEmail,
-            phone: "+421 900 123 456",
-            plate: "BA-123AB",
-            about: "Easygoing traveler who enjoys meeting new people on the road. Reliable, communicative, and always respectful during rides.",
+    const updateProfile = useMutation({
+        mutationFn: updateCurrentUserProfile,
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ["users", "me"] });
+            navigate(backPath);
         },
     });
+
+    useEffect(() => {
+        if (userName) {
+            setName(userName);
+        }
+    }, [userName]);
+
+    useEffect(() => {
+        if (userEmail) {
+            setEmail(userEmail);
+        }
+    }, [userEmail]);
+
+    useEffect(() => {
+        if (userPhone) {
+            setPhone(userPhone);
+        }
+    }, [userPhone]);
+
+    useEffect(() => {
+        if (userBio) {
+            setAbout(userBio);
+        }
+    }, [userBio]);
+
+    function handleSave() {
+        const { firstName, lastName } = splitFullName(name);
+
+        updateProfile.mutate({
+            firstName,
+            lastName,
+            displayName: firstName,
+            phone: phone.trim(),
+            bio: about.trim(),
+        });
+    }
 
     const driverNavbarProps = useDriverNavbarProps({
         activeTab: undefined,
@@ -177,36 +203,21 @@ export function EditProfilePage({
                 >
                     {/* Two-column grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <Input
-                                label={t("editProfile.fullName")}
-                                {...register("name")}
-                            />
-                            {errors.name && (
-                                <p className="mt-1 text-xs font-semibold text-red-500">
-                                    {errors.name.message}
-                                </p>
-                            )}
-                        </div>
-                        <div>
-                            <Input
-                                label={t("editProfile.email")}
-                                type="email"
-                                {...register("email")}
-                            />
-                            {errors.email && (
-                                <p className="mt-1 text-xs font-semibold text-red-500">
-                                    {errors.email.message}
-                                </p>
-                            )}
-                        </div>
+                        <Input
+                            label={t("editProfile.fullName")}
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                        />
+                        <Input
+                            label={t("editProfile.email")}
+                            type="email"
+                            value={email}
+                            disabled
+                            onChange={() => {}}
+                        />
                         <Input
                             label={t("editProfile.phone")}
                             {...register("phone")}
-                        />
-                        <Input
-                            label={t("editProfile.licensePlate")}
-                            {...register("plate")}
                         />
                     </div>
 
@@ -238,14 +249,38 @@ export function EditProfilePage({
                             {t("editProfile.cancel")}
                         </Button>
                         <Button
-                            type="submit"
-                            disabled={isSubmitting}
+                            onClick={handleSave}
+                            disabled={updateProfile.isPending}
                         >
-                            {t("editProfile.save")}
+                            {updateProfile.isPending
+                                ? t("editProfile.saving", "Saving...")
+                                : t("editProfile.save")}
                         </Button>
                     </div>
-                </form>
+
+                    {updateProfile.isError && (
+                        <p className="text-sm font-semibold text-red-500">
+                            {t(
+                                "editProfile.saveError",
+                                "Could not save profile changes."
+                            )}
+                        </p>
+                    )}
+                </div>
             </section>
         </div>
     );
+}
+
+function splitFullName(fullName: string) {
+    const parts = fullName.trim().split(/\s+/).filter(Boolean);
+    const formatNamePart = (value: string) =>
+        value ? value.charAt(0).toLocaleUpperCase() + value.slice(1) : "";
+    const firstName = formatNamePart(parts[0] ?? "");
+    const lastName = formatNamePart(parts.slice(1).join(""));
+
+    return {
+        firstName: firstName || undefined,
+        lastName: lastName || undefined,
+    };
 }

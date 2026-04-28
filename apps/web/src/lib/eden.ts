@@ -6,4 +6,5 @@ const API_BASE_URL =
 
 export const api = treaty<App>(API_BASE_URL, {
     fetch: { credentials: "include" },
+    keepDomain: true,
 });
