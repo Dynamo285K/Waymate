@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ComponentProps, ComponentType } from "react";
 import { cs, enUS, sk as skLocale } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
@@ -231,6 +231,7 @@ export function DriverOfferRidePage({
     const [showSaveCarPrompt, setShowSaveCarPrompt] = useState(false);
     const [publishedMessage, setPublishedMessage] = useState("");
     const [publishError, setPublishError] = useState("");
+    const hasUserSelectedCarMode = useRef(false);
 
     useEffect(() => {
         if (publishError) {
@@ -269,6 +270,11 @@ export function DriverOfferRidePage({
         return today;
     }, []);
 
+    function handleCarModeChange(mode: "saved" | "manual") {
+        hasUserSelectedCarMode.current = true;
+        setCarMode(mode);
+    }
+
     useEffect(() => {
         if (driverCars.length === 0) {
             if (carMode === "saved") {
@@ -286,6 +292,16 @@ export function DriverOfferRidePage({
 
         if (!selectedCarExists) {
             setSelectedCarId(driverCars[0].id);
+        }
+
+        if (
+            !hasUserSelectedCarMode.current &&
+            carMode === "manual" &&
+            !manualBrand &&
+            !manualModel &&
+            !manualPlate
+        ) {
+            setCarMode("saved");
         }
     }, [
         carMode,
@@ -730,7 +746,7 @@ export function DriverOfferRidePage({
                     onPriceChange={handlePriceChange}
                     savedCars={driverCars}
                     carMode={carMode}
-                    onCarModeChange={setCarMode}
+                    onCarModeChange={handleCarModeChange}
                     selectedCarId={selectedCarId}
                     onSelectedCarChange={setSelectedCarId}
                     manualBrand={manualBrand}

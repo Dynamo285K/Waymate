@@ -16,6 +16,7 @@ import { useDriverRides } from "../hooks/useDriverRides";
 import { formatRideDate as formatDate } from "../lib/date-format";
 import { api } from "../lib/eden";
 import { unwrap } from "../lib/eden-query";
+import { useUserReviews } from "../hooks/useReviews";
 
 type Props = {
     language: Language;
@@ -26,6 +27,7 @@ type Props = {
     userEmail?: string;
     userBio?: string;
     userCreatedAt?: string | Date;
+    userId?: string;
 };
 
 type UserCarRow = {
@@ -43,18 +45,14 @@ export function DriverProfilePage({
     userEmail,
     userBio,
     userCreatedAt,
+    userId,
 }: Props) {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const displayName = userName ?? t("profile.fallbackName", "User");
     const displayEmail = userEmail ?? "";
     const memberSince = formatMemberSince(userCreatedAt, language);
-    const aboutMe =
-        userBio?.trim() ||
-        t(
-            "profile.defaultBio",
-            "Easygoing traveler who enjoys meeting new people on the road. Reliable, communicative, and always respectful during rides."
-        );
+    const aboutMe = userBio?.trim();
     const [cancellingRideId, setCancellingRideId] = useState<string | null>(
         null
     );
@@ -68,6 +66,11 @@ export function DriverProfilePage({
         queryKey: ["cars", "me"],
         queryFn: () => unwrap(api.cars.me.get()) as Promise<UserCarRow[]>,
     });
+    const { data: receivedReviews } = useUserReviews(userId);
+    const profileRating =
+        receivedReviews?.averageRating != null
+            ? receivedReviews.averageRating.toFixed(1)
+            : "0.0";
     const navbarProps = useDriverNavbarProps({
         language,
         onLanguageChange,
@@ -123,9 +126,11 @@ export function DriverProfilePage({
                 <ProfileHeroCard
                     name={displayName}
                     email={displayEmail}
-                    rating="4.9"
+                    rating={profileRating}
                     memberSince={memberSince}
-                    onViewRatingsClick={() => navigate("/driver/ratings")}
+                    onViewRatingsClick={() =>
+                        navigate("/driver/ratings?view=received")
+                    }
                     onEditProfileClick={() =>
                         navigate("/profile/edit", { state: { role: "driver" } })
                     }
@@ -136,14 +141,16 @@ export function DriverProfilePage({
                     }}
                 />
 
-                <div className="bg-(--color-card) rounded-2xl p-6 border border-(--color-border)">
-                    <h2 className="text-base font-semibold text-(--color-text-primary) mb-3">
-                        {t("profile.aboutMe")}
-                    </h2>
-                    <p className="text-(--color-text-secondary) text-sm leading-relaxed">
-                        {aboutMe}
-                    </p>
-                </div>
+                {aboutMe && (
+                    <div className="bg-(--color-card) rounded-2xl p-6 border border-(--color-border)">
+                        <h2 className="text-base font-semibold text-(--color-text-primary) mb-3">
+                            {t("profile.aboutMe")}
+                        </h2>
+                        <p className="text-(--color-text-secondary) text-sm leading-relaxed">
+                            {aboutMe}
+                        </p>
+                    </div>
+                )}
 
                 <div className="flex flex-col lg:flex-row gap-6">
                     <div className="flex-1 flex flex-col gap-4">

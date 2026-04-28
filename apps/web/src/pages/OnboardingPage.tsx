@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
-import { useForm, type SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { OnboardingUserBodySchema } from "@repo/shared";
+import type { FormEvent } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { AuthNavbar, Button } from "@waymate/ui";
@@ -24,19 +22,11 @@ type CurrentUser = {
     phone: string | null;
 };
 
-type FormValues = {
-    fullName: string;
-    phone: string;
-};
-
-function splitFullName(fullName: string) {
-    const parts = fullName.trim().split(/\s+/).filter(Boolean);
-    const formatNamePart = (value: string) =>
-        value ? value.charAt(0).toLocaleUpperCase() + value.slice(1) : "";
-    const firstName = formatNamePart(parts[0] ?? "");
-    const lastName = formatNamePart(parts.slice(1).join(""));
-
-    return { firstName, lastName };
+function formatNamePart(value: string) {
+    const trimmed = value.trim();
+    return trimmed
+        ? trimmed.charAt(0).toLocaleUpperCase() + trimmed.slice(1)
+        : "";
 }
 
 function normalizePhone(phone: string) {
@@ -57,34 +47,13 @@ export function OnboardingPage({
 }: OnboardingPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [phone, setPhone] = useState("");
     const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState("");
-
-    const formSchema = z.object({
-        fullName: z.string().refine(
-            (value) => {
-                const { firstName, lastName } = splitFullName(value);
-                return !!firstName && !!lastName;
-            },
-            { message: t("onboarding.requiredError") }
-        ),
-        phone: z
-            .string()
-            .refine(
-                (value) => /^\+[1-9]\d{1,14}$/.test(normalizePhone(value)),
-                { message: t("onboarding.phoneError") }
-            ),
-    });
-
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors, isSubmitting },
-    } = useForm<FormValues>({
-        resolver: zodResolver(formSchema),
-        defaultValues: { fullName: "", phone: "" },
-    });
 
     useEffect(() => {
         let isMounted = true;
@@ -97,11 +66,9 @@ export function OnboardingPage({
                     return;
                 }
 
-                const name =
-                    [user.firstName, user.lastName].filter(Boolean).join(" ") ||
-                    user.name ||
-                    "";
-                reset({ fullName: name, phone: user.phone ?? "" });
+                setFirstName(user.firstName ?? "");
+                setLastName(user.lastName ?? "");
+                setPhone(user.phone ?? "");
             })
             .catch(() => {
                 if (isMounted) {
@@ -117,35 +84,50 @@ export function OnboardingPage({
         return () => {
             isMounted = false;
         };
-    }, [navigate, reset, t]);
+    }, [navigate, t]);
 
-    const onSubmit: SubmitHandler<FormValues> = async (values) => {
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
         setSubmitError("");
-        const { firstName, lastName } = splitFullName(values.fullName);
-        const phone = normalizePhone(values.phone);
 
-        const parsed = OnboardingUserBodySchema.safeParse({
-            firstName,
-            lastName,
-            phone,
-        });
-        if (!parsed.success) {
-            setSubmitError(t("onboarding.error"));
+        const formattedFirstName = formatNamePart(firstName);
+        const formattedLastName = formatNamePart(lastName);
+        const normalizedPhone = normalizePhone(phone);
+
+        if (!formattedFirstName || !formattedLastName || !normalizedPhone) {
+            setSubmitError(t("onboarding.requiredError"));
             return;
         }
 
+        if (!/^\+[1-9]\d{1,14}$/.test(normalizedPhone)) {
+            setSubmitError(t("onboarding.phoneError"));
+            return;
+        }
+
+        setIsSubmitting(true);
         try {
-            await apiFetch("/users/me/onboarding", {
-                method: "PATCH",
-                body: JSON.stringify(parsed.data),
-            });
+            const updatedUser = await apiFetch<CurrentUser>(
+                "/users/me/onboarding",
+                {
+                    method: "PATCH",
+                    body: JSON.stringify({
+                        firstName: formattedFirstName,
+                        lastName: formattedLastName,
+                        phone: normalizedPhone,
+                    }),
+                }
+            );
+            queryClient.setQueryData(["users", "me"], updatedUser);
+            await queryClient.invalidateQueries({ queryKey: ["users", "me"] });
             navigate("/passenger");
         } catch (error) {
             setSubmitError(
                 error instanceof Error ? error.message : t("onboarding.error")
             );
+        } finally {
+            setIsSubmitting(false);
         }
-    };
+    }
 
     const inputClass =
         "w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) px-4 py-3 text-sm outline-none focus:border-(--color-primary) transition-colors";
@@ -166,7 +148,7 @@ export function OnboardingPage({
             <main className="flex min-h-[calc(100vh-72px)] items-center justify-center px-4 py-12">
                 {!isLoadingProfile && (
                     <form
-                        onSubmit={handleSubmit(onSubmit)}
+                        onSubmit={handleSubmit}
                         noValidate
                         className="w-full max-w-xl rounded-2xl border border-(--color-border) bg-(--color-card) p-6 shadow-xl sm:p-8"
                     >
@@ -180,18 +162,30 @@ export function OnboardingPage({
                         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
                             <label className="flex flex-col gap-2">
                                 <span className="text-sm font-semibold text-(--color-text-primary)">
-                                    {t("onboarding.fullName")}
+                                    {t("onboarding.firstName")}
                                 </span>
                                 <input
                                     className={inputClass}
-                                    autoComplete="name"
-                                    {...register("fullName")}
+                                    value={firstName}
+                                    onChange={(event) =>
+                                        setFirstName(event.target.value)
+                                    }
+                                    autoComplete="given-name"
                                 />
-                                {errors.fullName && (
-                                    <span className="text-xs font-semibold text-(--color-red)">
-                                        {errors.fullName.message}
-                                    </span>
-                                )}
+                            </label>
+
+                            <label className="flex flex-col gap-2">
+                                <span className="text-sm font-semibold text-(--color-text-primary)">
+                                    {t("onboarding.lastName")}
+                                </span>
+                                <input
+                                    className={inputClass}
+                                    value={lastName}
+                                    onChange={(event) =>
+                                        setLastName(event.target.value)
+                                    }
+                                    autoComplete="family-name"
+                                />
                             </label>
 
                             <label className="flex flex-col gap-2">
@@ -200,15 +194,13 @@ export function OnboardingPage({
                                 </span>
                                 <input
                                     className={inputClass}
+                                    value={phone}
+                                    onChange={(event) =>
+                                        setPhone(event.target.value)
+                                    }
                                     type="tel"
                                     autoComplete="tel"
-                                    {...register("phone")}
                                 />
-                                {errors.phone && (
-                                    <span className="text-xs font-semibold text-(--color-red)">
-                                        {errors.phone.message}
-                                    </span>
-                                )}
                             </label>
                         </div>
 
