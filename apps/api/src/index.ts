@@ -17,6 +17,7 @@ export const app = new Elysia()
     .use(ReviewRoutes);
 
 export type App = typeof app;
+export type Auth = typeof auth;
 
 const server = app.listen(env.PORT);
 
