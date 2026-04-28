@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { AuthNavbar, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { HomeContent } from "../components/HomeContent";
+import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
 
 type HomePageProps = {
     language: Language;
@@ -29,25 +30,22 @@ export function HomePage({
 }: HomePageProps) {
     const { t } = useTranslation();
     const [showGuestModal, setShowGuestModal] = useState(false);
+    const authNavbarProps = useAuthNavbarProps({
+        language,
+        onLanguageChange,
+        theme,
+        onThemeToggle,
+        onLogin,
+        onRegister,
+        onLogoClick,
+    });
 
     return (
         <div
             data-theme={theme}
             className="min-h-screen bg-(--color-bg)"
         >
-            <AuthNavbar
-                language={language}
-                onLanguageChange={onLanguageChange}
-                theme={theme}
-                onThemeToggle={onThemeToggle}
-                onLogin={onLogin}
-                onRegister={onRegister}
-                onLogoClick={onLogoClick}
-                labels={{
-                    login: t("home.navbar.login"),
-                    register: t("home.navbar.register"),
-                }}
-            />
+            <AuthNavbar {...authNavbarProps} />
             <HomeContent
                 language={language}
                 onSearch={onSearch}

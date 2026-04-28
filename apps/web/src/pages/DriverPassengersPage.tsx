@@ -3,8 +3,7 @@ import { useNavigate, useLocation } from "../lib/router-compat";
 import { DriverNavbar, PassengerCard, StatCard } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useRidePassengers } from "../hooks/useRidePassengers";
-import { toUiLanguage } from "../lib/language";
-import { useLogout } from "../hooks/useLogout";
+import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { useCancelBookingByDriver } from "../hooks/useCancelBookingByDriver";
 
 type DriverPassengersPageProps = {
@@ -66,7 +65,15 @@ export function DriverPassengersPage({
 }: DriverPassengersPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const logout = useLogout();
+    const navbarProps = useDriverNavbarProps({
+        activeTab: "my-rides",
+        language,
+        onLanguageChange,
+        theme,
+        onThemeToggle,
+        userName,
+        userEmail,
+    });
     const location = useLocation();
     const ride = (
         location.state as {
@@ -80,49 +87,12 @@ export function DriverPassengersPage({
     } = useRidePassengers(ride?.id);
     const cancelBooking = useCancelBookingByDriver();
 
-    const navbarLabels = {
-        passenger: t("roles.passenger"),
-        driver: t("roles.driver"),
-        offerRide: t("driver.nav.offerRide"),
-        myRides: t("driver.nav.myRides"),
-        rideRequests: t("driver.nav.rideRequests"),
-        chat: t("driver.nav.chat"),
-        profile: t("nav.profile"),
-        dropdownMyRides: t("driver.nav.myRides"),
-        messages: t("nav.messages"),
-        ratings: t("nav.ratings"),
-        settings: t("nav.settings"),
-        logout: t("nav.logout"),
-    };
-
     return (
         <div
             data-theme={theme}
             className="min-h-screen bg-(--color-bg)"
         >
-            <DriverNavbar
-                activeTab="my-rides"
-                language={toUiLanguage(language)}
-                onLanguageChange={onLanguageChange}
-                role="driver"
-                onRoleChange={(r) =>
-                    r === "passenger" && navigate("/passenger")
-                }
-                theme={theme}
-                onThemeToggle={onThemeToggle}
-                userName={userName}
-                userEmail={userEmail}
-                onLogoClick={() => navigate("/driver")}
-                onOfferRideClick={() => navigate("/driver")}
-                onMyRidesClick={() => navigate("/driver/rides")}
-                onRideRequestsClick={() => navigate("/driver/requests")}
-                onChatClick={() => navigate("/driver/chat")}
-                onMessagesClick={() => navigate("/driver/chat")}
-                onProfileClick={() => navigate("/driver/profile")}
-                onRatingsClick={() => navigate("/driver/ratings?view=authored")}
-                onLogoutClick={logout}
-                labels={navbarLabels}
-            />
+            <DriverNavbar {...navbarProps} />
 
             <section className="w-full px-4 sm:max-w-3xl sm:mx-auto sm:px-8 py-8 sm:py-12">
                 <button

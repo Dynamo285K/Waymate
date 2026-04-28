@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { AuthNavbar, Button, RegisterBox } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
+import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
 import {
     getPostAuthPath,
     signInWithGoogle,
@@ -31,6 +32,12 @@ export function RegisterPage({
 }: RegisterPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const authNavbarProps = useAuthNavbarProps({
+        language,
+        onLanguageChange,
+        theme,
+        onThemeToggle,
+    });
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -116,13 +123,7 @@ export function RegisterPage({
             data-theme={theme}
             className="min-h-screen bg-(--color-bg)"
         >
-            <AuthNavbar
-                language={language}
-                onLanguageChange={onLanguageChange}
-                theme={theme}
-                onThemeToggle={onThemeToggle}
-                onLogoClick={() => navigate("/")}
-            />
+            <AuthNavbar {...authNavbarProps} />
 
             <div className="flex items-center justify-center min-h-[calc(100vh-72px)] px-4 py-12">
                 {registeredEmail ? (

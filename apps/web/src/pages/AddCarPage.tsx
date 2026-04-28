@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from "../lib/router-compat";
 import { PassengerNavbar, DriverNavbar, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
-import { useLogout } from "../hooks/useLogout";
+import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 import { api } from "../lib/eden";
 import { unwrap } from "../lib/eden-query";
 import carData from "../../../api/src/db/cars-data.json";
@@ -85,7 +85,6 @@ export function AddCarPage({
 }: AddCarPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const logout = useLogout();
     const queryClient = useQueryClient();
     const location = useLocation();
     const role =
@@ -150,6 +149,15 @@ export function AddCarPage({
         userName,
         userEmail,
     });
+    const passengerNavbarProps = usePassengerNavbarProps({
+        activeTab: "find-ride",
+        language,
+        onLanguageChange,
+        theme,
+        onThemeToggle,
+        userName,
+        userEmail,
+    });
 
     const inputClass =
         "w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) px-3 py-3 text-sm outline-none focus:border-(--color-primary) focus:ring-2 focus:ring-green-100 transition-colors font-[Inter,sans-serif] appearance-none";
@@ -186,22 +194,7 @@ export function AddCarPage({
             {role === "driver" ? (
                 <DriverNavbar {...driverNavbarProps} />
             ) : (
-                <PassengerNavbar
-                    activeTab="find-ride"
-                    language={language}
-                    onLanguageChange={onLanguageChange}
-                    role="passenger"
-                    onRoleChange={(r) => r === "driver" && navigate("/driver")}
-                    theme={theme}
-                    onThemeToggle={onThemeToggle}
-                    userName={userName}
-                    userEmail={userEmail}
-                    onLogoClick={() => navigate("/passenger")}
-                    onFindRideClick={() => navigate("/passenger")}
-                    onMyRidesClick={() => navigate("/passenger/rides")}
-                    onChatClick={() => navigate("/passenger/chat")}
-                    onLogoutClick={logout}
-                />
+                <PassengerNavbar {...passengerNavbarProps} />
             )}
 
             <section className="w-full px-4 sm:max-w-2xl sm:mx-auto sm:px-8 py-8 sm:py-12">
