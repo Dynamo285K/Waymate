@@ -112,10 +112,6 @@ type OfferRideFormWithCarOptionsProps = ComponentProps<typeof OfferRideForm> & {
 const OfferRideFormWithCarOptions =
     OfferRideForm as ComponentType<OfferRideFormWithCarOptionsProps>;
 
-function isValidSlovakPlate(plate: string) {
-    return /^[A-Z]{2}-?\d{3}[A-Z]{2}$/.test(plate.trim().toUpperCase());
-}
-
 function normalizePlate(plate: string) {
     return plate
         .trim()
@@ -291,15 +287,6 @@ export function DriverOfferRidePage({
         if (!selectedCarExists) {
             setSelectedCarId(driverCars[0].id);
         }
-
-        if (
-            carMode === "manual" &&
-            !manualBrand &&
-            !manualModel &&
-            !manualPlate
-        ) {
-            setCarMode("saved");
-        }
     }, [
         carMode,
         driverCars,
@@ -375,41 +362,7 @@ export function DriverOfferRidePage({
         modelsQuery.isLoading &&
         apiCarModelOptions.length === 0 &&
         fallbackCarModelOptions.length === 0;
-    const manualPlateError =
-        carMode === "manual" &&
-        manualPlate.trim() &&
-        !isValidSlovakPlate(manualPlate)
-            ? t("offerRide.plateError", "Use format BA-123AB.")
-            : undefined;
-
-    const { watch, setValue, setError, clearErrors, formState } =
-        useForm<FormValues>({
-            defaultValues: {
-                pickup: "",
-                dropoff: "",
-                date: undefined,
-                time: "",
-                seats: "",
-                price: "",
-                carMode: INITIAL_DRIVER_CARS.length > 0 ? "saved" : "manual",
-                selectedCarId: INITIAL_DRIVER_CARS[0]?.id ?? "",
-                manualBrand: "",
-                manualModel: "",
-                manualPlate: "",
-            },
-        });
-
-    const pickup = watch("pickup");
-    const dropoff = watch("dropoff");
-    const date = watch("date");
-    const time = watch("time");
-    const seats = watch("seats");
-    const price = watch("price");
-    const carMode = watch("carMode");
-    const selectedCarId = watch("selectedCarId");
-    const manualBrand = watch("manualBrand");
-    const manualModel = watch("manualModel");
-    const manualPlate = watch("manualPlate");
+    const manualPlateError = undefined;
 
     const datePickerLocale =
         LOCALES[language as keyof typeof LOCALES] ??
@@ -595,7 +548,6 @@ export function DriverOfferRidePage({
     async function publishRide(carId = selectedCarId) {
         setShowSaveCarPrompt(false);
         setPublishedMessage("");
-        clearErrors();
 
         const body = buildCreateRideBody(carId);
 
@@ -618,10 +570,6 @@ export function DriverOfferRidePage({
             manualModel.trim() &&
             manualPlate.trim()
         ) {
-            if (!isValidSlovakPlate(manualPlate)) {
-                return;
-            }
-
             const plate = normalizePlate(manualPlate);
             const alreadySaved = driverCars.find(
                 (car) =>
@@ -686,10 +634,6 @@ export function DriverOfferRidePage({
     }
 
     async function handleSaveManualCar() {
-        if (!isValidSlovakPlate(manualPlate)) {
-            return;
-        }
-
         try {
             const carId = await createManualCarForRide();
 
@@ -771,11 +715,11 @@ export function DriverOfferRidePage({
                         publishLabel: t("offerRide.publish"),
                     }}
                     pickup={pickup}
-                    onPickupChange={(value) => setValue("pickup", value)}
+                    onPickupChange={setPickup}
                     dropoff={dropoff}
-                    onDropoffChange={(value) => setValue("dropoff", value)}
-                    date={date}
-                    onDateChange={(value) => setValue("date", value)}
+                    onDropoffChange={setDropoff}
+                    date={rideDate}
+                    onDateChange={setRideDate}
                     dateLocale={datePickerLocale}
                     today={offerRideToday}
                     time={rideTime}
@@ -786,9 +730,9 @@ export function DriverOfferRidePage({
                     onPriceChange={handlePriceChange}
                     savedCars={driverCars}
                     carMode={carMode}
-                    onCarModeChange={(mode) => setValue("carMode", mode)}
+                    onCarModeChange={setCarMode}
                     selectedCarId={selectedCarId}
-                    onSelectedCarChange={(id) => setValue("selectedCarId", id)}
+                    onSelectedCarChange={setSelectedCarId}
                     manualBrand={manualBrand}
                     onManualBrandChange={handleManualBrandChange}
                     manualBrandOptions={carBrandOptions}

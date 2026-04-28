@@ -1,7 +1,4 @@
 import { useState } from "react";
-import { useForm, type SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { AuthNavbar, Button, RegisterBox } from "@waymate/ui";
@@ -19,11 +16,12 @@ type RegisterPageProps = {
     onThemeToggle: () => void;
 };
 
-type FormValues = {
-    fullName: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
+type RegisterErrors = {
+    fullName?: string;
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
+    form?: string;
 };
 
 export function RegisterPage({
@@ -39,74 +37,57 @@ export function RegisterPage({
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [registeredEmail, setRegisteredEmail] = useState("");
-    const [errors, setErrors] = useState<{
-        fullName?: string;
-        email?: string;
-        password?: string;
-        confirmPassword?: string;
-        form?: string;
-    }>({});
+    const [errors, setErrors] = useState<RegisterErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
-    const formSchema = z
-        .object({
-            fullName: z.string().trim().min(1, t("register.requiredError")),
-            email: z
-                .string()
-                .trim()
-                .refine((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
-                    message: t("register.invalidEmail"),
-                }),
-            password: z.string().min(8, t("register.passwordTooShort")),
-            confirmPassword: z.string(),
-        })
-        .refine((values) => values.password === values.confirmPassword, {
-            path: ["confirmPassword"],
-            message: t("register.passwordMismatch"),
-        });
+    async function handleCreateAccount() {
+        const nextErrors: RegisterErrors = {};
 
-    const {
-        handleSubmit,
-        watch,
-        setValue,
-        setError,
-        clearErrors,
-        formState: { errors, isSubmitting },
-    } = useForm<FormValues>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            fullName: "",
-            email: "",
-            password: "",
-            confirmPassword: "",
-        },
-    });
+        if (!fullName.trim()) {
+            nextErrors.fullName = t("register.requiredError");
+        }
 
-    const fullName = watch("fullName");
-    const email = watch("email");
-    const password = watch("password");
-    const confirmPassword = watch("confirmPassword");
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+            nextErrors.email = t("register.invalidEmail");
+        }
 
-    const onSubmit: SubmitHandler<FormValues> = async (values) => {
+        if (password.length < 8) {
+            nextErrors.password = t("register.passwordTooShort");
+        }
+
+        if (password !== confirmPassword) {
+            nextErrors.confirmPassword = t("register.passwordMismatch");
+        }
+
+        if (Object.keys(nextErrors).length > 0) {
+            setErrors(nextErrors);
+            return;
+        }
+
+        setErrors({});
+        setIsSubmitting(true);
         try {
             await signUpWithEmail({
-                name: values.fullName.trim(),
-                email: values.email.trim(),
-                password: values.password,
+                name: fullName.trim(),
+                email: email.trim(),
+                password,
             });
             setRegisteredEmail(email.trim());
         } catch (error) {
-            setError("root", {
-                message:
+            setErrors({
+                form:
                     error instanceof Error
                         ? error.message
                         : t("register.error"),
             });
+        } finally {
+            setIsSubmitting(false);
         }
-    };
+    }
 
     async function handleGoogleRegister() {
-        clearErrors();
+        setErrors({});
         setIsGoogleLoading(true);
         try {
             const response = await signInWithGoogle();
@@ -118,8 +99,8 @@ export function RegisterPage({
         } catch (error) {
             const message =
                 error instanceof Error ? error.message : t("register.error");
-            setError("root", {
-                message:
+            setErrors({
+                form:
                     message === "Google login is not configured on the API."
                         ? t("register.googleNotConfigured")
                         : message,
@@ -172,7 +153,7 @@ export function RegisterPage({
                         passwordError={errors.password}
                         confirmPasswordError={errors.confirmPassword}
                         message={errors.form}
-                        isSubmitting={isSubmitting}
+                        isSubmitting={submitting}
                         onFullNameChange={setFullName}
                         onEmailChange={setEmail}
                         onPasswordChange={setPassword}
