@@ -348,7 +348,7 @@ export function HomeContent({
                 <div className="flex justify-center mt-8">
                     <button
                         onClick={onViewAllRides}
-                        className="border border-(--color-primary) text-(--color-primary) rounded-full px-6 py-2.5 font-medium text-sm hover:bg-green-50 transition-colors"
+                        className="border border-(--color-primary) text-(--color-primary) rounded-full px-6 py-2.5 font-medium text-sm hover:bg-(--color-primary)/10 transition-colors"
                     >
                         {t("home.availableRides.viewAll")}
                     </button>

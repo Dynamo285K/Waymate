@@ -211,7 +211,7 @@ export function AddCarPage({
                             <div>
                                 <label className={labelClass}>
                                     {t("addCar.make", "Make")}{" "}
-                                    <span className="text-red-500">*</span>
+                                    <span className="text-(--color-red)">*</span>
                                 </label>
                                 <div className="relative">
                                     <select
@@ -251,7 +251,7 @@ export function AddCarPage({
                             <div>
                                 <label className={labelClass}>
                                     {t("addCar.model", "Model")}{" "}
-                                    <span className="text-red-500">*</span>
+                                    <span className="text-(--color-red)">*</span>
                                 </label>
                                 <div className="relative">
                                     <select
@@ -294,7 +294,7 @@ export function AddCarPage({
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
                             {t("addCar.seats", "Available passenger seats")}{" "}
-                            <span className="text-red-500">*</span>
+                            <span className="text-(--color-red)">*</span>
                             <span className="font-normal text-(--color-text-secondary) ml-2">
                                 {t(
                                     "addCar.excludingDriver",
@@ -314,7 +314,7 @@ export function AddCarPage({
                                     }
                                     className={`w-12 h-12 rounded-xl border-2 font-semibold text-sm transition-all ${
                                         seats === n
-                                            ? "border-(--color-primary) bg-green-50 text-(--color-primary)"
+                                            ? "border-(--color-primary) bg-(--color-primary)/10 text-(--color-primary)"
                                             : "border-(--color-border) bg-(--color-card) text-(--color-text-primary) hover:border-(--color-primary)"
                                     }`}
                                 >
@@ -364,7 +364,7 @@ export function AddCarPage({
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
                             {t("addCar.licensePlate", "License plate (ŠPZ)")}{" "}
-                            <span className="text-red-500">*</span>
+                            <span className="text-(--color-red)">*</span>
                         </label>
                         <div className="flex gap-2 mt-1 items-center">
                             <div className="flex-shrink-0 w-16 h-12 rounded-xl bg-slate-800 flex flex-col items-center justify-center text-white text-xs font-bold">

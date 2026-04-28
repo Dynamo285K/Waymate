@@ -132,9 +132,9 @@ const USERS: User[] = [
 function StatusBadge({ status }: { status: UserStatus }) {
     const { t } = useTranslation();
     const s: Record<UserStatus, string> = {
-        active: "border border-green-400 text-green-600 bg-green-50",
+        active: "border border-(--color-success-border) text-(--color-success-text) bg-(--color-success-bg)",
         banned: "bg-red-100 text-red-600",
-        pending: "bg-amber-100 text-amber-600",
+        pending: "bg-(--color-warning-bg) text-(--color-warning-text)",
     };
     const labels: Record<UserStatus, string> = {
         active: t("admin.active"),
@@ -153,7 +153,8 @@ function StatusBadge({ status }: { status: UserStatus }) {
 function RatingDisplay({ rating }: { rating: number | null }) {
     if (rating === null)
         return <span className="text-(--color-text-secondary)">★ -</span>;
-    const color = rating >= 4 ? "text-green-600" : "text-red-500";
+    const color =
+        rating >= 4 ? "text-(--color-success-text)" : "text-(--color-red)";
     return <span className={`font-semibold ${color}`}>★ {rating}</span>;
 }
 
@@ -697,7 +698,7 @@ export function AdminUsersPage({
                                                     onClick={() =>
                                                         handleUnban(user.id)
                                                     }
-                                                    className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-semibold transition-colors"
+                                                    className="px-3 py-1.5 bg-(--color-primary) hover:bg-(--color-primary-hover) text-(--color-card) rounded-lg text-sm font-semibold transition-colors"
                                                 >
                                                     {t("admin.unban")}
                                                 </button>
