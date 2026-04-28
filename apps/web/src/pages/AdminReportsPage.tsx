@@ -82,11 +82,11 @@ const REPORTS: Report[] = [
 function StatusBadge({ status }: { status: ReportStatus }) {
     const { t } = useTranslation();
     return status === "open" ? (
-        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-600">
+        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-(--color-warning-bg) text-(--color-warning-text)">
             {t("admin.open")}
         </span>
     ) : (
-        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500">
+        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-(--color-secondary-hover) text-(--color-text-secondary)">
             {t("admin.resolved")}
         </span>
     );
@@ -325,7 +325,7 @@ export function AdminReportsPage({
                                     <td className="px-5 py-4 font-medium text-(--color-text-primary) whitespace-nowrap">
                                         {report.reporter}
                                     </td>
-                                    <td className="px-5 py-4 font-semibold text-red-500 whitespace-nowrap">
+                                    <td className="px-5 py-4 font-semibold text-(--color-red) whitespace-nowrap">
                                         {report.against}
                                     </td>
                                     <td className="px-5 py-4 text-(--color-text-secondary)">
@@ -352,7 +352,7 @@ export function AdminReportsPage({
                                                     onClick={() =>
                                                         handleResolve(report.id)
                                                     }
-                                                    className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-semibold transition-colors"
+                                                    className="px-3 py-1.5 bg-(--color-primary) hover:bg-(--color-primary-hover) text-(--color-card) rounded-lg text-sm font-semibold transition-colors"
                                                 >
                                                     {t("admin.resolve")}
                                                 </button>

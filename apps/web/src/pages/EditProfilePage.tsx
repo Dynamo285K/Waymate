@@ -25,6 +25,14 @@ type EditProfilePageProps = {
     userBio?: string;
 };
 
+type FormValues = {
+    name: string;
+    email: string;
+    phone: string;
+    plate: string;
+    about: string;
+};
+
 export function EditProfilePage({
     language,
     theme,
@@ -123,6 +131,10 @@ export function EditProfilePage({
         logout: t("nav.logout"),
     };
 
+    const onSubmit: SubmitHandler<FormValues> = () => {
+        navigate(backPath);
+    };
+
     return (
         <div
             data-theme={theme}
@@ -148,8 +160,8 @@ export function EditProfilePage({
                     labels={{
                         adminRole: t("admin.adminRole"),
                         dashboard: t("admin.dashboard"),
-                        rides: t("admin.rides"),
                         users: t("admin.users"),
+                        rides: t("admin.rides"),
                         reports: t("admin.reports"),
                         account: t("admin.account"),
                         settings: t("admin.settings"),
@@ -184,7 +196,11 @@ export function EditProfilePage({
                     {t("editProfile.title")}
                 </h1>
 
-                <div className="bg-(--color-card) rounded-2xl p-6 sm:p-8 border border-(--color-border) flex flex-col gap-6">
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    noValidate
+                    className="bg-(--color-card) rounded-2xl p-6 sm:p-8 border border-(--color-border) flex flex-col gap-6"
+                >
                     {/* Two-column grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Input
@@ -201,8 +217,7 @@ export function EditProfilePage({
                         />
                         <Input
                             label={t("editProfile.phone")}
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
+                            {...register("phone")}
                         />
                     </div>
 
@@ -214,15 +229,20 @@ export function EditProfilePage({
                             </label>
                             <textarea
                                 className="w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) p-3 text-sm resize-y min-h-25 outline-none focus:border-(--color-primary) focus:ring-2 focus:ring-green-100 transition-colors font-[Inter,sans-serif]"
-                                value={about}
-                                onChange={(e) => setAbout(e.target.value)}
+                                {...register("about")}
                             />
+                            {errors.about && (
+                                <p className="text-xs font-semibold text-red-500">
+                                    {errors.about.message}
+                                </p>
+                            )}
                         </div>
                     )}
 
                     {/* Actions */}
                     <div className="flex justify-end gap-3 pt-2">
                         <Button
+                            type="button"
                             variant="secondary"
                             onClick={() => navigate(backPath)}
                         >

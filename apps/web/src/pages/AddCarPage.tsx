@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "../lib/router-compat";
@@ -151,6 +153,10 @@ export function AddCarPage({
         userEmail,
     });
 
+    const onSubmit: SubmitHandler<FormValues> = () => {
+        navigate(backPath);
+    };
+
     const inputClass =
         "w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) px-3 py-3 text-sm outline-none focus:border-(--color-primary) focus:ring-2 focus:ring-green-100 transition-colors font-[Inter,sans-serif] appearance-none";
     const labelClass =
@@ -206,6 +212,7 @@ export function AddCarPage({
 
             <section className="w-full px-4 sm:max-w-2xl sm:mx-auto sm:px-8 py-8 sm:py-12">
                 <button
+                    type="button"
                     onClick={() => navigate(backPath)}
                     className="text-(--color-text-secondary) text-sm mb-6 hover:text-(--color-text-primary) transition-colors"
                 >
@@ -221,7 +228,7 @@ export function AddCarPage({
                             <div>
                                 <label className={labelClass}>
                                     {t("addCar.make", "Make")}{" "}
-                                    <span className="text-red-500">*</span>
+                                    <span className="text-(--color-red)">*</span>
                                 </label>
                                 <div className="relative">
                                     <select
@@ -254,11 +261,16 @@ export function AddCarPage({
                                         v
                                     </span>
                                 </div>
+                                {errors.make && (
+                                    <p className="mt-1 text-xs font-semibold text-red-500">
+                                        {errors.make.message}
+                                    </p>
+                                )}
                             </div>
                             <div>
                                 <label className={labelClass}>
                                     {t("addCar.model", "Model")}{" "}
-                                    <span className="text-red-500">*</span>
+                                    <span className="text-(--color-red)">*</span>
                                 </label>
                                 <div className="relative">
                                     <select
@@ -272,6 +284,7 @@ export function AddCarPage({
                                             setFormError("");
                                         }}
                                         disabled={!make}
+                                        {...register("model")}
                                     >
                                         <option value="">
                                             {modelsQuery.isLoading
@@ -297,6 +310,11 @@ export function AddCarPage({
                                         v
                                     </span>
                                 </div>
+                                {errors.model && (
+                                    <p className="mt-1 text-xs font-semibold text-red-500">
+                                        {errors.model.message}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -304,7 +322,7 @@ export function AddCarPage({
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
                             {t("addCar.seats", "Available passenger seats")}{" "}
-                            <span className="text-red-500">*</span>
+                            <span className="text-(--color-red)">*</span>
                             <span className="font-normal text-(--color-text-secondary) ml-2">
                                 {t(
                                     "addCar.excludingDriver",
@@ -323,7 +341,7 @@ export function AddCarPage({
                                     }}
                                     className={`w-12 h-12 rounded-xl border-2 font-semibold text-sm transition-all ${
                                         seats === n
-                                            ? "border-(--color-primary) bg-green-50 text-(--color-primary)"
+                                            ? "border-(--color-primary) bg-(--color-primary)/10 text-(--color-primary)"
                                             : "border-(--color-border) bg-(--color-card) text-(--color-text-primary) hover:border-(--color-primary)"
                                     }`}
                                 >
@@ -331,6 +349,11 @@ export function AddCarPage({
                                 </button>
                             ))}
                         </div>
+                        {errors.seats && (
+                            <p className="mt-2 text-xs font-semibold text-red-500">
+                                {errors.seats.message}
+                            </p>
+                        )}
                     </div>
 
                     <div className="p-6 border-b border-(--color-border)">
@@ -395,6 +418,7 @@ export function AddCarPage({
                             </p>
                         )}
                         <Button
+                            type="submit"
                             variant="black"
                             onClick={handleAddCar}
                             disabled={createCarMutation.isPending}
@@ -404,7 +428,7 @@ export function AddCarPage({
                                 : t("addCar.addButton", "Add car")}
                         </Button>
                     </div>
-                </div>
+                </form>
             </section>
         </div>
     );

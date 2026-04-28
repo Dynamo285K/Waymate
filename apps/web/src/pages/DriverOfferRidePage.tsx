@@ -382,6 +382,35 @@ export function DriverOfferRidePage({
             ? t("offerRide.plateError", "Use format BA-123AB.")
             : undefined;
 
+    const { watch, setValue, setError, clearErrors, formState } =
+        useForm<FormValues>({
+            defaultValues: {
+                pickup: "",
+                dropoff: "",
+                date: undefined,
+                time: "",
+                seats: "",
+                price: "",
+                carMode: INITIAL_DRIVER_CARS.length > 0 ? "saved" : "manual",
+                selectedCarId: INITIAL_DRIVER_CARS[0]?.id ?? "",
+                manualBrand: "",
+                manualModel: "",
+                manualPlate: "",
+            },
+        });
+
+    const pickup = watch("pickup");
+    const dropoff = watch("dropoff");
+    const date = watch("date");
+    const time = watch("time");
+    const seats = watch("seats");
+    const price = watch("price");
+    const carMode = watch("carMode");
+    const selectedCarId = watch("selectedCarId");
+    const manualBrand = watch("manualBrand");
+    const manualModel = watch("manualModel");
+    const manualPlate = watch("manualPlate");
+
     const datePickerLocale =
         LOCALES[language as keyof typeof LOCALES] ??
         LOCALES[toUiLanguage(language) as keyof typeof LOCALES] ??
@@ -566,6 +595,7 @@ export function DriverOfferRidePage({
     async function publishRide(carId = selectedCarId) {
         setShowSaveCarPrompt(false);
         setPublishedMessage("");
+        clearErrors();
 
         const body = buildCreateRideBody(carId);
 
@@ -741,11 +771,11 @@ export function DriverOfferRidePage({
                         publishLabel: t("offerRide.publish"),
                     }}
                     pickup={pickup}
-                    onPickupChange={setPickup}
+                    onPickupChange={(value) => setValue("pickup", value)}
                     dropoff={dropoff}
-                    onDropoffChange={setDropoff}
-                    date={rideDate}
-                    onDateChange={setRideDate}
+                    onDropoffChange={(value) => setValue("dropoff", value)}
+                    date={date}
+                    onDateChange={(value) => setValue("date", value)}
                     dateLocale={datePickerLocale}
                     today={offerRideToday}
                     time={rideTime}
@@ -756,9 +786,9 @@ export function DriverOfferRidePage({
                     onPriceChange={handlePriceChange}
                     savedCars={driverCars}
                     carMode={carMode}
-                    onCarModeChange={setCarMode}
+                    onCarModeChange={(mode) => setValue("carMode", mode)}
                     selectedCarId={selectedCarId}
-                    onSelectedCarChange={setSelectedCarId}
+                    onSelectedCarChange={(id) => setValue("selectedCarId", id)}
                     manualBrand={manualBrand}
                     onManualBrandChange={handleManualBrandChange}
                     manualBrandOptions={carBrandOptions}
