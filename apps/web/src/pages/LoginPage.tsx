@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { AuthNavbar, LoginBox } from "@waymate/ui";
@@ -16,6 +19,11 @@ type LoginPageProps = {
     onThemeToggle: () => void;
 };
 
+type FormValues = {
+    email: string;
+    password: string;
+};
+
 export function LoginPage({
     language,
     theme,
@@ -24,75 +32,72 @@ export function LoginPage({
 }: LoginPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [errors, setErrors] = useState<{
-        email?: string;
-        password?: string;
-        form?: string;
-    }>({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
-    function validateForm() {
-        const nextErrors: typeof errors = {};
-        const trimmedEmail = email.trim();
+    const formSchema = z.object({
+        email: z
+            .string()
+            .trim()
+            .refine((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
+                message: t("login.invalidEmail"),
+            }),
+        password: z.string().min(8, t("login.passwordTooShort")),
+    });
 
-        if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-            nextErrors.email = t("login.invalidEmail");
-        }
+    const {
+        handleSubmit,
+        watch,
+        setValue,
+        setError,
+        clearErrors,
+        formState: { errors, isSubmitting },
+    } = useForm<FormValues>({
+        resolver: zodResolver(formSchema),
+        defaultValues: { email: "", password: "" },
+    });
 
-        if (password.length < 8) {
-            nextErrors.password = t("login.passwordTooShort");
-        }
+    const email = watch("email");
+    const password = watch("password");
 
-        setErrors(nextErrors);
-        return Object.keys(nextErrors).length === 0;
-    }
-
-    async function handleSubmit() {
-        if (!validateForm()) return;
-
-        setIsSubmitting(true);
-        setErrors({});
-
+    const onSubmit: SubmitHandler<FormValues> = async (values) => {
         try {
             await signInWithEmail({
-                email: email.trim(),
-                password,
+                email: values.email.trim(),
+                password: values.password,
             });
             navigate(await getPostAuthPath());
         } catch (error) {
-            setErrors({
-                form: error instanceof Error ? error.message : t("login.error"),
+            setError("root", {
+                message:
+                    error instanceof Error ? error.message : t("login.error"),
             });
-        } finally {
-            setIsSubmitting(false);
         }
-    }
+    };
 
     async function handleGoogleLogin() {
-        setIsSubmitting(true);
-        setErrors({});
-
+        clearErrors();
+        setIsGoogleLoading(true);
         try {
             const response = await signInWithGoogle();
             if (response.url) {
                 window.location.href = response.url;
                 return;
             }
-            navigate("/passenger");
+            navigate(await getPostAuthPath());
         } catch (error) {
             const message =
                 error instanceof Error ? error.message : t("login.error");
-            setErrors({
-                form:
+            setError("root", {
+                message:
                     message === "Google login is not configured on the API."
                         ? t("login.googleNotConfigured")
                         : message,
             });
-            setIsSubmitting(false);
+            setIsGoogleLoading(false);
         }
     }
+
+    const submitting = isSubmitting || isGoogleLoading;
 
     return (
         <div
@@ -110,13 +115,13 @@ export function LoginPage({
                 <LoginBox
                     email={email}
                     password={password}
-                    emailError={errors.email}
-                    passwordError={errors.password}
-                    message={errors.form}
-                    isSubmitting={isSubmitting}
-                    onEmailChange={setEmail}
-                    onPasswordChange={setPassword}
-                    onSubmit={handleSubmit}
+                    emailError={errors.email?.message}
+                    passwordError={errors.password?.message}
+                    message={errors.root?.message}
+                    isSubmitting={submitting}
+                    onEmailChange={(value) => setValue("email", value)}
+                    onPasswordChange={(value) => setValue("password", value)}
+                    onSubmit={handleSubmit(onSubmit)}
                     onGoogleLoginClick={handleGoogleLogin}
                     onForgotPasswordClick={() => navigate("/forgot-password")}
                     onCreateAccountClick={() => navigate("/register")}

@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { Button } from "@waymate/ui";
@@ -9,6 +12,12 @@ type ForgotPasswordPageProps = {
     theme: "light" | "dark";
     onLanguageChange: (lang: Language) => void;
     onThemeToggle: () => void;
+};
+
+type FormValues = {
+    email: string;
+    newPassword: string;
+    confirmPassword: string;
 };
 
 function ProgressDots({ step }: { step: 1 | 2 | 3 }) {
@@ -26,7 +35,7 @@ function ProgressDots({ step }: { step: 1 | 2 | 3 }) {
 
 function IconCircle({ children }: { children: React.ReactNode }) {
     return (
-        <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-5 text-green-600">
+        <div className="w-16 h-16 rounded-full bg-(--color-success-bg) flex items-center justify-center mx-auto mb-5 text-(--color-success-text)">
             {children}
         </div>
     );
@@ -36,13 +45,38 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [step, setStep] = useState<1 | 2 | 3>(1);
-    const [email, setEmail] = useState("");
     const [code, setCode] = useState(["", "", "", "", "", ""]);
     const [countdown, setCountdown] = useState(59);
-    const [newPw, setNewPw] = useState("");
-    const [confirmPw, setConfirmPw] = useState("");
     const [showPw, setShowPw] = useState(false);
     const codeRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+    const formSchema = z
+        .object({
+            email: z
+                .string()
+                .trim()
+                .refine((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
+                    message: t("login.invalidEmail"),
+                }),
+            newPassword: z.string().min(8, t("register.passwordTooShort")),
+            confirmPassword: z.string(),
+        })
+        .refine((values) => values.newPassword === values.confirmPassword, {
+            path: ["confirmPassword"],
+            message: t("register.passwordMismatch"),
+        });
+
+    const {
+        register,
+        trigger,
+        watch,
+        formState: { errors },
+    } = useForm<FormValues>({
+        resolver: zodResolver(formSchema),
+        defaultValues: { email: "", newPassword: "", confirmPassword: "" },
+    });
+
+    const enteredEmail = watch("email");
 
     useEffect(() => {
         if (step !== 2) return;
@@ -66,6 +100,16 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
         if (e.key === "Backspace" && !code[idx] && idx > 0) {
             codeRefs.current[idx - 1]?.focus();
         }
+    }
+
+    async function handleSendCode() {
+        const ok = await trigger("email");
+        if (ok) setStep(2);
+    }
+
+    async function handleSetPassword() {
+        const ok = await trigger(["newPassword", "confirmPassword"]);
+        if (ok) navigate("/login");
     }
 
     const inputClass =
@@ -140,16 +184,20 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                     placeholder={t(
                                         "forgotPassword.emailPlaceholder"
                                     )}
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
                                     type="email"
+                                    {...register("email")}
                                 />
                             </div>
+                            {errors.email && (
+                                <p className="mt-2 text-xs font-semibold text-red-500">
+                                    {errors.email.message}
+                                </p>
+                            )}
                         </div>
 
                         <Button
                             fullWidth
-                            onClick={() => setStep(2)}
+                            onClick={handleSendCode}
                         >
                             ➤ {t("forgotPassword.sendCode")}
                         </Button>
@@ -195,7 +243,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                             {t("forgotPassword.step2Subtitle")}
                         </p>
                         <p className="text-sm font-bold text-(--color-text-primary) mb-6">
-                            {email}
+                            {enteredEmail}
                         </p>
 
                         <div className="flex gap-2 mb-4">
@@ -274,11 +322,8 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                     <input
                                         className="flex-1 bg-transparent border-none outline-none py-3 text-sm text-(--color-text-primary)"
                                         type={showPw ? "text" : "password"}
-                                        value={newPw}
-                                        onChange={(e) =>
-                                            setNewPw(e.target.value)
-                                        }
                                         placeholder="••••••••"
+                                        {...register("newPassword")}
                                     />
                                     <button
                                         type="button"
@@ -302,6 +347,11 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                         </svg>
                                     </button>
                                 </div>
+                                {errors.newPassword && (
+                                    <p className="mt-2 text-xs font-semibold text-red-500">
+                                        {errors.newPassword.message}
+                                    </p>
+                                )}
                             </div>
                             <div className="text-left">
                                 <label className="text-sm font-semibold text-(--color-text-primary) mb-1 block">
@@ -310,18 +360,20 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                 <input
                                     className={inputClass}
                                     type="password"
-                                    value={confirmPw}
-                                    onChange={(e) =>
-                                        setConfirmPw(e.target.value)
-                                    }
                                     placeholder="••••••••"
+                                    {...register("confirmPassword")}
                                 />
+                                {errors.confirmPassword && (
+                                    <p className="mt-2 text-xs font-semibold text-red-500">
+                                        {errors.confirmPassword.message}
+                                    </p>
+                                )}
                             </div>
                         </div>
 
                         <Button
                             fullWidth
-                            onClick={() => navigate("/login")}
+                            onClick={handleSetPassword}
                         >
                             ✓ {t("forgotPassword.setPassword")}
                         </Button>

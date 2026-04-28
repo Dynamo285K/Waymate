@@ -148,8 +148,8 @@ export function EditProfilePage({
                     labels={{
                         adminRole: t("admin.adminRole"),
                         dashboard: t("admin.dashboard"),
-                        rides: t("admin.rides"),
                         users: t("admin.users"),
+                        rides: t("admin.rides"),
                         reports: t("admin.reports"),
                         account: t("admin.account"),
                         settings: t("admin.settings"),
@@ -225,6 +225,7 @@ export function EditProfilePage({
                     {/* Actions */}
                     <div className="flex justify-end gap-3 pt-2">
                         <Button
+                            type="button"
                             variant="secondary"
                             onClick={() => navigate(backPath)}
                         >

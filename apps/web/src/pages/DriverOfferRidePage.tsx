@@ -112,10 +112,6 @@ type OfferRideFormWithCarOptionsProps = ComponentProps<typeof OfferRideForm> & {
 const OfferRideFormWithCarOptions =
     OfferRideForm as ComponentType<OfferRideFormWithCarOptionsProps>;
 
-function isValidSlovakPlate(plate: string) {
-    return /^[A-Z]{2}-?\d{3}[A-Z]{2}$/.test(plate.trim().toUpperCase());
-}
-
 function normalizePlate(plate: string) {
     return plate
         .trim()
@@ -382,12 +378,7 @@ export function DriverOfferRidePage({
         modelsQuery.isLoading &&
         apiCarModelOptions.length === 0 &&
         fallbackCarModelOptions.length === 0;
-    const manualPlateError =
-        carMode === "manual" &&
-        manualPlate.trim() &&
-        !isValidSlovakPlate(manualPlate)
-            ? t("offerRide.plateError", "Use format BA-123AB.")
-            : undefined;
+    const manualPlateError = undefined;
 
     const datePickerLocale =
         LOCALES[language as keyof typeof LOCALES] ??
@@ -595,10 +586,6 @@ export function DriverOfferRidePage({
             manualModel.trim() &&
             manualPlate.trim()
         ) {
-            if (!isValidSlovakPlate(manualPlate)) {
-                return;
-            }
-
             const plate = normalizePlate(manualPlate);
             const alreadySaved = driverCars.find(
                 (car) =>
@@ -663,10 +650,6 @@ export function DriverOfferRidePage({
     }
 
     async function handleSaveManualCar() {
-        if (!isValidSlovakPlate(manualPlate)) {
-            return;
-        }
-
         try {
             const carId = await createManualCarForRide();
 

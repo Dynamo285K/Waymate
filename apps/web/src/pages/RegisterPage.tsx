@@ -16,6 +16,14 @@ type RegisterPageProps = {
     onThemeToggle: () => void;
 };
 
+type RegisterErrors = {
+    fullName?: string;
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
+    form?: string;
+};
+
 export function RegisterPage({
     language,
     theme,
@@ -29,25 +37,18 @@ export function RegisterPage({
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [registeredEmail, setRegisteredEmail] = useState("");
-    const [errors, setErrors] = useState<{
-        fullName?: string;
-        email?: string;
-        password?: string;
-        confirmPassword?: string;
-        form?: string;
-    }>({});
+    const [errors, setErrors] = useState<RegisterErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
-    function validateForm() {
-        const nextErrors: typeof errors = {};
-        const trimmedName = fullName.trim();
-        const trimmedEmail = email.trim();
+    async function handleCreateAccount() {
+        const nextErrors: RegisterErrors = {};
 
-        if (!trimmedName) {
+        if (!fullName.trim()) {
             nextErrors.fullName = t("register.requiredError");
         }
 
-        if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
             nextErrors.email = t("register.invalidEmail");
         }
 
@@ -59,16 +60,13 @@ export function RegisterPage({
             nextErrors.confirmPassword = t("register.passwordMismatch");
         }
 
-        setErrors(nextErrors);
-        return Object.keys(nextErrors).length === 0;
-    }
-
-    async function handleCreateAccount() {
-        if (!validateForm()) return;
+        if (Object.keys(nextErrors).length > 0) {
+            setErrors(nextErrors);
+            return;
+        }
 
         setErrors({});
         setIsSubmitting(true);
-
         try {
             await signUpWithEmail({
                 name: fullName.trim(),
@@ -90,8 +88,7 @@ export function RegisterPage({
 
     async function handleGoogleRegister() {
         setErrors({});
-        setIsSubmitting(true);
-
+        setIsGoogleLoading(true);
         try {
             const response = await signInWithGoogle();
             if (response.url) {
@@ -108,9 +105,11 @@ export function RegisterPage({
                         ? t("register.googleNotConfigured")
                         : message,
             });
-            setIsSubmitting(false);
+            setIsGoogleLoading(false);
         }
     }
+
+    const submitting = isSubmitting || isGoogleLoading;
 
     return (
         <div
@@ -154,7 +153,7 @@ export function RegisterPage({
                         passwordError={errors.password}
                         confirmPasswordError={errors.confirmPassword}
                         message={errors.form}
-                        isSubmitting={isSubmitting}
+                        isSubmitting={submitting}
                         onFullNameChange={setFullName}
                         onEmailChange={setEmail}
                         onPasswordChange={setPassword}

@@ -132,8 +132,9 @@ const RIDES: Ride[] = [
 function StatusBadge({ status }: { status: RideStatus }) {
     const { t } = useTranslation();
     const styles: Record<RideStatus, string> = {
-        upcoming: "border border-green-500 text-green-600 bg-green-50",
-        completed: "bg-gray-100 text-gray-500",
+        upcoming:
+            "border border-(--color-success-border) text-(--color-success-text) bg-(--color-success-bg)",
+        completed: "bg-(--color-secondary-hover) text-(--color-text-secondary)",
         cancelled: "bg-red-50 text-red-500",
     };
     const labels: Record<RideStatus, string> = {
@@ -166,10 +167,7 @@ function RideModal({
                 className="absolute inset-0 bg-black/40 backdrop-blur-sm"
                 onClick={onClose}
             />
-            <div
-                className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg p-8"
-                style={{ background: "var(--color-card)" }}
-            >
+            <div className="relative bg-(--color-card) rounded-2xl shadow-2xl w-full max-w-lg p-8">
                 <div className="flex justify-between items-start mb-6">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
                         {t("admin.rideTitle", {
@@ -244,7 +242,7 @@ function RideModal({
                     </div>
                 )}
 
-                <div className="bg-green-50 border border-green-200 rounded-xl p-3 mb-6 text-sm text-green-700">
+                <div className="bg-(--color-success-bg) border border-(--color-success-border) rounded-xl p-3 mb-6 text-sm text-(--color-success-text)">
                     <span className="font-bold">{t("admin.adminNote")}: </span>
                     {t("admin.adminNoteText")}
                 </div>
@@ -551,7 +549,7 @@ export function AdminRidesPage({
                                         <span
                                             className={
                                                 ride.seatsTaken > 0
-                                                    ? "text-green-600"
+                                                    ? "text-(--color-success-text)"
                                                     : ""
                                             }
                                         >

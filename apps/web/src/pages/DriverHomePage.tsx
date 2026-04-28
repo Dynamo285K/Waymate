@@ -268,7 +268,7 @@ export function DriverHomePage({
                 </p>
                 <button
                     onClick={() => navigate("/driver/offer")}
-                    className="mt-8 border-2 border-(--color-primary) text-(--color-primary) rounded-full px-8 py-3 font-semibold text-base hover:bg-green-50 transition-colors flex items-center gap-2"
+                    className="mt-8 border-2 border-(--color-primary) text-(--color-primary) rounded-full px-8 py-3 font-semibold text-base hover:bg-(--color-primary)/10 transition-colors flex items-center gap-2"
                 >
                     {t("driver.home.createRide")}{" "}
                     <span className="text-xl leading-none">+</span>
@@ -300,7 +300,7 @@ export function DriverHomePage({
                     <div className="flex justify-center mt-6">
                         <button
                             onClick={() => navigate("/driver/rides")}
-                            className="border border-(--color-primary) text-(--color-primary) rounded-full px-6 py-2.5 font-medium text-sm hover:bg-green-50 transition-colors"
+                            className="border border-(--color-primary) text-(--color-primary) rounded-full px-6 py-2.5 font-medium text-sm hover:bg-(--color-primary)/10 transition-colors"
                         >
                             {t("driver.home.viewAllRides")}
                         </button>
@@ -344,7 +344,7 @@ export function DriverHomePage({
                     <div className="flex justify-center mt-6">
                         <button
                             onClick={() => navigate("/driver/requests")}
-                            className="border border-(--color-primary) text-(--color-primary) rounded-full px-6 py-2.5 font-medium text-sm hover:bg-green-50 transition-colors"
+                            className="border border-(--color-primary) text-(--color-primary) rounded-full px-6 py-2.5 font-medium text-sm hover:bg-(--color-primary)/10 transition-colors"
                         >
                             {t("driver.home.viewAllRequests")}
                         </button>

@@ -206,6 +206,7 @@ export function AddCarPage({
 
             <section className="w-full px-4 sm:max-w-2xl sm:mx-auto sm:px-8 py-8 sm:py-12">
                 <button
+                    type="button"
                     onClick={() => navigate(backPath)}
                     className="text-(--color-text-secondary) text-sm mb-6 hover:text-(--color-text-primary) transition-colors"
                 >
@@ -221,7 +222,9 @@ export function AddCarPage({
                             <div>
                                 <label className={labelClass}>
                                     {t("addCar.make", "Make")}{" "}
-                                    <span className="text-red-500">*</span>
+                                    <span className="text-(--color-red)">
+                                        *
+                                    </span>
                                 </label>
                                 <div className="relative">
                                     <select
@@ -258,7 +261,9 @@ export function AddCarPage({
                             <div>
                                 <label className={labelClass}>
                                     {t("addCar.model", "Model")}{" "}
-                                    <span className="text-red-500">*</span>
+                                    <span className="text-(--color-red)">
+                                        *
+                                    </span>
                                 </label>
                                 <div className="relative">
                                     <select
@@ -304,7 +309,7 @@ export function AddCarPage({
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
                             {t("addCar.seats", "Available passenger seats")}{" "}
-                            <span className="text-red-500">*</span>
+                            <span className="text-(--color-red)">*</span>
                             <span className="font-normal text-(--color-text-secondary) ml-2">
                                 {t(
                                     "addCar.excludingDriver",
@@ -323,7 +328,7 @@ export function AddCarPage({
                                     }}
                                     className={`w-12 h-12 rounded-xl border-2 font-semibold text-sm transition-all ${
                                         seats === n
-                                            ? "border-(--color-primary) bg-green-50 text-(--color-primary)"
+                                            ? "border-(--color-primary) bg-(--color-primary)/10 text-(--color-primary)"
                                             : "border-(--color-border) bg-(--color-card) text-(--color-text-primary) hover:border-(--color-primary)"
                                     }`}
                                 >
@@ -395,6 +400,7 @@ export function AddCarPage({
                             </p>
                         )}
                         <Button
+                            type="button"
                             variant="black"
                             onClick={handleAddCar}
                             disabled={createCarMutation.isPending}

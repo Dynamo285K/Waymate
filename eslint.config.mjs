@@ -30,4 +30,20 @@ export default [
             "@typescript-eslint/consistent-type-imports": "warn",
         },
     },
+    {
+        files: ["scripts/**/*.{js,mjs,cjs}"],
+        languageOptions: {
+            globals: {
+                process: "readonly",
+                console: "readonly",
+                setTimeout: "readonly",
+                clearTimeout: "readonly",
+                setInterval: "readonly",
+                clearInterval: "readonly",
+                Buffer: "readonly",
+                __dirname: "readonly",
+                __filename: "readonly",
+            },
+        },
+    },
 ];

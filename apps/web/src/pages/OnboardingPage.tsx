@@ -1,4 +1,8 @@
 import { useEffect, useState } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { OnboardingUserBodySchema } from "@repo/shared";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { AuthNavbar, Button } from "@waymate/ui";
@@ -18,6 +22,11 @@ type CurrentUser = {
     firstName: string | null;
     lastName: string | null;
     phone: string | null;
+};
+
+type FormValues = {
+    fullName: string;
+    phone: string;
 };
 
 function splitFullName(fullName: string) {
@@ -48,11 +57,34 @@ export function OnboardingPage({
 }: OnboardingPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [fullName, setFullName] = useState("");
-    const [phone, setPhone] = useState("");
-    const [message, setMessage] = useState("");
     const [isLoadingProfile, setIsLoadingProfile] = useState(true);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState("");
+
+    const formSchema = z.object({
+        fullName: z.string().refine(
+            (value) => {
+                const { firstName, lastName } = splitFullName(value);
+                return !!firstName && !!lastName;
+            },
+            { message: t("onboarding.requiredError") }
+        ),
+        phone: z
+            .string()
+            .refine(
+                (value) => /^\+[1-9]\d{1,14}$/.test(normalizePhone(value)),
+                { message: t("onboarding.phoneError") }
+            ),
+    });
+
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors, isSubmitting },
+    } = useForm<FormValues>({
+        resolver: zodResolver(formSchema),
+        defaultValues: { fullName: "", phone: "" },
+    });
 
     useEffect(() => {
         let isMounted = true;
@@ -69,12 +101,11 @@ export function OnboardingPage({
                     [user.firstName, user.lastName].filter(Boolean).join(" ") ||
                     user.name ||
                     "";
-                setFullName(name);
-                setPhone(user.phone ?? "");
+                reset({ fullName: name, phone: user.phone ?? "" });
             })
             .catch(() => {
                 if (isMounted) {
-                    setMessage(t("onboarding.loginRequired"));
+                    setSubmitError(t("onboarding.loginRequired"));
                 }
             })
             .finally(() => {
@@ -86,42 +117,35 @@ export function OnboardingPage({
         return () => {
             isMounted = false;
         };
-    }, [navigate, t]);
+    }, [navigate, reset, t]);
 
-    async function handleSubmit() {
-        setMessage("");
-        const { firstName, lastName } = splitFullName(fullName);
-        const normalizedPhone = normalizePhone(phone);
+    const onSubmit: SubmitHandler<FormValues> = async (values) => {
+        setSubmitError("");
+        const { firstName, lastName } = splitFullName(values.fullName);
+        const phone = normalizePhone(values.phone);
 
-        if (!firstName || !lastName || !normalizedPhone) {
-            setMessage(t("onboarding.requiredError"));
+        const parsed = OnboardingUserBodySchema.safeParse({
+            firstName,
+            lastName,
+            phone,
+        });
+        if (!parsed.success) {
+            setSubmitError(t("onboarding.error"));
             return;
         }
 
-        if (!/^\+[1-9]\d{1,14}$/.test(normalizedPhone)) {
-            setMessage(t("onboarding.phoneError"));
-            return;
-        }
-
-        setIsSubmitting(true);
         try {
             await apiFetch("/users/me/onboarding", {
                 method: "PATCH",
-                body: JSON.stringify({
-                    firstName,
-                    lastName,
-                    phone: normalizedPhone,
-                }),
+                body: JSON.stringify(parsed.data),
             });
             navigate("/passenger");
         } catch (error) {
-            setMessage(
+            setSubmitError(
                 error instanceof Error ? error.message : t("onboarding.error")
             );
-        } finally {
-            setIsSubmitting(false);
         }
-    }
+    };
 
     const inputClass =
         "w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) px-4 py-3 text-sm outline-none focus:border-(--color-primary) transition-colors";
@@ -141,7 +165,11 @@ export function OnboardingPage({
 
             <main className="flex min-h-[calc(100vh-72px)] items-center justify-center px-4 py-12">
                 {!isLoadingProfile && (
-                    <section className="w-full max-w-xl rounded-2xl border border-(--color-border) bg-(--color-card) p-6 shadow-xl sm:p-8">
+                    <form
+                        onSubmit={handleSubmit(onSubmit)}
+                        noValidate
+                        className="w-full max-w-xl rounded-2xl border border-(--color-border) bg-(--color-card) p-6 shadow-xl sm:p-8"
+                    >
                         <h1 className="text-2xl font-bold text-(--color-text-primary)">
                             {t("onboarding.title")}
                         </h1>
@@ -156,12 +184,14 @@ export function OnboardingPage({
                                 </span>
                                 <input
                                     className={inputClass}
-                                    value={fullName}
-                                    onChange={(event) =>
-                                        setFullName(event.target.value)
-                                    }
                                     autoComplete="name"
+                                    {...register("fullName")}
                                 />
+                                {errors.fullName && (
+                                    <span className="text-xs font-semibold text-(--color-red)">
+                                        {errors.fullName.message}
+                                    </span>
+                                )}
                             </label>
 
                             <label className="flex flex-col gap-2">
@@ -170,31 +200,33 @@ export function OnboardingPage({
                                 </span>
                                 <input
                                     className={inputClass}
-                                    value={phone}
-                                    onChange={(event) =>
-                                        setPhone(event.target.value)
-                                    }
                                     type="tel"
                                     autoComplete="tel"
+                                    {...register("phone")}
                                 />
+                                {errors.phone && (
+                                    <span className="text-xs font-semibold text-(--color-red)">
+                                        {errors.phone.message}
+                                    </span>
+                                )}
                             </label>
                         </div>
 
-                        {message && (
-                            <p className="mt-5 text-sm font-semibold text-red-500">
-                                {message}
+                        {submitError && (
+                            <p className="mt-5 text-sm font-semibold text-(--color-red)">
+                                {submitError}
                             </p>
                         )}
 
                         <div className="mt-8 flex justify-end">
                             <Button
-                                onClick={handleSubmit}
+                                type="submit"
                                 disabled={isSubmitting}
                             >
                                 {t("onboarding.save")}
                             </Button>
                         </div>
-                    </section>
+                    </form>
                 )}
             </main>
         </div>
