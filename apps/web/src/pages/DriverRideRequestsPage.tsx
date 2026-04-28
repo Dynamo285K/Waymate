@@ -1,39 +1,13 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DriverNavbar, RideRequestCard } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { formatRideDate as formatDate } from "../lib/date-format";
-
-const REQUESTS = [
-    {
-        id: 1,
-        name: "Bob Smith",
-        rating: 4.9,
-        seatsRequired: 1,
-        from: "Martin",
-        to: "Brno",
-        date: new Date(2026, 2, 15, 8, 0),
-    },
-    {
-        id: 2,
-        name: "Alice Brown",
-        rating: 5,
-        seatsRequired: 2,
-        from: "Martin",
-        to: "Brno",
-        date: new Date(2026, 2, 15, 8, 0),
-    },
-    {
-        id: 3,
-        name: "Carol Davis",
-        rating: 4.8,
-        seatsRequired: 3,
-        from: "Martin",
-        to: "Brno",
-        date: new Date(2026, 2, 15, 8, 0),
-    },
-];
+import {
+    useAcceptRideRequest,
+    useDeclineRideRequest,
+    useDriverRideRequests,
+} from "../hooks/useDriverRideRequests";
 
 type Props = {
     language: Language;
@@ -62,7 +36,9 @@ export function DriverRideRequestsPage({
         userName,
         userEmail,
     });
-    const [requests, setRequests] = useState(REQUESTS);
+    const { data: requests, isLoading, isError } = useDriverRideRequests();
+    const acceptRequest = useAcceptRideRequest();
+    const declineRequest = useDeclineRideRequest();
 
     const requestLabels = {
         seatsRequired: (count: number) =>
@@ -71,12 +47,34 @@ export function DriverRideRequestsPage({
         decline: t("rideRequests.decline"),
     };
 
-    function handleAccept(id: number) {
-        setRequests((prev) => prev.filter((r) => r.id !== id));
+    const displayedRequests =
+        requests?.map((request) => {
+            const fullName = [
+                request.passenger.firstName,
+                request.passenger.lastName,
+            ]
+                .filter(Boolean)
+                .join(" ");
+
+            return {
+                id: request.id,
+                name: fullName || t("rideRequests.passenger", "Passenger"),
+                rating: request.passenger.averageRating ?? 0,
+                seatsRequired: request.seatCount,
+                from: request.pickupCity,
+                to: request.dropoffCity,
+                date: new Date(request.departureAt),
+            };
+        }) ?? [];
+
+    function handleAccept(bookingId: string) {
+        if (acceptRequest.isPending || declineRequest.isPending) return;
+        acceptRequest.mutate({ bookingId });
     }
 
-    function handleDecline(id: number) {
-        setRequests((prev) => prev.filter((r) => r.id !== id));
+    function handleDecline(bookingId: string) {
+        if (acceptRequest.isPending || declineRequest.isPending) return;
+        declineRequest.mutate({ bookingId });
     }
 
     return (
@@ -93,26 +91,56 @@ export function DriverRideRequestsPage({
                     {t("rideRequests.subtitle")}
                 </p>
                 <div className="flex flex-col gap-4">
-                    {requests.length === 0 ? (
+                    {isLoading && (
                         <p className="text-(--color-text-secondary) text-center py-12">
-                            {t("rideRequests.empty", "No pending requests.")}
+                            {t("driverRides.loading")}
                         </p>
-                    ) : (
-                        requests.map((req) => (
+                    )}
+                    {isError && (
+                        <p className="text-(--color-text-secondary) text-center py-12">
+                            {t(
+                                "rideRequests.error",
+                                "Failed to load ride requests. Please try again."
+                            )}
+                        </p>
+                    )}
+                    {(acceptRequest.isError || declineRequest.isError) && (
+                        <p className="text-(--color-text-secondary) text-center">
+                            {t(
+                                "rideRequests.actionError",
+                                "Could not update the request. Please try again."
+                            )}
+                        </p>
+                    )}
+                    {!isLoading &&
+                        !isError &&
+                        displayedRequests.length === 0 && (
+                            <p className="text-(--color-text-secondary) text-center py-12">
+                                {t(
+                                    "rideRequests.empty",
+                                    "No pending requests."
+                                )}
+                            </p>
+                        )}
+                    {!isLoading &&
+                        !isError &&
+                        displayedRequests.map((request) => (
                             <RideRequestCard
-                                key={req.id}
-                                name={req.name}
-                                rating={req.rating}
-                                seatsRequired={req.seatsRequired}
-                                from={req.from}
-                                to={req.to}
-                                datetime={formatDate(req.date, t("home.at"))}
-                                onAccept={() => handleAccept(req.id)}
-                                onDecline={() => handleDecline(req.id)}
+                                key={request.id}
+                                name={request.name}
+                                rating={request.rating}
+                                seatsRequired={request.seatsRequired}
+                                from={request.from}
+                                to={request.to}
+                                datetime={formatDate(
+                                    request.date,
+                                    t("home.at")
+                                )}
+                                onAccept={() => handleAccept(request.id)}
+                                onDecline={() => handleDecline(request.id)}
                                 labels={requestLabels}
                             />
-                        ))
-                    )}
+                        ))}
                 </div>
             </section>
         </div>

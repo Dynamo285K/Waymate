@@ -13,6 +13,7 @@ import {
     RideListItemListSchema,
     RidePassengersViewSchema,
     RideSearchResultListSchema,
+    AvailableRideListSchema,
     CreateRideResponseSchema,
     CancelRideResponseSchema,
 } from "@repo/shared";
@@ -29,6 +30,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
         RideListItemList: RideListItemListSchema,
         RidePassengersView: RidePassengersViewSchema,
         RideSearchResultList: RideSearchResultListSchema,
+        AvailableRideList: AvailableRideListSchema,
         CreateRideResponse: CreateRideResponseSchema,
         CancelRideResponse: CancelRideResponseSchema,
     })
@@ -43,6 +45,22 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
             return status(500, { error: "Internal server error" });
         }
     })
+    .get(
+        "/available",
+        async () => {
+            return await RideService.getAvailableRides();
+        },
+        {
+            response: {
+                200: "AvailableRideList",
+                500: "ErrorResponse",
+            },
+            detail: {
+                description:
+                    "Returns upcoming planned rides available for booking",
+            },
+        }
+    )
     .use(isFullyOnboarded)
     .guard({ auth: true, onboarded: true }, (app) =>
         app

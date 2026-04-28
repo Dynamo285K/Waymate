@@ -1,5 +1,8 @@
 export type AvailableRide = {
-    id: number;
+    id: string | number;
+    rideId?: string;
+    pickupStopId?: string;
+    dropoffStopId?: string;
     from: string;
     to: string;
     date: Date;

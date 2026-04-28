@@ -31,6 +31,12 @@ export function useCreateBooking() {
             void queryClient.invalidateQueries({
                 queryKey: ["bookings", "me"],
             });
+            void queryClient.invalidateQueries({
+                queryKey: ["rides", "available"],
+            });
+            void queryClient.invalidateQueries({
+                queryKey: ["rides", "search"],
+            });
         },
     });
 }

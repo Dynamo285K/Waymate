@@ -87,10 +87,39 @@ export const RideSearchResultItemSchema = z.object({
     departureAt: z.date(),
     rideStatus: RideStatusSchema,
     offeredSeats: z.number(),
+    seatsLeft: z.number().int(),
     driver: z.object({
         id: UserIdSchema,
         firstName: z.string(),
         lastName: z.string(),
+        profilePhotoUrl: z.string().nullable(),
+        averageRating: z.number().nullable(),
+        reviewCount: z.number().int(),
+    }),
+    pickupStop: z.object({
+        pickupStopId: RideStopIdSchema,
+        city: z.string(),
+        plannedDepartureAt: z.date().nullable(),
+    }),
+    dropoffStop: z.object({
+        dropoffStopId: RideStopIdSchema,
+        city: z.string(),
+        plannedArrivalAt: z.date().nullable(),
+    }),
+    priceAmount: z.number().nullable(),
+    currency: CurrencySchema,
+});
+
+export const AvailableRideItemSchema = z.object({
+    rideId: RideIdSchema,
+    departureAt: z.date(),
+    rideStatus: RideStatusSchema,
+    offeredSeats: z.number().int(),
+    seatsLeft: z.number().int(),
+    driver: z.object({
+        id: UserIdSchema,
+        firstName: z.string().nullable(),
+        lastName: z.string().nullable(),
         profilePhotoUrl: z.string().nullable(),
         averageRating: z.number().nullable(),
         reviewCount: z.number().int(),
@@ -275,6 +304,7 @@ export const RidePassengersViewSchema = z.object({
 });
 
 export const RideSearchResultListSchema = z.array(RideSearchResultItemSchema);
+export const AvailableRideListSchema = z.array(AvailableRideItemSchema);
 
 export const CreateRideResponseSchema = z.object({
     id: RideIdSchema,

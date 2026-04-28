@@ -64,6 +64,18 @@ const cancelBookingByPassenger = async (
     );
 };
 
+const cancelBookingByDriver = async (
+    bookingId: string,
+    driverId: string,
+    reason?: string
+): Promise<string> => {
+    return await BookingRepository.cancelBookingByDriver(
+        bookingId,
+        driverId,
+        reason
+    );
+};
+
 // Export the functions in the same style as RideService and UserService.
 export const BookingService = {
     getPendingRequestsForDriver,
@@ -72,4 +84,5 @@ export const BookingService = {
     confirmBooking,
     rejectBooking,
     cancelBookingByPassenger,
+    cancelBookingByDriver,
 };

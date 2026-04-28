@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from "../lib/router-compat";
 import { AuthNavbar, AvailableRideCard, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useRideSearch } from "../hooks/useRideSearch";
-import { AVAILABLE_RIDES } from "../lib/available-rides";
+import { useAvailableRides } from "../hooks/useAvailableRides";
 import { formatRideDate } from "../lib/date-format";
 
 type RidesPageProps = {
@@ -36,6 +36,11 @@ export function RidesPage({
     const dateStr = searchParams.get("date");
     const hasSearchParams = !!from || !!to || !!dateStr;
     const showAllRides = !hasSearchParams;
+    const {
+        data: availableRideRows,
+        isLoading: areAvailableRidesLoading,
+        isError: areAvailableRidesError,
+    } = useAvailableRides();
 
     const {
         data: rides,
@@ -44,7 +49,27 @@ export function RidesPage({
         canSearch,
     } = useRideSearch({ from, to, date: dateStr });
 
-    const count = showAllRides ? AVAILABLE_RIDES.length : (rides?.length ?? 0);
+    const availableRides =
+        availableRideRows?.map((ride) => {
+            const driverName = [ride.driver.firstName, ride.driver.lastName]
+                .filter(Boolean)
+                .join(" ");
+
+            return {
+                id: ride.rideId,
+                from: ride.pickupStop.city,
+                to: ride.dropoffStop.city,
+                date: new Date(
+                    ride.pickupStop.plannedDepartureAt ?? ride.departureAt
+                ),
+                seatsLeft: ride.seatsLeft,
+                driverName: driverName || t("roles.driver"),
+                driverRating: ride.driver.averageRating ?? 0,
+                price: ride.priceAmount ?? 0,
+            };
+        }) ?? [];
+
+    const count = showAllRides ? availableRides.length : (rides?.length ?? 0);
 
     return (
         <div
@@ -73,6 +98,18 @@ export function RidesPage({
                 {showAllRides && (
                     <p className="text-(--color-text-secondary) mt-1 mb-8">
                         {t("rides.found", { count })}
+                    </p>
+                )}
+
+                {showAllRides && areAvailableRidesLoading && (
+                    <p className="text-(--color-text-secondary) mt-1">
+                        {t("rides.loading")}
+                    </p>
+                )}
+
+                {showAllRides && areAvailableRidesError && (
+                    <p className="text-(--color-text-secondary) mt-1">
+                        {t("rides.error")}
                     </p>
                 )}
 
@@ -106,33 +143,44 @@ export function RidesPage({
                     </p>
                 )}
 
-                {showAllRides && (
-                    <div className="flex flex-col gap-3">
-                        {AVAILABLE_RIDES.map((ride) => (
-                            <AvailableRideCard
-                                key={ride.id}
-                                from={ride.from}
-                                to={ride.to}
-                                datetime={formatRideDate(
-                                    ride.date,
-                                    t("home.at")
-                                )}
-                                seatsLeft={ride.seatsLeft}
-                                driverName={ride.driverName}
-                                driverRating={ride.driverRating}
-                                price={ride.price}
-                                onBook={() => setShowGuestModal(true)}
-                                labels={{
-                                    seatsLeft: (count) =>
-                                        t("home.availableRides.seatsLeft", {
-                                            count,
-                                        }),
-                                    book: t("home.availableRides.book"),
-                                }}
-                            />
-                        ))}
-                    </div>
-                )}
+                {showAllRides &&
+                    !areAvailableRidesLoading &&
+                    !areAvailableRidesError &&
+                    availableRides.length === 0 && (
+                        <p className="text-(--color-text-secondary) mt-4">
+                            {t("rides.noResults")}
+                        </p>
+                    )}
+
+                {showAllRides &&
+                    !areAvailableRidesLoading &&
+                    !areAvailableRidesError && (
+                        <div className="flex flex-col gap-3">
+                            {availableRides.map((ride) => (
+                                <AvailableRideCard
+                                    key={ride.id}
+                                    from={ride.from}
+                                    to={ride.to}
+                                    datetime={formatRideDate(
+                                        ride.date,
+                                        t("home.at")
+                                    )}
+                                    seatsLeft={ride.seatsLeft}
+                                    driverName={ride.driverName}
+                                    driverRating={ride.driverRating}
+                                    price={ride.price}
+                                    onBook={() => setShowGuestModal(true)}
+                                    labels={{
+                                        seatsLeft: (count) =>
+                                            t("home.availableRides.seatsLeft", {
+                                                count,
+                                            }),
+                                        book: t("home.availableRides.book"),
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    )}
 
                 {!showAllRides && rides && rides.length > 0 && (
                     <div className="flex flex-col gap-3">
@@ -148,7 +196,7 @@ export function RidesPage({
                                     ),
                                     t("home.at")
                                 )}
-                                seatsLeft={ride.offeredSeats}
+                                seatsLeft={ride.seatsLeft}
                                 driverName={`${ride.driver.firstName} ${ride.driver.lastName}`}
                                 driverRating={0}
                                 price={ride.priceAmount ?? 0}

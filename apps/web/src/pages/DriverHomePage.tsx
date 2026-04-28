@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import {
@@ -10,6 +9,13 @@ import {
 import type { Language } from "@waymate/ui";
 import { formatRideDate as formatDate } from "../lib/date-format";
 import { useLogout } from "../hooks/useLogout";
+import { useDriverRides } from "../hooks/useDriverRides";
+import { useCancelRide } from "../hooks/useCancelRide";
+import {
+    useAcceptRideRequest,
+    useDeclineRideRequest,
+    useDriverRideRequests,
+} from "../hooks/useDriverRideRequests";
 
 type DriverHomePageProps = {
     language: Language;
@@ -19,63 +25,6 @@ type DriverHomePageProps = {
     userName?: string;
     userEmail?: string;
 };
-
-const UPCOMING_RIDES = [
-    {
-        id: 1,
-        from: "Martin",
-        to: "Brno",
-        date: new Date(2026, 2, 15, 8, 0),
-        price: 10,
-        seatsLeft: 2,
-    },
-    {
-        id: 2,
-        from: "Brno",
-        to: "Martin",
-        date: new Date(2026, 2, 21, 10, 0),
-        price: 12,
-        seatsLeft: 1,
-    },
-    {
-        id: 3,
-        from: "Brno",
-        to: "Martin",
-        date: new Date(2026, 2, 21, 10, 0),
-        price: 12,
-        seatsLeft: 1,
-    },
-];
-
-const RIDE_REQUESTS = [
-    {
-        id: 1,
-        name: "Bob Smith",
-        rating: 4.9,
-        seatsRequired: 1,
-        from: "Martin",
-        to: "Brno",
-        date: new Date(2026, 2, 15, 8, 0),
-    },
-    {
-        id: 2,
-        name: "Alice Brown",
-        rating: 5,
-        seatsRequired: 2,
-        from: "Martin",
-        to: "Brno",
-        date: new Date(2026, 2, 15, 8, 0),
-    },
-    {
-        id: 3,
-        name: "Carol Davis",
-        rating: 4.8,
-        seatsRequired: 3,
-        from: "Martin",
-        to: "Brno",
-        date: new Date(2026, 2, 15, 8, 0),
-    },
-];
 
 function IconBox({
     bg,
@@ -199,7 +148,59 @@ export function DriverHomePage({
     const { t } = useTranslation();
     const navigate = useNavigate();
     const logout = useLogout();
-    const [requests, setRequests] = useState(RIDE_REQUESTS);
+    const { data: rides, isLoading, isError } = useDriverRides("UPCOMING");
+    const cancelRide = useCancelRide();
+    const {
+        data: rideRequests,
+        isLoading: areRequestsLoading,
+        isError: areRequestsError,
+    } = useDriverRideRequests();
+    const acceptRequest = useAcceptRideRequest();
+    const declineRequest = useDeclineRideRequest();
+
+    const upcomingRides =
+        rides?.slice(0, 3).map((ride) => {
+            const sortedStops = [...ride.rideStops].sort(
+                (a, b) => a.stopOrder - b.stopOrder
+            );
+            const from = sortedStops[0]?.city ?? "";
+            const to = sortedStops[sortedStops.length - 1]?.city ?? "";
+            const confirmedSeats = ride.bookings.reduce(
+                (sum, booking) => sum + booking.seatCount,
+                0
+            );
+            const remainingSeats = ride.offeredSeats - confirmedSeats;
+
+            return {
+                id: ride.id,
+                from,
+                to,
+                date: new Date(ride.departureAt),
+                price: ride.prices[0]?.amount ?? 0,
+                seatsLeft:
+                    remainingSeats > 0 ? remainingSeats : ("full" as const),
+            };
+        }) ?? [];
+
+    const requests =
+        rideRequests?.slice(0, 3).map((request) => {
+            const fullName = [
+                request.passenger.firstName,
+                request.passenger.lastName,
+            ]
+                .filter(Boolean)
+                .join(" ");
+
+            return {
+                id: request.id,
+                name: fullName || t("rideRequests.passenger", "Passenger"),
+                rating: request.passenger.averageRating ?? 0,
+                seatsRequired: request.seatCount,
+                from: request.pickupCity,
+                to: request.dropoffCity,
+                date: new Date(request.departureAt),
+            };
+        }) ?? [];
 
     const navbarLabels = {
         passenger: t("roles.passenger"),
@@ -229,6 +230,16 @@ export function DriverHomePage({
         accept: t("driver.home.accept"),
         decline: t("driver.home.decline"),
     };
+
+    function handleAcceptRequest(bookingId: string) {
+        if (acceptRequest.isPending || declineRequest.isPending) return;
+        acceptRequest.mutate({ bookingId });
+    }
+
+    function handleDeclineRequest(bookingId: string) {
+        if (acceptRequest.isPending || declineRequest.isPending) return;
+        declineRequest.mutate({ bookingId });
+    }
 
     return (
         <div
@@ -282,20 +293,52 @@ export function DriverHomePage({
                         {t("driver.home.upcomingRides")}
                     </h2>
                     <div className="flex flex-col gap-3">
-                        {UPCOMING_RIDES.map((ride) => (
-                            <RideCard
-                                key={ride.id}
-                                variant="driver-upcoming"
-                                from={ride.from}
-                                to={ride.to}
-                                datetime={formatDate(ride.date, t("home.at"))}
-                                price={ride.price}
-                                seatsLeft={ride.seatsLeft}
-                                onViewPassengers={() => {}}
-                                onCancelRide={() => {}}
-                                labels={rideLabels}
-                            />
-                        ))}
+                        {isLoading && (
+                            <p className="text-(--color-text-secondary)">
+                                {t("driverRides.loading")}
+                            </p>
+                        )}
+                        {isError && (
+                            <p className="text-(--color-text-secondary)">
+                                {t("driverRides.error")}
+                            </p>
+                        )}
+                        {!isLoading &&
+                            !isError &&
+                            upcomingRides.length === 0 && (
+                                <p className="text-(--color-text-secondary)">
+                                    {t("driverRides.noResults")}
+                                </p>
+                            )}
+                        {!isLoading &&
+                            !isError &&
+                            upcomingRides.map((ride) => (
+                                <RideCard
+                                    key={ride.id}
+                                    variant="driver-upcoming"
+                                    from={ride.from}
+                                    to={ride.to}
+                                    datetime={formatDate(
+                                        ride.date,
+                                        t("home.at")
+                                    )}
+                                    price={ride.price}
+                                    seatsLeft={ride.seatsLeft}
+                                    onViewPassengers={() => {}}
+                                    onCancelRide={() =>
+                                        cancelRide.mutate({ rideId: ride.id })
+                                    }
+                                    labels={rideLabels}
+                                />
+                            ))}
+                        {cancelRide.isError && (
+                            <p className="text-(--color-text-secondary)">
+                                {t(
+                                    "driverRides.cancelError",
+                                    "Failed to cancel ride. Please try again."
+                                )}
+                            </p>
+                        )}
                     </div>
                     <div className="flex justify-center mt-6">
                         <button
@@ -318,28 +361,60 @@ export function DriverHomePage({
                         {t("driver.home.rideRequestsSubtitle")}
                     </p>
                     <div className="flex flex-col gap-3">
-                        {requests.map((req) => (
-                            <RideRequestCard
-                                key={req.id}
-                                name={req.name}
-                                rating={req.rating}
-                                seatsRequired={req.seatsRequired}
-                                from={req.from}
-                                to={req.to}
-                                datetime={formatDate(req.date, t("home.at"))}
-                                onAccept={() =>
-                                    setRequests((prev) =>
-                                        prev.filter((r) => r.id !== req.id)
-                                    )
-                                }
-                                onDecline={() =>
-                                    setRequests((prev) =>
-                                        prev.filter((r) => r.id !== req.id)
-                                    )
-                                }
-                                labels={requestLabels}
-                            />
-                        ))}
+                        {areRequestsLoading && (
+                            <p className="text-(--color-text-secondary)">
+                                {t("driverRides.loading")}
+                            </p>
+                        )}
+                        {areRequestsError && (
+                            <p className="text-(--color-text-secondary)">
+                                {t(
+                                    "rideRequests.error",
+                                    "Failed to load ride requests. Please try again."
+                                )}
+                            </p>
+                        )}
+                        {(acceptRequest.isError || declineRequest.isError) && (
+                            <p className="text-(--color-text-secondary)">
+                                {t(
+                                    "rideRequests.actionError",
+                                    "Could not update the request. Please try again."
+                                )}
+                            </p>
+                        )}
+                        {!areRequestsLoading &&
+                            !areRequestsError &&
+                            requests.length === 0 && (
+                                <p className="text-(--color-text-secondary)">
+                                    {t(
+                                        "rideRequests.empty",
+                                        "No pending requests."
+                                    )}
+                                </p>
+                            )}
+                        {!areRequestsLoading &&
+                            !areRequestsError &&
+                            requests.map((request) => (
+                                <RideRequestCard
+                                    key={request.id}
+                                    name={request.name}
+                                    rating={request.rating}
+                                    seatsRequired={request.seatsRequired}
+                                    from={request.from}
+                                    to={request.to}
+                                    datetime={formatDate(
+                                        request.date,
+                                        t("home.at")
+                                    )}
+                                    onAccept={() =>
+                                        handleAcceptRequest(request.id)
+                                    }
+                                    onDecline={() =>
+                                        handleDeclineRequest(request.id)
+                                    }
+                                    labels={requestLabels}
+                                />
+                            ))}
                     </div>
                     <div className="flex justify-center mt-6">
                         <button

@@ -28,6 +28,7 @@ import type {
     RideTimeframe,
     RidePassengersView,
     RideSearchResultItem,
+    AvailableRideItem,
     CreateRideInput,
 } from "./ride.types";
 import { RideErrors } from "./ride.errors";
@@ -245,6 +246,125 @@ const findRidePassengersByRideId = async (
 const pickupStops = aliasedTable(rideStopsTable, "pickup_stops");
 const dropoffStops = aliasedTable(rideStopsTable, "dropoff_stops");
 
+const findAvailableRides = async (): Promise<AvailableRideItem[]> => {
+    const now = new Date();
+
+    const capacityByRide = db
+        .select({
+            rideId: bookingsTable.rideId,
+            occupiedSeats:
+                sql<number>`COALESCE(SUM(${bookingsTable.seatCount}), 0)::int`.as(
+                    "occupiedSeats"
+                ),
+        })
+        .from(bookingsTable)
+        .where(
+            and(
+                inArray(bookingsTable.bookingStatus, [
+                    "PENDING",
+                    "CONFIRMED",
+                    "COMPLETED",
+                ]),
+                isNull(bookingsTable.deletedAt)
+            )
+        )
+        .groupBy(bookingsTable.rideId)
+        .as("capacity_by_available_ride");
+
+    const driverRatings = db
+        .select({
+            subjectId: reviewsTable.subjectId,
+            averageRating: sql<number>`AVG(${reviewsTable.rating})::float`.as(
+                "averageRating"
+            ),
+            reviewCount: sql<number>`COUNT(${reviewsTable.id})::int`.as(
+                "reviewCount"
+            ),
+        })
+        .from(reviewsTable)
+        .where(eq(reviewsTable.reviewStatus, "VISIBLE"))
+        .groupBy(reviewsTable.subjectId)
+        .as("available_driver_ratings");
+
+    const lastStopOrders = db
+        .select({
+            rideId: rideStopsTable.rideId,
+            stopOrder: sql<number>`MAX(${rideStopsTable.stopOrder})`.as(
+                "stopOrder"
+            ),
+        })
+        .from(rideStopsTable)
+        .groupBy(rideStopsTable.rideId)
+        .as("available_last_stop_orders");
+
+    const rows = await db
+        .select({
+            rideId: ridesTable.id,
+            departureAt: ridesTable.departureAt,
+            rideStatus: ridesTable.rideStatus,
+            offeredSeats: ridesTable.offeredSeats,
+            seatsLeft: sql<number>`GREATEST(0, ${ridesTable.offeredSeats} - COALESCE(${capacityByRide.occupiedSeats}, 0))::int`,
+            currency: ridesTable.currency,
+            driver: {
+                id: usersTable.id,
+                firstName: usersTable.firstName,
+                lastName: usersTable.lastName,
+                profilePhotoUrl: usersTable.profilePhotoUrl,
+                averageRating: driverRatings.averageRating,
+                reviewCount: sql<number>`COALESCE(${driverRatings.reviewCount}, 0)::int`,
+            },
+            pickupStop: {
+                pickupStopId: pickupStops.id,
+                city: pickupStops.city,
+                plannedDepartureAt: pickupStops.plannedDepartureAt,
+            },
+            dropoffStop: {
+                dropoffStopId: dropoffStops.id,
+                city: dropoffStops.city,
+                plannedArrivalAt: dropoffStops.plannedArrivalAt,
+            },
+            priceAmount: pricesTable.amount,
+        })
+        .from(ridesTable)
+        .innerJoin(usersTable, eq(ridesTable.driverId, usersTable.id))
+        .leftJoin(driverRatings, eq(driverRatings.subjectId, usersTable.id))
+        .leftJoin(capacityByRide, eq(capacityByRide.rideId, ridesTable.id))
+        .innerJoin(
+            pickupStops,
+            and(
+                eq(pickupStops.rideId, ridesTable.id),
+                eq(pickupStops.stopOrder, 0)
+            )
+        )
+        .innerJoin(lastStopOrders, eq(lastStopOrders.rideId, ridesTable.id))
+        .innerJoin(
+            dropoffStops,
+            and(
+                eq(dropoffStops.rideId, ridesTable.id),
+                eq(dropoffStops.stopOrder, lastStopOrders.stopOrder)
+            )
+        )
+        .leftJoin(
+            pricesTable,
+            and(
+                eq(pricesTable.rideId, ridesTable.id),
+                eq(pricesTable.startStopId, pickupStops.id),
+                eq(pricesTable.endStopId, dropoffStops.id)
+            )
+        )
+        .where(
+            and(
+                isNull(ridesTable.deletedAt),
+                eq(ridesTable.rideStatus, "PLANNED"),
+                gte(ridesTable.departureAt, now),
+                sql`GREATEST(0, ${ridesTable.offeredSeats} - COALESCE(${capacityByRide.occupiedSeats}, 0)) > 0`
+            )
+        )
+        .orderBy(asc(ridesTable.departureAt));
+
+    return rows as AvailableRideItem[];
+};
+
 /**
  * Searches for planned rides between two cities on a specific travel date.
  * Includes driver public profile, pickup/dropoff stop timing, and segment price (if available).
@@ -284,6 +404,28 @@ const searchRides = async (
         .groupBy(reviewsTable.subjectId)
         .as("driver_ratings");
 
+    const capacityByRide = db
+        .select({
+            rideId: bookingsTable.rideId,
+            occupiedSeats:
+                sql<number>`COALESCE(SUM(${bookingsTable.seatCount}), 0)::int`.as(
+                    "occupiedSeats"
+                ),
+        })
+        .from(bookingsTable)
+        .where(
+            and(
+                inArray(bookingsTable.bookingStatus, [
+                    "PENDING",
+                    "CONFIRMED",
+                    "COMPLETED",
+                ]),
+                isNull(bookingsTable.deletedAt)
+            )
+        )
+        .groupBy(bookingsTable.rideId)
+        .as("search_capacity_by_ride");
+
     // 3. Main database query
     const result = await db
         .select({
@@ -291,6 +433,7 @@ const searchRides = async (
             departureAt: ridesTable.departureAt,
             rideStatus: ridesTable.rideStatus,
             offeredSeats: ridesTable.offeredSeats,
+            seatsLeft: sql<number>`GREATEST(0, ${ridesTable.offeredSeats} - COALESCE(${capacityByRide.occupiedSeats}, 0))::int`,
             currency: ridesTable.currency,
 
             driver: {
@@ -350,6 +493,8 @@ const searchRides = async (
                 eq(pricesTable.endStopId, dropoffStops.id)
             )
         )
+
+        .leftJoin(capacityByRide, eq(capacityByRide.rideId, ridesTable.id))
 
         // Apply final business filters
         .where(
@@ -637,6 +782,7 @@ const cancelRide = async (
 export const RideRepository = {
     findRidesByDriverId,
     findRidePassengersByRideId,
+    findAvailableRides,
     searchRides,
     createRide,
     cancelRide,

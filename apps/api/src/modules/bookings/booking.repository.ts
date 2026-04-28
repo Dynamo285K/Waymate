@@ -33,10 +33,6 @@ const myReviewOfDriverTable = aliasedTable(
     "booking_my_review_of_driver"
 );
 
-/**
- * Returns bookings created by a passenger, including ride/driver summary and city names.
- */
-
 const findPendingRequestsForDriver = async (
     driverId: string
 ): Promise<DriverRideRequestItem[]> => {
@@ -94,6 +90,10 @@ const findPendingRequestsForDriver = async (
 
     return rows as DriverRideRequestItem[];
 };
+
+/**
+ * Returns bookings created by a passenger, including ride/driver summary and city names.
+ */
 
 const findBookingsByPassengerId = async (
     passengerId: string,
@@ -309,24 +309,27 @@ const createBookingRequest = async (
 
         const totalAmount = priceRecord.amount * input.seatCount;
 
-        // Check the capacity of confirmed bookings.
-        const confirmedBookings = await tx
+        // Pending requests temporarily hold seats so public availability updates immediately.
+        const activeBookings = await tx
             .select({ seatCount: bookingsTable.seatCount })
             .from(bookingsTable)
             .where(
                 and(
                     eq(bookingsTable.rideId, input.rideId),
-                    eq(bookingsTable.bookingStatus, "CONFIRMED"),
+                    inArray(bookingsTable.bookingStatus, [
+                        "PENDING",
+                        "CONFIRMED",
+                    ]),
                     isNull(bookingsTable.deletedAt)
                 )
             );
 
-        const currentlyConfirmedSeats = confirmedBookings.reduce(
+        const currentlyHeldSeats = activeBookings.reduce(
             (sum, b) => sum + b.seatCount,
             0
         );
 
-        if (currentlyConfirmedSeats + input.seatCount > ride.offeredSeats) {
+        if (currentlyHeldSeats + input.seatCount > ride.offeredSeats) {
             throw new Error(BookingErrors.NotEnoughSeats);
         }
 
@@ -603,6 +606,87 @@ const cancelBookingByPassenger = async (
     });
 };
 
+const cancelBookingByDriver = async (
+    bookingId: string,
+    driverId: string,
+    reason?: string
+): Promise<string> => {
+    return await db.transaction(async (tx) => {
+        const [booking] = await tx
+            .select()
+            .from(bookingsTable)
+            .where(
+                and(
+                    eq(bookingsTable.id, bookingId),
+                    isNull(bookingsTable.deletedAt)
+                )
+            )
+            .for("update");
+
+        if (!booking) {
+            throw new Error(BookingErrors.BookingNotFound);
+        }
+
+        if (booking.bookingStatus === "CANCELLED") {
+            throw new Error(BookingErrors.AlreadyCancelled);
+        }
+
+        if (!["PENDING", "CONFIRMED"].includes(booking.bookingStatus)) {
+            throw new Error(BookingErrors.InvalidStatusTransition);
+        }
+
+        const [ride] = await tx
+            .select({
+                driverId: ridesTable.driverId,
+                rideStatus: ridesTable.rideStatus,
+            })
+            .from(ridesTable)
+            .where(
+                and(
+                    eq(ridesTable.id, booking.rideId),
+                    isNull(ridesTable.deletedAt)
+                )
+            )
+            .for("update");
+
+        if (!ride) {
+            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
+        }
+
+        if (ride.driverId !== driverId) {
+            throw new Error(BookingErrors.UnauthorizedAction);
+        }
+
+        if (ride.rideStatus !== "PLANNED") {
+            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
+        }
+
+        const cancelReason = reason || "Driver cancelled passenger booking";
+
+        const [updatedBooking] = await tx
+            .update(bookingsTable)
+            .set({
+                bookingStatus: "CANCELLED",
+                cancelledAt: new Date(),
+                cancelledByUserId: driverId,
+                cancellationReason: cancelReason,
+                updatedAt: new Date(),
+            })
+            .where(eq(bookingsTable.id, bookingId))
+            .returning({ id: bookingsTable.id });
+
+        await tx.insert(bookingStatusHistoryTable).values({
+            bookingId: updatedBooking.id,
+            oldStatus: booking.bookingStatus,
+            newStatus: "CANCELLED",
+            changedByUserId: driverId,
+            reason: cancelReason,
+        });
+
+        return updatedBooking.id;
+    });
+};
+
 export const BookingRepository = {
     findPendingRequestsForDriver,
     findBookingsByPassengerId,
@@ -610,4 +694,5 @@ export const BookingRepository = {
     confirmBooking,
     rejectBooking,
     cancelBookingByPassenger,
+    cancelBookingByDriver,
 };

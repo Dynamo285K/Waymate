@@ -79,6 +79,7 @@ export type RideSearchResultItem = {
     departureAt: Date;
     rideStatus: RideStatus;
     offeredSeats: number;
+    seatsLeft: number;
 
     driver: {
         id: string;
@@ -102,6 +103,10 @@ export type RideSearchResultItem = {
 
     priceAmount: number | null;
     currency: string;
+};
+
+export type AvailableRideItem = RideSearchResultItem & {
+    seatsLeft: number;
 };
 
 export type CreateRideInput = Pick<

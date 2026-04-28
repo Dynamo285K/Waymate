@@ -11,6 +11,7 @@ import type { Language } from "@waymate/ui";
 import type { AvailableRide } from "../lib/available-rides";
 import { formatRideDate } from "../lib/date-format";
 import { toUiLanguage } from "../lib/language";
+import { useAvailableRides } from "../hooks/useAvailableRides";
 
 type HomeContentProps = {
     language: Language;
@@ -24,49 +25,6 @@ const POPULAR_ROUTES = [
     { from: "Praha", to: "Viedeň", count: 27 },
     { from: "Brno", to: "Martin", count: 23 },
     { from: "Bratislava", to: "Košice", count: 15 },
-];
-
-const AVAILABLE_RIDES = [
-    {
-        id: 1,
-        from: "Martin",
-        to: "Brno",
-        date: new Date(2026, 2, 15, 8, 0),
-        seatsLeft: 2,
-        driverName: "Sarah Johnson",
-        driverRating: 4.9,
-        price: 10,
-    },
-    {
-        id: 2,
-        from: "Žilina",
-        to: "Praha",
-        date: new Date(2026, 2, 15, 10, 0),
-        seatsLeft: 1,
-        driverName: "Mike Chen",
-        driverRating: 4.8,
-        price: 21,
-    },
-    {
-        id: 3,
-        from: "Brno",
-        to: "Bratislava",
-        date: new Date(2026, 2, 15, 9, 0),
-        seatsLeft: 3,
-        driverName: "Emma Wilson",
-        driverRating: 5,
-        price: 6,
-    },
-    {
-        id: 4,
-        from: "Brno",
-        to: "Banská Bystrica",
-        date: new Date(2026, 2, 15, 15, 0),
-        seatsLeft: 2,
-        driverName: "David Brown",
-        driverRating: 4.7,
-        price: 15,
-    },
 ];
 
 const DATE_FNS_LOCALE_MAP = { en: enUS, sk: skLocale, cs };
@@ -216,6 +174,35 @@ export function HomeContent({
     onBook,
 }: HomeContentProps) {
     const { t } = useTranslation();
+    const {
+        data: availableRideRows,
+        isLoading: areAvailableRidesLoading,
+        isError: areAvailableRidesError,
+    } = useAvailableRides();
+
+    const availableRides: AvailableRide[] =
+        availableRideRows?.map((ride) => {
+            const driverName = [ride.driver.firstName, ride.driver.lastName]
+                .filter(Boolean)
+                .join(" ");
+
+            return {
+                id: ride.rideId,
+                rideId: ride.rideId,
+                pickupStopId: ride.pickupStop.pickupStopId,
+                dropoffStopId: ride.dropoffStop.dropoffStopId,
+                from: ride.pickupStop.city,
+                to: ride.dropoffStop.city,
+                date: new Date(
+                    ride.pickupStop.plannedDepartureAt ?? ride.departureAt
+                ),
+                seatsLeft: ride.seatsLeft,
+                driverName: driverName || t("roles.driver"),
+                driverRating: ride.driver.averageRating ?? 0,
+                price: ride.priceAmount ?? 0,
+            };
+        }) ?? [];
+    const visibleAvailableRides = availableRides.slice(0, 5);
 
     return (
         <>
@@ -324,35 +311,59 @@ export function HomeContent({
                     {t("home.availableRides.subtitle")}
                 </p>
                 <div className="flex flex-col gap-3">
-                    {AVAILABLE_RIDES.map((ride) => (
-                        <AvailableRideCard
-                            key={ride.id}
-                            from={ride.from}
-                            to={ride.to}
-                            datetime={formatRideDate(ride.date, t("home.at"))}
-                            seatsLeft={ride.seatsLeft}
-                            driverName={ride.driverName}
-                            driverRating={ride.driverRating}
-                            price={ride.price}
-                            onBook={() => onBook?.(ride)}
-                            labels={{
-                                seatsLeft: (count) =>
-                                    t("home.availableRides.seatsLeft", {
-                                        count,
-                                    }),
-                                book: t("home.availableRides.book"),
-                            }}
-                        />
-                    ))}
+                    {areAvailableRidesLoading && (
+                        <p className="text-(--color-text-secondary)">
+                            {t("rides.loading")}
+                        </p>
+                    )}
+                    {areAvailableRidesError && (
+                        <p className="text-(--color-text-secondary)">
+                            {t("rides.error")}
+                        </p>
+                    )}
+                    {!areAvailableRidesLoading &&
+                        !areAvailableRidesError &&
+                        availableRides.length === 0 && (
+                            <p className="text-(--color-text-secondary)">
+                                {t("rides.noResults")}
+                            </p>
+                        )}
+                    {!areAvailableRidesLoading &&
+                        !areAvailableRidesError &&
+                        visibleAvailableRides.map((ride) => (
+                            <AvailableRideCard
+                                key={ride.id}
+                                from={ride.from}
+                                to={ride.to}
+                                datetime={formatRideDate(
+                                    ride.date,
+                                    t("home.at")
+                                )}
+                                seatsLeft={ride.seatsLeft}
+                                driverName={ride.driverName}
+                                driverRating={ride.driverRating}
+                                price={ride.price}
+                                onBook={() => onBook?.(ride)}
+                                labels={{
+                                    seatsLeft: (count) =>
+                                        t("home.availableRides.seatsLeft", {
+                                            count,
+                                        }),
+                                    book: t("home.availableRides.book"),
+                                }}
+                            />
+                        ))}
                 </div>
-                <div className="flex justify-center mt-8">
-                    <button
-                        onClick={onViewAllRides}
-                        className="border border-(--color-primary) text-(--color-primary) rounded-full px-6 py-2.5 font-medium text-sm hover:bg-(--color-primary)/10 transition-colors"
-                    >
-                        {t("home.availableRides.viewAll")}
-                    </button>
-                </div>
+                {availableRides.length > 0 && (
+                    <div className="flex justify-center mt-8">
+                        <button
+                            onClick={onViewAllRides}
+                            className="border border-(--color-primary) text-(--color-primary) rounded-full px-6 py-2.5 font-medium text-sm hover:bg-(--color-primary)/10 transition-colors"
+                        >
+                            {t("home.availableRides.viewAll")}
+                        </button>
+                    </div>
+                )}
             </section>
 
             {/* Features */}
