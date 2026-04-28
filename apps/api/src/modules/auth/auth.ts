@@ -32,18 +32,9 @@ const googleProvider =
               google: {
                   clientId: env.GOOGLE_CLIENT_ID,
                   clientSecret: env.GOOGLE_CLIENT_SECRET,
-                  mapProfileToUser: (profile: {
-                      given_name?: string;
-                      family_name?: string;
-                      name?: string;
-                      picture?: string;
-                  }) => ({
-                      firstName: profile.given_name,
-                      lastName: profile.family_name,
-                      displayName: profile.name
-                          ?.replace(/\s+/g, "")
-                          .slice(0, 15),
-                      profilePhotoUrl: profile.picture,
+                  mapProfileToUser: () => ({
+                      name: "User",
+                      image: undefined,
                   }),
               },
           }
