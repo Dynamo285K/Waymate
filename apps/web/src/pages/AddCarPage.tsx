@@ -317,7 +317,7 @@ export function AddCarPage({
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
                             {t("addCar.color", "Color")}{" "}
-                            <span className="text-red-500">*</span>
+                            <span className="text-(--color-red)">*</span>
                         </label>
                         <div className="flex gap-3 mt-3 flex-wrap">
                             {COLORS.map((c) => (
@@ -348,7 +348,7 @@ export function AddCarPage({
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
                             {t("addCar.licensePlate", "License plate (SPZ)")}{" "}
-                            <span className="text-red-500">*</span>
+                            <span className="text-(--color-red)">*</span>
                         </label>
                         <div className="flex gap-2 mt-1 items-center">
                             <div className="flex-shrink-0 w-16 h-12 rounded-xl bg-slate-800 flex flex-col items-center justify-center text-white text-xs font-bold">
@@ -371,7 +371,7 @@ export function AddCarPage({
 
                     <div className="p-6 flex flex-col gap-4 sm:items-end">
                         {formError && (
-                            <p className="w-full rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
+                            <p className="w-full rounded-xl border border-(--color-danger-border) bg-(--color-danger-bg) px-4 py-3 text-sm font-semibold text-(--color-danger-text)">
                                 {formError}
                             </p>
                         )}
