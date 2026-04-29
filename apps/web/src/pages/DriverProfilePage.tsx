@@ -55,10 +55,9 @@ export function DriverProfilePage({
     } = useGetRidesMe({ timeframe: "UPCOMING" });
     const cancelRide = useCancelRide();
     const carsQuery = useGetCarsMe();
-    const { data: receivedReviews } = useGetReviewsUsersByUserId(
-        userId ?? "",
-        { query: { enabled: Boolean(userId) } }
-    );
+    const { data: receivedReviews } = useGetReviewsUsersByUserId(userId ?? "", {
+        query: { enabled: Boolean(userId) },
+    });
     const profileRating =
         receivedReviews?.averageRating != null
             ? receivedReviews.averageRating.toFixed(1)

@@ -68,11 +68,7 @@ function collectRefs(node: unknown, into: Set<string>): void {
 function renderSchemaById(id: string): unknown | undefined {
     const exportName = `${id}Schema`;
     const candidate = (sharedSchemas as Record<string, unknown>)[exportName];
-    if (
-        !candidate ||
-        typeof candidate !== "object" ||
-        !("_zod" in candidate)
-    ) {
+    if (!candidate || typeof candidate !== "object" || !("_zod" in candidate)) {
         return undefined;
     }
     const json = z.toJSONSchema(candidate as z.ZodType, {

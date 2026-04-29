@@ -1,9 +1,7 @@
 import { app } from "../src/index";
 import { fillMissingComponentSchemas } from "../src/openapi/post-process";
 
-const res = await app.handle(
-    new Request("http://localhost/openapi/json")
-);
+const res = await app.handle(new Request("http://localhost/openapi/json"));
 
 if (!res.ok) {
     console.error(`Failed to render OpenAPI spec: ${res.status}`);

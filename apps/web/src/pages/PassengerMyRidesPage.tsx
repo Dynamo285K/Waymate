@@ -65,15 +65,23 @@ export function PassengerMyRidesPage({
         isError,
     } = useGetBookingsMe({ timeframe });
 
-    useEffect(() => {
-        const booked = (location.state as { bookedRide?: UpcomingRide } | null)
-            ?.bookedRide;
-        if (booked) {
-            setOptimisticRide(booked);
+    const incomingBooked = (
+        location.state as { bookedRide?: UpcomingRide } | null
+    )?.bookedRide;
+    const [prevLocationState, setPrevLocationState] = useState(location.state);
+    if (location.state !== prevLocationState) {
+        setPrevLocationState(location.state);
+        if (incomingBooked) {
+            setOptimisticRide(incomingBooked);
             setTab("upcoming");
+        }
+    }
+
+    useEffect(() => {
+        if (incomingBooked) {
             window.history.replaceState({}, "");
         }
-    }, [location.state]);
+    }, [incomingBooked]);
 
     const bookingRides = bookings?.map((booking) => ({
         id: booking.id,

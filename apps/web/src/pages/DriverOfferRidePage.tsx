@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import type { ComponentProps, ComponentType } from "react";
 import { cs, enUS, sk as skLocale } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
@@ -17,10 +17,7 @@ import {
     usePostCarsMe,
     getGetCarsMeQueryKey,
 } from "../api-client/cars/cars";
-import {
-    usePostRides,
-    getGetRidesMeQueryKey,
-} from "../api-client/rides/rides";
+import { usePostRides, getGetRidesMeQueryKey } from "../api-client/rides/rides";
 import carData from "../../../api/src/db/cars-data.json";
 
 type Props = {
@@ -206,25 +203,14 @@ export function DriverOfferRidePage({
     const [showSaveCarPrompt, setShowSaveCarPrompt] = useState(false);
     const [publishedMessage, setPublishedMessage] = useState("");
     const [publishError, setPublishError] = useState("");
-    const hasUserSelectedCarMode = useRef(false);
+    const [hasUserSelectedCarMode, setHasUserSelectedCarMode] = useState(false);
 
-    useEffect(() => {
-        if (publishError) {
-            setPublishError("");
-        }
-    }, [
-        pickup,
-        dropoff,
-        rideDate,
-        rideTime,
-        seats,
-        price,
-        carMode,
-        selectedCarId,
-        manualBrand,
-        manualModel,
-        manualPlate,
-    ]);
+    const formKey = `${pickup}|${dropoff}|${rideDate?.toISOString() ?? ""}|${rideTime}|${seats}|${price}|${carMode}|${selectedCarId}|${manualBrand}|${manualModel}|${manualPlate}`;
+    const [prevFormKey, setPrevFormKey] = useState(formKey);
+    if (formKey !== prevFormKey) {
+        setPrevFormKey(formKey);
+        if (publishError) setPublishError("");
+    }
 
     const userCarsQuery = useGetCarsMe();
 
@@ -243,31 +229,30 @@ export function DriverOfferRidePage({
     }, []);
 
     function handleCarModeChange(mode: "saved" | "manual") {
-        hasUserSelectedCarMode.current = true;
+        setHasUserSelectedCarMode(true);
         setCarMode(mode);
     }
 
-    useEffect(() => {
+    const driverCarsKey = driverCars.map((car) => car.id).join("|");
+    const [prevDriverCarsKey, setPrevDriverCarsKey] = useState(driverCarsKey);
+    if (driverCarsKey !== prevDriverCarsKey) {
+        setPrevDriverCarsKey(driverCarsKey);
         if (driverCars.length === 0) {
-            if (carMode === "saved") {
-                setCarMode("manual");
-            }
-            if (selectedCarId) {
-                setSelectedCarId("");
-            }
-            return;
-        }
-
-        const selectedCarExists = driverCars.some(
-            (car) => car.id === selectedCarId
-        );
-
-        if (!selectedCarExists) {
+            if (carMode === "saved") setCarMode("manual");
+            if (selectedCarId) setSelectedCarId("");
+        } else if (!driverCars.some((car) => car.id === selectedCarId)) {
             setSelectedCarId(driverCars[0].id);
         }
+    }
 
+    const manualEntryKey = `${carMode}|${manualBrand}|${manualModel}|${manualPlate}`;
+    const [prevManualEntryKey, setPrevManualEntryKey] =
+        useState(manualEntryKey);
+    if (manualEntryKey !== prevManualEntryKey) {
+        setPrevManualEntryKey(manualEntryKey);
         if (
-            !hasUserSelectedCarMode.current &&
+            !hasUserSelectedCarMode &&
+            driverCars.length > 0 &&
             carMode === "manual" &&
             !manualBrand &&
             !manualModel &&
@@ -275,14 +260,7 @@ export function DriverOfferRidePage({
         ) {
             setCarMode("saved");
         }
-    }, [
-        carMode,
-        driverCars,
-        manualBrand,
-        manualModel,
-        manualPlate,
-        selectedCarId,
-    ]);
+    }
 
     const brandsQuery = useGetCarsBrands();
     const modelsQuery = useGetCarsBrandsByBrandModels(manualBrand, {

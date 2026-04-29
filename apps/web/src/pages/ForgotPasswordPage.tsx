@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useState, useEffect, useMemo } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
@@ -45,13 +45,30 @@ function IconCircle({ children }: { children: React.ReactNode }) {
 export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [step, setStep] = useState<1 | 2 | 3>(1);
+    const initialFromUrl = useMemo(() => {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get("token");
+        const error = params.get("error");
+        return {
+            token,
+            hasError: Boolean(error),
+            step: (token ? 3 : 1) as 1 | 3,
+        };
+    }, []);
+    const [step, setStep] = useState<1 | 2 | 3>(initialFromUrl.step);
     const [countdown, setCountdown] = useState(59);
     const [showPw, setShowPw] = useState(false);
     const [isSendingReset, setIsSendingReset] = useState(false);
     const [isResettingPassword, setIsResettingPassword] = useState(false);
-    const [resetError, setResetError] = useState<string | null>(null);
-    const [resetToken, setResetToken] = useState<string | null>(null);
+    const [resetError, setResetError] = useState<string | null>(
+        initialFromUrl.hasError
+            ? t(
+                  "forgotPassword.invalidToken",
+                  "This reset link is invalid or expired. Please request a new one."
+              )
+            : null
+    );
+    const [resetToken] = useState<string | null>(initialFromUrl.token);
 
     const formSchema = z
         .object({
@@ -72,43 +89,30 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
     const {
         register,
         trigger,
-        watch,
+        control,
         formState: { errors },
     } = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: { email: "", newPassword: "", confirmPassword: "" },
     });
 
-    const enteredEmail = watch("email");
-    const newPassword = watch("newPassword");
+    const enteredEmail = useWatch({ control, name: "email" });
+    const newPassword = useWatch({ control, name: "newPassword" });
+
+    const [prevStep, setPrevStep] = useState(step);
+    if (step !== prevStep) {
+        setPrevStep(step);
+        if (step === 2) setCountdown(59);
+    }
 
     useEffect(() => {
         if (step !== 2) return;
-        setCountdown(59);
         const timer = setInterval(
             () => setCountdown((c) => (c > 0 ? c - 1 : 0)),
             1000
         );
         return () => clearInterval(timer);
     }, [step]);
-
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const token = params.get("token");
-        const error = params.get("error");
-
-        if (token) {
-            setResetToken(token);
-            setStep(3);
-        } else if (error) {
-            setResetError(
-                t(
-                    "forgotPassword.invalidToken",
-                    "This reset link is invalid or expired. Please request a new one."
-                )
-            );
-        }
-    }, [t]);
 
     async function handleSendCode() {
         const ok = await trigger("email");

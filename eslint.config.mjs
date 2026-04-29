@@ -9,6 +9,7 @@ export default [
             "**/build/**",
             "**/coverage/**",
             "**/.turbo/**",
+            "**/api-client/**",
             "**/*.db",
             "**/*.sqlite",
             "**/*.sqlite3",

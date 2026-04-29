@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from "../lib/router-compat";
 import { AuthNavbar, AvailableRideCard, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useRideSearch } from "../hooks/useRideSearch";
+import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
 import { useGetRidesAvailable } from "../api-client/rides/rides";
 import { formatRideDate } from "../lib/date-format";
 

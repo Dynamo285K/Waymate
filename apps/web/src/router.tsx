@@ -4,9 +4,10 @@ import {
     createRouter,
     Outlet,
 } from "@tanstack/react-router";
-import { LayoutProvider, useLayout } from "./lib/layout-context";
-import { useNavigate } from "./lib/router-compat";
-import { HomePage } from "./pages/HomePage";
+import { LayoutProvider } from "./lib/layout-context";
+import type { useLayout } from "./lib/use-layout";
+import { HomeRoute } from "./lib/route-components";
+import { makeAudienceComponent } from "./lib/make-audience-component";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { OnboardingPage } from "./pages/OnboardingPage";
@@ -42,27 +43,6 @@ const rootRoute = createRootRoute({
         </LayoutProvider>
     ),
 });
-
-function HomeRoute() {
-    const layout = useLayout();
-    const navigate = useNavigate();
-    return (
-        <HomePage
-            {...layout}
-            onLogin={() => navigate("/login")}
-            onRegister={() => navigate("/register")}
-            onLogoClick={() => navigate("/")}
-            onSearch={(from, to, date) => {
-                const params = new URLSearchParams();
-                if (from) params.set("from", from);
-                if (to) params.set("to", to);
-                if (date) params.set("date", date.toISOString());
-                navigate(`/rides?${params.toString()}`);
-            }}
-            onViewAllRides={() => navigate("/rides")}
-        />
-    );
-}
 
 const audienceRoutes: ReadonlyArray<{
     path: string;
@@ -107,15 +87,6 @@ const audienceRoutes: ReadonlyArray<{
     { path: "/register", Component: RegisterPage },
     { path: "/onboarding", Component: OnboardingPage },
 ];
-
-function makeAudienceComponent(
-    Component: (typeof audienceRoutes)[number]["Component"]
-) {
-    return function AudienceRouteComponent() {
-        const layout = useLayout();
-        return <Component {...layout} />;
-    };
-}
 
 const homeRoute = createRoute({
     getParentRoute: () => rootRoute,

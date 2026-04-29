@@ -3,8 +3,7 @@ import { useNavigate, useLocation } from "../lib/router-compat";
 import { DriverNavbar, PassengerCard, StatCard } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useGetRidesByIdPassengers } from "../api-client/rides/rides";
-import { toUiLanguage } from "../lib/language";
-import { useLogout } from "../hooks/useLogout";
+import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { useCancelBookingByDriver } from "../hooks/useCancelBookingByDriver";
 
 type DriverPassengersPageProps = {
