@@ -727,9 +727,14 @@ export function DriverOfferRidePage({
                     manualPlate={manualPlate}
                     onManualPlateChange={setManualPlate}
                     manualPlateError={manualPlateError}
-                    publishedMessage={publishedMessage || publishError}
+                    publishedMessage={publishedMessage}
                     onPublishClick={handlePublish}
                 />
+                {publishError && (
+                    <p className="mt-4 w-full rounded-xl border border-(--color-danger-border) bg-(--color-danger-bg) px-4 py-3 text-sm font-semibold text-(--color-danger-text)">
+                        {publishError}
+                    </p>
+                )}
             </div>
 
             {showSaveCarPrompt && (
