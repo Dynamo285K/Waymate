@@ -70,7 +70,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                     return await RideService.searchRides(query);
                 },
                 {
-                    query: "SearchRidesQuery",
+                    query: SearchRidesQuerySchema,
                     response: {
                         200: "RideSearchResultList",
                         400: "ErrorResponse",
@@ -92,7 +92,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                     );
                 },
                 {
-                    query: "TimeframeQuery",
+                    query: TimeframeQuerySchema,
                     response: {
                         200: "RideListItemList",
                         401: "ErrorResponse",
@@ -166,7 +166,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                     return view;
                 },
                 {
-                    params: "RideIdParams",
+                    params: RideIdParamsSchema,
                     response: {
                         200: "RidePassengersView",
                         404: "ErrorResponse",
@@ -208,7 +208,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                     }
                 },
                 {
-                    params: "RideIdParams",
+                    params: RideIdParamsSchema,
                     body: "CancelRideBody",
                     response: {
                         200: "CancelRideResponse",

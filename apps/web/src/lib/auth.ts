@@ -1,5 +1,7 @@
-import { api } from "./eden";
-import { unwrap } from "./eden-query";
+import {
+    getUsersMe,
+    patchUsersMeProfile,
+} from "../api-client/users/users";
 import { authClient } from "./auth-client";
 
 export type AuthUser = {
@@ -75,7 +77,7 @@ export function resetPassword(params: { token: string; newPassword: string }) {
 }
 
 export async function getCurrentUser() {
-    return (await unwrap(api.users.me.get())) as CurrentUser;
+    return (await getUsersMe()) as unknown as CurrentUser;
 }
 
 export async function updateCurrentUserProfile(params: {
@@ -85,7 +87,7 @@ export async function updateCurrentUserProfile(params: {
     phone?: string;
     bio?: string;
 }) {
-    return (await unwrap(api.users.me.profile.patch(params))) as CurrentUser;
+    return (await patchUsersMeProfile(params)) as unknown as CurrentUser;
 }
 
 export async function getPostAuthPath() {

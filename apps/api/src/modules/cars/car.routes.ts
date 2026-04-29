@@ -66,7 +66,7 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
                 async ({ params }) =>
                     await CarService.getCarModelsByBrand(params.brand),
                 {
-                    params: "CarBrandParams",
+                    params: CarBrandParamsSchema,
                     response: { 200: "CarModelList" },
                     detail: {
                         description: "Returns car models for a given brand",
@@ -139,7 +139,7 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
                     return updatedCar;
                 },
                 {
-                    params: "CarIdParams",
+                    params: CarIdParamsSchema,
                     body: "UpdateCarStatusBody",
                     response: {
                         200: "Car",
@@ -167,7 +167,7 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
                     return deletedCar;
                 },
                 {
-                    params: "CarIdParams",
+                    params: CarIdParamsSchema,
                     response: {
                         200: "Car",
                         404: "ErrorResponse",

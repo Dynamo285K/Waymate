@@ -8,7 +8,7 @@ import {
     RateDriverModal,
 } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
-import { usePassengerBookings } from "../hooks/usePassengerBookings";
+import { useGetBookingsMe } from "../api-client/bookings/bookings";
 import { formatRideDate } from "../lib/date-format";
 import { toUiLanguage } from "../lib/language";
 import { useLogout } from "../hooks/useLogout";
@@ -57,7 +57,7 @@ export function PassengerMyRidesPage({
         data: bookings,
         isLoading,
         isError,
-    } = usePassengerBookings(timeframe);
+    } = useGetBookingsMe({ timeframe });
 
     useEffect(() => {
         const booked = (location.state as { bookedRide?: UpcomingRide } | null)

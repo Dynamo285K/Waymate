@@ -9,3 +9,5 @@ export * from "./car.schema";
 export * from "./ride.schema";
 export * from "./booking.schema";
 export * from "./review.schema";
+
+import "./register";

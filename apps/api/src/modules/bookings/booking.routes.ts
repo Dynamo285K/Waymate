@@ -77,7 +77,7 @@ export const BookingRoutes = new Elysia({
                     );
                 },
                 {
-                    query: "BookingTimeframeQuery",
+                    query: BookingTimeframeQuerySchema,
                     response: {
                         200: "PassengerBookingList",
                     },
@@ -210,7 +210,7 @@ export const BookingRoutes = new Elysia({
                     }
                 },
                 {
-                    params: "BookingIdParams",
+                    params: BookingIdParamsSchema,
                     body: "CancelBookingBody",
                     response: {
                         200: "BookingActionResponse",
@@ -281,7 +281,7 @@ export const BookingRoutes = new Elysia({
                     }
                 },
                 {
-                    params: "BookingIdParams",
+                    params: BookingIdParamsSchema,
                     body: "CancelBookingBody",
                     response: {
                         200: "BookingActionResponse",
@@ -344,7 +344,7 @@ export const BookingRoutes = new Elysia({
                     }
                 },
                 {
-                    params: "BookingIdParams",
+                    params: BookingIdParamsSchema,
                     response: {
                         200: "BookingActionResponse",
                         400: "ErrorResponse",
@@ -403,7 +403,7 @@ export const BookingRoutes = new Elysia({
                     }
                 },
                 {
-                    params: "BookingIdParams",
+                    params: BookingIdParamsSchema,
                     body: "RejectBookingBody",
                     response: {
                         200: "BookingActionResponse",

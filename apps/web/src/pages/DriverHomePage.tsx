@@ -9,7 +9,7 @@ import {
 import type { Language } from "@waymate/ui";
 import { formatRideDate as formatDate } from "../lib/date-format";
 import { useLogout } from "../hooks/useLogout";
-import { useDriverRides } from "../hooks/useDriverRides";
+import { useGetRidesMe } from "../api-client/rides/rides";
 import { useCancelRide } from "../hooks/useCancelRide";
 import {
     useAcceptRideRequest,
@@ -148,7 +148,9 @@ export function DriverHomePage({
     const { t } = useTranslation();
     const navigate = useNavigate();
     const logout = useLogout();
-    const { data: rides, isLoading, isError } = useDriverRides("UPCOMING");
+    const { data: rides, isLoading, isError } = useGetRidesMe({
+        timeframe: "UPCOMING",
+    });
     const cancelRide = useCancelRide();
     const {
         data: rideRequests,

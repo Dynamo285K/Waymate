@@ -3,7 +3,10 @@ import { useNavigate, useSearchParams } from "../lib/router-compat";
 import { PassengerNavbar, RatingSummaryCard, RatingCard } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useLogout } from "../hooks/useLogout";
-import { useMyAuthoredReviews, useUserReviews } from "../hooks/useReviews";
+import {
+    useGetReviewsMeAuthored,
+    useGetReviewsUsersByUserId,
+} from "../api-client/reviews/reviews";
 
 type PassengerRatingsPageProps = {
     language: Language;
@@ -30,8 +33,10 @@ export function PassengerRatingsPage({
     const [searchParams] = useSearchParams();
     const view =
         searchParams.get("view") === "received" ? "received" : "authored";
-    const receivedReviews = useUserReviews(userId);
-    const authoredReviews = useMyAuthoredReviews();
+    const receivedReviews = useGetReviewsUsersByUserId(userId ?? "", {
+        query: { enabled: Boolean(userId) },
+    });
+    const authoredReviews = useGetReviewsMeAuthored();
     const isReceived = view === "received";
     const isLoading = isReceived
         ? receivedReviews.isLoading

@@ -1,119 +1,98 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "../lib/eden";
-import { unwrap } from "../lib/eden-query";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+    useGetBookingsRequests,
+    usePatchBookingsByIdConfirm,
+    usePatchBookingsByIdReject,
+    getGetBookingsRequestsQueryKey,
+} from "../api-client/bookings/bookings";
+import { getGetRidesMeQueryKey } from "../api-client/rides/rides";
+import type { DriverRideRequestItem } from "../api-client/model/driverRideRequestItem";
 
-export type DriverRideRequest = {
-    id: string;
-    rideId: string;
-    seatCount: number;
-    passenger: {
-        id: string;
-        firstName: string | null;
-        lastName: string | null;
-        profilePhotoUrl: string | null;
-        averageRating: number | null;
-    };
-    pickupCity: string;
-    dropoffCity: string;
-    departureAt: Date | string;
-};
+export type DriverRideRequest = DriverRideRequestItem;
 
-const driverRideRequestsQueryKey = ["bookings", "requests"] as const;
+const requestsQueryKey = getGetBookingsRequestsQueryKey();
 
 export function useDriverRideRequests() {
-    return useQuery({
-        queryKey: driverRideRequestsQueryKey,
-        queryFn: () =>
-            unwrap(api.bookings.requests.get()) as Promise<DriverRideRequest[]>,
-    });
+    return useGetBookingsRequests();
 }
 
 type ManageRideRequestInput = {
     bookingId: string;
 };
 
-export function useAcceptRideRequest() {
+function useOptimisticRemoval<TVars extends { id: string }>() {
     const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: ({ bookingId }: ManageRideRequestInput) =>
-            unwrap(api.bookings({ id: bookingId }).confirm.patch()),
-        onMutate: async ({ bookingId }) => {
-            await queryClient.cancelQueries({
-                queryKey: driverRideRequestsQueryKey,
-            });
+    return {
+        onMutate: async (variables: TVars) => {
+            await queryClient.cancelQueries({ queryKey: requestsQueryKey });
 
-            const previousRequests = queryClient.getQueryData<
-                DriverRideRequest[]
-            >(driverRideRequestsQueryKey);
+            const previous =
+                queryClient.getQueryData<DriverRideRequest[]>(requestsQueryKey);
 
             queryClient.setQueryData<DriverRideRequest[]>(
-                driverRideRequestsQueryKey,
+                requestsQueryKey,
                 (requests) =>
-                    requests?.filter((request) => request.id !== bookingId) ??
-                    []
+                    requests?.filter((req) => req.id !== variables.id) ?? []
             );
 
-            return { previousRequests };
+            return { previous };
         },
-        onError: (_error, _input, context) => {
-            queryClient.setQueryData(
-                driverRideRequestsQueryKey,
-                context?.previousRequests
-            );
+        onError: (
+            _error: unknown,
+            _vars: TVars,
+            context?: { previous?: DriverRideRequest[] }
+        ) => {
+            if (context?.previous !== undefined) {
+                queryClient.setQueryData(requestsQueryKey, context.previous);
+            }
         },
         onSettled: () => {
+            void queryClient.invalidateQueries({ queryKey: requestsQueryKey });
             void queryClient.invalidateQueries({
-                queryKey: driverRideRequestsQueryKey,
-            });
-            void queryClient.invalidateQueries({
-                queryKey: ["rides", "me"],
+                queryKey: getGetRidesMeQueryKey(),
             });
         },
+    };
+}
+
+export function useAcceptRideRequest() {
+    const handlers = useOptimisticRemoval<{ id: string }>();
+
+    const mutation = usePatchBookingsByIdConfirm({
+        mutation: handlers,
     });
+
+    return {
+        ...mutation,
+        mutate: ({ bookingId }: ManageRideRequestInput) =>
+            mutation.mutate({ id: bookingId }),
+        mutateAsync: ({ bookingId }: ManageRideRequestInput) =>
+            mutation.mutateAsync({ id: bookingId }),
+    };
 }
 
 export function useDeclineRideRequest() {
-    const queryClient = useQueryClient();
+    const handlers = useOptimisticRemoval<{
+        id: string;
+        data: { reason?: string };
+    }>();
 
-    return useMutation({
-        mutationFn: ({ bookingId }: ManageRideRequestInput) =>
-            unwrap(
-                api.bookings({ id: bookingId }).reject.patch({
-                    reason: "Driver rejected booking",
-                })
-            ),
-        onMutate: async ({ bookingId }) => {
-            await queryClient.cancelQueries({
-                queryKey: driverRideRequestsQueryKey,
-            });
-
-            const previousRequests = queryClient.getQueryData<
-                DriverRideRequest[]
-            >(driverRideRequestsQueryKey);
-
-            queryClient.setQueryData<DriverRideRequest[]>(
-                driverRideRequestsQueryKey,
-                (requests) =>
-                    requests?.filter((request) => request.id !== bookingId) ??
-                    []
-            );
-
-            return { previousRequests };
-        },
-        onError: (_error, _input, context) => {
-            queryClient.setQueryData(
-                driverRideRequestsQueryKey,
-                context?.previousRequests
-            );
-        },
-        onSettled: () => {
-            void queryClient.invalidateQueries({
-                queryKey: driverRideRequestsQueryKey,
-            });
-            void queryClient.invalidateQueries({
-                queryKey: ["rides", "me"],
-            });
-        },
+    const mutation = usePatchBookingsByIdReject({
+        mutation: handlers,
     });
+
+    return {
+        ...mutation,
+        mutate: ({ bookingId }: ManageRideRequestInput) =>
+            mutation.mutate({
+                id: bookingId,
+                data: { reason: "Driver rejected booking" },
+            }),
+        mutateAsync: ({ bookingId }: ManageRideRequestInput) =>
+            mutation.mutateAsync({
+                id: bookingId,
+                data: { reason: "Driver rejected booking" },
+            }),
+    };
 }
