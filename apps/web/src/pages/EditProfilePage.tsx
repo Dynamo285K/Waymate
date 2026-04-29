@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "../lib/router-compat";
@@ -54,6 +54,25 @@ export function EditProfilePage({
     const [email, setEmail] = useState(userEmail ?? "");
     const [phone, setPhone] = useState(userPhone ?? "");
     const [about, setAbout] = useState(userBio ?? "");
+    const [prevProfile, setPrevProfile] = useState({
+        userName,
+        userEmail,
+        userPhone,
+        userBio,
+    });
+
+    if (
+        prevProfile.userName !== userName ||
+        prevProfile.userEmail !== userEmail ||
+        prevProfile.userPhone !== userPhone ||
+        prevProfile.userBio !== userBio
+    ) {
+        setPrevProfile({ userName, userEmail, userPhone, userBio });
+        if (userName) setName(userName);
+        if (userEmail) setEmail(userEmail);
+        if (userPhone) setPhone(userPhone);
+        if (userBio) setAbout(userBio);
+    }
 
     const updateProfile = useMutation({
         mutationFn: updateCurrentUserProfile,
@@ -62,30 +81,6 @@ export function EditProfilePage({
             navigate(backPath);
         },
     });
-
-    useEffect(() => {
-        if (userName) {
-            setName(userName);
-        }
-    }, [userName]);
-
-    useEffect(() => {
-        if (userEmail) {
-            setEmail(userEmail);
-        }
-    }, [userEmail]);
-
-    useEffect(() => {
-        if (userPhone) {
-            setPhone(userPhone);
-        }
-    }, [userPhone]);
-
-    useEffect(() => {
-        if (userBio) {
-            setAbout(userBio);
-        }
-    }, [userBio]);
 
     function handleSave() {
         const { firstName, lastName } = splitFullName(name);

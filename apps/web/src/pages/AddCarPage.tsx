@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from "../lib/router-compat";
 import { PassengerNavbar, DriverNavbar, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
-import { useLogout } from "../hooks/useLogout";
+import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 import {
     useGetCarsBrands,
     useGetCarsBrandsByBrandModels,

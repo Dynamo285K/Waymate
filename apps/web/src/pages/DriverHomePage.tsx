@@ -8,7 +8,6 @@ import {
 } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { formatRideDate as formatDate } from "../lib/date-format";
-import { useLogout } from "../hooks/useLogout";
 import { useGetRidesMe } from "../api-client/rides/rides";
 import { useCancelRide } from "../hooks/useCancelRide";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
@@ -148,8 +147,19 @@ export function DriverHomePage({
 }: DriverHomePageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const logout = useLogout();
-    const { data: rides, isLoading, isError } = useGetRidesMe({
+    const navbarProps = useDriverNavbarProps({
+        language,
+        onLanguageChange,
+        theme,
+        onThemeToggle,
+        userName,
+        userEmail,
+    });
+    const {
+        data: rides,
+        isLoading,
+        isError,
+    } = useGetRidesMe({
         timeframe: "UPCOMING",
     });
     const cancelRide = useCancelRide();

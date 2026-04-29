@@ -1,7 +1,4 @@
-import {
-    getUsersMe,
-    patchUsersMeProfile,
-} from "../api-client/users/users";
+import { getUsersMe, patchUsersMeProfile } from "../api-client/users/users";
 import { authClient } from "./auth-client";
 
 export type AuthUser = {

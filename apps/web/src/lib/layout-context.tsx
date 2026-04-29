@@ -1,27 +1,15 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import i18n from "../i18n";
 import type { Language } from "@waymate/ui";
 import { toI18nLanguage } from "./language";
 import { getCurrentUser } from "./auth";
-
-export type Theme = "light" | "dark";
-
-export type LayoutContextValue = {
-    language: Language;
-    theme: Theme;
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-    userId?: string;
-    userName?: string;
-    userEmail?: string;
-    userPhone?: string;
-    userBio?: string;
-    userCreatedAt?: string | Date;
-};
-
-const LayoutContext = createContext<LayoutContextValue | null>(null);
+import {
+    LayoutContext,
+    type LayoutContextValue,
+    type Theme,
+} from "./use-layout";
 
 export function LayoutProvider({ children }: { children: ReactNode }) {
     const [language, setLanguage] = useState<Language>("en");
@@ -78,12 +66,4 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
             {children}
         </LayoutContext.Provider>
     );
-}
-
-export function useLayout(): LayoutContextValue {
-    const ctx = useContext(LayoutContext);
-    if (!ctx) {
-        throw new Error("useLayout must be used inside <LayoutProvider>");
-    }
-    return ctx;
 }
