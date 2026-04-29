@@ -29,7 +29,15 @@ export function PassengerRatingsPage({
 }: PassengerRatingsPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const logout = useLogout();
+    const navbarProps = usePassengerNavbarProps({
+        activeTab: "find-ride",
+        language,
+        onLanguageChange,
+        theme,
+        onThemeToggle,
+        userName,
+        userEmail,
+    });
     const [searchParams] = useSearchParams();
     const view =
         searchParams.get("view") === "received" ? "received" : "authored";
@@ -73,40 +81,7 @@ export function PassengerRatingsPage({
             data-theme={theme}
             className="min-h-screen bg-(--color-bg)"
         >
-            <PassengerNavbar
-                activeTab="find-ride"
-                language={language}
-                onLanguageChange={onLanguageChange}
-                role="passenger"
-                onRoleChange={(r) => r === "driver" && navigate("/driver")}
-                theme={theme}
-                onThemeToggle={onThemeToggle}
-                userName={userName}
-                userEmail={userEmail}
-                onLogoClick={() => navigate("/passenger")}
-                onFindRideClick={() => navigate("/passenger")}
-                onMyRidesClick={() => navigate("/passenger/rides")}
-                onChatClick={() => navigate("/passenger/chat")}
-                onMessagesClick={() => navigate("/passenger/chat")}
-                onRatingsClick={() =>
-                    navigate("/passenger/ratings?view=authored")
-                }
-                onProfileClick={() => navigate("/passenger/profile")}
-                onLogoutClick={logout}
-                labels={{
-                    passenger: t("roles.passenger"),
-                    driver: t("roles.driver"),
-                    findRide: t("nav.findRide"),
-                    myRides: t("nav.myRides"),
-                    chat: t("nav.chat"),
-                    profile: t("nav.profile"),
-                    dropdownMyRides: t("nav.myRides"),
-                    messages: t("nav.messages"),
-                    ratings: t("nav.ratings"),
-                    settings: t("nav.settings"),
-                    logout: t("nav.logout"),
-                }}
-            />
+            <PassengerNavbar {...navbarProps} />
 
             <section className="w-full px-4 sm:max-w-3xl sm:mx-auto sm:px-8 py-8 sm:py-12">
                 <button

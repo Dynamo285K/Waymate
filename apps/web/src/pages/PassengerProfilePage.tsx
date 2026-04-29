@@ -33,7 +33,15 @@ export function PassengerProfilePage({
 }: PassengerProfilePageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const logout = useLogout();
+    const navbarProps = usePassengerNavbarProps({
+        activeTab: "find-ride",
+        language,
+        onLanguageChange,
+        theme,
+        onThemeToggle,
+        userName,
+        userEmail,
+    });
     const displayName = userName ?? t("profile.fallbackName", "User");
     const displayEmail = userEmail ?? "";
     const memberSince = formatMemberSince(userCreatedAt, language);
@@ -69,40 +77,6 @@ export function PassengerProfilePage({
                     ? ("confirmed" as const)
                     : ("pending" as const),
         })) ?? [];
-
-    const navbarProps = {
-        activeTab: "find-ride" as const,
-        language: toUiLanguage(language),
-        onLanguageChange,
-        role: "passenger" as const,
-        onRoleChange: (r: "passenger" | "driver") =>
-            r === "driver" && navigate("/driver"),
-        theme,
-        onThemeToggle,
-        userName,
-        userEmail,
-        onLogoClick: () => navigate("/passenger"),
-        onFindRideClick: () => navigate("/passenger"),
-        onMyRidesClick: () => navigate("/passenger/rides"),
-        onChatClick: () => navigate("/passenger/chat"),
-        onMessagesClick: () => navigate("/passenger/chat"),
-        onRatingsClick: () => navigate("/passenger/ratings?view=authored"),
-        onProfileClick: () => navigate("/passenger/profile"),
-        onLogoutClick: logout,
-        labels: {
-            passenger: t("roles.passenger"),
-            driver: t("roles.driver"),
-            findRide: t("nav.findRide"),
-            myRides: t("nav.myRides"),
-            chat: t("nav.chat"),
-            profile: t("nav.profile"),
-            dropdownMyRides: t("nav.myRides"),
-            messages: t("nav.messages"),
-            ratings: t("nav.ratings"),
-            settings: t("nav.settings"),
-            logout: t("nav.logout"),
-        },
-    };
 
     return (
         <div

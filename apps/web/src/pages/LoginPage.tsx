@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { AuthNavbar, LoginBox } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
+import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
 import {
     getPostAuthPath,
     signInWithEmail,
@@ -32,6 +33,12 @@ export function LoginPage({
 }: LoginPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const authNavbarProps = useAuthNavbarProps({
+        language,
+        onLanguageChange,
+        theme,
+        onThemeToggle,
+    });
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
     const formSchema = z.object({
@@ -108,13 +115,7 @@ export function LoginPage({
             data-theme={theme}
             className="min-h-screen bg-(--color-bg)"
         >
-            <AuthNavbar
-                language={language}
-                onLanguageChange={onLanguageChange}
-                theme={theme}
-                onThemeToggle={onThemeToggle}
-                onLogoClick={() => navigate("/")}
-            />
+            <AuthNavbar {...authNavbarProps} />
             <div className="flex items-center justify-center min-h-[calc(100vh-72px)] px-4 py-12">
                 <LoginBox
                     email={email}

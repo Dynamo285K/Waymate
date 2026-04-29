@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "../lib/router-compat";
 import { useTranslation } from "react-i18next";
 import { AdminNavbar, Avatar, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
-import { useLogout } from "../hooks/useLogout";
+import { useAdminNavbarProps } from "../hooks/useAdminNavbarProps";
 
 type AdminUsersPageProps = {
     language: Language;
@@ -489,25 +488,21 @@ export function AdminUsersPage({
     userEmail = "admin@waymate.com",
 }: AdminUsersPageProps) {
     const { t } = useTranslation();
-    const navigate = useNavigate();
-    const logout = useLogout();
+    const navbarProps = useAdminNavbarProps({
+        activeTab: "users",
+        language,
+        onLanguageChange,
+        theme,
+        onThemeToggle,
+        userName,
+        userEmail,
+    });
     const [search, setSearch] = useState("");
     const [roleFilter, setRoleFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
     const [viewUser, setViewUser] = useState<User | null>(null);
     const [banUser, setBanUser] = useState<User | null>(null);
     const [users, setUsers] = useState(USERS);
-
-    const navLabels = {
-        adminRole: t("admin.adminRole"),
-        dashboard: t("admin.dashboard"),
-        rides: t("admin.rides"),
-        users: t("admin.users"),
-        reports: t("admin.reports"),
-        account: t("admin.account"),
-        settings: t("admin.settings"),
-        logout: t("admin.logout"),
-    };
 
     const filtered = users.filter((u) => {
         const q = search.toLowerCase();
@@ -545,23 +540,7 @@ export function AdminUsersPage({
             data-theme={theme}
             className="min-h-screen bg-(--color-bg)"
         >
-            <AdminNavbar
-                activeTab="users"
-                language={language}
-                onLanguageChange={onLanguageChange}
-                theme={theme}
-                onThemeToggle={onThemeToggle}
-                userName={userName}
-                userEmail={userEmail}
-                onLogoClick={() => navigate("/admin")}
-                onDashboardClick={() => navigate("/admin")}
-                onRidesClick={() => navigate("/admin/rides")}
-                onUsersClick={() => navigate("/admin/users")}
-                onReportsClick={() => navigate("/admin/reports")}
-                onProfileClick={() => navigate("/admin/account")}
-                onLogoutClick={logout}
-                labels={navLabels}
-            />
+            <AdminNavbar {...navbarProps} />
 
             <div className="w-full px-4 sm:max-w-6xl sm:mx-auto sm:px-8 py-8">
                 <h1 className="text-2xl font-bold text-(--color-text-primary)">

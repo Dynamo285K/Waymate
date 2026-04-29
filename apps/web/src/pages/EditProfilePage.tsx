@@ -10,8 +10,9 @@ import {
     Button,
 } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
+import { useAdminNavbarProps } from "../hooks/useAdminNavbarProps";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
-import { useLogout } from "../hooks/useLogout";
+import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 import { updateCurrentUserProfile } from "../lib/auth";
 
 type EditProfilePageProps = {
@@ -38,7 +39,6 @@ export function EditProfilePage({
     const { t } = useTranslation();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const logout = useLogout();
     const location = useLocation();
     const role =
         (location.state as { role?: "passenger" | "driver" | "admin" } | null)
@@ -108,20 +108,23 @@ export function EditProfilePage({
         userName,
         userEmail,
     });
-
-    const passengerNavbarLabels = {
-        passenger: t("roles.passenger"),
-        driver: t("roles.driver"),
-        findRide: t("nav.findRide"),
-        myRides: t("nav.myRides"),
-        chat: t("nav.chat"),
-        profile: t("nav.profile"),
-        dropdownMyRides: t("nav.myRides"),
-        messages: t("nav.messages"),
-        ratings: t("nav.ratings"),
-        settings: t("nav.settings"),
-        logout: t("nav.logout"),
-    };
+    const adminNavbarProps = useAdminNavbarProps({
+        language,
+        onLanguageChange,
+        theme,
+        onThemeToggle,
+        userName,
+        userEmail,
+    });
+    const passengerNavbarProps = usePassengerNavbarProps({
+        activeTab: "find-ride",
+        language,
+        onLanguageChange,
+        theme,
+        onThemeToggle,
+        userName,
+        userEmail,
+    });
 
     return (
         <div
@@ -131,54 +134,9 @@ export function EditProfilePage({
             {role === "driver" ? (
                 <DriverNavbar {...driverNavbarProps} />
             ) : role === "admin" ? (
-                <AdminNavbar
-                    language={language}
-                    onLanguageChange={onLanguageChange}
-                    theme={theme}
-                    onThemeToggle={onThemeToggle}
-                    userName={userName}
-                    userEmail={userEmail}
-                    onLogoClick={() => navigate("/admin")}
-                    onDashboardClick={() => navigate("/admin")}
-                    onRidesClick={() => navigate("/admin/rides")}
-                    onUsersClick={() => navigate("/admin/users")}
-                    onReportsClick={() => navigate("/admin/reports")}
-                    onProfileClick={() => navigate("/admin/account")}
-                    onLogoutClick={logout}
-                    labels={{
-                        adminRole: t("admin.adminRole"),
-                        dashboard: t("admin.dashboard"),
-                        users: t("admin.users"),
-                        rides: t("admin.rides"),
-                        reports: t("admin.reports"),
-                        account: t("admin.account"),
-                        settings: t("admin.settings"),
-                        logout: t("admin.logout"),
-                    }}
-                />
+                <AdminNavbar {...adminNavbarProps} />
             ) : (
-                <PassengerNavbar
-                    activeTab="find-ride"
-                    language={language}
-                    onLanguageChange={onLanguageChange}
-                    role="passenger"
-                    onRoleChange={(r) => r === "driver" && navigate("/driver")}
-                    theme={theme}
-                    onThemeToggle={onThemeToggle}
-                    userName={userName}
-                    userEmail={userEmail}
-                    onLogoClick={() => navigate("/passenger")}
-                    onFindRideClick={() => navigate("/passenger")}
-                    onMyRidesClick={() => navigate("/passenger/rides")}
-                    onChatClick={() => navigate("/passenger/chat")}
-                    onMessagesClick={() => navigate("/passenger/chat")}
-                    onProfileClick={() => navigate("/passenger/profile")}
-                    onRatingsClick={() =>
-                        navigate("/passenger/ratings?view=authored")
-                    }
-                    onLogoutClick={logout}
-                    labels={passengerNavbarLabels}
-                />
+                <PassengerNavbar {...passengerNavbarProps} />
             )}
 
             <section className="w-full px-4 sm:max-w-2xl sm:mx-auto sm:px-8 py-8 sm:py-12">

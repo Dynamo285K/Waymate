@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { AuthNavbar, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
+import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
 import { apiFetch } from "../lib/api";
 import { hasCompletedOnboarding } from "../lib/auth";
 
@@ -47,6 +48,12 @@ export function OnboardingPage({
 }: OnboardingPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const authNavbarProps = useAuthNavbarProps({
+        language,
+        onLanguageChange,
+        theme,
+        onThemeToggle,
+    });
     const queryClient = useQueryClient();
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -137,13 +144,7 @@ export function OnboardingPage({
             data-theme={theme}
             className="min-h-screen bg-(--color-bg)"
         >
-            <AuthNavbar
-                language={language}
-                onLanguageChange={onLanguageChange}
-                theme={theme}
-                onThemeToggle={onThemeToggle}
-                onLogoClick={() => navigate("/")}
-            />
+            <AuthNavbar {...authNavbarProps} />
 
             <main className="flex min-h-[calc(100vh-72px)] items-center justify-center px-4 py-12">
                 {!isLoadingProfile && (

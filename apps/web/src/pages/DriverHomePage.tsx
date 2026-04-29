@@ -11,6 +11,7 @@ import { formatRideDate as formatDate } from "../lib/date-format";
 import { useLogout } from "../hooks/useLogout";
 import { useGetRidesMe } from "../api-client/rides/rides";
 import { useCancelRide } from "../hooks/useCancelRide";
+import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import {
     useAcceptRideRequest,
     useDeclineRideRequest,
@@ -204,21 +205,6 @@ export function DriverHomePage({
             };
         }) ?? [];
 
-    const navbarLabels = {
-        passenger: t("roles.passenger"),
-        driver: t("roles.driver"),
-        offerRide: t("driver.nav.offerRide"),
-        myRides: t("driver.nav.myRides"),
-        rideRequests: t("driver.nav.rideRequests"),
-        chat: t("driver.nav.chat"),
-        profile: t("nav.profile"),
-        dropdownMyRides: t("driver.nav.myRides"),
-        messages: t("nav.messages"),
-        ratings: t("nav.ratings"),
-        settings: t("nav.settings"),
-        logout: t("nav.logout"),
-    };
-
     const rideLabels = {
         seatsLeft: (count: number) =>
             t("home.availableRides.seatsLeft", { count }),
@@ -248,28 +234,7 @@ export function DriverHomePage({
             data-theme={theme}
             className="min-h-screen bg-(--color-bg)"
         >
-            <DriverNavbar
-                language={language}
-                onLanguageChange={onLanguageChange}
-                role="driver"
-                onRoleChange={(r) =>
-                    r === "passenger" && navigate("/passenger")
-                }
-                theme={theme}
-                onThemeToggle={onThemeToggle}
-                userName={userName}
-                userEmail={userEmail}
-                onLogoClick={() => navigate("/driver")}
-                onOfferRideClick={() => navigate("/driver/offer")}
-                onMyRidesClick={() => navigate("/driver/rides")}
-                onRideRequestsClick={() => navigate("/driver/requests")}
-                onChatClick={() => navigate("/driver/chat")}
-                onMessagesClick={() => navigate("/driver/chat")}
-                onProfileClick={() => navigate("/driver/profile")}
-                onRatingsClick={() => navigate("/driver/ratings?view=authored")}
-                onLogoutClick={logout}
-                labels={navbarLabels}
-            />
+            <DriverNavbar {...navbarProps} />
 
             {/* Hero */}
             <section className="flex flex-col items-center pt-16 sm:pt-24 pb-12 px-4 text-center">

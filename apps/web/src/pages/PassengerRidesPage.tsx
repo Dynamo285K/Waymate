@@ -2,12 +2,11 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "../lib/router-compat";
 import { PassengerNavbar, AvailableRideCard } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
+import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 import { useCreateBooking } from "../hooks/useCreateBooking";
 import { useGetRidesAvailable } from "../api-client/rides/rides";
 import { useRideSearch } from "../hooks/useRideSearch";
 import { formatRideDate } from "../lib/date-format";
-import { toUiLanguage } from "../lib/language";
-import { useLogout } from "../hooks/useLogout";
 
 type PassengerRidesPageProps = {
     language: Language;
@@ -28,7 +27,15 @@ export function PassengerRidesPage({
 }: PassengerRidesPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const logout = useLogout();
+    const navbarProps = usePassengerNavbarProps({
+        activeTab: "find-ride",
+        language,
+        onLanguageChange,
+        theme,
+        onThemeToggle,
+        userName,
+        userEmail,
+    });
     const [searchParams] = useSearchParams();
     const createBooking = useCreateBooking();
 
@@ -81,40 +88,7 @@ export function PassengerRidesPage({
             data-theme={theme}
             className="min-h-screen bg-(--color-bg)"
         >
-            <PassengerNavbar
-                activeTab="find-ride"
-                language={toUiLanguage(language)}
-                onLanguageChange={onLanguageChange}
-                role="passenger"
-                onRoleChange={(r) => r === "driver" && navigate("/driver")}
-                theme={theme}
-                onThemeToggle={onThemeToggle}
-                userName={userName}
-                userEmail={userEmail}
-                onLogoClick={() => navigate("/passenger")}
-                onFindRideClick={() => navigate("/passenger")}
-                onMyRidesClick={() => navigate("/passenger/rides")}
-                onChatClick={() => navigate("/passenger/chat")}
-                onMessagesClick={() => navigate("/passenger/chat")}
-                onProfileClick={() => navigate("/passenger/profile")}
-                onRatingsClick={() =>
-                    navigate("/passenger/ratings?view=authored")
-                }
-                onLogoutClick={logout}
-                labels={{
-                    passenger: t("roles.passenger"),
-                    driver: t("roles.driver"),
-                    findRide: t("nav.findRide"),
-                    myRides: t("nav.myRides"),
-                    chat: t("nav.chat"),
-                    profile: t("nav.profile"),
-                    dropdownMyRides: t("nav.myRides"),
-                    messages: t("nav.messages"),
-                    ratings: t("nav.ratings"),
-                    settings: t("nav.settings"),
-                    logout: t("nav.logout"),
-                }}
-            />
+            <PassengerNavbar {...navbarProps} />
 
             <section className="w-full px-4 sm:max-w-3xl sm:mx-auto sm:px-8 py-8 sm:py-12">
                 <h2 className="text-2xl font-bold text-(--color-text-primary)">
