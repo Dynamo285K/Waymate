@@ -20,4 +20,32 @@ export default defineConfig([
             globals: globals.browser,
         },
     },
+    {
+        files: ["src/pages/**/*.{ts,tsx}"],
+        rules: {
+            "no-restricted-syntax": [
+                "error",
+                {
+                    selector: "JSXOpeningElement[name.name='button']",
+                    message:
+                        "Use Button from @waymate/ui instead of raw <button>.",
+                },
+                {
+                    selector: "JSXOpeningElement[name.name='input']",
+                    message:
+                        "Use Input from @waymate/ui instead of raw <input>.",
+                },
+                {
+                    selector: "JSXOpeningElement[name.name='select']",
+                    message:
+                        "Use Select from @waymate/ui instead of raw <select>.",
+                },
+                {
+                    selector: "JSXOpeningElement[name.name='textarea']",
+                    message:
+                        "Use Textarea from @waymate/ui instead of raw <textarea>.",
+                },
+            ],
+        },
+    },
 ]);
