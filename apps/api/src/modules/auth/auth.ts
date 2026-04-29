@@ -52,12 +52,28 @@ export const auth = betterAuth({
             session: schema.sessions,
             account: schema.accounts,
             verification: schema.verifications,
+            rateLimit: schema.rateLimits,
         },
     }),
 
     advanced: {
         database: {
             generateId: () => randomUUID(),
+        },
+        ipAddress: {
+            ipAddressHeaders: ["x-forwarded-for"],
+        },
+    },
+
+    rateLimit: {
+        enabled: true,
+        storage: "database",
+        window: 60,
+        max: 100,
+        customRules: {
+            "/sign-in/email": { window: 60, max: 5 },
+            "/forget-password": { window: 300, max: 3 },
+            "/email-otp/send-verification-otp": { window: 60, max: 3 },
         },
     },
 

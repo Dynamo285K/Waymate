@@ -18,3 +18,4 @@ export * from "./user_status_history";
 export * from "./ride_status_history";
 export * from "./booking_status_history";
 export * from "./blocklist";
+export * from "./rate_limit";
