@@ -2,10 +2,11 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { PassengerNavbar, ProfileHeroCard, RideCard } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
-import { usePassengerBookings } from "../hooks/usePassengerBookings";
+import { useGetBookingsMe } from "../api-client/bookings/bookings";
+import { useGetReviewsUsersByUserId } from "../api-client/reviews/reviews";
 import { formatRideDate } from "../lib/date-format";
-import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
-import { useUserReviews } from "../hooks/useReviews";
+import { toUiLanguage } from "../lib/language";
+import { useLogout } from "../hooks/useLogout";
 
 type PassengerProfilePageProps = {
     language: Language;
@@ -49,8 +50,11 @@ export function PassengerProfilePage({
         data: bookings,
         isLoading: ridesLoading,
         isError: ridesError,
-    } = usePassengerBookings("UPCOMING");
-    const { data: receivedReviews } = useUserReviews(userId);
+    } = useGetBookingsMe({ timeframe: "UPCOMING" });
+    const { data: receivedReviews } = useGetReviewsUsersByUserId(
+        userId ?? "",
+        { query: { enabled: Boolean(userId) } }
+    );
     const profileRating =
         receivedReviews?.averageRating != null
             ? receivedReviews.averageRating.toFixed(1)

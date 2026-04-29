@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { DriverNavbar, RideCard, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
-import { useDriverRides } from "../hooks/useDriverRides";
+import { useGetRidesMe } from "../api-client/rides/rides";
 import { useCancelRide } from "../hooks/useCancelRide";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { formatRideDate } from "../lib/date-format";
@@ -41,7 +41,7 @@ export function DriverMyRidesPage({
         null
     );
     const timeframe = tab === "past" ? "PAST" : "UPCOMING";
-    const { data: rides, isLoading, isError } = useDriverRides(timeframe);
+    const { data: rides, isLoading, isError } = useGetRidesMe({ timeframe });
     const cancelRide = useCancelRide();
     const displayedRides =
         rides?.map((ride) => {

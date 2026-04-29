@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "../lib/router-compat";
 import { PassengerNavbar, DriverNavbar, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
-import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
-import { api } from "../lib/eden";
-import { unwrap } from "../lib/eden-query";
+import { useLogout } from "../hooks/useLogout";
+import {
+    useGetCarsBrands,
+    useGetCarsBrandsByBrandModels,
+    usePostCarsMe,
+    getGetCarsMeQueryKey,
+} from "../api-client/cars/cars";
 import carData from "../../../api/src/db/cars-data.json";
 
 type AddCarPageProps = {
@@ -17,10 +21,6 @@ type AddCarPageProps = {
     onThemeToggle: () => void;
     userName?: string;
     userEmail?: string;
-};
-
-type CarBrandRow = {
-    brand: string;
 };
 
 type CarModelRow = {
@@ -63,18 +63,6 @@ const COLORS = [
 
 type CarColor = (typeof COLORS)[number]["value"];
 
-type CreateCarBody = {
-    modelId: number;
-    spz: string;
-    countryCode: "SK";
-    color: CarColor;
-    seatsTotal: number;
-};
-
-type CreatedCarRow = {
-    id: string;
-};
-
 export function AddCarPage({
     language,
     theme,
@@ -100,33 +88,26 @@ export function AddCarPage({
     const [plate, setPlate] = useState("");
     const [formError, setFormError] = useState("");
 
-    const brandsQuery = useQuery<CarBrandRow[]>({
-        queryKey: ["cars", "brands"],
-        queryFn: () => unwrap(api.cars.brands.get()) as Promise<CarBrandRow[]>,
+    const brandsQuery = useGetCarsBrands();
+    const modelsQuery = useGetCarsBrandsByBrandModels(make, {
+        query: { enabled: Boolean(make) },
     });
 
-    const modelsQuery = useQuery<CarModelRow[]>({
-        queryKey: ["cars", "brands", make, "models"],
-        queryFn: () =>
-            unwrap(api.cars.brands({ brand: make }).models.get()) as Promise<
-                CarModelRow[]
-            >,
-        enabled: Boolean(make),
-    });
-
-    const createCarMutation = useMutation({
-        mutationFn: (body: CreateCarBody) =>
-            unwrap(api.cars.me.post(body)) as Promise<CreatedCarRow>,
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: ["cars", "me"] });
-            navigate(backPath);
-        },
-        onError: (error) => {
-            setFormError(
-                error instanceof Error
-                    ? error.message
-                    : t("addCar.error", "Could not add this car.")
-            );
+    const createCarMutation = usePostCarsMe({
+        mutation: {
+            onSuccess: async () => {
+                await queryClient.invalidateQueries({
+                    queryKey: getGetCarsMeQueryKey(),
+                });
+                navigate(backPath);
+            },
+            onError: (error) => {
+                setFormError(
+                    error instanceof Error
+                        ? error.message
+                        : t("addCar.error", "Could not add this car.")
+                );
+            },
         },
     });
 
@@ -178,11 +159,13 @@ export function AddCarPage({
         }
 
         createCarMutation.mutate({
-            modelId: selectedModel.id,
-            spz: normalizedPlate,
-            countryCode: "SK",
-            color,
-            seatsTotal: seats + 1,
+            data: {
+                modelId: selectedModel.id,
+                spz: normalizedPlate,
+                countryCode: "SK",
+                color,
+                seatsTotal: seats + 1,
+            },
         });
     }
 

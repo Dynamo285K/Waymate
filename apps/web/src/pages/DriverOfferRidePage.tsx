@@ -2,14 +2,25 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ComponentProps, ComponentType } from "react";
 import { cs, enUS, sk as skLocale } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { DriverNavbar, Button, OfferRideForm } from "@waymate/ui";
 import type { Language, OfferRideCar } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { toUiLanguage } from "../lib/language";
 import { useNavigate } from "../lib/router-compat";
-import { api } from "../lib/eden";
-import { unwrap } from "../lib/eden-query";
+import {
+    getCarsBrandsByBrandModels,
+    getCarsMe,
+    useGetCarsBrands,
+    useGetCarsBrandsByBrandModels,
+    useGetCarsMe,
+    usePostCarsMe,
+    getGetCarsMeQueryKey,
+} from "../api-client/cars/cars";
+import {
+    usePostRides,
+    getGetRidesMeQueryKey,
+} from "../api-client/rides/rides";
 import carData from "../../../api/src/db/cars-data.json";
 
 type Props = {
@@ -27,16 +38,6 @@ const LOCALES = {
     cs,
 } as const;
 
-type CarBrandRow = {
-    brand: string;
-};
-
-type CarModelRow = {
-    id: number;
-    brand: string;
-    modelName: string;
-};
-
 type UserCarRow = {
     id: string;
     brand: string;
@@ -44,42 +45,16 @@ type UserCarRow = {
     spz: string;
 };
 
-type CreateRideBody = {
-    carId: string;
-    departureAt: Date;
-    arrivalEstimateAt?: Date | null;
-    offeredSeats: number;
-    currency: string;
-    description?: string | null;
-    stops: Array<{
-        address: string;
-        city: string;
-        countryCode?: "SK" | null;
-        lat: number;
-        lng: number;
-        plannedArrivalAt?: Date | null;
-        plannedDepartureAt?: Date | null;
-    }>;
-    prices?: Array<{
-        startStopOrder: number;
-        endStopOrder: number;
-        amount: number;
-        currency?: string;
-    }>;
-};
+import type { CreateRideBody } from "../api-client/model/createRideBody";
+import type { CreateCarBody as ApiCreateCarBody } from "../api-client/model/createCarBody";
 
-type CreateCarBody = {
-    modelId: number;
-    spz: string;
+type CreateCarBody = ApiCreateCarBody & {
     countryCode: "SK";
     color: "OTHER";
-    seatsTotal: number;
 };
 
 type CreatedCarRow = {
     id: string;
-    modelId: number;
-    spz: string;
 };
 
 type CarDataRow = {
@@ -251,10 +226,7 @@ export function DriverOfferRidePage({
         manualPlate,
     ]);
 
-    const userCarsQuery = useQuery<UserCarRow[]>({
-        queryKey: ["cars", "me"],
-        queryFn: () => unwrap(api.cars.me.get()) as Promise<UserCarRow[]>,
-    });
+    const userCarsQuery = useGetCarsMe();
 
     const apiSavedCars = useMemo(
         () => userCarsQuery.data?.map((car) => toOfferRideCar(car)) ?? [],
@@ -312,46 +284,41 @@ export function DriverOfferRidePage({
         selectedCarId,
     ]);
 
-    const brandsQuery = useQuery<CarBrandRow[]>({
-        queryKey: ["cars", "brands"],
-        queryFn: () => unwrap(api.cars.brands.get()) as Promise<CarBrandRow[]>,
+    const brandsQuery = useGetCarsBrands();
+    const modelsQuery = useGetCarsBrandsByBrandModels(manualBrand, {
+        query: { enabled: Boolean(manualBrand) },
     });
 
-    const modelsQuery = useQuery<CarModelRow[]>({
-        queryKey: ["cars", "brands", manualBrand, "models"],
-        queryFn: () =>
-            unwrap(
-                api.cars.brands({ brand: manualBrand }).models.get()
-            ) as Promise<CarModelRow[]>,
-        enabled: Boolean(manualBrand),
-    });
-
-    const createRideMutation = useMutation({
-        mutationFn: (body: CreateRideBody) =>
-            unwrap(api.rides.post(body)) as Promise<{ id: string }>,
-        onSuccess: async () => {
-            setPublishedMessage(t("offerRide.published"));
-            setPublishError("");
-            await queryClient.invalidateQueries({ queryKey: ["rides", "me"] });
-            navigate("/driver/rides");
-        },
-        onError: (error) => {
-            const message = getErrorMessage(error);
-            setPublishError(
-                message ||
-                    t(
-                        "offerRide.publishError",
-                        "Could not publish this ride. Please check the form and try again."
-                    )
-            );
+    const createRideMutation = usePostRides({
+        mutation: {
+            onSuccess: async () => {
+                setPublishedMessage(t("offerRide.published"));
+                setPublishError("");
+                await queryClient.invalidateQueries({
+                    queryKey: getGetRidesMeQueryKey(),
+                });
+                navigate("/driver/rides");
+            },
+            onError: (error) => {
+                const message = getErrorMessage(error);
+                setPublishError(
+                    message ||
+                        t(
+                            "offerRide.publishError",
+                            "Could not publish this ride. Please check the form and try again."
+                        )
+                );
+            },
         },
     });
 
-    const createCarMutation = useMutation({
-        mutationFn: (body: CreateCarBody) =>
-            unwrap(api.cars.me.post(body)) as Promise<CreatedCarRow>,
-        onSuccess: () => {
-            void queryClient.invalidateQueries({ queryKey: ["cars", "me"] });
+    const createCarMutation = usePostCarsMe({
+        mutation: {
+            onSuccess: () => {
+                void queryClient.invalidateQueries({
+                    queryKey: getGetCarsMeQueryKey(),
+                });
+            },
         },
     });
 
@@ -453,7 +420,7 @@ export function DriverOfferRidePage({
 
         return {
             carId,
-            departureAt,
+            departureAt: departureAt.toISOString(),
             arrivalEstimateAt: null,
             offeredSeats,
             currency: "EUR",
@@ -466,7 +433,7 @@ export function DriverOfferRidePage({
                     lat: 0,
                     lng: 0,
                     plannedArrivalAt: null,
-                    plannedDepartureAt: departureAt,
+                    plannedDepartureAt: departureAt.toISOString(),
                 },
                 {
                     address: dropoffCity,
@@ -500,9 +467,7 @@ export function DriverOfferRidePage({
             return cachedModel.id;
         }
 
-        const models = (await unwrap(
-            api.cars.brands({ brand }).models.get()
-        )) as CarModelRow[];
+        const models = await getCarsBrandsByBrandModels(brand);
 
         return models.find((row) => row.modelName === model)?.id ?? null;
     }
@@ -527,13 +492,14 @@ export function DriverOfferRidePage({
         let createdCar: CreatedCarRow;
 
         try {
-            createdCar = await createCarMutation.mutateAsync(createCarBody);
+            createdCar = await createCarMutation.mutateAsync({
+                data: createCarBody,
+            });
         } catch (error) {
-            const freshCars = (await queryClient.fetchQuery({
-                queryKey: ["cars", "me"],
-                queryFn: () =>
-                    unwrap(api.cars.me.get()) as Promise<UserCarRow[]>,
-            })) as UserCarRow[];
+            const freshCars = await queryClient.fetchQuery({
+                queryKey: getGetCarsMeQueryKey(),
+                queryFn: () => getCarsMe(),
+            });
             const existingCar = freshCars.find(
                 (car) => normalizePlate(car.spz) === normalizedPlate
             );
@@ -573,7 +539,7 @@ export function DriverOfferRidePage({
         }
 
         setPublishError("");
-        await createRideMutation.mutateAsync(body);
+        await createRideMutation.mutateAsync({ data: body });
     }
 
     async function handlePublish() {

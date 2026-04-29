@@ -2,8 +2,9 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "../lib/router-compat";
 import { DriverNavbar, PassengerCard, StatCard } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
-import { useRidePassengers } from "../hooks/useRidePassengers";
-import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
+import { useGetRidesByIdPassengers } from "../api-client/rides/rides";
+import { toUiLanguage } from "../lib/language";
+import { useLogout } from "../hooks/useLogout";
 import { useCancelBookingByDriver } from "../hooks/useCancelBookingByDriver";
 
 type DriverPassengersPageProps = {
@@ -84,7 +85,9 @@ export function DriverPassengersPage({
         data: passengersView,
         isLoading,
         isError,
-    } = useRidePassengers(ride?.id);
+    } = useGetRidesByIdPassengers(ride?.id ?? "", {
+        query: { enabled: Boolean(ride?.id) },
+    });
     const cancelBooking = useCancelBookingByDriver();
 
     return (

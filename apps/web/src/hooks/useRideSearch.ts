@@ -1,6 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
-import { api } from "../lib/eden";
-import { unwrap } from "../lib/eden-query";
+import { useGetRidesSearch } from "../api-client/rides/rides";
 
 type UseRideSearchParams = {
     from: string | null;
@@ -19,20 +17,16 @@ export function useRideSearch({ from, to, date }: UseRideSearchParams) {
     const travelDate = parseTravelDate(date);
     const canSearch = !!from && !!to && !!travelDate;
 
-    const query = useQuery({
-        queryKey: ["rides", "search", from, to, date],
-        queryFn: () =>
-            unwrap(
-                api.rides.search.get({
-                    query: {
-                        startCity: from!,
-                        destinationCity: to!,
-                        travelDate: travelDate!,
-                    },
-                })
-            ),
-        enabled: canSearch,
-    });
+    const query = useGetRidesSearch(
+        {
+            startCity: from ?? "",
+            destinationCity: to ?? "",
+            travelDate: travelDate?.toISOString() ?? "",
+        },
+        {
+            query: { enabled: canSearch },
+        }
+    );
 
     return {
         ...query,

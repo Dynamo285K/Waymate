@@ -4,7 +4,7 @@ import { PassengerNavbar, AvailableRideCard } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 import { useCreateBooking } from "../hooks/useCreateBooking";
-import { useAvailableRides } from "../hooks/useAvailableRides";
+import { useGetRidesAvailable } from "../api-client/rides/rides";
 import { useRideSearch } from "../hooks/useRideSearch";
 import { formatRideDate } from "../lib/date-format";
 
@@ -48,7 +48,7 @@ export function PassengerRidesPage({
         data: availableRideRows,
         isLoading: areAvailableRidesLoading,
         isError: areAvailableRidesError,
-    } = useAvailableRides();
+    } = useGetRidesAvailable();
 
     const {
         data: rides,

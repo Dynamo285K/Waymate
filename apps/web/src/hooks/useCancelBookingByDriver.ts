@@ -1,6 +1,12 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "../lib/eden";
-import { unwrap } from "../lib/eden-query";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+    usePatchBookingsByIdDriverCancel,
+    getGetBookingsRequestsQueryKey,
+} from "../api-client/bookings/bookings";
+import {
+    getGetRidesByIdPassengersQueryKey,
+    getGetRidesMeQueryKey,
+} from "../api-client/rides/rides";
 
 type CancelBookingByDriverInput = {
     bookingId: string;
@@ -11,25 +17,41 @@ type CancelBookingByDriverInput = {
 export function useCancelBookingByDriver() {
     const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: ({ bookingId, reason }: CancelBookingByDriverInput) =>
-            unwrap(
-                api.bookings({ id: bookingId }).driver.cancel.patch({
-                    reason,
-                })
-            ),
-        onSuccess: (_data, variables) => {
-            if (variables.rideId) {
+    const mutation = usePatchBookingsByIdDriverCancel({
+        mutation: {
+            onSuccess: () => {
                 void queryClient.invalidateQueries({
-                    queryKey: ["rides", variables.rideId, "passengers"],
+                    queryKey: getGetRidesMeQueryKey(),
                 });
-            }
-            void queryClient.invalidateQueries({
-                queryKey: ["rides", "me"],
-            });
-            void queryClient.invalidateQueries({
-                queryKey: ["bookings", "requests"],
-            });
+                void queryClient.invalidateQueries({
+                    queryKey: getGetBookingsRequestsQueryKey(),
+                });
+            },
         },
     });
+
+    const invalidateRidePassengers = (rideId?: string) => {
+        if (!rideId) return;
+        void queryClient.invalidateQueries({
+            queryKey: getGetRidesByIdPassengersQueryKey(rideId),
+        });
+    };
+
+    return {
+        ...mutation,
+        mutate: ({ bookingId, rideId, reason }: CancelBookingByDriverInput) =>
+            mutation.mutate(
+                { id: bookingId, data: { reason } },
+                { onSuccess: () => invalidateRidePassengers(rideId) }
+            ),
+        mutateAsync: ({
+            bookingId,
+            rideId,
+            reason,
+        }: CancelBookingByDriverInput) =>
+            mutation.mutateAsync(
+                { id: bookingId, data: { reason } },
+                { onSuccess: () => invalidateRidePassengers(rideId) }
+            ),
+    };
 }

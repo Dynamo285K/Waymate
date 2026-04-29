@@ -19,7 +19,6 @@
         "format:check": "prettier . --check"
     },
     "dependencies": {
-        "@elysiajs/swagger": "^1.3.1",
         "@tailwindcss/vite": "^4.2.4",
         "@waymate/ui": "0.1.11",
         "better-auth": "^1.6.8",

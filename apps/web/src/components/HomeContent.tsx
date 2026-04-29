@@ -10,7 +10,7 @@ import {
 import type { Language } from "@waymate/ui";
 import { formatRideDate } from "../lib/date-format";
 import { toUiLanguage } from "../lib/language";
-import { useAvailableRides } from "../hooks/useAvailableRides";
+import { useGetRidesAvailable } from "../api-client/rides/rides";
 
 type AvailableRide = {
     id: string | number;
@@ -191,7 +191,7 @@ export function HomeContent({
         data: availableRideRows,
         isLoading: areAvailableRidesLoading,
         isError: areAvailableRidesError,
-    } = useAvailableRides();
+    } = useGetRidesAvailable();
 
     const availableRides: AvailableRide[] =
         availableRideRows?.map((ride) => {

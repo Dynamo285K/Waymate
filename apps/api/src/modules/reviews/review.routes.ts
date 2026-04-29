@@ -137,7 +137,7 @@ export const ReviewRoutes = new Elysia({
                     };
                 },
                 {
-                    params: "SubjectUserIdParams",
+                    params: SubjectUserIdParamsSchema,
                     response: {
                         200: "UserReviewsView",
                         500: "ErrorResponse",

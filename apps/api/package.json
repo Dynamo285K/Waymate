@@ -9,9 +9,11 @@
         "dev": "bun --watch src/index.ts",
         "build": "bun build src/index.ts --outdir dist --target bun",
         "start": "bun dist/index.js",
-        "typecheck": "tsc -p tsconfig.json"
+        "typecheck": "tsc -p tsconfig.json",
+        "openapi:dump": "bun scripts/dump-openapi.ts"
     },
     "dependencies": {
+        "@elysiajs/openapi": "^1.4.15",
         "@repo/shared": "workspace:*",
         "dotenv": "^16.6.1",
         "elysia": "^1.0.0"

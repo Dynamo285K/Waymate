@@ -43,7 +43,14 @@ GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
 ```
 
-The API runs on port **3000** in dev mode. Swagger docs are available via `@elysiajs/swagger`.
+The API runs on port **3000** in dev mode. OpenAPI docs are served at `/openapi` (Scalar UI) and `/openapi/json` (raw spec) via `@elysiajs/openapi`.
+
+Generate the committed spec file used by the web client codegen with:
+
+```bash
+bun run --cwd apps/api openapi:dump   # writes apps/api/openapi.json
+bun run --cwd apps/web codegen        # regenerates apps/web/src/api-client
+```
 
 ## Architecture
 
@@ -71,7 +78,7 @@ Every domain module follows the same layered pattern:
 
 Current modules: `auth`, `users`, `cars`, `rides`, `bookings`, `health`.
 
-The Elysia app is exported as `app` and `type App = typeof app` from `apps/api/src/index.ts` so the web client can consume route types via Eden (see Frontend section).
+The Elysia app is exported as `app` from `apps/api/src/index.ts`. The web client consumes the API through generated TypeScript hooks; the OpenAPI spec is rendered from Zod schemas via `@elysiajs/openapi`. Route schemas use Zod (`packages/shared`); shared schemas are registered in `z.globalRegistry` (see `packages/shared/src/register.ts`) so cross-schema references render as `$ref`s in the spec. The `Auth` type is also exported for better-auth client usage.
 
 ### Authentication and authorization
 
@@ -108,21 +115,17 @@ The project uses **Zod v4**. Use `z.uuid()`, `z.url()`, `z.email()` directly (no
 
 #### Data layer
 
-- **`@elysiajs/eden` (treaty client)** — typed RPC client over the API. The `App` type is imported from `@repo/api` (workspace dep) and gives end-to-end types without codegen. Source of truth: `apps/web/src/lib/eden.ts`.
-- **TanStack Query** — server state. Wrap Eden calls with the `unwrap` helper from `apps/web/src/lib/eden-query.ts` inside `useQuery`/`useMutation`. The `QueryClient` is created in `apps/web/src/lib/query-client.ts` and provided from `main.tsx`.
-- **Do not use `fetch` directly.** The legacy `apps/web/src/lib/api.ts` (`apiFetch`) only remains for the auth pages (RegisterPage, OnboardingPage) because better-auth is `.mount`-ed and outside Eden's type tree. New code should use Eden + TanStack Query.
+- **Orval-generated client** — TanStack Query hooks generated from the OpenAPI spec into `apps/web/src/api-client/`. Re-run with `bun run --cwd apps/web codegen` after API changes (the spec must be re-dumped first via `bun run --cwd apps/api openapi:dump`). Generated code is git-ignored at the lint level (`apps/web/eslint.config.js` excludes `src/api-client/**`).
+- **Custom fetcher**: `apps/web/src/lib/api-fetcher.ts` injects `credentials: "include"` and throws `ApiError` on non-2xx responses. Configured as the Orval mutator in `apps/web/orval.config.ts`.
+- **TanStack Query** — `QueryClient` is created in `apps/web/src/lib/query-client.ts` and provided from `main.tsx`. Compose generated hooks (`useGetX`, `usePostX`, …) directly; `apps/web/src/hooks/` contains thin wrappers that add invalidation logic on top.
+- **Do not use `fetch` directly.** The legacy `apps/web/src/lib/api.ts` (`apiFetch`) only remains for the auth pages (RegisterPage, OnboardingPage) because better-auth is `.mount`-ed and outside the OpenAPI surface.
 
 Example:
 
 ```ts
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/eden";
-import { unwrap } from "@/lib/eden-query";
+import { useGetCarsBrands } from "@/api-client/cars/cars";
 
-const { data } = useQuery({
-    queryKey: ["cars", "brands"],
-    queryFn: () => unwrap(api.cars.brands.get()),
-});
+const { data } = useGetCarsBrands();
 ```
 
 #### Routing

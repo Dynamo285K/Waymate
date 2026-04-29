@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "../lib/router-compat";
 import {
     DriverNavbar,
@@ -12,11 +11,10 @@ import {
 import type { Language } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { useCancelRide } from "../hooks/useCancelRide";
-import { useDriverRides } from "../hooks/useDriverRides";
+import { useGetRidesMe } from "../api-client/rides/rides";
 import { formatRideDate as formatDate } from "../lib/date-format";
-import { api } from "../lib/eden";
-import { unwrap } from "../lib/eden-query";
-import { useUserReviews } from "../hooks/useReviews";
+import { useGetCarsMe } from "../api-client/cars/cars";
+import { useGetReviewsUsersByUserId } from "../api-client/reviews/reviews";
 
 type Props = {
     language: Language;
@@ -28,12 +26,6 @@ type Props = {
     userBio?: string;
     userCreatedAt?: string | Date;
     userId?: string;
-};
-
-type UserCarRow = {
-    id: string;
-    brand: string;
-    modelName: string;
 };
 
 export function DriverProfilePage({
@@ -60,13 +52,13 @@ export function DriverProfilePage({
         data: rides,
         isLoading: ridesLoading,
         isError: ridesError,
-    } = useDriverRides("UPCOMING");
+    } = useGetRidesMe({ timeframe: "UPCOMING" });
     const cancelRide = useCancelRide();
-    const carsQuery = useQuery<UserCarRow[]>({
-        queryKey: ["cars", "me"],
-        queryFn: () => unwrap(api.cars.me.get()) as Promise<UserCarRow[]>,
-    });
-    const { data: receivedReviews } = useUserReviews(userId);
+    const carsQuery = useGetCarsMe();
+    const { data: receivedReviews } = useGetReviewsUsersByUserId(
+        userId ?? "",
+        { query: { enabled: Boolean(userId) } }
+    );
     const profileRating =
         receivedReviews?.averageRating != null
             ? receivedReviews.averageRating.toFixed(1)
