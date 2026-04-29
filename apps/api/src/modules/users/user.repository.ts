@@ -1,19 +1,23 @@
 import { eq } from "drizzle-orm";
-import { db } from "../../db";
+import type { Executor } from "../../db";
 import { users as usersTable } from "../../db/schema/user";
 import type { User, OnboardingUserInput, UpdateUserInput } from "./user.types";
 
-const findUserById = async (id: string): Promise<User | undefined> => {
-    return await db.query.users.findFirst({
+const findUserById = async (
+    executor: Executor,
+    id: string
+): Promise<User | undefined> => {
+    return await executor.query.users.findFirst({
         where: eq(usersTable.id, id),
     });
 };
 
 const updateOnboardingInfo = async (
+    executor: Executor,
     userId: string,
     data: OnboardingUserInput
 ): Promise<User | null> => {
-    const [updatedUser] = await db
+    const [updatedUser] = await executor
         .update(usersTable)
         .set(data)
         .where(eq(usersTable.id, userId))
@@ -23,10 +27,11 @@ const updateOnboardingInfo = async (
 };
 
 const updateUserProfile = async (
+    executor: Executor,
     userId: string,
     data: UpdateUserInput
 ): Promise<User | null> => {
-    const [updatedUser] = await db
+    const [updatedUser] = await executor
         .update(usersTable)
         .set(data)
         .where(eq(usersTable.id, userId))

@@ -1,29 +1,35 @@
 import { eq, and, isNull } from "drizzle-orm";
-import { db } from "../../db";
+import type { Executor } from "../../db";
 import { cars as carsTable } from "../../db/schema/car";
 import { carModels as carModelsTable } from "../../db/schema/car_model";
 import type { Car, CarModel, CarListItem } from "./car.types";
 import type { CreateCarBody } from "@repo/shared";
-import { CarErrors } from "./car.errors";
-import { hasPostgresErrorCode, PostgresErrorCodes } from "../../db/errors";
 
-const findAllCarBrandNames = async (): Promise<{ brand: string }[]> => {
-    return await db
+const findAllCarBrandNames = async (
+    executor: Executor
+): Promise<{ brand: string }[]> => {
+    return await executor
         .selectDistinct({ brand: carModelsTable.brand })
         .from(carModelsTable)
         .orderBy(carModelsTable.brand);
 };
 
-const findCarModelsByBrand = async (brandName: string): Promise<CarModel[]> => {
-    return await db
+const findCarModelsByBrand = async (
+    executor: Executor,
+    brandName: string
+): Promise<CarModel[]> => {
+    return await executor
         .select()
         .from(carModelsTable)
         .where(eq(carModelsTable.brand, brandName))
         .orderBy(carModelsTable.modelName);
 };
 
-const findCarsByUserId = async (userId: string): Promise<CarListItem[]> => {
-    const result = await db
+const findCarsByUserId = async (
+    executor: Executor,
+    userId: string
+): Promise<CarListItem[]> => {
+    const result = await executor
         .select({
             id: carsTable.id,
             ownerId: carsTable.ownerId,
@@ -45,40 +51,33 @@ const findCarsByUserId = async (userId: string): Promise<CarListItem[]> => {
     return result as CarListItem[];
 };
 
-const createCar = async (userId: string, data: CreateCarBody): Promise<Car> => {
-    try {
-        const [newCar] = await db
-            .insert(carsTable)
-            .values({
-                ownerId: userId,
-                modelId: data.modelId,
-                spz: data.spz,
-                countryCode: data.countryCode,
-                color: data.color,
-                seatsTotal: data.seatsTotal,
-            })
-            .returning();
+const insertCar = async (
+    executor: Executor,
+    userId: string,
+    data: CreateCarBody
+): Promise<Car> => {
+    const [newCar] = await executor
+        .insert(carsTable)
+        .values({
+            ownerId: userId,
+            modelId: data.modelId,
+            spz: data.spz,
+            countryCode: data.countryCode,
+            color: data.color,
+            seatsTotal: data.seatsTotal,
+        })
+        .returning();
 
-        return newCar as Car;
-    } catch (error) {
-        if (
-            hasPostgresErrorCode(error, PostgresErrorCodes.ForeignKeyViolation)
-        ) {
-            throw new Error(CarErrors.ModelNotFound);
-        }
-        if (hasPostgresErrorCode(error, PostgresErrorCodes.UniqueViolation)) {
-            throw new Error(CarErrors.DuplicatePlate);
-        }
-        throw error;
-    }
+    return newCar as Car;
 };
 
 const updateCarStatus = async (
+    executor: Executor,
     carId: string,
     userId: string,
     isActive: boolean
 ): Promise<Car | null> => {
-    const [updatedCar] = await db
+    const [updatedCar] = await executor
         .update(carsTable)
         .set({
             isActive: isActive,
@@ -97,10 +96,11 @@ const updateCarStatus = async (
 };
 
 const deleteCar = async (
+    executor: Executor,
     carId: string,
     userId: string
 ): Promise<Car | null> => {
-    const [deletedCar] = await db
+    const [deletedCar] = await executor
         .update(carsTable)
         .set({
             updatedAt: new Date(),
@@ -123,7 +123,7 @@ export const CarRepository = {
     findAllCarBrandNames,
     findCarModelsByBrand,
     findCarsByUserId,
-    createCar,
+    insertCar,
     deleteCar,
     updateCarStatus,
 };

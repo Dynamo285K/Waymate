@@ -10,7 +10,7 @@ import {
     sql,
     asc,
 } from "drizzle-orm";
-import { db } from "../../db";
+import type { Executor } from "../../db";
 import { bookings as bookingsTable } from "../../db/schema/booking";
 import { rides as ridesTable } from "../../db/schema/ride";
 import { rideStops as rideStopsTable } from "../../db/schema/ride_stop";
@@ -18,12 +18,11 @@ import { prices as pricesTable } from "../../db/schema/price";
 import { users as usersTable } from "../../db/schema/user";
 import { reviews as reviewsTable } from "../../db/schema/review";
 import { bookingStatusHistory as bookingStatusHistoryTable } from "../../db/schema";
-import { BookingErrors } from "./booking.errors";
 import type {
     DriverRideRequestItem,
-    CreateBookingInput,
     PassengerBookingListItem,
     BookingTimeframe,
+    BookingStatus,
 } from "./booking.types";
 
 const pickupStops = aliasedTable(rideStopsTable, "booking_pickup_stops");
@@ -33,11 +32,20 @@ const myReviewOfDriverTable = aliasedTable(
     "booking_my_review_of_driver"
 );
 
+export type RideForBookingContext = {
+    id: string;
+    driverId: string;
+    rideStatus: string;
+    offeredSeats: number;
+};
+
+export type BookingRow = typeof bookingsTable.$inferSelect;
+
 const findPendingRequestsForDriver = async (
+    executor: Executor,
     driverId: string
 ): Promise<DriverRideRequestItem[]> => {
-    // Aggregate passenger ratings for rating badge.
-    const passengerRatings = db
+    const passengerRatings = executor
         .select({
             subjectId: reviewsTable.subjectId,
             averageRating: sql<number>`AVG(${reviewsTable.rating})::float`.as(
@@ -49,8 +57,7 @@ const findPendingRequestsForDriver = async (
         .groupBy(reviewsTable.subjectId)
         .as("passenger_ratings");
 
-    // Main query joining rides, bookings, and stops.
-    const rows = await db
+    const rows = await executor
         .select({
             id: bookingsTable.id,
             rideId: bookingsTable.rideId,
@@ -91,18 +98,14 @@ const findPendingRequestsForDriver = async (
     return rows as DriverRideRequestItem[];
 };
 
-/**
- * Returns bookings created by a passenger, including ride/driver summary and city names.
- */
-
 const findBookingsByPassengerId = async (
+    executor: Executor,
     passengerId: string,
     timeframe: BookingTimeframe = "UPCOMING"
 ): Promise<PassengerBookingListItem[]> => {
     const now = new Date();
 
-    // Aggregate occupied seats per ride from active confirmed/completed bookings.
-    const capacityByRide = db
+    const capacityByRide = executor
         .select({
             rideId: bookingsTable.rideId,
             occupiedSeats:
@@ -123,8 +126,7 @@ const findBookingsByPassengerId = async (
         .groupBy(bookingsTable.rideId)
         .as("capacity_by_ride");
 
-    // Aggregate visible reviews per subject (driver) for the rating badge.
-    const driverRatings = db
+    const driverRatings = executor
         .select({
             subjectId: reviewsTable.subjectId,
             averageRating: sql<number>`AVG(${reviewsTable.rating})::float`.as(
@@ -163,7 +165,7 @@ const findBookingsByPassengerId = async (
         );
     }
 
-    const rows = await db
+    const rows = await executor
         .select({
             id: bookingsTable.id,
             bookingStatus: bookingsTable.bookingStatus,
@@ -227,472 +229,178 @@ const findBookingsByPassengerId = async (
     ) as PassengerBookingListItem[];
 };
 
-/**
- * Creates a booking request from a passenger for a ride.
- * Resolves the ride price and validates the ride, stops, capacity, and duplicate requests inside one transaction.
- */
-const createBookingRequest = async (
-    input: CreateBookingInput
-): Promise<string> => {
-    return await db.transaction(async (tx) => {
-        // Fetch the ride and lock it for writing.
-        const [ride] = await tx
-            .select({
-                id: ridesTable.id,
-                driverId: ridesTable.driverId,
-                rideStatus: ridesTable.rideStatus,
-                offeredSeats: ridesTable.offeredSeats,
-            })
-            .from(ridesTable)
-            .where(
-                and(
-                    eq(ridesTable.id, input.rideId),
-                    isNull(ridesTable.deletedAt)
-                )
-            )
-            .for("update");
+const lockRideForBooking = async (
+    executor: Executor,
+    rideId: string
+): Promise<RideForBookingContext | null> => {
+    const [ride] = await executor
+        .select({
+            id: ridesTable.id,
+            driverId: ridesTable.driverId,
+            rideStatus: ridesTable.rideStatus,
+            offeredSeats: ridesTable.offeredSeats,
+        })
+        .from(ridesTable)
+        .where(and(eq(ridesTable.id, rideId), isNull(ridesTable.deletedAt)))
+        .for("update");
 
-        if (!ride || ride.rideStatus !== "PLANNED") {
-            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
-        }
+    return ride ?? null;
+};
 
-        if (ride.driverId === input.passengerId) {
-            throw new Error(BookingErrors.SelfBookingNotAllowed);
-        }
-
-        // Verify that both stops belong to this ride and are in the correct order.
-        const stops = await tx
-            .select({
-                id: rideStopsTable.id,
-                stopOrder: rideStopsTable.stopOrder,
-            })
-            .from(rideStopsTable)
-            .where(
-                and(
-                    eq(rideStopsTable.rideId, input.rideId),
-                    inArray(rideStopsTable.id, [
-                        input.pickupStopId,
-                        input.dropoffStopId,
-                    ])
-                )
-            );
-
-        if (stops.length !== 2) {
-            throw new Error(BookingErrors.InvalidStops);
-        }
-
-        const pickup = stops.find((s) => s.id === input.pickupStopId);
-        const dropoff = stops.find((s) => s.id === input.dropoffStopId);
-
-        if (!pickup || !dropoff || pickup.stopOrder >= dropoff.stopOrder) {
-            throw new Error(BookingErrors.InvalidStops);
-        }
-
-        // Resolve the booking price inside the same transaction.
-        const [priceRecord] = await tx
-            .select({
-                amount: pricesTable.amount,
-                currency: pricesTable.currency,
-            })
-            .from(pricesTable)
-            .where(
-                and(
-                    eq(pricesTable.rideId, input.rideId),
-                    eq(pricesTable.startStopId, input.pickupStopId),
-                    eq(pricesTable.endStopId, input.dropoffStopId)
-                )
-            );
-
-        if (!priceRecord) {
-            throw new Error(BookingErrors.PriceNotFound);
-        }
-
-        const totalAmount = priceRecord.amount * input.seatCount;
-
-        // Pending requests temporarily hold seats so public availability updates immediately.
-        const activeBookings = await tx
-            .select({ seatCount: bookingsTable.seatCount })
-            .from(bookingsTable)
-            .where(
-                and(
-                    eq(bookingsTable.rideId, input.rideId),
-                    inArray(bookingsTable.bookingStatus, [
-                        "PENDING",
-                        "CONFIRMED",
-                    ]),
-                    isNull(bookingsTable.deletedAt)
-                )
-            );
-
-        const currentlyHeldSeats = activeBookings.reduce(
-            (sum, b) => sum + b.seatCount,
-            0
-        );
-
-        if (currentlyHeldSeats + input.seatCount > ride.offeredSeats) {
-            throw new Error(BookingErrors.NotEnoughSeats);
-        }
-
-        // Prevent duplicate requests from the same passenger.
-        const existingBooking = await tx.query.bookings.findFirst({
-            where: and(
-                eq(bookingsTable.rideId, input.rideId),
-                eq(bookingsTable.passengerId, input.passengerId),
-                inArray(bookingsTable.bookingStatus, ["PENDING", "CONFIRMED"]),
+const lockBookingById = async (
+    executor: Executor,
+    bookingId: string
+): Promise<BookingRow | null> => {
+    const [booking] = await executor
+        .select()
+        .from(bookingsTable)
+        .where(
+            and(
+                eq(bookingsTable.id, bookingId),
                 isNull(bookingsTable.deletedAt)
-            ),
-        });
+            )
+        )
+        .for("update");
 
-        if (existingBooking) {
-            throw new Error(BookingErrors.AlreadyBooked);
-        }
-
-        // Create the booking.
-        const [newBooking] = await tx
-            .insert(bookingsTable)
-            .values({
-                passengerId: input.passengerId,
-                rideId: input.rideId,
-                pickupStopId: input.pickupStopId,
-                dropoffStopId: input.dropoffStopId,
-                seatCount: input.seatCount,
-                priceAmount: totalAmount,
-                currency: priceRecord.currency,
-                bookingStatus: "PENDING",
-            })
-            .returning({ id: bookingsTable.id });
-
-        // Record booking history.
-        await tx.insert(bookingStatusHistoryTable).values({
-            bookingId: newBooking.id,
-            newStatus: "PENDING",
-            changedByUserId: input.passengerId,
-            reason: "Passenger requested booking",
-        });
-
-        return newBooking.id;
-    });
+    return booking ?? null;
 };
 
-/**
- * 2. Driver confirms the passenger request (PENDING -> CONFIRMED).
- */
-const confirmBooking = async (
-    bookingId: string,
-    driverId: string
-): Promise<string> => {
-    return await db.transaction(async (tx) => {
-        // Fetch the booking and lock it to prevent race conditions on double submit.
-        const [booking] = await tx
-            .select()
-            .from(bookingsTable)
-            .where(
-                and(
-                    eq(bookingsTable.id, bookingId),
-                    isNull(bookingsTable.deletedAt)
-                )
+const findRideStops = async (
+    executor: Executor,
+    rideId: string,
+    stopIds: string[]
+): Promise<{ id: string; stopOrder: number }[]> => {
+    return await executor
+        .select({
+            id: rideStopsTable.id,
+            stopOrder: rideStopsTable.stopOrder,
+        })
+        .from(rideStopsTable)
+        .where(
+            and(
+                eq(rideStopsTable.rideId, rideId),
+                inArray(rideStopsTable.id, stopIds)
             )
-            .for("update");
+        );
+};
 
-        if (!booking || booking.bookingStatus !== "PENDING") {
-            throw new Error(BookingErrors.InvalidStatusTransition);
-        }
-
-        // Lock the ride as well so capacity can be recalculated safely.
-        const [ride] = await tx
-            .select({
-                id: ridesTable.id,
-                driverId: ridesTable.driverId,
-                rideStatus: ridesTable.rideStatus,
-                offeredSeats: ridesTable.offeredSeats,
-            })
-            .from(ridesTable)
-            .where(
-                and(
-                    eq(ridesTable.id, booking.rideId),
-                    isNull(ridesTable.deletedAt)
-                )
+const findSegmentPrice = async (
+    executor: Executor,
+    rideId: string,
+    startStopId: string,
+    endStopId: string
+): Promise<{ amount: number; currency: string } | null> => {
+    const [price] = await executor
+        .select({
+            amount: pricesTable.amount,
+            currency: pricesTable.currency,
+        })
+        .from(pricesTable)
+        .where(
+            and(
+                eq(pricesTable.rideId, rideId),
+                eq(pricesTable.startStopId, startStopId),
+                eq(pricesTable.endStopId, endStopId)
             )
-            .for("update");
-
-        if (!ride) {
-            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
-        }
-
-        if (ride.driverId !== driverId) {
-            throw new Error(BookingErrors.UnauthorizedAction);
-        }
-
-        if (ride.rideStatus !== "PLANNED") {
-            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
-        }
-
-        const confirmedBookings = await tx
-            .select({ seatCount: bookingsTable.seatCount })
-            .from(bookingsTable)
-            .where(
-                and(
-                    eq(bookingsTable.rideId, ride.id),
-                    eq(bookingsTable.bookingStatus, "CONFIRMED"),
-                    isNull(bookingsTable.deletedAt)
-                )
-            );
-
-        const currentlyConfirmedSeats = confirmedBookings.reduce(
-            (sum, b) => sum + b.seatCount,
-            0
         );
 
-        if (currentlyConfirmedSeats + booking.seatCount > ride.offeredSeats) {
-            throw new Error(BookingErrors.NotEnoughSeats);
-        }
+    return price ?? null;
+};
 
-        const [updatedBooking] = await tx
-            .update(bookingsTable)
-            .set({
-                bookingStatus: "CONFIRMED",
-                confirmedAt: new Date(),
-                updatedAt: new Date(),
-            })
-            .where(eq(bookingsTable.id, bookingId))
-            .returning({ id: bookingsTable.id });
+const sumSeatsForRide = async (
+    executor: Executor,
+    rideId: string,
+    statuses: BookingStatus[]
+): Promise<number> => {
+    const rows = await executor
+        .select({ seatCount: bookingsTable.seatCount })
+        .from(bookingsTable)
+        .where(
+            and(
+                eq(bookingsTable.rideId, rideId),
+                inArray(bookingsTable.bookingStatus, statuses),
+                isNull(bookingsTable.deletedAt)
+            )
+        );
 
-        await tx.insert(bookingStatusHistoryTable).values({
-            bookingId: updatedBooking.id,
-            oldStatus: "PENDING",
-            newStatus: "CONFIRMED",
-            changedByUserId: driverId,
-            reason: "Driver confirmed booking",
-        });
+    return rows.reduce((sum, b) => sum + b.seatCount, 0);
+};
 
-        return updatedBooking.id;
+const findActiveBookingByPassenger = async (
+    executor: Executor,
+    rideId: string,
+    passengerId: string
+): Promise<BookingRow | undefined> => {
+    return await executor.query.bookings.findFirst({
+        where: and(
+            eq(bookingsTable.rideId, rideId),
+            eq(bookingsTable.passengerId, passengerId),
+            inArray(bookingsTable.bookingStatus, ["PENDING", "CONFIRMED"]),
+            isNull(bookingsTable.deletedAt)
+        ),
     });
 };
 
-/**
- * 3. Driver rejects the passenger request (PENDING -> REJECTED).
- */
-const rejectBooking = async (
-    bookingId: string,
-    driverId: string,
-    reason?: string
-): Promise<string> => {
-    return await db.transaction(async (tx) => {
-        // Lock the booking.
-        const [booking] = await tx
-            .select()
-            .from(bookingsTable)
-            .where(
-                and(
-                    eq(bookingsTable.id, bookingId),
-                    isNull(bookingsTable.deletedAt)
-                )
-            )
-            .for("update");
+const insertBooking = async (
+    executor: Executor,
+    values: {
+        passengerId: string;
+        rideId: string;
+        pickupStopId: string;
+        dropoffStopId: string;
+        seatCount: number;
+        priceAmount: number;
+        currency: string;
+    }
+): Promise<{ id: string }> => {
+    const [newBooking] = await executor
+        .insert(bookingsTable)
+        .values({
+            ...values,
+            bookingStatus: "PENDING",
+        })
+        .returning({ id: bookingsTable.id });
 
-        if (!booking || booking.bookingStatus !== "PENDING") {
-            throw new Error(BookingErrors.InvalidStatusTransition);
-        }
-
-        const [ride] = await tx
-            .select({
-                driverId: ridesTable.driverId,
-                rideStatus: ridesTable.rideStatus,
-            })
-            .from(ridesTable)
-            .where(
-                and(
-                    eq(ridesTable.id, booking.rideId),
-                    isNull(ridesTable.deletedAt)
-                )
-            )
-            .for("update");
-
-        if (!ride) {
-            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
-        }
-
-        if (ride.driverId !== driverId) {
-            throw new Error(BookingErrors.UnauthorizedAction);
-        }
-
-        if (ride.rideStatus !== "PLANNED") {
-            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
-        }
-
-        const rejectionReason = reason || "Driver rejected booking";
-
-        const [updatedBooking] = await tx
-            .update(bookingsTable)
-            .set({
-                bookingStatus: "REJECTED",
-                updatedAt: new Date(),
-            })
-            .where(eq(bookingsTable.id, bookingId))
-            .returning({ id: bookingsTable.id });
-
-        await tx.insert(bookingStatusHistoryTable).values({
-            bookingId: updatedBooking.id,
-            oldStatus: "PENDING",
-            newStatus: "REJECTED",
-            changedByUserId: driverId,
-            reason: rejectionReason,
-        });
-
-        return updatedBooking.id;
-    });
+    return newBooking;
 };
 
-/**
- * 4. Passenger cancels their own booking (PENDING / CONFIRMED -> CANCELLED).
- */
-const cancelBookingByPassenger = async (
+const updateBookingFields = async (
+    executor: Executor,
     bookingId: string,
-    passengerId: string,
-    reason?: string
-): Promise<string> => {
-    return await db.transaction(async (tx) => {
-        // Lock the booking.
-        const [booking] = await tx
-            .select()
-            .from(bookingsTable)
-            .where(
-                and(
-                    eq(bookingsTable.id, bookingId),
-                    isNull(bookingsTable.deletedAt)
-                )
-            )
-            .for("update");
+    fields: Partial<typeof bookingsTable.$inferInsert>
+): Promise<{ id: string }> => {
+    const [updatedBooking] = await executor
+        .update(bookingsTable)
+        .set({ ...fields, updatedAt: new Date() })
+        .where(eq(bookingsTable.id, bookingId))
+        .returning({ id: bookingsTable.id });
 
-        if (!booking) {
-            throw new Error(BookingErrors.BookingNotFound);
-        }
-
-        if (booking.passengerId !== passengerId) {
-            throw new Error(BookingErrors.UnauthorizedAction);
-        }
-
-        if (booking.bookingStatus === "CANCELLED") {
-            throw new Error(BookingErrors.AlreadyCancelled);
-        }
-
-        if (!["PENDING", "CONFIRMED"].includes(booking.bookingStatus)) {
-            throw new Error(BookingErrors.InvalidStatusTransition);
-        }
-
-        const cancelReason = reason || "Passenger cancelled their booking";
-
-        const [updatedBooking] = await tx
-            .update(bookingsTable)
-            .set({
-                bookingStatus: "CANCELLED",
-                cancelledAt: new Date(),
-                cancelledByUserId: passengerId,
-                cancellationReason: cancelReason,
-                updatedAt: new Date(),
-            })
-            .where(eq(bookingsTable.id, bookingId))
-            .returning({ id: bookingsTable.id });
-
-        await tx.insert(bookingStatusHistoryTable).values({
-            bookingId: updatedBooking.id,
-            oldStatus: booking.bookingStatus,
-            newStatus: "CANCELLED",
-            changedByUserId: passengerId,
-            reason: cancelReason,
-        });
-
-        return updatedBooking.id;
-    });
+    return updatedBooking;
 };
 
-const cancelBookingByDriver = async (
-    bookingId: string,
-    driverId: string,
-    reason?: string
-): Promise<string> => {
-    return await db.transaction(async (tx) => {
-        const [booking] = await tx
-            .select()
-            .from(bookingsTable)
-            .where(
-                and(
-                    eq(bookingsTable.id, bookingId),
-                    isNull(bookingsTable.deletedAt)
-                )
-            )
-            .for("update");
-
-        if (!booking) {
-            throw new Error(BookingErrors.BookingNotFound);
-        }
-
-        if (booking.bookingStatus === "CANCELLED") {
-            throw new Error(BookingErrors.AlreadyCancelled);
-        }
-
-        if (!["PENDING", "CONFIRMED"].includes(booking.bookingStatus)) {
-            throw new Error(BookingErrors.InvalidStatusTransition);
-        }
-
-        const [ride] = await tx
-            .select({
-                driverId: ridesTable.driverId,
-                rideStatus: ridesTable.rideStatus,
-            })
-            .from(ridesTable)
-            .where(
-                and(
-                    eq(ridesTable.id, booking.rideId),
-                    isNull(ridesTable.deletedAt)
-                )
-            )
-            .for("update");
-
-        if (!ride) {
-            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
-        }
-
-        if (ride.driverId !== driverId) {
-            throw new Error(BookingErrors.UnauthorizedAction);
-        }
-
-        if (ride.rideStatus !== "PLANNED") {
-            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
-        }
-
-        const cancelReason = reason || "Driver cancelled passenger booking";
-
-        const [updatedBooking] = await tx
-            .update(bookingsTable)
-            .set({
-                bookingStatus: "CANCELLED",
-                cancelledAt: new Date(),
-                cancelledByUserId: driverId,
-                cancellationReason: cancelReason,
-                updatedAt: new Date(),
-            })
-            .where(eq(bookingsTable.id, bookingId))
-            .returning({ id: bookingsTable.id });
-
-        await tx.insert(bookingStatusHistoryTable).values({
-            bookingId: updatedBooking.id,
-            oldStatus: booking.bookingStatus,
-            newStatus: "CANCELLED",
-            changedByUserId: driverId,
-            reason: cancelReason,
-        });
-
-        return updatedBooking.id;
-    });
+const insertBookingStatusHistory = async (
+    executor: Executor,
+    values: {
+        bookingId: string;
+        oldStatus?: BookingStatus;
+        newStatus: BookingStatus;
+        changedByUserId: string;
+        reason: string;
+    }
+): Promise<void> => {
+    await executor.insert(bookingStatusHistoryTable).values(values);
 };
 
 export const BookingRepository = {
     findPendingRequestsForDriver,
     findBookingsByPassengerId,
-    createBookingRequest,
-    confirmBooking,
-    rejectBooking,
-    cancelBookingByPassenger,
-    cancelBookingByDriver,
+    lockRideForBooking,
+    lockBookingById,
+    findRideStops,
+    findSegmentPrice,
+    sumSeatsForRide,
+    findActiveBookingByPassenger,
+    insertBooking,
+    updateBookingFields,
+    insertBookingStatusHistory,
 };

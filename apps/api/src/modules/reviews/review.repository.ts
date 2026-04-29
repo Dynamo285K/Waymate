@@ -1,11 +1,9 @@
 import { and, avg, count, desc, eq, inArray, isNull } from "drizzle-orm";
-import { db } from "../../db";
+import type { Executor } from "../../db";
 import { reviews as reviewsTable } from "../../db/schema/review";
 import { rides as ridesTable } from "../../db/schema/ride";
 import { bookings as bookingsTable } from "../../db/schema/booking";
 import { users as usersTable } from "../../db/schema/user";
-import { ReviewErrors } from "./review.errors";
-import { hasPostgresErrorCode, PostgresErrorCodes } from "../../db/errors";
 import type {
     AuthoredReviewListItem,
     CreateReviewInput,
@@ -13,20 +11,18 @@ import type {
     ReviewListItem,
 } from "./review.types";
 
-// Rating window in days after the ride's departure (UC-11 6a).
-export const REVIEW_WINDOW_DAYS = 14;
-
-type RideContext = {
+export type RideContext = {
     id: string;
     driverId: string;
     rideStatus: string;
     departureAt: Date;
 };
 
-const fetchRideContext = async (
+const findRideContext = async (
+    executor: Executor,
     rideId: string
 ): Promise<RideContext | null> => {
-    const [ride] = await db
+    const [ride] = await executor
         .select({
             id: ridesTable.id,
             driverId: ridesTable.driverId,
@@ -40,10 +36,11 @@ const fetchRideContext = async (
 };
 
 const wasPassengerOnRide = async (
+    executor: Executor,
     rideId: string,
     userId: string
 ): Promise<boolean> => {
-    const [row] = await db
+    const [row] = await executor
         .select({ id: bookingsTable.id })
         .from(bookingsTable)
         .where(
@@ -62,86 +59,27 @@ const wasPassengerOnRide = async (
     return Boolean(row);
 };
 
-/**
- * Creates a new review (rating 1..5 + optional comment).
- *
- * Validates that:
- * - the ride exists and is COMPLETED (cancelled rides cannot be reviewed),
- * - the rating window has not expired,
- * - both author and subject participated in the ride together (driver↔passenger),
- * - no review by this author for this subject on this ride exists yet.
- */
-const createReview = async (input: CreateReviewInput): Promise<Review> => {
-    if (input.authorId === input.subjectId) {
-        throw new Error(ReviewErrors.SelfReviewNotAllowed);
-    }
+const insertReview = async (
+    executor: Executor,
+    input: CreateReviewInput
+): Promise<Review> => {
+    const [newReview] = await executor
+        .insert(reviewsTable)
+        .values({
+            rideId: input.rideId,
+            authorId: input.authorId,
+            subjectId: input.subjectId,
+            rating: input.rating,
+            comment: input.comment ?? null,
+            reviewStatus: "VISIBLE",
+        })
+        .returning();
 
-    const ride = await fetchRideContext(input.rideId);
-
-    if (!ride) {
-        throw new Error(ReviewErrors.RideNotFound);
-    }
-
-    if (ride.rideStatus !== "COMPLETED") {
-        throw new Error(ReviewErrors.RideNotCompleted);
-    }
-
-    const windowClosesAt = new Date(
-        ride.departureAt.getTime() + REVIEW_WINDOW_DAYS * 24 * 60 * 60 * 1000
-    );
-
-    if (new Date() > windowClosesAt) {
-        throw new Error(ReviewErrors.RatingWindowClosed);
-    }
-
-    const authorIsDriver = ride.driverId === input.authorId;
-    const subjectIsDriver = ride.driverId === input.subjectId;
-
-    if (
-        !authorIsDriver &&
-        !(await wasPassengerOnRide(ride.id, input.authorId))
-    ) {
-        throw new Error(ReviewErrors.AuthorNotInRide);
-    }
-
-    if (
-        !subjectIsDriver &&
-        !(await wasPassengerOnRide(ride.id, input.subjectId))
-    ) {
-        throw new Error(ReviewErrors.SubjectNotInRide);
-    }
-
-    // UC-11: only driver↔passenger pairs may rate each other.
-    if (authorIsDriver === subjectIsDriver) {
-        throw new Error(ReviewErrors.InvalidPairing);
-    }
-
-    try {
-        const [newReview] = await db
-            .insert(reviewsTable)
-            .values({
-                rideId: input.rideId,
-                authorId: input.authorId,
-                subjectId: input.subjectId,
-                rating: input.rating,
-                comment: input.comment ?? null,
-                reviewStatus: "VISIBLE",
-            })
-            .returning();
-
-        return newReview as Review;
-    } catch (error) {
-        if (hasPostgresErrorCode(error, PostgresErrorCodes.UniqueViolation)) {
-            throw new Error(ReviewErrors.AlreadyExists);
-        }
-        throw error;
-    }
+    return newReview as Review;
 };
 
-/**
- * Returns the visible reviews for a target user along with the aggregated rating.
- */
 const findReviewsForSubject = async (
+    executor: Executor,
     subjectId: string
 ): Promise<{
     averageRating: number | null;
@@ -153,7 +91,7 @@ const findReviewsForSubject = async (
         eq(reviewsTable.reviewStatus, "VISIBLE")
     );
 
-    const [aggregate] = await db
+    const [aggregate] = await executor
         .select({
             averageRating: avg(reviewsTable.rating).mapWith(Number),
             reviewCount: count(reviewsTable.id),
@@ -161,7 +99,7 @@ const findReviewsForSubject = async (
         .from(reviewsTable)
         .where(visibleFilter);
 
-    const rows = await db
+    const rows = await executor
         .select({
             id: reviewsTable.id,
             rideId: reviewsTable.rideId,
@@ -188,13 +126,11 @@ const findReviewsForSubject = async (
     };
 };
 
-/**
- * Returns the reviews authored by a given user (regardless of visibility).
- */
 const findReviewsByAuthor = async (
+    executor: Executor,
     authorId: string
 ): Promise<AuthoredReviewListItem[]> => {
-    const rows = await db
+    const rows = await executor
         .select({
             id: reviewsTable.id,
             rideId: reviewsTable.rideId,
@@ -218,7 +154,9 @@ const findReviewsByAuthor = async (
 };
 
 export const ReviewRepository = {
-    createReview,
+    findRideContext,
+    wasPassengerOnRide,
+    insertReview,
     findReviewsForSubject,
     findReviewsByAuthor,
 };

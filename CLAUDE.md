@@ -67,16 +67,22 @@ packages/shared/ — stub package (shared types not yet extracted)
 
 Every domain module follows the same layered pattern:
 
-| File              | Responsibility                                                      |
-| ----------------- | ------------------------------------------------------------------- |
-| `*.routes.ts`     | HTTP route definitions, request validation, error-to-status mapping |
-| `*.service.ts`    | Business logic orchestration                                        |
-| `*.repository.ts` | All database queries (Drizzle ORM)                                  |
-| `*.schema.ts`     | Zod schemas for request/response validation                         |
-| `*.types.ts`      | TypeScript types derived from schemas                               |
-| `*.errors.ts`     | Plain string error constants thrown by the repository               |
+| File              | Responsibility                                                                         |
+| ----------------- | -------------------------------------------------------------------------------------- |
+| `*.routes.ts`     | HTTP route definitions, request validation, error-to-status mapping                    |
+| `*.service.ts`    | Business logic, orchestration, and **transactions** (`db.transaction`). Imports `db`.  |
+| `*.repository.ts` | Pure Drizzle queries. Each function takes an `Executor` (`db \| tx`) as its first arg. |
+| `*.schema.ts`     | Zod schemas for request/response validation                                            |
+| `*.types.ts`      | TypeScript types derived from schemas                                                  |
+| `*.errors.ts`     | Plain string error constants thrown by the service                                     |
 
-Current modules: `auth`, `users`, `cars`, `rides`, `bookings`, `health`.
+Current modules: `auth`, `users`, `cars`, `rides`, `bookings`, `reviews`, `health`.
+
+**Layering rules:**
+
+- Repository functions are pure data access. They take `executor: Executor` first (where `Executor = Database | Tx`, both exported from `apps/api/src/db/index.ts`) and contain no `db.transaction()` calls, no business validation, and no error mapping. They return rows or simple DTOs.
+- Services are the only layer that imports `db` directly and the only layer that calls `db.transaction(async (tx) => …)`. Inside a transaction, services call repository functions with `tx`; outside, they pass `db`. Services own all branching, status-history writes, business validation (e.g. self-booking, capacity, rating-window), and translation of low-level errors (e.g. Postgres unique-violation) into domain errors.
+- Routes catch domain errors thrown by services and map them to HTTP status codes.
 
 The Elysia app is exported as `app` from `apps/api/src/index.ts`. The web client consumes the API through generated TypeScript hooks; the OpenAPI spec is rendered from Zod schemas via `@elysiajs/openapi`. Route schemas use Zod (`packages/shared`); shared schemas are registered in `z.globalRegistry` (see `packages/shared/src/register.ts`) so cross-schema references render as `$ref`s in the spec. The `Auth` type is also exported for better-auth client usage.
 
@@ -99,8 +105,8 @@ Schema is defined with Drizzle ORM in `apps/api`, not in `packages/db`. Key desi
 - Enum values (string arrays) live in `apps/api/src/shared/status-values.ts` and are shared with Zod schemas.
 - **Soft deletes** via `deletedAt` timestamp column — filtered with `isNull(table.deletedAt)` in queries.
 - **Status history tables** (`ride_status_history`, `booking_status_history`, `user_status_history`) provide a full audit trail of every status transition; always insert a history record when updating status.
-- **Ride stops** use a 0-indexed `stopOrder` integer. Stop 0 is the origin; the last stop is the destination. Prices are per-segment (a `prices` row references `startStopId` → `endStopId`), not a flat per-ride price. When creating a ride, the client sends stop orders; the repository translates them to UUIDs inside a transaction.
-- All ride/booking creation that spans multiple tables is wrapped in a `db.transaction()`.
+- **Ride stops** use a 0-indexed `stopOrder` integer. Stop 0 is the origin; the last stop is the destination. Prices are per-segment (a `prices` row references `startStopId` → `endStopId`), not a flat per-ride price. When creating a ride, the client sends stop orders; the service translates them to UUIDs inside a `db.transaction()`.
+- All ride/booking creation that spans multiple tables is wrapped in a `db.transaction()` — and that wrapper lives in the service layer, never in a repository (see "Layering rules" above).
 - UUID primary keys generated via `defaultRandom()` (PostgreSQL `gen_random_uuid()`).
 
 ### Zod usage
