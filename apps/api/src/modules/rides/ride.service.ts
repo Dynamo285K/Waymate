@@ -1,64 +1,209 @@
+import { db } from "../../db";
 import { RideRepository } from "./ride.repository";
+import { RideErrors } from "./ride.errors";
+import { REVIEW_WINDOW_DAYS } from "../reviews/review.service";
 import type { CreateRideBody, SearchRidesQuery } from "@repo/shared";
-import type { RideTimeframe } from "./ride.types";
+import type {
+    CreateRideInput,
+    RidePassengersView,
+    RideTimeframe,
+} from "./ride.types";
 
-/**
- * Retrieves public upcoming rides available for booking.
- */
 const getAvailableRides = async () => {
-    return await RideRepository.findAvailableRides();
+    return await RideRepository.findAvailableRides(db);
 };
 
-/**
- * Retrieves rides for a specific driver (split into upcoming/past).
- */
 const getDriverRides = async (driverId: string, timeframe?: RideTimeframe) => {
-    return await RideRepository.findRidesByDriverId(driverId, timeframe);
+    return await RideRepository.findRidesByDriverId(db, driverId, timeframe);
 };
 
-/**
- * Retrieves ride details including all confirmed passengers.
- */
-const getRidePassengers = async (rideId: string, driverId: string) => {
-    return await RideRepository.findRidePassengersByRideId(rideId, driverId);
+const getRidePassengers = async (
+    rideId: string,
+    driverId: string
+): Promise<RidePassengersView | null> => {
+    const data = await RideRepository.findRideWithPassengers(
+        db,
+        rideId,
+        driverId
+    );
+
+    if (!data) return null;
+
+    const windowClosesAt = new Date(
+        data.ride.departureAt.getTime() +
+            REVIEW_WINDOW_DAYS * 24 * 60 * 60 * 1000
+    );
+    const canReview =
+        data.ride.rideStatus === "COMPLETED" && new Date() <= windowClosesAt;
+
+    return {
+        ...data,
+        ride: {
+            ...data.ride,
+            canReview,
+        },
+    };
 };
 
-/**
- * Searches rides from point A to point B for passengers.
- */
 const searchRides = async (query: SearchRidesQuery) => {
     return await RideRepository.searchRides(
+        db,
         query.startCity,
         query.destinationCity,
         query.travelDate
     );
 };
 
-/**
- * Creates a new ride as a driver.
- */
 const createRide = async (driverId: string, data: CreateRideBody) => {
-    // In the service layer, we merge the logged-in driver ID
-    // with payload data received from the mobile app.
-    return await RideRepository.createRide({
+    const input: CreateRideInput = {
         ...data,
-        driverId: driverId,
-        rideStatus: "PLANNED", // Default status on creation
+        driverId,
+        rideStatus: "PLANNED",
+    };
+
+    return await db.transaction(async (tx) => {
+        const car = await RideRepository.findActiveCarForDriver(
+            tx,
+            input.carId,
+            input.driverId
+        );
+
+        if (!car) {
+            throw new Error(RideErrors.CarNotAvailableForDriver);
+        }
+
+        const newRide = await RideRepository.insertRide(tx, {
+            driverId: input.driverId,
+            carId: input.carId,
+            departureAt: input.departureAt,
+            arrivalEstimateAt: input.arrivalEstimateAt,
+            rideStatus: input.rideStatus || "PLANNED",
+            offeredSeats: input.offeredSeats,
+            currency: input.currency,
+            description: input.description,
+        });
+
+        const stopsToInsert = input.stops.map((stop, index) => ({
+            rideId: newRide.id,
+            stopOrder: index,
+            address: stop.address,
+            city: stop.city,
+            countryCode: stop.countryCode,
+            lat: stop.lat,
+            lng: stop.lng,
+            plannedArrivalAt: stop.plannedArrivalAt,
+            plannedDepartureAt: stop.plannedDepartureAt,
+        }));
+
+        const insertedStops = await RideRepository.insertRideStops(
+            tx,
+            stopsToInsert
+        );
+
+        if (input.prices && input.prices.length > 0) {
+            const pricesToInsert = input.prices.map((priceParam) => {
+                const startStop = insertedStops.find(
+                    (s) => s.stopOrder === priceParam.startStopOrder
+                );
+                const endStop = insertedStops.find(
+                    (s) => s.stopOrder === priceParam.endStopOrder
+                );
+
+                if (!startStop || !endStop) {
+                    throw new Error(RideErrors.InvalidPriceStopOrders);
+                }
+
+                return {
+                    rideId: newRide.id,
+                    startStopId: startStop.id,
+                    endStopId: endStop.id,
+                    amount: priceParam.amount,
+                    currency: priceParam.currency || newRide.currency,
+                };
+            });
+
+            await RideRepository.insertRidePrices(tx, pricesToInsert);
+        }
+
+        await RideRepository.insertRideStatusHistory(tx, {
+            rideId: newRide.id,
+            newStatus: newRide.rideStatus,
+            changedByUserId: input.changedByUserId || input.driverId,
+            reason: input.reason || "Ride successfully created",
+        });
+
+        return newRide.id;
     });
 };
 
-/**
- * Cancels a ride by the driver (including cascading booking cancellations).
- */
 const cancelRide = async (
     rideId: string,
     driverId: string,
     reason?: string
-) => {
-    return await RideRepository.cancelRide(rideId, driverId, reason);
+): Promise<string> => {
+    return await db.transaction(async (tx) => {
+        const existingRide = await RideRepository.findRideForCancel(
+            tx,
+            rideId,
+            driverId
+        );
+
+        if (!existingRide) {
+            throw new Error(RideErrors.RideNotFoundOrNotOwner);
+        }
+
+        if (existingRide.rideStatus === "CANCELLED") {
+            throw new Error(RideErrors.RideAlreadyCancelled);
+        }
+
+        const updatedRide = await RideRepository.updateRideStatusToCancelled(
+            tx,
+            rideId,
+            driverId
+        );
+
+        await RideRepository.insertRideStatusHistory(tx, {
+            rideId: updatedRide.id,
+            oldStatus: existingRide.rideStatus,
+            newStatus: "CANCELLED",
+            changedByUserId: driverId,
+            reason: reason || "Ride cancelled by driver",
+        });
+
+        const activeBookings = await RideRepository.findActiveBookingsByRideId(
+            tx,
+            rideId
+        );
+
+        if (activeBookings.length > 0) {
+            const cancelReason = "Ride was cancelled by the driver";
+            const activeBookingIds = activeBookings.map((b) => b.id);
+
+            await RideRepository.bulkCancelBookings(
+                tx,
+                activeBookingIds,
+                driverId,
+                cancelReason
+            );
+
+            const bookingHistoryInserts = activeBookings.map((b) => ({
+                bookingId: b.id,
+                oldStatus: b.bookingStatus,
+                newStatus: "CANCELLED" as const,
+                changedByUserId: driverId,
+                reason: cancelReason,
+            }));
+
+            await RideRepository.bulkInsertBookingStatusHistory(
+                tx,
+                bookingHistoryInserts
+            );
+        }
+
+        return updatedRide.id;
+    });
 };
 
-// Export all service functions as a single object.
 export const RideService = {
     getAvailableRides,
     getDriverRides,

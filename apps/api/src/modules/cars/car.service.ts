@@ -1,24 +1,39 @@
+import { db } from "../../db";
+import { hasPostgresErrorCode, PostgresErrorCodes } from "../../db/errors";
 import { CarRepository } from "./car.repository";
+import { CarErrors } from "./car.errors";
 import type { CreateCarBody, UpdateCarStatusBody } from "@repo/shared";
 
 const getAllCarBrandNames = async () => {
-    return await CarRepository.findAllCarBrandNames();
+    return await CarRepository.findAllCarBrandNames(db);
 };
 
 const getCarModelsByBrand = async (brandName: string) => {
-    return await CarRepository.findCarModelsByBrand(brandName);
+    return await CarRepository.findCarModelsByBrand(db, brandName);
 };
 
 const getCarsByUserId = async (userId: string) => {
-    return await CarRepository.findCarsByUserId(userId);
+    return await CarRepository.findCarsByUserId(db, userId);
 };
 
 const createCar = async (userId: string, data: CreateCarBody) => {
-    return await CarRepository.createCar(userId, data);
+    try {
+        return await CarRepository.insertCar(db, userId, data);
+    } catch (error) {
+        if (
+            hasPostgresErrorCode(error, PostgresErrorCodes.ForeignKeyViolation)
+        ) {
+            throw new Error(CarErrors.ModelNotFound);
+        }
+        if (hasPostgresErrorCode(error, PostgresErrorCodes.UniqueViolation)) {
+            throw new Error(CarErrors.DuplicatePlate);
+        }
+        throw error;
+    }
 };
 
 const deleteCar = async (carId: string, userId: string) => {
-    return await CarRepository.deleteCar(carId, userId);
+    return await CarRepository.deleteCar(db, carId, userId);
 };
 
 const updateCarStatus = async (
@@ -26,7 +41,12 @@ const updateCarStatus = async (
     userId: string,
     data: UpdateCarStatusBody
 ) => {
-    return await CarRepository.updateCarStatus(carId, userId, data.isActive);
+    return await CarRepository.updateCarStatus(
+        db,
+        carId,
+        userId,
+        data.isActive
+    );
 };
 
 export const CarService = {
