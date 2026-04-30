@@ -27,6 +27,7 @@ import type {
     ErrorResponse,
     GetAdminUsersParams,
     UpdateUserRoleBody,
+    UpdateUserStatusBody,
     UserId,
 } from ".././model";
 
@@ -296,6 +297,95 @@ export const usePatchAdminUsersByIdRole = <
     TContext
 > => {
     const mutationOptions = getPatchAdminUsersByIdRoleMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+/**
+ * Changes a user's account status (ACTIVE / SUSPENDED / BANNED / DELETED) and records an audit row in user_status_history. Admins cannot change their own status.
+ */
+export const getPatchAdminUsersByIdStatusUrl = (id: UserId) => {
+    return `/admin/users/${id}/status`;
+};
+
+export const patchAdminUsersByIdStatus = async (
+    id: UserId,
+    updateUserStatusBody: UpdateUserStatusBody,
+    options?: RequestInit
+): Promise<AdminUserListItem> => {
+    return apiFetcher<AdminUserListItem>(getPatchAdminUsersByIdStatusUrl(id), {
+        ...options,
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", ...options?.headers },
+        body: JSON.stringify(updateUserStatusBody),
+    });
+};
+
+export const getPatchAdminUsersByIdStatusMutationOptions = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof patchAdminUsersByIdStatus>>,
+        TError,
+        { id: UserId; data: UpdateUserStatusBody },
+        TContext
+    >;
+    request?: SecondParameter<typeof apiFetcher>;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof patchAdminUsersByIdStatus>>,
+    TError,
+    { id: UserId; data: UpdateUserStatusBody },
+    TContext
+> => {
+    const mutationKey = ["patchAdminUsersByIdStatus"];
+    const { mutation: mutationOptions, request: requestOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey }, request: undefined };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof patchAdminUsersByIdStatus>>,
+        { id: UserId; data: UpdateUserStatusBody }
+    > = (props) => {
+        const { id, data } = props ?? {};
+
+        return patchAdminUsersByIdStatus(id, data, requestOptions);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type PatchAdminUsersByIdStatusMutationResult = NonNullable<
+    Awaited<ReturnType<typeof patchAdminUsersByIdStatus>>
+>;
+export type PatchAdminUsersByIdStatusMutationBody = UpdateUserStatusBody;
+export type PatchAdminUsersByIdStatusMutationError = ErrorResponse;
+
+export const usePatchAdminUsersByIdStatus = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof patchAdminUsersByIdStatus>>,
+            TError,
+            { id: UserId; data: UpdateUserStatusBody },
+            TContext
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseMutationResult<
+    Awaited<ReturnType<typeof patchAdminUsersByIdStatus>>,
+    TError,
+    { id: UserId; data: UpdateUserStatusBody },
+    TContext
+> => {
+    const mutationOptions =
+        getPatchAdminUsersByIdStatusMutationOptions(options);
 
     return useMutation(mutationOptions, queryClient);
 };

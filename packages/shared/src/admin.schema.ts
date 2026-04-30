@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { UserEntitySchema, UserIdSchema, UserRoleSchema } from "./user.schema";
+import {
+    UserEntitySchema,
+    UserIdSchema,
+    UserRoleSchema,
+    UserStatusSchema,
+} from "./user.schema";
 
 export const AdminUserIdParamsSchema = z.object({
     id: UserIdSchema,
@@ -34,7 +39,15 @@ export const UpdateUserRoleBodySchema = z
     })
     .strict();
 
+export const UpdateUserStatusBodySchema = z
+    .object({
+        status: UserStatusSchema,
+        reason: z.string().trim().min(1).max(500).optional(),
+    })
+    .strict();
+
 export type AdminUserListQuery = z.infer<typeof AdminUserListQuerySchema>;
 export type AdminUserListItem = z.infer<typeof AdminUserListItemSchema>;
 export type AdminUserListResponse = z.infer<typeof AdminUserListResponseSchema>;
 export type UpdateUserRoleBody = z.infer<typeof UpdateUserRoleBodySchema>;
+export type UpdateUserStatusBody = z.infer<typeof UpdateUserStatusBodySchema>;

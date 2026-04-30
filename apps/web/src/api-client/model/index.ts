@@ -108,6 +108,7 @@ export * from "./timeframeQueryTimeframe";
 export * from "./updateCarStatusBody";
 export * from "./updateUserBody";
 export * from "./updateUserRoleBody";
+export * from "./updateUserStatusBody";
 export * from "./user";
 export * from "./userId";
 export * from "./userReviewsView";

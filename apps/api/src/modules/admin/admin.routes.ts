@@ -6,6 +6,7 @@ import {
     AdminUserListResponseSchema,
     ErrorResponseSchema,
     UpdateUserRoleBodySchema,
+    UpdateUserStatusBodySchema,
 } from "@repo/shared";
 import { requireAdmin } from "../auth/auth.middleware";
 import { AdminErrors } from "./admin.errors";
@@ -21,6 +22,7 @@ export const AdminRoutes = new Elysia({
         AdminUserListItem: AdminUserListItemSchema,
         AdminUserListResponse: AdminUserListResponseSchema,
         UpdateUserRoleBody: UpdateUserRoleBodySchema,
+        UpdateUserStatusBody: UpdateUserStatusBodySchema,
         ErrorResponse: ErrorResponseSchema,
     })
     .onError(({ code, status }) => {
@@ -106,6 +108,54 @@ export const AdminRoutes = new Elysia({
                     detail: {
                         description:
                             "Promotes a user to ADMIN or demotes back to USER. Self-demotion is rejected so the last admin cannot lock themselves out.",
+                    },
+                }
+            )
+            .patch(
+                "/users/:id/status",
+                async ({ user, params, body, status }) => {
+                    try {
+                        return await AdminService.setUserStatus({
+                            actorId: user.id,
+                            targetUserId: params.id,
+                            newStatus: body.status,
+                            reason: body.reason,
+                        });
+                    } catch (error) {
+                        const message =
+                            error instanceof Error
+                                ? error.message
+                                : String(error);
+
+                        if (message === AdminErrors.UserNotFound) {
+                            return status(404, { error: "User not found" });
+                        }
+                        if (message === AdminErrors.CannotChangeOwnStatus) {
+                            return status(409, {
+                                error: "An admin cannot change their own status",
+                            });
+                        }
+
+                        return status(500, {
+                            error: "Failed to update user status",
+                        });
+                    }
+                },
+                {
+                    params: AdminUserIdParamsSchema,
+                    body: "UpdateUserStatusBody",
+                    response: {
+                        200: "AdminUserListItem",
+                        400: "ErrorResponse",
+                        401: "ErrorResponse",
+                        403: "ErrorResponse",
+                        404: "ErrorResponse",
+                        409: "ErrorResponse",
+                        500: "ErrorResponse",
+                    },
+                    detail: {
+                        description:
+                            "Changes a user's account status (ACTIVE / SUSPENDED / BANNED / DELETED) and records an audit row in user_status_history. Admins cannot change their own status.",
                     },
                 }
             )

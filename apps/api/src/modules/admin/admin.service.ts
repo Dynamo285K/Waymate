@@ -2,7 +2,11 @@ import type { AdminUserListItem, AdminUserListResponse } from "@repo/shared";
 import { db } from "../../db";
 import { AdminErrors } from "./admin.errors";
 import { AdminRepository } from "./admin.repository";
-import type { AdminUserListFilters, SetUserRoleInput } from "./admin.types";
+import type {
+    AdminUserListFilters,
+    SetUserRoleInput,
+    SetUserStatusInput,
+} from "./admin.types";
 
 const getUserList = async (
     filters: AdminUserListFilters
@@ -57,7 +61,57 @@ const setUserRole = async ({
     return updated;
 };
 
+const setUserStatus = async ({
+    actorId,
+    targetUserId,
+    newStatus,
+    reason,
+}: SetUserStatusInput): Promise<AdminUserListItem> => {
+    // Admins can't change their own status — same spirit as CannotDemoteSelf,
+    // prevents an admin from locking themselves out of the tooling by mistake.
+    if (actorId === targetUserId) {
+        throw new Error(AdminErrors.CannotChangeOwnStatus);
+    }
+
+    return await db.transaction(async (tx) => {
+        const target = await AdminRepository.findUserById(tx, targetUserId);
+
+        if (!target) {
+            throw new Error(AdminErrors.UserNotFound);
+        }
+
+        // Idempotent: skip both the UPDATE and the audit row so updatedAt and
+        // user_status_history only reflect real transitions.
+        if (target.userStatus === newStatus) {
+            return target;
+        }
+
+        const updated = await AdminRepository.updateUserStatus(
+            tx,
+            targetUserId,
+            newStatus
+        );
+
+        if (!updated) {
+            // Race: target was soft-deleted between the existence check and
+            // the update. Roll back to leave history consistent with users.
+            throw new Error(AdminErrors.UserNotFound);
+        }
+
+        await AdminRepository.insertUserStatusHistory(tx, {
+            userId: targetUserId,
+            oldStatus: target.userStatus,
+            newStatus,
+            changedByUserId: actorId,
+            reason,
+        });
+
+        return updated;
+    });
+};
+
 export const AdminService = {
     getUserList,
     setUserRole,
+    setUserStatus,
 };
