@@ -1,5 +1,20 @@
-import { and, desc, eq, ilike, isNull, lt, or } from "drizzle-orm";
-import type { AdminUserListItem, UserRole, UserStatus } from "@repo/shared";
+import {
+    aliasedTable,
+    and,
+    desc,
+    eq,
+    ilike,
+    isNull,
+    lt,
+    or,
+} from "drizzle-orm";
+import type {
+    AdminUserDetail,
+    AdminUserListItem,
+    AdminUserStatusHistoryItem,
+    UserRole,
+    UserStatus,
+} from "@repo/shared";
 import type { Executor } from "../../db";
 import { users as usersTable } from "../../db/schema/user";
 import { userStatusHistory as userStatusHistoryTable } from "../../db/schema/user_status_history";
@@ -14,6 +29,24 @@ const adminUserListColumns = {
     userStatus: usersTable.userStatus,
     createdAt: usersTable.createdAt,
     lastActiveAt: usersTable.lastActiveAt,
+} as const;
+
+const adminUserDetailColumns = {
+    id: usersTable.id,
+    email: usersTable.email,
+    firstName: usersTable.firstName,
+    lastName: usersTable.lastName,
+    displayName: usersTable.displayName,
+    phone: usersTable.phone,
+    bio: usersTable.bio,
+    profilePhotoUrl: usersTable.profilePhotoUrl,
+    role: usersTable.role,
+    userStatus: usersTable.userStatus,
+    emailVerifiedAt: usersTable.emailVerifiedAt,
+    phoneVerifiedAt: usersTable.phoneVerifiedAt,
+    lastActiveAt: usersTable.lastActiveAt,
+    createdAt: usersTable.createdAt,
+    updatedAt: usersTable.updatedAt,
 } as const;
 
 const findUserList = async (
@@ -78,6 +111,61 @@ const findUserById = async (
     return user ?? null;
 };
 
+const findUserDetailById = async (
+    executor: Executor,
+    id: string
+): Promise<AdminUserDetail | null> => {
+    const [user] = await executor
+        .select(adminUserDetailColumns)
+        .from(usersTable)
+        .where(and(eq(usersTable.id, id), isNull(usersTable.deletedAt)))
+        .limit(1);
+
+    return user ?? null;
+};
+
+const findStatusHistoryByUserId = async (
+    executor: Executor,
+    userId: string,
+    limit: number
+): Promise<AdminUserStatusHistoryItem[]> => {
+    // Alias users for the LEFT JOIN so the actor's name comes back even though
+    // the same table is implicitly the subject in user_status_history.
+    const actor = aliasedTable(usersTable, "actor");
+
+    const rows = await executor
+        .select({
+            id: userStatusHistoryTable.id,
+            oldStatus: userStatusHistoryTable.oldStatus,
+            newStatus: userStatusHistoryTable.newStatus,
+            reason: userStatusHistoryTable.reason,
+            createdAt: userStatusHistoryTable.createdAt,
+            actorId: actor.id,
+            actorFirstName: actor.firstName,
+            actorLastName: actor.lastName,
+        })
+        .from(userStatusHistoryTable)
+        .leftJoin(actor, eq(userStatusHistoryTable.changedByUserId, actor.id))
+        .where(eq(userStatusHistoryTable.userId, userId))
+        .orderBy(desc(userStatusHistoryTable.createdAt))
+        .limit(limit);
+
+    return rows.map((row) => ({
+        id: row.id,
+        oldStatus: row.oldStatus,
+        newStatus: row.newStatus,
+        reason: row.reason,
+        createdAt: row.createdAt,
+        changedBy: row.actorId
+            ? {
+                  id: row.actorId,
+                  firstName: row.actorFirstName,
+                  lastName: row.actorLastName,
+              }
+            : null,
+    }));
+};
+
 const updateUserRole = async (
     executor: Executor,
     id: string,
@@ -128,6 +216,8 @@ const insertUserStatusHistory = async (
 export const AdminRepository = {
     findUserList,
     findUserById,
+    findUserDetailById,
+    findStatusHistoryByUserId,
     updateUserRole,
     updateUserStatus,
     insertUserStatusHistory,

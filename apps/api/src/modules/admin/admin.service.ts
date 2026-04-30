@@ -1,4 +1,8 @@
-import type { AdminUserListItem, AdminUserListResponse } from "@repo/shared";
+import type {
+    AdminUserDetailResponse,
+    AdminUserListItem,
+    AdminUserListResponse,
+} from "@repo/shared";
 import { db } from "../../db";
 import { AdminErrors } from "./admin.errors";
 import { AdminRepository } from "./admin.repository";
@@ -7,6 +11,8 @@ import type {
     SetUserRoleInput,
     SetUserStatusInput,
 } from "./admin.types";
+
+const STATUS_HISTORY_DEFAULT_LIMIT = 50;
 
 const getUserList = async (
     filters: AdminUserListFilters
@@ -23,6 +29,27 @@ const getUserList = async (
     const nextCursor = hasMore ? (items[items.length - 1]?.id ?? null) : null;
 
     return { items, nextCursor };
+};
+
+const getUserDetail = async (
+    targetUserId: string
+): Promise<AdminUserDetailResponse> => {
+    // Read-only fan-out: detail and history are independent SELECTs and can
+    // run in parallel without any need for a transaction.
+    const [user, statusHistory] = await Promise.all([
+        AdminRepository.findUserDetailById(db, targetUserId),
+        AdminRepository.findStatusHistoryByUserId(
+            db,
+            targetUserId,
+            STATUS_HISTORY_DEFAULT_LIMIT
+        ),
+    ]);
+
+    if (!user) {
+        throw new Error(AdminErrors.UserNotFound);
+    }
+
+    return { user, statusHistory };
 };
 
 const setUserRole = async ({
@@ -112,6 +139,7 @@ const setUserStatus = async ({
 
 export const AdminService = {
     getUserList,
+    getUserDetail,
     setUserRole,
     setUserStatus,
 };
