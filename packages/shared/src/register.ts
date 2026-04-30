@@ -7,6 +7,7 @@ import * as countryCodeSchemas from "./country-code.schema";
 import * as currencySchemas from "./currency.schema";
 import * as decimalSchemas from "./decimal.schema";
 import * as errorSchemas from "./error-response.schema";
+import * as healthSchemas from "./health.schema";
 import * as reviewSchemas from "./review.schema";
 import * as rideSchemas from "./ride.schema";
 import * as userSchemas from "./user.schema";
@@ -19,6 +20,7 @@ const allModules = [
     currencySchemas,
     decimalSchemas,
     errorSchemas,
+    healthSchemas,
     reviewSchemas,
     rideSchemas,
     userSchemas,

@@ -4,6 +4,7 @@ import * as z from "zod";
 import { env } from "./config/env";
 import { openApiifyJsonSchema } from "./openapi/post-process";
 import { auth } from "./modules/auth/auth";
+import { HealthRoutes } from "./modules/health/health.routes";
 import { UserRoutes } from "./modules/users/user.routes";
 import { CarRoutes } from "./modules/cars/car.routes";
 import { RideRoutes } from "./modules/rides/ride.routes";
@@ -44,6 +45,7 @@ export const app = new Elysia()
     )
     .get("/", () => ({ status: "Waymate API is online" }))
     .mount(auth.handler)
+    .use(HealthRoutes)
     .use(UserRoutes)
     .use(CarRoutes)
     .use(RideRoutes)
