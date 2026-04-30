@@ -7,7 +7,6 @@
  */
 import type { ReviewId } from "./reviewId";
 import type { RideId } from "./rideId";
-import type { ReviewListItemComment } from "./reviewListItemComment";
 import type { ReviewStatus } from "./reviewStatus";
 import type { ReviewListItemAuthor } from "./reviewListItemAuthor";
 
@@ -19,7 +18,11 @@ export interface ReviewListItem {
      * @maximum 5
      */
     rating: number;
-    comment: ReviewListItemComment;
+    /**
+     * @maxLength 1000
+     * @nullable
+     */
+    comment: string | null;
     reviewStatus: ReviewStatus;
     createdAt: string;
     author: ReviewListItemAuthor;

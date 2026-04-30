@@ -9,10 +9,7 @@ import type { RideId } from "./rideId";
 import type { UserId } from "./userId";
 import type { CarId } from "./carId";
 import type { RideStatus } from "./rideStatus";
-import type { RideListItemArrivalEstimateAt } from "./rideListItemArrivalEstimateAt";
 import type { Currency } from "./currency";
-import type { RideListItemDescription } from "./rideListItemDescription";
-import type { RideListItemDeletedAt } from "./rideListItemDeletedAt";
 import type { RideListItemRideStopsItem } from "./rideListItemRideStopsItem";
 import type { RideListItemBookingsItem } from "./rideListItemBookingsItem";
 import type { RideListItemPricesItem } from "./rideListItemPricesItem";
@@ -23,17 +20,23 @@ export interface RideListItem {
     carId: CarId;
     rideStatus: RideStatus;
     departureAt: string;
-    arrivalEstimateAt: RideListItemArrivalEstimateAt;
+    /** @nullable */
+    arrivalEstimateAt: string | null;
     /**
      * @minimum 1
      * @maximum 9007199254740991
      */
     offeredSeats: number;
     currency: Currency;
-    description: RideListItemDescription;
+    /**
+     * @maxLength 500
+     * @nullable
+     */
+    description: string | null;
     createdAt: string;
     updatedAt: string;
-    deletedAt: RideListItemDeletedAt;
+    /** @nullable */
+    deletedAt: string | null;
     rideStops: RideListItemRideStopsItem[];
     bookings: RideListItemBookingsItem[];
     prices: RideListItemPricesItem[];

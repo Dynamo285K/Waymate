@@ -32,9 +32,12 @@ export interface CarListItem {
      */
     spz: string;
     countryCode: CountryCode;
+    /** @nullable */
     color: CarListItemColor;
     /**
+     * @minimum 0
      * @maximum 9007199254740991
+     * @exclusiveMinimum
      */
     seatsTotal: number;
     isActive: boolean;

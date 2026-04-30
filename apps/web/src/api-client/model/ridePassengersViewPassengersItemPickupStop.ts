@@ -5,7 +5,17 @@
  * Carpooling backend powering the Waymate web app.
  * OpenAPI spec version: 0.1.0
  */
-import type { RidePassengersViewPassengersItemPickupStopAnyOf } from "./ridePassengersViewPassengersItemPickupStopAnyOf";
+import type { RideStopId } from "./rideStopId";
 
-export type RidePassengersViewPassengersItemPickupStop =
-    RidePassengersViewPassengersItemPickupStopAnyOf | null;
+/**
+ * @nullable
+ */
+export type RidePassengersViewPassengersItemPickupStop = {
+    id: RideStopId;
+    city: string;
+    /**
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
+    stopOrder: number;
+} | null;

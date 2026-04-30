@@ -7,6 +7,8 @@
  */
 
 /**
+ * @minimum 0
  * @maximum 9007199254740991
+ * @exclusiveMinimum
  */
 export type CarModelId = number;

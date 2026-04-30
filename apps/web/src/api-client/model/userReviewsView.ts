@@ -6,12 +6,12 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { UserId } from "./userId";
-import type { UserReviewsViewAverageRating } from "./userReviewsViewAverageRating";
 import type { ReviewListItemList } from "./reviewListItemList";
 
 export interface UserReviewsView {
     subjectId: UserId;
-    averageRating: UserReviewsViewAverageRating;
+    /** @nullable */
+    averageRating: number | null;
     /**
      * @minimum -9007199254740991
      * @maximum 9007199254740991

@@ -6,13 +6,13 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { UserId } from "./userId";
-import type { AuthoredReviewListItemSubjectFirstName } from "./authoredReviewListItemSubjectFirstName";
-import type { AuthoredReviewListItemSubjectLastName } from "./authoredReviewListItemSubjectLastName";
-import type { AuthoredReviewListItemSubjectProfilePhotoUrl } from "./authoredReviewListItemSubjectProfilePhotoUrl";
 
 export type AuthoredReviewListItemSubject = {
     id: UserId;
-    firstName: AuthoredReviewListItemSubjectFirstName;
-    lastName: AuthoredReviewListItemSubjectLastName;
-    profilePhotoUrl: AuthoredReviewListItemSubjectProfilePhotoUrl;
+    /** @nullable */
+    firstName: string | null;
+    /** @nullable */
+    lastName: string | null;
+    /** @nullable */
+    profilePhotoUrl: string | null;
 };

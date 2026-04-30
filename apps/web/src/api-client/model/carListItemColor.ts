@@ -6,16 +6,24 @@
  * OpenAPI spec version: 0.1.0
  */
 
+/**
+ * @nullable
+ */
 export type CarListItemColor =
-    | "WHITE"
-    | "BLACK"
-    | "SILVER"
-    | "GRAY"
-    | "RED"
-    | "BLUE"
-    | "BROWN"
-    | "GREEN"
-    | "YELLOW"
-    | "ORANGE"
-    | "OTHER"
+    | (typeof CarListItemColor)[keyof typeof CarListItemColor]
     | null;
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const CarListItemColor = {
+    WHITE: "WHITE",
+    BLACK: "BLACK",
+    SILVER: "SILVER",
+    GRAY: "GRAY",
+    RED: "RED",
+    BLUE: "BLUE",
+    BROWN: "BROWN",
+    GREEN: "GREEN",
+    YELLOW: "YELLOW",
+    ORANGE: "ORANGE",
+    OTHER: "OTHER",
+} as const;

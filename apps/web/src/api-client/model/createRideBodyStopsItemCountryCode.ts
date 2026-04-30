@@ -7,4 +7,7 @@
  */
 import type { CountryCode } from "./countryCode";
 
+/**
+ * @nullable
+ */
 export type CreateRideBodyStopsItemCountryCode = CountryCode | null;

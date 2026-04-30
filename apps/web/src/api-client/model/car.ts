@@ -10,7 +10,6 @@ import type { UserId } from "./userId";
 import type { CarModelId } from "./carModelId";
 import type { CountryCode } from "./countryCode";
 import type { CarColor } from "./carColor";
-import type { CarDeletedAt } from "./carDeletedAt";
 
 export interface Car {
     id: CarId;
@@ -23,13 +22,17 @@ export interface Car {
      */
     spz: string;
     countryCode: CountryCode;
+    /** @nullable */
     color: CarColor;
     /**
+     * @minimum 0
      * @maximum 9007199254740991
+     * @exclusiveMinimum
      */
     seatsTotal: number;
     isActive: boolean;
     createdAt: string;
     updatedAt: string;
-    deletedAt: CarDeletedAt;
+    /** @nullable */
+    deletedAt: string | null;
 }

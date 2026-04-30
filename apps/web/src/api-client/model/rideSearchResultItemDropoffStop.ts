@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { RideStopId } from "./rideStopId";
-import type { RideSearchResultItemDropoffStopPlannedArrivalAt } from "./rideSearchResultItemDropoffStopPlannedArrivalAt";
 
 export type RideSearchResultItemDropoffStop = {
     dropoffStopId: RideStopId;
     city: string;
-    plannedArrivalAt: RideSearchResultItemDropoffStopPlannedArrivalAt;
+    /** @nullable */
+    plannedArrivalAt: string | null;
 };

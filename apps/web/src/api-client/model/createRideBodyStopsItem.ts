@@ -6,8 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { CreateRideBodyStopsItemCountryCode } from "./createRideBodyStopsItemCountryCode";
-import type { CreateRideBodyStopsItemPlannedArrivalAt } from "./createRideBodyStopsItemPlannedArrivalAt";
-import type { CreateRideBodyStopsItemPlannedDepartureAt } from "./createRideBodyStopsItemPlannedDepartureAt";
 
 export type CreateRideBodyStopsItem = {
     /**
@@ -20,6 +18,7 @@ export type CreateRideBodyStopsItem = {
      * @maxLength 100
      */
     city: string;
+    /** @nullable */
     countryCode?: CreateRideBodyStopsItemCountryCode;
     /**
      * @minimum -90
@@ -31,6 +30,8 @@ export type CreateRideBodyStopsItem = {
      * @maximum 180
      */
     lng: number;
-    plannedArrivalAt?: CreateRideBodyStopsItemPlannedArrivalAt;
-    plannedDepartureAt?: CreateRideBodyStopsItemPlannedDepartureAt;
+    /** @nullable */
+    plannedArrivalAt?: string | null;
+    /** @nullable */
+    plannedDepartureAt?: string | null;
 };

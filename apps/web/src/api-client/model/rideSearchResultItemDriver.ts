@@ -6,15 +6,15 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { UserId } from "./userId";
-import type { RideSearchResultItemDriverProfilePhotoUrl } from "./rideSearchResultItemDriverProfilePhotoUrl";
-import type { RideSearchResultItemDriverAverageRating } from "./rideSearchResultItemDriverAverageRating";
 
 export type RideSearchResultItemDriver = {
     id: UserId;
     firstName: string;
     lastName: string;
-    profilePhotoUrl: RideSearchResultItemDriverProfilePhotoUrl;
-    averageRating: RideSearchResultItemDriverAverageRating;
+    /** @nullable */
+    profilePhotoUrl: string | null;
+    /** @nullable */
+    averageRating: number | null;
     /**
      * @minimum -9007199254740991
      * @maximum 9007199254740991
