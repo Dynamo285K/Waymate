@@ -1,7 +1,8 @@
 import { and, desc, eq, ilike, isNull, lt, or } from "drizzle-orm";
-import type { AdminUserListItem, UserRole } from "@repo/shared";
+import type { AdminUserListItem, UserRole, UserStatus } from "@repo/shared";
 import type { Executor } from "../../db";
 import { users as usersTable } from "../../db/schema/user";
+import { userStatusHistory as userStatusHistoryTable } from "../../db/schema/user_status_history";
 import type { AdminUserListFilters } from "./admin.types";
 
 const adminUserListColumns = {
@@ -91,8 +92,43 @@ const updateUserRole = async (
     return updated ?? null;
 };
 
+const updateUserStatus = async (
+    executor: Executor,
+    id: string,
+    status: UserStatus
+): Promise<AdminUserListItem | null> => {
+    const [updated] = await executor
+        .update(usersTable)
+        .set({ userStatus: status, updatedAt: new Date() })
+        .where(and(eq(usersTable.id, id), isNull(usersTable.deletedAt)))
+        .returning(adminUserListColumns);
+
+    return updated ?? null;
+};
+
+const insertUserStatusHistory = async (
+    executor: Executor,
+    values: {
+        userId: string;
+        oldStatus: UserStatus;
+        newStatus: UserStatus;
+        changedByUserId: string;
+        reason?: string;
+    }
+): Promise<void> => {
+    await executor.insert(userStatusHistoryTable).values({
+        userId: values.userId,
+        oldStatus: values.oldStatus,
+        newStatus: values.newStatus,
+        changedByUserId: values.changedByUserId,
+        reason: values.reason ?? null,
+    });
+};
+
 export const AdminRepository = {
     findUserList,
     findUserById,
     updateUserRole,
+    updateUserStatus,
+    insertUserStatusHistory,
 };
