@@ -8,7 +8,7 @@
 import type { PassengerBookingListItemBookingStatus } from "./passengerBookingListItemBookingStatus";
 import type { Currency } from "./currency";
 import type { PassengerBookingListItemRide } from "./passengerBookingListItemRide";
-import type { PassengerBookingListItemDriver } from "./passengerBookingListItemDriver";
+import type { PublicUserPreviewWithRating } from "./publicUserPreviewWithRating";
 import type { PassengerBookingListItemMyReviewOfDriver } from "./passengerBookingListItemMyReviewOfDriver";
 
 export interface PassengerBookingListItem {
@@ -27,7 +27,7 @@ export interface PassengerBookingListItem {
      */
     seatsLeft: number;
     ride: PassengerBookingListItemRide;
-    driver: PassengerBookingListItemDriver;
+    driver: PublicUserPreviewWithRating;
     pickupCity: string;
     dropoffCity: string;
     /** @nullable */

@@ -6,7 +6,10 @@ import {
 } from "./ride.schema";
 import { bookingStatusValues } from "./status-values";
 import { CurrencySchema } from "./currency.schema";
-import { UserIdSchema } from "./user.schema";
+import {
+    PublicUserPreviewSchema,
+    PublicUserPreviewWithRatingSchema,
+} from "./user.schema";
 
 // ==========================================
 // 1. URL PARAMETERS
@@ -62,14 +65,7 @@ export const PassengerBookingListItemSchema = z.object({
         departureAt: z.date(),
         rideStatus: RideStatusSchema,
     }),
-    driver: z.object({
-        id: UserIdSchema,
-        firstName: z.string().nullable(),
-        lastName: z.string().nullable(),
-        profilePhotoUrl: z.string().nullable(),
-        averageRating: z.number().nullable(),
-        reviewCount: z.number().int(),
-    }),
+    driver: PublicUserPreviewWithRatingSchema,
     pickupCity: z.string(),
     dropoffCity: z.string(),
     myReviewOfDriver: z
@@ -87,11 +83,7 @@ export const DriverRideRequestItemSchema = z.object({
     id: z.uuid(),
     rideId: RideIdSchema,
     seatCount: z.number().int(),
-    passenger: z.object({
-        id: UserIdSchema,
-        firstName: z.string().nullable(),
-        lastName: z.string().nullable(),
-        profilePhotoUrl: z.string().nullable(),
+    passenger: PublicUserPreviewSchema.extend({
         averageRating: z.number().nullable(),
     }),
     pickupCity: z.string(),

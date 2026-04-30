@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { UserIdSchema } from "./user.schema";
+import {
+    UserIdSchema,
+    PublicUserPreviewSchema,
+    PublicUserPreviewWithRatingSchema,
+} from "./user.schema";
 import { CarIdSchema } from "./car.schema";
 import { CountryCodeSchema } from "./country-code.schema";
 import { CurrencySchema } from "./currency.schema";
@@ -88,14 +92,7 @@ export const RideSearchResultItemSchema = z.object({
     rideStatus: RideStatusSchema,
     offeredSeats: z.number(),
     seatsLeft: z.number().int(),
-    driver: z.object({
-        id: UserIdSchema,
-        firstName: z.string(),
-        lastName: z.string(),
-        profilePhotoUrl: z.string().nullable(),
-        averageRating: z.number().nullable(),
-        reviewCount: z.number().int(),
-    }),
+    driver: PublicUserPreviewWithRatingSchema,
     pickupStop: z.object({
         pickupStopId: RideStopIdSchema,
         city: z.string(),
@@ -116,14 +113,7 @@ export const AvailableRideItemSchema = z.object({
     rideStatus: RideStatusSchema,
     offeredSeats: z.number().int(),
     seatsLeft: z.number().int(),
-    driver: z.object({
-        id: UserIdSchema,
-        firstName: z.string().nullable(),
-        lastName: z.string().nullable(),
-        profilePhotoUrl: z.string().nullable(),
-        averageRating: z.number().nullable(),
-        reviewCount: z.number().int(),
-    }),
+    driver: PublicUserPreviewWithRatingSchema,
     pickupStop: z.object({
         pickupStopId: RideStopIdSchema,
         city: z.string(),
@@ -224,13 +214,6 @@ export type SearchRidesQuery = z.infer<typeof SearchRidesQuerySchema>;
 // Output schemas (SWAGGER / RESPONSE)
 // ==========================================
 
-export const PublicDriverProfileSchema = z.object({
-    id: UserIdSchema,
-    firstName: z.string().nullable(),
-    lastName: z.string().nullable(),
-    profilePhotoUrl: z.url().nullable(),
-});
-
 export const RideListItemSchema = RideSchema.extend({
     rideStops: z.array(
         z.object({
@@ -278,7 +261,7 @@ export const RidePassengersViewSchema = z.object({
             bookingId: z.uuid(),
             bookingStatus: z.enum(bookingStatusValues),
             seatCount: z.number().int(),
-            passenger: PublicDriverProfileSchema,
+            passenger: PublicUserPreviewSchema,
             pickupStop: z
                 .object({
                     id: RideStopIdSchema,

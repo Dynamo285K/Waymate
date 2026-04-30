@@ -7,7 +7,7 @@
  */
 import type { UserId } from "./userId";
 
-export interface PublicDriverProfile {
+export interface PublicUserPreviewWithRating {
     id: UserId;
     /** @nullable */
     firstName: string | null;
@@ -15,4 +15,11 @@ export interface PublicDriverProfile {
     lastName: string | null;
     /** @nullable */
     profilePhotoUrl: string | null;
+    /** @nullable */
+    averageRating: number | null;
+    /**
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
+    reviewCount: number;
 }

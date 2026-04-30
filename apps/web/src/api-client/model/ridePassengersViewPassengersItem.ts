@@ -6,7 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { RidePassengersViewPassengersItemBookingStatus } from "./ridePassengersViewPassengersItemBookingStatus";
-import type { PublicDriverProfile } from "./publicDriverProfile";
+import type { PublicUserPreview } from "./publicUserPreview";
 import type { RidePassengersViewPassengersItemPickupStop } from "./ridePassengersViewPassengersItemPickupStop";
 import type { RidePassengersViewPassengersItemDropoffStop } from "./ridePassengersViewPassengersItemDropoffStop";
 import type { RidePassengersViewPassengersItemMyReviewOfPassenger } from "./ridePassengersViewPassengersItemMyReviewOfPassenger";
@@ -20,7 +20,7 @@ export type RidePassengersViewPassengersItem = {
      * @maximum 9007199254740991
      */
     seatCount: number;
-    passenger: PublicDriverProfile;
+    passenger: PublicUserPreview;
     /** @nullable */
     pickupStop: RidePassengersViewPassengersItemPickupStop;
     /** @nullable */
