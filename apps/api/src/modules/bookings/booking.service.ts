@@ -1,7 +1,11 @@
 import { db } from "../../db";
 import { BookingRepository } from "./booking.repository";
 import { BookingErrors } from "./booking.errors";
-import type { BookingTimeframe, CreateBookingInput } from "./booking.types";
+import type {
+    BookingTimeframe,
+    CreateBookingInput,
+    PassengerBookingListItem,
+} from "./booking.types";
 
 const getPendingRequestsForDriver = async (driverId: string) => {
     return await BookingRepository.findPendingRequestsForDriver(db, driverId);
@@ -10,11 +14,24 @@ const getPendingRequestsForDriver = async (driverId: string) => {
 const getPassengerBookings = async (
     passengerId: string,
     timeframe?: BookingTimeframe
-) => {
-    return await BookingRepository.findBookingsByPassengerId(
+): Promise<PassengerBookingListItem[]> => {
+    const rows = await BookingRepository.findBookingsByPassengerId(
         db,
         passengerId,
         timeframe
+    );
+
+    return rows.map(
+        ({ myReviewOfDriverId, myReviewOfDriverRating, ...rest }) => ({
+            ...rest,
+            myReviewOfDriver:
+                myReviewOfDriverId !== null && myReviewOfDriverRating !== null
+                    ? {
+                          id: myReviewOfDriverId,
+                          rating: myReviewOfDriverRating,
+                      }
+                    : null,
+        })
     );
 };
 

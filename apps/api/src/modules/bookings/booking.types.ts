@@ -54,6 +54,15 @@ export type PassengerBookingListItem = {
     myReviewOfDriver: { id: string; rating: number } | null;
 };
 
+// Raw row shape returned by the repository before service-level reshape.
+export type PassengerBookingListRow = Omit<
+    PassengerBookingListItem,
+    "myReviewOfDriver"
+> & {
+    myReviewOfDriverId: string | null;
+    myReviewOfDriverRating: number | null;
+};
+
 export type DriverRideRequestItem = {
     id: string; // Booking ID used for confirm/reject operations
     rideId: string;
