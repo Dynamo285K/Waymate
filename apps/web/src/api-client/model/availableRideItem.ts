@@ -7,7 +7,7 @@
  */
 import type { RideId } from "./rideId";
 import type { RideStatus } from "./rideStatus";
-import type { AvailableRideItemDriver } from "./availableRideItemDriver";
+import type { PublicUserPreviewWithRating } from "./publicUserPreviewWithRating";
 import type { AvailableRideItemPickupStop } from "./availableRideItemPickupStop";
 import type { AvailableRideItemDropoffStop } from "./availableRideItemDropoffStop";
 import type { Currency } from "./currency";
@@ -26,7 +26,7 @@ export interface AvailableRideItem {
      * @maximum 9007199254740991
      */
     seatsLeft: number;
-    driver: AvailableRideItemDriver;
+    driver: PublicUserPreviewWithRating;
     pickupStop: AvailableRideItemPickupStop;
     dropoffStop: AvailableRideItemDropoffStop;
     /** @nullable */

@@ -2438,7 +2438,7 @@
                   "maximum": 9007199254740991
                 },
                 "passenger": {
-                  "$ref": "#/components/schemas/PublicDriverProfile"
+                  "$ref": "#/components/schemas/PublicUserPreview"
                 },
                 "pickupStop": {
                   "nullable": true,
@@ -2729,42 +2729,7 @@
             "additionalProperties": false
           },
           "driver": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "$ref": "#/components/schemas/UserId"
-              },
-              "firstName": {
-                "nullable": true,
-                "type": "string"
-              },
-              "lastName": {
-                "nullable": true,
-                "type": "string"
-              },
-              "profilePhotoUrl": {
-                "nullable": true,
-                "type": "string"
-              },
-              "averageRating": {
-                "nullable": true,
-                "type": "number"
-              },
-              "reviewCount": {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              }
-            },
-            "required": [
-              "id",
-              "firstName",
-              "lastName",
-              "profilePhotoUrl",
-              "averageRating",
-              "reviewCount"
-            ],
-            "additionalProperties": false
+            "$ref": "#/components/schemas/PublicUserPreviewWithRating"
           },
           "pickupCity": {
             "type": "string"
@@ -3150,7 +3115,7 @@
         "format": "uuid",
         "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
       },
-      "PublicDriverProfile": {
+      "PublicUserPreview": {
         "type": "object",
         "properties": {
           "id": {
@@ -3200,40 +3165,7 @@
             "maximum": 9007199254740991
           },
           "driver": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "$ref": "#/components/schemas/UserId"
-              },
-              "firstName": {
-                "type": "string"
-              },
-              "lastName": {
-                "type": "string"
-              },
-              "profilePhotoUrl": {
-                "nullable": true,
-                "type": "string"
-              },
-              "averageRating": {
-                "nullable": true,
-                "type": "number"
-              },
-              "reviewCount": {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              }
-            },
-            "required": [
-              "id",
-              "firstName",
-              "lastName",
-              "profilePhotoUrl",
-              "averageRating",
-              "reviewCount"
-            ],
-            "additionalProperties": false
+            "$ref": "#/components/schemas/PublicUserPreviewWithRating"
           },
           "pickupStop": {
             "type": "object",
@@ -3325,42 +3257,7 @@
             "maximum": 9007199254740991
           },
           "driver": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "$ref": "#/components/schemas/UserId"
-              },
-              "firstName": {
-                "nullable": true,
-                "type": "string"
-              },
-              "lastName": {
-                "nullable": true,
-                "type": "string"
-              },
-              "profilePhotoUrl": {
-                "nullable": true,
-                "type": "string"
-              },
-              "averageRating": {
-                "nullable": true,
-                "type": "number"
-              },
-              "reviewCount": {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              }
-            },
-            "required": [
-              "id",
-              "firstName",
-              "lastName",
-              "profilePhotoUrl",
-              "averageRating",
-              "reviewCount"
-            ],
-            "additionalProperties": false
+            "$ref": "#/components/schemas/PublicUserPreviewWithRating"
           },
           "pickupStop": {
             "type": "object",
@@ -3428,6 +3325,45 @@
         ],
         "additionalProperties": false
       },
+      "PublicUserPreviewWithRating": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UserId"
+          },
+          "firstName": {
+            "nullable": true,
+            "type": "string"
+          },
+          "lastName": {
+            "nullable": true,
+            "type": "string"
+          },
+          "profilePhotoUrl": {
+            "nullable": true,
+            "type": "string",
+            "format": "uri"
+          },
+          "averageRating": {
+            "nullable": true,
+            "type": "number"
+          },
+          "reviewCount": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "id",
+          "firstName",
+          "lastName",
+          "profilePhotoUrl",
+          "averageRating",
+          "reviewCount"
+        ],
+        "additionalProperties": false
+      },
       "DriverRideRequestItem": {
         "type": "object",
         "properties": {
@@ -3460,7 +3396,8 @@
               },
               "profilePhotoUrl": {
                 "nullable": true,
-                "type": "string"
+                "type": "string",
+                "format": "uri"
               },
               "averageRating": {
                 "nullable": true,
@@ -3544,31 +3481,7 @@
             "format": "date-time"
           },
           "subject": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "$ref": "#/components/schemas/UserId"
-              },
-              "firstName": {
-                "nullable": true,
-                "type": "string"
-              },
-              "lastName": {
-                "nullable": true,
-                "type": "string"
-              },
-              "profilePhotoUrl": {
-                "nullable": true,
-                "type": "string"
-              }
-            },
-            "required": [
-              "id",
-              "firstName",
-              "lastName",
-              "profilePhotoUrl"
-            ],
-            "additionalProperties": false
+            "$ref": "#/components/schemas/PublicUserPreview"
           }
         },
         "required": [
@@ -3609,31 +3522,7 @@
             "format": "date-time"
           },
           "author": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "$ref": "#/components/schemas/UserId"
-              },
-              "firstName": {
-                "nullable": true,
-                "type": "string"
-              },
-              "lastName": {
-                "nullable": true,
-                "type": "string"
-              },
-              "profilePhotoUrl": {
-                "nullable": true,
-                "type": "string"
-              }
-            },
-            "required": [
-              "id",
-              "firstName",
-              "lastName",
-              "profilePhotoUrl"
-            ],
-            "additionalProperties": false
+            "$ref": "#/components/schemas/PublicUserPreview"
           }
         },
         "required": [

@@ -8,7 +8,7 @@
 import type { ReviewId } from "./reviewId";
 import type { RideId } from "./rideId";
 import type { ReviewStatus } from "./reviewStatus";
-import type { AuthoredReviewListItemSubject } from "./authoredReviewListItemSubject";
+import type { PublicUserPreview } from "./publicUserPreview";
 
 export interface AuthoredReviewListItem {
     id: ReviewId;
@@ -25,5 +25,5 @@ export interface AuthoredReviewListItem {
     comment: string | null;
     reviewStatus: ReviewStatus;
     createdAt: string;
-    subject: AuthoredReviewListItemSubject;
+    subject: PublicUserPreview;
 }

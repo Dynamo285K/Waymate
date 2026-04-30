@@ -43,7 +43,6 @@ export const app = new Elysia()
             },
         })
     )
-    .get("/", () => ({ status: "Waymate API is online" }))
     .mount(auth.handler)
     .use(HealthRoutes)
     .use(UserRoutes)

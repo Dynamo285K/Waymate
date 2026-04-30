@@ -3,9 +3,13 @@ import type { rides } from "../../db/schema/ride";
 import type { rideStops } from "../../db/schema/ride_stop";
 import type { prices } from "../../db/schema/price";
 import type { rideStatusHistory } from "../../db/schema/ride_status_history";
-import type { CountryCode, bookingStatusValues } from "@repo/shared";
+import type {
+    CountryCode,
+    PublicUserPreview,
+    PublicUserPreviewWithRating,
+    bookingStatusValues,
+} from "@repo/shared";
 import type { Car } from "../cars";
-import type { User } from "../users";
 
 // ==========================================
 // 1. BASE DATABASE TYPES (SELECT - what the DB returns)
@@ -36,10 +40,6 @@ export type BookingStatus = (typeof bookingStatusValues)[number];
 // 4. SERVICE / REPOSITORY CONTRACTS (COMPOSITE TYPES)
 // ==========================================
 
-export type PublicDriverProfile = Pick<
-    User,
-    "id" | "firstName" | "lastName" | "profilePhotoUrl"
->;
 export type PublicCarProfile = Pick<Car, "id" | "modelId" | "color" | "spz">;
 
 export type RideListItem = Ride & {
@@ -62,7 +62,7 @@ export type RidePassengerItem = {
     bookingId: string;
     bookingStatus: BookingStatus;
     seatCount: number;
-    passenger: Pick<User, "id" | "firstName" | "lastName" | "profilePhotoUrl">;
+    passenger: PublicUserPreview;
     pickupStop: Pick<RideStop, "id" | "city" | "stopOrder"> | null;
     dropoffStop: Pick<RideStop, "id" | "city" | "stopOrder"> | null;
     myReviewOfPassenger: { id: string; rating: number } | null;
@@ -81,14 +81,7 @@ export type RideSearchResultItem = {
     offeredSeats: number;
     seatsLeft: number;
 
-    driver: {
-        id: string;
-        firstName: string;
-        lastName: string;
-        profilePhotoUrl: string | null;
-        averageRating: number | null;
-        reviewCount: number;
-    };
+    driver: PublicUserPreviewWithRating;
 
     pickupStop: {
         pickupStopId: string;
@@ -152,7 +145,7 @@ export type PassengerRideListItem = {
         rideStatus: RideStatus;
     };
 
-    driver: PublicDriverProfile; // Zoberie to id, firstName, lastName, profilePhotoUrl
+    driver: PublicUserPreview;
 
     pickupCity: string;
     dropoffCity: string;

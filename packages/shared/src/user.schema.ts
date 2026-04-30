@@ -65,6 +65,24 @@ export const UpdateUserBodySchema = z.object({
     profilePhotoUrl: z.url().optional(),
 });
 
+export const PublicUserPreviewSchema = z.object({
+    id: UserIdSchema,
+    firstName: z.string().nullable(),
+    lastName: z.string().nullable(),
+    profilePhotoUrl: z.url().nullable(),
+});
+
+export const PublicUserPreviewWithRatingSchema =
+    PublicUserPreviewSchema.extend({
+        averageRating: z.number().nullable(),
+        reviewCount: z.number().int(),
+    });
+
+export type PublicUserPreview = z.infer<typeof PublicUserPreviewSchema>;
+export type PublicUserPreviewWithRating = z.infer<
+    typeof PublicUserPreviewWithRatingSchema
+>;
+
 export const UserStatusHistoryIdSchema = z.uuid();
 
 export const UserStatusHistoryEntitySchema = z.object({

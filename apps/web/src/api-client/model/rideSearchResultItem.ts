@@ -7,7 +7,7 @@
  */
 import type { RideId } from "./rideId";
 import type { RideStatus } from "./rideStatus";
-import type { RideSearchResultItemDriver } from "./rideSearchResultItemDriver";
+import type { PublicUserPreviewWithRating } from "./publicUserPreviewWithRating";
 import type { RideSearchResultItemPickupStop } from "./rideSearchResultItemPickupStop";
 import type { RideSearchResultItemDropoffStop } from "./rideSearchResultItemDropoffStop";
 import type { Currency } from "./currency";
@@ -22,7 +22,7 @@ export interface RideSearchResultItem {
      * @maximum 9007199254740991
      */
     seatsLeft: number;
-    driver: RideSearchResultItemDriver;
+    driver: PublicUserPreviewWithRating;
     pickupStop: RideSearchResultItemPickupStop;
     dropoffStop: RideSearchResultItemDropoffStop;
     /** @nullable */

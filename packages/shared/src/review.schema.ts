@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { reviewStatusValues } from "./status-values";
-import { UserIdSchema } from "./user.schema";
+import { UserIdSchema, PublicUserPreviewSchema } from "./user.schema";
 import { RideIdSchema } from "./ride.schema";
 
 // ==========================================
@@ -69,12 +69,7 @@ export const ReviewListItemSchema = z.object({
     comment: CommentSchema,
     reviewStatus: ReviewStatusSchema,
     createdAt: z.date(),
-    author: z.object({
-        id: UserIdSchema,
-        firstName: z.string().nullable(),
-        lastName: z.string().nullable(),
-        profilePhotoUrl: z.string().nullable(),
-    }),
+    author: PublicUserPreviewSchema,
 });
 
 export const ReviewListItemListSchema = z.array(ReviewListItemSchema);
@@ -93,12 +88,7 @@ export const AuthoredReviewListItemSchema = z.object({
     comment: CommentSchema,
     reviewStatus: ReviewStatusSchema,
     createdAt: z.date(),
-    subject: z.object({
-        id: UserIdSchema,
-        firstName: z.string().nullable(),
-        lastName: z.string().nullable(),
-        profilePhotoUrl: z.string().nullable(),
-    }),
+    subject: PublicUserPreviewSchema,
 });
 
 export const AuthoredReviewListSchema = z.array(AuthoredReviewListItemSchema);

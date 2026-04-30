@@ -7,7 +7,7 @@
  */
 import type { UserId } from "./userId";
 
-export type AuthoredReviewListItemSubject = {
+export interface PublicUserPreview {
     id: UserId;
     /** @nullable */
     firstName: string | null;
@@ -15,4 +15,4 @@ export type AuthoredReviewListItemSubject = {
     lastName: string | null;
     /** @nullable */
     profilePhotoUrl: string | null;
-};
+}
