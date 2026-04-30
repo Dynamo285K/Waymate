@@ -20,7 +20,7 @@ import { reviews as reviewsTable } from "../../db/schema/review";
 import { bookingStatusHistory as bookingStatusHistoryTable } from "../../db/schema";
 import type {
     DriverRideRequestItem,
-    PassengerBookingListItem,
+    PassengerBookingListRow,
     BookingTimeframe,
     BookingStatus,
 } from "./booking.types";
@@ -102,7 +102,7 @@ const findBookingsByPassengerId = async (
     executor: Executor,
     passengerId: string,
     timeframe: BookingTimeframe = "UPCOMING"
-): Promise<PassengerBookingListItem[]> => {
+): Promise<PassengerBookingListRow[]> => {
     const now = new Date();
 
     const capacityByRide = executor
@@ -215,18 +215,7 @@ const findBookingsByPassengerId = async (
         .where(and(...filters))
         .orderBy(desc(bookingsTable.createdAt));
 
-    return rows.map(
-        ({ myReviewOfDriverId, myReviewOfDriverRating, ...rest }) => ({
-            ...rest,
-            myReviewOfDriver:
-                myReviewOfDriverId !== null && myReviewOfDriverRating !== null
-                    ? {
-                          id: myReviewOfDriverId,
-                          rating: myReviewOfDriverRating,
-                      }
-                    : null,
-        })
-    ) as PassengerBookingListItem[];
+    return rows as PassengerBookingListRow[];
 };
 
 const lockRideForBooking = async (

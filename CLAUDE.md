@@ -72,9 +72,10 @@ Every domain module follows the same layered pattern:
 | `*.routes.ts`     | HTTP route definitions, request validation, error-to-status mapping                    |
 | `*.service.ts`    | Business logic, orchestration, and **transactions** (`db.transaction`). Imports `db`.  |
 | `*.repository.ts` | Pure Drizzle queries. Each function takes an `Executor` (`db \| tx`) as its first arg. |
-| `*.schema.ts`     | Zod schemas for request/response validation                                            |
-| `*.types.ts`      | TypeScript types derived from schemas                                                  |
+| `*.types.ts`      | TypeScript types (DB row inferences, service/repository contracts, view models)        |
 | `*.errors.ts`     | Plain string error constants thrown by the service                                     |
+
+Zod request/response schemas live in `packages/shared/src/*.schema.ts` — not co-located with modules — so the same schema definitions can be reused by the web client. They are registered in `z.globalRegistry` (see `packages/shared/src/register.ts`) so cross-schema references render as `$ref`s in the OpenAPI spec.
 
 Current modules: `auth`, `users`, `cars`, `rides`, `bookings`, `reviews`, `health`.
 
@@ -84,7 +85,7 @@ Current modules: `auth`, `users`, `cars`, `rides`, `bookings`, `reviews`, `healt
 - Services are the only layer that imports `db` directly and the only layer that calls `db.transaction(async (tx) => …)`. Inside a transaction, services call repository functions with `tx`; outside, they pass `db`. Services own all branching, status-history writes, business validation (e.g. self-booking, capacity, rating-window), and translation of low-level errors (e.g. Postgres unique-violation) into domain errors.
 - Routes catch domain errors thrown by services and map them to HTTP status codes.
 
-The Elysia app is exported as `app` from `apps/api/src/index.ts`. The web client consumes the API through generated TypeScript hooks; the OpenAPI spec is rendered from Zod schemas via `@elysiajs/openapi`. Route schemas use Zod (`packages/shared`); shared schemas are registered in `z.globalRegistry` (see `packages/shared/src/register.ts`) so cross-schema references render as `$ref`s in the spec. The `Auth` type is also exported for better-auth client usage.
+The Elysia app is exported as `app` from `apps/api/src/index.ts`. The web client consumes the API through generated TypeScript hooks; the OpenAPI spec is rendered from Zod schemas via `@elysiajs/openapi`. The `Auth` type is also exported for better-auth client usage.
 
 ### Authentication and authorization
 
