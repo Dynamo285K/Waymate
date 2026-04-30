@@ -9,12 +9,15 @@ import {
     notificationTypeValues,
     reviewStatusValues,
     rideStatusValues,
+    userRoleValues,
     userStatusValues,
     carColors,
     CountryCodes,
 } from "@repo/shared";
 
 export const userStatusEnum = pgEnum("user_status", userStatusValues);
+
+export const userRoleEnum = pgEnum("user_role", userRoleValues);
 
 export const rideStatusEnum = pgEnum("ride_status", rideStatusValues);
 

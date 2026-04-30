@@ -1,3 +1,5 @@
+// Resets a previously-migrated database — does NOT create the schema.
+// Run `bun run --cwd apps/api db:migrate` first on a fresh DB.
 import { sql, eq, and } from "drizzle-orm";
 import { db } from "./index";
 import {
@@ -46,6 +48,7 @@ async function main() {
                     firstName: "Albert",
                     lastName: "Olbert",
                     phone: "+421900111111",
+                    role: "ADMIN",
                 },
                 {
                     id: userBId,

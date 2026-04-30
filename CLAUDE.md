@@ -21,12 +21,16 @@ bun run format       # Prettier format
 bun run format:check # Prettier check (used in CI)
 ```
 
-Database (run from `apps/api/`):
+Database (run from the repo root, scoped to `apps/api`):
 
 ```bash
-bun run db:generate  # generate Drizzle migrations
-bun run db:migrate   # apply migrations
+bun run --cwd apps/api db:generate   # diff schema vs last snapshot, write SQL into apps/api/drizzle/
+bun run --cwd apps/api db:migrate    # apply pending migrations to the local DB
+bun run --cwd apps/api db:push       # local-only: push the schema diff without writing migration files
+bun run --cwd apps/api db:studio     # browse the local DB in Drizzle Studio
 ```
+
+Schema changes go through `db:generate` and the resulting SQL in `apps/api/drizzle/` is committed alongside the schema diff — that's the audit trail and the only path that ships to shared environments. `db:push` exists for fast local iteration before a change is PR-ready, but never use it on a database anyone else relies on.
 
 Start the local database (PostgreSQL via Docker):
 
@@ -91,12 +95,15 @@ The Elysia app is exported as `app` from `apps/api/src/index.ts`. The web client
 
 Auth is handled by **better-auth** (`apps/api/src/modules/auth/auth.ts`) with a Drizzle adapter targeting PostgreSQL. It supports email/password and Google OAuth.
 
-Two Elysia macros guard routes:
+Three Elysia macros guard routes:
 
 - `isAuthenticated` — requires a valid session; injects `user` and `session` into context
 - `isFullyOnboarded` — additionally requires `user.firstName`, `user.lastName`, and `user.phone` to be set; returns `403 ONBOARDING_REQUIRED` otherwise
+- `requireAdmin` — composes `isAuthenticated` (not `isFullyOnboarded`) and additionally requires `user.role === "ADMIN"`; returns `403 FORBIDDEN` otherwise
 
 Most routes (Cars, Rides) require `isFullyOnboarded`. User profile routes use `isAuthenticated`.
+
+The `users.role` column (`USER` / `ADMIN`, default `USER`) drives `requireAdmin`. The role is not user-settable through the auth API (`input: false` in better-auth `additionalFields`); the first admin is granted via the `db/seed.ts` seed or manually with `UPDATE users SET role = 'ADMIN' WHERE email = '...'`.
 
 ### Database schema (`apps/api/src/db/schema/`)
 

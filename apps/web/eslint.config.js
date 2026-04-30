@@ -15,8 +15,7 @@ const tailwindColorRules = [
     {
         selector:
             "Literal[value=/\\b(bg|text|border|ring|fill|stroke|outline|shadow|accent|caret|placeholder|decoration|divide|from|to|via)-\\[(#|rgb|rgba|hsl|hsla|oklch|oklab)/]",
-        message:
-            "Use theme tokens instead of Tailwind arbitrary color values.",
+        message: "Use theme tokens instead of Tailwind arbitrary color values.",
     },
 ];
 

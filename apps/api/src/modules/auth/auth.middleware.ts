@@ -51,3 +51,27 @@ export const isFullyOnboarded = new Elysia({ name: "require-onboarding" })
             },
         },
     });
+
+export const requireAdmin = new Elysia({ name: "require-admin" })
+    .use(isAuthenticated)
+    .macro({
+        admin: {
+            async resolve({ status, request: { headers } }) {
+                const result = await auth.api.getSession({
+                    headers,
+                });
+
+                if (!result?.user || !result?.session) {
+                    return status(401, {
+                        error: "Unauthorized",
+                    });
+                }
+
+                if (result.user.role !== "ADMIN") {
+                    return status(403, {
+                        error: "FORBIDDEN",
+                    });
+                }
+            },
+        },
+    });

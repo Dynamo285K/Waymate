@@ -30,11 +30,13 @@
         "@elysiajs/openapi": "^1.4.15",
         "@repo/shared": "workspace:*",
         "dotenv": "^16.6.1",
+        "drizzle-orm": "^0.45.2",
         "elysia": "^1.0.0",
       },
       "devDependencies": {
         "@types/bun": "latest",
         "@types/node": "^25.6.0",
+        "drizzle-kit": "^0.31.10",
         "typescript": "^5.9.3",
       },
     },
