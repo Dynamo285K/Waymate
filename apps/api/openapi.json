@@ -1545,6 +1545,85 @@
                 "operationId": "getAdminUsers"
             }
         },
+        "/admin/users/{id}": {
+            "get": {
+                "tags": ["Admin"],
+                "description": "Returns full user detail plus the most recent status history entries (newest first, capped at 50). changedBy is null for system-triggered changes or when the actor admin no longer exists.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/UserId"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminUserDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Response for status 400",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Response for status 401",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Response for status 403",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Response for status 404",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "getAdminUsersById"
+            }
+        },
         "/admin/users/{id}/role": {
             "patch": {
                 "tags": ["Admin"],
@@ -3186,6 +3265,195 @@
                     }
                 },
                 "required": ["items", "nextCursor"],
+                "additionalProperties": false
+            },
+            "AdminUserDetail": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "$ref": "#/components/schemas/UserId"
+                    },
+                    "email": {
+                        "type": "string",
+                        "maxLength": 254,
+                        "format": "email",
+                        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    },
+                    "firstName": {
+                        "nullable": true,
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20,
+                        "allOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^\\p{Lu}"
+                            },
+                            {
+                                "type": "string",
+                                "pattern": "^\\S+$"
+                            }
+                        ]
+                    },
+                    "lastName": {
+                        "nullable": true,
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20,
+                        "allOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^\\p{Lu}"
+                            },
+                            {
+                                "type": "string",
+                                "pattern": "^\\S+$"
+                            }
+                        ]
+                    },
+                    "displayName": {
+                        "nullable": true,
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20,
+                        "pattern": "^\\S+$"
+                    },
+                    "phone": {
+                        "nullable": true,
+                        "type": "string",
+                        "maxLength": 16,
+                        "pattern": "^\\+[1-9]\\d{1,14}$"
+                    },
+                    "bio": {
+                        "nullable": true,
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "profilePhotoUrl": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "role": {
+                        "$ref": "#/components/schemas/UserRole"
+                    },
+                    "userStatus": {
+                        "$ref": "#/components/schemas/UserStatus"
+                    },
+                    "emailVerifiedAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "phoneVerifiedAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "lastActiveAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "email",
+                    "firstName",
+                    "lastName",
+                    "displayName",
+                    "phone",
+                    "bio",
+                    "profilePhotoUrl",
+                    "role",
+                    "userStatus",
+                    "emailVerifiedAt",
+                    "phoneVerifiedAt",
+                    "lastActiveAt",
+                    "createdAt",
+                    "updatedAt"
+                ],
+                "additionalProperties": false
+            },
+            "AdminUserStatusHistoryItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "oldStatus": {
+                        "nullable": true,
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/UserStatus"
+                            }
+                        ]
+                    },
+                    "newStatus": {
+                        "$ref": "#/components/schemas/UserStatus"
+                    },
+                    "reason": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "changedBy": {
+                        "nullable": true,
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "$ref": "#/components/schemas/UserId"
+                            },
+                            "firstName": {
+                                "nullable": true,
+                                "type": "string"
+                            },
+                            "lastName": {
+                                "nullable": true,
+                                "type": "string"
+                            }
+                        },
+                        "required": ["id", "firstName", "lastName"],
+                        "additionalProperties": false
+                    }
+                },
+                "required": [
+                    "id",
+                    "oldStatus",
+                    "newStatus",
+                    "reason",
+                    "createdAt",
+                    "changedBy"
+                ],
+                "additionalProperties": false
+            },
+            "AdminUserDetailResponse": {
+                "type": "object",
+                "properties": {
+                    "user": {
+                        "$ref": "#/components/schemas/AdminUserDetail"
+                    },
+                    "statusHistory": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AdminUserStatusHistoryItem"
+                        }
+                    }
+                },
+                "required": ["user", "statusHistory"],
                 "additionalProperties": false
             },
             "UpdateUserRoleBody": {

@@ -6,11 +6,16 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./adminUserDetail";
+export * from "./adminUserDetailResponse";
 export * from "./adminUserIdParams";
 export * from "./adminUserListItem";
 export * from "./adminUserListQuery";
 export * from "./adminUserListResponse";
 export * from "./adminUserListResponseNextCursor";
+export * from "./adminUserStatusHistoryItem";
+export * from "./adminUserStatusHistoryItemChangedBy";
+export * from "./adminUserStatusHistoryItemOldStatus";
 export * from "./authoredReviewList";
 export * from "./authoredReviewListItem";
 export * from "./availableRideItem";

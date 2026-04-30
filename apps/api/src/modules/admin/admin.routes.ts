@@ -1,9 +1,12 @@
 import { Elysia } from "elysia";
 import {
+    AdminUserDetailResponseSchema,
+    AdminUserDetailSchema,
     AdminUserIdParamsSchema,
     AdminUserListItemSchema,
     AdminUserListQuerySchema,
     AdminUserListResponseSchema,
+    AdminUserStatusHistoryItemSchema,
     ErrorResponseSchema,
     UpdateUserRoleBodySchema,
     UpdateUserStatusBodySchema,
@@ -21,6 +24,9 @@ export const AdminRoutes = new Elysia({
         AdminUserListQuery: AdminUserListQuerySchema,
         AdminUserListItem: AdminUserListItemSchema,
         AdminUserListResponse: AdminUserListResponseSchema,
+        AdminUserDetail: AdminUserDetailSchema,
+        AdminUserStatusHistoryItem: AdminUserStatusHistoryItemSchema,
+        AdminUserDetailResponse: AdminUserDetailResponseSchema,
         UpdateUserRoleBody: UpdateUserRoleBodySchema,
         UpdateUserStatusBody: UpdateUserStatusBodySchema,
         ErrorResponse: ErrorResponseSchema,
@@ -61,6 +67,42 @@ export const AdminRoutes = new Elysia({
                     detail: {
                         description:
                             "Returns a keyset-paginated list of users for admin tooling. Supports filtering by role and a case-insensitive substring search across email, firstName, lastName.",
+                    },
+                }
+            )
+            .get(
+                "/users/:id",
+                async ({ params, status }) => {
+                    try {
+                        return await AdminService.getUserDetail(params.id);
+                    } catch (error) {
+                        const message =
+                            error instanceof Error
+                                ? error.message
+                                : String(error);
+
+                        if (message === AdminErrors.UserNotFound) {
+                            return status(404, { error: "User not found" });
+                        }
+
+                        return status(500, {
+                            error: "Failed to load user detail",
+                        });
+                    }
+                },
+                {
+                    params: AdminUserIdParamsSchema,
+                    response: {
+                        200: "AdminUserDetailResponse",
+                        400: "ErrorResponse",
+                        401: "ErrorResponse",
+                        403: "ErrorResponse",
+                        404: "ErrorResponse",
+                        500: "ErrorResponse",
+                    },
+                    detail: {
+                        description:
+                            "Returns full user detail plus the most recent status history entries (newest first, capped at 50). changedBy is null for system-triggered changes or when the actor admin no longer exists.",
                     },
                 }
             )

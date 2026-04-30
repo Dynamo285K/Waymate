@@ -33,6 +33,44 @@ export const AdminUserListResponseSchema = z.object({
     nextCursor: UserIdSchema.nullable(),
 });
 
+export const AdminUserDetailSchema = UserEntitySchema.pick({
+    id: true,
+    email: true,
+    firstName: true,
+    lastName: true,
+    displayName: true,
+    phone: true,
+    bio: true,
+    profilePhotoUrl: true,
+    role: true,
+    userStatus: true,
+    emailVerifiedAt: true,
+    phoneVerifiedAt: true,
+    lastActiveAt: true,
+    createdAt: true,
+    updatedAt: true,
+});
+
+export const AdminUserStatusHistoryItemSchema = z.object({
+    id: z.uuid(),
+    oldStatus: UserStatusSchema.nullable(),
+    newStatus: UserStatusSchema,
+    reason: z.string().nullable(),
+    createdAt: z.date(),
+    changedBy: z
+        .object({
+            id: UserIdSchema,
+            firstName: z.string().nullable(),
+            lastName: z.string().nullable(),
+        })
+        .nullable(),
+});
+
+export const AdminUserDetailResponseSchema = z.object({
+    user: AdminUserDetailSchema,
+    statusHistory: z.array(AdminUserStatusHistoryItemSchema),
+});
+
 export const UpdateUserRoleBodySchema = z
     .object({
         role: UserRoleSchema,
@@ -49,5 +87,12 @@ export const UpdateUserStatusBodySchema = z
 export type AdminUserListQuery = z.infer<typeof AdminUserListQuerySchema>;
 export type AdminUserListItem = z.infer<typeof AdminUserListItemSchema>;
 export type AdminUserListResponse = z.infer<typeof AdminUserListResponseSchema>;
+export type AdminUserDetail = z.infer<typeof AdminUserDetailSchema>;
+export type AdminUserStatusHistoryItem = z.infer<
+    typeof AdminUserStatusHistoryItemSchema
+>;
+export type AdminUserDetailResponse = z.infer<
+    typeof AdminUserDetailResponseSchema
+>;
 export type UpdateUserRoleBody = z.infer<typeof UpdateUserRoleBodySchema>;
 export type UpdateUserStatusBody = z.infer<typeof UpdateUserStatusBodySchema>;

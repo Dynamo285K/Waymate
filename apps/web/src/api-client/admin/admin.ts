@@ -22,6 +22,7 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+    AdminUserDetailResponse,
     AdminUserListItem,
     AdminUserListResponse,
     ErrorResponse,
@@ -201,6 +202,173 @@ export function useGetAdminUsers<
     queryKey: DataTag<QueryKey, TData, TError>;
 } {
     const queryOptions = getGetAdminUsersQueryOptions(params, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * Returns full user detail plus the most recent status history entries (newest first, capped at 50). changedBy is null for system-triggered changes or when the actor admin no longer exists.
+ */
+export const getGetAdminUsersByIdUrl = (id: UserId) => {
+    return `/admin/users/${id}`;
+};
+
+export const getAdminUsersById = async (
+    id: UserId,
+    options?: RequestInit
+): Promise<AdminUserDetailResponse> => {
+    return apiFetcher<AdminUserDetailResponse>(getGetAdminUsersByIdUrl(id), {
+        ...options,
+        method: "GET",
+    });
+};
+
+export const getGetAdminUsersByIdQueryKey = (id?: UserId) => {
+    return [`/admin/users/${id}`] as const;
+};
+
+export const getGetAdminUsersByIdQueryOptions = <
+    TData = Awaited<ReturnType<typeof getAdminUsersById>>,
+    TError = ErrorResponse,
+>(
+    id: UserId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminUsersById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    }
+) => {
+    const { query: queryOptions, request: requestOptions } = options ?? {};
+
+    const queryKey = queryOptions?.queryKey ?? getGetAdminUsersByIdQueryKey(id);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof getAdminUsersById>>
+    > = () => getAdminUsersById(id, requestOptions);
+
+    return {
+        queryKey,
+        queryFn,
+        enabled: !!id,
+        ...queryOptions,
+    } as UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminUsersById>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetAdminUsersByIdQueryResult = NonNullable<
+    Awaited<ReturnType<typeof getAdminUsersById>>
+>;
+export type GetAdminUsersByIdQueryError = ErrorResponse;
+
+export function useGetAdminUsersById<
+    TData = Awaited<ReturnType<typeof getAdminUsersById>>,
+    TError = ErrorResponse,
+>(
+    id: UserId,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminUsersById>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminUsersById>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminUsersById>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminUsersById<
+    TData = Awaited<ReturnType<typeof getAdminUsersById>>,
+    TError = ErrorResponse,
+>(
+    id: UserId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminUsersById>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminUsersById>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminUsersById>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminUsersById<
+    TData = Awaited<ReturnType<typeof getAdminUsersById>>,
+    TError = ErrorResponse,
+>(
+    id: UserId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminUsersById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetAdminUsersById<
+    TData = Awaited<ReturnType<typeof getAdminUsersById>>,
+    TError = ErrorResponse,
+>(
+    id: UserId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminUsersById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getGetAdminUsersByIdQueryOptions(id, options);
 
     const query = useQuery(queryOptions, queryClient) as UseQueryResult<
         TData,
