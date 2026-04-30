@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import * as adminSchemas from "./admin.schema";
 import * as bookingSchemas from "./booking.schema";
 import * as carSchemas from "./car.schema";
 import * as cityInputSchemas from "./city-input.schema";
@@ -13,6 +14,7 @@ import * as rideSchemas from "./ride.schema";
 import * as userSchemas from "./user.schema";
 
 const allModules = [
+    adminSchemas,
     bookingSchemas,
     carSchemas,
     cityInputSchemas,

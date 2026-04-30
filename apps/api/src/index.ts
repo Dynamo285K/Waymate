@@ -10,6 +10,7 @@ import { CarRoutes } from "./modules/cars/car.routes";
 import { RideRoutes } from "./modules/rides/ride.routes";
 import { BookingRoutes } from "./modules/bookings/booking.routes";
 import { ReviewRoutes } from "./modules/reviews/review.routes";
+import { AdminRoutes } from "./modules/admin/admin.routes";
 
 export const app = new Elysia()
     .use(
@@ -49,7 +50,8 @@ export const app = new Elysia()
     .use(CarRoutes)
     .use(RideRoutes)
     .use(BookingRoutes)
-    .use(ReviewRoutes);
+    .use(ReviewRoutes)
+    .use(AdminRoutes);
 
 export type App = typeof app;
 export type Auth = typeof auth;

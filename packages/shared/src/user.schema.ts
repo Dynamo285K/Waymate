@@ -5,8 +5,10 @@ export const UserIdSchema = z.uuid();
 export type UserId = z.infer<typeof UserIdSchema>;
 
 export const UserStatusSchema = z.enum(userStatusValues);
+export type UserStatus = z.infer<typeof UserStatusSchema>;
 
 export const UserRoleSchema = z.enum(userRoleValues);
+export type UserRole = z.infer<typeof UserRoleSchema>;
 
 const EmailSchema = z.email().max(254);
 

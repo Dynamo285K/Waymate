@@ -1438,6 +1438,221 @@
                 },
                 "operationId": "getReviewsMeAuthored"
             }
+        },
+        "/admin/users": {
+            "get": {
+                "tags": ["Admin"],
+                "description": "Returns a keyset-paginated list of users for admin tooling. Supports filtering by role and a case-insensitive substring search across email, firstName, lastName.",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "default": 20,
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/UserId"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/UserRole"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminUserListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Response for status 400",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Response for status 401",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Response for status 403",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "getAdminUsers"
+            }
+        },
+        "/admin/users/{id}/role": {
+            "patch": {
+                "tags": ["Admin"],
+                "description": "Promotes a user to ADMIN or demotes back to USER. Self-demotion is rejected so the last admin cannot lock themselves out.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/UserId"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUserRoleBody"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUserRoleBody"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUserRoleBody"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminUserListItem"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Response for status 400",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Response for status 401",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Response for status 403",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Response for status 404",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Response for status 409",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "patchAdminUsersByIdRole"
+            }
         }
     },
     "components": {
@@ -2729,6 +2944,151 @@
                     "$ref": "#/components/schemas/AuthoredReviewListItem"
                 }
             },
+            "AdminUserIdParams": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "$ref": "#/components/schemas/UserId"
+                    }
+                },
+                "required": ["id"],
+                "additionalProperties": false
+            },
+            "AdminUserListQuery": {
+                "type": "object",
+                "properties": {
+                    "limit": {
+                        "default": 20,
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100
+                    },
+                    "cursor": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/UserId"
+                            }
+                        ]
+                    },
+                    "role": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/UserRole"
+                            }
+                        ]
+                    },
+                    "search": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                    }
+                },
+                "required": ["limit"],
+                "additionalProperties": false
+            },
+            "AdminUserListItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "$ref": "#/components/schemas/UserId"
+                    },
+                    "email": {
+                        "type": "string",
+                        "maxLength": 254,
+                        "format": "email",
+                        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    },
+                    "firstName": {
+                        "nullable": true,
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20,
+                        "allOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^\\p{Lu}"
+                            },
+                            {
+                                "type": "string",
+                                "pattern": "^\\S+$"
+                            }
+                        ]
+                    },
+                    "lastName": {
+                        "nullable": true,
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20,
+                        "allOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^\\p{Lu}"
+                            },
+                            {
+                                "type": "string",
+                                "pattern": "^\\S+$"
+                            }
+                        ]
+                    },
+                    "role": {
+                        "$ref": "#/components/schemas/UserRole"
+                    },
+                    "userStatus": {
+                        "$ref": "#/components/schemas/UserStatus"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "lastActiveAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "email",
+                    "firstName",
+                    "lastName",
+                    "role",
+                    "userStatus",
+                    "createdAt",
+                    "lastActiveAt"
+                ],
+                "additionalProperties": false
+            },
+            "AdminUserListResponse": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AdminUserListItem"
+                        }
+                    },
+                    "nextCursor": {
+                        "nullable": true,
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/UserId"
+                            }
+                        ]
+                    }
+                },
+                "required": ["items", "nextCursor"],
+                "additionalProperties": false
+            },
+            "UpdateUserRoleBody": {
+                "type": "object",
+                "properties": {
+                    "role": {
+                        "$ref": "#/components/schemas/UserRole"
+                    }
+                },
+                "required": ["role"],
+                "additionalProperties": false
+            },
             "CarId": {
                 "type": "string",
                 "format": "uuid",
@@ -2744,13 +3104,13 @@
                 "format": "uuid",
                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             },
-            "UserStatus": {
-                "type": "string",
-                "enum": ["PENDING", "ACTIVE", "SUSPENDED", "BANNED", "DELETED"]
-            },
             "UserRole": {
                 "type": "string",
                 "enum": ["USER", "ADMIN"]
+            },
+            "UserStatus": {
+                "type": "string",
+                "enum": ["PENDING", "ACTIVE", "SUSPENDED", "BANNED", "DELETED"]
             },
             "CarModelId": {
                 "type": "integer",
