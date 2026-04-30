@@ -7,6 +7,7 @@
  */
 import type { UserId } from "./userId";
 import type { UserStatus } from "./userStatus";
+import type { UserRole } from "./userRole";
 
 export interface User {
     id: UserId;
@@ -52,6 +53,7 @@ export interface User {
      */
     bio: string | null;
     userStatus: UserStatus;
+    role: UserRole;
     /** @nullable */
     emailVerifiedAt: string | null;
     /** @nullable */

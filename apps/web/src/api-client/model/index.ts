@@ -6,6 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./adminUserIdParams";
+export * from "./adminUserListItem";
+export * from "./adminUserListQuery";
+export * from "./adminUserListResponse";
+export * from "./adminUserListResponseNextCursor";
 export * from "./authoredReviewList";
 export * from "./authoredReviewListItem";
 export * from "./availableRideItem";
@@ -50,6 +55,7 @@ export * from "./driverRideRequestItem";
 export * from "./driverRideRequestItemPassenger";
 export * from "./driverRideRequestList";
 export * from "./errorResponse";
+export * from "./getAdminUsersParams";
 export * from "./getBookingsMeParams";
 export * from "./getBookingsMeTimeframe";
 export * from "./getRidesMeParams";
@@ -101,7 +107,9 @@ export * from "./timeframeQuery";
 export * from "./timeframeQueryTimeframe";
 export * from "./updateCarStatusBody";
 export * from "./updateUserBody";
+export * from "./updateUserRoleBody";
 export * from "./user";
 export * from "./userId";
 export * from "./userReviewsView";
+export * from "./userRole";
 export * from "./userStatus";

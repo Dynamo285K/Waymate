@@ -15,7 +15,8 @@
       "Bash(grep -nE 'definitions|components\\\\.schemas|\\\\$defs|\\\\$ref' /home/tomas/splujazda-sketch/apps/api/node_modules/@elysiajs/openapi/dist/openapi.mjs)",
       "Bash(RESEND_API_KEY=dummy_for_boot bun run openapi:dump)",
       "Bash(OPENAPI_DEBUG=1 RESEND_API_KEY=dummy_for_boot bun run openapi:dump)",
-      "Bash(echo \"exit: $?\")"
+      "Bash(echo \"exit: $?\")",
+      "Bash(echo \"--exit:$?\")"
     ]
   }
 }
