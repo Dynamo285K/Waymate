@@ -1,9 +1,16 @@
-import type { HealthRepository } from "./health.repository";
+import { db } from "../../db";
+import { HealthRepository } from "./health.repository";
+import type { HealthResponse } from "@repo/shared";
 
-export class HealthService {
-    constructor(private readonly healthRepository: HealthRepository) {}
+const getHealth = async (): Promise<HealthResponse> => {
+    const dbUp = await HealthRepository.pingDatabase(db);
 
-    getHealth() {
-        return this.healthRepository.getStatus();
-    }
-}
+    return {
+        status: dbUp ? "ok" : "degraded",
+        db: dbUp ? "up" : "down",
+    };
+};
+
+export const HealthService = {
+    getHealth,
+};
