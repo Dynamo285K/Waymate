@@ -57,3 +57,16 @@ build:
     stage: verify
     script:
         - bun run build
+
+migration-drift:
+    stage: verify
+    script:
+        - bun run --cwd apps/api db:generate
+        - |
+            if [ -n "$(git status --porcelain apps/api/drizzle)" ]; then
+                echo "Schema in apps/api/src/db/schema/ drifted from apps/api/drizzle/."
+                echo "Run 'bun run --cwd apps/api db:generate' locally and commit the new migration."
+                git --no-pager diff -- apps/api/drizzle
+                git status --short apps/api/drizzle
+                exit 1
+            fi

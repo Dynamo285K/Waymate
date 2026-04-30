@@ -8,4 +8,5 @@ bun.lock
 *.sqlite
 *.sqlite3
 ui-design
-.claude/settings.local.json 
+.claude/settings.local.json
+apps/api/drizzle

@@ -9,7 +9,7 @@ import {
     uniqueIndex,
     uuid,
 } from "drizzle-orm/pg-core";
-import { userStatusEnum } from "./enums";
+import { userRoleEnum, userStatusEnum } from "./enums";
 
 export const users = pgTable(
     "users",
@@ -34,6 +34,7 @@ export const users = pgTable(
         phoneVerifiedAt: timestamp("phone_verified_at"),
         lastActiveAt: timestamp("last_active_at"),
         userStatus: userStatusEnum("user_status").notNull().default("ACTIVE"),
+        role: userRoleEnum("role").notNull().default("USER"),
         deletedAt: timestamp("deleted_at"),
     },
     (table) => [

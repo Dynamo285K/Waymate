@@ -1,10 +1,12 @@
 import { z } from "zod";
-import { userStatusValues } from "./status-values";
+import { userRoleValues, userStatusValues } from "./status-values";
 
 export const UserIdSchema = z.uuid();
 export type UserId = z.infer<typeof UserIdSchema>;
 
 export const UserStatusSchema = z.enum(userStatusValues);
+
+export const UserRoleSchema = z.enum(userRoleValues);
 
 const EmailSchema = z.email().max(254);
 
@@ -40,6 +42,7 @@ export const UserEntitySchema = z.object({
     profilePhotoUrl: z.url().nullable(),
     bio: z.string().max(500).nullable(),
     userStatus: UserStatusSchema,
+    role: UserRoleSchema,
 
     emailVerifiedAt: z.date().nullable(),
     phoneVerifiedAt: z.date().nullable(),
@@ -72,11 +75,12 @@ export const PublicUserPreviewSchema = z.object({
     profilePhotoUrl: z.url().nullable(),
 });
 
-export const PublicUserPreviewWithRatingSchema =
-    PublicUserPreviewSchema.extend({
+export const PublicUserPreviewWithRatingSchema = PublicUserPreviewSchema.extend(
+    {
         averageRating: z.number().nullable(),
         reviewCount: z.number().int(),
-    });
+    }
+);
 
 export type PublicUserPreview = z.infer<typeof PublicUserPreviewSchema>;
 export type PublicUserPreviewWithRating = z.infer<

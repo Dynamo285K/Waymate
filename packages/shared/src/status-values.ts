@@ -6,6 +6,8 @@ export const userStatusValues = [
     "DELETED",
 ] as const;
 
+export const userRoleValues = ["USER", "ADMIN"] as const;
+
 export const rideStatusValues = [
     "PLANNED",
     "IN_PROGRESS",
