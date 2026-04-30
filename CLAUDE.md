@@ -94,7 +94,7 @@ Auth is handled by **better-auth** (`apps/api/src/modules/auth/auth.ts`) with a 
 Two Elysia macros guard routes:
 
 - `isAuthenticated` — requires a valid session; injects `user` and `session` into context
-- `isFullyOnboarded` — additionally requires `user.firstName` and `user.lastName` to be set; returns `403 ONBOARDING_REQUIRED` otherwise
+- `isFullyOnboarded` — additionally requires `user.firstName`, `user.lastName`, and `user.phone` to be set; returns `403 ONBOARDING_REQUIRED` otherwise
 
 Most routes (Cars, Rides) require `isFullyOnboarded`. User profile routes use `isAuthenticated`.
 
