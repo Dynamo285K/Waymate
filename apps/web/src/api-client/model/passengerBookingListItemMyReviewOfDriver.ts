@@ -5,7 +5,16 @@
  * Carpooling backend powering the Waymate web app.
  * OpenAPI spec version: 0.1.0
  */
-import type { PassengerBookingListItemMyReviewOfDriverAnyOf } from "./passengerBookingListItemMyReviewOfDriverAnyOf";
 
-export type PassengerBookingListItemMyReviewOfDriver =
-    PassengerBookingListItemMyReviewOfDriverAnyOf | null;
+/**
+ * @nullable
+ */
+export type PassengerBookingListItemMyReviewOfDriver = {
+    /** @pattern ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$ */
+    id: string;
+    /**
+     * @minimum 1
+     * @maximum 5
+     */
+    rating: number;
+} | null;

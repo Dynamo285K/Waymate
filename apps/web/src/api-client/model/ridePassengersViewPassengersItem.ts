@@ -21,7 +21,10 @@ export type RidePassengersViewPassengersItem = {
      */
     seatCount: number;
     passenger: PublicDriverProfile;
+    /** @nullable */
     pickupStop: RidePassengersViewPassengersItemPickupStop;
+    /** @nullable */
     dropoffStop: RidePassengersViewPassengersItemDropoffStop;
+    /** @nullable */
     myReviewOfPassenger: RidePassengersViewPassengersItemMyReviewOfPassenger;
 };

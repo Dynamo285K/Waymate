@@ -6,18 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { UserId } from "./userId";
-import type { UserImage } from "./userImage";
-import type { UserFirstName } from "./userFirstName";
-import type { UserLastName } from "./userLastName";
-import type { UserDisplayName } from "./userDisplayName";
-import type { UserPhone } from "./userPhone";
-import type { UserProfilePhotoUrl } from "./userProfilePhotoUrl";
-import type { UserBio } from "./userBio";
 import type { UserStatus } from "./userStatus";
-import type { UserEmailVerifiedAt } from "./userEmailVerifiedAt";
-import type { UserPhoneVerifiedAt } from "./userPhoneVerifiedAt";
-import type { UserLastActiveAt } from "./userLastActiveAt";
-import type { UserDeletedAt } from "./userDeletedAt";
 
 export interface User {
     id: UserId;
@@ -28,18 +17,49 @@ export interface User {
      */
     email: string;
     emailVerified: boolean;
-    image: UserImage;
-    firstName: UserFirstName;
-    lastName: UserLastName;
-    displayName: UserDisplayName;
-    phone: UserPhone;
-    profilePhotoUrl: UserProfilePhotoUrl;
-    bio: UserBio;
+    /** @nullable */
+    image: string | null;
+    /**
+     * @minLength 1
+     * @maxLength 20
+     * @nullable
+     */
+    firstName: string | null;
+    /**
+     * @minLength 1
+     * @maxLength 20
+     * @nullable
+     */
+    lastName: string | null;
+    /**
+     * @minLength 1
+     * @maxLength 20
+     * @nullable
+     * @pattern ^\S+$
+     */
+    displayName: string | null;
+    /**
+     * @maxLength 16
+     * @nullable
+     * @pattern ^\+[1-9]\d{1,14}$
+     */
+    phone: string | null;
+    /** @nullable */
+    profilePhotoUrl: string | null;
+    /**
+     * @maxLength 500
+     * @nullable
+     */
+    bio: string | null;
     userStatus: UserStatus;
-    emailVerifiedAt: UserEmailVerifiedAt;
-    phoneVerifiedAt: UserPhoneVerifiedAt;
-    lastActiveAt: UserLastActiveAt;
+    /** @nullable */
+    emailVerifiedAt: string | null;
+    /** @nullable */
+    phoneVerifiedAt: string | null;
+    /** @nullable */
+    lastActiveAt: string | null;
     createdAt: string;
     updatedAt: string;
-    deletedAt: UserDeletedAt;
+    /** @nullable */
+    deletedAt: string | null;
 }

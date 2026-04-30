@@ -6,13 +6,13 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { UserId } from "./userId";
-import type { PublicDriverProfileFirstName } from "./publicDriverProfileFirstName";
-import type { PublicDriverProfileLastName } from "./publicDriverProfileLastName";
-import type { PublicDriverProfileProfilePhotoUrl } from "./publicDriverProfileProfilePhotoUrl";
 
 export interface PublicDriverProfile {
     id: UserId;
-    firstName: PublicDriverProfileFirstName;
-    lastName: PublicDriverProfileLastName;
-    profilePhotoUrl: PublicDriverProfileProfilePhotoUrl;
+    /** @nullable */
+    firstName: string | null;
+    /** @nullable */
+    lastName: string | null;
+    /** @nullable */
+    profilePhotoUrl: string | null;
 }

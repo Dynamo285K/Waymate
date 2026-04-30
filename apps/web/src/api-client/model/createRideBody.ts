@@ -6,23 +6,26 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { CarId } from "./carId";
-import type { CreateRideBodyArrivalEstimateAt } from "./createRideBodyArrivalEstimateAt";
 import type { Currency } from "./currency";
-import type { CreateRideBodyDescription } from "./createRideBodyDescription";
 import type { CreateRideBodyStopsItem } from "./createRideBodyStopsItem";
 import type { CreateRideBodyPricesItem } from "./createRideBodyPricesItem";
 
 export interface CreateRideBody {
     carId: CarId;
     departureAt: string;
-    arrivalEstimateAt?: CreateRideBodyArrivalEstimateAt;
+    /** @nullable */
+    arrivalEstimateAt?: string | null;
     /**
      * @minimum 1
      * @maximum 9007199254740991
      */
     offeredSeats: number;
     currency: Currency;
-    description?: CreateRideBodyDescription;
+    /**
+     * @maxLength 500
+     * @nullable
+     */
+    description?: string | null;
     /** @minItems 2 */
     stops: CreateRideBodyStopsItem[];
     prices?: CreateRideBodyPricesItem[];

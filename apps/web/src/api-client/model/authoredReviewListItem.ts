@@ -7,7 +7,6 @@
  */
 import type { ReviewId } from "./reviewId";
 import type { RideId } from "./rideId";
-import type { AuthoredReviewListItemComment } from "./authoredReviewListItemComment";
 import type { ReviewStatus } from "./reviewStatus";
 import type { AuthoredReviewListItemSubject } from "./authoredReviewListItemSubject";
 
@@ -19,7 +18,11 @@ export interface AuthoredReviewListItem {
      * @maximum 5
      */
     rating: number;
-    comment: AuthoredReviewListItemComment;
+    /**
+     * @maxLength 1000
+     * @nullable
+     */
+    comment: string | null;
     reviewStatus: ReviewStatus;
     createdAt: string;
     subject: AuthoredReviewListItemSubject;

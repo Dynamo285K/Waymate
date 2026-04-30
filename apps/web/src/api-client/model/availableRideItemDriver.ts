@@ -6,17 +6,17 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { UserId } from "./userId";
-import type { AvailableRideItemDriverFirstName } from "./availableRideItemDriverFirstName";
-import type { AvailableRideItemDriverLastName } from "./availableRideItemDriverLastName";
-import type { AvailableRideItemDriverProfilePhotoUrl } from "./availableRideItemDriverProfilePhotoUrl";
-import type { AvailableRideItemDriverAverageRating } from "./availableRideItemDriverAverageRating";
 
 export type AvailableRideItemDriver = {
     id: UserId;
-    firstName: AvailableRideItemDriverFirstName;
-    lastName: AvailableRideItemDriverLastName;
-    profilePhotoUrl: AvailableRideItemDriverProfilePhotoUrl;
-    averageRating: AvailableRideItemDriverAverageRating;
+    /** @nullable */
+    firstName: string | null;
+    /** @nullable */
+    lastName: string | null;
+    /** @nullable */
+    profilePhotoUrl: string | null;
+    /** @nullable */
+    averageRating: number | null;
     /**
      * @minimum -9007199254740991
      * @maximum 9007199254740991

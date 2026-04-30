@@ -6,8 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { RideId } from "./rideId";
+import type { CancelRideResponseStatus } from "./cancelRideResponseStatus";
 
 export interface CancelRideResponse {
     id: RideId;
-    status: "CANCELLED";
+    status: CancelRideResponseStatus;
 }

@@ -30,5 +30,6 @@ export interface PassengerBookingListItem {
     driver: PassengerBookingListItemDriver;
     pickupCity: string;
     dropoffCity: string;
+    /** @nullable */
     myReviewOfDriver: PassengerBookingListItemMyReviewOfDriver;
 }

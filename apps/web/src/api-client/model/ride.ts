@@ -9,10 +9,7 @@ import type { RideId } from "./rideId";
 import type { UserId } from "./userId";
 import type { CarId } from "./carId";
 import type { RideStatus } from "./rideStatus";
-import type { RideArrivalEstimateAt } from "./rideArrivalEstimateAt";
 import type { Currency } from "./currency";
-import type { RideDescription } from "./rideDescription";
-import type { RideDeletedAt } from "./rideDeletedAt";
 
 export interface Ride {
     id: RideId;
@@ -20,15 +17,21 @@ export interface Ride {
     carId: CarId;
     rideStatus: RideStatus;
     departureAt: string;
-    arrivalEstimateAt: RideArrivalEstimateAt;
+    /** @nullable */
+    arrivalEstimateAt: string | null;
     /**
      * @minimum 1
      * @maximum 9007199254740991
      */
     offeredSeats: number;
     currency: Currency;
-    description: RideDescription;
+    /**
+     * @maxLength 500
+     * @nullable
+     */
+    description: string | null;
     createdAt: string;
     updatedAt: string;
-    deletedAt: RideDeletedAt;
+    /** @nullable */
+    deletedAt: string | null;
 }

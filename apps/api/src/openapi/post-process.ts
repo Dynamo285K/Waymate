@@ -28,7 +28,84 @@ export function openApiifyJsonSchema(node: unknown): unknown {
         delete obj.definitions;
         delete obj.id;
     }
-    return rewriteRefs(node);
+    return convertToOpenApi30(rewriteRefs(node));
+}
+
+function isNullSchema(node: unknown): boolean {
+    return (
+        !!node &&
+        typeof node === "object" &&
+        !Array.isArray(node) &&
+        (node as JsonObject).type === "null" &&
+        Object.keys(node as JsonObject).length === 1
+    );
+}
+
+function convertToOpenApi30(node: unknown): unknown {
+    if (Array.isArray(node)) {
+        for (let i = 0; i < node.length; i++) {
+            node[i] = convertToOpenApi30(node[i]);
+        }
+        return node;
+    }
+    if (!node || typeof node !== "object") return node;
+    const obj = node as JsonObject;
+
+    for (const key of Object.keys(obj)) {
+        obj[key] = convertToOpenApi30(obj[key]);
+    }
+
+    rewriteNullable(obj);
+    rewriteExclusiveBound(obj, "exclusiveMinimum", "minimum");
+    rewriteExclusiveBound(obj, "exclusiveMaximum", "maximum");
+    rewriteConst(obj);
+
+    return obj;
+}
+
+function rewriteNullable(obj: JsonObject): void {
+    if (!Array.isArray(obj.anyOf)) return;
+
+    const variants = obj.anyOf as unknown[];
+    const nullIndex = variants.findIndex(isNullSchema);
+    if (nullIndex < 0) return;
+
+    const remaining = variants.filter((_, i) => i !== nullIndex);
+    obj.nullable = true;
+
+    if (remaining.length !== 1) {
+        obj.anyOf = remaining;
+        return;
+    }
+
+    delete obj.anyOf;
+    const nonNull = remaining[0] as JsonObject;
+    if (typeof nonNull.$ref === "string") {
+        obj.allOf = [{ $ref: nonNull.$ref }];
+    } else {
+        for (const [k, v] of Object.entries(nonNull)) {
+            if (!(k in obj)) obj[k] = v;
+        }
+    }
+}
+
+function rewriteExclusiveBound(
+    obj: JsonObject,
+    exclusiveKey: "exclusiveMinimum" | "exclusiveMaximum",
+    boundKey: "minimum" | "maximum"
+): void {
+    if (typeof obj[exclusiveKey] !== "number") return;
+    if (!(boundKey in obj)) {
+        obj[boundKey] = obj[exclusiveKey];
+    }
+    obj[exclusiveKey] = true;
+}
+
+function rewriteConst(obj: JsonObject): void {
+    if (!("const" in obj)) return;
+    const value = obj.const;
+    delete obj.const;
+    obj.enum = [value];
 }
 
 function rewriteRefs(node: unknown): unknown {

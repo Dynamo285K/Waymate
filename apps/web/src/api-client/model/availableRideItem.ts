@@ -10,7 +10,6 @@ import type { RideStatus } from "./rideStatus";
 import type { AvailableRideItemDriver } from "./availableRideItemDriver";
 import type { AvailableRideItemPickupStop } from "./availableRideItemPickupStop";
 import type { AvailableRideItemDropoffStop } from "./availableRideItemDropoffStop";
-import type { AvailableRideItemPriceAmount } from "./availableRideItemPriceAmount";
 import type { Currency } from "./currency";
 
 export interface AvailableRideItem {
@@ -30,6 +29,7 @@ export interface AvailableRideItem {
     driver: AvailableRideItemDriver;
     pickupStop: AvailableRideItemPickupStop;
     dropoffStop: AvailableRideItemDropoffStop;
-    priceAmount: AvailableRideItemPriceAmount;
+    /** @nullable */
+    priceAmount: number | null;
     currency: Currency;
 }
