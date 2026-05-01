@@ -1,4 +1,5 @@
 import { getUsersMe, patchUsersMeProfile } from "../api-client/users/users";
+import type { UserRole } from "../api-client/model/userRole";
 import { authClient } from "./auth-client";
 
 export type AuthUser = {
@@ -20,6 +21,7 @@ export type CurrentUser = AuthUser & {
     displayName: string | null;
     bio: string | null;
     createdAt: string | Date;
+    role: UserRole;
 };
 
 export function hasCompletedOnboarding(
@@ -92,6 +94,10 @@ export async function getPostAuthPath() {
 
     if (!hasCompletedOnboarding(user)) {
         return "/onboarding";
+    }
+
+    if (user.role === "ADMIN") {
+        return "/admin";
     }
 
     return "/passenger";
