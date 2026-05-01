@@ -4,7 +4,7 @@ import type {
     AdminUserListResponse,
 } from "@repo/shared";
 import { db } from "../../db";
-import { AdminErrors } from "./admin.errors";
+import { AdminError, AdminErrorCodes } from "./admin.errors";
 import { AdminRepository } from "./admin.repository";
 import type {
     AdminUserListFilters,
@@ -46,7 +46,7 @@ const getUserDetail = async (
     ]);
 
     if (!user) {
-        throw new Error(AdminErrors.UserNotFound);
+        throw new AdminError(AdminErrorCodes.UserNotFound);
     }
 
     return { user, statusHistory };
@@ -60,13 +60,13 @@ const setUserRole = async ({
     const target = await AdminRepository.findUserById(db, targetUserId);
 
     if (!target) {
-        throw new Error(AdminErrors.UserNotFound);
+        throw new AdminError(AdminErrorCodes.UserNotFound);
     }
 
     // Cheapest guarantee that at least one admin remains: an admin can never
     // demote themselves, so the last admin can't lock the tooling out.
     if (actorId === targetUserId && newRole !== "ADMIN") {
-        throw new Error(AdminErrors.CannotDemoteSelf);
+        throw new AdminError(AdminErrorCodes.CannotDemoteSelf);
     }
 
     // Idempotent: skip the UPDATE so updatedAt only reflects real changes.
@@ -82,7 +82,7 @@ const setUserRole = async ({
 
     if (!updated) {
         // Race: target was soft-deleted between our existence check and update.
-        throw new Error(AdminErrors.UserNotFound);
+        throw new AdminError(AdminErrorCodes.UserNotFound);
     }
 
     return updated;
@@ -97,14 +97,14 @@ const setUserStatus = async ({
     // Admins can't change their own status — same spirit as CannotDemoteSelf,
     // prevents an admin from locking themselves out of the tooling by mistake.
     if (actorId === targetUserId) {
-        throw new Error(AdminErrors.CannotChangeOwnStatus);
+        throw new AdminError(AdminErrorCodes.CannotChangeOwnStatus);
     }
 
     return await db.transaction(async (tx) => {
         const target = await AdminRepository.findUserById(tx, targetUserId);
 
         if (!target) {
-            throw new Error(AdminErrors.UserNotFound);
+            throw new AdminError(AdminErrorCodes.UserNotFound);
         }
 
         // Idempotent: skip both the UPDATE and the audit row so updatedAt and
@@ -122,7 +122,7 @@ const setUserStatus = async ({
         if (!updated) {
             // Race: target was soft-deleted between the existence check and
             // the update. Roll back to leave history consistent with users.
-            throw new Error(AdminErrors.UserNotFound);
+            throw new AdminError(AdminErrorCodes.UserNotFound);
         }
 
         await AdminRepository.insertUserStatusHistory(tx, {

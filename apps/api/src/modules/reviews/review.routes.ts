@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { ReviewService } from "./review.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
-import { ReviewErrors } from "./review.errors";
+import { ReviewError, reviewErrorToHttpStatus } from "./review.errors";
 import {
     ErrorResponseSchema,
     AuthoredReviewListSchema,
@@ -25,15 +25,20 @@ export const ReviewRoutes = new Elysia({
         AuthoredReviewList: AuthoredReviewListSchema,
         ErrorResponse: ErrorResponseSchema,
     })
-    .onError(({ code, status }) => {
+    .onError(({ code, status, error }) => {
+        if (error instanceof ReviewError) {
+            return status(reviewErrorToHttpStatus(error.code), {
+                error: error.code,
+            });
+        }
         if (code === "VALIDATION" || code === "PARSE") {
-            return status(400, { error: "Invalid request data" });
+            return status(400, { error: "VALIDATION" });
         }
         if (code === 401) {
-            return status(401, { error: "Unauthorized" });
+            return status(401, { error: "UNAUTHORIZED" });
         }
         if (code === "INTERNAL_SERVER_ERROR" || code === "UNKNOWN") {
-            return status(500, { error: "Internal server error" });
+            return status(500, { error: "INTERNAL_SERVER_ERROR" });
         }
     })
     .use(isFullyOnboarded)
@@ -42,68 +47,18 @@ export const ReviewRoutes = new Elysia({
             .post(
                 "/",
                 async ({ user, body, status }) => {
-                    try {
-                        const review = await ReviewService.submitReview({
-                            rideId: body.rideId,
-                            authorId: user.id,
-                            subjectId: body.subjectId,
-                            rating: body.rating,
-                            comment: body.comment ?? null,
-                        });
+                    const review = await ReviewService.submitReview({
+                        rideId: body.rideId,
+                        authorId: user.id,
+                        subjectId: body.subjectId,
+                        rating: body.rating,
+                        comment: body.comment ?? null,
+                    });
 
-                        return status(201, {
-                            id: review.id,
-                            reviewStatus: review.reviewStatus,
-                        });
-                    } catch (error) {
-                        const message =
-                            error instanceof Error
-                                ? error.message
-                                : String(error);
-
-                        if (message === ReviewErrors.RideNotFound) {
-                            return status(404, { error: "Ride not found" });
-                        }
-                        if (message === ReviewErrors.RideNotCompleted) {
-                            return status(400, {
-                                error: "Reviews can only be submitted for completed rides",
-                            });
-                        }
-                        if (message === ReviewErrors.RatingWindowClosed) {
-                            return status(400, {
-                                error: "The rating period for this ride has expired",
-                            });
-                        }
-                        if (message === ReviewErrors.SelfReviewNotAllowed) {
-                            return status(400, {
-                                error: "You cannot review yourself",
-                            });
-                        }
-                        if (message === ReviewErrors.AuthorNotInRide) {
-                            return status(403, {
-                                error: "You did not participate in this ride",
-                            });
-                        }
-                        if (message === ReviewErrors.SubjectNotInRide) {
-                            return status(400, {
-                                error: "The reviewed user did not participate in this ride",
-                            });
-                        }
-                        if (message === ReviewErrors.InvalidPairing) {
-                            return status(400, {
-                                error: "Only the driver and a passenger may review each other",
-                            });
-                        }
-                        if (message === ReviewErrors.AlreadyExists) {
-                            return status(409, {
-                                error: "You have already reviewed this user for this ride",
-                            });
-                        }
-
-                        return status(500, {
-                            error: "Failed to submit review",
-                        });
-                    }
+                    return status(201, {
+                        id: review.id,
+                        reviewStatus: review.reviewStatus,
+                    });
                 },
                 {
                     body: "CreateReviewBody",

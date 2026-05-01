@@ -1,24 +1,24 @@
 import { db } from "../../db";
 import { hasPostgresErrorCode, PostgresErrorCodes } from "../../db/errors";
 import { ReviewRepository } from "./review.repository";
-import { ReviewErrors } from "./review.errors";
+import { ReviewError, ReviewErrorCodes } from "./review.errors";
 import type { CreateReviewInput, Review } from "./review.types";
 
 export const REVIEW_WINDOW_DAYS = 14;
 
 const submitReview = async (input: CreateReviewInput): Promise<Review> => {
     if (input.authorId === input.subjectId) {
-        throw new Error(ReviewErrors.SelfReviewNotAllowed);
+        throw new ReviewError(ReviewErrorCodes.SelfReviewNotAllowed);
     }
 
     const ride = await ReviewRepository.findRideContext(db, input.rideId);
 
     if (!ride) {
-        throw new Error(ReviewErrors.RideNotFound);
+        throw new ReviewError(ReviewErrorCodes.RideNotFound);
     }
 
     if (ride.rideStatus !== "COMPLETED") {
-        throw new Error(ReviewErrors.RideNotCompleted);
+        throw new ReviewError(ReviewErrorCodes.RideNotCompleted);
     }
 
     const windowClosesAt = new Date(
@@ -26,7 +26,7 @@ const submitReview = async (input: CreateReviewInput): Promise<Review> => {
     );
 
     if (new Date() > windowClosesAt) {
-        throw new Error(ReviewErrors.RatingWindowClosed);
+        throw new ReviewError(ReviewErrorCodes.RatingWindowClosed);
     }
 
     const authorIsDriver = ride.driverId === input.authorId;
@@ -40,7 +40,7 @@ const submitReview = async (input: CreateReviewInput): Promise<Review> => {
             input.authorId
         ))
     ) {
-        throw new Error(ReviewErrors.AuthorNotInRide);
+        throw new ReviewError(ReviewErrorCodes.AuthorNotInRide);
     }
 
     if (
@@ -51,18 +51,18 @@ const submitReview = async (input: CreateReviewInput): Promise<Review> => {
             input.subjectId
         ))
     ) {
-        throw new Error(ReviewErrors.SubjectNotInRide);
+        throw new ReviewError(ReviewErrorCodes.SubjectNotInRide);
     }
 
     if (authorIsDriver === subjectIsDriver) {
-        throw new Error(ReviewErrors.InvalidPairing);
+        throw new ReviewError(ReviewErrorCodes.InvalidPairing);
     }
 
     try {
         return await ReviewRepository.insertReview(db, input);
     } catch (error) {
         if (hasPostgresErrorCode(error, PostgresErrorCodes.UniqueViolation)) {
-            throw new Error(ReviewErrors.AlreadyExists);
+            throw new ReviewError(ReviewErrorCodes.AlreadyExists);
         }
         throw error;
     }
