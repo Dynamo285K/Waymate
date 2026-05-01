@@ -177,8 +177,19 @@
         "lastActive": "Naposledy aktívny",
         "never": "Nikdy",
         "unbanUser": "Odbanovať používateľa",
-        "failedToUpdate": "Aktualizácia zlyhala. Skúste to znova.",
         "selfActionDisabled": "Túto akciu nemôžete vykonať na vlastnom účte",
+        "promoteToAdmin": "Povýšiť na admina",
+        "demoteToUser": "Znížiť na používateľa",
+        "promoteConfirmTitle": "Povýšiť {{name}} na admina?",
+        "promoteConfirmBody": "Admini môžu spravovať všetkých používateľov, vrátane banovania účtov a zmien rolí.",
+        "demoteConfirmTitle": "Znížiť {{name}} na používateľa?",
+        "demoteConfirmBody": "Tento účet okamžite stratí prístup do admin nástrojov.",
+        "confirmRoleChange": "Potvrdiť",
+        "errors": {
+            "userNotFound": "Tento používateľ už neexistuje. Zoznam sa obnoví.",
+            "cannotDemoteSelf": "Vlastný admin účet nie je možné znížiť.",
+            "cannotChangeOwnStatus": "Stav vlastného účtu nie je možné zmeniť."
+        },
         "reportTypes": {
             "inappropriateBehavior": "Nevhodné správanie",
             "noShow": "Nedostavenie sa",
