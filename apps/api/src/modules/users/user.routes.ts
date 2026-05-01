@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { UserService } from "./user.service";
 import { isAuthenticated } from "../auth/auth.middleware";
-import { UserErrors } from "./user.errors";
+import { UserError, userErrorToHttpStatus } from "./user.errors";
 import {
     ErrorResponseSchema,
     OnboardingUserBodySchema,
@@ -16,15 +16,20 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
         UpdateUserBody: UpdateUserBodySchema,
         ErrorResponse: ErrorResponseSchema,
     })
-    .onError(({ code, status }) => {
+    .onError(({ code, status, error }) => {
+        if (error instanceof UserError) {
+            return status(userErrorToHttpStatus(error.code), {
+                error: error.code,
+            });
+        }
         if (code === "VALIDATION" || code === "PARSE") {
-            return status(400, { error: "Invalid request data" });
+            return status(400, { error: "VALIDATION" });
         }
         if (code === 401) {
-            return status(401, { error: "Unauthorized" });
+            return status(401, { error: "UNAUTHORIZED" });
         }
         if (code === "INTERNAL_SERVER_ERROR" || code === "UNKNOWN") {
-            return status(500, { error: "Internal server error" });
+            return status(500, { error: "INTERNAL_SERVER_ERROR" });
         }
     })
     .use(isAuthenticated)
@@ -32,15 +37,7 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
         app
             .get(
                 "/me",
-                async ({ user, status }) => {
-                    const dbUser = await UserService.getUserById(user.id);
-
-                    if (!dbUser) {
-                        return status(404, { error: UserErrors.UserNotFound });
-                    }
-
-                    return dbUser;
-                },
+                async ({ user }) => await UserService.getUserById(user.id),
                 {
                     response: {
                         200: "User",
@@ -53,18 +50,8 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
 
             .patch(
                 "/me/onboarding",
-                async ({ user, body, status }) => {
-                    const updatedUser = await UserService.onboardUser(
-                        user.id,
-                        body
-                    );
-
-                    if (!updatedUser) {
-                        return status(404, { error: UserErrors.UserNotFound });
-                    }
-
-                    return updatedUser;
-                },
+                async ({ user, body }) =>
+                    await UserService.onboardUser(user.id, body),
                 {
                     body: "OnboardingUserBody",
                     response: {
@@ -80,18 +67,8 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
 
             .patch(
                 "/me/profile",
-                async ({ user, body, status }) => {
-                    const updatedUser = await UserService.updateUserProfile(
-                        user.id,
-                        body
-                    );
-
-                    if (!updatedUser) {
-                        return status(404, { error: UserErrors.UserNotFound });
-                    }
-
-                    return updatedUser;
-                },
+                async ({ user, body }) =>
+                    await UserService.updateUserProfile(user.id, body),
                 {
                     body: "UpdateUserBody",
                     response: {

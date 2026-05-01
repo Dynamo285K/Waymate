@@ -12,7 +12,7 @@ import {
     UpdateUserStatusBodySchema,
 } from "@repo/shared";
 import { requireAdmin } from "../auth/auth.middleware";
-import { AdminErrors } from "./admin.errors";
+import { AdminError, adminErrorToHttpStatus } from "./admin.errors";
 import { AdminService } from "./admin.service";
 
 export const AdminRoutes = new Elysia({
@@ -31,15 +31,20 @@ export const AdminRoutes = new Elysia({
         UpdateUserStatusBody: UpdateUserStatusBodySchema,
         ErrorResponse: ErrorResponseSchema,
     })
-    .onError(({ code, status }) => {
+    .onError(({ code, status, error }) => {
+        if (error instanceof AdminError) {
+            return status(adminErrorToHttpStatus(error.code), {
+                error: error.code,
+            });
+        }
         if (code === "VALIDATION" || code === "PARSE") {
-            return status(400, { error: "Invalid request data" });
+            return status(400, { error: "VALIDATION" });
         }
         if (code === 401) {
-            return status(401, { error: "Unauthorized" });
+            return status(401, { error: "UNAUTHORIZED" });
         }
         if (code === "INTERNAL_SERVER_ERROR" || code === "UNKNOWN") {
-            return status(500, { error: "Internal server error" });
+            return status(500, { error: "INTERNAL_SERVER_ERROR" });
         }
     })
     .use(requireAdmin)
@@ -72,24 +77,8 @@ export const AdminRoutes = new Elysia({
             )
             .get(
                 "/users/:id",
-                async ({ params, status }) => {
-                    try {
-                        return await AdminService.getUserDetail(params.id);
-                    } catch (error) {
-                        const message =
-                            error instanceof Error
-                                ? error.message
-                                : String(error);
-
-                        if (message === AdminErrors.UserNotFound) {
-                            return status(404, { error: "User not found" });
-                        }
-
-                        return status(500, {
-                            error: "Failed to load user detail",
-                        });
-                    }
-                },
+                async ({ params }) =>
+                    await AdminService.getUserDetail(params.id),
                 {
                     params: AdminUserIdParamsSchema,
                     response: {
@@ -108,33 +97,12 @@ export const AdminRoutes = new Elysia({
             )
             .patch(
                 "/users/:id/role",
-                async ({ user, params, body, status }) => {
-                    try {
-                        return await AdminService.setUserRole({
-                            actorId: user.id,
-                            targetUserId: params.id,
-                            newRole: body.role,
-                        });
-                    } catch (error) {
-                        const message =
-                            error instanceof Error
-                                ? error.message
-                                : String(error);
-
-                        if (message === AdminErrors.UserNotFound) {
-                            return status(404, { error: "User not found" });
-                        }
-                        if (message === AdminErrors.CannotDemoteSelf) {
-                            return status(409, {
-                                error: "An admin cannot demote themselves",
-                            });
-                        }
-
-                        return status(500, {
-                            error: "Failed to update user role",
-                        });
-                    }
-                },
+                async ({ user, params, body }) =>
+                    await AdminService.setUserRole({
+                        actorId: user.id,
+                        targetUserId: params.id,
+                        newRole: body.role,
+                    }),
                 {
                     params: AdminUserIdParamsSchema,
                     body: "UpdateUserRoleBody",
@@ -155,34 +123,13 @@ export const AdminRoutes = new Elysia({
             )
             .patch(
                 "/users/:id/status",
-                async ({ user, params, body, status }) => {
-                    try {
-                        return await AdminService.setUserStatus({
-                            actorId: user.id,
-                            targetUserId: params.id,
-                            newStatus: body.status,
-                            reason: body.reason,
-                        });
-                    } catch (error) {
-                        const message =
-                            error instanceof Error
-                                ? error.message
-                                : String(error);
-
-                        if (message === AdminErrors.UserNotFound) {
-                            return status(404, { error: "User not found" });
-                        }
-                        if (message === AdminErrors.CannotChangeOwnStatus) {
-                            return status(409, {
-                                error: "An admin cannot change their own status",
-                            });
-                        }
-
-                        return status(500, {
-                            error: "Failed to update user status",
-                        });
-                    }
-                },
+                async ({ user, params, body }) =>
+                    await AdminService.setUserStatus({
+                        actorId: user.id,
+                        targetUserId: params.id,
+                        newStatus: body.status,
+                        reason: body.reason,
+                    }),
                 {
                     params: AdminUserIdParamsSchema,
                     body: "UpdateUserStatusBody",

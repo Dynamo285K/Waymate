@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { BookingService } from "./booking.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
-import { BookingErrors } from "./booking.errors";
+import { BookingError, bookingErrorToHttpStatus } from "./booking.errors";
 import {
     ErrorResponseSchema,
     BookingIdParamsSchema,
@@ -31,16 +31,20 @@ export const BookingRoutes = new Elysia({
         DriverRideRequestList: DriverRideRequestListSchema,
         ErrorResponse: ErrorResponseSchema,
     })
-    // Global error handler (consistent with cars and rides).
-    .onError(({ code, status }) => {
+    .onError(({ code, status, error }) => {
+        if (error instanceof BookingError) {
+            return status(bookingErrorToHttpStatus(error.code), {
+                error: error.code,
+            });
+        }
         if (code === "VALIDATION" || code === "PARSE") {
-            return status(400, { error: "Invalid request data" });
+            return status(400, { error: "VALIDATION" });
         }
         if (code === 401) {
-            return status(401, { error: "Unauthorized" });
+            return status(401, { error: "UNAUTHORIZED" });
         }
         if (code === "INTERNAL_SERVER_ERROR" || code === "UNKNOWN") {
-            return status(500, { error: "Internal server error" });
+            return status(500, { error: "INTERNAL_SERVER_ERROR" });
         }
     })
     .use(isFullyOnboarded)
@@ -91,63 +95,19 @@ export const BookingRoutes = new Elysia({
             .post(
                 "/",
                 async ({ user, body, status }) => {
-                    try {
-                        const bookingId =
-                            await BookingService.createBookingRequest({
-                                rideId: body.rideId,
-                                pickupStopId: body.pickupStopId,
-                                dropoffStopId: body.dropoffStopId,
-                                seatCount: body.seatCount,
-                                passengerId: user.id,
-                            });
-                        return status(201, {
-                            id: bookingId,
-                            status: "PENDING",
-                        });
-                    } catch (error) {
-                        const message =
-                            error instanceof Error
-                                ? error.message
-                                : String(error);
-
-                        // Error Translation
-                        if (
-                            message === BookingErrors.RideNotFoundOrUnavailable
-                        ) {
-                            return status(404, {
-                                error: "Ride not found or no longer available",
-                            });
+                    const bookingId = await BookingService.createBookingRequest(
+                        {
+                            rideId: body.rideId,
+                            pickupStopId: body.pickupStopId,
+                            dropoffStopId: body.dropoffStopId,
+                            seatCount: body.seatCount,
+                            passengerId: user.id,
                         }
-                        if (message === BookingErrors.InvalidStops) {
-                            return status(400, {
-                                error: "Invalid pickup or dropoff stops",
-                            });
-                        }
-                        if (message === BookingErrors.PriceNotFound) {
-                            return status(400, {
-                                error: "Price for this route is not set",
-                            });
-                        }
-                        if (message === BookingErrors.SelfBookingNotAllowed) {
-                            return status(400, {
-                                error: "You cannot book your own ride",
-                            });
-                        }
-                        if (message === BookingErrors.NotEnoughSeats) {
-                            return status(409, {
-                                error: "Not enough seats available",
-                            });
-                        }
-                        if (message === BookingErrors.AlreadyBooked) {
-                            return status(409, {
-                                error: "You have already requested to join this ride",
-                            });
-                        }
-
-                        return status(500, {
-                            error: "Failed to create booking request",
-                        });
-                    }
+                    );
+                    return status(201, {
+                        id: bookingId,
+                        status: "PENDING",
+                    });
                 },
                 {
                     body: "CreateBookingBody",
@@ -167,47 +127,17 @@ export const BookingRoutes = new Elysia({
 
             .patch(
                 "/:id/cancel",
-                async ({ user, params, body, status }) => {
-                    try {
-                        const cancelledId =
-                            await BookingService.cancelBookingByPassenger(
-                                params.id,
-                                user.id,
-                                body.reason
-                            );
-                        return status(200, {
-                            id: cancelledId,
-                            status: "CANCELLED",
-                        });
-                    } catch (error) {
-                        const message =
-                            error instanceof Error
-                                ? error.message
-                                : String(error);
-
-                        if (message === BookingErrors.BookingNotFound) {
-                            return status(404, { error: "Booking not found" });
-                        }
-                        if (message === BookingErrors.UnauthorizedAction) {
-                            return status(403, {
-                                error: "You can only cancel your own bookings",
-                            });
-                        }
-                        if (message === BookingErrors.AlreadyCancelled) {
-                            return status(400, {
-                                error: "Booking is already cancelled",
-                            });
-                        }
-                        if (message === BookingErrors.InvalidStatusTransition) {
-                            return status(400, {
-                                error: "Only pending or confirmed bookings can be cancelled",
-                            });
-                        }
-
-                        return status(500, {
-                            error: "Failed to cancel booking",
-                        });
-                    }
+                async ({ user, params, body }) => {
+                    const cancelledId =
+                        await BookingService.cancelBookingByPassenger(
+                            params.id,
+                            user.id,
+                            body.reason
+                        );
+                    return {
+                        id: cancelledId,
+                        status: "CANCELLED" as const,
+                    };
                 },
                 {
                     params: BookingIdParamsSchema,
@@ -231,54 +161,17 @@ export const BookingRoutes = new Elysia({
 
             .patch(
                 "/:id/driver/cancel",
-                async ({ user, params, body, status }) => {
-                    try {
-                        const cancelledId =
-                            await BookingService.cancelBookingByDriver(
-                                params.id,
-                                user.id,
-                                body.reason
-                            );
-                        return status(200, {
-                            id: cancelledId,
-                            status: "CANCELLED",
-                        });
-                    } catch (error) {
-                        const message =
-                            error instanceof Error
-                                ? error.message
-                                : String(error);
-
-                        if (message === BookingErrors.BookingNotFound) {
-                            return status(404, { error: "Booking not found" });
-                        }
-                        if (message === BookingErrors.UnauthorizedAction) {
-                            return status(403, {
-                                error: "Not authorized to manage this ride",
-                            });
-                        }
-                        if (message === BookingErrors.AlreadyCancelled) {
-                            return status(400, {
-                                error: "Booking is already cancelled",
-                            });
-                        }
-                        if (message === BookingErrors.InvalidStatusTransition) {
-                            return status(400, {
-                                error: "Only pending or confirmed bookings can be cancelled",
-                            });
-                        }
-                        if (
-                            message === BookingErrors.RideNotFoundOrUnavailable
-                        ) {
-                            return status(404, {
-                                error: "Ride not found or no longer available",
-                            });
-                        }
-
-                        return status(500, {
-                            error: "Failed to cancel booking",
-                        });
-                    }
+                async ({ user, params, body }) => {
+                    const cancelledId =
+                        await BookingService.cancelBookingByDriver(
+                            params.id,
+                            user.id,
+                            body.reason
+                        );
+                    return {
+                        id: cancelledId,
+                        status: "CANCELLED" as const,
+                    };
                 },
                 {
                     params: BookingIdParamsSchema,
@@ -299,49 +192,15 @@ export const BookingRoutes = new Elysia({
 
             .patch(
                 "/:id/confirm",
-                async ({ user, params, status }) => {
-                    try {
-                        const confirmedId = await BookingService.confirmBooking(
-                            params.id,
-                            user.id
-                        );
-                        return status(200, {
-                            id: confirmedId,
-                            status: "CONFIRMED",
-                        });
-                    } catch (error) {
-                        const message =
-                            error instanceof Error
-                                ? error.message
-                                : String(error);
-
-                        if (message === BookingErrors.UnauthorizedAction) {
-                            return status(403, {
-                                error: "Not authorized to manage this ride",
-                            });
-                        }
-                        if (message === BookingErrors.InvalidStatusTransition) {
-                            return status(400, {
-                                error: "Booking not found or not in PENDING state",
-                            });
-                        }
-                        if (
-                            message === BookingErrors.RideNotFoundOrUnavailable
-                        ) {
-                            return status(404, {
-                                error: "Ride not found or no longer available",
-                            });
-                        }
-                        if (message === BookingErrors.NotEnoughSeats) {
-                            return status(409, {
-                                error: "Not enough seats available to confirm this booking",
-                            });
-                        }
-
-                        return status(500, {
-                            error: "Failed to confirm booking",
-                        });
-                    }
+                async ({ user, params }) => {
+                    const confirmedId = await BookingService.confirmBooking(
+                        params.id,
+                        user.id
+                    );
+                    return {
+                        id: confirmedId,
+                        status: "CONFIRMED" as const,
+                    };
                 },
                 {
                     params: BookingIdParamsSchema,
@@ -362,45 +221,16 @@ export const BookingRoutes = new Elysia({
 
             .patch(
                 "/:id/reject",
-                async ({ user, params, body, status }) => {
-                    try {
-                        const rejectedId = await BookingService.rejectBooking(
-                            params.id,
-                            user.id,
-                            body.reason
-                        );
-                        return status(200, {
-                            id: rejectedId,
-                            status: "REJECTED",
-                        });
-                    } catch (error) {
-                        const message =
-                            error instanceof Error
-                                ? error.message
-                                : String(error);
-
-                        if (message === BookingErrors.UnauthorizedAction) {
-                            return status(403, {
-                                error: "Not authorized to manage this ride",
-                            });
-                        }
-                        if (message === BookingErrors.InvalidStatusTransition) {
-                            return status(400, {
-                                error: "Booking not found or not in PENDING state",
-                            });
-                        }
-                        if (
-                            message === BookingErrors.RideNotFoundOrUnavailable
-                        ) {
-                            return status(404, {
-                                error: "Ride not found or no longer available",
-                            });
-                        }
-
-                        return status(500, {
-                            error: "Failed to reject booking",
-                        });
-                    }
+                async ({ user, params, body }) => {
+                    const rejectedId = await BookingService.rejectBooking(
+                        params.id,
+                        user.id,
+                        body.reason
+                    );
+                    return {
+                        id: rejectedId,
+                        status: "REJECTED" as const,
+                    };
                 },
                 {
                     params: BookingIdParamsSchema,

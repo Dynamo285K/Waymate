@@ -1,4 +1,6 @@
-export const BookingErrors = {
+import { assertNever, DomainError } from "../../shared/errors";
+
+export const BookingErrorCodes = {
     BookingNotFound: "BOOKING_NOT_FOUND",
     RideNotFoundOrUnavailable: "BOOKING_RIDE_NOT_FOUND_OR_UNAVAILABLE",
     NotEnoughSeats: "BOOKING_NOT_ENOUGH_SEATS",
@@ -12,4 +14,33 @@ export const BookingErrors = {
 } as const;
 
 export type BookingErrorCode =
-    (typeof BookingErrors)[keyof typeof BookingErrors];
+    (typeof BookingErrorCodes)[keyof typeof BookingErrorCodes];
+
+export class BookingError extends DomainError {
+    readonly code: BookingErrorCode;
+    constructor(code: BookingErrorCode) {
+        super(code);
+        this.code = code;
+    }
+}
+
+export function bookingErrorToHttpStatus(code: BookingErrorCode): number {
+    switch (code) {
+        case BookingErrorCodes.BookingNotFound:
+        case BookingErrorCodes.RideNotFoundOrUnavailable:
+            return 404;
+        case BookingErrorCodes.UnauthorizedAction:
+            return 403;
+        case BookingErrorCodes.NotEnoughSeats:
+        case BookingErrorCodes.AlreadyBooked:
+            return 409;
+        case BookingErrorCodes.InvalidStops:
+        case BookingErrorCodes.AlreadyCancelled:
+        case BookingErrorCodes.InvalidStatusTransition:
+        case BookingErrorCodes.PriceNotFound:
+        case BookingErrorCodes.SelfBookingNotAllowed:
+            return 400;
+        default:
+            return assertNever(code);
+    }
+}

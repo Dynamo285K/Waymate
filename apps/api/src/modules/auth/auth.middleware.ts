@@ -12,7 +12,7 @@ export const isAuthenticated = new Elysia({ name: "better-auth" })
 
                 if (!result?.user || !result?.session) {
                     return status(401, {
-                        error: "Unauthorized",
+                        error: "UNAUTHORIZED",
                     });
                 }
 
@@ -35,7 +35,7 @@ export const isFullyOnboarded = new Elysia({ name: "require-onboarding" })
 
                 if (!result?.user || !result?.session) {
                     return status(401, {
-                        error: "Unauthorized",
+                        error: "UNAUTHORIZED",
                     });
                 }
 
@@ -63,7 +63,7 @@ export const requireAdmin = new Elysia({ name: "require-admin" })
 
                 if (!result?.user || !result?.session) {
                     return status(401, {
-                        error: "Unauthorized",
+                        error: "UNAUTHORIZED",
                     });
                 }
 

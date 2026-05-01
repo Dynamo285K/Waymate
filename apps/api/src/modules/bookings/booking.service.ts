@@ -1,6 +1,6 @@
 import { db } from "../../db";
 import { BookingRepository } from "./booking.repository";
-import { BookingErrors } from "./booking.errors";
+import { BookingError, BookingErrorCodes } from "./booking.errors";
 import type {
     BookingTimeframe,
     CreateBookingInput,
@@ -45,11 +45,11 @@ const createBookingRequest = async (
         );
 
         if (!ride || ride.rideStatus !== "PLANNED") {
-            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
+            throw new BookingError(BookingErrorCodes.RideNotFoundOrUnavailable);
         }
 
         if (ride.driverId === payload.passengerId) {
-            throw new Error(BookingErrors.SelfBookingNotAllowed);
+            throw new BookingError(BookingErrorCodes.SelfBookingNotAllowed);
         }
 
         const stops = await BookingRepository.findRideStops(
@@ -59,14 +59,14 @@ const createBookingRequest = async (
         );
 
         if (stops.length !== 2) {
-            throw new Error(BookingErrors.InvalidStops);
+            throw new BookingError(BookingErrorCodes.InvalidStops);
         }
 
         const pickup = stops.find((s) => s.id === payload.pickupStopId);
         const dropoff = stops.find((s) => s.id === payload.dropoffStopId);
 
         if (!pickup || !dropoff || pickup.stopOrder >= dropoff.stopOrder) {
-            throw new Error(BookingErrors.InvalidStops);
+            throw new BookingError(BookingErrorCodes.InvalidStops);
         }
 
         const priceRecord = await BookingRepository.findSegmentPrice(
@@ -77,7 +77,7 @@ const createBookingRequest = async (
         );
 
         if (!priceRecord) {
-            throw new Error(BookingErrors.PriceNotFound);
+            throw new BookingError(BookingErrorCodes.PriceNotFound);
         }
 
         const heldSeats = await BookingRepository.sumSeatsForRide(
@@ -87,7 +87,7 @@ const createBookingRequest = async (
         );
 
         if (heldSeats + payload.seatCount > ride.offeredSeats) {
-            throw new Error(BookingErrors.NotEnoughSeats);
+            throw new BookingError(BookingErrorCodes.NotEnoughSeats);
         }
 
         const existingBooking =
@@ -98,7 +98,7 @@ const createBookingRequest = async (
             );
 
         if (existingBooking) {
-            throw new Error(BookingErrors.AlreadyBooked);
+            throw new BookingError(BookingErrorCodes.AlreadyBooked);
         }
 
         const totalAmount = priceRecord.amount * payload.seatCount;
@@ -132,7 +132,7 @@ const confirmBooking = async (
         const booking = await BookingRepository.lockBookingById(tx, bookingId);
 
         if (!booking || booking.bookingStatus !== "PENDING") {
-            throw new Error(BookingErrors.InvalidStatusTransition);
+            throw new BookingError(BookingErrorCodes.InvalidStatusTransition);
         }
 
         const ride = await BookingRepository.lockRideForBooking(
@@ -141,15 +141,15 @@ const confirmBooking = async (
         );
 
         if (!ride) {
-            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
+            throw new BookingError(BookingErrorCodes.RideNotFoundOrUnavailable);
         }
 
         if (ride.driverId !== driverId) {
-            throw new Error(BookingErrors.UnauthorizedAction);
+            throw new BookingError(BookingErrorCodes.UnauthorizedAction);
         }
 
         if (ride.rideStatus !== "PLANNED") {
-            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
+            throw new BookingError(BookingErrorCodes.RideNotFoundOrUnavailable);
         }
 
         const confirmedSeats = await BookingRepository.sumSeatsForRide(
@@ -159,7 +159,7 @@ const confirmBooking = async (
         );
 
         if (confirmedSeats + booking.seatCount > ride.offeredSeats) {
-            throw new Error(BookingErrors.NotEnoughSeats);
+            throw new BookingError(BookingErrorCodes.NotEnoughSeats);
         }
 
         const updatedBooking = await BookingRepository.updateBookingFields(
@@ -192,7 +192,7 @@ const rejectBooking = async (
         const booking = await BookingRepository.lockBookingById(tx, bookingId);
 
         if (!booking || booking.bookingStatus !== "PENDING") {
-            throw new Error(BookingErrors.InvalidStatusTransition);
+            throw new BookingError(BookingErrorCodes.InvalidStatusTransition);
         }
 
         const ride = await BookingRepository.lockRideForBooking(
@@ -201,15 +201,15 @@ const rejectBooking = async (
         );
 
         if (!ride) {
-            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
+            throw new BookingError(BookingErrorCodes.RideNotFoundOrUnavailable);
         }
 
         if (ride.driverId !== driverId) {
-            throw new Error(BookingErrors.UnauthorizedAction);
+            throw new BookingError(BookingErrorCodes.UnauthorizedAction);
         }
 
         if (ride.rideStatus !== "PLANNED") {
-            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
+            throw new BookingError(BookingErrorCodes.RideNotFoundOrUnavailable);
         }
 
         const rejectionReason = reason || "Driver rejected booking";
@@ -241,19 +241,19 @@ const cancelBookingByPassenger = async (
         const booking = await BookingRepository.lockBookingById(tx, bookingId);
 
         if (!booking) {
-            throw new Error(BookingErrors.BookingNotFound);
+            throw new BookingError(BookingErrorCodes.BookingNotFound);
         }
 
         if (booking.passengerId !== passengerId) {
-            throw new Error(BookingErrors.UnauthorizedAction);
+            throw new BookingError(BookingErrorCodes.UnauthorizedAction);
         }
 
         if (booking.bookingStatus === "CANCELLED") {
-            throw new Error(BookingErrors.AlreadyCancelled);
+            throw new BookingError(BookingErrorCodes.AlreadyCancelled);
         }
 
         if (!["PENDING", "CONFIRMED"].includes(booking.bookingStatus)) {
-            throw new Error(BookingErrors.InvalidStatusTransition);
+            throw new BookingError(BookingErrorCodes.InvalidStatusTransition);
         }
 
         const cancelReason = reason || "Passenger cancelled their booking";
@@ -290,15 +290,15 @@ const cancelBookingByDriver = async (
         const booking = await BookingRepository.lockBookingById(tx, bookingId);
 
         if (!booking) {
-            throw new Error(BookingErrors.BookingNotFound);
+            throw new BookingError(BookingErrorCodes.BookingNotFound);
         }
 
         if (booking.bookingStatus === "CANCELLED") {
-            throw new Error(BookingErrors.AlreadyCancelled);
+            throw new BookingError(BookingErrorCodes.AlreadyCancelled);
         }
 
         if (!["PENDING", "CONFIRMED"].includes(booking.bookingStatus)) {
-            throw new Error(BookingErrors.InvalidStatusTransition);
+            throw new BookingError(BookingErrorCodes.InvalidStatusTransition);
         }
 
         const ride = await BookingRepository.lockRideForBooking(
@@ -307,15 +307,15 @@ const cancelBookingByDriver = async (
         );
 
         if (!ride) {
-            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
+            throw new BookingError(BookingErrorCodes.RideNotFoundOrUnavailable);
         }
 
         if (ride.driverId !== driverId) {
-            throw new Error(BookingErrors.UnauthorizedAction);
+            throw new BookingError(BookingErrorCodes.UnauthorizedAction);
         }
 
         if (ride.rideStatus !== "PLANNED") {
-            throw new Error(BookingErrors.RideNotFoundOrUnavailable);
+            throw new BookingError(BookingErrorCodes.RideNotFoundOrUnavailable);
         }
 
         const cancelReason = reason || "Driver cancelled passenger booking";

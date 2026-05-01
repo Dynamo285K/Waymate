@@ -1,6 +1,6 @@
 import { db } from "../../db";
 import { RideRepository } from "./ride.repository";
-import { RideErrors } from "./ride.errors";
+import { RideError, RideErrorCodes } from "./ride.errors";
 import { REVIEW_WINDOW_DAYS } from "../reviews/review.service";
 import type { CreateRideBody, SearchRidesQuery } from "@repo/shared";
 import type {
@@ -20,14 +20,14 @@ const getDriverRides = async (driverId: string, timeframe?: RideTimeframe) => {
 const getRidePassengers = async (
     rideId: string,
     driverId: string
-): Promise<RidePassengersView | null> => {
+): Promise<RidePassengersView> => {
     const data = await RideRepository.findRideWithPassengers(
         db,
         rideId,
         driverId
     );
 
-    if (!data) return null;
+    if (!data) throw new RideError(RideErrorCodes.RideNotFoundOrNotOwner);
 
     const windowClosesAt = new Date(
         data.ride.departureAt.getTime() +
@@ -69,7 +69,7 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
         );
 
         if (!car) {
-            throw new Error(RideErrors.CarNotAvailableForDriver);
+            throw new RideError(RideErrorCodes.CarNotAvailableForDriver);
         }
 
         const newRide = await RideRepository.insertRide(tx, {
@@ -110,7 +110,7 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
                 );
 
                 if (!startStop || !endStop) {
-                    throw new Error(RideErrors.InvalidPriceStopOrders);
+                    throw new RideError(RideErrorCodes.InvalidPriceStopOrders);
                 }
 
                 return {
@@ -149,11 +149,11 @@ const cancelRide = async (
         );
 
         if (!existingRide) {
-            throw new Error(RideErrors.RideNotFoundOrNotOwner);
+            throw new RideError(RideErrorCodes.RideNotFoundOrNotOwner);
         }
 
         if (existingRide.rideStatus === "CANCELLED") {
-            throw new Error(RideErrors.RideAlreadyCancelled);
+            throw new RideError(RideErrorCodes.RideAlreadyCancelled);
         }
 
         const updatedRide = await RideRepository.updateRideStatusToCancelled(

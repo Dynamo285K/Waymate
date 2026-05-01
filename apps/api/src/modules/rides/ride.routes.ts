@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { RideService } from "./ride.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
-import { RideErrors } from "./ride.errors";
+import { RideError, rideErrorToHttpStatus } from "./ride.errors";
 import {
     ErrorResponseSchema,
     RideSchema,
@@ -34,15 +34,20 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
         CreateRideResponse: CreateRideResponseSchema,
         CancelRideResponse: CancelRideResponseSchema,
     })
-    .onError(({ code, status }) => {
+    .onError(({ code, status, error }) => {
+        if (error instanceof RideError) {
+            return status(rideErrorToHttpStatus(error.code), {
+                error: error.code,
+            });
+        }
         if (code === "VALIDATION" || code === "PARSE") {
-            return status(400, { error: "Invalid request data" });
+            return status(400, { error: "VALIDATION" });
         }
         if (code === 401) {
-            return status(401, { error: "Unauthorized" });
+            return status(401, { error: "UNAUTHORIZED" });
         }
         if (code === "INTERNAL_SERVER_ERROR" || code === "UNKNOWN") {
-            return status(500, { error: "Internal server error" });
+            return status(500, { error: "INTERNAL_SERVER_ERROR" });
         }
     })
     .get(
@@ -108,34 +113,8 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
             .post(
                 "/",
                 async ({ user, body, status }) => {
-                    try {
-                        const rideId = await RideService.createRide(
-                            user.id,
-                            body
-                        );
-                        return status(201, { id: rideId });
-                    } catch (error) {
-                        const message =
-                            error instanceof Error
-                                ? error.message
-                                : String(error);
-
-                        console.error("Error while creating ride:", error);
-
-                        if (message === RideErrors.CarNotAvailableForDriver) {
-                            return status(403, {
-                                error: "Car not found, not active, or does not belong to you",
-                            });
-                        }
-
-                        if (message === RideErrors.InvalidPriceStopOrders) {
-                            return status(400, {
-                                error: "Invalid stop orders in prices configuration",
-                            });
-                        }
-
-                        return status(500, { error: "Failed to create ride" });
-                    }
+                    const rideId = await RideService.createRide(user.id, body);
+                    return status(201, { id: rideId });
                 },
                 {
                     body: "CreateRideBody",
@@ -153,18 +132,8 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
 
             .get(
                 "/:id/passengers",
-                async ({ user, params, status }) => {
-                    const view = await RideService.getRidePassengers(
-                        params.id,
-                        user.id
-                    );
-
-                    if (!view) {
-                        return status(404, { error: "Ride not found" });
-                    }
-
-                    return view;
-                },
+                async ({ user, params }) =>
+                    await RideService.getRidePassengers(params.id, user.id),
                 {
                     params: RideIdParamsSchema,
                     response: {
@@ -181,31 +150,13 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
 
             .patch(
                 "/:id/cancel",
-                async ({ user, params, body, status }) => {
-                    try {
-                        const cancelledId = await RideService.cancelRide(
-                            params.id,
-                            user.id,
-                            body.reason
-                        );
-                        return { id: cancelledId, status: "CANCELLED" };
-                    } catch (error) {
-                        const message =
-                            error instanceof Error
-                                ? error.message
-                                : String(error);
-
-                        if (message === RideErrors.RideNotFoundOrNotOwner) {
-                            return status(404, { error: "Ride not found" });
-                        }
-                        if (message === RideErrors.RideAlreadyCancelled) {
-                            return status(400, {
-                                error: "Ride is already cancelled",
-                            });
-                        }
-
-                        return status(500, { error: "Failed to cancel ride" });
-                    }
+                async ({ user, params, body }) => {
+                    const cancelledId = await RideService.cancelRide(
+                        params.id,
+                        user.id,
+                        body.reason
+                    );
+                    return { id: cancelledId, status: "CANCELLED" as const };
                 },
                 {
                     params: RideIdParamsSchema,

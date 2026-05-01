@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { CarService } from "./car.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
-import { CarErrors } from "./car.errors";
+import { CarError, carErrorToHttpStatus } from "./car.errors";
 import {
     ErrorResponseSchema,
     CarSchema,
@@ -31,15 +31,20 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
         CarBrandNameList: CarBrandNameListSchema,
         CarBrandParams: CarBrandParamsSchema,
     })
-    .onError(({ code, status }) => {
+    .onError(({ code, status, error }) => {
+        if (error instanceof CarError) {
+            return status(carErrorToHttpStatus(error.code), {
+                error: error.code,
+            });
+        }
         if (code === "VALIDATION" || code === "PARSE") {
-            return status(400, { error: "Invalid request data" });
+            return status(400, { error: "VALIDATION" });
         }
         if (code === 401) {
-            return status(401, { error: "Unauthorized" });
+            return status(401, { error: "UNAUTHORIZED" });
         }
         if (code === "INTERNAL_SERVER_ERROR" || code === "UNKNOWN") {
-            return status(500, { error: "Internal server error" });
+            return status(500, { error: "INTERNAL_SERVER_ERROR" });
         }
     })
     .use(isFullyOnboarded)
@@ -56,7 +61,7 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
                 "/brands",
                 async () => await CarService.getAllCarBrandNames(),
                 {
-                    response: { 200: "CarBrandNameList" }, // Definované v predchádzajúcom modeli
+                    response: { 200: "CarBrandNameList" },
                     detail: { description: "Returns all available car brands" },
                 }
             )
@@ -86,28 +91,8 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
             .post(
                 "/me",
                 async ({ user, body, status }) => {
-                    try {
-                        const car = await CarService.createCar(user.id, body);
-                        return status(201, car);
-                    } catch (error) {
-                        const message =
-                            error instanceof Error
-                                ? error.message
-                                : String(error);
-
-                        if (message === CarErrors.ModelNotFound) {
-                            return status(400, {
-                                error: "Selected car model does not exist",
-                            });
-                        }
-                        if (message === CarErrors.DuplicatePlate) {
-                            return status(409, {
-                                error: "Car with this plate and country code already exists",
-                            });
-                        }
-
-                        return status(500, { error: "Failed to create car" });
-                    }
+                    const car = await CarService.createCar(user.id, body);
+                    return status(201, car);
                 },
                 {
                     body: "CreateCarBody",
@@ -125,19 +110,8 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
 
             .patch(
                 "/:id/status",
-                async ({ user, params, body, status }) => {
-                    const updatedCar = await CarService.updateCarStatus(
-                        params.id,
-                        user.id,
-                        body
-                    );
-
-                    if (!updatedCar) {
-                        return status(404, { error: "Car not found" });
-                    }
-
-                    return updatedCar;
-                },
+                async ({ user, params, body }) =>
+                    await CarService.updateCarStatus(params.id, user.id, body),
                 {
                     params: CarIdParamsSchema,
                     body: "UpdateCarStatusBody",
@@ -154,18 +128,8 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
 
             .delete(
                 "/:id",
-                async ({ user, params, status }) => {
-                    const deletedCar = await CarService.deleteCar(
-                        params.id,
-                        user.id
-                    );
-
-                    if (!deletedCar) {
-                        return status(404, { error: "Car not found" });
-                    }
-
-                    return deletedCar;
-                },
+                async ({ user, params }) =>
+                    await CarService.deleteCar(params.id, user.id),
                 {
                     params: CarIdParamsSchema,
                     response: {
