@@ -11,6 +11,7 @@ import { formatRideDate as formatDate } from "../lib/date-format";
 import { useGetRidesMe } from "../api-client/rides/rides";
 import { useCancelRide } from "../hooks/useCancelRide";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
+import { getErrorI18nKey } from "../lib/api-errors";
 import {
     useAcceptRideRequest,
     useDeclineRideRequest,
@@ -159,6 +160,7 @@ export function DriverHomePage({
         data: rides,
         isLoading,
         isError,
+        error: ridesError,
     } = useGetRidesMe({
         timeframe: "UPCOMING",
     });
@@ -167,6 +169,7 @@ export function DriverHomePage({
         data: rideRequests,
         isLoading: areRequestsLoading,
         isError: areRequestsError,
+        error: requestsError,
     } = useDriverRideRequests();
     const acceptRequest = useAcceptRideRequest();
     const declineRequest = useDeclineRideRequest();
@@ -277,7 +280,13 @@ export function DriverHomePage({
                         )}
                         {isError && (
                             <p className="text-(--color-text-secondary)">
-                                {t("driverRides.error")}
+                                {t(
+                                    getErrorI18nKey(
+                                        ridesError,
+                                        {},
+                                        "driverRides.error"
+                                    )
+                                )}
                             </p>
                         )}
                         {!isLoading &&
@@ -311,8 +320,11 @@ export function DriverHomePage({
                         {cancelRide.isError && (
                             <p className="text-(--color-text-secondary)">
                                 {t(
-                                    "driverRides.cancelError",
-                                    "Failed to cancel ride. Please try again."
+                                    getErrorI18nKey(
+                                        cancelRide.error,
+                                        {},
+                                        "driverRides.cancelError"
+                                    )
                                 )}
                             </p>
                         )}
@@ -346,16 +358,23 @@ export function DriverHomePage({
                         {areRequestsError && (
                             <p className="text-(--color-text-secondary)">
                                 {t(
-                                    "rideRequests.error",
-                                    "Failed to load ride requests. Please try again."
+                                    getErrorI18nKey(
+                                        requestsError,
+                                        {},
+                                        "rideRequests.error"
+                                    )
                                 )}
                             </p>
                         )}
                         {(acceptRequest.isError || declineRequest.isError) && (
                             <p className="text-(--color-text-secondary)">
                                 {t(
-                                    "rideRequests.actionError",
-                                    "Could not update the request. Please try again."
+                                    getErrorI18nKey(
+                                        acceptRequest.error ??
+                                            declineRequest.error,
+                                        {},
+                                        "rideRequests.actionError"
+                                    )
                                 )}
                             </p>
                         )}

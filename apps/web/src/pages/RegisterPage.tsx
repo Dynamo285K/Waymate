@@ -106,9 +106,7 @@ export function RegisterPage({
             if (error) {
                 console.error("Google sign-in failed", error);
                 setErrors({
-                    form: t(
-                        getGoogleAuthErrorI18nKey(error, "register.error")
-                    ),
+                    form: t(getGoogleAuthErrorI18nKey(error, "register.error")),
                 });
                 return;
             }

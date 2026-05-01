@@ -6,6 +6,7 @@ import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 import { useCreateBooking } from "../hooks/useCreateBooking";
 import { useGetRidesAvailable } from "../api-client/rides/rides";
 import { useRideSearch } from "../hooks/useRideSearch";
+import { getErrorI18nKey } from "../lib/api-errors";
 import { formatRideDate } from "../lib/date-format";
 
 type PassengerRidesPageProps = {
@@ -48,12 +49,14 @@ export function PassengerRidesPage({
         data: availableRideRows,
         isLoading: areAvailableRidesLoading,
         isError: areAvailableRidesError,
+        error: availableRidesError,
     } = useGetRidesAvailable();
 
     const {
         data: rides,
         isLoading,
         isError,
+        error: searchError,
         canSearch,
     } = useRideSearch({ from, to, date: dateStr });
 
@@ -109,7 +112,13 @@ export function PassengerRidesPage({
 
                 {showAllRides && areAvailableRidesError && (
                     <p className="text-(--color-text-secondary) mt-4">
-                        {t("rides.error")}
+                        {t(
+                            getErrorI18nKey(
+                                availableRidesError,
+                                {},
+                                "rides.error"
+                            )
+                        )}
                     </p>
                 )}
 
@@ -133,13 +142,19 @@ export function PassengerRidesPage({
 
                 {canSearch && !isLoading && isError && (
                     <p className="text-(--color-text-secondary) mt-4">
-                        {t("rides.error")}
+                        {t(getErrorI18nKey(searchError, {}, "rides.error"))}
                     </p>
                 )}
 
                 {createBooking.isError && (
                     <p className="text-(--color-text-secondary) mt-4">
-                        {t("bookings.createError")}
+                        {t(
+                            getErrorI18nKey(
+                                createBooking.error,
+                                {},
+                                "bookings.createError"
+                            )
+                        )}
                     </p>
                 )}
 

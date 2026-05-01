@@ -6,6 +6,7 @@ import type { Language } from "@waymate/ui";
 import { useGetRidesMe } from "../api-client/rides/rides";
 import { useCancelRide } from "../hooks/useCancelRide";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
+import { getErrorI18nKey } from "../lib/api-errors";
 import { formatRideDate } from "../lib/date-format";
 
 type DriverMyRidesPageProps = {
@@ -41,7 +42,12 @@ export function DriverMyRidesPage({
         null
     );
     const timeframe = tab === "past" ? "PAST" : "UPCOMING";
-    const { data: rides, isLoading, isError } = useGetRidesMe({ timeframe });
+    const {
+        data: rides,
+        isLoading,
+        isError,
+        error,
+    } = useGetRidesMe({ timeframe });
     const cancelRide = useCancelRide();
     const displayedRides =
         rides?.map((ride) => {
@@ -117,15 +123,18 @@ export function DriverMyRidesPage({
 
                     {isError && (
                         <p className="text-(--color-text-secondary)">
-                            {t("driverRides.error")}
+                            {t(getErrorI18nKey(error, {}, "driverRides.error"))}
                         </p>
                     )}
 
                     {cancelRide.isError && (
                         <p className="text-(--color-text-secondary)">
                             {t(
-                                "driverRides.cancelError",
-                                "Failed to cancel ride. Please try again."
+                                getErrorI18nKey(
+                                    cancelRide.error,
+                                    {},
+                                    "driverRides.cancelError"
+                                )
                             )}
                         </p>
                     )}

@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { DriverNavbar, Button, OfferRideForm } from "@waymate/ui";
 import type { Language, OfferRideCar } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
+import { getErrorI18nKey } from "../lib/api-errors";
 import { toUiLanguage } from "../lib/language";
 import { useNavigate } from "../lib/router-compat";
 import {
@@ -89,39 +90,6 @@ function normalizePlate(plate: string) {
         .trim()
         .toUpperCase()
         .replace(/[^A-Z0-9]/g, "");
-}
-
-function getErrorMessage(error: unknown) {
-    if (error instanceof Error) {
-        if (error.message === "Failed to fetch") {
-            return "Cannot reach the API. Make sure the backend is running on localhost:3000 and open the app through localhost:5173.";
-        }
-
-        return error.message;
-    }
-
-    if (
-        error &&
-        typeof error === "object" &&
-        "value" in error &&
-        error.value &&
-        typeof error.value === "object" &&
-        "error" in error.value &&
-        typeof error.value.error === "string"
-    ) {
-        return error.value.error;
-    }
-
-    if (
-        error &&
-        typeof error === "object" &&
-        "error" in error &&
-        typeof error.error === "string"
-    ) {
-        return error.error;
-    }
-
-    return "";
 }
 
 function toOfferRideCar(car: UserCarRow): OfferRideCar {
@@ -278,13 +246,9 @@ export function DriverOfferRidePage({
                 navigate("/driver/rides");
             },
             onError: (error) => {
-                const message = getErrorMessage(error);
+                console.error("Publish ride failed", error);
                 setPublishError(
-                    message ||
-                        t(
-                            "offerRide.publishError",
-                            "Could not publish this ride. Please check the form and try again."
-                        )
+                    t(getErrorI18nKey(error, {}, "offerRide.publishError"))
                 );
             },
         },
@@ -556,13 +520,9 @@ export function DriverOfferRidePage({
 
                 await publishRide(carId);
             } catch (error) {
-                const message = getErrorMessage(error);
+                console.error("Publish ride failed", error);
                 setPublishError(
-                    message ||
-                        t(
-                            "offerRide.publishError",
-                            "Could not publish this ride. Please check the form and try again."
-                        )
+                    t(getErrorI18nKey(error, {}, "offerRide.publishError"))
                 );
             }
 
@@ -582,13 +542,9 @@ export function DriverOfferRidePage({
         try {
             await publishRide();
         } catch (error) {
-            const message = getErrorMessage(error);
+            console.error("Publish ride failed", error);
             setPublishError(
-                message ||
-                    t(
-                        "offerRide.publishError",
-                        "Could not publish this ride. Please check the form and try again."
-                    )
+                t(getErrorI18nKey(error, {}, "offerRide.publishError"))
             );
         }
     }
@@ -609,13 +565,9 @@ export function DriverOfferRidePage({
 
             await publishRide(carId);
         } catch (error) {
-            const message = getErrorMessage(error);
+            console.error("Publish ride failed", error);
             setPublishError(
-                message ||
-                    t(
-                        "offerRide.publishError",
-                        "Could not publish this ride. Please check the form and try again."
-                    )
+                t(getErrorI18nKey(error, {}, "offerRide.publishError"))
             );
         }
     }

@@ -4,6 +4,7 @@ import { PassengerNavbar, ProfileHeroCard, RideCard } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useGetBookingsMe } from "../api-client/bookings/bookings";
 import { useGetReviewsUsersByUserId } from "../api-client/reviews/reviews";
+import { getErrorI18nKey } from "../lib/api-errors";
 import { formatRideDate } from "../lib/date-format";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 
@@ -49,6 +50,7 @@ export function PassengerProfilePage({
         data: bookings,
         isLoading: ridesLoading,
         isError: ridesError,
+        error: ridesErrorObj,
     } = useGetBookingsMe({ timeframe: "UPCOMING" });
     const { data: receivedReviews } = useGetReviewsUsersByUserId(userId ?? "", {
         query: { enabled: Boolean(userId) },
@@ -128,7 +130,13 @@ export function PassengerProfilePage({
 
                     {ridesError && (
                         <p className="text-(--color-text-secondary)">
-                            {t("myRides.error")}
+                            {t(
+                                getErrorI18nKey(
+                                    ridesErrorObj,
+                                    {},
+                                    "myRides.error"
+                                )
+                            )}
                         </p>
                     )}
 

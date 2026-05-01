@@ -5,6 +5,7 @@ import type { Language } from "@waymate/ui";
 import { useGetRidesByIdPassengers } from "../api-client/rides/rides";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { useCancelBookingByDriver } from "../hooks/useCancelBookingByDriver";
+import { getErrorI18nKey } from "../lib/api-errors";
 
 type DriverPassengersPageProps = {
     language: Language;
@@ -84,6 +85,7 @@ export function DriverPassengersPage({
         data: passengersView,
         isLoading,
         isError,
+        error,
     } = useGetRidesByIdPassengers(ride?.id ?? "", {
         query: { enabled: Boolean(ride?.id) },
     });
@@ -148,8 +150,11 @@ export function DriverPassengersPage({
                     {isError && (
                         <p className="text-(--color-text-secondary)">
                             {t(
-                                "driverRides.passengersError",
-                                "Failed to load passengers. Please try again."
+                                getErrorI18nKey(
+                                    error,
+                                    {},
+                                    "driverRides.passengersError"
+                                )
                             )}
                         </p>
                     )}
@@ -157,8 +162,11 @@ export function DriverPassengersPage({
                     {cancelBooking.isError && (
                         <p className="text-(--color-text-secondary)">
                             {t(
-                                "driverRides.cancelBookingError",
-                                "Failed to cancel booking. Please try again."
+                                getErrorI18nKey(
+                                    cancelBooking.error,
+                                    {},
+                                    "driverRides.cancelBookingError"
+                                )
                             )}
                         </p>
                     )}
