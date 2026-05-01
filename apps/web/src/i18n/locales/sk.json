@@ -8,6 +8,10 @@
         "validation": "Niektoré zadané údaje sú neplatné.",
         "unknown": "Niečo sa pokazilo. Skúste to prosím znova."
     },
+    "auth": {
+        "googleNotConfigured": "Prihlásenie cez Google ešte nie je nakonfigurované.",
+        "googleUnavailable": "Prihlásenie cez Google momentálne nie je dostupné. Skúste e-mail a heslo alebo to skúste neskôr."
+    },
     "login": {
         "title": "Prihláste sa do svojho účtu",
         "emailLabel": "E-mail",
@@ -22,7 +26,6 @@
         "createAccount": "Vytvoriť účet",
         "invalidEmail": "Zadajte platný e-mail.",
         "passwordTooShort": "Heslo musí mať aspoň 8 znakov.",
-        "googleNotConfigured": "Prihlásenie cez Google ešte nie je nakonfigurované.",
         "error": "Prihlásenie zlyhalo. Skontrolujte údaje a skúste to znova."
     },
     "register": {
@@ -41,7 +44,6 @@
         "invalidEmail": "Zadajte platný e-mail.",
         "passwordTooShort": "Heslo musí mať aspoň 8 znakov.",
         "emailAlreadyInUse": "Tento e-mail sa už používa.",
-        "googleNotConfigured": "Registrácia cez Google ešte nie je nakonfigurovaná.",
         "error": "Registrácia zlyhala. Skúste to znova.",
         "checkEmailTitle": "Skontrolujte e-mail",
         "checkEmailText": "Poslali sme overovací odkaz na {{email}}. Overte e-mailovú adresu a potom dokončite profil.",

@@ -8,6 +8,10 @@
         "validation": "Některé zadané údaje jsou neplatné.",
         "unknown": "Něco se pokazilo. Zkuste to prosím znovu."
     },
+    "auth": {
+        "googleNotConfigured": "Přihlášení přes Google ještě není nakonfigurované.",
+        "googleUnavailable": "Přihlášení přes Google momentálně není dostupné. Zkuste e-mail a heslo nebo to zkuste později."
+    },
     "login": {
         "title": "Přihlaste se ke svému účtu",
         "emailLabel": "E-mail",
@@ -22,7 +26,6 @@
         "createAccount": "Vytvořit účet",
         "invalidEmail": "Zadejte platný e-mail.",
         "passwordTooShort": "Heslo musí mít alespoň 8 znaků.",
-        "googleNotConfigured": "Přihlášení přes Google ještě není nakonfigurované.",
         "error": "Přihlášení selhalo. Zkontrolujte údaje a zkuste to znovu."
     },
     "register": {
@@ -41,7 +44,6 @@
         "invalidEmail": "Zadejte platný e-mail.",
         "passwordTooShort": "Heslo musí mít alespoň 8 znaků.",
         "emailAlreadyInUse": "Tento e-mail je již používán.",
-        "googleNotConfigured": "Registrace přes Google ještě není nakonfigurovaná.",
         "error": "Registrace selhala. Zkuste to znovu.",
         "checkEmailTitle": "Zkontrolujte e-mail",
         "checkEmailText": "Poslali jsme ověřovací odkaz na {{email}}. Ověřte e-mailovou adresu a potom dokončete profil.",
