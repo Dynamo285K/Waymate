@@ -16,7 +16,8 @@
       "Bash(RESEND_API_KEY=dummy_for_boot bun run openapi:dump)",
       "Bash(OPENAPI_DEBUG=1 RESEND_API_KEY=dummy_for_boot bun run openapi:dump)",
       "Bash(echo \"exit: $?\")",
-      "Bash(echo \"--exit:$?\")"
+      "Bash(echo \"--exit:$?\")",
+      "Bash(docker compose *)"
     ]
   }
 }

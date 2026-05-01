@@ -1,191 +1,161 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AdminNavbar, Avatar, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
+import i18n from "../i18n";
 import { useAdminNavbarProps } from "../hooks/useAdminNavbarProps";
+import { useGetAdminUsers } from "../api-client/admin/admin";
+import { useGetAdminUsersById } from "../api-client/admin/admin";
+import { useSetUserRole } from "../hooks/useSetUserRole";
+import { useSetUserStatus } from "../hooks/useSetUserStatus";
+import type { AdminUserListItem } from "../api-client/model/adminUserListItem";
+import type { AdminUserStatusHistoryItem } from "../api-client/model/adminUserStatusHistoryItem";
+import type { UserRole } from "../api-client/model/userRole";
+import type { UserStatus } from "../api-client/model/userStatus";
 
 type AdminUsersPageProps = {
     language: Language;
     theme: "light" | "dark";
     onLanguageChange: (lang: Language) => void;
     onThemeToggle: () => void;
+    userId?: string;
     userName?: string;
     userEmail?: string;
 };
 
-type UserStatus = "active" | "banned" | "pending";
-type UserRole = "driver" | "passenger";
-
-type User = {
-    id: number;
-    name: string;
-    email: string;
-    role: UserRole;
-    spz: string | null;
-    rating: number | null;
-    rides: number;
-    status: UserStatus;
-    phone: string;
-    memberSince: string;
+const PAGE_SIZE = 20;
+const SEARCH_DEBOUNCE_MS = 300;
+const LOCALE_MAP: Record<string, string> = {
+    en: "en-US",
+    sk: "sk-SK",
+    cs: "cs-CZ",
 };
 
-const USERS: User[] = [
-    {
-        id: 1,
-        name: "Martin Kováč",
-        email: "martin.kovac@gmail.com",
-        role: "driver",
-        spz: "BA-123AB",
-        rating: 4.9,
-        rides: 87,
-        status: "active",
-        phone: "+421 900 111 222",
-        memberSince: "12.1.2024",
-    },
-    {
-        id: 2,
-        name: "Jana Horáková",
-        email: "jana.horakova@email.cz",
-        role: "passenger",
-        spz: null,
-        rating: 4.7,
-        rides: 23,
-        status: "active",
-        phone: "+420 732 456 789",
-        memberSince: "3.5.2024",
-    },
-    {
-        id: 3,
-        name: "Peter Novák",
-        email: "peter.novak@centrum.sk",
-        role: "driver",
-        spz: "TN-555CC",
-        rating: 2.1,
-        rides: 12,
-        status: "banned",
-        phone: "+421 911 222 333",
-        memberSince: "8.9.2023",
-    },
-    {
-        id: 4,
-        name: "Eva Szabóová",
-        email: "eva.szabo@gmail.com",
-        role: "driver",
-        spz: "NR-876DD",
-        rating: 4.8,
-        rides: 144,
-        status: "active",
-        phone: "+421 905 333 444",
-        memberSince: "15.2.2023",
-    },
-    {
-        id: 5,
-        name: "Lukáš Blaho",
-        email: "lukas.blaho@post.sk",
-        role: "passenger",
-        spz: null,
-        rating: null,
-        rides: 0,
-        status: "pending",
-        phone: "+421 950 555 666",
-        memberSince: "20.4.2026",
-    },
-    {
-        id: 6,
-        name: "Tomáš Varga",
-        email: "tomas.varga@gmail.com",
-        role: "driver",
-        spz: "ZA-214EF",
-        rating: 4.5,
-        rides: 61,
-        status: "active",
-        phone: "+421 918 777 888",
-        memberSince: "1.11.2023",
-    },
-    {
-        id: 7,
-        name: "Monika Červená",
-        email: "monika.cervena@email.cz",
-        role: "passenger",
-        spz: null,
-        rating: 4.6,
-        rides: 18,
-        status: "active",
-        phone: "+420 608 999 000",
-        memberSince: "14.7.2024",
-    },
-    {
-        id: 8,
-        name: "Róbert Krasňan",
-        email: "robert.krasnan@atlas.sk",
-        role: "driver",
-        spz: "KE-099GH",
-        rating: 1.8,
-        rides: 5,
-        status: "banned",
-        phone: "+421 944 111 222",
-        memberSince: "5.3.2025",
-    },
-];
+const STATUS_BADGE_CLASSES: Record<UserStatus, string> = {
+    ACTIVE: "border border-(--color-success-border) bg-(--color-success-bg) text-(--color-success-text)",
+    PENDING: "bg-(--color-warning-bg) text-(--color-warning-text)",
+    SUSPENDED: "bg-(--color-warning-bg) text-(--color-warning-text)",
+    BANNED: "border border-(--color-danger-border) bg-(--color-danger-bg) text-(--color-danger-text)",
+    DELETED:
+        "border border-(--color-border) bg-(--color-bg) text-(--color-text-secondary)",
+};
+
+function fullName(
+    firstName: string | null | undefined,
+    lastName: string | null | undefined
+): string {
+    return [firstName, lastName].filter(Boolean).join(" ");
+}
+
+function formatDate(
+    value: string | null | undefined,
+    fallback: string
+): string {
+    if (!value) return fallback;
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return fallback;
+    const locale = LOCALE_MAP[i18n.language] ?? "en-US";
+    return new Intl.DateTimeFormat(locale, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    }).format(date);
+}
 
 function StatusBadge({ status }: { status: UserStatus }) {
     const { t } = useTranslation();
-    const s: Record<UserStatus, string> = {
-        active: "border border-(--color-success-border) text-(--color-success-text) bg-(--color-success-bg)",
-        banned: "border border-(--color-danger-border) bg-(--color-danger-bg) text-(--color-danger-text)",
-        pending: "bg-(--color-warning-bg) text-(--color-warning-text)",
-    };
     const labels: Record<UserStatus, string> = {
-        active: t("admin.active"),
-        banned: t("admin.banned"),
-        pending: t("admin.pending"),
+        ACTIVE: t("admin.active"),
+        PENDING: t("admin.pending"),
+        SUSPENDED: t("admin.suspended"),
+        BANNED: t("admin.banned"),
+        DELETED: t("admin.deleted"),
     };
     return (
         <span
-            className={`text-xs font-semibold px-2.5 py-1 rounded-full ${s[status]}`}
+            className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_BADGE_CLASSES[status]}`}
         >
             {labels[status]}
         </span>
     );
 }
 
-function RatingDisplay({ rating }: { rating: number | null }) {
-    if (rating === null)
-        return <span className="text-(--color-text-secondary)">★ -</span>;
-    const color =
-        rating >= 4 ? "text-(--color-success-text)" : "text-(--color-red)";
-    return <span className={`font-semibold ${color}`}>★ {rating}</span>;
+function useDebounced<T>(value: T, delayMs: number): T {
+    const [debounced, setDebounced] = useState(value);
+    useEffect(() => {
+        const id = window.setTimeout(() => setDebounced(value), delayMs);
+        return () => window.clearTimeout(id);
+    }, [value, delayMs]);
+    return debounced;
 }
 
-/* ── View + Edit modal ── */
-function UserProfileModal({
-    user,
+function StatusHistoryEntry({ entry }: { entry: AdminUserStatusHistoryItem }) {
+    const { t } = useTranslation();
+    const labels: Record<UserStatus, string> = {
+        ACTIVE: t("admin.active"),
+        PENDING: t("admin.pending"),
+        SUSPENDED: t("admin.suspended"),
+        BANNED: t("admin.banned"),
+        DELETED: t("admin.deleted"),
+    };
+    const transition = entry.oldStatus
+        ? t("admin.statusTransition", {
+              from: labels[entry.oldStatus],
+              to: labels[entry.newStatus],
+          })
+        : t("admin.initialStatus", { to: labels[entry.newStatus] });
+    const actorName = entry.changedBy
+        ? fullName(entry.changedBy.firstName, entry.changedBy.lastName) ||
+          t("admin.systemAction")
+        : t("admin.systemAction");
+    return (
+        <li className="border border-(--color-border) rounded-xl p-3">
+            <div className="flex justify-between items-start gap-3">
+                <p className="text-sm font-semibold text-(--color-text-primary)">
+                    {transition}
+                </p>
+                <p className="text-xs text-(--color-text-secondary) shrink-0">
+                    {formatDate(entry.createdAt, "—")}
+                </p>
+            </div>
+            <p className="text-xs text-(--color-text-secondary) mt-1">
+                {t("admin.changedBy", { name: actorName })}
+            </p>
+            {entry.reason && (
+                <p className="text-sm text-(--color-text-primary) mt-2 whitespace-pre-wrap">
+                    {entry.reason}
+                </p>
+            )}
+        </li>
+    );
+}
+
+function UserDetailModal({
+    userId,
+    isSelf,
     onClose,
-    onBan,
-    onSave,
+    onRequestBan,
+    onUnban,
+    onRoleChange,
+    isMutating,
+    mutationError,
 }: {
-    user: User;
+    userId: string;
+    isSelf: boolean;
     onClose: () => void;
-    onBan: () => void;
-    onSave: (id: number, data: Partial<User>) => void;
+    onRequestBan: () => void;
+    onUnban: () => void;
+    onRoleChange: (role: UserRole) => void;
+    isMutating: boolean;
+    mutationError: boolean;
 }) {
     const { t } = useTranslation();
-    const [editing, setEditing] = useState(false);
-    const [name, setName] = useState(user.name);
-    const [email, setEmail] = useState(user.email);
-    const [phone, setPhone] = useState(user.phone);
-    const [spz, setSpz] = useState(user.spz ?? "");
-    const [role, setRole] = useState<UserRole>(user.role);
-
-    const inputClass =
-        "w-full border border-(--color-border) rounded-xl bg-(--color-input-bg) text-(--color-text-primary) px-3 py-2.5 text-sm outline-none focus:border-(--color-primary) transition-colors";
+    const detailQuery = useGetAdminUsersById(userId);
     const labelClass =
         "text-xs font-bold text-(--color-text-secondary) tracking-wider mb-1 block";
-
-    function handleSave() {
-        onSave(user.id, { name, email, phone, spz: spz || null, role });
-        setEditing(false);
-    }
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
@@ -194,163 +164,182 @@ function UserProfileModal({
                 onClick={onClose}
             />
             <div
-                className="relative rounded-2xl shadow-2xl w-full max-w-lg p-8"
+                className="relative rounded-2xl shadow-2xl w-full max-w-2xl p-8 max-h-[90vh] overflow-y-auto"
                 style={{ background: "var(--color-card)" }}
             >
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
-                        {editing
-                            ? t("admin.editProfile")
-                            : t("admin.userProfile")}
+                        {t("admin.userProfile")}
                     </h2>
                     <button
-                        onClick={editing ? () => setEditing(false) : onClose}
+                        onClick={onClose}
                         className="text-(--color-text-secondary) hover:text-(--color-text-primary) text-xl"
                     >
                         ✕
                     </button>
                 </div>
 
-                <div className="flex items-center gap-4 mb-6">
-                    <Avatar
-                        name={name}
-                        size="lg"
-                    />
-                    <div>
-                        <p className="text-lg font-bold text-(--color-text-primary)">
-                            {name}
-                        </p>
-                        <p className="text-sm text-(--color-text-secondary) mb-1">
-                            {email}
-                        </p>
-                        <StatusBadge status={user.status} />
-                    </div>
-                </div>
+                {detailQuery.isLoading && (
+                    <p className="text-(--color-text-secondary)">
+                        {t("admin.loadingUsers")}
+                    </p>
+                )}
 
-                {!editing ? (
-                    /* ── View mode ── */
+                {detailQuery.isError && (
+                    <p className="text-(--color-danger-text)">
+                        {t("admin.loadError")}
+                    </p>
+                )}
+
+                {detailQuery.data && (
                     <>
-                        <div className="grid grid-cols-2 gap-x-8 gap-y-4 mb-6">
-                            {[
-                                [t("admin.phone"), user.phone],
-                                [t("admin.role"), t(`admin.${user.role}`)],
-                                [t("admin.spzPlate"), user.spz ?? "-"],
-                                [t("admin.memberSince"), user.memberSince],
-                                [t("admin.totalRides"), String(user.rides)],
-                                [
-                                    t("admin.rating"),
-                                    user.rating !== null
-                                        ? String(user.rating)
-                                        : "-",
-                                ],
-                            ].map(([label, value]) => (
-                                <div key={String(label)}>
-                                    <p className={labelClass}>{label}</p>
-                                    <p className="text-sm font-semibold text-(--color-text-primary)">
-                                        {value}
-                                    </p>
-                                </div>
-                            ))}
+                        <div className="flex items-center gap-4 mb-6">
+                            <Avatar
+                                name={
+                                    fullName(
+                                        detailQuery.data.user.firstName,
+                                        detailQuery.data.user.lastName
+                                    ) || detailQuery.data.user.email
+                                }
+                                size="lg"
+                            />
+                            <div>
+                                <p className="text-lg font-bold text-(--color-text-primary)">
+                                    {fullName(
+                                        detailQuery.data.user.firstName,
+                                        detailQuery.data.user.lastName
+                                    ) || "—"}
+                                </p>
+                                <p className="text-sm text-(--color-text-secondary) mb-1">
+                                    {detailQuery.data.user.email}
+                                </p>
+                                <StatusBadge
+                                    status={detailQuery.data.user.userStatus}
+                                />
+                            </div>
                         </div>
-                        <div className="flex gap-2 flex-wrap">
-                            <Button
-                                variant="secondary"
-                                onClick={() => setEditing(true)}
-                            >
-                                ✎ {t("admin.editProfile")}
-                            </Button>
-                            <Button variant="secondary">
-                                ↺ {t("admin.resetPassword")}
-                            </Button>
-                            {user.status !== "banned" && (
+
+                        <div className="grid grid-cols-2 gap-x-8 gap-y-4 mb-6">
+                            <div>
+                                <p className={labelClass}>{t("admin.phone")}</p>
+                                <p className="text-sm font-semibold text-(--color-text-primary)">
+                                    {detailQuery.data.user.phone ?? "—"}
+                                </p>
+                            </div>
+                            <div>
+                                <p className={labelClass}>
+                                    {t("admin.displayName")}
+                                </p>
+                                <p className="text-sm font-semibold text-(--color-text-primary)">
+                                    {detailQuery.data.user.displayName ?? "—"}
+                                </p>
+                            </div>
+                            <div>
+                                <p className={labelClass}>
+                                    {t("admin.joined")}
+                                </p>
+                                <p className="text-sm font-semibold text-(--color-text-primary)">
+                                    {formatDate(
+                                        detailQuery.data.user.createdAt,
+                                        "—"
+                                    )}
+                                </p>
+                            </div>
+                            <div>
+                                <p className={labelClass}>
+                                    {t("admin.lastActive")}
+                                </p>
+                                <p className="text-sm font-semibold text-(--color-text-primary)">
+                                    {formatDate(
+                                        detailQuery.data.user.lastActiveAt,
+                                        t("admin.never")
+                                    )}
+                                </p>
+                            </div>
+                            <div className="col-span-2">
+                                <p className={labelClass}>{t("admin.bio")}</p>
+                                <p className="text-sm text-(--color-text-primary) whitespace-pre-wrap">
+                                    {detailQuery.data.user.bio ?? "—"}
+                                </p>
+                            </div>
+                            <div>
+                                <p className={labelClass}>{t("admin.role")}</p>
+                                <select
+                                    className="w-full border border-(--color-border) rounded-xl bg-(--color-input-bg) text-(--color-text-primary) px-3 py-2.5 text-sm outline-none focus:border-(--color-primary) transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    value={detailQuery.data.user.role}
+                                    disabled={isSelf || isMutating}
+                                    title={
+                                        isSelf
+                                            ? t("admin.selfActionDisabled")
+                                            : undefined
+                                    }
+                                    onChange={(e) =>
+                                        onRoleChange(e.target.value as UserRole)
+                                    }
+                                >
+                                    <option value="USER">
+                                        {t("admin.userRoleUser")}
+                                    </option>
+                                    <option value="ADMIN">
+                                        {t("admin.userRoleAdmin")}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {mutationError && (
+                            <p className="text-sm text-(--color-danger-text) mb-4">
+                                {t("admin.failedToUpdate")}
+                            </p>
+                        )}
+
+                        <div className="flex gap-2 flex-wrap mb-6">
+                            {detailQuery.data.user.userStatus === "BANNED" ? (
+                                <Button
+                                    variant="primary"
+                                    onClick={onUnban}
+                                    disabled={isSelf || isMutating}
+                                    title={
+                                        isSelf
+                                            ? t("admin.selfActionDisabled")
+                                            : undefined
+                                    }
+                                >
+                                    {t("admin.unbanUser")}
+                                </Button>
+                            ) : (
                                 <Button
                                     variant="red"
-                                    onClick={onBan}
+                                    onClick={onRequestBan}
+                                    disabled={isSelf || isMutating}
+                                    title={
+                                        isSelf
+                                            ? t("admin.selfActionDisabled")
+                                            : undefined
+                                    }
                                 >
                                     {t("admin.banUser")}
                                 </Button>
                             )}
                         </div>
-                    </>
-                ) : (
-                    /* ── Edit mode ── */
-                    <>
-                        <div className="grid grid-cols-2 gap-4 mb-6">
-                            <div>
-                                <label className={labelClass}>
-                                    {t("admin.name")}
-                                </label>
-                                <input
-                                    className={inputClass}
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                />
-                            </div>
-                            <div>
-                                <label className={labelClass}>
-                                    {t("admin.email")}
-                                </label>
-                                <input
-                                    className={inputClass}
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </div>
-                            <div>
-                                <label className={labelClass}>
-                                    {t("admin.phone")}
-                                </label>
-                                <input
-                                    className={inputClass}
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
-                                />
-                            </div>
-                            <div>
-                                <label className={labelClass}>
-                                    {t("admin.role")}
-                                </label>
-                                <select
-                                    className={inputClass + " cursor-pointer"}
-                                    value={role}
-                                    onChange={(e) =>
-                                        setRole(e.target.value as UserRole)
-                                    }
-                                >
-                                    <option value="driver">
-                                        {t("admin.driver")}
-                                    </option>
-                                    <option value="passenger">
-                                        {t("admin.passenger")}
-                                    </option>
-                                </select>
-                            </div>
-                            <div className="col-span-2">
-                                <label className={labelClass}>
-                                    {t("admin.spzPlate")}
-                                </label>
-                                <input
-                                    className={inputClass}
-                                    value={spz}
-                                    onChange={(e) =>
-                                        setSpz(e.target.value.toUpperCase())
-                                    }
-                                    placeholder="e.g. BA-123AB"
-                                />
-                            </div>
-                        </div>
-                        <div className="flex gap-3 justify-end">
-                            <Button
-                                variant="secondary"
-                                onClick={() => setEditing(false)}
-                            >
-                                {t("admin.cancel")}
-                            </Button>
-                            <Button onClick={handleSave}>
-                                {t("admin.saveChanges")}
-                            </Button>
-                        </div>
+
+                        <h3 className="text-base font-bold text-(--color-text-primary) mb-3">
+                            {t("admin.statusHistory")}
+                        </h3>
+                        {detailQuery.data.statusHistory.length === 0 ? (
+                            <p className="text-sm text-(--color-text-secondary)">
+                                {t("admin.noStatusHistory")}
+                            </p>
+                        ) : (
+                            <ul className="flex flex-col gap-2">
+                                {detailQuery.data.statusHistory.map((entry) => (
+                                    <StatusHistoryEntry
+                                        key={entry.id}
+                                        entry={entry}
+                                    />
+                                ))}
+                            </ul>
+                        )}
                     </>
                 )}
             </div>
@@ -358,22 +347,22 @@ function UserProfileModal({
     );
 }
 
-/* ── Ban modal ── */
 function BanUserModal({
-    user,
+    userName,
     onClose,
     onConfirm,
+    isPending,
+    isError,
 }: {
-    user: User;
+    userName: string;
     onClose: () => void;
-    onConfirm: (id: number) => void;
+    onConfirm: (reason: string | undefined) => void;
+    isPending: boolean;
+    isError: boolean;
 }) {
     const { t } = useTranslation();
-    const [banType, setBanType] = useState<"temporary" | "permanent">(
-        "temporary"
-    );
-    const [days, setDays] = useState("7");
     const [reason, setReason] = useState("");
+    const trimmedReason = reason.trim();
 
     const inputClass =
         "w-full border border-(--color-border) rounded-xl bg-(--color-input-bg) text-(--color-text-primary) px-4 py-3 text-sm outline-none focus:border-(--color-primary) transition-colors";
@@ -390,7 +379,7 @@ function BanUserModal({
             >
                 <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
-                        {t("admin.banUser")} — {user.name}
+                        {t("admin.banUser")} — {userName}
                     </h2>
                     <button
                         onClick={onClose}
@@ -404,46 +393,6 @@ function BanUserModal({
                     {t("admin.banWarning")}
                 </div>
 
-                <div className="mb-4">
-                    <p className="text-sm font-semibold text-(--color-text-primary) mb-2">
-                        {t("admin.banType")}
-                    </p>
-                    <div className="flex gap-5">
-                        {(["temporary", "permanent"] as const).map((type) => (
-                            <label
-                                key={type}
-                                className="flex items-center gap-2 cursor-pointer text-sm text-(--color-text-primary)"
-                            >
-                                <input
-                                    type="radio"
-                                    name="banType"
-                                    checked={banType === type}
-                                    onChange={() => setBanType(type)}
-                                    className="accent-green-500 w-4 h-4"
-                                />
-                                {type === "temporary"
-                                    ? t("admin.temporary")
-                                    : t("admin.permanent")}
-                            </label>
-                        ))}
-                    </div>
-                </div>
-
-                {banType === "temporary" && (
-                    <div className="mb-4">
-                        <label className="text-sm font-semibold text-(--color-text-primary) mb-1.5 block">
-                            {t("admin.duration")}
-                        </label>
-                        <input
-                            className={inputClass}
-                            type="number"
-                            min="1"
-                            value={days}
-                            onChange={(e) => setDays(e.target.value)}
-                        />
-                    </div>
-                )}
-
                 <div className="mb-6">
                     <label className="text-sm font-semibold text-(--color-text-primary) mb-1.5 block">
                         {t("admin.reasonForBan")}
@@ -451,24 +400,36 @@ function BanUserModal({
                     <textarea
                         className={inputClass + " resize-y min-h-25"}
                         placeholder={t("admin.reasonPlaceholder")}
+                        maxLength={500}
                         value={reason}
                         onChange={(e) => setReason(e.target.value)}
                     />
                 </div>
 
+                {isError && (
+                    <p className="text-sm text-(--color-danger-text) mb-4">
+                        {t("admin.failedToUpdate")}
+                    </p>
+                )}
+
                 <div className="flex gap-3 justify-end">
                     <Button
                         variant="secondary"
                         onClick={onClose}
+                        disabled={isPending}
                     >
                         {t("admin.cancel")}
                     </Button>
                     <Button
                         variant="red"
-                        onClick={() => {
-                            onConfirm(user.id);
-                            onClose();
-                        }}
+                        onClick={() =>
+                            onConfirm(
+                                trimmedReason.length > 0
+                                    ? trimmedReason
+                                    : undefined
+                            )
+                        }
+                        disabled={isPending}
                     >
                         ⊘ {t("admin.confirmBan")}
                     </Button>
@@ -478,12 +439,12 @@ function BanUserModal({
     );
 }
 
-/* ── Main page ── */
 export function AdminUsersPage({
     language,
     theme,
     onLanguageChange,
     onThemeToggle,
+    userId,
     userName = "Admin",
     userEmail = "admin@waymate.com",
 }: AdminUsersPageProps) {
@@ -497,43 +458,95 @@ export function AdminUsersPage({
         userName,
         userEmail,
     });
-    const [search, setSearch] = useState("");
-    const [roleFilter, setRoleFilter] = useState("all");
-    const [statusFilter, setStatusFilter] = useState("all");
-    const [viewUser, setViewUser] = useState<User | null>(null);
-    const [banUser, setBanUser] = useState<User | null>(null);
-    const [users, setUsers] = useState(USERS);
 
-    const filtered = users.filter((u) => {
-        const q = search.toLowerCase();
-        const matchSearch =
-            !q ||
-            u.name.toLowerCase().includes(q) ||
-            u.email.toLowerCase().includes(q) ||
-            (u.spz ?? "").toLowerCase().includes(q);
-        const matchRole = roleFilter === "all" || u.role === roleFilter;
-        const matchStatus = statusFilter === "all" || u.status === statusFilter;
-        return matchSearch && matchRole && matchStatus;
-    });
+    const [searchInput, setSearchInput] = useState("");
+    const debouncedSearch = useDebounced(searchInput, SEARCH_DEBOUNCE_MS);
+    const [roleFilter, setRoleFilter] = useState<UserRole | "ALL">("ALL");
 
-    function handleBan(id: number) {
-        setUsers((prev) =>
-            prev.map((u) =>
-                u.id === id ? { ...u, status: "banned" as UserStatus } : u
-            )
+    const [previousPages, setPreviousPages] = useState<AdminUserListItem[][]>(
+        []
+    );
+    const [cursor, setCursor] = useState<string | undefined>(undefined);
+
+    const trimmedSearch = debouncedSearch.trim();
+    const queryParams = {
+        limit: PAGE_SIZE,
+        cursor,
+        role: roleFilter === "ALL" ? undefined : roleFilter,
+        search: trimmedSearch.length > 0 ? trimmedSearch : undefined,
+    };
+
+    const usersQuery = useGetAdminUsers(queryParams);
+
+    // Reset accumulated pages when filters change. We can't compare params via
+    // identity, so we serialize the filter portion of the query key.
+    const filterKey = useMemo(
+        () => `${roleFilter}|${trimmedSearch}`,
+        [roleFilter, trimmedSearch]
+    );
+    useEffect(() => {
+        setPreviousPages([]);
+        setCursor(undefined);
+    }, [filterKey]);
+
+    const items = useMemo(
+        () => [...previousPages.flat(), ...(usersQuery.data?.items ?? [])],
+        [previousPages, usersQuery.data]
+    );
+
+    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+    const [banTarget, setBanTarget] = useState<AdminUserListItem | null>(null);
+
+    const setUserRole = useSetUserRole();
+    const setUserStatus = useSetUserStatus();
+
+    // Drop accumulated prior pages so the invalidated refetch starts from page 1
+    // and reflects the mutation across the whole loaded range.
+    const resetPagination = () => {
+        setPreviousPages([]);
+        setCursor(undefined);
+    };
+
+    const handleLoadMore = () => {
+        const data = usersQuery.data;
+        if (!data || !data.nextCursor) return;
+        setPreviousPages((prev) => [...prev, data.items]);
+        setCursor(data.nextCursor);
+    };
+
+    const handleRoleChange = (targetUserId: string, role: UserRole) => {
+        if (targetUserId === userId) return;
+        setUserRole.mutate(
+            { userId: targetUserId, role },
+            { onSuccess: resetPagination }
         );
-    }
+    };
 
-    function handleUnban(id: number) {
-        setUsers((prev) =>
-            prev.map((u) =>
-                u.id === id ? { ...u, status: "active" as UserStatus } : u
-            )
+    const handleConfirmBan = (reason: string | undefined) => {
+        if (!banTarget) return;
+        setUserStatus.mutate(
+            { userId: banTarget.id, status: "BANNED", reason },
+            {
+                onSuccess: () => {
+                    setBanTarget(null);
+                    resetPagination();
+                },
+            }
         );
-    }
+    };
+
+    const handleUnban = (target: AdminUserListItem) => {
+        setUserStatus.mutate(
+            { userId: target.id, status: "ACTIVE" },
+            { onSuccess: resetPagination }
+        );
+    };
 
     const selectClass =
         "border border-(--color-border) rounded-lg bg-(--color-card) text-(--color-text-primary) text-sm px-3 py-2 outline-none cursor-pointer";
+
+    const isInitialLoading =
+        usersQuery.isLoading || (cursor === undefined && usersQuery.isFetching);
 
     return (
         <div
@@ -550,7 +563,6 @@ export function AdminUsersPage({
                     {t("admin.usersSubtitle")}
                 </p>
 
-                {/* Filters */}
                 <div className="flex flex-col gap-3 mb-6">
                     <div className="flex items-center gap-2 border border-(--color-border) rounded-xl px-3 py-2 bg-(--color-card) w-full sm:max-w-sm">
                         <svg
@@ -572,157 +584,255 @@ export function AdminUsersPage({
                         <input
                             className="bg-transparent border-none outline-none text-sm text-(--color-text-primary) w-full"
                             placeholder={t("admin.searchUsers")}
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            value={searchInput}
+                            onChange={(e) => setSearchInput(e.target.value)}
                         />
                     </div>
                     <div className="flex gap-3">
                         <select
                             className={selectClass}
                             value={roleFilter}
-                            onChange={(e) => setRoleFilter(e.target.value)}
+                            onChange={(e) =>
+                                setRoleFilter(
+                                    e.target.value as UserRole | "ALL"
+                                )
+                            }
                         >
-                            <option value="all">{t("admin.all")}</option>
-                            <option value="driver">{t("admin.driver")}</option>
-                            <option value="passenger">
-                                {t("admin.passenger")}
+                            <option value="ALL">{t("admin.all")}</option>
+                            <option value="USER">
+                                {t("admin.userRoleUser")}
                             </option>
-                        </select>
-                        <select
-                            className={selectClass}
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                        >
-                            <option value="all">{t("admin.all")}</option>
-                            <option value="active">{t("admin.active")}</option>
-                            <option value="banned">{t("admin.banned")}</option>
-                            <option value="pending">
-                                {t("admin.pending")}
+                            <option value="ADMIN">
+                                {t("admin.userRoleAdmin")}
                             </option>
                         </select>
                     </div>
                 </div>
 
-                {/* Table */}
-                <div className="bg-(--color-card) rounded-2xl border border-(--color-border) overflow-x-auto">
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="border-b border-(--color-border)">
-                                {[
-                                    t("admin.user"),
-                                    t("admin.role"),
-                                    t("admin.email"),
-                                    "SPZ",
-                                    t("admin.rating"),
-                                    t("admin.rides"),
-                                    t("admin.status"),
-                                    t("admin.actions"),
-                                ].map((h) => (
-                                    <th
-                                        key={h}
-                                        className="text-left text-xs font-bold text-(--color-text-secondary) tracking-wider px-5 py-4"
+                {isInitialLoading && (
+                    <p className="text-(--color-text-secondary) py-4">
+                        {t("admin.loadingUsers")}
+                    </p>
+                )}
+
+                {!isInitialLoading && usersQuery.isError && (
+                    <p className="text-(--color-danger-text) py-4">
+                        {t("admin.loadError")}
+                    </p>
+                )}
+
+                {!isInitialLoading &&
+                    !usersQuery.isError &&
+                    items.length === 0 && (
+                        <p className="text-(--color-text-secondary) py-4">
+                            {t("admin.noUsersFound")}
+                        </p>
+                    )}
+
+                {!isInitialLoading &&
+                    !usersQuery.isError &&
+                    items.length > 0 && (
+                        <>
+                            <div className="bg-(--color-card) rounded-2xl border border-(--color-border) overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="border-b border-(--color-border)">
+                                            {[
+                                                t("admin.user"),
+                                                t("admin.role"),
+                                                t("admin.email"),
+                                                t("admin.status"),
+                                                t("admin.lastActive"),
+                                                t("admin.actions"),
+                                            ].map((h) => (
+                                                <th
+                                                    key={h}
+                                                    className="text-left text-xs font-bold text-(--color-text-secondary) tracking-wider px-5 py-4"
+                                                >
+                                                    {h}
+                                                </th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {items.map((listItem) => {
+                                            const name =
+                                                fullName(
+                                                    listItem.firstName,
+                                                    listItem.lastName
+                                                ) || listItem.email;
+                                            const isSelf =
+                                                listItem.id === userId;
+                                            return (
+                                                <tr
+                                                    key={listItem.id}
+                                                    className="border-b border-(--color-border) last:border-0 hover:bg-(--color-bg) transition-colors"
+                                                >
+                                                    <td className="px-5 py-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <Avatar
+                                                                name={name}
+                                                                size="sm"
+                                                            />
+                                                            <span className="font-semibold text-(--color-text-primary) whitespace-nowrap">
+                                                                {name}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-5 py-4 text-(--color-text-secondary)">
+                                                        {listItem.role ===
+                                                        "ADMIN"
+                                                            ? t(
+                                                                  "admin.userRoleAdmin"
+                                                              )
+                                                            : t(
+                                                                  "admin.userRoleUser"
+                                                              )}
+                                                    </td>
+                                                    <td className="px-5 py-4 text-(--color-text-secondary)">
+                                                        {listItem.email}
+                                                    </td>
+                                                    <td className="px-5 py-4">
+                                                        <StatusBadge
+                                                            status={
+                                                                listItem.userStatus
+                                                            }
+                                                        />
+                                                    </td>
+                                                    <td className="px-5 py-4 text-(--color-text-secondary)">
+                                                        {formatDate(
+                                                            listItem.lastActiveAt,
+                                                            t("admin.never")
+                                                        )}
+                                                    </td>
+                                                    <td className="px-5 py-4">
+                                                        <div className="flex gap-2 items-center">
+                                                            <button
+                                                                onClick={() =>
+                                                                    setSelectedUserId(
+                                                                        listItem.id
+                                                                    )
+                                                                }
+                                                                className="px-3 py-1.5 border border-(--color-border) rounded-lg text-sm font-medium text-(--color-text-secondary) hover:bg-(--color-border) transition-colors"
+                                                            >
+                                                                {t(
+                                                                    "admin.view"
+                                                                )}
+                                                            </button>
+                                                            {listItem.userStatus ===
+                                                            "BANNED" ? (
+                                                                <button
+                                                                    onClick={() =>
+                                                                        handleUnban(
+                                                                            listItem
+                                                                        )
+                                                                    }
+                                                                    disabled={
+                                                                        isSelf ||
+                                                                        setUserStatus.isPending
+                                                                    }
+                                                                    title={
+                                                                        isSelf
+                                                                            ? t(
+                                                                                  "admin.selfActionDisabled"
+                                                                              )
+                                                                            : undefined
+                                                                    }
+                                                                    className="px-3 py-1.5 bg-(--color-primary) hover:bg-(--color-primary-hover) text-(--color-card) rounded-lg text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                >
+                                                                    {t(
+                                                                        "admin.unban"
+                                                                    )}
+                                                                </button>
+                                                            ) : (
+                                                                <button
+                                                                    onClick={() =>
+                                                                        setBanTarget(
+                                                                            listItem
+                                                                        )
+                                                                    }
+                                                                    disabled={
+                                                                        isSelf ||
+                                                                        setUserStatus.isPending
+                                                                    }
+                                                                    title={
+                                                                        isSelf
+                                                                            ? t(
+                                                                                  "admin.selfActionDisabled"
+                                                                              )
+                                                                            : undefined
+                                                                    }
+                                                                    className="px-3 py-1.5 bg-(--color-red) hover:bg-(--color-red)/90 text-(--color-card) rounded-lg text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                >
+                                                                    {t(
+                                                                        "admin.ban"
+                                                                    )}
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {usersQuery.data?.nextCursor && (
+                                <div className="flex justify-center mt-6">
+                                    <Button
+                                        variant="secondary"
+                                        onClick={handleLoadMore}
+                                        disabled={usersQuery.isFetching}
                                     >
-                                        {h}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filtered.map((user) => (
-                                <tr
-                                    key={user.id}
-                                    className="border-b border-(--color-border) last:border-0 hover:bg-(--color-bg) transition-colors"
-                                >
-                                    <td className="px-5 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <Avatar
-                                                name={user.name}
-                                                size="sm"
-                                            />
-                                            <span className="font-semibold text-(--color-text-primary) whitespace-nowrap">
-                                                {user.name}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="px-5 py-4 text-(--color-text-secondary)">
-                                        {t(`admin.${user.role}`)}
-                                    </td>
-                                    <td className="px-5 py-4 text-(--color-text-secondary)">
-                                        {user.email}
-                                    </td>
-                                    <td className="px-5 py-4 text-(--color-text-secondary) font-mono text-xs">
-                                        {user.spz ?? "-"}
-                                    </td>
-                                    <td className="px-5 py-4">
-                                        <RatingDisplay rating={user.rating} />
-                                    </td>
-                                    <td className="px-5 py-4 font-semibold text-(--color-text-primary)">
-                                        {user.rides}
-                                    </td>
-                                    <td className="px-5 py-4">
-                                        <StatusBadge status={user.status} />
-                                    </td>
-                                    <td className="px-5 py-4">
-                                        <div className="flex gap-2 items-center">
-                                            <button
-                                                onClick={() =>
-                                                    setViewUser(user)
-                                                }
-                                                className="px-3 py-1.5 border border-(--color-border) rounded-lg text-sm font-medium text-(--color-text-secondary) hover:bg-(--color-border) transition-colors"
-                                            >
-                                                {t("admin.view")}
-                                            </button>
-                                            {user.status === "banned" ? (
-                                                <button
-                                                    onClick={() =>
-                                                        handleUnban(user.id)
-                                                    }
-                                                    className="px-3 py-1.5 bg-(--color-primary) hover:bg-(--color-primary-hover) text-(--color-card) rounded-lg text-sm font-semibold transition-colors"
-                                                >
-                                                    {t("admin.unban")}
-                                                </button>
-                                            ) : (
-                                                <button
-                                                    onClick={() =>
-                                                        setBanUser(user)
-                                                    }
-                                                    className="px-3 py-1.5 bg-(--color-red) hover:bg-(--color-red)/90 text-(--color-card) rounded-lg text-sm font-semibold transition-colors"
-                                                >
-                                                    {t("admin.ban")}
-                                                </button>
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                                        {t("admin.loadMore")}
+                                    </Button>
+                                </div>
+                            )}
+                        </>
+                    )}
             </div>
 
-            {viewUser && (
-                <UserProfileModal
-                    user={viewUser}
-                    onClose={() => setViewUser(null)}
-                    onBan={() => {
-                        setBanUser(viewUser);
-                        setViewUser(null);
+            {selectedUserId && (
+                <UserDetailModal
+                    userId={selectedUserId}
+                    isSelf={selectedUserId === userId}
+                    onClose={() => setSelectedUserId(null)}
+                    onRequestBan={() => {
+                        const target = items.find(
+                            (u) => u.id === selectedUserId
+                        );
+                        if (target) {
+                            setSelectedUserId(null);
+                            setBanTarget(target);
+                        }
                     }}
-                    onSave={(id, data) =>
-                        setUsers((prev) =>
-                            prev.map((u) =>
-                                u.id === id ? { ...u, ...data } : u
-                            )
-                        )
+                    onUnban={() => {
+                        const target = items.find(
+                            (u) => u.id === selectedUserId
+                        );
+                        if (target) handleUnban(target);
+                    }}
+                    onRoleChange={(role) =>
+                        handleRoleChange(selectedUserId, role)
                     }
+                    isMutating={
+                        setUserRole.isPending || setUserStatus.isPending
+                    }
+                    mutationError={setUserRole.isError || setUserStatus.isError}
                 />
             )}
 
-            {banUser && (
+            {banTarget && (
                 <BanUserModal
-                    user={banUser}
-                    onClose={() => setBanUser(null)}
-                    onConfirm={handleBan}
+                    userName={
+                        fullName(banTarget.firstName, banTarget.lastName) ||
+                        banTarget.email
+                    }
+                    onClose={() => setBanTarget(null)}
+                    onConfirm={handleConfirmBan}
+                    isPending={setUserStatus.isPending}
+                    isError={setUserStatus.isError}
                 />
             )}
         </div>
