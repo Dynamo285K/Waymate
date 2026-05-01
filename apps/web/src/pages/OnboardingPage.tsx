@@ -8,7 +8,7 @@ import type { Language } from "@waymate/ui";
 import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
 import { apiFetch } from "../lib/api";
 import { getErrorI18nKey } from "../lib/api-errors";
-import { hasCompletedOnboarding } from "../lib/auth";
+import { getPostAuthPath, hasCompletedOnboarding } from "../lib/auth";
 
 type OnboardingPageProps = {
     language: Language;
@@ -67,10 +67,10 @@ export function OnboardingPage({
         let isMounted = true;
 
         apiFetch<CurrentUser>("/users/me")
-            .then((user) => {
+            .then(async (user) => {
                 if (!isMounted) return;
                 if (hasCompletedOnboarding(user)) {
-                    navigate("/passenger", { replace: true });
+                    navigate(await getPostAuthPath(), { replace: true });
                     return;
                 }
 
@@ -127,7 +127,7 @@ export function OnboardingPage({
             );
             queryClient.setQueryData(["users", "me"], updatedUser);
             await queryClient.invalidateQueries({ queryKey: ["users", "me"] });
-            navigate("/passenger");
+            navigate(await getPostAuthPath());
         } catch (error) {
             console.error("Onboarding submit failed", error);
             setSubmitError(t(getErrorI18nKey(error, {}, "onboarding.error")));
