@@ -8,6 +8,10 @@
         "validation": "Some of the information you entered is invalid.",
         "unknown": "Something went wrong. Please try again."
     },
+    "auth": {
+        "googleNotConfigured": "Google sign-in isn't configured yet.",
+        "googleUnavailable": "Google sign-in isn't available right now. Try email and password, or come back later."
+    },
     "login": {
         "title": "Login to your account",
         "emailLabel": "Email",
@@ -22,7 +26,6 @@
         "createAccount": "Create account",
         "invalidEmail": "Enter a valid email address.",
         "passwordTooShort": "Password must be at least 8 characters.",
-        "googleNotConfigured": "Google login is not configured yet.",
         "error": "Login failed. Please check your credentials and try again."
     },
     "register": {
@@ -41,7 +44,6 @@
         "invalidEmail": "Enter a valid email address.",
         "passwordTooShort": "Password must be at least 8 characters.",
         "emailAlreadyInUse": "This email is already in use.",
-        "googleNotConfigured": "Google registration is not configured yet.",
         "error": "Registration failed. Please try again.",
         "checkEmailTitle": "Check your email",
         "checkEmailText": "We sent a verification link to {{email}}. Verify your email address, then finish your profile.",

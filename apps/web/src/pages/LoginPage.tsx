@@ -12,6 +12,7 @@ import {
     signInWithEmail,
     signInWithGoogle,
 } from "../lib/auth";
+import { getAuthErrorI18nKey } from "../lib/auth-errors";
 
 type LoginPageProps = {
     language: Language;
@@ -73,8 +74,9 @@ export function LoginPage({
         });
 
         if (error) {
+            console.error("Email sign-in failed", error);
             setError("root", {
-                message: error.message ?? t("login.error"),
+                message: t(getAuthErrorI18nKey(error, "login.error")),
             });
             return;
         }
@@ -89,11 +91,10 @@ export function LoginPage({
             const { data, error } = await signInWithGoogle();
 
             if (error) {
-                const message =
-                    error.status === 400 || error.status === 404
-                        ? t("login.googleNotConfigured")
-                        : (error.message ?? t("login.error"));
-                setError("root", { message });
+                console.error("Google sign-in failed", error);
+                setError("root", {
+                    message: t(getAuthErrorI18nKey(error, "login.error")),
+                });
                 return;
             }
 

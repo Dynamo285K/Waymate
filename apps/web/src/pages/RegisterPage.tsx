@@ -9,6 +9,7 @@ import {
     signInWithGoogle,
     signUpWithEmail,
 } from "../lib/auth";
+import { getAuthErrorI18nKey } from "../lib/auth-errors";
 
 type RegisterPageProps = {
     language: Language;
@@ -80,7 +81,10 @@ export function RegisterPage({
                     setErrors({ email: t("register.emailAlreadyInUse") });
                     return;
                 }
-                setErrors({ form: error.message ?? t("register.error") });
+                console.error("Email sign-up failed", error);
+                setErrors({
+                    form: t(getAuthErrorI18nKey(error, "register.error")),
+                });
                 return;
             }
 
@@ -97,11 +101,10 @@ export function RegisterPage({
             const { data, error } = await signInWithGoogle();
 
             if (error) {
-                const message =
-                    error.status === 400 || error.status === 404
-                        ? t("register.googleNotConfigured")
-                        : (error.message ?? t("register.error"));
-                setErrors({ form: message });
+                console.error("Google sign-in failed", error);
+                setErrors({
+                    form: t(getAuthErrorI18nKey(error, "register.error")),
+                });
                 return;
             }
 
