@@ -9,7 +9,10 @@ import {
     signInWithGoogle,
     signUpWithEmail,
 } from "../lib/auth";
-import { getAuthErrorI18nKey } from "../lib/auth-errors";
+import {
+    getEmailAuthErrorI18nKey,
+    getGoogleAuthErrorI18nKey,
+} from "../lib/auth-errors";
 
 type RegisterPageProps = {
     language: Language;
@@ -83,7 +86,7 @@ export function RegisterPage({
                 }
                 console.error("Email sign-up failed", error);
                 setErrors({
-                    form: t(getAuthErrorI18nKey(error, "register.error")),
+                    form: t(getEmailAuthErrorI18nKey(error, "register.error")),
                 });
                 return;
             }
@@ -103,7 +106,9 @@ export function RegisterPage({
             if (error) {
                 console.error("Google sign-in failed", error);
                 setErrors({
-                    form: t(getAuthErrorI18nKey(error, "register.error")),
+                    form: t(
+                        getGoogleAuthErrorI18nKey(error, "register.error")
+                    ),
                 });
                 return;
             }

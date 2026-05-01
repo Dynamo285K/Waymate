@@ -1,35 +1,26 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@waymate/ui";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { adminUsersErrorMap } from "../lib/errors";
 
 type BanUserModalProps = {
-    targetId: string;
     userName: string;
     isPending: boolean;
     error: unknown;
     onClose: () => void;
-    onTargetChange: () => void;
     onConfirm: (reason: string | undefined) => void;
 };
 
 export function BanUserModal({
-    targetId,
     userName,
     isPending,
     error,
     onClose,
-    onTargetChange,
     onConfirm,
 }: BanUserModalProps) {
     const { t } = useTranslation();
     const [reason, setReason] = useState("");
-
-    useEffect(() => {
-        onTargetChange();
-        setReason("");
-    }, [targetId, onTargetChange]);
 
     const trimmedReason = reason.trim();
     const inputClass =

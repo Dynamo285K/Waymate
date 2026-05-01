@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar, Button } from "@waymate/ui";
 import { useGetAdminUsersById } from "../../../api-client/admin/admin";
@@ -18,7 +18,6 @@ type UserDetailModalProps = {
     onRequestBan: () => void;
     onUnban: () => void;
     onRoleChange: (role: UserRole) => void;
-    onTargetChange: () => void;
 };
 
 export function UserDetailModal({
@@ -30,17 +29,11 @@ export function UserDetailModal({
     onRequestBan,
     onUnban,
     onRoleChange,
-    onTargetChange,
 }: UserDetailModalProps) {
     const { t } = useTranslation();
     const detailQuery = useGetAdminUsersById(userId);
 
     const [pendingRole, setPendingRole] = useState<UserRole | null>(null);
-
-    useEffect(() => {
-        onTargetChange();
-        setPendingRole(null);
-    }, [userId, onTargetChange]);
 
     const labelClass =
         "text-xs font-bold text-(--color-text-secondary) tracking-wider mb-1 block";
