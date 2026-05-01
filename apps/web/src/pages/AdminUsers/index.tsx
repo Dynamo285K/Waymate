@@ -9,7 +9,7 @@ import { useSetUserStatus } from "../../hooks/useSetUserStatus";
 import { getGetAdminUsersQueryKey } from "../../api-client/admin/admin";
 import type { AdminUserListItem } from "../../api-client/model/adminUserListItem";
 import type { UserRole } from "../../api-client/model/userRole";
-import { getErrorCode } from "../../lib/api-errors";
+import { getErrorCode, getErrorI18nKey } from "../../lib/api-errors";
 import {
     AdminUsersFilters,
     type RoleFilter,
@@ -19,7 +19,7 @@ import { BanUserModal } from "./components/BanUserModal";
 import { UserDetailModal } from "./components/UserDetailModal";
 import { useAdminUsersList } from "./hooks/useAdminUsersList";
 import { useDebounced } from "./hooks/useDebounced";
-import { ADMIN_USER_NOT_FOUND_CODE } from "./lib/errors";
+import { ADMIN_USER_NOT_FOUND_CODE, adminUsersErrorMap } from "./lib/errors";
 import { fullName } from "./lib/format";
 
 type AdminUsersPageProps = {
@@ -188,7 +188,7 @@ export function AdminUsersPage({
 
                 {!list.isInitialLoading && list.isError && (
                     <p className="text-(--color-danger-text) py-4">
-                        {t("admin.loadError")}
+                        {t(getErrorI18nKey(list.error, adminUsersErrorMap))}
                     </p>
                 )}
 

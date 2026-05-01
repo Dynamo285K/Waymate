@@ -170,7 +170,6 @@
         "initialStatus": "Počiatočný stav: {{to}}",
         "loadMore": "Načítať ďalšie",
         "loadingUsers": "Načítavajú sa používatelia…",
-        "loadError": "Načítanie zlyhalo. Skúste to znova.",
         "noUsersFound": "Žiadny používateľ nezodpovedá filtrom.",
         "noReason": "Bez uvedenia dôvodu",
         "displayName": "Zobrazované meno",

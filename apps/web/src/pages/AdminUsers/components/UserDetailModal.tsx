@@ -75,7 +75,12 @@ export function UserDetailModal({
 
                 {!detailQuery.isLoading && detailQuery.isError && (
                     <p className="text-(--color-danger-text)">
-                        {t("admin.loadError")}
+                        {t(
+                            getErrorI18nKey(
+                                detailQuery.error,
+                                adminUsersErrorMap
+                            )
+                        )}
                     </p>
                 )}
 

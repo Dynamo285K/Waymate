@@ -96,9 +96,7 @@ export function LoginPage({
             if (error) {
                 console.error("Google sign-in failed", error);
                 setError("root", {
-                    message: t(
-                        getGoogleAuthErrorI18nKey(error, "login.error")
-                    ),
+                    message: t(getGoogleAuthErrorI18nKey(error, "login.error")),
                 });
                 return;
             }

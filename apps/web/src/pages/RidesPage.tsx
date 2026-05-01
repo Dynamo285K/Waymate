@@ -6,6 +6,7 @@ import type { Language } from "@waymate/ui";
 import { useRideSearch } from "../hooks/useRideSearch";
 import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
 import { useGetRidesAvailable } from "../api-client/rides/rides";
+import { getErrorI18nKey } from "../lib/api-errors";
 import { formatRideDate } from "../lib/date-format";
 
 type RidesPageProps = {
@@ -50,12 +51,14 @@ export function RidesPage({
         data: availableRideRows,
         isLoading: areAvailableRidesLoading,
         isError: areAvailableRidesError,
+        error: availableRidesError,
     } = useGetRidesAvailable();
 
     const {
         data: rides,
         isLoading,
         isError,
+        error: searchError,
         canSearch,
     } = useRideSearch({ from, to, date: dateStr });
 
@@ -107,7 +110,13 @@ export function RidesPage({
 
                 {showAllRides && areAvailableRidesError && (
                     <p className="text-(--color-text-secondary) mt-1">
-                        {t("rides.error")}
+                        {t(
+                            getErrorI18nKey(
+                                availableRidesError,
+                                {},
+                                "rides.error"
+                            )
+                        )}
                     </p>
                 )}
 
@@ -125,7 +134,7 @@ export function RidesPage({
 
                 {canSearch && isError && (
                     <p className="text-(--color-text-secondary) mt-1">
-                        {t("rides.error")}
+                        {t(getErrorI18nKey(searchError, {}, "rides.error"))}
                     </p>
                 )}
 

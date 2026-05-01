@@ -7,6 +7,7 @@ import { AuthNavbar, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
 import { apiFetch } from "../lib/api";
+import { getErrorI18nKey } from "../lib/api-errors";
 import { hasCompletedOnboarding } from "../lib/auth";
 
 type OnboardingPageProps = {
@@ -128,9 +129,8 @@ export function OnboardingPage({
             await queryClient.invalidateQueries({ queryKey: ["users", "me"] });
             navigate("/passenger");
         } catch (error) {
-            setSubmitError(
-                error instanceof Error ? error.message : t("onboarding.error")
-            );
+            console.error("Onboarding submit failed", error);
+            setSubmitError(t(getErrorI18nKey(error, {}, "onboarding.error")));
         } finally {
             setIsSubmitting(false);
         }

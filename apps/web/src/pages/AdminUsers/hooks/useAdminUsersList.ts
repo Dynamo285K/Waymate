@@ -38,12 +38,15 @@ export function useAdminUsersList(filters: AdminUsersListFilters) {
     const last = queries[queries.length - 1];
     const nextCursor = last?.data?.nextCursor ?? null;
 
+    const firstError = queries.find((q) => q.isError)?.error;
+
     return {
         items,
         nextCursor,
         isInitialLoading: queries[0]?.isLoading ?? false,
         isFetching: queries.some((q) => q.isFetching),
         isError: queries.some((q) => q.isError),
+        error: firstError,
         loadMore: () => {
             if (nextCursor) {
                 setCursors((prev) => [...prev, nextCursor]);

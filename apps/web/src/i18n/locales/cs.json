@@ -170,7 +170,6 @@
         "initialStatus": "Počáteční stav: {{to}}",
         "loadMore": "Načíst další",
         "loadingUsers": "Načítání uživatelů…",
-        "loadError": "Načtení selhalo. Zkuste to znovu.",
         "noUsersFound": "Žádný uživatel neodpovídá filtrům.",
         "noReason": "Bez uvedení důvodu",
         "displayName": "Zobrazované jméno",

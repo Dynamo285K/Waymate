@@ -7,6 +7,7 @@ import {
     useGetReviewsMeAuthored,
     useGetReviewsUsersByUserId,
 } from "../api-client/reviews/reviews";
+import { getErrorI18nKey } from "../lib/api-errors";
 
 type DriverRatingsPageProps = {
     language: Language;
@@ -51,6 +52,7 @@ export function DriverRatingsPage({
     const isError = isReceived
         ? receivedReviews.isError
         : authoredReviews.isError;
+    const error = isReceived ? receivedReviews.error : authoredReviews.error;
     const ratings = isReceived
         ? (receivedReviews.data?.reviews.map((review) => ({
               id: review.id,
@@ -110,7 +112,7 @@ export function DriverRatingsPage({
                     )}
                     {isError && (
                         <p className="text-(--color-text-secondary)">
-                            {t("ratings.error", "Could not load ratings.")}
+                            {t(getErrorI18nKey(error, {}, "ratings.error"))}
                         </p>
                     )}
                     {!isLoading && !isError && ratings.length === 0 && (

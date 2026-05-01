@@ -14,6 +14,7 @@ import { useAdminNavbarProps } from "../hooks/useAdminNavbarProps";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 import { updateCurrentUserProfile } from "../lib/auth";
+import { getErrorI18nKey } from "../lib/api-errors";
 
 type EditProfilePageProps = {
     language: Language;
@@ -197,8 +198,11 @@ export function EditProfilePage({
                     {updateProfile.isError && (
                         <p className="text-sm font-semibold text-red-500">
                             {t(
-                                "editProfile.saveError",
-                                "Could not save profile changes."
+                                getErrorI18nKey(
+                                    updateProfile.error,
+                                    {},
+                                    "editProfile.saveError"
+                                )
                             )}
                         </p>
                     )}
