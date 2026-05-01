@@ -1,4 +1,13 @@
 {
+    "errors": {
+        "unauthorized": "Your session has expired. Please log in again.",
+        "forbidden": "You don't have permission to do that.",
+        "notFound": "We couldn't find what you were looking for.",
+        "server": "Something went wrong on our side. Please try again in a moment.",
+        "network": "Could not reach the server. Check your connection.",
+        "validation": "Some of the information you entered is invalid.",
+        "unknown": "Something went wrong. Please try again."
+    },
     "login": {
         "title": "Login to your account",
         "emailLabel": "Email",

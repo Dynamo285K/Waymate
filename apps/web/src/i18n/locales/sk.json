@@ -1,4 +1,13 @@
 {
+    "errors": {
+        "unauthorized": "Vaše prihlásenie vypršalo. Prihláste sa prosím znova.",
+        "forbidden": "Na túto akciu nemáte oprávnenie.",
+        "notFound": "Nepodarilo sa nám nájsť, čo hľadáte.",
+        "server": "Niečo sa na našej strane pokazilo. Skúste to o chvíľu znova.",
+        "network": "Nepodarilo sa spojiť so serverom. Skontrolujte pripojenie.",
+        "validation": "Niektoré zadané údaje sú neplatné.",
+        "unknown": "Niečo sa pokazilo. Skúste to prosím znova."
+    },
     "login": {
         "title": "Prihláste sa do svojho účtu",
         "emailLabel": "E-mail",
