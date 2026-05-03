@@ -1,4 +1,6 @@
 import { useTranslation } from "react-i18next";
+import * as Select from "@radix-ui/react-select";
+import { ChevronDownIcon } from "@waymate/ui";
 import type { UserRole } from "../../../api-client/model/userRole";
 
 export type RoleFilter = UserRole | "ALL";
@@ -17,8 +19,12 @@ export function AdminUsersFilters({
     onRoleFilterChange,
 }: AdminUsersFiltersProps) {
     const { t } = useTranslation();
-    const selectClass =
-        "border border-(--color-border) rounded-lg bg-(--color-card) text-(--color-text-primary) text-sm px-3 py-2 outline-none cursor-pointer";
+
+    const options: { value: RoleFilter; label: string }[] = [
+        { value: "ALL", label: t("admin.all") },
+        { value: "USER", label: t("admin.userRoleUser") },
+        { value: "ADMIN", label: t("admin.userRoleAdmin") },
+    ];
 
     return (
         <div className="flex flex-col gap-3 mb-6">
@@ -47,17 +53,40 @@ export function AdminUsersFilters({
                 />
             </div>
             <div className="flex gap-3">
-                <select
-                    className={selectClass}
+                <Select.Root
                     value={roleFilter}
-                    onChange={(e) =>
-                        onRoleFilterChange(e.target.value as RoleFilter)
+                    onValueChange={(val) =>
+                        onRoleFilterChange(val as RoleFilter)
                     }
                 >
-                    <option value="ALL">{t("admin.all")}</option>
-                    <option value="USER">{t("admin.userRoleUser")}</option>
-                    <option value="ADMIN">{t("admin.userRoleAdmin")}</option>
-                </select>
+                    <Select.Trigger className="flex items-center gap-2 border border-(--color-border) rounded-lg bg-(--color-card) text-(--color-text-primary) text-sm px-3 py-2 outline-none cursor-pointer hover:border-(--color-primary) transition-colors">
+                        <Select.Value />
+                        <Select.Icon className="text-(--color-text-secondary)">
+                            <ChevronDownIcon />
+                        </Select.Icon>
+                    </Select.Trigger>
+                    <Select.Portal>
+                        <Select.Content
+                            className="z-1100 w-(--radix-select-trigger-width) rounded-xl border border-(--color-border) bg-(--color-card) p-1 shadow-lg"
+                            position="popper"
+                            sideOffset={4}
+                        >
+                            <Select.Viewport>
+                                {options.map((opt) => (
+                                    <Select.Item
+                                        key={opt.value}
+                                        value={opt.value}
+                                        className="flex items-center px-3 py-2 text-sm rounded-lg text-(--color-text-primary) cursor-pointer outline-none data-highlighted:bg-(--color-bg) data-[state=checked]:text-(--color-primary)"
+                                    >
+                                        <Select.ItemText>
+                                            {opt.label}
+                                        </Select.ItemText>
+                                    </Select.Item>
+                                ))}
+                            </Select.Viewport>
+                        </Select.Content>
+                    </Select.Portal>
+                </Select.Root>
             </div>
         </div>
     );

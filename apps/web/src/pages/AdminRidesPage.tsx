@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AdminNavbar, Avatar, Button } from "@waymate/ui";
+import { AdminNavbar, Avatar, Button, Modal } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useAdminNavbarProps } from "../hooks/useAdminNavbarProps";
 
@@ -162,12 +162,11 @@ function RideModal({
 }) {
     const { t } = useTranslation();
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-            <div
-                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                onClick={onClose}
-            />
-            <div className="relative bg-(--color-card) rounded-2xl shadow-2xl w-full max-w-lg p-8">
+        <Modal
+            open={true}
+            onClose={onClose}
+        >
+            <div className="w-[calc(100vw-2rem)] max-w-lg p-8">
                 <div className="flex justify-between items-start mb-6">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
                         {t("admin.rideTitle", {
@@ -267,7 +266,7 @@ function RideModal({
                     )}
                 </div>
             </div>
-        </div>
+        </Modal>
     );
 }
 
@@ -292,15 +291,11 @@ function ModifyRideModal({
         "text-sm font-semibold text-(--color-text-primary) mb-1.5 block";
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-            <div
-                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                onClick={onClose}
-            />
-            <div
-                className="relative rounded-2xl shadow-2xl w-full max-w-lg p-8"
-                style={{ background: "var(--color-card)" }}
-            >
+        <Modal
+            open={true}
+            onClose={onClose}
+        >
+            <div className="w-[calc(100vw-2rem)] max-w-lg p-8">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
                         {t("admin.modifyRide", { id: ride.id })}
@@ -365,7 +360,7 @@ function ModifyRideModal({
                     </Button>
                 </div>
             </div>
-        </div>
+        </Modal>
     );
 }
 
