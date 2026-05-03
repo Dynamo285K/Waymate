@@ -5,22 +5,18 @@ export type AuthClientError = {
 };
 
 /**
- * Resolves an i18n key for a better-auth client error.
+ * Resolves an i18n key for a Google sign-in failure surfaced by the
+ * better-auth client.
  *
- * Better-auth surfaces errors through its own client SDK with a
- * `{ status, message, code? }` shape, distinct from our backend's
- * `ApiError { error: string }` (handled separately by `lib/api-errors.ts`).
- *
- * Resolution order:
- *  1. Specific message-substring matches for config failures the user can't
- *     act on ("Invalid origin", "Invalid callback URL") → friendly copy.
- *  2. Status-code buckets (400/404 → "google not configured", 401, 5xx).
- *  3. `fallback` (default `errors.unknown`).
+ *  - "Invalid origin" / "Invalid callback URL" — origin not in
+ *    `trustedOrigins` → friendly "unavailable" copy.
+ *  - 400 / 404 — backend has no Google credentials configured at all.
+ *  - 5xx / unknown — generic fallback.
  *
  * Always log the original error alongside the mapping so the raw message is
  * available in DevTools for debugging.
  */
-export function getAuthErrorI18nKey(
+export function getGoogleAuthErrorI18nKey(
     error: AuthClientError,
     fallback = "errors.unknown"
 ): string {
@@ -36,8 +32,20 @@ export function getAuthErrorI18nKey(
         return "auth.googleNotConfigured";
     }
 
-    if (error.status === 401) return "errors.unauthorized";
     if (error.status && error.status >= 500) return "errors.server";
 
+    return fallback;
+}
+
+/**
+ * Resolves an i18n key for an email sign-in / sign-up failure surfaced by the
+ * better-auth client. Unlike the Google helper, 400/401 here mean "wrong
+ * credentials", not a config problem.
+ */
+export function getEmailAuthErrorI18nKey(
+    error: AuthClientError,
+    fallback: string
+): string {
+    if (error.status && error.status >= 500) return "errors.server";
     return fallback;
 }

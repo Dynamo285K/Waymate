@@ -9,6 +9,7 @@ import {
 } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useGetBookingsMe } from "../api-client/bookings/bookings";
+import { getErrorI18nKey } from "../lib/api-errors";
 import { formatRideDate } from "../lib/date-format";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 
@@ -63,6 +64,7 @@ export function PassengerMyRidesPage({
         data: bookings,
         isLoading,
         isError,
+        error,
     } = useGetBookingsMe({ timeframe });
 
     const incomingBooked = (
@@ -151,7 +153,7 @@ export function PassengerMyRidesPage({
 
                     {isError && (
                         <p className="text-(--color-text-secondary)">
-                            {t("myRides.error")}
+                            {t(getErrorI18nKey(error, {}, "myRides.error"))}
                         </p>
                     )}
 

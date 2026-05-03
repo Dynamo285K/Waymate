@@ -12,7 +12,10 @@ import {
     signInWithEmail,
     signInWithGoogle,
 } from "../lib/auth";
-import { getAuthErrorI18nKey } from "../lib/auth-errors";
+import {
+    getEmailAuthErrorI18nKey,
+    getGoogleAuthErrorI18nKey,
+} from "../lib/auth-errors";
 
 type LoginPageProps = {
     language: Language;
@@ -76,7 +79,7 @@ export function LoginPage({
         if (error) {
             console.error("Email sign-in failed", error);
             setError("root", {
-                message: t(getAuthErrorI18nKey(error, "login.error")),
+                message: t(getEmailAuthErrorI18nKey(error, "login.error")),
             });
             return;
         }
@@ -93,7 +96,7 @@ export function LoginPage({
             if (error) {
                 console.error("Google sign-in failed", error);
                 setError("root", {
-                    message: t(getAuthErrorI18nKey(error, "login.error")),
+                    message: t(getGoogleAuthErrorI18nKey(error, "login.error")),
                 });
                 return;
             }

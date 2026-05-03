@@ -15,6 +15,7 @@ import { useGetRidesMe } from "../api-client/rides/rides";
 import { formatRideDate as formatDate } from "../lib/date-format";
 import { useGetCarsMe } from "../api-client/cars/cars";
 import { useGetReviewsUsersByUserId } from "../api-client/reviews/reviews";
+import { getErrorI18nKey } from "../lib/api-errors";
 
 type Props = {
     language: Language;
@@ -52,6 +53,7 @@ export function DriverProfilePage({
         data: rides,
         isLoading: ridesLoading,
         isError: ridesError,
+        error: ridesErrorObj,
     } = useGetRidesMe({ timeframe: "UPCOMING" });
     const cancelRide = useCancelRide();
     const carsQuery = useGetCarsMe();
@@ -156,15 +158,24 @@ export function DriverProfilePage({
 
                         {ridesError && (
                             <p className="text-(--color-text-secondary)">
-                                {t("driverRides.error")}
+                                {t(
+                                    getErrorI18nKey(
+                                        ridesErrorObj,
+                                        {},
+                                        "driverRides.error"
+                                    )
+                                )}
                             </p>
                         )}
 
                         {cancelRide.isError && (
                             <p className="text-(--color-text-secondary)">
                                 {t(
-                                    "driverRides.cancelError",
-                                    "Failed to cancel ride. Please try again."
+                                    getErrorI18nKey(
+                                        cancelRide.error,
+                                        {},
+                                        "driverRides.cancelError"
+                                    )
                                 )}
                             </p>
                         )}
@@ -250,7 +261,13 @@ export function DriverProfilePage({
                         )}
                         {carsQuery.isError && (
                             <p className="text-(--color-text-secondary)">
-                                {t("profile.carsError", "Could not load cars.")}
+                                {t(
+                                    getErrorI18nKey(
+                                        carsQuery.error,
+                                        {},
+                                        "profile.carsError"
+                                    )
+                                )}
                             </p>
                         )}
                         {!carsQuery.isLoading &&

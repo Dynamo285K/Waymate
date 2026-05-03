@@ -9,7 +9,7 @@ import { useSetUserStatus } from "../../hooks/useSetUserStatus";
 import { getGetAdminUsersQueryKey } from "../../api-client/admin/admin";
 import type { AdminUserListItem } from "../../api-client/model/adminUserListItem";
 import type { UserRole } from "../../api-client/model/userRole";
-import { getErrorCode } from "../../lib/api-errors";
+import { getErrorCode, getErrorI18nKey } from "../../lib/api-errors";
 import {
     AdminUsersFilters,
     type RoleFilter,
@@ -19,7 +19,7 @@ import { BanUserModal } from "./components/BanUserModal";
 import { UserDetailModal } from "./components/UserDetailModal";
 import { useAdminUsersList } from "./hooks/useAdminUsersList";
 import { useDebounced } from "./hooks/useDebounced";
-import { ADMIN_USER_NOT_FOUND_CODE } from "./lib/errors";
+import { ADMIN_USER_NOT_FOUND_CODE, adminUsersErrorMap } from "./lib/errors";
 import { fullName } from "./lib/format";
 
 type AdminUsersPageProps = {
@@ -143,14 +143,20 @@ export function AdminUsersPage({
         );
     };
 
-    const resetDetailMutations = useCallback(() => {
+    // Centralized open/close so any prior mutation state from a different
+    // target is cleared before the modal sees a fresh row. The `key` prop on
+    // each modal also blows away its local UI state on target switch, so no
+    // useEffect-on-prop-change is needed inside the modals.
+    const openDetail = (id: string | null) => {
         setUserRole.reset();
         setUserStatus.reset();
-    }, [setUserRole, setUserStatus]);
+        setSelectedUserId(id);
+    };
 
-    const resetBanMutation = useCallback(() => {
+    const openBan = (target: AdminUserListItem | null) => {
         setUserStatus.reset();
-    }, [setUserStatus]);
+        setBanTarget(target);
+    };
 
     return (
         <div
@@ -182,7 +188,7 @@ export function AdminUsersPage({
 
                 {!list.isInitialLoading && list.isError && (
                     <p className="text-(--color-danger-text) py-4">
-                        {t("admin.loadError")}
+                        {t(getErrorI18nKey(list.error, adminUsersErrorMap))}
                     </p>
                 )}
 
@@ -202,8 +208,8 @@ export function AdminUsersPage({
                                 items={list.items}
                                 currentUserId={userId}
                                 rowMutatingId={rowMutatingId}
-                                onView={(u) => setSelectedUserId(u.id)}
-                                onBan={(u) => setBanTarget(u)}
+                                onView={(u) => openDetail(u.id)}
+                                onBan={(u) => openBan(u)}
                                 onUnban={handleUnban}
                             />
 
@@ -224,19 +230,19 @@ export function AdminUsersPage({
 
             {selectedUserId && (
                 <UserDetailModal
+                    key={selectedUserId}
                     userId={selectedUserId}
                     isSelf={selectedUserId === userId}
                     isThisUserMutating={detailIsMutating}
                     mutationErrorForThisUser={detailErrorForUser}
-                    onClose={() => setSelectedUserId(null)}
-                    onTargetChange={resetDetailMutations}
+                    onClose={() => openDetail(null)}
                     onRequestBan={() => {
                         const target = list.items.find(
                             (u) => u.id === selectedUserId
                         );
                         if (target) {
                             setSelectedUserId(null);
-                            setBanTarget(target);
+                            openBan(target);
                         }
                     }}
                     onUnban={() => {
@@ -253,15 +259,14 @@ export function AdminUsersPage({
 
             {banTarget && (
                 <BanUserModal
-                    targetId={banTarget.id}
+                    key={banTarget.id}
                     userName={
                         fullName(banTarget.firstName, banTarget.lastName) ||
                         banTarget.email
                     }
                     isPending={statusMutatingId === banTarget.id}
                     error={banErrorForTarget}
-                    onClose={() => setBanTarget(null)}
-                    onTargetChange={resetBanMutation}
+                    onClose={() => openBan(null)}
                     onConfirm={handleConfirmBan}
                 />
             )}

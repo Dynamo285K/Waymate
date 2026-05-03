@@ -18,6 +18,7 @@ import {
     usePostCarsMe,
     getGetCarsMeQueryKey,
 } from "../api-client/cars/cars";
+import { getErrorI18nKey } from "../lib/api-errors";
 import carData from "../../../api/src/db/cars-data.json";
 
 type AddCarPageProps = {
@@ -108,11 +109,7 @@ export function AddCarPage({
                 navigate(backPath);
             },
             onError: (error) => {
-                setFormError(
-                    error instanceof Error
-                        ? error.message
-                        : t("addCar.error", "Could not add this car.")
-                );
+                setFormError(t(getErrorI18nKey(error, {}, "addCar.error")));
             },
         },
     });

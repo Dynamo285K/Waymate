@@ -170,7 +170,6 @@
         "initialStatus": "Initial status: {{to}}",
         "loadMore": "Load more",
         "loadingUsers": "Loading users…",
-        "loadError": "Failed to load. Try again.",
         "noUsersFound": "No users match the current filters.",
         "noReason": "No reason given",
         "displayName": "Display name",

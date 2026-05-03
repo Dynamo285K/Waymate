@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { DriverNavbar, RideRequestCard } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
+import { getErrorI18nKey } from "../lib/api-errors";
 import { formatRideDate as formatDate } from "../lib/date-format";
 import {
     useAcceptRideRequest,
@@ -36,7 +37,12 @@ export function DriverRideRequestsPage({
         userName,
         userEmail,
     });
-    const { data: requests, isLoading, isError } = useDriverRideRequests();
+    const {
+        data: requests,
+        isLoading,
+        isError,
+        error,
+    } = useDriverRideRequests();
     const acceptRequest = useAcceptRideRequest();
     const declineRequest = useDeclineRideRequest();
 
@@ -99,16 +105,18 @@ export function DriverRideRequestsPage({
                     {isError && (
                         <p className="text-(--color-text-secondary) text-center py-12">
                             {t(
-                                "rideRequests.error",
-                                "Failed to load ride requests. Please try again."
+                                getErrorI18nKey(error, {}, "rideRequests.error")
                             )}
                         </p>
                     )}
                     {(acceptRequest.isError || declineRequest.isError) && (
                         <p className="text-(--color-text-secondary) text-center">
                             {t(
-                                "rideRequests.actionError",
-                                "Could not update the request. Please try again."
+                                getErrorI18nKey(
+                                    acceptRequest.error ?? declineRequest.error,
+                                    {},
+                                    "rideRequests.actionError"
+                                )
                             )}
                         </p>
                     )}
