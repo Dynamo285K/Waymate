@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AuthNavbar, Button } from "@waymate/ui";
+import { AuthNavbar, Button, Modal } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { HomeContent } from "../components/HomeContent";
 import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
@@ -53,44 +53,41 @@ export function HomePage({
                 onBook={() => setShowGuestModal(true)}
             />
 
-            {showGuestModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-                    <div
-                        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                        onClick={() => setShowGuestModal(false)}
-                    />
-                    <div className="relative bg-(--color-card) rounded-2xl p-8 max-w-sm w-full shadow-2xl text-center flex flex-col gap-4">
-                        <div className="text-4xl">🔒</div>
-                        <h2 className="text-xl font-bold text-(--color-text-primary)">
-                            {t("bookGuest.title")}
-                        </h2>
-                        <p className="text-(--color-text-secondary) text-sm">
-                            {t("bookGuest.message")}
-                        </p>
-                        <div className="flex gap-3 mt-2">
-                            <Button
-                                variant="secondary"
-                                fullWidth
-                                onClick={() => {
-                                    setShowGuestModal(false);
-                                    onLogin?.();
-                                }}
-                            >
-                                {t("bookGuest.login")}
-                            </Button>
-                            <Button
-                                fullWidth
-                                onClick={() => {
-                                    setShowGuestModal(false);
-                                    onRegister?.();
-                                }}
-                            >
-                                {t("bookGuest.register")}
-                            </Button>
-                        </div>
+            <Modal
+                open={showGuestModal}
+                onClose={() => setShowGuestModal(false)}
+            >
+                <div className="w-[calc(100vw-2rem)] max-w-sm p-8 text-center flex flex-col gap-4">
+                    <div className="text-4xl">🔒</div>
+                    <h2 className="text-xl font-bold text-(--color-text-primary)">
+                        {t("bookGuest.title")}
+                    </h2>
+                    <p className="text-(--color-text-secondary) text-sm">
+                        {t("bookGuest.message")}
+                    </p>
+                    <div className="flex gap-3 mt-2">
+                        <Button
+                            variant="secondary"
+                            fullWidth
+                            onClick={() => {
+                                setShowGuestModal(false);
+                                onLogin?.();
+                            }}
+                        >
+                            {t("bookGuest.login")}
+                        </Button>
+                        <Button
+                            fullWidth
+                            onClick={() => {
+                                setShowGuestModal(false);
+                                onRegister?.();
+                            }}
+                        >
+                            {t("bookGuest.register")}
+                        </Button>
                     </div>
                 </div>
-            )}
+            </Modal>
         </div>
     );
 }

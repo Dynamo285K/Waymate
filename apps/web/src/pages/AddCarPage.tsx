@@ -2,7 +2,13 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "../lib/router-compat";
-import { PassengerNavbar, DriverNavbar, Button } from "@waymate/ui";
+import * as Select from "@radix-ui/react-select";
+import {
+    PassengerNavbar,
+    DriverNavbar,
+    Button,
+    ChevronDownIcon,
+} from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
@@ -202,37 +208,52 @@ export function AddCarPage({
                                         *
                                     </span>
                                 </label>
-                                <div className="relative">
-                                    <select
+                                <Select.Root
+                                    value={make}
+                                    onValueChange={(val) => {
+                                        setMake(val);
+                                        setModel("");
+                                        setFormError("");
+                                    }}
+                                >
+                                    <Select.Trigger
                                         className={
-                                            inputClass + " pr-10 cursor-pointer"
+                                            inputClass +
+                                            " flex items-center justify-between cursor-pointer"
                                         }
-                                        value={make}
-                                        onChange={(e) => {
-                                            setMake(e.target.value);
-                                            setModel("");
-                                            setFormError("");
-                                        }}
                                     >
-                                        <option value="">
-                                            {t(
+                                        <Select.Value
+                                            placeholder={t(
                                                 "addCar.selectMake",
                                                 "Select make..."
                                             )}
-                                        </option>
-                                        {carMakes.map((m) => (
-                                            <option
-                                                key={m}
-                                                value={m}
-                                            >
-                                                {m}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-(--color-text-secondary)">
-                                        v
-                                    </span>
-                                </div>
+                                        />
+                                        <Select.Icon className="text-(--color-text-secondary) shrink-0">
+                                            <ChevronDownIcon />
+                                        </Select.Icon>
+                                    </Select.Trigger>
+                                    <Select.Portal>
+                                        <Select.Content
+                                            className="z-1100 w-(--radix-select-trigger-width) rounded-xl border border-(--color-border) bg-(--color-card) p-1 shadow-lg"
+                                            position="popper"
+                                            sideOffset={4}
+                                        >
+                                            <Select.Viewport>
+                                                {carMakes.map((m) => (
+                                                    <Select.Item
+                                                        key={m}
+                                                        value={m}
+                                                        className="flex items-center px-3 py-2 text-sm rounded-lg text-(--color-text-primary) cursor-pointer outline-none data-highlighted:bg-(--color-bg) data-[state=checked]:text-(--color-primary)"
+                                                    >
+                                                        <Select.ItemText>
+                                                            {m}
+                                                        </Select.ItemText>
+                                                    </Select.Item>
+                                                ))}
+                                            </Select.Viewport>
+                                        </Select.Content>
+                                    </Select.Portal>
+                                </Select.Root>
                             </div>
                             <div>
                                 <label className={labelClass}>
@@ -241,43 +262,59 @@ export function AddCarPage({
                                         *
                                     </span>
                                 </label>
-                                <div className="relative">
-                                    <select
+                                <Select.Root
+                                    value={model}
+                                    onValueChange={(val) => {
+                                        setModel(val);
+                                        setFormError("");
+                                    }}
+                                    disabled={!make}
+                                >
+                                    <Select.Trigger
                                         className={
                                             inputClass +
-                                            " pr-10 cursor-pointer disabled:opacity-50"
+                                            " flex items-center justify-between cursor-pointer data-disabled:opacity-50 data-disabled:cursor-not-allowed"
                                         }
-                                        value={model}
-                                        onChange={(e) => {
-                                            setModel(e.target.value);
-                                            setFormError("");
-                                        }}
-                                        disabled={!make}
                                     >
-                                        <option value="">
-                                            {modelsQuery.isLoading
-                                                ? t(
-                                                      "addCar.loadingModels",
-                                                      "Loading models..."
-                                                  )
-                                                : t(
-                                                      "addCar.selectModel",
-                                                      "Select model..."
-                                                  )}
-                                        </option>
-                                        {carModels.map((m) => (
-                                            <option
-                                                key={m.id}
-                                                value={m.modelName}
-                                            >
-                                                {m.modelName}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-(--color-text-secondary)">
-                                        v
-                                    </span>
-                                </div>
+                                        <Select.Value
+                                            placeholder={
+                                                modelsQuery.isLoading
+                                                    ? t(
+                                                          "addCar.loadingModels",
+                                                          "Loading models..."
+                                                      )
+                                                    : t(
+                                                          "addCar.selectModel",
+                                                          "Select model..."
+                                                      )
+                                            }
+                                        />
+                                        <Select.Icon className="text-(--color-text-secondary) shrink-0">
+                                            <ChevronDownIcon />
+                                        </Select.Icon>
+                                    </Select.Trigger>
+                                    <Select.Portal>
+                                        <Select.Content
+                                            className="z-1100 w-(--radix-select-trigger-width) rounded-xl border border-(--color-border) bg-(--color-card) p-1 shadow-lg"
+                                            position="popper"
+                                            sideOffset={4}
+                                        >
+                                            <Select.Viewport>
+                                                {carModels.map((m) => (
+                                                    <Select.Item
+                                                        key={m.id}
+                                                        value={m.modelName}
+                                                        className="flex items-center px-3 py-2 text-sm rounded-lg text-(--color-text-primary) cursor-pointer outline-none data-highlighted:bg-(--color-bg) data-[state=checked]:text-(--color-primary)"
+                                                    >
+                                                        <Select.ItemText>
+                                                            {m.modelName}
+                                                        </Select.ItemText>
+                                                    </Select.Item>
+                                                ))}
+                                            </Select.Viewport>
+                                        </Select.Content>
+                                    </Select.Portal>
+                                </Select.Root>
                             </div>
                         </div>
                     </div>

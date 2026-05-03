@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "@waymate/ui";
+import { Button, Modal } from "@waymate/ui";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { adminUsersErrorMap } from "../lib/errors";
 
@@ -36,15 +36,11 @@ export function BanUserModal({
         "w-full border border-(--color-border) rounded-xl bg-(--color-input-bg) text-(--color-text-primary) px-4 py-3 text-sm outline-none focus:border-(--color-primary) transition-colors";
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-            <div
-                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                onClick={onClose}
-            />
-            <div
-                className="relative rounded-2xl shadow-2xl w-full max-w-lg p-8"
-                style={{ background: "var(--color-card)" }}
-            >
+        <Modal
+            open={true}
+            onClose={onClose}
+        >
+            <div className="w-[calc(100vw-2rem)] max-w-lg p-8">
                 <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
                         {t("admin.banUser")} — {userName}
@@ -103,6 +99,6 @@ export function BanUserModal({
                     </Button>
                 </div>
             </div>
-        </div>
+        </Modal>
     );
 }
