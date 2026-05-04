@@ -8,7 +8,6 @@ import {
     AdminUserListResponseSchema,
     AdminUserStatusHistoryItemSchema,
     ErrorResponseSchema,
-    UpdateUserRoleBodySchema,
     UpdateUserStatusBodySchema,
 } from "@repo/shared";
 import { requireAdmin } from "../auth/auth.middleware";
@@ -27,7 +26,6 @@ export const AdminRoutes = new Elysia({
         AdminUserDetail: AdminUserDetailSchema,
         AdminUserStatusHistoryItem: AdminUserStatusHistoryItemSchema,
         AdminUserDetailResponse: AdminUserDetailResponseSchema,
-        UpdateUserRoleBody: UpdateUserRoleBodySchema,
         UpdateUserStatusBody: UpdateUserStatusBodySchema,
         ErrorResponse: ErrorResponseSchema,
     })
@@ -56,7 +54,6 @@ export const AdminRoutes = new Elysia({
                     return await AdminService.getUserList({
                         limit: query.limit,
                         cursor: query.cursor,
-                        userRole: query.userRole,
                         search: query.search,
                     });
                 },
@@ -71,7 +68,7 @@ export const AdminRoutes = new Elysia({
                     },
                     detail: {
                         description:
-                            "Returns a keyset-paginated list of users for admin tooling. Supports filtering by role and a case-insensitive substring search across email, firstName, lastName.",
+                            "Returns a keyset-paginated list of users for admin tooling. Supports a case-insensitive substring search across email, firstName, lastName.",
                     },
                 }
             )
@@ -92,32 +89,6 @@ export const AdminRoutes = new Elysia({
                     detail: {
                         description:
                             "Returns full user detail plus the most recent status history entries (newest first, capped at 50). changedBy is null for system-triggered changes or when the actor admin no longer exists.",
-                    },
-                }
-            )
-            .patch(
-                "/users/:id/role",
-                async ({ user, params, body }) =>
-                    await AdminService.setUserRole({
-                        actorId: user.id,
-                        targetUserId: params.id,
-                        newRole: body.userRole,
-                    }),
-                {
-                    params: AdminUserIdParamsSchema,
-                    body: "UpdateUserRoleBody",
-                    response: {
-                        200: "AdminUserListItem",
-                        400: "ErrorResponse",
-                        401: "ErrorResponse",
-                        403: "ErrorResponse",
-                        404: "ErrorResponse",
-                        409: "ErrorResponse",
-                        500: "ErrorResponse",
-                    },
-                    detail: {
-                        description:
-                            "Promotes a user to ADMIN or demotes back to USER. Self-demotion is rejected so the last admin cannot lock themselves out.",
                     },
                 }
             )

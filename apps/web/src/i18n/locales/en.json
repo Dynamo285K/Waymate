@@ -179,16 +179,8 @@
         "never": "Never",
         "unbanUser": "Unban user",
         "selfActionDisabled": "You cannot perform this action on your own account",
-        "promoteToAdmin": "Promote to admin",
-        "demoteToUser": "Demote to user",
-        "promoteConfirmTitle": "Promote {{name}} to admin?",
-        "promoteConfirmBody": "Admins can manage all users, including banning accounts and changing roles.",
-        "demoteConfirmTitle": "Demote {{name}} to user?",
-        "demoteConfirmBody": "This account will lose access to admin tooling immediately.",
-        "confirmRoleChange": "Confirm",
         "errors": {
             "userNotFound": "This user no longer exists. The list will refresh.",
-            "cannotDemoteSelf": "You cannot demote your own admin account.",
             "cannotChangeOwnStatus": "You cannot change the status of your own account."
         },
         "reportTypes": {

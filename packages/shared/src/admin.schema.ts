@@ -2,7 +2,6 @@ import { z } from "zod";
 import {
     UserEntitySchema,
     UserIdSchema,
-    UserRoleSchema,
     UserStatusSchema,
 } from "./user.schema";
 
@@ -13,7 +12,6 @@ export const AdminUserIdParamsSchema = z.object({
 export const AdminUserListQuerySchema = z.object({
     limit: z.coerce.number().int().min(1).max(100).default(20),
     cursor: UserIdSchema.optional(),
-    userRole: UserRoleSchema.optional(),
     search: z.string().trim().min(1).max(100).optional(),
 });
 
@@ -71,12 +69,6 @@ export const AdminUserDetailResponseSchema = z.object({
     statusHistory: z.array(AdminUserStatusHistoryItemSchema),
 });
 
-export const UpdateUserRoleBodySchema = z
-    .object({
-        userRole: UserRoleSchema,
-    })
-    .strict();
-
 export const UpdateUserStatusBodySchema = z
     .object({
         status: UserStatusSchema,
@@ -94,5 +86,4 @@ export type AdminUserStatusHistoryItem = z.infer<
 export type AdminUserDetailResponse = z.infer<
     typeof AdminUserDetailResponseSchema
 >;
-export type UpdateUserRoleBody = z.infer<typeof UpdateUserRoleBodySchema>;
 export type UpdateUserStatusBody = z.infer<typeof UpdateUserStatusBodySchema>;

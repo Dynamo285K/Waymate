@@ -27,7 +27,6 @@ import type {
     AdminUserListResponse,
     ErrorResponse,
     GetAdminUsersParams,
-    UpdateUserRoleBody,
     UpdateUserStatusBody,
     UserId,
 } from ".././model";
@@ -37,7 +36,7 @@ import { apiFetcher } from "../../lib/api-fetcher";
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 /**
- * Returns a keyset-paginated list of users for admin tooling. Supports filtering by role and a case-insensitive substring search across email, firstName, lastName.
+ * Returns a keyset-paginated list of users for admin tooling. Supports a case-insensitive substring search across email, firstName, lastName.
  */
 export const getGetAdminUsersUrl = (params: GetAdminUsersParams) => {
     const normalizedParams = new URLSearchParams();
@@ -380,94 +379,6 @@ export function useGetAdminUsersById<
     return query;
 }
 
-/**
- * Promotes a user to ADMIN or demotes back to USER. Self-demotion is rejected so the last admin cannot lock themselves out.
- */
-export const getPatchAdminUsersByIdRoleUrl = (id: UserId) => {
-    return `/admin/users/${id}/role`;
-};
-
-export const patchAdminUsersByIdRole = async (
-    id: UserId,
-    updateUserRoleBody: UpdateUserRoleBody,
-    options?: RequestInit
-): Promise<AdminUserListItem> => {
-    return apiFetcher<AdminUserListItem>(getPatchAdminUsersByIdRoleUrl(id), {
-        ...options,
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", ...options?.headers },
-        body: JSON.stringify(updateUserRoleBody),
-    });
-};
-
-export const getPatchAdminUsersByIdRoleMutationOptions = <
-    TError = ErrorResponse,
-    TContext = unknown,
->(options?: {
-    mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof patchAdminUsersByIdRole>>,
-        TError,
-        { id: UserId; data: UpdateUserRoleBody },
-        TContext
-    >;
-    request?: SecondParameter<typeof apiFetcher>;
-}): UseMutationOptions<
-    Awaited<ReturnType<typeof patchAdminUsersByIdRole>>,
-    TError,
-    { id: UserId; data: UpdateUserRoleBody },
-    TContext
-> => {
-    const mutationKey = ["patchAdminUsersByIdRole"];
-    const { mutation: mutationOptions, request: requestOptions } = options
-        ? options.mutation &&
-          "mutationKey" in options.mutation &&
-          options.mutation.mutationKey
-            ? options
-            : { ...options, mutation: { ...options.mutation, mutationKey } }
-        : { mutation: { mutationKey }, request: undefined };
-
-    const mutationFn: MutationFunction<
-        Awaited<ReturnType<typeof patchAdminUsersByIdRole>>,
-        { id: UserId; data: UpdateUserRoleBody }
-    > = (props) => {
-        const { id, data } = props ?? {};
-
-        return patchAdminUsersByIdRole(id, data, requestOptions);
-    };
-
-    return { mutationFn, ...mutationOptions };
-};
-
-export type PatchAdminUsersByIdRoleMutationResult = NonNullable<
-    Awaited<ReturnType<typeof patchAdminUsersByIdRole>>
->;
-export type PatchAdminUsersByIdRoleMutationBody = UpdateUserRoleBody;
-export type PatchAdminUsersByIdRoleMutationError = ErrorResponse;
-
-export const usePatchAdminUsersByIdRole = <
-    TError = ErrorResponse,
-    TContext = unknown,
->(
-    options?: {
-        mutation?: UseMutationOptions<
-            Awaited<ReturnType<typeof patchAdminUsersByIdRole>>,
-            TError,
-            { id: UserId; data: UpdateUserRoleBody },
-            TContext
-        >;
-        request?: SecondParameter<typeof apiFetcher>;
-    },
-    queryClient?: QueryClient
-): UseMutationResult<
-    Awaited<ReturnType<typeof patchAdminUsersByIdRole>>,
-    TError,
-    { id: UserId; data: UpdateUserRoleBody },
-    TContext
-> => {
-    const mutationOptions = getPatchAdminUsersByIdRoleMutationOptions(options);
-
-    return useMutation(mutationOptions, queryClient);
-};
 /**
  * Changes a user's account status (ACTIVE / SUSPENDED / BANNED / DELETED) and records an audit row in user_status_history. Admins cannot change their own status.
  */

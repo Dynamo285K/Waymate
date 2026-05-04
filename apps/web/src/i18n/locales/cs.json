@@ -179,16 +179,8 @@
         "never": "Nikdy",
         "unbanUser": "Odbanovat uživatele",
         "selfActionDisabled": "Tuto akci nelze provést u vlastního účtu",
-        "promoteToAdmin": "Povýšit na admina",
-        "demoteToUser": "Snížit na uživatele",
-        "promoteConfirmTitle": "Povýšit {{name}} na admina?",
-        "promoteConfirmBody": "Admini můžou spravovat všechny uživatele, včetně banování účtů a změn rolí.",
-        "demoteConfirmTitle": "Snížit {{name}} na uživatele?",
-        "demoteConfirmBody": "Tento účet okamžitě ztratí přístup do admin nástrojů.",
-        "confirmRoleChange": "Potvrdit",
         "errors": {
             "userNotFound": "Tento uživatel již neexistuje. Seznam se obnoví.",
-            "cannotDemoteSelf": "Vlastní admin účet nelze snížit.",
             "cannotChangeOwnStatus": "Stav vlastního účtu nelze změnit."
         },
         "reportTypes": {

@@ -1,13 +1,11 @@
 import { useRef, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { getGetAdminUsersQueryOptions } from "../../../api-client/admin/admin";
-import type { UserRole } from "../../../api-client/model/userRole";
 
 const PAGE_SIZE = 20;
 
 export type AdminUsersListFilters = {
     search?: string;
-    userRole?: UserRole;
 };
 
 export function useAdminUsersList(filters: AdminUsersListFilters) {
@@ -28,7 +26,6 @@ export function useAdminUsersList(filters: AdminUsersListFilters) {
             getGetAdminUsersQueryOptions({
                 limit: PAGE_SIZE,
                 cursor,
-                userRole: filters.userRole,
                 search: filters.search,
             })
         ),

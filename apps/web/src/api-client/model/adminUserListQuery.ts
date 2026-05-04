@@ -6,7 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { UserId } from "./userId";
-import type { UserRole } from "./userRole";
 
 export interface AdminUserListQuery {
     /**
@@ -15,7 +14,6 @@ export interface AdminUserListQuery {
      */
     limit: number;
     cursor?: UserId;
-    userRole?: UserRole;
     /**
      * @minLength 1
      * @maxLength 100

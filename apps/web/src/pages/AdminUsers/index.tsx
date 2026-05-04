@@ -4,16 +4,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { AdminNavbar, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useAdminNavbarProps } from "../../hooks/useAdminNavbarProps";
-import { useSetUserRole } from "../../hooks/useSetUserRole";
 import { useSetUserStatus } from "../../hooks/useSetUserStatus";
 import { getGetAdminUsersQueryKey } from "../../api-client/admin/admin";
 import type { AdminUserListItem } from "../../api-client/model/adminUserListItem";
-import type { UserRole } from "../../api-client/model/userRole";
 import { getErrorCode, getErrorI18nKey } from "../../lib/api-errors";
-import {
-    AdminUsersFilters,
-    type RoleFilter,
-} from "./components/AdminUsersFilters";
+import { AdminUsersFilters } from "./components/AdminUsersFilters";
 import { AdminUsersTable } from "./components/AdminUsersTable";
 import { BanUserModal } from "./components/BanUserModal";
 import { UserDetailModal } from "./components/UserDetailModal";
@@ -57,52 +52,38 @@ export function AdminUsersPage({
 
     const [searchInput, setSearchInput] = useState("");
     const debouncedSearch = useDebounced(searchInput, SEARCH_DEBOUNCE_MS);
-    const [roleFilter, setRoleFilter] = useState<RoleFilter>("ALL");
 
     const trimmedSearch = debouncedSearch.trim();
     const list = useAdminUsersList({
-        userRole: roleFilter === "ALL" ? undefined : roleFilter,
         search: trimmedSearch.length > 0 ? trimmedSearch : undefined,
     });
 
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
     const [banTarget, setBanTarget] = useState<AdminUserListItem | null>(null);
 
-    const setUserRole = useSetUserRole();
     const setUserStatus = useSetUserStatus();
 
-    // The mutation hooks expose `variables` from the underlying mutation, which
-    // is the toVars-mapped shape `{ id, data: { ... } }`.
-    const roleMutatingId = setUserRole.isPending
-        ? (setUserRole.variables?.id ?? null)
-        : null;
+    // The mutation hook exposes `variables` from the underlying mutation,
+    // which is the toVars-mapped shape `{ id, data: { ... } }`.
     const statusMutatingId = setUserStatus.isPending
         ? (setUserStatus.variables?.id ?? null)
         : null;
-    const rowMutatingId = roleMutatingId ?? statusMutatingId;
 
-    const errorTargetForRole = setUserRole.isError
-        ? (setUserRole.variables?.id ?? null)
-        : null;
     const errorTargetForStatus = setUserStatus.isError
         ? (setUserStatus.variables?.id ?? null)
         : null;
 
     const detailErrorForUser =
-        selectedUserId && errorTargetForRole === selectedUserId
-            ? setUserRole.error
-            : selectedUserId && errorTargetForStatus === selectedUserId
-              ? setUserStatus.error
-              : null;
+        selectedUserId && errorTargetForStatus === selectedUserId
+            ? setUserStatus.error
+            : null;
     const banErrorForTarget =
         banTarget && errorTargetForStatus === banTarget.id
             ? setUserStatus.error
             : null;
 
     const detailIsMutating =
-        selectedUserId !== null &&
-        (roleMutatingId === selectedUserId ||
-            statusMutatingId === selectedUserId);
+        selectedUserId !== null && statusMutatingId === selectedUserId;
 
     const handleMutationFailure = useCallback(
         (error: unknown) => {
@@ -116,14 +97,6 @@ export function AdminUsersPage({
         },
         [queryClient]
     );
-
-    const handleRoleChange = (targetUserId: string, userRole: UserRole) => {
-        if (targetUserId === userId) return;
-        setUserRole.mutate(
-            { userId: targetUserId, userRole },
-            { onError: handleMutationFailure }
-        );
-    };
 
     const handleConfirmBan = (reason: string | undefined) => {
         if (!banTarget) return;
@@ -148,7 +121,6 @@ export function AdminUsersPage({
     // each modal also blows away its local UI state on target switch, so no
     // useEffect-on-prop-change is needed inside the modals.
     const openDetail = (id: string | null) => {
-        setUserRole.reset();
         setUserStatus.reset();
         setSelectedUserId(id);
     };
@@ -176,8 +148,6 @@ export function AdminUsersPage({
                 <AdminUsersFilters
                     searchInput={searchInput}
                     onSearchInputChange={setSearchInput}
-                    roleFilter={roleFilter}
-                    onRoleFilterChange={setRoleFilter}
                 />
 
                 {list.isInitialLoading && (
@@ -207,7 +177,7 @@ export function AdminUsersPage({
                             <AdminUsersTable
                                 items={list.items}
                                 currentUserId={userId}
-                                rowMutatingId={rowMutatingId}
+                                rowMutatingId={statusMutatingId}
                                 onView={(u) => openDetail(u.id)}
                                 onBan={(u) => openBan(u)}
                                 onUnban={handleUnban}
@@ -251,9 +221,6 @@ export function AdminUsersPage({
                         );
                         if (target) handleUnban(target);
                     }}
-                    onRoleChange={(role) =>
-                        handleRoleChange(selectedUserId, role)
-                    }
                 />
             )}
 
