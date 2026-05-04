@@ -20,7 +20,7 @@
     },
     "dependencies": {
         "@tailwindcss/vite": "^4.2.4",
-        "@waymate/ui": "0.1.11",
+        "@waymate/ui": "^0.1.17",
         "better-auth": "^1.6.8",
         "drizzle-orm": "^0.45.2",
         "postgres": "^3.4.9",

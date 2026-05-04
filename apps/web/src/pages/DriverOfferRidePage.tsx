@@ -3,7 +3,7 @@ import type { ComponentProps, ComponentType } from "react";
 import { cs, enUS, sk as skLocale } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { DriverNavbar, Button, OfferRideForm } from "@waymate/ui";
+import { DriverNavbar, Button, Modal, OfferRideForm } from "@waymate/ui";
 import type { Language, OfferRideCar } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { getErrorI18nKey } from "../lib/api-errors";
@@ -667,36 +667,33 @@ export function DriverOfferRidePage({
                 )}
             </div>
 
-            {showSaveCarPrompt && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-                    <div
-                        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                        onClick={() => setShowSaveCarPrompt(false)}
-                    />
-                    <div className="relative w-full max-w-md rounded-2xl border border-(--color-border) bg-(--color-card) p-6 shadow-2xl">
-                        <h2 className="text-xl font-bold text-(--color-text-primary)">
-                            {t("offerRide.saveCarTitle")}
-                        </h2>
-                        <p className="mt-2 text-sm text-(--color-text-secondary)">
-                            {t("offerRide.saveCarText", {
-                                car: `${manualBrand.trim()} ${manualModel.trim()}`.trim(),
-                                plate: manualPlate.trim().toUpperCase(),
-                            })}
-                        </p>
-                        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
-                            <Button
-                                variant="secondary"
-                                onClick={() => void publishRide()}
-                            >
-                                {t("offerRide.skipSaveCar")}
-                            </Button>
-                            <Button onClick={handleSaveManualCar}>
-                                {t("offerRide.saveCar")}
-                            </Button>
-                        </div>
+            <Modal
+                open={showSaveCarPrompt}
+                onClose={() => setShowSaveCarPrompt(false)}
+            >
+                <div className="w-[calc(100vw-2rem)] max-w-md p-6">
+                    <h2 className="text-xl font-bold text-(--color-text-primary)">
+                        {t("offerRide.saveCarTitle")}
+                    </h2>
+                    <p className="mt-2 text-sm text-(--color-text-secondary)">
+                        {t("offerRide.saveCarText", {
+                            car: `${manualBrand.trim()} ${manualModel.trim()}`.trim(),
+                            plate: manualPlate.trim().toUpperCase(),
+                        })}
+                    </p>
+                    <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+                        <Button
+                            variant="secondary"
+                            onClick={() => void publishRide()}
+                        >
+                            {t("offerRide.skipSaveCar")}
+                        </Button>
+                        <Button onClick={handleSaveManualCar}>
+                            {t("offerRide.saveCar")}
+                        </Button>
                     </div>
                 </div>
-            )}
+            </Modal>
         </div>
     );
 }
