@@ -6,7 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { UserId } from "./userId";
-import type { UserRole } from "./userRole";
 
 export type GetAdminUsersParams = {
     /**
@@ -15,7 +14,6 @@ export type GetAdminUsersParams = {
      */
     limit?: number;
     cursor?: UserId;
-    userRole?: UserRole;
     /**
      * @minLength 1
      * @maxLength 100

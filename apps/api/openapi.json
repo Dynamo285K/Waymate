@@ -1516,7 +1516,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Returns a keyset-paginated list of users for admin tooling. Supports filtering by role and a case-insensitive substring search across email, firstName, lastName.",
+        "description": "Returns a keyset-paginated list of users for admin tooling. Supports a case-insensitive substring search across email, firstName, lastName.",
         "parameters": [
           {
             "name": "limit",
@@ -1537,18 +1537,6 @@
               "allOf": [
                 {
                   "$ref": "#/components/schemas/UserId"
-                }
-              ]
-            }
-          },
-          {
-            "name": "userRole",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/UserRole"
                 }
               ]
             }
@@ -1698,117 +1686,6 @@
           }
         },
         "operationId": "getAdminUsersById"
-      }
-    },
-    "/admin/users/{id}/role": {
-      "patch": {
-        "tags": [
-          "Admin"
-        ],
-        "description": "Promotes a user to ADMIN or demotes back to USER. Self-demotion is rejected so the last admin cannot lock themselves out.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/UserId"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUserRoleBody"
-              }
-            },
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUserRoleBody"
-              }
-            },
-            "multipart/form-data": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUserRoleBody"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Response for status 200",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminUserListItem"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Response for status 400",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Response for status 401",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Response for status 403",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Response for status 404",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Response for status 409",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Response for status 500",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "operationId": "patchAdminUsersByIdRole"
       }
     },
     "/admin/users/{id}/status": {
@@ -3339,13 +3216,6 @@
               }
             ]
           },
-          "userRole": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UserRole"
-              }
-            ]
-          },
           "search": {
             "type": "string",
             "minLength": 1,
@@ -3649,18 +3519,6 @@
         ],
         "additionalProperties": false
       },
-      "UpdateUserRoleBody": {
-        "type": "object",
-        "properties": {
-          "userRole": {
-            "$ref": "#/components/schemas/UserRole"
-          }
-        },
-        "required": [
-          "userRole"
-        ],
-        "additionalProperties": false
-      },
       "UpdateUserStatusBody": {
         "type": "object",
         "properties": {
@@ -3693,13 +3551,6 @@
         "format": "uuid",
         "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
       },
-      "UserRole": {
-        "type": "string",
-        "enum": [
-          "USER",
-          "ADMIN"
-        ]
-      },
       "UserStatus": {
         "type": "string",
         "enum": [
@@ -3708,6 +3559,13 @@
           "SUSPENDED",
           "BANNED",
           "DELETED"
+        ]
+      },
+      "UserRole": {
+        "type": "string",
+        "enum": [
+          "USER",
+          "ADMIN"
         ]
       },
       "CarModelId": {

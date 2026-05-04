@@ -8,7 +8,6 @@ import { AdminError, AdminErrorCodes } from "./admin.errors";
 import { AdminRepository } from "./admin.repository";
 import type {
     AdminUserListFilters,
-    SetUserRoleInput,
     SetUserStatusInput,
 } from "./admin.types";
 
@@ -50,42 +49,6 @@ const getUserDetail = async (
     }
 
     return { user, statusHistory };
-};
-
-const setUserRole = async ({
-    actorId,
-    targetUserId,
-    newRole,
-}: SetUserRoleInput): Promise<AdminUserListItem> => {
-    const target = await AdminRepository.findUserById(db, targetUserId);
-
-    if (!target) {
-        throw new AdminError(AdminErrorCodes.UserNotFound);
-    }
-
-    // Cheapest guarantee that at least one admin remains: an admin can never
-    // demote themselves, so the last admin can't lock the tooling out.
-    if (actorId === targetUserId && newRole !== "ADMIN") {
-        throw new AdminError(AdminErrorCodes.CannotDemoteSelf);
-    }
-
-    // Idempotent: skip the UPDATE so updatedAt only reflects real changes.
-    if (target.userRole === newRole) {
-        return target;
-    }
-
-    const updated = await AdminRepository.updateUserRole(
-        db,
-        targetUserId,
-        newRole
-    );
-
-    if (!updated) {
-        // Race: target was soft-deleted between our existence check and update.
-        throw new AdminError(AdminErrorCodes.UserNotFound);
-    }
-
-    return updated;
 };
 
 const setUserStatus = async ({
@@ -140,6 +103,5 @@ const setUserStatus = async ({
 export const AdminService = {
     getUserList,
     getUserDetail,
-    setUserRole,
     setUserStatus,
 };

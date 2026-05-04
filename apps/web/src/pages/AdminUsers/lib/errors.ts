@@ -2,6 +2,5 @@ export const ADMIN_USER_NOT_FOUND_CODE = "ADMIN_USER_NOT_FOUND";
 
 export const adminUsersErrorMap: Record<string, string> = {
     [ADMIN_USER_NOT_FOUND_CODE]: "admin.errors.userNotFound",
-    ADMIN_CANNOT_DEMOTE_SELF: "admin.errors.cannotDemoteSelf",
     ADMIN_CANNOT_CHANGE_OWN_STATUS: "admin.errors.cannotChangeOwnStatus",
 };

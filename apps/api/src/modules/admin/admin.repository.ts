@@ -12,7 +12,6 @@ import type {
     AdminUserDetail,
     AdminUserListItem,
     AdminUserStatusHistoryItem,
-    UserRole,
     UserStatus,
 } from "@repo/shared";
 import type { Executor } from "../../db";
@@ -54,10 +53,6 @@ const findUserList = async (
     filters: AdminUserListFilters
 ): Promise<AdminUserListItem[]> => {
     const conditions = [isNull(usersTable.deletedAt)];
-
-    if (filters.userRole) {
-        conditions.push(eq(usersTable.userRole, filters.userRole));
-    }
 
     if (filters.search) {
         const pattern = `%${filters.search}%`;
@@ -166,20 +161,6 @@ const findStatusHistoryByUserId = async (
     }));
 };
 
-const updateUserRole = async (
-    executor: Executor,
-    id: string,
-    userRole: UserRole
-): Promise<AdminUserListItem | null> => {
-    const [updated] = await executor
-        .update(usersTable)
-        .set({ userRole, updatedAt: new Date() })
-        .where(and(eq(usersTable.id, id), isNull(usersTable.deletedAt)))
-        .returning(adminUserListColumns);
-
-    return updated ?? null;
-};
-
 const updateUserStatus = async (
     executor: Executor,
     id: string,
@@ -218,7 +199,6 @@ export const AdminRepository = {
     findUserById,
     findUserDetailById,
     findStatusHistoryByUserId,
-    updateUserRole,
     updateUserStatus,
     insertUserStatusHistory,
 };
