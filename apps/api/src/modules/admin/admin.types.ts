@@ -4,7 +4,7 @@ import type { UserRole, UserStatus } from "@repo/shared";
 export type AdminUserListFilters = {
     limit: number;
     cursor?: string;
-    role?: UserRole;
+    userRole?: UserRole;
     search?: string;
 };
 

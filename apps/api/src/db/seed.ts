@@ -48,7 +48,7 @@ async function main() {
                     firstName: "Albert",
                     lastName: "Olbert",
                     phone: "+421900111111",
-                    role: "ADMIN",
+                    userRole: "ADMIN",
                 },
                 {
                     id: userBId,

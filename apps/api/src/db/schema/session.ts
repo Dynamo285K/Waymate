@@ -20,4 +20,5 @@ export const sessions = pgTable("sessions", {
     updatedAt: t
         .timestamp("updated_at", { precision: 6, withTimezone: true })
         .notNull(),
+    impersonatedBy: t.uuid("impersonated_by"),
 });

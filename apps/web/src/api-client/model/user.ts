@@ -53,7 +53,7 @@ export interface User {
      */
     bio: string | null;
     userStatus: UserStatus;
-    role: UserRole;
+    userRole: UserRole;
     /** @nullable */
     emailVerifiedAt: string | null;
     /** @nullable */

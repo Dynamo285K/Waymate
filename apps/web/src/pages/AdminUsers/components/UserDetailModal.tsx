@@ -17,7 +17,7 @@ type UserDetailModalProps = {
     onClose: () => void;
     onRequestBan: () => void;
     onUnban: () => void;
-    onRoleChange: (role: UserRole) => void;
+    onRoleChange: (userRole: UserRole) => void;
 };
 
 export function UserDetailModal({
@@ -153,7 +153,7 @@ export function UserDetailModal({
                             <div>
                                 <p className={labelClass}>{t("admin.role")}</p>
                                 <p className="text-sm font-semibold text-(--color-text-primary)">
-                                    {detailQuery.data.user.role === "ADMIN"
+                                    {detailQuery.data.user.userRole === "ADMIN"
                                         ? t("admin.userRoleAdmin")
                                         : t("admin.userRoleUser")}
                                 </p>
@@ -173,7 +173,7 @@ export function UserDetailModal({
                             )}
 
                         <div className="flex gap-2 flex-wrap mb-6">
-                            {detailQuery.data.user.role === "USER" ? (
+                            {detailQuery.data.user.userRole === "USER" ? (
                                 <Button
                                     variant="secondary"
                                     onClick={() => setPendingRole("ADMIN")}

@@ -14,11 +14,13 @@ export default defineConfig(({ mode }) => {
                     target: apiTarget,
                     changeOrigin: true,
                     rewrite: (path) => path.replace(/^\/api/, ""),
-                    configure: (proxy) => {
-                        proxy.on("proxyReq", (proxyReq) => {
-                            proxyReq.setHeader("Origin", apiTarget);
-                        });
-                    },
+                    // Don't override Origin: better-auth's CSRF protection
+                    // (`trustedOrigins`) checks it on authenticated mutations
+                    // like sign-out. The browser already sends the correct
+                    // `Origin: http://localhost:5173`, which matches
+                    // WEB_ORIGIN. Forcing it to `apiTarget` makes
+                    // /api/auth/sign-out 403 INVALID_ORIGIN, the session
+                    // never gets deleted, and the user bounces back to /admin.
                 },
             },
         },

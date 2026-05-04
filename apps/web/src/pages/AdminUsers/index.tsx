@@ -61,7 +61,7 @@ export function AdminUsersPage({
 
     const trimmedSearch = debouncedSearch.trim();
     const list = useAdminUsersList({
-        role: roleFilter === "ALL" ? undefined : roleFilter,
+        userRole: roleFilter === "ALL" ? undefined : roleFilter,
         search: trimmedSearch.length > 0 ? trimmedSearch : undefined,
     });
 
@@ -117,10 +117,10 @@ export function AdminUsersPage({
         [queryClient]
     );
 
-    const handleRoleChange = (targetUserId: string, role: UserRole) => {
+    const handleRoleChange = (targetUserId: string, userRole: UserRole) => {
         if (targetUserId === userId) return;
         setUserRole.mutate(
-            { userId: targetUserId, role },
+            { userId: targetUserId, userRole },
             { onError: handleMutationFailure }
         );
     };

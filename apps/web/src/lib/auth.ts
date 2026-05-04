@@ -1,31 +1,18 @@
-import { getUsersMe, patchUsersMeProfile } from "../api-client/users/users";
-import type { UserRole } from "../api-client/model/userRole";
+import {
+    getGetUsersMeQueryKey,
+    getUsersMe,
+    patchUsersMeProfile,
+} from "../api-client/users/users";
+import type { User } from "../api-client/model/user";
 import { authClient } from "./auth-client";
+import { ApiError } from "./api-fetcher";
 
-export type AuthUser = {
-    id: string;
-    email: string;
-    name: string;
-    emailVerified: boolean;
-    firstName?: string | null;
-    lastName?: string | null;
-    phone?: string | null;
-    bio?: string | null;
-    createdAt?: string | Date;
-};
-
-export type CurrentUser = AuthUser & {
-    firstName: string | null;
-    lastName: string | null;
-    phone: string | null;
-    displayName: string | null;
-    bio: string | null;
-    createdAt: string | Date;
-    role: UserRole;
-};
+// Single source of truth for the React Query key for the current user.
+// Re-exported from auth.ts so call sites don't need to know it's orval-derived.
+export const CURRENT_USER_QUERY_KEY = getGetUsersMeQueryKey();
 
 export function hasCompletedOnboarding(
-    user: Pick<CurrentUser, "firstName" | "lastName" | "phone">
+    user: Pick<User, "firstName" | "lastName" | "phone">
 ) {
     return Boolean(
         user.firstName?.trim() && user.lastName?.trim() && user.phone?.trim()
@@ -75,18 +62,29 @@ export function resetPassword(params: { token: string; newPassword: string }) {
     });
 }
 
-export async function getCurrentUser() {
-    return (await getUsersMe()) as unknown as CurrentUser;
+export function getCurrentUser() {
+    return getUsersMe();
 }
 
-export async function updateCurrentUserProfile(params: {
+// Variant for callers that treat unauthenticated as "no user" instead of an
+// error (route guards, layout state). Anything other than a 401 still throws.
+export async function getCurrentUserOrNull(): Promise<User | null> {
+    try {
+        return await getCurrentUser();
+    } catch (err) {
+        if (err instanceof ApiError && err.status === 401) return null;
+        throw err;
+    }
+}
+
+export function updateCurrentUserProfile(params: {
     firstName?: string;
     lastName?: string;
     displayName?: string;
     phone?: string;
     bio?: string;
 }) {
-    return (await patchUsersMeProfile(params)) as unknown as CurrentUser;
+    return patchUsersMeProfile(params);
 }
 
 export async function getPostAuthPath() {
@@ -95,8 +93,7 @@ export async function getPostAuthPath() {
     if (!hasCompletedOnboarding(user)) {
         return "/onboarding";
     }
-
-    if (user.role === "ADMIN") {
+    if (user.userRole === "ADMIN") {
         return "/admin";
     }
 

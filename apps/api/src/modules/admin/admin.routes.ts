@@ -56,7 +56,7 @@ export const AdminRoutes = new Elysia({
                     return await AdminService.getUserList({
                         limit: query.limit,
                         cursor: query.cursor,
-                        role: query.role,
+                        userRole: query.userRole,
                         search: query.search,
                     });
                 },
@@ -101,7 +101,7 @@ export const AdminRoutes = new Elysia({
                     await AdminService.setUserRole({
                         actorId: user.id,
                         targetUserId: params.id,
-                        newRole: body.role,
+                        newRole: body.userRole,
                     }),
                 {
                     params: AdminUserIdParamsSchema,

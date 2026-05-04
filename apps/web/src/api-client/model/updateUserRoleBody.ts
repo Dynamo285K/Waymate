@@ -8,5 +8,5 @@
 import type { UserRole } from "./userRole";
 
 export interface UpdateUserRoleBody {
-    role: UserRole;
+    userRole: UserRole;
 }

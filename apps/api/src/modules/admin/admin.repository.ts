@@ -25,7 +25,7 @@ const adminUserListColumns = {
     email: usersTable.email,
     firstName: usersTable.firstName,
     lastName: usersTable.lastName,
-    role: usersTable.role,
+    userRole: usersTable.userRole,
     userStatus: usersTable.userStatus,
     createdAt: usersTable.createdAt,
     lastActiveAt: usersTable.lastActiveAt,
@@ -40,7 +40,7 @@ const adminUserDetailColumns = {
     phone: usersTable.phone,
     bio: usersTable.bio,
     profilePhotoUrl: usersTable.profilePhotoUrl,
-    role: usersTable.role,
+    userRole: usersTable.userRole,
     userStatus: usersTable.userStatus,
     emailVerifiedAt: usersTable.emailVerifiedAt,
     phoneVerifiedAt: usersTable.phoneVerifiedAt,
@@ -55,8 +55,8 @@ const findUserList = async (
 ): Promise<AdminUserListItem[]> => {
     const conditions = [isNull(usersTable.deletedAt)];
 
-    if (filters.role) {
-        conditions.push(eq(usersTable.role, filters.role));
+    if (filters.userRole) {
+        conditions.push(eq(usersTable.userRole, filters.userRole));
     }
 
     if (filters.search) {
@@ -169,11 +169,11 @@ const findStatusHistoryByUserId = async (
 const updateUserRole = async (
     executor: Executor,
     id: string,
-    role: UserRole
+    userRole: UserRole
 ): Promise<AdminUserListItem | null> => {
     const [updated] = await executor
         .update(usersTable)
-        .set({ role, updatedAt: new Date() })
+        .set({ userRole, updatedAt: new Date() })
         .where(and(eq(usersTable.id, id), isNull(usersTable.deletedAt)))
         .returning(adminUserListColumns);
 

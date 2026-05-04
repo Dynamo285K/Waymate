@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react";
 import type { Language } from "@waymate/ui";
+import type { UserRole } from "../api-client/model/userRole";
 
 export type Theme = "light" | "dark";
 
@@ -14,6 +15,7 @@ export type LayoutContextValue = {
     userPhone?: string;
     userBio?: string;
     userCreatedAt?: string | Date;
+    userRole?: UserRole;
 };
 
 export const LayoutContext = createContext<LayoutContextValue | null>(null);

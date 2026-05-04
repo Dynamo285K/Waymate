@@ -48,7 +48,7 @@ export interface AdminUserDetail {
     bio: string | null;
     /** @nullable */
     profilePhotoUrl: string | null;
-    role: UserRole;
+    userRole: UserRole;
     userStatus: UserStatus;
     /** @nullable */
     emailVerifiedAt: string | null;

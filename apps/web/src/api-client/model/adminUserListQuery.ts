@@ -15,7 +15,7 @@ export interface AdminUserListQuery {
      */
     limit: number;
     cursor?: UserId;
-    role?: UserRole;
+    userRole?: UserRole;
     /**
      * @minLength 1
      * @maxLength 100
