@@ -17,7 +17,7 @@ type UserDetailModalProps = {
     onClose: () => void;
     onRequestBan: () => void;
     onUnban: () => void;
-    onRoleChange: (role: UserRole) => void;
+    onRoleChange: (userRole: UserRole) => void;
 };
 
 export function UserDetailModal({
@@ -165,6 +165,51 @@ export function UserDetailModal({
                                     </p>
                                 </div>
                             </div>
+                            <div>
+                                <p className={labelClass}>
+                                    {t("admin.displayName")}
+                                </p>
+                                <p className="text-sm font-semibold text-(--color-text-primary)">
+                                    {detailQuery.data.user.displayName ?? "—"}
+                                </p>
+                            </div>
+                            <div>
+                                <p className={labelClass}>
+                                    {t("admin.joined")}
+                                </p>
+                                <p className="text-sm font-semibold text-(--color-text-primary)">
+                                    {formatDate(
+                                        detailQuery.data.user.createdAt,
+                                        "—"
+                                    )}
+                                </p>
+                            </div>
+                            <div>
+                                <p className={labelClass}>
+                                    {t("admin.lastActive")}
+                                </p>
+                                <p className="text-sm font-semibold text-(--color-text-primary)">
+                                    {formatDate(
+                                        detailQuery.data.user.lastActiveAt,
+                                        t("admin.never")
+                                    )}
+                                </p>
+                            </div>
+                            <div className="col-span-2">
+                                <p className={labelClass}>{t("admin.bio")}</p>
+                                <p className="text-sm text-(--color-text-primary) whitespace-pre-wrap">
+                                    {detailQuery.data.user.bio ?? "—"}
+                                </p>
+                            </div>
+                            <div>
+                                <p className={labelClass}>{t("admin.role")}</p>
+                                <p className="text-sm font-semibold text-(--color-text-primary)">
+                                    {detailQuery.data.user.userRole === "ADMIN"
+                                        ? t("admin.userRoleAdmin")
+                                        : t("admin.userRoleUser")}
+                                </p>
+                            </div>
+                        </div>
 
                             {mutationErrorForThisUser !== null &&
                                 mutationErrorForThisUser !== undefined && (
@@ -255,10 +300,84 @@ export function UserDetailModal({
                                     )}
                                 </ul>
                             )}
-                        </>
-                    )}
-                </div>
-            </Modal>
+
+                        <div className="flex gap-2 flex-wrap mb-6">
+                            {detailQuery.data.user.userRole === "USER" ? (
+                                <Button
+                                    variant="secondary"
+                                    onClick={() => setPendingRole("ADMIN")}
+                                    disabled={isSelf || isThisUserMutating}
+                                    title={
+                                        isSelf
+                                            ? t("admin.selfActionDisabled")
+                                            : undefined
+                                    }
+                                >
+                                    {t("admin.promoteToAdmin")}
+                                </Button>
+                            ) : (
+                                <Button
+                                    variant="secondary"
+                                    onClick={() => setPendingRole("USER")}
+                                    disabled={isSelf || isThisUserMutating}
+                                    title={
+                                        isSelf
+                                            ? t("admin.selfActionDisabled")
+                                            : undefined
+                                    }
+                                >
+                                    {t("admin.demoteToUser")}
+                                </Button>
+                            )}
+                            {detailQuery.data.user.userStatus === "BANNED" ? (
+                                <Button
+                                    variant="primary"
+                                    onClick={onUnban}
+                                    disabled={isSelf || isThisUserMutating}
+                                    title={
+                                        isSelf
+                                            ? t("admin.selfActionDisabled")
+                                            : undefined
+                                    }
+                                >
+                                    {t("admin.unbanUser")}
+                                </Button>
+                            ) : (
+                                <Button
+                                    variant="red"
+                                    onClick={onRequestBan}
+                                    disabled={isSelf || isThisUserMutating}
+                                    title={
+                                        isSelf
+                                            ? t("admin.selfActionDisabled")
+                                            : undefined
+                                    }
+                                >
+                                    {t("admin.banUser")}
+                                </Button>
+                            )}
+                        </div>
+
+                        <h3 className="text-base font-bold text-(--color-text-primary) mb-3">
+                            {t("admin.statusHistory")}
+                        </h3>
+                        {detailQuery.data.statusHistory.length === 0 ? (
+                            <p className="text-sm text-(--color-text-secondary)">
+                                {t("admin.noStatusHistory")}
+                            </p>
+                        ) : (
+                            <ul className="flex flex-col gap-2">
+                                {detailQuery.data.statusHistory.map((entry) => (
+                                    <StatusHistoryEntry
+                                        key={entry.id}
+                                        entry={entry}
+                                    />
+                                ))}
+                            </ul>
+                        )}
+                    </>
+                )}
+            </div>
 
             {pendingRole && detailQuery.data && (
                 <RoleChangeConfirmModal

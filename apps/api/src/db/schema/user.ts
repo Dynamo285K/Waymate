@@ -34,7 +34,11 @@ export const users = pgTable(
         phoneVerifiedAt: timestamp("phone_verified_at"),
         lastActiveAt: timestamp("last_active_at"),
         userStatus: userStatusEnum("user_status").notNull().default("ACTIVE"),
-        role: userRoleEnum("role").notNull().default("USER"),
+        userRole: userRoleEnum("user_role").notNull().default("USER"),
+        // --- 3. better-auth admin plugin columns ---
+        banned: boolean("banned").notNull().default(false),
+        banReason: text("ban_reason"),
+        banExpires: timestamp("ban_expires"),
         deletedAt: timestamp("deleted_at"),
     },
     (table) => [

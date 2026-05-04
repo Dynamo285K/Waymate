@@ -28,7 +28,7 @@ export interface AdminUserListItem {
      * @nullable
      */
     lastName: string | null;
-    role: UserRole;
+    userRole: UserRole;
     userStatus: UserStatus;
     createdAt: string;
     /** @nullable */

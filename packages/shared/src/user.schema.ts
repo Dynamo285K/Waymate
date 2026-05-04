@@ -44,7 +44,7 @@ export const UserEntitySchema = z.object({
     profilePhotoUrl: z.url().nullable(),
     bio: z.string().max(500).nullable(),
     userStatus: UserStatusSchema,
-    role: UserRoleSchema,
+    userRole: UserRoleSchema,
 
     emailVerifiedAt: z.date().nullable(),
     phoneVerifiedAt: z.date().nullable(),

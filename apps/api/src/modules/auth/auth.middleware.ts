@@ -29,24 +29,16 @@ export const isFullyOnboarded = new Elysia({ name: "require-onboarding" })
     .macro({
         onboarded: {
             async resolve({ status, request: { headers } }) {
-                const result = await auth.api.getSession({
-                    headers,
-                });
-
-                if (!result?.user || !result?.session) {
-                    return status(401, {
-                        error: "UNAUTHORIZED",
-                    });
+                const result = await auth.api.getSession({ headers });
+                if (!result?.user || !result.session) {
+                    return status(401, { error: "UNAUTHORIZED" });
                 }
-
                 if (
                     !result.user.firstName ||
                     !result.user.lastName ||
                     !result.user.phone
                 ) {
-                    return status(403, {
-                        error: "ONBOARDING_REQUIRED",
-                    });
+                    return status(403, { error: "ONBOARDING_REQUIRED" });
                 }
             },
         },
@@ -57,20 +49,12 @@ export const requireAdmin = new Elysia({ name: "require-admin" })
     .macro({
         admin: {
             async resolve({ status, request: { headers } }) {
-                const result = await auth.api.getSession({
-                    headers,
-                });
-
-                if (!result?.user || !result?.session) {
-                    return status(401, {
-                        error: "UNAUTHORIZED",
-                    });
+                const result = await auth.api.getSession({ headers });
+                if (!result?.user || !result.session) {
+                    return status(401, { error: "UNAUTHORIZED" });
                 }
-
                 if (result.user.role !== "ADMIN") {
-                    return status(403, {
-                        error: "FORBIDDEN",
-                    });
+                    return status(403, { error: "FORBIDDEN" });
                 }
             },
         },

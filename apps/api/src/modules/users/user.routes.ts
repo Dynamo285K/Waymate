@@ -41,6 +41,7 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
                 {
                     response: {
                         200: "User",
+                        401: "ErrorResponse",
                         404: "ErrorResponse",
                         500: "ErrorResponse",
                     },

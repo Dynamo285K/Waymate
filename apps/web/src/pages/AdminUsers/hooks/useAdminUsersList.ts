@@ -7,7 +7,7 @@ const PAGE_SIZE = 20;
 
 export type AdminUsersListFilters = {
     search?: string;
-    role?: UserRole;
+    userRole?: UserRole;
 };
 
 export function useAdminUsersList(filters: AdminUsersListFilters) {
@@ -28,7 +28,7 @@ export function useAdminUsersList(filters: AdminUsersListFilters) {
             getGetAdminUsersQueryOptions({
                 limit: PAGE_SIZE,
                 cursor,
-                role: filters.role,
+                userRole: filters.userRole,
                 search: filters.search,
             })
         ),

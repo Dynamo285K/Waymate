@@ -13,7 +13,7 @@ export const AdminUserIdParamsSchema = z.object({
 export const AdminUserListQuerySchema = z.object({
     limit: z.coerce.number().int().min(1).max(100).default(20),
     cursor: UserIdSchema.optional(),
-    role: UserRoleSchema.optional(),
+    userRole: UserRoleSchema.optional(),
     search: z.string().trim().min(1).max(100).optional(),
 });
 
@@ -22,7 +22,7 @@ export const AdminUserListItemSchema = UserEntitySchema.pick({
     email: true,
     firstName: true,
     lastName: true,
-    role: true,
+    userRole: true,
     userStatus: true,
     createdAt: true,
     lastActiveAt: true,
@@ -42,7 +42,7 @@ export const AdminUserDetailSchema = UserEntitySchema.pick({
     phone: true,
     bio: true,
     profilePhotoUrl: true,
-    role: true,
+    userRole: true,
     userStatus: true,
     emailVerifiedAt: true,
     phoneVerifiedAt: true,
@@ -73,7 +73,7 @@ export const AdminUserDetailResponseSchema = z.object({
 
 export const UpdateUserRoleBodySchema = z
     .object({
-        role: UserRoleSchema,
+        userRole: UserRoleSchema,
     })
     .strict();
 

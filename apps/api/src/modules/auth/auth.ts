@@ -2,6 +2,7 @@ import { Resend } from "resend";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError, createAuthMiddleware } from "better-auth/api";
+import { admin } from "better-auth/plugins";
 import { randomUUID } from "crypto";
 import { env } from "../../config/env";
 import { db } from "../../db";
@@ -84,14 +85,25 @@ export const auth = betterAuth({
             displayName: { type: "string", required: false },
             phone: { type: "string", required: false },
             profilePhotoUrl: { type: "string", required: false },
-            role: {
-                type: "string",
-                required: false,
-                defaultValue: "USER",
-                input: false,
-            },
         },
     },
+
+    plugins: [
+        admin({
+            defaultRole: "USER",
+            adminRoles: ["ADMIN"],
+            // Map the plugin's `role` field to our existing Drizzle property
+            // `userRole` (DB column `user_role`). The Drizzle adapter reads
+            // and writes using the Drizzle property names, not SQL columns.
+            schema: {
+                user: {
+                    fields: {
+                        role: "userRole",
+                    },
+                },
+            },
+        }),
+    ],
 
     emailAndPassword: {
         enabled: true,

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import i18n from "../i18n";
 import type { Language } from "@waymate/ui";
 import { toI18nLanguage } from "./language";
-import { getCurrentUser } from "./auth";
+import { CURRENT_USER_QUERY_KEY, getCurrentUserOrNull } from "./auth";
 import {
     LayoutContext,
     type LayoutContextValue,
@@ -15,8 +15,8 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
     const [language, setLanguage] = useState<Language>("en");
     const [theme, setTheme] = useState<Theme>("light");
     const { data: currentUser } = useQuery({
-        queryKey: ["users", "me"],
-        queryFn: getCurrentUser,
+        queryKey: CURRENT_USER_QUERY_KEY,
+        queryFn: getCurrentUserOrNull,
         retry: false,
     });
 
@@ -41,6 +41,7 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
             userPhone: currentUser?.phone ?? undefined,
             userBio: currentUser?.bio ?? undefined,
             userCreatedAt: currentUser?.createdAt,
+            userRole: currentUser?.userRole,
             onLanguageChange: (lang) => {
                 const i18nLanguage = toI18nLanguage(lang);
                 setLanguage(i18nLanguage as Language);
@@ -55,6 +56,7 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
             currentUser?.email,
             currentUser?.id,
             currentUser?.phone,
+            currentUser?.userRole,
             language,
             theme,
             userName,

@@ -70,7 +70,7 @@ export function AdminUsersTable({
                                     </div>
                                 </td>
                                 <td className="px-5 py-4 text-(--color-text-secondary)">
-                                    {listItem.role === "ADMIN"
+                                    {listItem.userRole === "ADMIN"
                                         ? t("admin.userRoleAdmin")
                                         : t("admin.userRoleUser")}
                                 </td>

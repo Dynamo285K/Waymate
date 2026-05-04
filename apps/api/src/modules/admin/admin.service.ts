@@ -70,7 +70,7 @@ const setUserRole = async ({
     }
 
     // Idempotent: skip the UPDATE so updatedAt only reflects real changes.
-    if (target.role === newRole) {
+    if (target.userRole === newRole) {
         return target;
     }
 

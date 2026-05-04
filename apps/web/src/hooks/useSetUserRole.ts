@@ -10,10 +10,10 @@ import type { UserRole } from "../api-client/model/userRole";
 
 type SetUserRoleInput = {
     userId: string;
-    role: UserRole;
+    userRole: UserRole;
 };
 
-type MutationVars = { id: string; data: { role: UserRole } };
+type MutationVars = { id: string; data: { userRole: UserRole } };
 
 export function useSetUserRole() {
     const queryClient = useQueryClient();
@@ -31,9 +31,9 @@ export function useSetUserRole() {
         },
     });
 
-    const toVars = ({ userId, role }: SetUserRoleInput): MutationVars => ({
+    const toVars = ({ userId, userRole }: SetUserRoleInput): MutationVars => ({
         id: userId,
-        data: { role },
+        data: { userRole },
     });
 
     return {
