@@ -18,6 +18,7 @@
         "db:studio": "drizzle-kit studio"
     },
     "dependencies": {
+        "@elysiajs/cors": "^1.4.2",
         "@elysiajs/openapi": "^1.4.15",
         "@repo/shared": "workspace:*",
         "dotenv": "^16.6.1",

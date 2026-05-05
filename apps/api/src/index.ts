@@ -1,4 +1,5 @@
 import { Elysia } from "elysia";
+import { cors } from "@elysiajs/cors";
 import { openapi } from "@elysiajs/openapi";
 import * as z from "zod";
 import { env } from "./config/env";
@@ -12,7 +13,19 @@ import { BookingRoutes } from "./modules/bookings/booking.routes";
 import { ReviewRoutes } from "./modules/reviews/review.routes";
 import { AdminRoutes } from "./modules/admin/admin.routes";
 
+const allowedOrigins = Array.from(
+    new Set([env.WEB_ORIGIN, ...env.CORS_ORIGINS])
+);
+
 export const app = new Elysia()
+    .use(
+        cors({
+            origin: allowedOrigins,
+            credentials: true,
+            methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+            allowedHeaders: ["Content-Type", "Authorization"],
+        })
+    )
     .use(
         openapi({
             path: "/openapi",
