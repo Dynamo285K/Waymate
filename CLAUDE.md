@@ -134,7 +134,7 @@ The project uses **Zod v4**. Use `z.uuid()`, `z.url()`, `z.email()` directly (no
 - **Orval-generated client** — TanStack Query hooks generated from the OpenAPI spec into `apps/web/src/api-client/`. Re-run with `bun run --cwd apps/web codegen` after API changes (the spec must be re-dumped first via `bun run --cwd apps/api openapi:dump`). Generated code is git-ignored at the lint level (`apps/web/eslint.config.js` excludes `src/api-client/**`).
 - **Custom fetcher**: `apps/web/src/lib/api-fetcher.ts` injects `credentials: "include"` and throws `ApiError` on non-2xx responses. Configured as the Orval mutator in `apps/web/orval.config.ts`.
 - **TanStack Query** — `QueryClient` is created in `apps/web/src/lib/query-client.ts` and provided from `main.tsx`. Compose generated hooks (`useGetX`, `usePostX`, …) directly; `apps/web/src/hooks/` contains thin wrappers that add invalidation logic on top.
-- **Do not use `fetch` directly.** The legacy `apps/web/src/lib/api.ts` (`apiFetch`) only remains for the auth pages (RegisterPage, OnboardingPage) because better-auth is `.mount`-ed and outside the OpenAPI surface.
+- **Do not use `fetch` directly.** OpenAPI-surface routes go through Orval-generated hooks; better-auth-backed flows (sign-in, sign-up, password reset, …) go through `authClient` in `apps/web/src/lib/auth-client.ts`.
 
 Example:
 

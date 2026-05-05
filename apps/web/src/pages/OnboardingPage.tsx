@@ -6,22 +6,23 @@ import { useNavigate } from "../lib/router-compat";
 import { AuthNavbar, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
-import { apiFetch } from "../lib/api";
+import {
+    useGetUsersMe,
+    usePatchUsersMeOnboarding,
+} from "../api-client/users/users";
+import type { ApiMutationError } from "../lib/api-fetcher";
 import { getErrorI18nKey } from "../lib/api-errors";
-import { getPostAuthPath, hasCompletedOnboarding } from "../lib/auth";
+import {
+    CURRENT_USER_QUERY_KEY,
+    getPostAuthPath,
+    hasCompletedOnboarding,
+} from "../lib/auth";
 
 type OnboardingPageProps = {
     language: Language;
     theme: "light" | "dark";
     onLanguageChange: (lang: Language) => void;
     onThemeToggle: () => void;
-};
-
-type CurrentUser = {
-    name: string;
-    firstName: string | null;
-    lastName: string | null;
-    phone: string | null;
 };
 
 function formatNamePart(value: string) {
@@ -59,40 +60,51 @@ export function OnboardingPage({
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [phone, setPhone] = useState("");
-    const [isLoadingProfile, setIsLoadingProfile] = useState(true);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
     const [submitError, setSubmitError] = useState("");
 
+    const {
+        data: user,
+        isPending: isLoadingProfile,
+        error: loadError,
+    } = useGetUsersMe({
+        query: { retry: false },
+    });
+
+    const onboardMutation = usePatchUsersMeOnboarding<ApiMutationError>({
+        mutation: {
+            onSuccess: (updatedUser) => {
+                queryClient.setQueryData(CURRENT_USER_QUERY_KEY, updatedUser);
+            },
+        },
+    });
+
     useEffect(() => {
-        let isMounted = true;
+        if (isInitialized || isLoadingProfile) return;
 
-        apiFetch<CurrentUser>("/users/me")
-            .then(async (user) => {
-                if (!isMounted) return;
-                if (hasCompletedOnboarding(user)) {
-                    navigate(await getPostAuthPath(), { replace: true });
-                    return;
-                }
+        if (loadError) {
+            setSubmitError(t("onboarding.loginRequired"));
+            setIsInitialized(true);
+            return;
+        }
 
-                setFirstName(user.firstName ?? "");
-                setLastName(user.lastName ?? "");
-                setPhone(user.phone ?? "");
-            })
-            .catch(() => {
-                if (isMounted) {
-                    setSubmitError(t("onboarding.loginRequired"));
-                }
-            })
-            .finally(() => {
-                if (isMounted) {
-                    setIsLoadingProfile(false);
-                }
+        if (!user) return;
+
+        if (hasCompletedOnboarding(user)) {
+            let cancelled = false;
+            getPostAuthPath().then((path) => {
+                if (!cancelled) navigate(path, { replace: true });
             });
+            return () => {
+                cancelled = true;
+            };
+        }
 
-        return () => {
-            isMounted = false;
-        };
-    }, [navigate, t]);
+        setFirstName(user.firstName ?? "");
+        setLastName(user.lastName ?? "");
+        setPhone(user.phone ?? "");
+        setIsInitialized(true);
+    }, [user, loadError, isLoadingProfile, isInitialized, navigate, t]);
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -112,27 +124,18 @@ export function OnboardingPage({
             return;
         }
 
-        setIsSubmitting(true);
         try {
-            const updatedUser = await apiFetch<CurrentUser>(
-                "/users/me/onboarding",
-                {
-                    method: "PATCH",
-                    body: JSON.stringify({
-                        firstName: formattedFirstName,
-                        lastName: formattedLastName,
-                        phone: normalizedPhone,
-                    }),
-                }
-            );
-            queryClient.setQueryData(["users", "me"], updatedUser);
-            await queryClient.invalidateQueries({ queryKey: ["users", "me"] });
+            await onboardMutation.mutateAsync({
+                data: {
+                    firstName: formattedFirstName,
+                    lastName: formattedLastName,
+                    phone: normalizedPhone,
+                },
+            });
             navigate(await getPostAuthPath());
         } catch (error) {
             console.error("Onboarding submit failed", error);
             setSubmitError(t(getErrorI18nKey(error, {}, "onboarding.error")));
-        } finally {
-            setIsSubmitting(false);
         }
     }
 
@@ -147,7 +150,7 @@ export function OnboardingPage({
             <AuthNavbar {...authNavbarProps} />
 
             <main className="flex min-h-[calc(100vh-72px)] items-center justify-center px-4 py-12">
-                {!isLoadingProfile && (
+                {isInitialized && (
                     <form
                         onSubmit={handleSubmit}
                         noValidate
@@ -214,7 +217,7 @@ export function OnboardingPage({
                         <div className="mt-8 flex justify-end">
                             <Button
                                 type="submit"
-                                disabled={isSubmitting}
+                                disabled={onboardMutation.isPending}
                             >
                                 {t("onboarding.save")}
                             </Button>
