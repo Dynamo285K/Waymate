@@ -79,8 +79,8 @@ export function AdminDashboardPage({
     theme,
     onLanguageChange,
     onThemeToggle,
-    userName = "Admin",
-    userEmail = "admin@waymate.com",
+    userName,
+    userEmail,
 }: AdminDashboardPageProps) {
     const { t } = useTranslation();
     const navbarProps = useAdminNavbarProps({

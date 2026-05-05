@@ -369,8 +369,8 @@ export function AdminRidesPage({
     theme,
     onLanguageChange,
     onThemeToggle,
-    userName = "Admin",
-    userEmail = "admin@waymate.com",
+    userName,
+    userEmail,
 }: AdminRidesPageProps) {
     const { t } = useTranslation();
     const navbarProps = useAdminNavbarProps({
