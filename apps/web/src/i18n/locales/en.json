@@ -176,8 +176,7 @@
         "unbanUser": "Unban user",
         "selfActionDisabled": "You cannot perform this action on your own account",
         "errors": {
-            "userNotFound": "This user no longer exists. The list will refresh.",
-            "cannotChangeOwnStatus": "You cannot change the status of your own account."
+            "userNotFound": "This user no longer exists. The list will refresh."
         },
         "reportTypes": {
             "inappropriateBehavior": "Inappropriate behavior",

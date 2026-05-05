@@ -57,12 +57,6 @@ const setUserStatus = async ({
     newStatus,
     reason,
 }: SetUserStatusInput): Promise<AdminUserListItem> => {
-    // Admins can't change their own status — same spirit as CannotDemoteSelf,
-    // prevents an admin from locking themselves out of the tooling by mistake.
-    if (actorId === targetUserId) {
-        throw new AdminError(AdminErrorCodes.CannotChangeOwnStatus);
-    }
-
     return await db.transaction(async (tx) => {
         const target = await AdminRepository.findUserById(tx, targetUserId);
 

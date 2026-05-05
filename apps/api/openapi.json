@@ -1693,7 +1693,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Changes a user's account status (ACTIVE / SUSPENDED / BANNED / DELETED) and records an audit row in user_status_history. Admins cannot change their own status.",
+        "description": "Changes a user's account status (ACTIVE / SUSPENDED / BANNED / DELETED) and records an audit row in user_status_history.",
         "parameters": [
           {
             "name": "id",
@@ -1767,16 +1767,6 @@
           },
           "404": {
             "description": "Response for status 404",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Response for status 409",
             "content": {
               "application/json": {
                 "schema": {

@@ -380,7 +380,7 @@ export function useGetAdminUsersById<
 }
 
 /**
- * Changes a user's account status (ACTIVE / SUSPENDED / BANNED / DELETED) and records an audit row in user_status_history. Admins cannot change their own status.
+ * Changes a user's account status (ACTIVE / SUSPENDED / BANNED / DELETED) and records an audit row in user_status_history.
  */
 export const getPatchAdminUsersByIdStatusUrl = (id: UserId) => {
     return `/admin/users/${id}/status`;

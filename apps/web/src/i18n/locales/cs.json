@@ -176,8 +176,7 @@
         "unbanUser": "Odbanovat uživatele",
         "selfActionDisabled": "Tuto akci nelze provést u vlastního účtu",
         "errors": {
-            "userNotFound": "Tento uživatel již neexistuje. Seznam se obnoví.",
-            "cannotChangeOwnStatus": "Stav vlastního účtu nelze změnit."
+            "userNotFound": "Tento uživatel již neexistuje. Seznam se obnoví."
         },
         "reportTypes": {
             "inappropriateBehavior": "Nevhodné chování",
