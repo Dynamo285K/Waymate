@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { BookingService } from "./booking.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
+import { createErrorHandler } from "../auth/auth.errors";
 import { BookingError, bookingErrorToHttpStatus } from "./booking.errors";
 import {
     ErrorResponseSchema,
@@ -31,22 +32,7 @@ export const BookingRoutes = new Elysia({
         DriverRideRequestList: DriverRideRequestListSchema,
         ErrorResponse: ErrorResponseSchema,
     })
-    .onError(({ code, status, error }) => {
-        if (error instanceof BookingError) {
-            return status(bookingErrorToHttpStatus(error.code), {
-                error: error.code,
-            });
-        }
-        if (code === "VALIDATION" || code === "PARSE") {
-            return status(400, { error: "VALIDATION" });
-        }
-        if (code === 401) {
-            return status(401, { error: "UNAUTHORIZED" });
-        }
-        if (code === "INTERNAL_SERVER_ERROR" || code === "UNKNOWN") {
-            return status(500, { error: "INTERNAL_SERVER_ERROR" });
-        }
-    })
+    .onError(createErrorHandler(BookingError, bookingErrorToHttpStatus))
     .use(isFullyOnboarded)
     .guard({ auth: true, onboarded: true }, (app) =>
         app

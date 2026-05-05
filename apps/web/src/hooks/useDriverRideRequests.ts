@@ -7,6 +7,7 @@ import {
 } from "../api-client/bookings/bookings";
 import { getGetRidesMeQueryKey } from "../api-client/rides/rides";
 import type { DriverRideRequestItem } from "../api-client/model/driverRideRequestItem";
+import type { ApiMutationError } from "../lib/api-fetcher";
 
 export type DriverRideRequest = DriverRideRequestItem;
 
@@ -59,7 +60,10 @@ function useOptimisticRemoval<TVars extends { id: string }>() {
 export function useAcceptRideRequest() {
     const handlers = useOptimisticRemoval<{ id: string }>();
 
-    const mutation = usePatchBookingsByIdConfirm({
+    const mutation = usePatchBookingsByIdConfirm<
+        ApiMutationError,
+        { previous?: DriverRideRequest[] }
+    >({
         mutation: handlers,
     });
 
@@ -78,7 +82,10 @@ export function useDeclineRideRequest() {
         data: { reason?: string };
     }>();
 
-    const mutation = usePatchBookingsByIdReject({
+    const mutation = usePatchBookingsByIdReject<
+        ApiMutationError,
+        { previous?: DriverRideRequest[] }
+    >({
         mutation: handlers,
     });
 

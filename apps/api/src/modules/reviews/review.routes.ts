@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { ReviewService } from "./review.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
+import { createErrorHandler } from "../auth/auth.errors";
 import { ReviewError, reviewErrorToHttpStatus } from "./review.errors";
 import {
     ErrorResponseSchema,
@@ -25,22 +26,7 @@ export const ReviewRoutes = new Elysia({
         AuthoredReviewList: AuthoredReviewListSchema,
         ErrorResponse: ErrorResponseSchema,
     })
-    .onError(({ code, status, error }) => {
-        if (error instanceof ReviewError) {
-            return status(reviewErrorToHttpStatus(error.code), {
-                error: error.code,
-            });
-        }
-        if (code === "VALIDATION" || code === "PARSE") {
-            return status(400, { error: "VALIDATION" });
-        }
-        if (code === 401) {
-            return status(401, { error: "UNAUTHORIZED" });
-        }
-        if (code === "INTERNAL_SERVER_ERROR" || code === "UNKNOWN") {
-            return status(500, { error: "INTERNAL_SERVER_ERROR" });
-        }
-    })
+    .onError(createErrorHandler(ReviewError, reviewErrorToHttpStatus))
     .use(isFullyOnboarded)
     .guard({ auth: true, onboarded: true }, (app) =>
         app

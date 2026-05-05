@@ -6,9 +6,8 @@ import {
     getGetAdminUsersByIdQueryKey,
 } from "../api-client/admin/admin";
 import type { AdminUserListItem } from "../api-client/model/adminUserListItem";
-import type { ErrorResponse } from "../api-client/model/errorResponse";
 import type { UserStatus } from "../api-client/model/userStatus";
-import { ApiError } from "../lib/api-fetcher";
+import type { ApiMutationError } from "../lib/api-fetcher";
 
 type SetUserStatusInput = {
     userId: string;
@@ -21,15 +20,10 @@ type MutationVars = {
     data: { status: UserStatus; reason?: string };
 };
 
-// apiFetcher always throws ApiError, but Orval's generated default narrows
-// TError to the response body shape (ErrorResponse). Override here so callers
-// see the runtime type — instance checks, .status, .data all stay typed.
-type MutationError = ApiError<ErrorResponse>;
-
 export function useSetUserStatus() {
     const queryClient = useQueryClient();
 
-    const mutation = usePatchAdminUsersByIdStatus<MutationError>({
+    const mutation = usePatchAdminUsersByIdStatus<ApiMutationError>({
         mutation: {
             onSuccess: (_data, variables) => {
                 void queryClient.invalidateQueries({
@@ -57,7 +51,7 @@ export function useSetUserStatus() {
             input: SetUserStatusInput,
             options?: MutateOptions<
                 AdminUserListItem,
-                MutationError,
+                ApiMutationError,
                 MutationVars,
                 unknown
             >
@@ -66,7 +60,7 @@ export function useSetUserStatus() {
             input: SetUserStatusInput,
             options?: MutateOptions<
                 AdminUserListItem,
-                MutationError,
+                ApiMutationError,
                 MutationVars,
                 unknown
             >

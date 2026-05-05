@@ -7,6 +7,7 @@ import {
     getGetRidesByIdPassengersQueryKey,
     getGetRidesMeQueryKey,
 } from "../api-client/rides/rides";
+import type { ApiMutationError } from "../lib/api-fetcher";
 
 type CancelBookingByDriverInput = {
     bookingId: string;
@@ -17,7 +18,7 @@ type CancelBookingByDriverInput = {
 export function useCancelBookingByDriver() {
     const queryClient = useQueryClient();
 
-    const mutation = usePatchBookingsByIdDriverCancel({
+    const mutation = usePatchBookingsByIdDriverCancel<ApiMutationError>({
         mutation: {
             onSuccess: () => {
                 void queryClient.invalidateQueries({

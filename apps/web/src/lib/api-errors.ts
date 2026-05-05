@@ -1,12 +1,12 @@
-import { ApiError } from "./api-fetcher";
+import { ApiError, NetworkError } from "./api-fetcher";
 
 /**
  * Pulls the stable BE error code (e.g. `"ADMIN_CANNOT_DEMOTE_SELF"`) out of a
  * thrown {@link ApiError}.
  *
- * Returns `null` for anything that isn't an `ApiError` (TypeError from a
- * dropped network connection, parse errors, …) or for `ApiError`s whose body
- * doesn't follow the standard `{ error: string }` shape.
+ * Returns `null` for anything that isn't an `ApiError` (e.g. {@link NetworkError},
+ * parse errors, …) or for `ApiError`s whose body doesn't follow the standard
+ * `{ error: string }` shape.
  */
 export function getErrorCode(error: unknown): string | null {
     if (!(error instanceof ApiError)) return null;
@@ -31,7 +31,8 @@ export function getErrorCode(error: unknown): string | null {
  *     status (`401` → `errors.unauthorized`, `403` → `errors.forbidden`,
  *     `404` → `errors.notFound`, `5xx` → `errors.server`, `400` →
  *     `errors.validation`).
- *  3. Anything else (network drop, `TypeError`, …) → `errors.network`.
+ *  3. If the error is a `NetworkError` (offline, AbortError, DNS, …) →
+ *     `errors.network`.
  *  4. Final fallback → `fallback` (default `errors.unknown`).
  *
  * @example
@@ -56,7 +57,7 @@ export function getErrorI18nKey(
         if (error.status >= 500) return "errors.server";
     }
 
-    if (error instanceof TypeError) return "errors.network";
+    if (error instanceof NetworkError) return "errors.network";
 
     return fallback;
 }
