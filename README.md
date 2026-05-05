@@ -140,6 +140,14 @@ volume).
 If you need Google OAuth locally, also fill `GOOGLE_CLIENT_ID` /
 `GOOGLE_CLIENT_SECRET` in `apps/api/.env`.
 
+> **Note:** the default `postgres:postgres` credentials in `docker-compose.yml`
+> and `.env.example` are for local development only — never reuse them in any
+> shared or production environment.
+
+The API enables CORS for `WEB_ORIGIN`. To allow additional hosts (e.g. a
+production web origin different from the dev one), set `CORS_ORIGINS` in
+`apps/api/.env` as a comma-separated list of full URLs.
+
 ### 5. Apply migrations and seed development data
 
 The database container is empty after step 4 — schema and fixtures are
