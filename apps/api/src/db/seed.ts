@@ -16,10 +16,12 @@ import { randomUUID } from "crypto";
 import carData from "./cars-data.json";
 import { auth } from "../modules/auth/auth";
 
-// Dev-only admin credentials. Documented here on purpose so anyone running
-// `db:seed` knows how to log in as the seeded admin without re-deriving them.
+// Dev-only credentials. Documented here on purpose so anyone running
+// `db:seed` knows how to log in without re-deriving them.
 const ADMIN_EMAIL = "admin@example.com";
 const ADMIN_PASSWORD = "admin1234";
+const DRIVER_EMAIL = "driver.albert@example.com";
+const DRIVER_PASSWORD = "driver1234";
 
 async function main() {
     console.log("Starting reset and seeding of car models...");
@@ -41,12 +43,12 @@ async function main() {
         console.log("Seeding users, cars, rides and bookings...");
 
         // Lifted out of the transaction so the post-commit accounts insert
-        // (admin password) can reference it.
+        // (admin + driver passwords) can reference them.
         const adminId = randomUUID();
+        const userAId = randomUUID(); // driver A — has password (see DRIVER_EMAIL)
 
         await db.transaction(async (tx) => {
             // Users
-            const userAId = randomUUID(); // driver A
             const userBId = randomUUID(); // driver B
             const userCId = randomUUID(); // passenger
 
@@ -143,7 +145,7 @@ async function main() {
                 {
                     id: userAId,
                     name: "Albert Olbert",
-                    email: "driver.albert@example.com",
+                    email: DRIVER_EMAIL,
                     emailVerified: true,
                     firstName: "Albert",
                     lastName: "Olbert",
@@ -461,27 +463,31 @@ async function main() {
             ]);
         });
 
-        // Set the admin's email/password credentials. Uses better-auth's
-        // hashing primitive directly so we don't trigger sign-up side effects
-        // (verification email, rate limiting, the duplicate-email hook).
+        // Set email/password credentials for designated dev users. Uses
+        // better-auth's hashing primitive directly so we don't trigger
+        // sign-up side effects (verification email, rate limiting, the
+        // duplicate-email hook).
         const authContext = await auth.$context;
-        const passwordHash = await authContext.password.hash(ADMIN_PASSWORD);
-        const now = new Date();
-        await db.insert(accounts).values({
-            id: randomUUID(),
-            userId: adminId,
-            // For the credential provider, better-auth uses the user id as
-            // the account id (one credential row per user).
-            accountId: adminId,
-            providerId: "credential",
-            password: passwordHash,
-            createdAt: now,
-            updatedAt: now,
-        });
+        const setPassword = async (userId: string, plaintext: string) => {
+            await db.insert(accounts).values({
+                id: randomUUID(),
+                userId,
+                // For the credential provider, better-auth uses the user id
+                // as the account id (one credential row per user).
+                accountId: userId,
+                providerId: "credential",
+                password: await authContext.password.hash(plaintext),
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            });
+        };
 
-        console.log(
-            `Seeding finished. Admin login: ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`
-        );
+        await setPassword(adminId, ADMIN_PASSWORD);
+        await setPassword(userAId, DRIVER_PASSWORD);
+
+        console.log("Seeding finished. Dev logins:");
+        console.log(`  admin:  ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`);
+        console.log(`  driver: ${DRIVER_EMAIL} / ${DRIVER_PASSWORD}`);
     } catch (error) {
         console.error("Error during seeding:", error);
     } finally {
