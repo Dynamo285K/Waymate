@@ -5,6 +5,8 @@ import { carModels as carModelsTable } from "../../db/schema/car_model";
 import type { Car, CarModel, CarListItem } from "./car.types";
 import type { CreateCarBody } from "@repo/shared";
 
+const carNotSoftDeleted = isNull(carsTable.deletedAt);
+
 const findAllCarBrandNames = async (
     executor: Executor
 ): Promise<{ brand: string }[]> => {
@@ -46,7 +48,7 @@ const findCarsByUserId = async (
         })
         .from(carsTable)
         .innerJoin(carModelsTable, eq(carsTable.modelId, carModelsTable.id))
-        .where(and(eq(carsTable.ownerId, userId), isNull(carsTable.deletedAt)));
+        .where(and(eq(carsTable.ownerId, userId), carNotSoftDeleted));
 
     return result as CarListItem[];
 };
@@ -87,7 +89,7 @@ const updateCarStatus = async (
             and(
                 eq(carsTable.id, carId),
                 eq(carsTable.ownerId, userId),
-                isNull(carsTable.deletedAt)
+                carNotSoftDeleted
             )
         )
         .returning();
@@ -111,7 +113,7 @@ const deleteCar = async (
             and(
                 eq(carsTable.id, carId),
                 eq(carsTable.ownerId, userId),
-                isNull(carsTable.deletedAt)
+                carNotSoftDeleted
             )
         )
         .returning();

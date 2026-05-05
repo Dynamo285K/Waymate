@@ -171,6 +171,12 @@ const confirmBooking = async (
             }
         );
 
+        if (!updatedBooking) {
+            // Race: booking was soft-deleted between the lock and the update.
+            // Roll back so status history stays consistent with bookings.
+            throw new BookingError(BookingErrorCodes.BookingNotFound);
+        }
+
         await BookingRepository.insertBookingStatusHistory(tx, {
             bookingId: updatedBooking.id,
             oldStatus: "PENDING",
@@ -220,6 +226,10 @@ const rejectBooking = async (
             { bookingStatus: "REJECTED" }
         );
 
+        if (!updatedBooking) {
+            throw new BookingError(BookingErrorCodes.BookingNotFound);
+        }
+
         await BookingRepository.insertBookingStatusHistory(tx, {
             bookingId: updatedBooking.id,
             oldStatus: "PENDING",
@@ -268,6 +278,10 @@ const cancelBookingByPassenger = async (
                 cancellationReason: cancelReason,
             }
         );
+
+        if (!updatedBooking) {
+            throw new BookingError(BookingErrorCodes.BookingNotFound);
+        }
 
         await BookingRepository.insertBookingStatusHistory(tx, {
             bookingId: updatedBooking.id,
@@ -330,6 +344,10 @@ const cancelBookingByDriver = async (
                 cancellationReason: cancelReason,
             }
         );
+
+        if (!updatedBooking) {
+            throw new BookingError(BookingErrorCodes.BookingNotFound);
+        }
 
         await BookingRepository.insertBookingStatusHistory(tx, {
             bookingId: updatedBooking.id,
