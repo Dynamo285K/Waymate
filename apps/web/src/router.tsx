@@ -182,7 +182,7 @@ const audienceRoutes: ReadonlyArray<AudienceRoute> = [
     {
         path: "/profile/edit",
         Component: EditProfilePage,
-        audience: ["user", "admin"],
+        audience: ["user"],
     },
     { path: "/car/add", Component: AddCarPage, audience: ["user"] },
     { path: "/admin", Component: AdminDashboardPage, audience: ["admin"] },
