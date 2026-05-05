@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { RideService } from "./ride.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
+import { createErrorHandler } from "../auth/auth.errors";
 import { RideError, rideErrorToHttpStatus } from "./ride.errors";
 import {
     ErrorResponseSchema,
@@ -34,22 +35,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
         CreateRideResponse: CreateRideResponseSchema,
         CancelRideResponse: CancelRideResponseSchema,
     })
-    .onError(({ code, status, error }) => {
-        if (error instanceof RideError) {
-            return status(rideErrorToHttpStatus(error.code), {
-                error: error.code,
-            });
-        }
-        if (code === "VALIDATION" || code === "PARSE") {
-            return status(400, { error: "VALIDATION" });
-        }
-        if (code === 401) {
-            return status(401, { error: "UNAUTHORIZED" });
-        }
-        if (code === "INTERNAL_SERVER_ERROR" || code === "UNKNOWN") {
-            return status(500, { error: "INTERNAL_SERVER_ERROR" });
-        }
-    })
+    .onError(createErrorHandler(RideError, rideErrorToHttpStatus))
     .get(
         "/available",
         async () => {

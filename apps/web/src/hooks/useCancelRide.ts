@@ -5,6 +5,7 @@ import {
     getGetRidesMeQueryKey,
 } from "../api-client/rides/rides";
 import type { CancelRideResponse } from "../api-client/model/cancelRideResponse";
+import type { ApiMutationError } from "../lib/api-fetcher";
 
 type CancelRideInput = {
     rideId: string;
@@ -16,7 +17,7 @@ type MutationVars = { id: string; data: { reason?: string } };
 export function useCancelRide() {
     const queryClient = useQueryClient();
 
-    const mutation = usePatchRidesByIdCancel({
+    const mutation = usePatchRidesByIdCancel<ApiMutationError>({
         mutation: {
             onSuccess: () => {
                 void queryClient.invalidateQueries({
@@ -37,7 +38,7 @@ export function useCancelRide() {
             input: CancelRideInput,
             options?: MutateOptions<
                 CancelRideResponse,
-                unknown,
+                ApiMutationError,
                 MutationVars,
                 unknown
             >
@@ -46,7 +47,7 @@ export function useCancelRide() {
             input: CancelRideInput,
             options?: MutateOptions<
                 CancelRideResponse,
-                unknown,
+                ApiMutationError,
                 MutationVars,
                 unknown
             >

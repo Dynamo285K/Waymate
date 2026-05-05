@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { CarService } from "./car.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
+import { createErrorHandler } from "../auth/auth.errors";
 import { CarError, carErrorToHttpStatus } from "./car.errors";
 import {
     ErrorResponseSchema,
@@ -31,22 +32,7 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
         CarBrandNameList: CarBrandNameListSchema,
         CarBrandParams: CarBrandParamsSchema,
     })
-    .onError(({ code, status, error }) => {
-        if (error instanceof CarError) {
-            return status(carErrorToHttpStatus(error.code), {
-                error: error.code,
-            });
-        }
-        if (code === "VALIDATION" || code === "PARSE") {
-            return status(400, { error: "VALIDATION" });
-        }
-        if (code === 401) {
-            return status(401, { error: "UNAUTHORIZED" });
-        }
-        if (code === "INTERNAL_SERVER_ERROR" || code === "UNKNOWN") {
-            return status(500, { error: "INTERNAL_SERVER_ERROR" });
-        }
-    })
+    .onError(createErrorHandler(CarError, carErrorToHttpStatus))
     .use(isFullyOnboarded)
     .guard({ auth: true, onboarded: true }, (app) =>
         app

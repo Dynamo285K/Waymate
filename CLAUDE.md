@@ -101,6 +101,8 @@ Three Elysia macros guard routes:
 - `isFullyOnboarded` — additionally requires `user.firstName`, `user.lastName`, and `user.phone` to be set; returns `403 ONBOARDING_REQUIRED` otherwise
 - `requireAdmin` — composes `isAuthenticated` (not `isFullyOnboarded`) and additionally requires `user.role === "ADMIN"`; returns `403 FORBIDDEN` otherwise
 
+When a guard fails, the macro **throws** `AuthError` (`apps/api/src/modules/auth/auth.errors.ts`) — never `return status(...)` inline. Each module's `.onError` then catches it via `instanceof AuthError` and maps it through `authErrorToHttpStatus`, the same shape used for module-specific domain errors (`AdminError`, `RideError`, …). The rule: macros and services throw typed domain errors; only `.onError` translates them to HTTP responses.
+
 Most routes (Cars, Rides) require `isFullyOnboarded`. User profile routes use `isAuthenticated`.
 
 The `users.userRole` column (`USER` / `ADMIN`, default `USER`) drives `requireAdmin`. The role is not user-settable through any API surface — neither auth (`input: false` in better-auth `additionalFields`) nor admin tooling (the admin user-management endpoints filter out admin rows entirely; see `AdminRepository.visibleUserConditions`). The dev admin lives in `db/seed.ts` (`admin@example.com` / `admin1234`); promoting another user is a manual `UPDATE users SET user_role = 'ADMIN' WHERE email = '...'` against the database.

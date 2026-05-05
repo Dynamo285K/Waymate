@@ -11,6 +11,7 @@ import {
     UpdateUserStatusBodySchema,
 } from "@repo/shared";
 import { requireAdmin } from "../auth/auth.middleware";
+import { createErrorHandler } from "../auth/auth.errors";
 import { AdminError, adminErrorToHttpStatus } from "./admin.errors";
 import { AdminService } from "./admin.service";
 
@@ -29,22 +30,7 @@ export const AdminRoutes = new Elysia({
         UpdateUserStatusBody: UpdateUserStatusBodySchema,
         ErrorResponse: ErrorResponseSchema,
     })
-    .onError(({ code, status, error }) => {
-        if (error instanceof AdminError) {
-            return status(adminErrorToHttpStatus(error.code), {
-                error: error.code,
-            });
-        }
-        if (code === "VALIDATION" || code === "PARSE") {
-            return status(400, { error: "VALIDATION" });
-        }
-        if (code === 401) {
-            return status(401, { error: "UNAUTHORIZED" });
-        }
-        if (code === "INTERNAL_SERVER_ERROR" || code === "UNKNOWN") {
-            return status(500, { error: "INTERNAL_SERVER_ERROR" });
-        }
-    })
+    .onError(createErrorHandler(AdminError, adminErrorToHttpStatus))
     .use(requireAdmin)
     .guard({ auth: true, admin: true }, (app) =>
         app

@@ -1,5 +1,5 @@
 import { db } from "../../db";
-import { hasPostgresErrorCode, PostgresErrorCodes } from "../../db/errors";
+import { mapPostgresErrors, PostgresErrorCodes } from "../../db/errors";
 import { ReviewRepository } from "./review.repository";
 import { ReviewError, ReviewErrorCodes } from "./review.errors";
 import type { CreateReviewInput, Review } from "./review.types";
@@ -58,14 +58,11 @@ const submitReview = async (input: CreateReviewInput): Promise<Review> => {
         throw new ReviewError(ReviewErrorCodes.InvalidPairing);
     }
 
-    try {
-        return await ReviewRepository.insertReview(db, input);
-    } catch (error) {
-        if (hasPostgresErrorCode(error, PostgresErrorCodes.UniqueViolation)) {
+    return mapPostgresErrors(() => ReviewRepository.insertReview(db, input), {
+        [PostgresErrorCodes.UniqueViolation]: () => {
             throw new ReviewError(ReviewErrorCodes.AlreadyExists);
-        }
-        throw error;
-    }
+        },
+    });
 };
 
 const getReviewsForUser = async (subjectId: string) => {

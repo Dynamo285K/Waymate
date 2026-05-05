@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { UserService } from "./user.service";
 import { isAuthenticated } from "../auth/auth.middleware";
+import { createErrorHandler } from "../auth/auth.errors";
 import { UserError, userErrorToHttpStatus } from "./user.errors";
 import {
     ErrorResponseSchema,
@@ -16,22 +17,7 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
         UpdateUserBody: UpdateUserBodySchema,
         ErrorResponse: ErrorResponseSchema,
     })
-    .onError(({ code, status, error }) => {
-        if (error instanceof UserError) {
-            return status(userErrorToHttpStatus(error.code), {
-                error: error.code,
-            });
-        }
-        if (code === "VALIDATION" || code === "PARSE") {
-            return status(400, { error: "VALIDATION" });
-        }
-        if (code === 401) {
-            return status(401, { error: "UNAUTHORIZED" });
-        }
-        if (code === "INTERNAL_SERVER_ERROR" || code === "UNKNOWN") {
-            return status(500, { error: "INTERNAL_SERVER_ERROR" });
-        }
-    })
+    .onError(createErrorHandler(UserError, userErrorToHttpStatus))
     .use(isAuthenticated)
     .guard({ auth: true }, (app) =>
         app

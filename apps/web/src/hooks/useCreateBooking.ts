@@ -10,6 +10,7 @@ import {
 } from "../api-client/rides/rides";
 import type { BookingActionResponse } from "../api-client/model/bookingActionResponse";
 import type { CreateBookingBody } from "../api-client/model/createBookingBody";
+import type { ApiMutationError } from "../lib/api-fetcher";
 
 type CreateBookingInput = {
     rideId: string;
@@ -23,7 +24,7 @@ type MutationVars = { data: CreateBookingBody };
 export function useCreateBooking() {
     const queryClient = useQueryClient();
 
-    const mutation = usePostBookings({
+    const mutation = usePostBookings<ApiMutationError>({
         mutation: {
             onSuccess: () => {
                 void queryClient.invalidateQueries({
@@ -54,7 +55,7 @@ export function useCreateBooking() {
             input: CreateBookingInput,
             options?: MutateOptions<
                 BookingActionResponse,
-                unknown,
+                ApiMutationError,
                 MutationVars,
                 unknown
             >
@@ -63,7 +64,7 @@ export function useCreateBooking() {
             input: CreateBookingInput,
             options?: MutateOptions<
                 BookingActionResponse,
-                unknown,
+                ApiMutationError,
                 MutationVars,
                 unknown
             >
