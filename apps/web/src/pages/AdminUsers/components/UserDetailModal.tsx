@@ -142,14 +142,6 @@ export function UserDetailModal({
                                     {detailQuery.data.user.bio ?? "—"}
                                 </p>
                             </div>
-                            <div>
-                                <p className={labelClass}>{t("admin.role")}</p>
-                                <p className="text-sm font-semibold text-(--color-text-primary)">
-                                    {detailQuery.data.user.userRole === "ADMIN"
-                                        ? t("admin.userRoleAdmin")
-                                        : t("admin.userRoleUser")}
-                                </p>
-                            </div>
                         </div>
 
                         {mutationErrorForThisUser !== null &&

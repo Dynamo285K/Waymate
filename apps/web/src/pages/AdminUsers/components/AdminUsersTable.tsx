@@ -30,7 +30,6 @@ export function AdminUsersTable({
                     <tr className="border-b border-(--color-border)">
                         {[
                             t("admin.user"),
-                            t("admin.role"),
                             t("admin.email"),
                             t("admin.status"),
                             t("admin.lastActive"),
@@ -68,11 +67,6 @@ export function AdminUsersTable({
                                             {name}
                                         </span>
                                     </div>
-                                </td>
-                                <td className="px-5 py-4 text-(--color-text-secondary)">
-                                    {listItem.userRole === "ADMIN"
-                                        ? t("admin.userRoleAdmin")
-                                        : t("admin.userRoleUser")}
                                 </td>
                                 <td className="px-5 py-4 text-(--color-text-secondary)">
                                     {listItem.email}
