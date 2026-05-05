@@ -49,16 +49,19 @@ const adminUserDetailColumns = {
     updatedAt: usersTable.updatedAt,
 } as const;
 
+// Admin tooling manages USER-role accounts only; the seeded admin is
+// intentionally invisible/uneditable here. Apply to every query or update
+// in this module that touches the users table.
+const visibleUserConditions = [
+    isNull(usersTable.deletedAt),
+    ne(usersTable.userRole, "ADMIN"),
+];
+
 const findUserList = async (
     executor: Executor,
     filters: AdminUserListFilters
 ): Promise<AdminUserListItem[]> => {
-    // Admin tooling manages USER-role accounts only; the seeded admin is
-    // intentionally invisible/uneditable here.
-    const conditions = [
-        isNull(usersTable.deletedAt),
-        ne(usersTable.userRole, "ADMIN"),
-    ];
+    const conditions = [...visibleUserConditions];
 
     if (filters.search) {
         const pattern = `%${filters.search}%`;
@@ -103,18 +106,10 @@ const findUserById = async (
     executor: Executor,
     id: string
 ): Promise<AdminUserListItem | null> => {
-    // Admin tooling manages USER-role accounts only; the seeded admin is
-    // intentionally invisible/uneditable here.
     const [user] = await executor
         .select(adminUserListColumns)
         .from(usersTable)
-        .where(
-            and(
-                eq(usersTable.id, id),
-                isNull(usersTable.deletedAt),
-                ne(usersTable.userRole, "ADMIN")
-            )
-        )
+        .where(and(eq(usersTable.id, id), ...visibleUserConditions))
         .limit(1);
 
     return user ?? null;
@@ -124,18 +119,10 @@ const findUserDetailById = async (
     executor: Executor,
     id: string
 ): Promise<AdminUserDetail | null> => {
-    // Admin tooling manages USER-role accounts only; the seeded admin is
-    // intentionally invisible/uneditable here.
     const [user] = await executor
         .select(adminUserDetailColumns)
         .from(usersTable)
-        .where(
-            and(
-                eq(usersTable.id, id),
-                isNull(usersTable.deletedAt),
-                ne(usersTable.userRole, "ADMIN")
-            )
-        )
+        .where(and(eq(usersTable.id, id), ...visibleUserConditions))
         .limit(1);
 
     return user ?? null;
@@ -188,18 +175,10 @@ const updateUserStatus = async (
     id: string,
     status: UserStatus
 ): Promise<AdminUserListItem | null> => {
-    // Admin tooling manages USER-role accounts only; the seeded admin is
-    // intentionally invisible/uneditable here.
     const [updated] = await executor
         .update(usersTable)
         .set({ userStatus: status, updatedAt: new Date() })
-        .where(
-            and(
-                eq(usersTable.id, id),
-                isNull(usersTable.deletedAt),
-                ne(usersTable.userRole, "ADMIN")
-            )
-        )
+        .where(and(eq(usersTable.id, id), ...visibleUserConditions))
         .returning(adminUserListColumns);
 
     return updated ?? null;
