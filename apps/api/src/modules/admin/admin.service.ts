@@ -16,11 +16,25 @@ const STATUS_HISTORY_DEFAULT_LIMIT = 50;
 const getUserList = async (
     filters: AdminUserListFilters
 ): Promise<AdminUserListResponse> => {
+    let cursorPosition: { id: string; createdAt: Date } | undefined;
+
+    if (filters.cursor) {
+        const createdAt = await AdminRepository.findUserCreatedAt(
+            db,
+            filters.cursor
+        );
+        // Bogus or invalidated cursor — return an empty page rather than
+        // silently restarting from the first row, which would confuse clients.
+        if (!createdAt) return { items: [], nextCursor: null };
+        cursorPosition = { id: filters.cursor, createdAt };
+    }
+
     // Fetch one extra row to detect whether a next page exists without a
     // separate COUNT(*).
     const rows = await AdminRepository.findUserList(db, {
-        ...filters,
         limit: filters.limit + 1,
+        search: filters.search,
+        cursorPosition,
     });
 
     const hasMore = rows.length > filters.limit;

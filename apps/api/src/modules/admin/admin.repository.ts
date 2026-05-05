@@ -18,7 +18,6 @@ import type {
 import type { Executor } from "../../db";
 import { users as usersTable } from "../../db/schema/user";
 import { userStatusHistory as userStatusHistoryTable } from "../../db/schema/user_status_history";
-import type { AdminUserListFilters } from "./admin.types";
 
 const adminUserListColumns = {
     id: usersTable.id,
@@ -59,12 +58,16 @@ const visibleUserConditions = [
 
 const findUserList = async (
     executor: Executor,
-    filters: AdminUserListFilters
+    params: {
+        limit: number;
+        search?: string;
+        cursorPosition?: { id: string; createdAt: Date };
+    }
 ): Promise<AdminUserListItem[]> => {
     const conditions = [...visibleUserConditions];
 
-    if (filters.search) {
-        const pattern = `%${filters.search}%`;
+    if (params.search) {
+        const pattern = `%${params.search}%`;
         const searchClause = or(
             ilike(usersTable.email, pattern),
             ilike(usersTable.firstName, pattern),
@@ -73,22 +76,12 @@ const findUserList = async (
         if (searchClause) conditions.push(searchClause);
     }
 
-    if (filters.cursor) {
-        const [cursorRow] = await executor
-            .select({ createdAt: usersTable.createdAt })
-            .from(usersTable)
-            .where(eq(usersTable.id, filters.cursor))
-            .limit(1);
-
-        // Bogus or invalidated cursor — return an empty page rather than
-        // silently restarting from the first row, which would confuse clients.
-        if (!cursorRow) return [];
-
+    if (params.cursorPosition) {
         const cursorClause = or(
-            lt(usersTable.createdAt, cursorRow.createdAt),
+            lt(usersTable.createdAt, params.cursorPosition.createdAt),
             and(
-                eq(usersTable.createdAt, cursorRow.createdAt),
-                lt(usersTable.id, filters.cursor)
+                eq(usersTable.createdAt, params.cursorPosition.createdAt),
+                lt(usersTable.id, params.cursorPosition.id)
             )
         );
         if (cursorClause) conditions.push(cursorClause);
@@ -99,7 +92,23 @@ const findUserList = async (
         .from(usersTable)
         .where(and(...conditions))
         .orderBy(desc(usersTable.createdAt), desc(usersTable.id))
-        .limit(filters.limit);
+        .limit(params.limit);
+};
+
+// Looks up just enough state to anchor a keyset cursor — no visibility filter
+// here on purpose: a cursor was issued from a previously visible row, and the
+// caller (service) decides what to do when the row no longer resolves.
+const findUserCreatedAt = async (
+    executor: Executor,
+    id: string
+): Promise<Date | null> => {
+    const [row] = await executor
+        .select({ createdAt: usersTable.createdAt })
+        .from(usersTable)
+        .where(eq(usersTable.id, id))
+        .limit(1);
+
+    return row?.createdAt ?? null;
 };
 
 const findUserById = async (
@@ -205,6 +214,7 @@ const insertUserStatusHistory = async (
 
 export const AdminRepository = {
     findUserList,
+    findUserCreatedAt,
     findUserById,
     findUserDetailById,
     findStatusHistoryByUserId,
