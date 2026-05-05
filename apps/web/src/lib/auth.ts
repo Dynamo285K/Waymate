@@ -44,8 +44,17 @@ export function signInWithGoogle() {
     });
 }
 
-export function signOut() {
-    return authClient.signOut();
+// better-auth's signOut returns Promise<{ data, error }> — it resolves even
+// when the server rejected the request (e.g. CSRF / Origin mismatch / rate
+// limit). Surfaced as a thrown error here so callers can't accidentally
+// proceed past a failed sign-out and leave the session alive.
+export async function signOut() {
+    const { error } = await authClient.signOut();
+    if (error) {
+        throw new Error(
+            `Sign-out failed: ${error.message ?? error.code ?? "unknown"}`
+        );
+    }
 }
 
 export function requestPasswordReset(params: { email: string }) {

@@ -11,6 +11,9 @@ import type {
     ReviewListItem,
 } from "./review.types";
 
+const rideNotSoftDeleted = isNull(ridesTable.deletedAt);
+const bookingNotSoftDeleted = isNull(bookingsTable.deletedAt);
+
 export type RideContext = {
     id: string;
     driverId: string;
@@ -30,7 +33,7 @@ const findRideContext = async (
             departureAt: ridesTable.departureAt,
         })
         .from(ridesTable)
-        .where(and(eq(ridesTable.id, rideId), isNull(ridesTable.deletedAt)));
+        .where(and(eq(ridesTable.id, rideId), rideNotSoftDeleted));
 
     return ride ?? null;
 };
@@ -51,7 +54,7 @@ const wasPassengerOnRide = async (
                     "CONFIRMED",
                     "COMPLETED",
                 ]),
-                isNull(bookingsTable.deletedAt)
+                bookingNotSoftDeleted
             )
         )
         .limit(1);

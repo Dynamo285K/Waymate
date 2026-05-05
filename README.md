@@ -126,12 +126,17 @@ bun run --cwd apps/api seed          # fills users, cars, rides, bookings
 ```
 
 The seed **truncates everything first**, so re-running it wipes any local
-state (sessions, registrations, rides). It prints the dev admin login on
-the last line:
+state (sessions, registrations, rides). It prints the dev logins on the
+last lines:
 
 ```
-Seeding finished. Admin login: admin@example.com / admin1234
+Seeding finished. Dev logins:
+  admin:  admin@example.com / admin1234
+  driver: driver.albert@example.com / driver1234
 ```
+
+The `driver` account (Albert Olbert) is also seeded with cars, rides, and
+bookings so passenger/driver flows have something to load against.
 
 It also seeds 100 regular users (`user.1@example.com` … `user.100@example.com`,
 no password — they exist as fixtures for paginating/searching the admin user

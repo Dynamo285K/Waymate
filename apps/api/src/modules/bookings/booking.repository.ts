@@ -25,6 +25,9 @@ import type {
     BookingStatus,
 } from "./booking.types";
 
+const bookingNotSoftDeleted = isNull(bookingsTable.deletedAt);
+const rideNotSoftDeleted = isNull(ridesTable.deletedAt);
+
 const pickupStops = aliasedTable(rideStopsTable, "booking_pickup_stops");
 const dropoffStops = aliasedTable(rideStopsTable, "booking_dropoff_stops");
 const myReviewOfDriverTable = aliasedTable(
@@ -89,8 +92,8 @@ const findPendingRequestsForDriver = async (
             and(
                 eq(ridesTable.driverId, driverId),
                 eq(bookingsTable.bookingStatus, "PENDING"),
-                isNull(bookingsTable.deletedAt),
-                isNull(ridesTable.deletedAt)
+                bookingNotSoftDeleted,
+                rideNotSoftDeleted
             )
         )
         .orderBy(asc(ridesTable.departureAt), asc(bookingsTable.createdAt));
@@ -120,7 +123,7 @@ const findBookingsByPassengerId = async (
                     "CONFIRMED",
                     "COMPLETED",
                 ]),
-                isNull(bookingsTable.deletedAt)
+                bookingNotSoftDeleted
             )
         )
         .groupBy(bookingsTable.rideId)
@@ -143,8 +146,8 @@ const findBookingsByPassengerId = async (
 
     const filters = [
         eq(bookingsTable.passengerId, passengerId),
-        isNull(bookingsTable.deletedAt),
-        isNull(ridesTable.deletedAt),
+        bookingNotSoftDeleted,
+        rideNotSoftDeleted,
     ];
 
     if (timeframe === "UPCOMING") {
@@ -230,7 +233,7 @@ const lockRideForBooking = async (
             offeredSeats: ridesTable.offeredSeats,
         })
         .from(ridesTable)
-        .where(and(eq(ridesTable.id, rideId), isNull(ridesTable.deletedAt)))
+        .where(and(eq(ridesTable.id, rideId), rideNotSoftDeleted))
         .for("update");
 
     return ride ?? null;
@@ -246,7 +249,7 @@ const lockBookingById = async (
         .where(
             and(
                 eq(bookingsTable.id, bookingId),
-                isNull(bookingsTable.deletedAt)
+                bookingNotSoftDeleted
             )
         )
         .for("update");
@@ -308,7 +311,7 @@ const sumSeatsForRide = async (
             and(
                 eq(bookingsTable.rideId, rideId),
                 inArray(bookingsTable.bookingStatus, statuses),
-                isNull(bookingsTable.deletedAt)
+                bookingNotSoftDeleted
             )
         );
 
@@ -325,7 +328,7 @@ const findActiveBookingByPassenger = async (
             eq(bookingsTable.rideId, rideId),
             eq(bookingsTable.passengerId, passengerId),
             inArray(bookingsTable.bookingStatus, ["PENDING", "CONFIRMED"]),
-            isNull(bookingsTable.deletedAt)
+            bookingNotSoftDeleted
         ),
     });
 };
@@ -353,18 +356,38 @@ const insertBooking = async (
     return newBooking;
 };
 
+// Whitelisted update surface for booking status transitions. The previous
+// `Partial<typeof bookingsTable.$inferInsert>` shape leaked the entire row
+// (including `id`, `passengerId`, `deletedAt` etc.) — anything outside this
+// list of legitimate transition fields would have type-checked silently.
+type BookingTransitionFields = Partial<
+    Pick<
+        typeof bookingsTable.$inferInsert,
+        | "bookingStatus"
+        | "confirmedAt"
+        | "cancelledAt"
+        | "cancelledByUserId"
+        | "cancellationReason"
+    >
+>;
+
 const updateBookingFields = async (
     executor: Executor,
     bookingId: string,
-    fields: Partial<typeof bookingsTable.$inferInsert>
-): Promise<{ id: string }> => {
+    fields: BookingTransitionFields
+): Promise<{ id: string } | null> => {
     const [updatedBooking] = await executor
         .update(bookingsTable)
         .set({ ...fields, updatedAt: new Date() })
-        .where(eq(bookingsTable.id, bookingId))
+        .where(
+            and(
+                eq(bookingsTable.id, bookingId),
+                bookingNotSoftDeleted
+            )
+        )
         .returning({ id: bookingsTable.id });
 
-    return updatedBooking;
+    return updatedBooking ?? null;
 };
 
 const insertBookingStatusHistory = async (

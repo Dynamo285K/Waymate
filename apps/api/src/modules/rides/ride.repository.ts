@@ -25,15 +25,38 @@ import { cars as carsTable } from "../../db/schema/car";
 import type {
     RideListItem,
     RideTimeframe,
-    RidePassengersView,
-    RidePassengersHeader,
     RideSearchResultItem,
     AvailableRideItem,
     BookingStatus,
 } from "./ride.types";
 
-export type RidePassengersData = Omit<RidePassengersView, "ride"> & {
-    ride: Omit<RidePassengersHeader, "canReview">;
+const rideNotSoftDeleted = isNull(ridesTable.deletedAt);
+const bookingNotSoftDeleted = isNull(bookingsTable.deletedAt);
+const carNotSoftDeleted = isNull(carsTable.deletedAt);
+
+// Raw bundle returned by findRidePassengersBundle — the relational query
+// result with no derived fields. Service composes this with reviews + status
+// to project the public RidePassengersView.
+export type RidePassengersBundle = {
+    id: string;
+    departureAt: Date;
+    rideStatus: RideListItem["rideStatus"];
+    offeredSeats: number;
+    currency: string;
+    rideStops: { id: string; city: string; stopOrder: number }[];
+    bookings: {
+        id: string;
+        bookingStatus: BookingStatus;
+        seatCount: number;
+        passenger: {
+            id: string;
+            firstName: string | null;
+            lastName: string | null;
+            profilePhotoUrl: string | null;
+        };
+        pickupStop: { id: string; city: string; stopOrder: number } | null;
+        dropoffStop: { id: string; city: string; stopOrder: number } | null;
+    }[];
 };
 
 const findRidesByDriverId = async (
@@ -45,7 +68,7 @@ const findRidesByDriverId = async (
 
     const filters = [
         eq(ridesTable.driverId, driverId),
-        isNull(ridesTable.deletedAt),
+        rideNotSoftDeleted,
         ne(ridesTable.rideStatus, "CANCELLED"),
     ];
 
@@ -94,16 +117,16 @@ const findRidesByDriverId = async (
     return result as RideListItem[];
 };
 
-const findRideWithPassengers = async (
+const findRidePassengersBundle = async (
     executor: Executor,
     rideId: string,
     driverId: string
-): Promise<RidePassengersData | null> => {
+): Promise<RidePassengersBundle | null> => {
     const result = await executor.query.rides.findFirst({
         where: and(
             eq(ridesTable.id, rideId),
             eq(ridesTable.driverId, driverId),
-            isNull(ridesTable.deletedAt)
+            rideNotSoftDeleted
         ),
         columns: {
             id: true,
@@ -159,57 +182,32 @@ const findRideWithPassengers = async (
         },
     });
 
-    if (!result) return null;
+    return (result as RidePassengersBundle | undefined) ?? null;
+};
 
-    const passengerIds = result.bookings.map((b) => b.passenger.id);
-    const driverReviews =
-        passengerIds.length > 0
-            ? await executor
-                  .select({
-                      id: reviewsTable.id,
-                      subjectId: reviewsTable.subjectId,
-                      rating: reviewsTable.rating,
-                  })
-                  .from(reviewsTable)
-                  .where(
-                      and(
-                          eq(reviewsTable.rideId, rideId),
-                          eq(reviewsTable.authorId, driverId),
-                          inArray(reviewsTable.subjectId, passengerIds),
-                          eq(reviewsTable.reviewStatus, "VISIBLE")
-                      )
-                  )
-            : [];
+const findReviewsByAuthorForSubjects = async (
+    executor: Executor,
+    rideId: string,
+    authorId: string,
+    subjectIds: string[]
+): Promise<{ id: string; subjectId: string; rating: number }[]> => {
+    if (subjectIds.length === 0) return [];
 
-    const reviewBySubject = new Map(
-        driverReviews.map((r) => [r.subjectId, { id: r.id, rating: r.rating }])
-    );
-
-    const totalPassengers = result.bookings.reduce(
-        (sum, b) => sum + b.seatCount,
-        0
-    );
-
-    return {
-        ride: {
-            id: result.id,
-            departureAt: result.departureAt,
-            rideStatus: result.rideStatus,
-            offeredSeats: result.offeredSeats,
-            currency: result.currency,
-            rideStops: result.rideStops,
-        },
-        passengerCount: totalPassengers,
-        passengers: result.bookings.map((b) => ({
-            bookingId: b.id,
-            bookingStatus: b.bookingStatus,
-            seatCount: b.seatCount,
-            passenger: b.passenger,
-            pickupStop: b.pickupStop,
-            dropoffStop: b.dropoffStop,
-            myReviewOfPassenger: reviewBySubject.get(b.passenger.id) ?? null,
-        })),
-    };
+    return await executor
+        .select({
+            id: reviewsTable.id,
+            subjectId: reviewsTable.subjectId,
+            rating: reviewsTable.rating,
+        })
+        .from(reviewsTable)
+        .where(
+            and(
+                eq(reviewsTable.rideId, rideId),
+                eq(reviewsTable.authorId, authorId),
+                inArray(reviewsTable.subjectId, subjectIds),
+                eq(reviewsTable.reviewStatus, "VISIBLE")
+            )
+        );
 };
 
 const pickupStops = aliasedTable(rideStopsTable, "pickup_stops");
@@ -236,7 +234,7 @@ const findAvailableRides = async (
                     "CONFIRMED",
                     "COMPLETED",
                 ]),
-                isNull(bookingsTable.deletedAt)
+                bookingNotSoftDeleted
             )
         )
         .groupBy(bookingsTable.rideId)
@@ -325,7 +323,7 @@ const findAvailableRides = async (
         )
         .where(
             and(
-                isNull(ridesTable.deletedAt),
+                rideNotSoftDeleted,
                 eq(ridesTable.rideStatus, "PLANNED"),
                 gte(ridesTable.departureAt, now),
                 sql`GREATEST(0, ${ridesTable.offeredSeats} - COALESCE(${capacityByRide.occupiedSeats}, 0)) > 0`
@@ -379,7 +377,7 @@ const searchRides = async (
                     "CONFIRMED",
                     "COMPLETED",
                 ]),
-                isNull(bookingsTable.deletedAt)
+                bookingNotSoftDeleted
             )
         )
         .groupBy(bookingsTable.rideId)
@@ -441,7 +439,7 @@ const searchRides = async (
         .leftJoin(capacityByRide, eq(capacityByRide.rideId, ridesTable.id))
         .where(
             and(
-                isNull(ridesTable.deletedAt),
+                rideNotSoftDeleted,
                 eq(ridesTable.rideStatus, "PLANNED"),
                 isNotNull(usersTable.firstName),
                 isNotNull(usersTable.lastName),
@@ -465,7 +463,7 @@ const findActiveCarForDriver = async (
             eq(carsTable.id, carId),
             eq(carsTable.ownerId, driverId),
             eq(carsTable.isActive, true),
-            isNull(carsTable.deletedAt)
+            carNotSoftDeleted
         ),
     });
 };
@@ -518,7 +516,8 @@ const findRideForCancel = async (
     return await executor.query.rides.findFirst({
         where: and(
             eq(ridesTable.id, rideId),
-            eq(ridesTable.driverId, driverId)
+            eq(ridesTable.driverId, driverId),
+            rideNotSoftDeleted
         ),
         columns: { rideStatus: true },
     });
@@ -528,7 +527,7 @@ const updateRideStatusToCancelled = async (
     executor: Executor,
     rideId: string,
     driverId: string
-): Promise<{ id: string }> => {
+): Promise<{ id: string } | null> => {
     const [updatedRide] = await executor
         .update(ridesTable)
         .set({
@@ -536,11 +535,15 @@ const updateRideStatusToCancelled = async (
             updatedAt: new Date(),
         })
         .where(
-            and(eq(ridesTable.id, rideId), eq(ridesTable.driverId, driverId))
+            and(
+                eq(ridesTable.id, rideId),
+                eq(ridesTable.driverId, driverId),
+                rideNotSoftDeleted
+            )
         )
         .returning({ id: ridesTable.id });
 
-    return updatedRide;
+    return updatedRide ?? null;
 };
 
 const findActiveBookingsByRideId = async (
@@ -551,7 +554,7 @@ const findActiveBookingsByRideId = async (
         where: and(
             eq(bookingsTable.rideId, rideId),
             inArray(bookingsTable.bookingStatus, ["PENDING", "CONFIRMED"]),
-            isNull(bookingsTable.deletedAt)
+            bookingNotSoftDeleted
         ),
         columns: { id: true, bookingStatus: true },
     });
@@ -584,7 +587,8 @@ const bulkInsertBookingStatusHistory = async (
 
 export const RideRepository = {
     findRidesByDriverId,
-    findRideWithPassengers,
+    findRidePassengersBundle,
+    findReviewsByAuthorForSubjects,
     findAvailableRides,
     searchRides,
     findActiveCarForDriver,

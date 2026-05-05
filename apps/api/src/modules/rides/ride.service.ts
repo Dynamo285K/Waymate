@@ -21,27 +21,57 @@ const getRidePassengers = async (
     rideId: string,
     driverId: string
 ): Promise<RidePassengersView> => {
-    const data = await RideRepository.findRideWithPassengers(
+    const bundle = await RideRepository.findRidePassengersBundle(
         db,
         rideId,
         driverId
     );
 
-    if (!data) throw new RideError(RideErrorCodes.RideNotFoundOrNotOwner);
+    if (!bundle) throw new RideError(RideErrorCodes.RideNotFoundOrNotOwner);
+
+    // Independent SELECT — driver's own reviews of these passengers, used to
+    // surface "already reviewed" state in the UI. Empty subjectIds short-
+    // circuits inside the repo function.
+    const passengerIds = bundle.bookings.map((b) => b.passenger.id);
+    const driverReviews = await RideRepository.findReviewsByAuthorForSubjects(
+        db,
+        rideId,
+        driverId,
+        passengerIds
+    );
+    const reviewBySubject = new Map(
+        driverReviews.map((r) => [r.subjectId, { id: r.id, rating: r.rating }])
+    );
 
     const windowClosesAt = new Date(
-        data.ride.departureAt.getTime() +
-            REVIEW_WINDOW_DAYS * 24 * 60 * 60 * 1000
+        bundle.departureAt.getTime() + REVIEW_WINDOW_DAYS * 24 * 60 * 60 * 1000
     );
     const canReview =
-        data.ride.rideStatus === "COMPLETED" && new Date() <= windowClosesAt;
+        bundle.rideStatus === "COMPLETED" && new Date() <= windowClosesAt;
 
     return {
-        ...data,
         ride: {
-            ...data.ride,
+            id: bundle.id,
+            departureAt: bundle.departureAt,
+            rideStatus: bundle.rideStatus,
+            offeredSeats: bundle.offeredSeats,
+            currency: bundle.currency,
+            rideStops: bundle.rideStops,
             canReview,
         },
+        passengerCount: bundle.bookings.reduce(
+            (sum, b) => sum + b.seatCount,
+            0
+        ),
+        passengers: bundle.bookings.map((b) => ({
+            bookingId: b.id,
+            bookingStatus: b.bookingStatus,
+            seatCount: b.seatCount,
+            passenger: b.passenger,
+            pickupStop: b.pickupStop,
+            dropoffStop: b.dropoffStop,
+            myReviewOfPassenger: reviewBySubject.get(b.passenger.id) ?? null,
+        })),
     };
 };
 
@@ -161,6 +191,12 @@ const cancelRide = async (
             rideId,
             driverId
         );
+
+        if (!updatedRide) {
+            // Race: ride was soft-deleted between the existence check and
+            // the update. Roll back to keep status history consistent.
+            throw new RideError(RideErrorCodes.RideNotFoundOrNotOwner);
+        }
 
         await RideRepository.insertRideStatusHistory(tx, {
             rideId: updatedRide.id,
