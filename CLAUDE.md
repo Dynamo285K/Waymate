@@ -103,7 +103,7 @@ Three Elysia macros guard routes:
 
 Most routes (Cars, Rides) require `isFullyOnboarded`. User profile routes use `isAuthenticated`.
 
-The `users.role` column (`USER` / `ADMIN`, default `USER`) drives `requireAdmin`. The role is not user-settable through the auth API (`input: false` in better-auth `additionalFields`); the first admin is granted via the `db/seed.ts` seed or manually with `UPDATE users SET role = 'ADMIN' WHERE email = '...'`.
+The `users.userRole` column (`USER` / `ADMIN`, default `USER`) drives `requireAdmin`. The role is not user-settable through any API surface — neither auth (`input: false` in better-auth `additionalFields`) nor admin tooling (the admin user-management endpoints filter out admin rows entirely; see `AdminRepository.visibleUserConditions`). The dev admin lives in `db/seed.ts` (`admin@example.com` / `admin1234`); promoting another user is a manual `UPDATE users SET user_role = 'ADMIN' WHERE email = '...'` against the database.
 
 ### Database schema (`apps/api/src/db/schema/`)
 

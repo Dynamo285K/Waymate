@@ -115,7 +115,29 @@ volume).
 If you need Google OAuth locally, also fill `GOOGLE_CLIENT_ID` /
 `GOOGLE_CLIENT_SECRET` in `apps/api/.env`.
 
-### 5. Run the project
+### 5. Apply migrations and seed development data
+
+The database container is empty after step 4 — schema and fixtures are
+applied separately:
+
+```bash
+bun run --cwd apps/api db:migrate    # creates the tables
+bun run --cwd apps/api seed          # fills users, cars, rides, bookings
+```
+
+The seed **truncates everything first**, so re-running it wipes any local
+state (sessions, registrations, rides). It prints the dev admin login on
+the last line:
+
+```
+Seeding finished. Admin login: admin@example.com / admin1234
+```
+
+It also seeds 100 regular users (`user.1@example.com` … `user.100@example.com`,
+no password — they exist as fixtures for paginating/searching the admin user
+list).
+
+### 6. Run the project
 
 ```bash
 bun run dev
