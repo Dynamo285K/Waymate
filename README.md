@@ -60,8 +60,12 @@ variable. CI sets this automatically; locally you need to provide it yourself
 through a GitLab Personal Access Token.
 
 1. Open <https://gitlab.fi.muni.cz/-/user_settings/personal_access_tokens>.
-2. Create a token with scope **`read_api`** (read-only access to the registry
-   is enough). Copy the value — GitLab shows it only once.
+2. Create a token with the scope you need:
+   - **`read_api`** — enough to install the package (most contributors).
+   - **`api`** — required only if you also intend to publish new versions of
+     `@waymate/ui` to the registry.
+
+   Copy the value — GitLab shows it only once.
 3. Export it as `CI_JOB_TOKEN` so Bun can substitute it into `.npmrc` at
    install time. The exact command depends on your shell / OS — pick the
    matching row, replace `<token>`, and run it once. After that, **open a new
@@ -70,12 +74,33 @@ through a GitLab Personal Access Token.
     | Shell / OS   | Command                                                 |
     | ------------ | ------------------------------------------------------- |
     | Linux + bash | `echo 'export CI_JOB_TOKEN=<token>' >> ~/.bashrc`       |
+    | Linux + zsh  | `echo 'export CI_JOB_TOKEN=<token>' >> ~/.zshrc`        |
     | macOS + bash | `echo 'export CI_JOB_TOKEN=<token>' >> ~/.bash_profile` |
+    | macOS + zsh  | `echo 'export CI_JOB_TOKEN=<token>' >> ~/.zshrc`        |
     | Windows CMD  | `setx CI_JOB_TOKEN <token>`                             |
+
+    If you use [direnv](https://direnv.net/), you can instead drop
+    `export CI_JOB_TOKEN=<token>` into a `.envrc` outside the repo (or into a
+    git-ignored one) and `direnv allow` it.
 
     Do **not** commit the token, and do **not** put it into the project `.npmrc`
     — that file uses `${CI_JOB_TOKEN}` on purpose so each developer (and CI)
     provides their own value.
+
+#### Alternative: write the token into `~/.npmrc`
+
+If you'd rather not manage a shell env var, you can put the token directly
+into your **user-level** `~/.npmrc` (not the project one):
+
+```
+//gitlab.fi.muni.cz/api/v4/projects/48090/packages/npm/:_authToken=<token>
+```
+
+Bun reads `~/.npmrc` in addition to the project `.npmrc`, and the user-level
+entry takes precedence over the `${CI_JOB_TOKEN}` placeholder, so
+`bun install` will work without `CI_JOB_TOKEN` being set. The trade-off is
+that the token sits on disk in plaintext — keep `~/.npmrc` `chmod 600` and
+remember to rotate it if your machine is shared.
 
 ### 3. Install dependencies
 
