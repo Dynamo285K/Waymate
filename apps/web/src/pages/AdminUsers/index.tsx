@@ -35,8 +35,8 @@ export function AdminUsersPage({
     onLanguageChange,
     onThemeToggle,
     userId,
-    userName = "Admin",
-    userEmail = "admin@waymate.com",
+    userName,
+    userEmail,
 }: AdminUsersPageProps) {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
