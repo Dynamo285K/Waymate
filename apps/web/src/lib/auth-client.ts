@@ -1,7 +1,7 @@
 import { createAuthClient } from "better-auth/react";
 import { adminClient, inferAdditionalFields } from "better-auth/client/plugins";
 import type { Auth } from "@repo/api";
-import { API_BASE_URL } from "./api";
+import { API_BASE_URL } from "./api-fetcher";
 
 // better-auth requires an absolute baseURL; fall back to window.location.origin
 // so the dev-server `/api` proxy in vite.config.ts continues to forward requests.

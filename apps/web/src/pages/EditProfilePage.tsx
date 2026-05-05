@@ -6,7 +6,7 @@ import { PassengerNavbar, DriverNavbar, Input, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
-import { updateCurrentUserProfile } from "../lib/auth";
+import { CURRENT_USER_QUERY_KEY, updateCurrentUserProfile } from "../lib/auth";
 import { getErrorI18nKey } from "../lib/api-errors";
 
 type EditProfilePageProps = {
@@ -67,7 +67,9 @@ export function EditProfilePage({
     const updateProfile = useMutation({
         mutationFn: updateCurrentUserProfile,
         onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: ["users", "me"] });
+            await queryClient.invalidateQueries({
+                queryKey: CURRENT_USER_QUERY_KEY,
+            });
             navigate(backPath);
         },
     });
