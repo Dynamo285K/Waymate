@@ -1,4 +1,3 @@
-import type { AdminUserListItem } from "@repo/shared";
 import type { UserStatus } from "@repo/shared";
 
 export type AdminUserListFilters = {
@@ -13,5 +12,3 @@ export type SetUserStatusInput = {
     newStatus: UserStatus;
     reason?: string;
 };
-
-export type { AdminUserListItem };
