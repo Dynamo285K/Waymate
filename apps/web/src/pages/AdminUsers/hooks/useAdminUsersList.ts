@@ -1,6 +1,8 @@
-import { useRef, useState } from "react";
-import { useQueries } from "@tanstack/react-query";
-import { getGetAdminUsersQueryOptions } from "../../../api-client/admin/admin";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import {
+    getAdminUsers,
+    getGetAdminUsersQueryKey,
+} from "../../../api-client/admin/admin";
 
 const PAGE_SIZE = 20;
 
@@ -9,45 +11,37 @@ export type AdminUsersListFilters = {
 };
 
 export function useAdminUsersList(filters: AdminUsersListFilters) {
-    const [cursors, setCursors] = useState<(string | undefined)[]>([undefined]);
-
-    // Reset cursors in-render when filters change. Doing this in a useEffect
-    // would render one frame with stale (mismatched) cursors against the new
-    // filters and could fire load-more against an outdated nextCursor.
-    const filterKey = JSON.stringify(filters);
-    const prevFilterKey = useRef(filterKey);
-    if (prevFilterKey.current !== filterKey) {
-        prevFilterKey.current = filterKey;
-        setCursors([undefined]);
-    }
-
-    const queries = useQueries({
-        queries: cursors.map((cursor) =>
-            getGetAdminUsersQueryOptions({
+    // Cursor lives in pageParam, not in the queryKey — that way a search
+    // change starts a fresh infinite query while load-more keeps reusing
+    // the same cached pages.
+    const query = useInfiniteQuery({
+        queryKey: getGetAdminUsersQueryKey({
+            limit: PAGE_SIZE,
+            search: filters.search,
+        }),
+        queryFn: ({ pageParam }) =>
+            getAdminUsers({
                 limit: PAGE_SIZE,
-                cursor,
                 search: filters.search,
-            })
-        ),
+                cursor: pageParam,
+            }),
+        initialPageParam: undefined as string | undefined,
+        getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     });
 
-    const items = queries.flatMap((q) => q.data?.items ?? []);
-    const last = queries[queries.length - 1];
-    const nextCursor = last?.data?.nextCursor ?? null;
-
-    const firstError = queries.find((q) => q.isError)?.error;
+    const items = query.data?.pages.flatMap((p) => p.items) ?? [];
+    const lastPage = query.data?.pages[query.data.pages.length - 1];
+    const nextCursor = lastPage?.nextCursor ?? null;
 
     return {
         items,
         nextCursor,
-        isInitialLoading: queries[0]?.isLoading ?? false,
-        isFetching: queries.some((q) => q.isFetching),
-        isError: queries.some((q) => q.isError),
-        error: firstError,
+        isInitialLoading: query.isLoading,
+        isFetching: query.isFetching,
+        isError: query.isError,
+        error: query.error,
         loadMore: () => {
-            if (nextCursor) {
-                setCursors((prev) => [...prev, nextCursor]);
-            }
+            void query.fetchNextPage();
         },
     };
 }
