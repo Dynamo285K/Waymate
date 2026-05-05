@@ -10,9 +10,16 @@ import {
     rideStops,
     prices,
     bookings,
+    accounts,
 } from "./schema";
 import { randomUUID } from "crypto";
 import carData from "./cars-data.json";
+import { auth } from "../modules/auth/auth";
+
+// Dev-only admin credentials. Documented here on purpose so anyone running
+// `db:seed` knows how to log in as the seeded admin without re-deriving them.
+const ADMIN_EMAIL = "admin@example.com";
+const ADMIN_PASSWORD = "admin1234";
 
 async function main() {
     console.log("Starting reset and seeding of car models...");
@@ -33,13 +40,106 @@ async function main() {
         // --- Additional seed data (users, cars, rides, prices, bookings) ---
         console.log("Seeding users, cars, rides and bookings...");
 
+        // Lifted out of the transaction so the post-commit accounts insert
+        // (admin password) can reference it.
+        const adminId = randomUUID();
+
         await db.transaction(async (tx) => {
             // Users
             const userAId = randomUUID(); // driver A
             const userBId = randomUUID(); // driver B
             const userCId = randomUUID(); // passenger
 
+            // Bulk USER fixtures so the admin tooling has something to
+            // page/search through. First+last names rotate across two pools
+            // (coprime stride) for varied combinations; statuses sprinkle
+            // SUSPENDED/BANNED so StatusBadge renders all variants; createdAt
+            // is staggered hour-by-hour so keyset pagination has visible
+            // chronological order.
+            const firstNamePool = [
+                "Adam",
+                "Bela",
+                "Cyril",
+                "Dana",
+                "Eva",
+                "Filip",
+                "Gabriel",
+                "Hana",
+                "Igor",
+                "Jana",
+                "Karol",
+                "Lucia",
+                "Martin",
+                "Nina",
+                "Oliver",
+                "Pavla",
+                "Radek",
+                "Sara",
+                "Tomas",
+                "Viktor",
+            ];
+            const lastNamePool = [
+                "Novak",
+                "Horak",
+                "Kovac",
+                "Mala",
+                "Novotna",
+                "Cerny",
+                "Kral",
+                "Jurek",
+                "Lukas",
+                "Mares",
+                "Ondra",
+                "Polak",
+                "Ruzicka",
+                "Stanek",
+                "Tichy",
+                "Urban",
+                "Vetrov",
+                "Zelinka",
+                "Zatla",
+                "Wenig",
+            ];
+
+            const SEED_USER_COUNT = 100;
+            const bulkUsers = Array.from(
+                { length: SEED_USER_COUNT },
+                (_, i) => {
+                    const n = i + 1;
+                    const firstName = firstNamePool[i % firstNamePool.length]!;
+                    const lastName =
+                        lastNamePool[(i * 13) % lastNamePool.length]!;
+                    const userStatus: "ACTIVE" | "SUSPENDED" | "BANNED" =
+                        n % 25 === 0
+                            ? "BANNED"
+                            : n % 17 === 0
+                              ? "SUSPENDED"
+                              : "ACTIVE";
+                    return {
+                        id: randomUUID(),
+                        name: `${firstName} ${lastName}`,
+                        email: `user.${n}@example.com`,
+                        emailVerified: true,
+                        firstName,
+                        lastName,
+                        phone: `+42190010${String(n).padStart(4, "0")}`,
+                        createdAt: new Date(Date.now() - n * 3600 * 1000),
+                        userStatus,
+                    };
+                }
+            );
+
             await tx.insert(users).values([
+                {
+                    id: adminId,
+                    name: "Admin Adminova",
+                    email: ADMIN_EMAIL,
+                    emailVerified: true,
+                    firstName: "Admin",
+                    lastName: "Adminova",
+                    phone: "+421900000001",
+                    userRole: "ADMIN",
+                },
                 {
                     id: userAId,
                     name: "Albert Olbert",
@@ -48,7 +148,6 @@ async function main() {
                     firstName: "Albert",
                     lastName: "Olbert",
                     phone: "+421900111111",
-                    userRole: "ADMIN",
                 },
                 {
                     id: userBId,
@@ -68,6 +167,7 @@ async function main() {
                     lastName: "Horak",
                     phone: "+421900333333",
                 },
+                ...bulkUsers,
             ]);
 
             // Find model ids for specific models we want to use
@@ -361,7 +461,27 @@ async function main() {
             ]);
         });
 
-        console.log("Seeding finished successfully.");
+        // Set the admin's email/password credentials. Uses better-auth's
+        // hashing primitive directly so we don't trigger sign-up side effects
+        // (verification email, rate limiting, the duplicate-email hook).
+        const authContext = await auth.$context;
+        const passwordHash = await authContext.password.hash(ADMIN_PASSWORD);
+        const now = new Date();
+        await db.insert(accounts).values({
+            id: randomUUID(),
+            userId: adminId,
+            // For the credential provider, better-auth uses the user id as
+            // the account id (one credential row per user).
+            accountId: adminId,
+            providerId: "credential",
+            password: passwordHash,
+            createdAt: now,
+            updatedAt: now,
+        });
+
+        console.log(
+            `Seeding finished. Admin login: ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`
+        );
     } catch (error) {
         console.error("Error during seeding:", error);
     } finally {
