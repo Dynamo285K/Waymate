@@ -38,7 +38,6 @@ import { AdminDashboardPage } from "./pages/AdminDashboardPage";
 import { AdminRidesPage } from "./pages/AdminRidesPage";
 import { AdminUsersPage } from "./pages/AdminUsers";
 import { AdminReportsPage } from "./pages/AdminReportsPage";
-import { AdminAccountPage } from "./pages/AdminAccountPage";
 
 interface RouterContext {
     queryClient: QueryClient;
@@ -192,11 +191,6 @@ const audienceRoutes: ReadonlyArray<AudienceRoute> = [
     {
         path: "/admin/reports",
         Component: AdminReportsPage,
-        audience: ["admin"],
-    },
-    {
-        path: "/admin/account",
-        Component: AdminAccountPage,
         audience: ["admin"],
     },
     { path: "/login", Component: LoginPage, audience: ["guest"] },

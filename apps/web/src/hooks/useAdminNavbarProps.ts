@@ -25,7 +25,6 @@ export function useAdminNavbarProps(params: {
         onRidesClick: () => navigate("/admin/rides"),
         onUsersClick: () => navigate("/admin/users"),
         onReportsClick: () => navigate("/admin/reports"),
-        onProfileClick: () => navigate("/admin/account"),
         onLogoutClick: logout,
         labels: {
             adminRole: t("admin.adminRole"),
@@ -33,7 +32,6 @@ export function useAdminNavbarProps(params: {
             rides: t("admin.rides"),
             users: t("admin.users"),
             reports: t("admin.reports"),
-            account: t("admin.account"),
             settings: t("admin.settings"),
             logout: t("admin.logout"),
         },

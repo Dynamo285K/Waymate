@@ -44,7 +44,10 @@
       "Bash(curl -sS -i http://localhost:3001/users/me/role)",
       "Bash(curl -sS -i -X POST http://localhost:3001/api/auth/sign-in/email -H \"Content-Type: application/json\" -d '{\"email\":\"driver.albert@example.com\",\"password\":\"wrong\"}')",
       "Bash(PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d spolujazda_db -c \"SELECT count\\(*\\) FROM sessions;\")",
-      "Bash(grep -E \"auth\\\\.ts$|router\\\\.tsx$|useLogout\\\\.ts$|layout-context\\\\.tsx$\" -A1)"
+      "Bash(grep -E \"auth\\\\.ts$|router\\\\.tsx$|useLogout\\\\.ts$|layout-context\\\\.tsx$\" -A1)",
+      "Bash(grep -o \"AdminProfileDropdown[^}]\\\\{0,400\\\\}\" /home/tomas/waymate-ui/dist/index.js)",
+      "Read(//home/tomas/waymate-ui/**)",
+      "Read(//home/tomas/**)"
     ]
   }
 }

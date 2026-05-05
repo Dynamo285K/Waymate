@@ -6,6 +6,7 @@ import {
     ilike,
     isNull,
     lt,
+    ne,
     or,
 } from "drizzle-orm";
 import type {
@@ -52,7 +53,11 @@ const findUserList = async (
     executor: Executor,
     filters: AdminUserListFilters
 ): Promise<AdminUserListItem[]> => {
-    const conditions = [isNull(usersTable.deletedAt)];
+    // Admin accounts aren't manageable through the admin UI.
+    const conditions = [
+        isNull(usersTable.deletedAt),
+        ne(usersTable.userRole, "ADMIN"),
+    ];
 
     if (filters.search) {
         const pattern = `%${filters.search}%`;
@@ -97,10 +102,17 @@ const findUserById = async (
     executor: Executor,
     id: string
 ): Promise<AdminUserListItem | null> => {
+    // Admin accounts aren't manageable through the admin UI.
     const [user] = await executor
         .select(adminUserListColumns)
         .from(usersTable)
-        .where(and(eq(usersTable.id, id), isNull(usersTable.deletedAt)))
+        .where(
+            and(
+                eq(usersTable.id, id),
+                isNull(usersTable.deletedAt),
+                ne(usersTable.userRole, "ADMIN")
+            )
+        )
         .limit(1);
 
     return user ?? null;
@@ -110,10 +122,17 @@ const findUserDetailById = async (
     executor: Executor,
     id: string
 ): Promise<AdminUserDetail | null> => {
+    // Admin accounts aren't manageable through the admin UI.
     const [user] = await executor
         .select(adminUserDetailColumns)
         .from(usersTable)
-        .where(and(eq(usersTable.id, id), isNull(usersTable.deletedAt)))
+        .where(
+            and(
+                eq(usersTable.id, id),
+                isNull(usersTable.deletedAt),
+                ne(usersTable.userRole, "ADMIN")
+            )
+        )
         .limit(1);
 
     return user ?? null;

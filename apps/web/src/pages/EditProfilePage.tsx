@@ -2,15 +2,8 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "../lib/router-compat";
-import {
-    PassengerNavbar,
-    DriverNavbar,
-    AdminNavbar,
-    Input,
-    Button,
-} from "@waymate/ui";
+import { PassengerNavbar, DriverNavbar, Input, Button } from "@waymate/ui";
 import type { Language } from "@waymate/ui";
-import { useAdminNavbarProps } from "../hooks/useAdminNavbarProps";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 import { updateCurrentUserProfile } from "../lib/auth";
@@ -42,14 +35,10 @@ export function EditProfilePage({
     const queryClient = useQueryClient();
     const location = useLocation();
     const role =
-        (location.state as { role?: "passenger" | "driver" | "admin" } | null)
-            ?.role ?? "passenger";
+        (location.state as { role?: "passenger" | "driver" } | null)?.role ??
+        "passenger";
     const backPath =
-        role === "driver"
-            ? "/driver/profile"
-            : role === "admin"
-              ? "/admin/account"
-              : "/passenger/profile";
+        role === "driver" ? "/driver/profile" : "/passenger/profile";
 
     const [name, setName] = useState(userName ?? "");
     const [email, setEmail] = useState(userEmail ?? "");
@@ -104,14 +93,6 @@ export function EditProfilePage({
         userName,
         userEmail,
     });
-    const adminNavbarProps = useAdminNavbarProps({
-        language,
-        onLanguageChange,
-        theme,
-        onThemeToggle,
-        userName,
-        userEmail,
-    });
     const passengerNavbarProps = usePassengerNavbarProps({
         activeTab: "find-ride",
         language,
@@ -129,8 +110,6 @@ export function EditProfilePage({
         >
             {role === "driver" ? (
                 <DriverNavbar {...driverNavbarProps} />
-            ) : role === "admin" ? (
-                <AdminNavbar {...adminNavbarProps} />
             ) : (
                 <PassengerNavbar {...passengerNavbarProps} />
             )}
@@ -162,19 +141,16 @@ export function EditProfilePage({
                         />
                     </div>
 
-                    {/* About me textarea — hidden for admin */}
-                    {role !== "admin" && (
-                        <div className="flex flex-col gap-2">
-                            <label className="text-sm font-semibold text-(--color-text-primary)">
-                                {t("editProfile.aboutMe")}
-                            </label>
-                            <textarea
-                                className="w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) p-3 text-sm resize-y min-h-25 outline-none focus:border-(--color-primary) focus:ring-2 focus:ring-green-100 transition-colors font-[Inter,sans-serif]"
-                                value={about}
-                                onChange={(e) => setAbout(e.target.value)}
-                            />
-                        </div>
-                    )}
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-semibold text-(--color-text-primary)">
+                            {t("editProfile.aboutMe")}
+                        </label>
+                        <textarea
+                            className="w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) p-3 text-sm resize-y min-h-25 outline-none focus:border-(--color-primary) focus:ring-2 focus:ring-green-100 transition-colors font-[Inter,sans-serif]"
+                            value={about}
+                            onChange={(e) => setAbout(e.target.value)}
+                        />
+                    </div>
 
                     {/* Actions */}
                     <div className="flex justify-end gap-3 pt-2">
