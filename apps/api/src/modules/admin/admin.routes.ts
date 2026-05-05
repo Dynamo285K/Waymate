@@ -110,12 +110,11 @@ export const AdminRoutes = new Elysia({
                         401: "ErrorResponse",
                         403: "ErrorResponse",
                         404: "ErrorResponse",
-                        409: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
                         description:
-                            "Changes a user's account status (ACTIVE / SUSPENDED / BANNED / DELETED) and records an audit row in user_status_history. Admins cannot change their own status.",
+                            "Changes a user's account status (ACTIVE / SUSPENDED / BANNED / DELETED) and records an audit row in user_status_history.",
                     },
                 }
             )
