@@ -53,7 +53,8 @@ const findUserList = async (
     executor: Executor,
     filters: AdminUserListFilters
 ): Promise<AdminUserListItem[]> => {
-    // Admin accounts aren't manageable through the admin UI.
+    // Admin tooling manages USER-role accounts only; the seeded admin is
+    // intentionally invisible/uneditable here.
     const conditions = [
         isNull(usersTable.deletedAt),
         ne(usersTable.userRole, "ADMIN"),
@@ -102,7 +103,8 @@ const findUserById = async (
     executor: Executor,
     id: string
 ): Promise<AdminUserListItem | null> => {
-    // Admin accounts aren't manageable through the admin UI.
+    // Admin tooling manages USER-role accounts only; the seeded admin is
+    // intentionally invisible/uneditable here.
     const [user] = await executor
         .select(adminUserListColumns)
         .from(usersTable)
@@ -122,7 +124,8 @@ const findUserDetailById = async (
     executor: Executor,
     id: string
 ): Promise<AdminUserDetail | null> => {
-    // Admin accounts aren't manageable through the admin UI.
+    // Admin tooling manages USER-role accounts only; the seeded admin is
+    // intentionally invisible/uneditable here.
     const [user] = await executor
         .select(adminUserDetailColumns)
         .from(usersTable)
@@ -185,10 +188,18 @@ const updateUserStatus = async (
     id: string,
     status: UserStatus
 ): Promise<AdminUserListItem | null> => {
+    // Admin tooling manages USER-role accounts only; the seeded admin is
+    // intentionally invisible/uneditable here.
     const [updated] = await executor
         .update(usersTable)
         .set({ userStatus: status, updatedAt: new Date() })
-        .where(and(eq(usersTable.id, id), isNull(usersTable.deletedAt)))
+        .where(
+            and(
+                eq(usersTable.id, id),
+                isNull(usersTable.deletedAt),
+                ne(usersTable.userRole, "ADMIN")
+            )
+        )
         .returning(adminUserListColumns);
 
     return updated ?? null;
