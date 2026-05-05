@@ -66,9 +66,10 @@ const setUserStatus = async ({
     return await db.transaction(async (tx) => {
         const target = await AdminRepository.findUserById(tx, targetUserId);
 
-        // Defense in depth: repository already filters out admin rows, but the
-        // explicit check protects against future repo refactors that might
-        // loosen the filter and silently make admins editable from here.
+        // Defense in depth: repository already excludes the seeded admin from
+        // its result set, but the explicit check protects against a future
+        // refactor that loosens the filter and silently exposes the admin
+        // account to status changes from here.
         if (!target || target.userRole === "ADMIN") {
             throw new AdminError(AdminErrorCodes.UserNotFound);
         }
