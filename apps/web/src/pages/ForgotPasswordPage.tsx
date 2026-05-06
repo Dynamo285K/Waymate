@@ -61,7 +61,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
     const [isSendingReset, setIsSendingReset] = useState(false);
     const [isResettingPassword, setIsResettingPassword] = useState(false);
     const [resetError, setResetError] = useState<string | null>(
-        initialFromUrl.hasError ? t("forgotPassword.invalidToken") : null
+        initialFromUrl.hasError ? "forgotPassword.invalidToken" : null
     );
     const [resetToken] = useState<string | null>(initialFromUrl.token);
 
@@ -71,14 +71,14 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                 .string()
                 .trim()
                 .refine((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
-                    message: t("login.invalidEmail"),
+                    message: "login.invalidEmail",
                 }),
-            newPassword: z.string().min(8, t("register.passwordTooShort")),
+            newPassword: z.string().min(8, "register.passwordTooShort"),
             confirmPassword: z.string(),
         })
         .refine((values) => values.newPassword === values.confirmPassword, {
             path: ["confirmPassword"],
-            message: t("register.passwordMismatch"),
+            message: "register.passwordMismatch",
         });
 
     const {
@@ -121,7 +121,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
         setIsSendingReset(false);
 
         if (error) {
-            setResetError(t("forgotPassword.error"));
+            setResetError("forgotPassword.error");
             return;
         }
 
@@ -143,7 +143,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
         setIsResettingPassword(false);
 
         if (error) {
-            setResetError(t("forgotPassword.resetError"));
+            setResetError("forgotPassword.resetError");
             return;
         }
 
@@ -226,9 +226,9 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                     {...register("email")}
                                 />
                             </div>
-                            {errors.email && (
+                            {errors.email?.message && (
                                 <p className="mt-2 text-xs font-semibold text-red-500">
-                                    {errors.email.message}
+                                    {t(errors.email.message)}
                                 </p>
                             )}
                         </div>
@@ -243,7 +243,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                         </Button>
                         {resetError && (
                             <p className="mt-3 text-xs font-semibold text-red-500">
-                                {resetError}
+                                {t(resetError)}
                             </p>
                         )}
                         <button
@@ -372,9 +372,9 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                         </svg>
                                     </button>
                                 </div>
-                                {errors.newPassword && (
+                                {errors.newPassword?.message && (
                                     <p className="mt-2 text-xs font-semibold text-red-500">
-                                        {errors.newPassword.message}
+                                        {t(errors.newPassword.message)}
                                     </p>
                                 )}
                             </div>
@@ -388,9 +388,9 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                     placeholder="••••••••"
                                     {...register("confirmPassword")}
                                 />
-                                {errors.confirmPassword && (
+                                {errors.confirmPassword?.message && (
                                     <p className="mt-2 text-xs font-semibold text-red-500">
-                                        {errors.confirmPassword.message}
+                                        {t(errors.confirmPassword.message)}
                                     </p>
                                 )}
                             </div>
@@ -406,7 +406,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                         </Button>
                         {resetError && (
                             <p className="mt-3 text-xs font-semibold text-red-500">
-                                {resetError}
+                                {t(resetError)}
                             </p>
                         )}
                     </>

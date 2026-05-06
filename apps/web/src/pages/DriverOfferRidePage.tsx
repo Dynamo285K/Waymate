@@ -241,7 +241,7 @@ export function DriverOfferRidePage({
     const createRideMutation = usePostRides({
         mutation: {
             onSuccess: async () => {
-                setPublishedMessage(t("offerRide.published"));
+                setPublishedMessage("offerRide.published");
                 setPublishError("");
                 await queryClient.invalidateQueries({
                     queryKey: getGetRidesMeQueryKey(),
@@ -251,7 +251,7 @@ export function DriverOfferRidePage({
             onError: (error) => {
                 console.error("Publish ride failed", error);
                 setPublishError(
-                    t(getErrorI18nKey(error, {}, "offerRide.publishError"))
+                    getErrorI18nKey(error, {}, "offerRide.publishError")
                 );
             },
         },
@@ -322,15 +322,15 @@ export function DriverOfferRidePage({
         const dropoffCity = dropoff.trim();
 
         if (!pickupCity || !dropoffCity || !departureAt || !carId) {
-            return t("offerRide.missingFieldsError");
+            return "offerRide.missingFieldsError";
         }
 
         if (!offeredSeats) {
-            return t("offerRide.invalidSeatsError");
+            return "offerRide.invalidSeatsError";
         }
 
         if (!priceAmount) {
-            return t("offerRide.invalidPriceError");
+            return "offerRide.invalidPriceError";
         }
 
         return "";
@@ -503,7 +503,7 @@ export function DriverOfferRidePage({
                     alreadySaved?.id ?? (await createManualCarForRide());
 
                 if (!carId) {
-                    setPublishError(t("offerRide.carCreateError"));
+                    setPublishError("offerRide.carCreateError");
                     return;
                 }
 
@@ -511,7 +511,7 @@ export function DriverOfferRidePage({
             } catch (error) {
                 console.error("Publish ride failed", error);
                 setPublishError(
-                    t(getErrorI18nKey(error, {}, "offerRide.publishError"))
+                    getErrorI18nKey(error, {}, "offerRide.publishError")
                 );
             }
 
@@ -519,7 +519,7 @@ export function DriverOfferRidePage({
         }
 
         if (carMode === "manual") {
-            setPublishError(t("offerRide.missingFieldsError"));
+            setPublishError("offerRide.missingFieldsError");
             return;
         }
 
@@ -528,7 +528,7 @@ export function DriverOfferRidePage({
         } catch (error) {
             console.error("Publish ride failed", error);
             setPublishError(
-                t(getErrorI18nKey(error, {}, "offerRide.publishError"))
+                getErrorI18nKey(error, {}, "offerRide.publishError")
             );
         }
     }
@@ -538,7 +538,7 @@ export function DriverOfferRidePage({
             const carId = await createManualCarForRide();
 
             if (!carId) {
-                setPublishError(t("offerRide.carCreateError"));
+                setPublishError("offerRide.carCreateError");
                 return;
             }
 
@@ -546,7 +546,7 @@ export function DriverOfferRidePage({
         } catch (error) {
             console.error("Publish ride failed", error);
             setPublishError(
-                t(getErrorI18nKey(error, {}, "offerRide.publishError"))
+                getErrorI18nKey(error, {}, "offerRide.publishError")
             );
         }
     }
@@ -624,12 +624,14 @@ export function DriverOfferRidePage({
                     manualPlate={manualPlate}
                     onManualPlateChange={setManualPlate}
                     manualPlateError={manualPlateError}
-                    publishedMessage={publishedMessage}
+                    publishedMessage={
+                        publishedMessage ? t(publishedMessage) : ""
+                    }
                     onPublishClick={handlePublish}
                 />
                 {publishError && (
                     <p className="mt-4 w-full rounded-xl border border-(--color-danger-border) bg-(--color-danger-bg) px-4 py-3 text-sm font-semibold text-(--color-danger-text)">
-                        {publishError}
+                        {t(publishError)}
                     </p>
                 )}
             </div>

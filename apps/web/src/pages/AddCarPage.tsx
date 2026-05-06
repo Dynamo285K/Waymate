@@ -106,7 +106,7 @@ export function AddCarPage({
                 navigate(backPath);
             },
             onError: (error) => {
-                setFormError(t(getErrorI18nKey(error, {}, "addCar.error")));
+                setFormError(getErrorI18nKey(error, {}, "addCar.error"));
             },
         },
     });
@@ -152,7 +152,7 @@ export function AddCarPage({
         const normalizedPlate = plate.toUpperCase().replace(/[^A-Z0-9]/g, "");
 
         if (!make || !selectedModel || !seats || !color || !normalizedPlate) {
-            setFormError(t("addCar.requiredError"));
+            setFormError("addCar.requiredError");
             return;
         }
 
@@ -389,7 +389,7 @@ export function AddCarPage({
                     <div className="p-6 flex flex-col gap-4 sm:items-end">
                         {formError && (
                             <p className="w-full rounded-xl border border-(--color-danger-border) bg-(--color-danger-bg) px-4 py-3 text-sm font-semibold text-(--color-danger-text)">
-                                {formError}
+                                {t(formError)}
                             </p>
                         )}
                         <Button
