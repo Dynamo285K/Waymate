@@ -50,6 +50,7 @@ export const AdminRoutes = new Elysia({
                         400: "ErrorResponse",
                         401: "ErrorResponse",
                         403: "ErrorResponse",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
@@ -70,6 +71,7 @@ export const AdminRoutes = new Elysia({
                         401: "ErrorResponse",
                         403: "ErrorResponse",
                         404: "ErrorResponse",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
@@ -96,6 +98,8 @@ export const AdminRoutes = new Elysia({
                         401: "ErrorResponse",
                         403: "ErrorResponse",
                         404: "ErrorResponse",
+                        413: "ErrorResponse",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {

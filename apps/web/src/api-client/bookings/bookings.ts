@@ -228,7 +228,7 @@ export const getGetBookingsMeQueryKey = (params?: GetBookingsMeParams) => {
 
 export const getGetBookingsMeQueryOptions = <
     TData = Awaited<ReturnType<typeof getBookingsMe>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     params: GetBookingsMeParams,
     options?: {
@@ -260,11 +260,11 @@ export const getGetBookingsMeQueryOptions = <
 export type GetBookingsMeQueryResult = NonNullable<
     Awaited<ReturnType<typeof getBookingsMe>>
 >;
-export type GetBookingsMeQueryError = unknown;
+export type GetBookingsMeQueryError = ErrorResponse;
 
 export function useGetBookingsMe<
     TData = Awaited<ReturnType<typeof getBookingsMe>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     params: GetBookingsMeParams,
     options: {
@@ -291,7 +291,7 @@ export function useGetBookingsMe<
 };
 export function useGetBookingsMe<
     TData = Awaited<ReturnType<typeof getBookingsMe>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     params: GetBookingsMeParams,
     options?: {
@@ -318,7 +318,7 @@ export function useGetBookingsMe<
 };
 export function useGetBookingsMe<
     TData = Awaited<ReturnType<typeof getBookingsMe>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     params: GetBookingsMeParams,
     options?: {
@@ -338,7 +338,7 @@ export function useGetBookingsMe<
 
 export function useGetBookingsMe<
     TData = Awaited<ReturnType<typeof getBookingsMe>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     params: GetBookingsMeParams,
     options?: {

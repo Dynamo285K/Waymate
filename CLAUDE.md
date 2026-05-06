@@ -107,6 +107,17 @@ Most routes (Cars, Rides) require `isFullyOnboarded`. User profile routes use `i
 
 The `users.userRole` column (`USER` / `ADMIN`, default `USER`) drives `requireAdmin`. The role is not user-settable through any API surface — neither auth (`input: false` in better-auth `additionalFields`) nor admin tooling (the admin user-management endpoints filter out admin rows entirely; see `AdminRepository.visibleUserConditions`). The dev admin lives in `db/seed.ts` (`admin@example.com` / `admin1234`); promoting another user is a manual `UPDATE users SET user_role = 'ADMIN' WHERE email = '...'` against the database.
 
+### Request hardening
+
+Two cross-cutting checks fire in the root `.onRequest` hook (`apps/api/src/index.ts`) before any route handler runs:
+
+- **Body size limit** — rejects requests whose `Content-Length` exceeds `MAX_REQUEST_BODY_BYTES` (default 100 KiB) with HTTP `413 PAYLOAD_TOO_LARGE`. `GET`/`HEAD`/`OPTIONS` and chunked-without-Content-Length requests are skipped.
+- **Rate limiting** — global default of 60 req / 60s per client IP, plus stricter per-route caps (e.g. `POST /rides` 10/min, `POST /bookings` 20/min, `PATCH /admin/users/:id/status` 30/min). Both checks run on a matching request, so route-specific caps stack with the global one. Returns `429 RATE_LIMITED` with a `Retry-After` header. `/health`, `/api/auth/*`, and `/openapi*` are excluded — better-auth has its own per-endpoint rate-limit config (`apps/api/src/modules/auth/auth.ts`) for the auth flow.
+
+Both throw `RequestError` (`apps/api/src/shared/request-errors.ts`) and are caught by the root `.onError`. Rate-limit counters live in the same `rate_limits` Postgres table better-auth uses — our keys are namespaced with `rl:` prefixes so they don't collide. Client IP comes from the `x-forwarded-for` header (first hop), so production needs a trusted reverse proxy in front of the API.
+
+Limits are constants in `apps/api/src/index.ts` for now — tuning them requires a redeploy. Promote to env vars when ops need to tweak without code changes.
+
 ### Database schema (`apps/api/src/db/schema/`)
 
 Schema is defined with Drizzle ORM in `apps/api`, not in `packages/db`. Key design decisions:

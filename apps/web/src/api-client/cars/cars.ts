@@ -59,7 +59,7 @@ export const getGetCarsCountryCodesQueryKey = () => {
 
 export const getGetCarsCountryCodesQueryOptions = <
     TData = Awaited<ReturnType<typeof getCarsCountryCodes>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(options?: {
     query?: Partial<
         UseQueryOptions<
@@ -88,11 +88,11 @@ export const getGetCarsCountryCodesQueryOptions = <
 export type GetCarsCountryCodesQueryResult = NonNullable<
     Awaited<ReturnType<typeof getCarsCountryCodes>>
 >;
-export type GetCarsCountryCodesQueryError = unknown;
+export type GetCarsCountryCodesQueryError = ErrorResponse;
 
 export function useGetCarsCountryCodes<
     TData = Awaited<ReturnType<typeof getCarsCountryCodes>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     options: {
         query: Partial<
@@ -118,7 +118,7 @@ export function useGetCarsCountryCodes<
 };
 export function useGetCarsCountryCodes<
     TData = Awaited<ReturnType<typeof getCarsCountryCodes>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     options?: {
         query?: Partial<
@@ -144,7 +144,7 @@ export function useGetCarsCountryCodes<
 };
 export function useGetCarsCountryCodes<
     TData = Awaited<ReturnType<typeof getCarsCountryCodes>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     options?: {
         query?: Partial<
@@ -163,7 +163,7 @@ export function useGetCarsCountryCodes<
 
 export function useGetCarsCountryCodes<
     TData = Awaited<ReturnType<typeof getCarsCountryCodes>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     options?: {
         query?: Partial<
@@ -213,7 +213,7 @@ export const getGetCarsBrandsQueryKey = () => {
 
 export const getGetCarsBrandsQueryOptions = <
     TData = Awaited<ReturnType<typeof getCarsBrands>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(options?: {
     query?: Partial<
         UseQueryOptions<
@@ -242,11 +242,11 @@ export const getGetCarsBrandsQueryOptions = <
 export type GetCarsBrandsQueryResult = NonNullable<
     Awaited<ReturnType<typeof getCarsBrands>>
 >;
-export type GetCarsBrandsQueryError = unknown;
+export type GetCarsBrandsQueryError = ErrorResponse;
 
 export function useGetCarsBrands<
     TData = Awaited<ReturnType<typeof getCarsBrands>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     options: {
         query: Partial<
@@ -272,7 +272,7 @@ export function useGetCarsBrands<
 };
 export function useGetCarsBrands<
     TData = Awaited<ReturnType<typeof getCarsBrands>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     options?: {
         query?: Partial<
@@ -298,7 +298,7 @@ export function useGetCarsBrands<
 };
 export function useGetCarsBrands<
     TData = Awaited<ReturnType<typeof getCarsBrands>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     options?: {
         query?: Partial<
@@ -317,7 +317,7 @@ export function useGetCarsBrands<
 
 export function useGetCarsBrands<
     TData = Awaited<ReturnType<typeof getCarsBrands>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     options?: {
         query?: Partial<
@@ -368,7 +368,7 @@ export const getGetCarsBrandsByBrandModelsQueryKey = (brand?: string) => {
 
 export const getGetCarsBrandsByBrandModelsQueryOptions = <
     TData = Awaited<ReturnType<typeof getCarsBrandsByBrandModels>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     brand: string,
     options?: {
@@ -406,11 +406,11 @@ export const getGetCarsBrandsByBrandModelsQueryOptions = <
 export type GetCarsBrandsByBrandModelsQueryResult = NonNullable<
     Awaited<ReturnType<typeof getCarsBrandsByBrandModels>>
 >;
-export type GetCarsBrandsByBrandModelsQueryError = unknown;
+export type GetCarsBrandsByBrandModelsQueryError = ErrorResponse;
 
 export function useGetCarsBrandsByBrandModels<
     TData = Awaited<ReturnType<typeof getCarsBrandsByBrandModels>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     brand: string,
     options: {
@@ -437,7 +437,7 @@ export function useGetCarsBrandsByBrandModels<
 };
 export function useGetCarsBrandsByBrandModels<
     TData = Awaited<ReturnType<typeof getCarsBrandsByBrandModels>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     brand: string,
     options?: {
@@ -464,7 +464,7 @@ export function useGetCarsBrandsByBrandModels<
 };
 export function useGetCarsBrandsByBrandModels<
     TData = Awaited<ReturnType<typeof getCarsBrandsByBrandModels>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     brand: string,
     options?: {
@@ -484,7 +484,7 @@ export function useGetCarsBrandsByBrandModels<
 
 export function useGetCarsBrandsByBrandModels<
     TData = Awaited<ReturnType<typeof getCarsBrandsByBrandModels>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     brand: string,
     options?: {
@@ -538,7 +538,7 @@ export const getGetCarsMeQueryKey = () => {
 
 export const getGetCarsMeQueryOptions = <
     TData = Awaited<ReturnType<typeof getCarsMe>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(options?: {
     query?: Partial<
         UseQueryOptions<Awaited<ReturnType<typeof getCarsMe>>, TError, TData>
@@ -562,11 +562,11 @@ export const getGetCarsMeQueryOptions = <
 export type GetCarsMeQueryResult = NonNullable<
     Awaited<ReturnType<typeof getCarsMe>>
 >;
-export type GetCarsMeQueryError = unknown;
+export type GetCarsMeQueryError = ErrorResponse;
 
 export function useGetCarsMe<
     TData = Awaited<ReturnType<typeof getCarsMe>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     options: {
         query: Partial<
@@ -592,7 +592,7 @@ export function useGetCarsMe<
 };
 export function useGetCarsMe<
     TData = Awaited<ReturnType<typeof getCarsMe>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     options?: {
         query?: Partial<
@@ -618,7 +618,7 @@ export function useGetCarsMe<
 };
 export function useGetCarsMe<
     TData = Awaited<ReturnType<typeof getCarsMe>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     options?: {
         query?: Partial<
@@ -637,7 +637,7 @@ export function useGetCarsMe<
 
 export function useGetCarsMe<
     TData = Awaited<ReturnType<typeof getCarsMe>>,
-    TError = unknown,
+    TError = ErrorResponse,
 >(
     options?: {
         query?: Partial<
