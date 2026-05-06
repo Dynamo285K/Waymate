@@ -226,7 +226,7 @@ export function PassengerChatPage({
                             <button
                                 onClick={handleBack}
                                 className="text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors"
-                                aria-label="Back"
+                                aria-label={t("chat.back")}
                             >
                                 <svg
                                     width="20"

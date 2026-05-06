@@ -83,7 +83,7 @@ export function OnboardingPage({
         if (isInitialized || isLoadingProfile) return;
 
         if (loadError) {
-            setSubmitError(t("onboarding.loginRequired"));
+            setSubmitError("onboarding.loginRequired");
             setIsInitialized(true);
             return;
         }
@@ -115,12 +115,12 @@ export function OnboardingPage({
         const normalizedPhone = normalizePhone(phone);
 
         if (!formattedFirstName || !formattedLastName || !normalizedPhone) {
-            setSubmitError(t("onboarding.requiredError"));
+            setSubmitError("onboarding.requiredError");
             return;
         }
 
         if (!/^\+[1-9]\d{1,14}$/.test(normalizedPhone)) {
-            setSubmitError(t("onboarding.phoneError"));
+            setSubmitError("onboarding.phoneError");
             return;
         }
 
@@ -135,7 +135,7 @@ export function OnboardingPage({
             navigate(await getPostAuthPath());
         } catch (error) {
             console.error("Onboarding submit failed", error);
-            setSubmitError(t(getErrorI18nKey(error, {}, "onboarding.error")));
+            setSubmitError(getErrorI18nKey(error, {}, "onboarding.error"));
         }
     }
 
@@ -210,7 +210,7 @@ export function OnboardingPage({
 
                         {submitError && (
                             <p className="mt-5 text-sm font-semibold text-(--color-red)">
-                                {submitError}
+                                {t(submitError)}
                             </p>
                         )}
 

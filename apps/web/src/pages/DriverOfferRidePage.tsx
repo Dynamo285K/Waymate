@@ -241,7 +241,7 @@ export function DriverOfferRidePage({
     const createRideMutation = usePostRides({
         mutation: {
             onSuccess: async () => {
-                setPublishedMessage(t("offerRide.published"));
+                setPublishedMessage("offerRide.published");
                 setPublishError("");
                 await queryClient.invalidateQueries({
                     queryKey: getGetRidesMeQueryKey(),
@@ -251,7 +251,7 @@ export function DriverOfferRidePage({
             onError: (error) => {
                 console.error("Publish ride failed", error);
                 setPublishError(
-                    t(getErrorI18nKey(error, {}, "offerRide.publishError"))
+                    getErrorI18nKey(error, {}, "offerRide.publishError")
                 );
             },
         },
@@ -322,24 +322,15 @@ export function DriverOfferRidePage({
         const dropoffCity = dropoff.trim();
 
         if (!pickupCity || !dropoffCity || !departureAt || !carId) {
-            return t(
-                "offerRide.missingFieldsError",
-                "Please fill pickup, dropoff, date, time, seats, price, and choose a saved car."
-            );
+            return "offerRide.missingFieldsError";
         }
 
         if (!offeredSeats) {
-            return t(
-                "offerRide.invalidSeatsError",
-                "Available seats must be a whole number greater than 0."
-            );
+            return "offerRide.invalidSeatsError";
         }
 
         if (!priceAmount) {
-            return t(
-                "offerRide.invalidPriceError",
-                "Price per seat must be a whole number greater than 0."
-            );
+            return "offerRide.invalidPriceError";
         }
 
         return "";
@@ -512,12 +503,7 @@ export function DriverOfferRidePage({
                     alreadySaved?.id ?? (await createManualCarForRide());
 
                 if (!carId) {
-                    setPublishError(
-                        t(
-                            "offerRide.carCreateError",
-                            "Could not save this car. Please check the car details."
-                        )
-                    );
+                    setPublishError("offerRide.carCreateError");
                     return;
                 }
 
@@ -525,7 +511,7 @@ export function DriverOfferRidePage({
             } catch (error) {
                 console.error("Publish ride failed", error);
                 setPublishError(
-                    t(getErrorI18nKey(error, {}, "offerRide.publishError"))
+                    getErrorI18nKey(error, {}, "offerRide.publishError")
                 );
             }
 
@@ -533,12 +519,7 @@ export function DriverOfferRidePage({
         }
 
         if (carMode === "manual") {
-            setPublishError(
-                t(
-                    "offerRide.missingFieldsError",
-                    "Please fill pickup, dropoff, date, time, seats, price, and choose a saved car."
-                )
-            );
+            setPublishError("offerRide.missingFieldsError");
             return;
         }
 
@@ -547,7 +528,7 @@ export function DriverOfferRidePage({
         } catch (error) {
             console.error("Publish ride failed", error);
             setPublishError(
-                t(getErrorI18nKey(error, {}, "offerRide.publishError"))
+                getErrorI18nKey(error, {}, "offerRide.publishError")
             );
         }
     }
@@ -557,12 +538,7 @@ export function DriverOfferRidePage({
             const carId = await createManualCarForRide();
 
             if (!carId) {
-                setPublishError(
-                    t(
-                        "offerRide.carCreateError",
-                        "Could not save this car. Please check the car details."
-                    )
-                );
+                setPublishError("offerRide.carCreateError");
                 return;
             }
 
@@ -570,7 +546,7 @@ export function DriverOfferRidePage({
         } catch (error) {
             console.error("Publish ride failed", error);
             setPublishError(
-                t(getErrorI18nKey(error, {}, "offerRide.publishError"))
+                getErrorI18nKey(error, {}, "offerRide.publishError")
             );
         }
     }
@@ -608,22 +584,10 @@ export function DriverOfferRidePage({
                         carBrandPlaceholder: t("offerRide.carBrandPlaceholder"),
                         carModel: t("offerRide.carModel"),
                         carModelPlaceholder: t("offerRide.carModelPlaceholder"),
-                        selectCarBrand: t(
-                            "offerRide.selectCarBrand",
-                            "Select brand"
-                        ),
-                        selectCarModel: t(
-                            "offerRide.selectCarModel",
-                            "Select model"
-                        ),
-                        loadingCarBrands: t(
-                            "offerRide.loadingCarBrands",
-                            "Loading brands..."
-                        ),
-                        loadingCarModels: t(
-                            "offerRide.loadingCarModels",
-                            "Loading models..."
-                        ),
+                        selectCarBrand: t("offerRide.selectCarBrand"),
+                        selectCarModel: t("offerRide.selectCarModel"),
+                        loadingCarBrands: t("offerRide.loadingCarBrands"),
+                        loadingCarModels: t("offerRide.loadingCarModels"),
                         licensePlate: t("offerRide.licensePlate"),
                         platePlaceholder: t("offerRide.platePlaceholder"),
                         noCars: t("offerRide.noCars"),
@@ -660,12 +624,14 @@ export function DriverOfferRidePage({
                     manualPlate={manualPlate}
                     onManualPlateChange={setManualPlate}
                     manualPlateError={manualPlateError}
-                    publishedMessage={publishedMessage}
+                    publishedMessage={
+                        publishedMessage ? t(publishedMessage) : ""
+                    }
                     onPublishClick={handlePublish}
                 />
                 {publishError && (
                     <p className="mt-4 w-full rounded-xl border border-(--color-danger-border) bg-(--color-danger-bg) px-4 py-3 text-sm font-semibold text-(--color-danger-text)">
-                        {publishError}
+                        {t(publishError)}
                     </p>
                 )}
             </div>

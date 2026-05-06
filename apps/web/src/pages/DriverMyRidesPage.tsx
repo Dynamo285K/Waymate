@@ -184,10 +184,7 @@ export function DriverMyRidesPage({
                                             "driverRides.viewPassengers"
                                         ),
                                         cancelRide: isCancelling
-                                            ? t(
-                                                  "driverRides.cancelling",
-                                                  "Cancelling..."
-                                              )
+                                            ? t("driverRides.cancelling")
                                             : t("driverRides.cancelRide"),
                                     }}
                                 />

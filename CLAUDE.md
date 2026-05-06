@@ -19,6 +19,8 @@ bun run lint         # ESLint across the monorepo
 bun run lint:fix     # auto-fix ESLint issues
 bun run format       # Prettier format
 bun run format:check # Prettier check (used in CI)
+
+bun run --cwd apps/web i18n:check   # flag unused keys + en/cs/sk drift
 ```
 
 Database (run from the repo root, scoped to `apps/api`):

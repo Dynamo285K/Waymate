@@ -82,3 +82,13 @@ Copy `.env.example` to `.env.local` if you need to override defaults:
 ## UI library
 
 Components come from `@waymate/ui` (private GitLab package — see root README for `CI_JOB_TOKEN` setup).
+
+## i18n parity check
+
+Locale files live in `src/i18n/locales/{en,cs,sk}.json`. To catch unused keys and en/cs/sk drift:
+
+```bash
+bun run --cwd apps/web i18n:check
+```
+
+The script flattens each locale, fails if any key in `en.json` is unreferenced in `src/`, and fails if cs/sk diverge from en. It runs as a CI job (`i18n-check` in `.gitlab-ci.yml`).

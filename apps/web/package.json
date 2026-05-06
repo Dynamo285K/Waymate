@@ -9,7 +9,8 @@
         "typecheck": "tsc -p tsconfig.app.json --noEmit",
         "lint": "eslint .",
         "preview": "vite preview",
-        "codegen": "orval --config orval.config.ts"
+        "codegen": "orval --config orval.config.ts",
+        "i18n:check": "bun run scripts/i18n-check.ts"
     },
     "dependencies": {
         "@hookform/resolvers": "^5.2.2",

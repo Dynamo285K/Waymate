@@ -95,9 +95,7 @@ export function PassengerRatingsPage({
                 </button>
 
                 <h1 className="text-2xl font-bold text-(--color-text-primary) mb-6">
-                    {isReceived
-                        ? t("ratings.title")
-                        : t("ratings.myRatings", "My ratings")}
+                    {isReceived ? t("ratings.title") : t("ratings.myRatings")}
                 </h1>
 
                 <RatingSummaryCard
@@ -109,7 +107,7 @@ export function PassengerRatingsPage({
                 <div className="flex flex-col gap-4 mt-6">
                     {isLoading && (
                         <p className="text-(--color-text-secondary)">
-                            {t("ratings.loading", "Loading ratings...")}
+                            {t("ratings.loading")}
                         </p>
                     )}
                     {isError && (
@@ -119,7 +117,7 @@ export function PassengerRatingsPage({
                     )}
                     {!isLoading && !isError && ratings.length === 0 && (
                         <p className="text-(--color-text-secondary)">
-                            {t("ratings.empty", "No ratings yet.")}
+                            {t("ratings.empty")}
                         </p>
                     )}
                     {!isLoading &&
@@ -128,7 +126,7 @@ export function PassengerRatingsPage({
                             <RatingCard
                                 key={rating.id}
                                 name={rating.name}
-                                from={t("ratings.ride", "Ride")}
+                                from={t("ratings.ride")}
                                 to={rating.rideId.slice(0, 8)}
                                 rating={rating.rating}
                                 review={rating.review}

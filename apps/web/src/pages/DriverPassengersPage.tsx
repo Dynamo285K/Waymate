@@ -136,10 +136,7 @@ export function DriverPassengersPage({
                 <div className="flex flex-col gap-4">
                     {!ride?.id && (
                         <p className="text-(--color-text-secondary)">
-                            {t(
-                                "driverRides.passengersError",
-                                "Select a ride to view passengers."
-                            )}
+                            {t("driverRides.passengersError")}
                         </p>
                     )}
 
@@ -177,10 +174,7 @@ export function DriverPassengersPage({
                         !isError &&
                         passengersView?.passengers.length === 0 && (
                             <p className="text-(--color-text-secondary)">
-                                {t(
-                                    "driverRides.noPassengers",
-                                    "No passengers yet."
-                                )}
+                                {t("driverRides.noPassengers")}
                             </p>
                         )}
 
