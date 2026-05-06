@@ -1,6 +1,38 @@
 import "dotenv/config";
 import { z } from "zod";
 
+// A bare origin: scheme + host + optional port. Reject anything with a path,
+// query, or fragment so a misconfiguration like `WEB_ORIGIN=https://app.com/foo`
+// fails loud instead of silently breaking CORS comparisons (browsers send
+// `Origin: https://app.com` with no path). Also normalizes `https://app.com/`
+// to `https://app.com` for exact-match equality.
+const OriginSchema = z
+    .string()
+    .refine(
+        (value) => {
+            let url: URL;
+            try {
+                url = new URL(value);
+            } catch {
+                return false;
+            }
+            return (
+                (url.protocol === "http:" || url.protocol === "https:") &&
+                (url.pathname === "/" || url.pathname === "") &&
+                url.search === "" &&
+                url.hash === ""
+            );
+        },
+        {
+            message:
+                "Must be a bare http(s) origin (scheme + host + optional port), without a path, query, or fragment",
+        }
+    )
+    .transform((value) => {
+        const url = new URL(value);
+        return `${url.protocol}//${url.host}`;
+    });
+
 const OriginListSchema = z
     .string()
     .optional()
@@ -12,13 +44,13 @@ const OriginListSchema = z
                   .filter((entry) => entry.length > 0)
             : []
     )
-    .pipe(z.array(z.url()));
+    .pipe(z.array(OriginSchema));
 
 const EnvSchema = z.object({
     PORT: z.coerce.number().int().min(1).max(65535).default(3000),
     DATABASE_URL: z.string().min(1),
     BETTER_AUTH_URL: z.url(),
-    WEB_ORIGIN: z.url().default("http://localhost:5173"),
+    WEB_ORIGIN: OriginSchema,
     CORS_ORIGINS: OriginListSchema,
     RESEND_API_KEY: z.string().min(1),
     GOOGLE_CLIENT_ID: z.string().min(1).optional(),
