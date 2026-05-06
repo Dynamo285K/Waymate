@@ -246,12 +246,7 @@ const lockBookingById = async (
     const [booking] = await executor
         .select()
         .from(bookingsTable)
-        .where(
-            and(
-                eq(bookingsTable.id, bookingId),
-                bookingNotSoftDeleted
-            )
-        )
+        .where(and(eq(bookingsTable.id, bookingId), bookingNotSoftDeleted))
         .for("update");
 
     return booking ?? null;
@@ -378,13 +373,8 @@ const updateBookingFields = async (
 ): Promise<{ id: string } | null> => {
     const [updatedBooking] = await executor
         .update(bookingsTable)
-        .set({ ...fields, updatedAt: new Date() })
-        .where(
-            and(
-                eq(bookingsTable.id, bookingId),
-                bookingNotSoftDeleted
-            )
-        )
+        .set(fields)
+        .where(and(eq(bookingsTable.id, bookingId), bookingNotSoftDeleted))
         .returning({ id: bookingsTable.id });
 
     return updatedBooking ?? null;

@@ -532,7 +532,6 @@ const updateRideStatusToCancelled = async (
         .update(ridesTable)
         .set({
             rideStatus: "CANCELLED",
-            updatedAt: new Date(),
         })
         .where(
             and(
@@ -573,7 +572,6 @@ const bulkCancelBookings = async (
             cancelledAt: new Date(),
             cancelledByUserId,
             cancellationReason,
-            updatedAt: new Date(),
         })
         .where(inArray(bookingsTable.id, bookingIds));
 };

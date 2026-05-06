@@ -1,15 +1,9 @@
 import { sql } from "drizzle-orm";
-import {
-    check,
-    index,
-    pgTable,
-    text,
-    timestamp,
-    uuid,
-} from "drizzle-orm/pg-core";
+import { check, index, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { bookings } from "./booking";
 import { users } from "./user";
 import { bookingStatusEnum } from "./enums";
+import { timestamptz } from "./timestamps";
 
 export const bookingStatusHistory = pgTable(
     "booking_status_history",
@@ -22,7 +16,7 @@ export const bookingStatusHistory = pgTable(
         newStatus: bookingStatusEnum("new_status").notNull(),
         changedByUserId: uuid("changed_by_user_id").references(() => users.id),
         reason: text("reason"),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
+        createdAt: timestamptz("created_at").defaultNow().notNull(),
     },
     (table) => [
         index("booking_status_history_booking_id_idx").on(table.bookingId),

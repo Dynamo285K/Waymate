@@ -83,7 +83,6 @@ const updateCarStatus = async (
         .update(carsTable)
         .set({
             isActive: isActive,
-            updatedAt: new Date(),
         })
         .where(
             and(
@@ -105,7 +104,6 @@ const deleteCar = async (
     const [deletedCar] = await executor
         .update(carsTable)
         .set({
-            updatedAt: new Date(),
             deletedAt: new Date(),
             isActive: false,
         })

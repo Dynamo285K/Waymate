@@ -1,14 +1,16 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import type { Executor } from "../../db";
 import { users as usersTable } from "../../db/schema/user";
 import type { User, OnboardingUserInput, UpdateUserInput } from "./user.types";
+
+const userNotSoftDeleted = isNull(usersTable.deletedAt);
 
 const findUserById = async (
     executor: Executor,
     id: string
 ): Promise<User | undefined> => {
     return await executor.query.users.findFirst({
-        where: eq(usersTable.id, id),
+        where: and(eq(usersTable.id, id), userNotSoftDeleted),
     });
 };
 
@@ -20,7 +22,7 @@ const updateOnboardingInfo = async (
     const [updatedUser] = await executor
         .update(usersTable)
         .set(data)
-        .where(eq(usersTable.id, userId))
+        .where(and(eq(usersTable.id, userId), userNotSoftDeleted))
         .returning();
 
     return updatedUser ?? null;
@@ -34,7 +36,7 @@ const updateUserProfile = async (
     const [updatedUser] = await executor
         .update(usersTable)
         .set(data)
-        .where(eq(usersTable.id, userId))
+        .where(and(eq(usersTable.id, userId), userNotSoftDeleted))
         .returning();
 
     return updatedUser ?? null;

@@ -1,8 +1,9 @@
 import { sql } from "drizzle-orm";
-import { check, index, pgTable, timestamp, uuid } from "drizzle-orm/pg-core";
+import { check, index, pgTable, uuid } from "drizzle-orm/pg-core";
 import { rides } from "./ride";
 import { bookings } from "./booking";
 import { conversationTypeEnum } from "./enums";
+import { timestamptz } from "./timestamps";
 
 export const conversations = pgTable(
     "conversations",
@@ -11,11 +12,11 @@ export const conversations = pgTable(
         rideId: uuid("ride_id").references(() => rides.id),
         bookingId: uuid("booking_id").references(() => bookings.id),
         conversationType: conversationTypeEnum("conversation_type").notNull(),
-        driverLastReadAt: timestamp("driver_last_read_at"),
-        passengerLastReadAt: timestamp("passenger_last_read_at"),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at").defaultNow().notNull(),
-        deletedAt: timestamp("deleted_at"),
+        driverLastReadAt: timestamptz("driver_last_read_at"),
+        passengerLastReadAt: timestamptz("passenger_last_read_at"),
+        createdAt: timestamptz("created_at").defaultNow().notNull(),
+        updatedAt: timestamptz("updated_at").defaultNow().notNull(),
+        deletedAt: timestamptz("deleted_at"),
     },
     (table) => [
         index("conversations_ride_id_idx").on(table.rideId),

@@ -1,14 +1,8 @@
 import { sql } from "drizzle-orm";
-import {
-    check,
-    index,
-    pgTable,
-    text,
-    timestamp,
-    uuid,
-} from "drizzle-orm/pg-core";
+import { check, index, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { users } from "./user";
 import { blockReasonEnum, blockStatusEnum } from "./enums";
+import { timestamptz } from "./timestamps";
 
 export const blocklist = pgTable(
     "blocklist",
@@ -23,11 +17,11 @@ export const blocklist = pgTable(
         blockReason: blockReasonEnum("block_reason").notNull(),
         blockStatus: blockStatusEnum("block_status").notNull(),
         reasonText: text("reason_text"),
-        revokedAt: timestamp("revoked_at"),
+        revokedAt: timestamptz("revoked_at"),
         revokedByUserId: uuid("revoked_by_user_id").references(() => users.id),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at").defaultNow().notNull(),
-        deletedAt: timestamp("deleted_at"),
+        createdAt: timestamptz("created_at").defaultNow().notNull(),
+        updatedAt: timestamptz("updated_at").defaultNow().notNull(),
+        deletedAt: timestamptz("deleted_at"),
     },
     (table) => [
         index("blocklist_blocker_user_id_idx").on(table.blockerUserId),

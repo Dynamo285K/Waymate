@@ -1,6 +1,7 @@
-import { index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { index, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { users } from "./user";
 import { deliveryStatusEnum, notificationTypeEnum } from "./enums";
+import { timestamptz } from "./timestamps";
 
 export const notifications = pgTable(
     "notifications",
@@ -15,10 +16,10 @@ export const notifications = pgTable(
         title: text("title").notNull(),
         body: text("body").notNull(),
         deliveryStatus: deliveryStatusEnum("delivery_status").notNull(),
-        readAt: timestamp("read_at"),
-        sentAt: timestamp("sent_at"),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at").defaultNow().notNull(),
+        readAt: timestamptz("read_at"),
+        sentAt: timestamptz("sent_at"),
+        createdAt: timestamptz("created_at").defaultNow().notNull(),
+        updatedAt: timestamptz("updated_at").defaultNow().notNull(),
     },
     (table) => [
         index("notifications_user_id_idx").on(table.userId),
