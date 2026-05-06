@@ -1,14 +1,10 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import {
-    DriverNavbar,
-    ProfileHeroCard,
-    CarCard,
-    RideCard,
-    Button,
-} from "@waymate/ui";
-import type { Language } from "@waymate/ui";
+import { ProfileHeroCard, CarCard, Button } from "@waymate/ui";
+import type { Language } from "../components/controls/LanguageSwitcher";
+import { DriverNavbar } from "../components/navigation/DriverNavbar";
+import { RideCard } from "../components/RideCard";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { useCancelRide } from "../hooks/useCancelRide";
 import { useGetRidesMe } from "../api-client/rides/rides";

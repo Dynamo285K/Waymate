@@ -17,17 +17,14 @@ const getCarsByUserId = async (userId: string) => {
 };
 
 const createCar = async (userId: string, data: CreateCarBody) => {
-    return mapPostgresErrors(
-        () => CarRepository.insertCar(db, userId, data),
-        {
-            [PostgresErrorCodes.ForeignKeyViolation]: () => {
-                throw new CarError(CarErrorCodes.ModelNotFound);
-            },
-            [PostgresErrorCodes.UniqueViolation]: () => {
-                throw new CarError(CarErrorCodes.DuplicatePlate);
-            },
-        }
-    );
+    return mapPostgresErrors(() => CarRepository.insertCar(db, userId, data), {
+        [PostgresErrorCodes.ForeignKeyViolation]: () => {
+            throw new CarError(CarErrorCodes.ModelNotFound);
+        },
+        [PostgresErrorCodes.UniqueViolation]: () => {
+            throw new CarError(CarErrorCodes.DuplicatePlate);
+        },
+    });
 };
 
 const deleteCar = async (carId: string, userId: string) => {

@@ -1,0 +1,210 @@
+.passenger-navbar {
+    width: 100%;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    font-family: "Inter", sans-serif;
+}
+
+/* ── Desktop ── */
+.passenger-navbar__desktop {
+    min-height: 72px;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    box-sizing: border-box;
+}
+
+.passenger-navbar__left {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    min-width: 0;
+}
+
+.passenger-navbar__logo {
+    width: 96px;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
+}
+
+.passenger-navbar__nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.passenger-navbar__right {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-shrink: 0;
+}
+
+.passenger-navbar__profile-trigger-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+}
+
+.passenger-navbar__profile-chevron {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: var(--color-card);
+    color: var(--color-text-secondary);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.passenger-navbar__profile-trigger-btn:hover
+    .passenger-navbar__profile-chevron {
+    background: var(--color-border);
+}
+
+.passenger-navbar__profile-chevron svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Radix DropdownMenu.Content — positioned by Radix, only visual styles here */
+.passenger-navbar__dropdown {
+    z-index: 200;
+    font-family: "Inter", sans-serif;
+}
+
+/* ── Tablet ── */
+.passenger-navbar__tablet {
+    min-height: 72px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    box-sizing: border-box;
+}
+
+.passenger-navbar__tablet-right {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.passenger-navbar__tablet-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 280px;
+    border-radius: 16px;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 30;
+}
+
+/* ── Mobile (hidden on desktop) ── */
+.passenger-navbar__mobile {
+    display: none;
+}
+
+/* ── Breakpoint ── */
+@media (max-width: 1024px) {
+    .passenger-navbar__desktop {
+        display: none !important;
+    }
+
+    .passenger-navbar__mobile {
+        display: flex !important;
+        flex-direction: column;
+    }
+
+    /* Row 1 */
+    .passenger-navbar__mobile-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+    }
+
+    /* Row 2 */
+    .passenger-navbar__mobile-nav {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 8px 16px 10px;
+        border-top: 1px solid var(--color-border);
+    }
+
+    .passenger-navbar__mobile-nav .nav-button {
+        padding: 8px 10px;
+        font-size: 13px;
+        gap: 6px;
+    }
+
+    /* Hamburger button */
+    .passenger-navbar__mobile-actions {
+        position: relative;
+    }
+
+    .passenger-navbar__hamburger {
+        background: var(--color-card);
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 0;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .passenger-navbar__hamburger span {
+        display: block;
+        width: 18px;
+        height: 2px;
+        background: var(--color-text-primary);
+        border-radius: 2px;
+    }
+
+    /* Full-width expandable panel */
+    .passenger-navbar__mobile-panel {
+        border-top: 1px solid var(--color-border);
+        padding: 12px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background: var(--color-bg);
+    }
+
+    /* Row: theme + language + profile */
+    .passenger-navbar__mobile-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .passenger-navbar__mobile-row .passenger-navbar__profile {
+        margin-left: auto;
+    }
+
+    /* Prevent controls from stretching */
+    .passenger-navbar__mobile-panel .role-switcher,
+    .passenger-navbar__mobile-panel .segmented-control {
+        align-self: flex-start;
+        flex-shrink: 0;
+    }
+}

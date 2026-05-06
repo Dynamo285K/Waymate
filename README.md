@@ -61,11 +61,12 @@ through a GitLab Personal Access Token.
 
 1. Open <https://gitlab.fi.muni.cz/-/user_settings/personal_access_tokens>.
 2. Create a token with the scope you need:
-   - **`read_api`** — enough to install the package (most contributors).
-   - **`api`** — required only if you also intend to publish new versions of
-     `@waymate/ui` to the registry.
+    - **`read_api`** — enough to install the package (most contributors).
+    - **`api`** — required only if you also intend to publish new versions of
+      `@waymate/ui` to the registry.
 
-   Copy the value — GitLab shows it only once.
+    Copy the value — GitLab shows it only once.
+
 3. Export it as `CI_JOB_TOKEN` so Bun can substitute it into `.npmrc` at
    install time. The exact command depends on your shell / OS — pick the
    matching row, replace `<token>`, and run it once. After that, **open a new
@@ -185,10 +186,20 @@ bun run dev
 
 Source repository: <https://gitlab.fi.muni.cz/xbartel/waymate-ui>
 
-Components are imported directly:
+`@waymate/ui` contains **reusable primitives only** (Button, Avatar, Modal, DatePicker, icons, …). App-specific components (navbars, ride cards, OfferRideForm, …) live in `apps/web/src/components/` and are imported by relative path.
+
+Reusable primitives:
 
 ```tsx
-import { Button } from "@waymate/ui";
+import { Button, Avatar, Modal } from "@waymate/ui";
 ```
 
-Styles are loaded automatically via `apps/web/src/main.tsx`.
+App-specific components:
+
+```tsx
+import { DriverNavbar } from "../components/navigation/DriverNavbar";
+import { RideCard } from "../components/RideCard";
+import { OfferRideForm } from "../components/OfferRideForm";
+```
+
+Styles are loaded automatically via `apps/web/src/index.css`.

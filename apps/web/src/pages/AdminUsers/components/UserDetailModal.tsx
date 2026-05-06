@@ -99,9 +99,7 @@ export function UserDetailModal({
 
                         <div className="grid grid-cols-2 gap-x-8 gap-y-4 mb-6">
                             <div>
-                                <p className={labelClass}>
-                                    {t("admin.phone")}
-                                </p>
+                                <p className={labelClass}>{t("admin.phone")}</p>
                                 <p className="text-sm font-semibold text-(--color-text-primary)">
                                     {detailQuery.data.user.phone ?? "—"}
                                 </p>

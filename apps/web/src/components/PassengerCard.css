@@ -1,0 +1,74 @@
+.passenger-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    font-family: "Inter", sans-serif;
+}
+
+.passenger-card__left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.passenger-card__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.passenger-card__name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.passenger-card__rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.passenger-card__rating svg {
+    width: 0.875rem;
+    height: 0.875rem;
+    color: var(--color-dark-yellow);
+    fill: var(--color-dark-yellow);
+    flex-shrink: 0;
+}
+
+.passenger-card__rating-value {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+.passenger-card__seats {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+.passenger-card__actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+    .passenger-card {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+    .passenger-card__left {
+        flex: 1;
+        min-width: 0;
+    }
+    .passenger-card__actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}

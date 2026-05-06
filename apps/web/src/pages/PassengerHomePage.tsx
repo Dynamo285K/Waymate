@@ -1,6 +1,6 @@
 import { useNavigate } from "../lib/router-compat";
-import { PassengerNavbar } from "@waymate/ui";
-import type { Language } from "@waymate/ui";
+import type { Language } from "../components/controls/LanguageSwitcher";
+import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
 import { HomeContent } from "../components/HomeContent";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 import { useCreateBooking } from "../hooks/useCreateBooking";

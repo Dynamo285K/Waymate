@@ -5,7 +5,7 @@ import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { Button } from "@waymate/ui";
-import type { Language } from "@waymate/ui";
+import type { Language } from "../components/controls/LanguageSwitcher";
 import { requestPasswordReset, resetPassword } from "../lib/auth";
 
 type ForgotPasswordPageProps = {

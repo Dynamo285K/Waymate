@@ -1,8 +1,9 @@
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { AdminNavbar, Button } from "@waymate/ui";
-import type { Language } from "@waymate/ui";
+import { Button } from "@waymate/ui";
+import type { Language } from "../../components/controls/LanguageSwitcher";
+import { AdminNavbar } from "../../components/navigation/AdminNavbar";
 import { useAdminNavbarProps } from "../../hooks/useAdminNavbarProps";
 import { useSetUserStatus } from "../../hooks/useSetUserStatus";
 import { getGetAdminUsersQueryKey } from "../../api-client/admin/admin";

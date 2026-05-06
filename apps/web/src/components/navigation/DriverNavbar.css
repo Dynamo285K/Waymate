@@ -1,0 +1,207 @@
+.driver-navbar {
+    width: 100%;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    font-family: "Inter", sans-serif;
+}
+
+/* ── Desktop ── */
+.driver-navbar__desktop {
+    min-height: 72px;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    box-sizing: border-box;
+}
+
+.driver-navbar__left {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    min-width: 0;
+}
+
+.driver-navbar__logo {
+    width: 96px;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
+}
+
+.driver-navbar__nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.driver-navbar__right {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-shrink: 0;
+}
+
+.driver-navbar__profile {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.driver-navbar__profile-trigger-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+}
+
+.driver-navbar__profile-chevron {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: var(--color-card);
+    color: var(--color-text-secondary);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.driver-navbar__profile-trigger-btn:hover .driver-navbar__profile-chevron {
+    background: var(--color-border);
+}
+
+.driver-navbar__profile-chevron svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Radix DropdownMenu.Content — positioned by Radix, only visual styles here */
+.driver-navbar__dropdown {
+    z-index: 200;
+    font-family: "Inter", sans-serif;
+}
+
+/* ── Tablet ── */
+.driver-navbar__tablet {
+    min-height: 72px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-sizing: border-box;
+}
+
+.driver-navbar__tablet-right {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.driver-navbar__tablet-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 280px;
+    border-radius: 16px;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 30;
+}
+
+/* ── Mobile (hidden on desktop) ── */
+.driver-navbar__mobile {
+    display: none;
+}
+
+/* ── Breakpoint ── */
+@media (max-width: 1024px) {
+    .driver-navbar__desktop {
+        display: none !important;
+    }
+
+    .driver-navbar__mobile {
+        display: flex !important;
+        flex-direction: column;
+    }
+
+    .driver-navbar__mobile-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+    }
+
+    .driver-navbar__mobile-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        padding: 8px 16px 10px;
+        border-top: 1px solid var(--color-border);
+    }
+
+    .driver-navbar__mobile-nav .nav-button {
+        padding: 8px 10px;
+        font-size: 13px;
+        gap: 6px;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .driver-navbar__hamburger {
+        background: var(--color-card);
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 0;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .driver-navbar__hamburger span {
+        display: block;
+        width: 18px;
+        height: 2px;
+        background: var(--color-text-primary);
+        border-radius: 2px;
+    }
+
+    .driver-navbar__mobile-panel {
+        border-top: 1px solid var(--color-border);
+        padding: 12px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background: var(--color-bg);
+    }
+
+    .driver-navbar__mobile-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .driver-navbar__mobile-row .driver-navbar__profile {
+        margin-left: auto;
+    }
+
+    .driver-navbar__mobile-panel .role-switcher,
+    .driver-navbar__mobile-panel .segmented-control {
+        align-self: flex-start;
+        flex-shrink: 0;
+    }
+}

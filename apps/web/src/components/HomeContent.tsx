@@ -4,10 +4,10 @@ import {
     SearchBox,
     PopularRouteChip,
     StatCard,
-    AvailableRideCard,
     FeatureCard,
 } from "@waymate/ui";
-import type { Language } from "@waymate/ui";
+import type { Language } from "./controls/LanguageSwitcher";
+import { AvailableRideCard } from "./AvailableRideCard";
 import { formatRideDate } from "../lib/date-format";
 import { toUiLanguage } from "../lib/language";
 import { useGetRidesAvailable } from "../api-client/rides/rides";

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "../lib/router-compat";
-import { AuthNavbar, AvailableRideCard, Button, Modal } from "@waymate/ui";
-import type { Language } from "@waymate/ui";
+import { AuthNavbar, Button, Modal } from "@waymate/ui";
+import type { Language } from "../components/controls/LanguageSwitcher";
+import { AvailableRideCard } from "../components/AvailableRideCard";
 import { useRideSearch } from "../hooks/useRideSearch";
 import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
 import { useGetRidesAvailable } from "../api-client/rides/rides";
