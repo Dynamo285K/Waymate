@@ -1,12 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import {
-    DriverNavbar,
-    RideCard,
-    RideRequestCard,
-    FeatureCard,
-} from "@waymate/ui";
-import type { Language } from "@waymate/ui";
+import { FeatureCard } from "@waymate/ui";
+import type { Language } from "../components/controls/LanguageSwitcher";
+import { DriverNavbar } from "../components/navigation/DriverNavbar";
+import { RideCard } from "../components/RideCard";
+import { RideRequestCard } from "../components/RideRequestCard";
 import { formatRideDate as formatDate } from "../lib/date-format";
 import { useGetRidesMe } from "../api-client/rides/rides";
 import { useCancelRide } from "../hooks/useCancelRide";

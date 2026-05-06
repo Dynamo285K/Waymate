@@ -1,4 +1,4 @@
-import type { Language } from "@waymate/ui";
+import type { Language } from "../components/controls/LanguageSwitcher";
 
 export function toI18nLanguage(language: Language): string {
     return language === "cz" ? "cs" : language;

@@ -1,13 +1,10 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "../lib/router-compat";
-import {
-    PassengerNavbar,
-    RideCard,
-    Button,
-    RateDriverModal,
-} from "@waymate/ui";
-import type { Language } from "@waymate/ui";
+import { Button, RateDriverModal } from "@waymate/ui";
+import type { Language } from "../components/controls/LanguageSwitcher";
+import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
+import { RideCard } from "../components/RideCard";
 import { useGetBookingsMe } from "../api-client/bookings/bookings";
 import { getErrorI18nKey } from "../lib/api-errors";
 import { formatRideDate } from "../lib/date-format";

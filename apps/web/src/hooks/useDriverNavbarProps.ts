@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import type { Language } from "@waymate/ui";
+import type { Language } from "../components/controls/LanguageSwitcher";
 import { toUiLanguage } from "../lib/language";
 import { useLogout } from "./useLogout";
 

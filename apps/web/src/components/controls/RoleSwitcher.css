@@ -1,0 +1,37 @@
+.role-switcher {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px;
+    border-radius: 999px;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    font-family: "Inter", sans-serif;
+}
+
+.role-switcher__item {
+    min-width: 120px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: -6px;
+}
+
+.role-switcher__item:first-child {
+    margin-left: 0;
+}
+
+.role-switcher__item--active {
+    background: var(--color-primary);
+    color: var(--color-secondary);
+    box-shadow: 0 2px 8px rgba(17, 173, 50, 0.25);
+    position: relative;
+    z-index: 1;
+}

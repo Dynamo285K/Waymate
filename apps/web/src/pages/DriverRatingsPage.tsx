@@ -1,7 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "../lib/router-compat";
-import { DriverNavbar, RatingSummaryCard, RatingCard } from "@waymate/ui";
-import type { Language } from "@waymate/ui";
+import { RatingSummaryCard, RatingCard } from "@waymate/ui";
+import type { Language } from "../components/controls/LanguageSwitcher";
+import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import {
     useGetReviewsMeAuthored,

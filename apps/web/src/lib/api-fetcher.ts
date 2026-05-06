@@ -27,9 +27,7 @@ export class ApiError<TData = unknown> extends Error {
  * generic on `useMutation` / Orval-generated hooks so consumers see the real
  * runtime types instead of Orval's narrower default.
  */
-export type ApiMutationError =
-    | ApiError<{ error: string }>
-    | NetworkError;
+export type ApiMutationError = ApiError<{ error: string }> | NetworkError;
 
 /**
  * Thrown when the request never reaches the API (offline, DNS failure, CORS,

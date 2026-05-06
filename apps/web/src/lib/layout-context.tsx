@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import i18n from "../i18n";
-import type { Language } from "@waymate/ui";
+import type { Language } from "../components/controls/LanguageSwitcher";
 import { toI18nLanguage } from "./language";
 import { CURRENT_USER_QUERY_KEY, getCurrentUserOrNull } from "./auth";
 import {

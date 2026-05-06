@@ -1,0 +1,149 @@
+.ride-summary-card {
+    width: 100%;
+    background: var(--color-card);
+    border-radius: 18px;
+    padding: 20px 22px;
+    box-shadow: 0 6px 18px rgba(16, 24, 40, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    font-family: "Inter", sans-serif;
+    box-sizing: border-box;
+}
+
+.ride-summary-card__left {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+
+.ride-summary-card__route {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ride-summary-card__route-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ride-summary-card__route-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-secondary);
+}
+
+.ride-summary-card__route-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.ride-summary-card__route-line {
+    margin-left: 10px;
+    color: var(--color-border);
+}
+
+.ride-summary-card__route-line svg {
+    width: 2px;
+    height: 24px;
+}
+
+.ride-summary-card__route-text {
+    font-size: 18px;
+    line-height: 28px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.ride-summary-card__meta {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.ride-summary-card__meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.ride-summary-card__meta-item svg {
+    width: 18px;
+    height: 18px;
+}
+
+.ride-summary-card__right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 18px;
+    flex-shrink: 0;
+}
+
+.ride-summary-card__price {
+    font-size: 28px;
+    line-height: 36px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.ride-summary-card__actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ride-summary-card__actions .button {
+    min-width: 130px;
+}
+
+.ride-summary-card__cancel {
+    min-width: 130px;
+    height: 44px;
+    padding: 0 18px;
+    border-radius: 12px;
+    border: 1px solid var(--color-red);
+    background: transparent;
+    color: var(--color-red);
+    font-size: 16px;
+    font-weight: 500;
+    font-family: "Inter", sans-serif;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.ride-summary-card__cancel:hover {
+    background: rgba(231, 0, 0, 0.08);
+}
+
+@media (max-width: 900px) {
+    .ride-summary-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ride-summary-card__right {
+        align-items: stretch;
+    }
+
+    .ride-summary-card__actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ride-summary-card__actions .button,
+    .ride-summary-card__cancel {
+        width: 100%;
+    }
+}

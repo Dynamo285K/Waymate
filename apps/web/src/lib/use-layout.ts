@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import type { Language } from "@waymate/ui";
+import type { Language } from "../components/controls/LanguageSwitcher";
 import type { UserRole } from "../api-client/model/userRole";
 
 export type Theme = "light" | "dark";
