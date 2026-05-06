@@ -6,10 +6,7 @@ import type {
 import { db } from "../../db";
 import { AdminError, AdminErrorCodes } from "./admin.errors";
 import { AdminRepository } from "./admin.repository";
-import type {
-    AdminUserListFilters,
-    SetUserStatusInput,
-} from "./admin.types";
+import type { AdminUserListFilters, SetUserStatusInput } from "./admin.types";
 
 const STATUS_HISTORY_DEFAULT_LIMIT = 50;
 

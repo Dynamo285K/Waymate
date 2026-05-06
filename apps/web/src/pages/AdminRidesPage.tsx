@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AdminNavbar, Avatar, Button, Modal } from "@waymate/ui";
-import type { Language } from "@waymate/ui";
+import { Avatar, Button, Modal } from "@waymate/ui";
+import type { Language } from "../components/controls/LanguageSwitcher";
+import { AdminNavbar } from "../components/navigation/AdminNavbar";
 import { useAdminNavbarProps } from "../hooks/useAdminNavbarProps";
 
 type AdminRidesPageProps = {

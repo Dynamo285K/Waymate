@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-    PassengerNavbar,
     ConversationSidebar,
     ChatHeader,
     MessageBubble,
     MessageComposer,
 } from "@waymate/ui";
-import type { Language } from "@waymate/ui";
+import type { Language } from "../components/controls/LanguageSwitcher";
+import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 
 type Message = {

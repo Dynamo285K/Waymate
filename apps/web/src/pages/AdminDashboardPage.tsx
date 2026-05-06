@@ -8,8 +8,8 @@ import {
     ResponsiveContainer,
     CartesianGrid,
 } from "recharts";
-import { AdminNavbar } from "@waymate/ui";
-import type { Language } from "@waymate/ui";
+import type { Language } from "../components/controls/LanguageSwitcher";
+import { AdminNavbar } from "../components/navigation/AdminNavbar";
 import { useAdminNavbarProps } from "../hooks/useAdminNavbarProps";
 
 type AdminDashboardPageProps = {

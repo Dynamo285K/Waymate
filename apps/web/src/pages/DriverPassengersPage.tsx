@@ -1,7 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "../lib/router-compat";
-import { DriverNavbar, PassengerCard, StatCard } from "@waymate/ui";
-import type { Language } from "@waymate/ui";
+import { StatCard } from "@waymate/ui";
+import type { Language } from "../components/controls/LanguageSwitcher";
+import { DriverNavbar } from "../components/navigation/DriverNavbar";
+import { PassengerCard } from "../components/PassengerCard";
 import { useGetRidesByIdPassengers } from "../api-client/rides/rides";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { useCancelBookingByDriver } from "../hooks/useCancelBookingByDriver";

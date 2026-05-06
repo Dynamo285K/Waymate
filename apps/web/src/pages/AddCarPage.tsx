@@ -3,13 +3,10 @@ import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "../lib/router-compat";
 import * as Select from "@radix-ui/react-select";
-import {
-    PassengerNavbar,
-    DriverNavbar,
-    Button,
-    ChevronDownIcon,
-} from "@waymate/ui";
-import type { Language } from "@waymate/ui";
+import { Button, ChevronDownIcon } from "@waymate/ui";
+import type { Language } from "../components/controls/LanguageSwitcher";
+import { DriverNavbar } from "../components/navigation/DriverNavbar";
+import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 import {
