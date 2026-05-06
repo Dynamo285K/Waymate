@@ -30,7 +30,6 @@
     },
     "register": {
         "title": "Vytvoriť účet",
-        "fullName": "Celé meno",
         "email": "E-mail",
         "password": "Heslo",
         "confirmPassword": "Potvrdiť heslo",
@@ -39,7 +38,6 @@
         "or": "alebo",
         "alreadyHaveAccount": "Už máte účet?",
         "login": "Prihlásiť sa",
-        "requiredError": "Vyplňte všetky polia.",
         "passwordMismatch": "Heslá sa nezhodujú.",
         "invalidEmail": "Zadajte platný e-mail.",
         "passwordTooShort": "Heslo musí mať aspoň 8 znakov.",
@@ -59,7 +57,6 @@
         "save": "Uložiť a pokračovať",
         "requiredError": "Zadajte meno, priezvisko a telefónne číslo.",
         "phoneError": "Použite medzinárodný formát, napríklad +421900123456.",
-        "verifyEmailFirst": "Najprv overte e-mailovú adresu, potom dokončite profil.",
         "loginRequired": "Po overení e-mailu sa prihláste a dokončite profil.",
         "error": "Profil sa nepodarilo uložiť. Skúste to znova."
     },
@@ -200,25 +197,30 @@
         "sendCode": "Poslať kód",
         "backToLogin": "← Späť na prihlásenie",
         "step2Title": "Skontrolujte e-mail",
-        "step2Subtitle": "Poslali sme 6-ciferný kód na",
-        "verifyCode": "Overiť kód",
         "resendIn": "Neobdržali ste? Znova odoslať za",
         "resend": "Znova odoslať",
         "step3Title": "Nastavte nové heslo",
         "step3Subtitle": "Zvoľte silné heslo, ktoré ste doteraz nepoužili.",
         "newPassword": "Nové heslo",
         "confirmPassword": "Potvrdiť heslo",
-        "setPassword": "Nastaviť nové heslo"
+        "setPassword": "Nastaviť nové heslo",
+        "invalidToken": "Tento odkaz na obnovenie je neplatný alebo vypršal. Vyžiadajte si nový.",
+        "error": "Nepodarilo sa odoslať e-mail na obnovenie. Skúste to znova.",
+        "resetError": "Heslo sa nepodarilo obnoviť. Vyžiadajte si nový odkaz.",
+        "resetLinkSent": "Poslali sme odkaz na obnovenie hesla na",
+        "sending": "Odosielam...",
+        "settingPassword": "Nastavujem heslo..."
     },
     "editProfile": {
         "title": "Upraviť profil",
         "fullName": "Celé meno",
         "email": "E-mailová adresa",
         "phone": "Telefónne číslo",
-        "licensePlate": "Evidenčné číslo vozidla (EČV)",
         "aboutMe": "O mne",
         "save": "Uložiť zmeny",
-        "cancel": "Zrušiť"
+        "cancel": "Zrušiť",
+        "saving": "Ukladám...",
+        "saveError": "Nepodarilo sa uložiť zmeny. Skúste to znova."
     },
     "offerRide": {
         "title": "Ponúknuť jazdu",
@@ -253,18 +255,23 @@
         "loadingCarModels": "Načítavam modely...",
         "licensePlate": "ŠPZ",
         "platePlaceholder": "napr. ABC 1234",
-        "plateError": "Použite formát BA-123AB.",
         "saveCarTitle": "Pridať toto auto medzi vaše autá?",
         "saveCarText": "Chcete uložiť {{car}} ({{plate}}) medzi registrované autá nabudúce?",
         "skipSaveCar": "Nie, iba zverejniť",
-        "saveCar": "Uložiť auto"
+        "saveCar": "Uložiť auto",
+        "missingFieldsError": "Vyplňte miesto nástupu, cieľ, dátum, čas, miesta, cenu a vyberte uložené auto.",
+        "invalidSeatsError": "Voľné miesta musia byť celé kladné číslo.",
+        "invalidPriceError": "Cena za miesto musí byť celé kladné číslo.",
+        "carCreateError": "Nepodarilo sa uložiť auto. Skontrolujte detaily auta."
     },
     "rideRequests": {
         "title": "Žiadosti o jazdu",
         "subtitle": "Spravujte požiadavky na rezerváciu od cestujúcich.",
         "seatsRequired": "{{count}} miest požadovaných",
         "accept": "Prijať",
-        "decline": "Odmietnuť"
+        "decline": "Odmietnuť",
+        "empty": "Žiadne čakajúce žiadosti.",
+        "passenger": "Cestujúci"
     },
     "driverRides": {
         "title": "Moje jazdy",
@@ -280,7 +287,6 @@
         "full": "Plné",
         "passengers": "Cestujúci",
         "backToMyRides": "← Späť na moje jazdy",
-        "passengersCount": "{{count}} cestujúcich",
         "sendMessage": "Poslať správu",
         "cancelBooking": "Zrušiť rezerváciu",
         "seatsReserved": "{{count}} miest rezervovaných",
@@ -288,7 +294,11 @@
         "kmTraveled": "{{km}} km najazdených",
         "earned": "{{amount}}€ zarobených",
         "writeReview": "Napíšte recenziu...",
-        "submitRating": "Odoslať hodnotenie"
+        "submitRating": "Odoslať hodnotenie",
+        "cancelling": "Ruším...",
+        "noPassengers": "Zatiaľ žiadni cestujúci.",
+        "passengersError": "Vyberte jazdu na zobrazenie cestujúcich.",
+        "cancelBookingError": "Nepodarilo sa zrušiť rezerváciu. Skúste to znova."
     },
     "driver": {
         "nav": {
@@ -321,12 +331,18 @@
         "myCars": "Moje autá",
         "addCar": "Pridať auto",
         "backToProfile": "← Späť na môj profil",
-        "manage": "Spravovať",
-        "cancelRide": "Zrušiť jazdu"
+        "cancelRide": "Zrušiť jazdu",
+        "fallbackName": "Používateľ",
+        "loadingCars": "Načítavam autá...",
+        "noCars": "Zatiaľ nemáte uložené žiadne autá."
     },
     "ratings": {
         "title": "Moje hodnotenia",
-        "totalRatings": "Celkom hodnotení"
+        "totalRatings": "Celkom hodnotení",
+        "myRatings": "Moje hodnotenia",
+        "loading": "Načítavam hodnotenia...",
+        "empty": "Zatiaľ žiadne hodnotenia.",
+        "ride": "Jazda"
     },
     "rateDriver": {
         "title": "Ohodnoťte svojho vodiča",
@@ -366,7 +382,8 @@
         "typeMessage": "Napíšte správu...",
         "viewProfile": "Zobraziť profil",
         "blockUser": "Zablokovať používateľa",
-        "reportUser": "Nahlásiť používateľa"
+        "reportUser": "Nahlásiť používateľa",
+        "back": "Späť"
     },
     "roles": {
         "passenger": "Cestujúci",
@@ -439,5 +456,20 @@
                 "description": "Transparentné recenzie od ostatných používateľov."
             }
         }
+    },
+    "addCar": {
+        "title": "Pridať auto",
+        "make": "Značka",
+        "model": "Model",
+        "seats": "Voľné miesta pre cestujúcich",
+        "excludingDriver": "(bez vodiča)",
+        "color": "Farba",
+        "licensePlate": "Evidenčné číslo (EČV)",
+        "selectMake": "Vyberte značku...",
+        "selectModel": "Vyberte model...",
+        "loadingModels": "Načítavam modely...",
+        "requiredError": "Vyplňte všetky povinné polia.",
+        "adding": "Pridávam...",
+        "addButton": "Pridať auto"
     }
 }

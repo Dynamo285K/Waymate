@@ -152,9 +152,7 @@ export function AddCarPage({
         const normalizedPlate = plate.toUpperCase().replace(/[^A-Z0-9]/g, "");
 
         if (!make || !selectedModel || !seats || !color || !normalizedPlate) {
-            setFormError(
-                t("addCar.requiredError", "Fill in all required fields.")
-            );
+            setFormError(t("addCar.requiredError"));
             return;
         }
 
@@ -186,10 +184,10 @@ export function AddCarPage({
                     onClick={() => navigate(backPath)}
                     className="text-(--color-text-secondary) text-sm mb-6 hover:text-(--color-text-primary) transition-colors"
                 >
-                    {t("profile.backToProfile", "<- Back to My Profile")}
+                    {t("profile.backToProfile")}
                 </button>
                 <h1 className="text-2xl font-bold text-(--color-text-primary) mb-8">
-                    {t("addCar.title", "Add car")}
+                    {t("addCar.title")}
                 </h1>
 
                 <div className="bg-(--color-card) rounded-2xl border border-(--color-border) overflow-hidden">
@@ -197,7 +195,7 @@ export function AddCarPage({
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className={labelClass}>
-                                    {t("addCar.make", "Make")}{" "}
+                                    {t("addCar.make")}{" "}
                                     <span className="text-(--color-red)">
                                         *
                                     </span>
@@ -217,10 +215,7 @@ export function AddCarPage({
                                         }
                                     >
                                         <Select.Value
-                                            placeholder={t(
-                                                "addCar.selectMake",
-                                                "Select make..."
-                                            )}
+                                            placeholder={t("addCar.selectMake")}
                                         />
                                         <Select.Icon className="text-(--color-text-secondary) shrink-0">
                                             <ChevronDownIcon />
@@ -251,7 +246,7 @@ export function AddCarPage({
                             </div>
                             <div>
                                 <label className={labelClass}>
-                                    {t("addCar.model", "Model")}{" "}
+                                    {t("addCar.model")}{" "}
                                     <span className="text-(--color-red)">
                                         *
                                     </span>
@@ -273,14 +268,8 @@ export function AddCarPage({
                                         <Select.Value
                                             placeholder={
                                                 modelsQuery.isLoading
-                                                    ? t(
-                                                          "addCar.loadingModels",
-                                                          "Loading models..."
-                                                      )
-                                                    : t(
-                                                          "addCar.selectModel",
-                                                          "Select model..."
-                                                      )
+                                                    ? t("addCar.loadingModels")
+                                                    : t("addCar.selectModel")
                                             }
                                         />
                                         <Select.Icon className="text-(--color-text-secondary) shrink-0">
@@ -315,13 +304,10 @@ export function AddCarPage({
 
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
-                            {t("addCar.seats", "Available passenger seats")}{" "}
+                            {t("addCar.seats")}{" "}
                             <span className="text-(--color-red)">*</span>
                             <span className="font-normal text-(--color-text-secondary) ml-2">
-                                {t(
-                                    "addCar.excludingDriver",
-                                    "(excluding driver)"
-                                )}
+                                {t("addCar.excludingDriver")}
                             </span>
                         </label>
                         <div className="flex gap-2 mt-3 flex-wrap">
@@ -347,7 +333,7 @@ export function AddCarPage({
 
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
-                            {t("addCar.color", "Color")}{" "}
+                            {t("addCar.color")}{" "}
                             <span className="text-(--color-red)">*</span>
                         </label>
                         <div className="flex gap-3 mt-3 flex-wrap">
@@ -378,7 +364,7 @@ export function AddCarPage({
 
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
-                            {t("addCar.licensePlate", "License plate (SPZ)")}{" "}
+                            {t("addCar.licensePlate")}{" "}
                             <span className="text-(--color-red)">*</span>
                         </label>
                         <div className="flex gap-2 mt-1 items-center">
@@ -413,8 +399,8 @@ export function AddCarPage({
                             disabled={createCarMutation.isPending}
                         >
                             {createCarMutation.isPending
-                                ? t("addCar.adding", "Adding...")
-                                : t("addCar.addButton", "Add car")}
+                                ? t("addCar.adding")
+                                : t("addCar.addButton")}
                         </Button>
                     </div>
                 </div>

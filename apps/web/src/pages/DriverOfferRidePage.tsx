@@ -322,24 +322,15 @@ export function DriverOfferRidePage({
         const dropoffCity = dropoff.trim();
 
         if (!pickupCity || !dropoffCity || !departureAt || !carId) {
-            return t(
-                "offerRide.missingFieldsError",
-                "Please fill pickup, dropoff, date, time, seats, price, and choose a saved car."
-            );
+            return t("offerRide.missingFieldsError");
         }
 
         if (!offeredSeats) {
-            return t(
-                "offerRide.invalidSeatsError",
-                "Available seats must be a whole number greater than 0."
-            );
+            return t("offerRide.invalidSeatsError");
         }
 
         if (!priceAmount) {
-            return t(
-                "offerRide.invalidPriceError",
-                "Price per seat must be a whole number greater than 0."
-            );
+            return t("offerRide.invalidPriceError");
         }
 
         return "";
@@ -512,12 +503,7 @@ export function DriverOfferRidePage({
                     alreadySaved?.id ?? (await createManualCarForRide());
 
                 if (!carId) {
-                    setPublishError(
-                        t(
-                            "offerRide.carCreateError",
-                            "Could not save this car. Please check the car details."
-                        )
-                    );
+                    setPublishError(t("offerRide.carCreateError"));
                     return;
                 }
 
@@ -533,12 +519,7 @@ export function DriverOfferRidePage({
         }
 
         if (carMode === "manual") {
-            setPublishError(
-                t(
-                    "offerRide.missingFieldsError",
-                    "Please fill pickup, dropoff, date, time, seats, price, and choose a saved car."
-                )
-            );
+            setPublishError(t("offerRide.missingFieldsError"));
             return;
         }
 
@@ -557,12 +538,7 @@ export function DriverOfferRidePage({
             const carId = await createManualCarForRide();
 
             if (!carId) {
-                setPublishError(
-                    t(
-                        "offerRide.carCreateError",
-                        "Could not save this car. Please check the car details."
-                    )
-                );
+                setPublishError(t("offerRide.carCreateError"));
                 return;
             }
 
@@ -608,22 +584,10 @@ export function DriverOfferRidePage({
                         carBrandPlaceholder: t("offerRide.carBrandPlaceholder"),
                         carModel: t("offerRide.carModel"),
                         carModelPlaceholder: t("offerRide.carModelPlaceholder"),
-                        selectCarBrand: t(
-                            "offerRide.selectCarBrand",
-                            "Select brand"
-                        ),
-                        selectCarModel: t(
-                            "offerRide.selectCarModel",
-                            "Select model"
-                        ),
-                        loadingCarBrands: t(
-                            "offerRide.loadingCarBrands",
-                            "Loading brands..."
-                        ),
-                        loadingCarModels: t(
-                            "offerRide.loadingCarModels",
-                            "Loading models..."
-                        ),
+                        selectCarBrand: t("offerRide.selectCarBrand"),
+                        selectCarModel: t("offerRide.selectCarModel"),
+                        loadingCarBrands: t("offerRide.loadingCarBrands"),
+                        loadingCarModels: t("offerRide.loadingCarModels"),
                         licensePlate: t("offerRide.licensePlate"),
                         platePlaceholder: t("offerRide.platePlaceholder"),
                         noCars: t("offerRide.noCars"),

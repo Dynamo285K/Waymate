@@ -170,7 +170,7 @@ export function EditProfilePage({
                             disabled={updateProfile.isPending}
                         >
                             {updateProfile.isPending
-                                ? t("editProfile.saving", "Saving...")
+                                ? t("editProfile.saving")
                                 : t("editProfile.save")}
                         </Button>
                     </div>

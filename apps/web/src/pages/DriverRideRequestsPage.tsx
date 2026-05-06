@@ -65,7 +65,7 @@ export function DriverRideRequestsPage({
 
             return {
                 id: request.id,
-                name: fullName || t("rideRequests.passenger", "Passenger"),
+                name: fullName || t("rideRequests.passenger"),
                 rating: request.passenger.averageRating ?? 0,
                 seatsRequired: request.seatCount,
                 from: request.pickupCity,
@@ -125,10 +125,7 @@ export function DriverRideRequestsPage({
                         !isError &&
                         displayedRequests.length === 0 && (
                             <p className="text-(--color-text-secondary) text-center py-12">
-                                {t(
-                                    "rideRequests.empty",
-                                    "No pending requests."
-                                )}
+                                {t("rideRequests.empty")}
                             </p>
                         )}
                     {!isLoading &&

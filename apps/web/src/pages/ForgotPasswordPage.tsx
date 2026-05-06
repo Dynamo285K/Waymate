@@ -61,12 +61,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
     const [isSendingReset, setIsSendingReset] = useState(false);
     const [isResettingPassword, setIsResettingPassword] = useState(false);
     const [resetError, setResetError] = useState<string | null>(
-        initialFromUrl.hasError
-            ? t(
-                  "forgotPassword.invalidToken",
-                  "This reset link is invalid or expired. Please request a new one."
-              )
-            : null
+        initialFromUrl.hasError ? t("forgotPassword.invalidToken") : null
     );
     const [resetToken] = useState<string | null>(initialFromUrl.token);
 
@@ -126,12 +121,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
         setIsSendingReset(false);
 
         if (error) {
-            setResetError(
-                t(
-                    "forgotPassword.error",
-                    "Could not send reset email. Please try again."
-                )
-            );
+            setResetError(t("forgotPassword.error"));
             return;
         }
 
@@ -153,12 +143,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
         setIsResettingPassword(false);
 
         if (error) {
-            setResetError(
-                t(
-                    "forgotPassword.resetError",
-                    "Could not reset your password. Please request a new link."
-                )
-            );
+            setResetError(t("forgotPassword.resetError"));
             return;
         }
 
@@ -253,7 +238,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                             onClick={handleSendCode}
                         >
                             {isSendingReset
-                                ? t("forgotPassword.sending", "Sending...")
+                                ? t("forgotPassword.sending")
                                 : `➤ ${t("forgotPassword.sendCode")}`}
                         </Button>
                         {resetError && (
@@ -300,10 +285,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                             {t("forgotPassword.step2Title")}
                         </h1>
                         <p className="text-sm text-(--color-text-secondary) mb-1">
-                            {t(
-                                "forgotPassword.resetLinkSent",
-                                "We sent a password reset link to"
-                            )}
+                            {t("forgotPassword.resetLinkSent")}
                         </p>
                         <p className="text-sm font-bold text-(--color-text-primary) mb-6">
                             {enteredEmail}
@@ -419,10 +401,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                             onClick={handleSetPassword}
                         >
                             {isResettingPassword
-                                ? t(
-                                      "forgotPassword.settingPassword",
-                                      "Setting password..."
-                                  )
+                                ? t("forgotPassword.settingPassword")
                                 : `✓ ${t("forgotPassword.setPassword")}`}
                         </Button>
                         {resetError && (

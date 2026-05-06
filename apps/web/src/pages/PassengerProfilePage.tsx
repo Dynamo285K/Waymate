@@ -44,7 +44,7 @@ export function PassengerProfilePage({
         userName,
         userEmail,
     });
-    const displayName = userName ?? t("profile.fallbackName", "User");
+    const displayName = userName ?? t("profile.fallbackName");
     const displayEmail = userEmail ?? "";
     const memberSince = formatMemberSince(userCreatedAt, language);
     const aboutMe = userBio?.trim();
