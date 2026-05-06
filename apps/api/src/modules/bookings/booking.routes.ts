@@ -50,6 +50,7 @@ export const BookingRoutes = new Elysia({
                 {
                     response: {
                         200: "DriverRideRequestList",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
@@ -70,6 +71,7 @@ export const BookingRoutes = new Elysia({
                     query: BookingTimeframeQuerySchema,
                     response: {
                         200: "PassengerBookingList",
+                        429: "ErrorResponse",
                     },
                     detail: {
                         description:
@@ -102,6 +104,8 @@ export const BookingRoutes = new Elysia({
                         400: "ErrorResponse",
                         404: "ErrorResponse",
                         409: "ErrorResponse",
+                        413: "ErrorResponse",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
@@ -133,6 +137,8 @@ export const BookingRoutes = new Elysia({
                         400: "ErrorResponse",
                         403: "ErrorResponse",
                         404: "ErrorResponse",
+                        413: "ErrorResponse",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
@@ -167,6 +173,8 @@ export const BookingRoutes = new Elysia({
                         400: "ErrorResponse",
                         403: "ErrorResponse",
                         404: "ErrorResponse",
+                        413: "ErrorResponse",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
@@ -196,6 +204,7 @@ export const BookingRoutes = new Elysia({
                         403: "ErrorResponse",
                         404: "ErrorResponse",
                         409: "ErrorResponse",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
@@ -226,6 +235,8 @@ export const BookingRoutes = new Elysia({
                         400: "ErrorResponse",
                         403: "ErrorResponse",
                         404: "ErrorResponse",
+                        413: "ErrorResponse",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {

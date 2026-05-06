@@ -52,6 +52,11 @@ const EnvSchema = z.object({
     BETTER_AUTH_URL: z.url(),
     WEB_ORIGIN: OriginSchema,
     CORS_ORIGINS: OriginListSchema,
+    MAX_REQUEST_BODY_BYTES: z.coerce
+        .number()
+        .int()
+        .min(1)
+        .default(100 * 1024),
     RESEND_API_KEY: z.string().min(1),
     GOOGLE_CLIENT_ID: z.string().min(1).optional(),
     GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),

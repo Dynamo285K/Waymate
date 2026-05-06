@@ -47,7 +47,10 @@
       "Bash(grep -E \"auth\\\\.ts$|router\\\\.tsx$|useLogout\\\\.ts$|layout-context\\\\.tsx$\" -A1)",
       "Bash(grep -o \"AdminProfileDropdown[^}]\\\\{0,400\\\\}\" /home/tomas/waymate-ui/dist/index.js)",
       "Read(//home/tomas/waymate-ui/**)",
-      "Read(//home/tomas/**)"
+      "Read(//home/tomas/**)",
+      "Bash(pkill -f \"bun.*src/index.ts\")",
+      "Bash(pkill -f \"bun.*--watch.*src/index.ts\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3001/health)"
     ]
   }
 }

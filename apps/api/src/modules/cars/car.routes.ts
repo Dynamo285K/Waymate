@@ -37,7 +37,10 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
     .guard({ auth: true, onboarded: true }, (app) =>
         app
             .get("/country-codes", () => CountryCodeList, {
-                response: { 200: "CountryCodeResponseList" },
+                response: {
+                    200: "CountryCodeResponseList",
+                    429: "ErrorResponse",
+                },
                 detail: {
                     description: "Returns all available European country codes",
                 },
@@ -47,7 +50,10 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
                 "/brands",
                 async () => await CarService.getAllCarBrandNames(),
                 {
-                    response: { 200: "CarBrandNameList" },
+                    response: {
+                        200: "CarBrandNameList",
+                        429: "ErrorResponse",
+                    },
                     detail: { description: "Returns all available car brands" },
                 }
             )
@@ -58,7 +64,10 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
                     await CarService.getCarModelsByBrand(params.brand),
                 {
                     params: CarBrandParamsSchema,
-                    response: { 200: "CarModelList" },
+                    response: {
+                        200: "CarModelList",
+                        429: "ErrorResponse",
+                    },
                     detail: {
                         description: "Returns car models for a given brand",
                     },
@@ -69,7 +78,10 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
                 "/me",
                 async ({ user }) => await CarService.getCarsByUserId(user.id),
                 {
-                    response: { 200: "CarListItemList" },
+                    response: {
+                        200: "CarListItemList",
+                        429: "ErrorResponse",
+                    },
                     detail: { description: "Returns the current user's cars" },
                 }
             )
@@ -86,6 +98,8 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
                         201: "Car",
                         400: "ErrorResponse",
                         409: "ErrorResponse",
+                        413: "ErrorResponse",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
@@ -104,6 +118,8 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
                     response: {
                         200: "Car",
                         404: "ErrorResponse",
+                        413: "ErrorResponse",
+                        429: "ErrorResponse",
                     },
                     detail: {
                         description:
@@ -121,6 +137,7 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
                     response: {
                         200: "Car",
                         404: "ErrorResponse",
+                        429: "ErrorResponse",
                     },
                     detail: {
                         description: "Soft-deletes the current user's car",

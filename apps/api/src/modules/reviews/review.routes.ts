@@ -54,6 +54,8 @@ export const ReviewRoutes = new Elysia({
                         403: "ErrorResponse",
                         404: "ErrorResponse",
                         409: "ErrorResponse",
+                        413: "ErrorResponse",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
@@ -81,6 +83,7 @@ export const ReviewRoutes = new Elysia({
                     params: SubjectUserIdParamsSchema,
                     response: {
                         200: "UserReviewsView",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
@@ -98,6 +101,7 @@ export const ReviewRoutes = new Elysia({
                 {
                     response: {
                         200: "AuthoredReviewList",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {

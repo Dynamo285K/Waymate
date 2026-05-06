@@ -44,6 +44,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
         {
             response: {
                 200: "AvailableRideList",
+                429: "ErrorResponse",
                 500: "ErrorResponse",
             },
             detail: {
@@ -65,6 +66,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                     response: {
                         200: "RideSearchResultList",
                         400: "ErrorResponse",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
@@ -87,6 +89,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                     response: {
                         200: "RideListItemList",
                         401: "ErrorResponse",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
@@ -108,6 +111,8 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                         201: "CreateRideResponse",
                         400: "ErrorResponse",
                         403: "ErrorResponse",
+                        413: "ErrorResponse",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
@@ -125,6 +130,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                     response: {
                         200: "RidePassengersView",
                         404: "ErrorResponse",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
@@ -151,6 +157,8 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                         200: "CancelRideResponse",
                         400: "ErrorResponse",
                         404: "ErrorResponse",
+                        413: "ErrorResponse",
+                        429: "ErrorResponse",
                         500: "ErrorResponse",
                     },
                     detail: {
