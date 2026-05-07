@@ -5,7 +5,7 @@ import { toUiLanguage } from "../lib/language";
 import { useLogout } from "./useLogout";
 
 export function useAdminNavbarProps(params: {
-    activeTab?: "dashboard" | "rides" | "users" | "reports";
+    activeTab?: "dashboard" | "rides" | "users" | "reviews" | "reports";
     language: Language;
     onLanguageChange: (lang: Language) => void;
     theme: "light" | "dark";
@@ -24,6 +24,7 @@ export function useAdminNavbarProps(params: {
         onDashboardClick: () => navigate("/admin"),
         onRidesClick: () => navigate("/admin/rides"),
         onUsersClick: () => navigate("/admin/users"),
+        onReviewsClick: () => navigate("/admin/reviews"),
         onReportsClick: () => navigate("/admin/reports"),
         onLogoutClick: logout,
         labels: {
@@ -31,6 +32,7 @@ export function useAdminNavbarProps(params: {
             dashboard: t("admin.dashboard"),
             rides: t("admin.rides"),
             users: t("admin.users"),
+            reviews: t("admin.reviewsTab"),
             reports: t("admin.reports"),
             settings: t("admin.settings"),
             logout: t("admin.logout"),

@@ -35,8 +35,9 @@ import { DriverRatingsPage } from "./pages/DriverRatingsPage";
 import { EditProfilePage } from "./pages/EditProfilePage";
 import { AddCarPage } from "./pages/AddCarPage";
 import { AdminDashboardPage } from "./pages/AdminDashboardPage";
-import { AdminRidesPage } from "./pages/AdminRidesPage";
+import { AdminRidesPage } from "./pages/AdminRides";
 import { AdminUsersPage } from "./pages/AdminUsers";
+import { AdminReviewsPage } from "./pages/AdminReviews";
 import { AdminReportsPage } from "./pages/AdminReportsPage";
 
 interface RouterContext {
@@ -188,6 +189,11 @@ const audienceRoutes: ReadonlyArray<AudienceRoute> = [
     { path: "/admin", Component: AdminDashboardPage, audience: ["admin"] },
     { path: "/admin/rides", Component: AdminRidesPage, audience: ["admin"] },
     { path: "/admin/users", Component: AdminUsersPage, audience: ["admin"] },
+    {
+        path: "/admin/reviews",
+        Component: AdminReviewsPage,
+        audience: ["admin"],
+    },
     {
         path: "/admin/reports",
         Component: AdminReportsPage,
