@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
-import { Avatar } from "@waymate/ui";
-import type { AdminUserListItem } from "../../../api-client/model/adminUserListItem";
-import { fullName, formatDate } from "../lib/format";
+import { Avatar, Button } from "@waymate/ui";
+import type { AdminUserListItem } from "../../api-client/model/adminUserListItem";
+import { fullName, formatDate } from "../../lib/admin-format";
 import { StatusBadge } from "./StatusBadge";
 
 type AdminUsersTableProps = {
@@ -82,14 +82,15 @@ export function AdminUsersTable({
                                 </td>
                                 <td className="px-5 py-4">
                                     <div className="flex gap-2 items-center">
-                                        <button
+                                        <Button
+                                            variant="secondary"
                                             onClick={() => onView(listItem)}
-                                            className="px-3 py-1.5 border border-(--color-border) rounded-lg text-sm font-medium text-(--color-text-secondary) hover:bg-(--color-border) transition-colors"
                                         >
                                             {t("admin.view")}
-                                        </button>
+                                        </Button>
                                         {listItem.userStatus === "BANNED" ? (
-                                            <button
+                                            <Button
+                                                variant="primary"
                                                 onClick={() =>
                                                     onUnban(listItem)
                                                 }
@@ -101,12 +102,12 @@ export function AdminUsersTable({
                                                           )
                                                         : undefined
                                                 }
-                                                className="px-3 py-1.5 bg-(--color-primary) hover:bg-(--color-primary-hover) text-(--color-card) rounded-lg text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
                                                 {t("admin.unban")}
-                                            </button>
+                                            </Button>
                                         ) : (
-                                            <button
+                                            <Button
+                                                variant="red"
                                                 onClick={() => onBan(listItem)}
                                                 disabled={actionDisabled}
                                                 title={
@@ -116,10 +117,9 @@ export function AdminUsersTable({
                                                           )
                                                         : undefined
                                                 }
-                                                className="px-3 py-1.5 bg-(--color-red) hover:bg-(--color-red)/90 text-(--color-card) rounded-lg text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
                                                 {t("admin.ban")}
-                                            </button>
+                                            </Button>
                                         )}
                                     </div>
                                 </td>

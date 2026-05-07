@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "../lib/router-compat";
 import * as Select from "@radix-ui/react-select";
-import { Button, ChevronDownIcon } from "@waymate/ui";
+import { Button, ChevronDownIcon, Input, TextLink } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
@@ -141,7 +141,7 @@ export function AddCarPage({
     });
 
     const inputClass =
-        "w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) px-3 py-3 text-sm outline-none focus:border-(--color-primary) focus:ring-2 focus:ring-green-100 transition-colors font-[Inter,sans-serif] appearance-none";
+        "w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) px-3 py-3 text-sm outline-none focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10 transition-colors font-[Inter,sans-serif] appearance-none";
     const labelClass =
         "text-sm font-bold text-(--color-text-primary) mb-1 block";
 
@@ -179,6 +179,7 @@ export function AddCarPage({
             )}
 
             <section className="w-full px-4 sm:max-w-2xl sm:mx-auto sm:px-8 py-8 sm:py-12">
+<<<<<<< HEAD
                 <button
                     type="button"
                     onClick={() => navigate(backPath)}
@@ -186,6 +187,16 @@ export function AddCarPage({
                 >
                     {t("profile.backToProfile")}
                 </button>
+=======
+                <div className="text-sm mb-6">
+                    <TextLink
+                        variant="muted"
+                        onClick={() => navigate(backPath)}
+                    >
+                        {t("profile.backToProfile", "<- Back to My Profile")}
+                    </TextLink>
+                </div>
+>>>>>>> 50ade9d (KAN-108: Replace raw elements with design system components and remove hardcoded colors)
                 <h1 className="text-2xl font-bold text-(--color-text-primary) mb-8">
                     {t("addCar.title")}
                 </h1>
@@ -312,21 +323,20 @@ export function AddCarPage({
                         </label>
                         <div className="flex gap-2 mt-3 flex-wrap">
                             {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                                <button
+                                <Button
                                     key={n}
-                                    type="button"
                                     onClick={() => {
                                         setSeats(n);
                                         setFormError("");
                                     }}
-                                    className={`w-12 h-12 rounded-xl border-2 font-semibold text-sm transition-all ${
+                                    className={`w-12 h-12 rounded-xl border-2 font-semibold text-sm transition-all p-0 ${
                                         seats === n
                                             ? "border-(--color-primary) bg-(--color-primary)/10 text-(--color-primary)"
                                             : "border-(--color-border) bg-(--color-card) text-(--color-text-primary) hover:border-(--color-primary)"
                                     }`}
                                 >
                                     {n}
-                                </button>
+                                </Button>
                             ))}
                         </div>
                     </div>
@@ -338,9 +348,9 @@ export function AddCarPage({
                         </label>
                         <div className="flex gap-3 mt-3 flex-wrap">
                             {COLORS.map((c) => (
-                                <button
+                                <Button
                                     key={c.value}
-                                    type="button"
+                                    variant="unstyled"
                                     onClick={() => {
                                         setColor(c.value);
                                         setFormError("");
@@ -357,7 +367,7 @@ export function AddCarPage({
                                     <span className="text-xs text-(--color-text-secondary)">
                                         {c.label}
                                     </span>
-                                </button>
+                                </Button>
                             ))}
                         </div>
                     </div>
@@ -368,14 +378,15 @@ export function AddCarPage({
                             <span className="text-(--color-red)">*</span>
                         </label>
                         <div className="flex gap-2 mt-1 items-center">
-                            <div className="flex-shrink-0 w-16 h-12 rounded-xl bg-slate-800 flex flex-col items-center justify-center text-white text-xs font-bold">
+                            {/* eslint-disable no-restricted-syntax -- SK license plate visual uses real plate colors */}
+                            <div className="shrink-0 w-16 h-12 rounded-xl bg-slate-800 flex flex-col items-center justify-center text-white text-xs font-bold">
                                 <span className="text-yellow-300 tracking-widest text-[10px]">
                                     ***
                                 </span>
                                 <span className="text-[11px] mt-0.5">SK</span>
                             </div>
-                            <input
-                                className={inputClass + " flex-1"}
+                            {/* eslint-enable no-restricted-syntax */}
+                            <Input
                                 placeholder="BA123AB"
                                 value={plate}
                                 onChange={(e) => {

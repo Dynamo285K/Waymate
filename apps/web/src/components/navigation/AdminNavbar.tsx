@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
     Avatar,
+    Button,
     IconButton,
     NavButton,
     AdminProfileDropdown,
@@ -306,15 +307,15 @@ export function AdminNavbar({
                 <div className="admin-navbar__tablet">
                     {logoImg}
                     <nav className="admin-navbar__nav">{navTabs}</nav>
-                    <button
-                        type="button"
+                    <Button
+                        variant="unstyled"
                         className="admin-navbar__hamburger"
                         onClick={() => setIsMobileMenuOpen((c) => !c)}
                     >
                         <span />
                         <span />
                         <span />
-                    </button>
+                    </Button>
                     {isMobileMenuOpen && (
                         <div className="admin-navbar__tablet-panel-full">
                             <span
@@ -347,15 +348,15 @@ export function AdminNavbar({
                 >
                     <div className="admin-navbar__mobile-top">
                         {logoImg}
-                        <button
-                            type="button"
+                        <Button
+                            variant="unstyled"
                             className="admin-navbar__hamburger"
                             onClick={() => setIsMobileMenuOpen((c) => !c)}
                         >
                             <span />
                             <span />
                             <span />
-                        </button>
+                        </Button>
                     </div>
                     {isMobileMenuOpen && (
                         <div className="admin-navbar__mobile-panel">

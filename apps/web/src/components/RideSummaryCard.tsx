@@ -66,13 +66,12 @@ export function RideSummaryCard({
                 <div className="ride-summary-card__price">{price}</div>
                 <div className="ride-summary-card__actions">
                     <Button onClick={onManageClick}>Manage</Button>
-                    <button
-                        type="button"
-                        className="ride-summary-card__cancel"
+                    <Button
+                        variant="red"
                         onClick={onCancelClick}
                     >
                         Cancel ride
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>

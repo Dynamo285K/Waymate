@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, Modal } from "@waymate/ui";
-import { getErrorI18nKey } from "../../../lib/api-errors";
-import { adminUsersErrorMap } from "../lib/errors";
+import { Button, IconButton, Modal, Textarea } from "@waymate/ui";
+import { getErrorI18nKey } from "../../lib/api-errors";
+import { adminUsersErrorMap } from "../../lib/admin-errors";
 
 type BanUserModalProps = {
     userName: string;
@@ -23,8 +23,6 @@ export function BanUserModal({
     const [reason, setReason] = useState("");
 
     const trimmedReason = reason.trim();
-    const inputClass =
-        "w-full border border-(--color-border) rounded-xl bg-(--color-input-bg) text-(--color-text-primary) px-4 py-3 text-sm outline-none focus:border-(--color-primary) transition-colors";
 
     return (
         <Modal
@@ -36,12 +34,12 @@ export function BanUserModal({
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
                         {t("admin.banUser")} — {userName}
                     </h2>
-                    <button
+                    <IconButton
+                        ariaLabel="Close"
+                        icon={<span aria-hidden>✕</span>}
+                        variant="ghost"
                         onClick={onClose}
-                        className="text-(--color-text-secondary) hover:text-(--color-text-primary) text-xl"
-                    >
-                        ✕
-                    </button>
+                    />
                 </div>
 
                 <div className="bg-(--color-danger-bg) border border-(--color-danger-border) rounded-xl p-4 mb-5 text-sm text-(--color-danger-text)">
@@ -52,8 +50,7 @@ export function BanUserModal({
                     <label className="text-sm font-semibold text-(--color-text-primary) mb-1.5 block">
                         {t("admin.reasonForBan")}
                     </label>
-                    <textarea
-                        className={inputClass + " resize-y min-h-25"}
+                    <Textarea
                         placeholder={t("admin.reasonPlaceholder")}
                         maxLength={500}
                         value={reason}

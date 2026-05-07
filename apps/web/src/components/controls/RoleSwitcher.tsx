@@ -1,3 +1,4 @@
+import { Button } from "@waymate/ui";
 import "./RoleSwitcher.css";
 
 export type Role = "passenger" | "driver";
@@ -20,8 +21,8 @@ export function RoleSwitcher({ value, onChange, labels }: RoleSwitcherProps) {
             role="tablist"
             aria-label="Role switcher"
         >
-            <button
-                type="button"
+            <Button
+                variant="unstyled"
                 role="tab"
                 aria-selected={value === "passenger"}
                 className={`role-switcher__item ${
@@ -30,10 +31,10 @@ export function RoleSwitcher({ value, onChange, labels }: RoleSwitcherProps) {
                 onClick={() => onChange("passenger")}
             >
                 {labels?.passenger ?? "Passenger"}
-            </button>
+            </Button>
 
-            <button
-                type="button"
+            <Button
+                variant="unstyled"
                 role="tab"
                 aria-selected={value === "driver"}
                 className={`role-switcher__item ${
@@ -42,7 +43,7 @@ export function RoleSwitcher({ value, onChange, labels }: RoleSwitcherProps) {
                 onClick={() => onChange("driver")}
             >
                 {labels?.driver ?? "Driver"}
-            </button>
+            </Button>
         </div>
     );
 }

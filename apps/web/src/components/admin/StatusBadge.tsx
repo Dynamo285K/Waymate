@@ -1,5 +1,5 @@
-import type { UserStatus } from "../../../api-client/model/userStatus";
-import { STATUS_BADGE_CLASSES, useStatusLabels } from "../lib/labels";
+import type { UserStatus } from "../../api-client/model/userStatus";
+import { STATUS_BADGE_CLASSES, useStatusLabels } from "../../lib/admin-labels";
 
 export function StatusBadge({ status }: { status: UserStatus }) {
     const labels = useStatusLabels();

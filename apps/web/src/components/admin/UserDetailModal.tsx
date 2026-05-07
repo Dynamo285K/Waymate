@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { Avatar, Button, Modal } from "@waymate/ui";
-import { useGetAdminUsersById } from "../../../api-client/admin/admin";
-import { getErrorI18nKey } from "../../../lib/api-errors";
-import { adminUsersErrorMap } from "../lib/errors";
-import { fullName, formatDate } from "../lib/format";
+import { Avatar, Button, IconButton, Modal } from "@waymate/ui";
+import { useGetAdminUsersById } from "../../api-client/admin/admin";
+import { getErrorI18nKey } from "../../lib/api-errors";
+import { adminUsersErrorMap } from "../../lib/admin-errors";
+import { fullName, formatDate } from "../../lib/admin-format";
 import { StatusBadge } from "./StatusBadge";
 import { StatusHistoryEntry } from "./StatusHistoryEntry";
 
@@ -49,12 +49,12 @@ export function UserDetailModal({
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
                         {t("admin.userProfile")}
                     </h2>
-                    <button
+                    <IconButton
+                        ariaLabel="Close"
+                        icon={<span aria-hidden>✕</span>}
+                        variant="ghost"
                         onClick={onClose}
-                        className="text-(--color-text-secondary) hover:text-(--color-text-primary) text-xl"
-                    >
-                        ✕
-                    </button>
+                    />
                 </div>
 
                 {detailQuery.isLoading && (

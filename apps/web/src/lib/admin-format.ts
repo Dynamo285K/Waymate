@@ -1,4 +1,4 @@
-import i18n from "../../../i18n";
+import i18n from "../i18n";
 
 const LOCALE_MAP: Record<string, string> = {
     en: "en-US",

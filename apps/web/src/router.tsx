@@ -35,9 +35,14 @@ import { DriverRatingsPage } from "./pages/DriverRatingsPage";
 import { EditProfilePage } from "./pages/EditProfilePage";
 import { AddCarPage } from "./pages/AddCarPage";
 import { AdminDashboardPage } from "./pages/AdminDashboardPage";
+<<<<<<< HEAD
 import { AdminRidesPage } from "./pages/AdminRides";
 import { AdminUsersPage } from "./pages/AdminUsers";
 import { AdminReviewsPage } from "./pages/AdminReviews";
+=======
+import { AdminRidesPage } from "./pages/AdminRidesPage";
+import { AdminUsersPage } from "./pages/AdminUsersPage";
+>>>>>>> 50ade9d (KAN-108: Replace raw elements with design system components and remove hardcoded colors)
 import { AdminReportsPage } from "./pages/AdminReportsPage";
 
 interface RouterContext {
