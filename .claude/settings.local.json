@@ -53,7 +53,8 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3001/health)",
       "Bash(sed -n '320,335p' src/pages/DriverOfferRidePage.tsx)",
       "Bash(sed -n '535,545p' src/pages/DriverOfferRidePage.tsx)",
-      "Bash(echo \"lint=$?\")"
+      "Bash(echo \"lint=$?\")",
+      "Bash(curl *)"
     ]
   }
 }

@@ -22,11 +22,23 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+    AdminCancelRideBody,
+    AdminCancelRideResponse,
+    AdminReviewDetailResponse,
+    AdminReviewListItem,
+    AdminReviewListResponse,
+    AdminRideDetailResponse,
+    AdminRideListResponse,
     AdminUserDetailResponse,
     AdminUserListItem,
     AdminUserListResponse,
     ErrorResponse,
+    GetAdminReviewsParams,
+    GetAdminRidesParams,
     GetAdminUsersParams,
+    ReviewId,
+    RideId,
+    UpdateReviewStatusBody,
     UpdateUserStatusBody,
     UserId,
 } from ".././model";
@@ -465,6 +477,889 @@ export const usePatchAdminUsersByIdStatus = <
 > => {
     const mutationOptions =
         getPatchAdminUsersByIdStatusMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+/**
+ * Returns a keyset-paginated list of rides for admin tooling. Supports filtering by status and case-insensitive driver email/firstName/lastName search.
+ */
+export const getGetAdminRidesUrl = (params: GetAdminRidesParams) => {
+    const normalizedParams = new URLSearchParams();
+
+    Object.entries(params || {}).forEach(([key, value]) => {
+        if (value !== undefined) {
+            normalizedParams.append(
+                key,
+                value === null ? "null" : value.toString()
+            );
+        }
+    });
+
+    const stringifiedParams = normalizedParams.toString();
+
+    return stringifiedParams.length > 0
+        ? `/admin/rides?${stringifiedParams}`
+        : `/admin/rides`;
+};
+
+export const getAdminRides = async (
+    params: GetAdminRidesParams,
+    options?: RequestInit
+): Promise<AdminRideListResponse> => {
+    return apiFetcher<AdminRideListResponse>(getGetAdminRidesUrl(params), {
+        ...options,
+        method: "GET",
+    });
+};
+
+export const getGetAdminRidesQueryKey = (params?: GetAdminRidesParams) => {
+    return [`/admin/rides`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetAdminRidesQueryOptions = <
+    TData = Awaited<ReturnType<typeof getAdminRides>>,
+    TError = ErrorResponse,
+>(
+    params: GetAdminRidesParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminRides>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    }
+) => {
+    const { query: queryOptions, request: requestOptions } = options ?? {};
+
+    const queryKey = queryOptions?.queryKey ?? getGetAdminRidesQueryKey(params);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof getAdminRides>>
+    > = () => getAdminRides(params, requestOptions);
+
+    return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminRides>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetAdminRidesQueryResult = NonNullable<
+    Awaited<ReturnType<typeof getAdminRides>>
+>;
+export type GetAdminRidesQueryError = ErrorResponse;
+
+export function useGetAdminRides<
+    TData = Awaited<ReturnType<typeof getAdminRides>>,
+    TError = ErrorResponse,
+>(
+    params: GetAdminRidesParams,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminRides>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminRides>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminRides>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminRides<
+    TData = Awaited<ReturnType<typeof getAdminRides>>,
+    TError = ErrorResponse,
+>(
+    params: GetAdminRidesParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminRides>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminRides>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminRides>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminRides<
+    TData = Awaited<ReturnType<typeof getAdminRides>>,
+    TError = ErrorResponse,
+>(
+    params: GetAdminRidesParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminRides>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetAdminRides<
+    TData = Awaited<ReturnType<typeof getAdminRides>>,
+    TError = ErrorResponse,
+>(
+    params: GetAdminRidesParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminRides>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getGetAdminRidesQueryOptions(params, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * Returns full ride detail (driver, car, stops, prices, bookings) plus the most recent status history entries (newest first, capped at 50). changedBy is null for system-triggered changes.
+ */
+export const getGetAdminRidesByIdUrl = (id: RideId) => {
+    return `/admin/rides/${id}`;
+};
+
+export const getAdminRidesById = async (
+    id: RideId,
+    options?: RequestInit
+): Promise<AdminRideDetailResponse> => {
+    return apiFetcher<AdminRideDetailResponse>(getGetAdminRidesByIdUrl(id), {
+        ...options,
+        method: "GET",
+    });
+};
+
+export const getGetAdminRidesByIdQueryKey = (id?: RideId) => {
+    return [`/admin/rides/${id}`] as const;
+};
+
+export const getGetAdminRidesByIdQueryOptions = <
+    TData = Awaited<ReturnType<typeof getAdminRidesById>>,
+    TError = ErrorResponse,
+>(
+    id: RideId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminRidesById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    }
+) => {
+    const { query: queryOptions, request: requestOptions } = options ?? {};
+
+    const queryKey = queryOptions?.queryKey ?? getGetAdminRidesByIdQueryKey(id);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof getAdminRidesById>>
+    > = () => getAdminRidesById(id, requestOptions);
+
+    return {
+        queryKey,
+        queryFn,
+        enabled: !!id,
+        ...queryOptions,
+    } as UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminRidesById>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetAdminRidesByIdQueryResult = NonNullable<
+    Awaited<ReturnType<typeof getAdminRidesById>>
+>;
+export type GetAdminRidesByIdQueryError = ErrorResponse;
+
+export function useGetAdminRidesById<
+    TData = Awaited<ReturnType<typeof getAdminRidesById>>,
+    TError = ErrorResponse,
+>(
+    id: RideId,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminRidesById>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminRidesById>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminRidesById>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminRidesById<
+    TData = Awaited<ReturnType<typeof getAdminRidesById>>,
+    TError = ErrorResponse,
+>(
+    id: RideId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminRidesById>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminRidesById>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminRidesById>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminRidesById<
+    TData = Awaited<ReturnType<typeof getAdminRidesById>>,
+    TError = ErrorResponse,
+>(
+    id: RideId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminRidesById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetAdminRidesById<
+    TData = Awaited<ReturnType<typeof getAdminRidesById>>,
+    TError = ErrorResponse,
+>(
+    id: RideId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminRidesById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getGetAdminRidesByIdQueryOptions(id, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * Returns a keyset-paginated list of reviews for moderation. Supports filtering by status, rating range, and case-insensitive search across comment text and author/subject email/name.
+ */
+export const getGetAdminReviewsUrl = (params: GetAdminReviewsParams) => {
+    const normalizedParams = new URLSearchParams();
+
+    Object.entries(params || {}).forEach(([key, value]) => {
+        if (value !== undefined) {
+            normalizedParams.append(
+                key,
+                value === null ? "null" : value.toString()
+            );
+        }
+    });
+
+    const stringifiedParams = normalizedParams.toString();
+
+    return stringifiedParams.length > 0
+        ? `/admin/reviews?${stringifiedParams}`
+        : `/admin/reviews`;
+};
+
+export const getAdminReviews = async (
+    params: GetAdminReviewsParams,
+    options?: RequestInit
+): Promise<AdminReviewListResponse> => {
+    return apiFetcher<AdminReviewListResponse>(getGetAdminReviewsUrl(params), {
+        ...options,
+        method: "GET",
+    });
+};
+
+export const getGetAdminReviewsQueryKey = (params?: GetAdminReviewsParams) => {
+    return [`/admin/reviews`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetAdminReviewsQueryOptions = <
+    TData = Awaited<ReturnType<typeof getAdminReviews>>,
+    TError = ErrorResponse,
+>(
+    params: GetAdminReviewsParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReviews>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    }
+) => {
+    const { query: queryOptions, request: requestOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getGetAdminReviewsQueryKey(params);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof getAdminReviews>>
+    > = () => getAdminReviews(params, requestOptions);
+
+    return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminReviews>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetAdminReviewsQueryResult = NonNullable<
+    Awaited<ReturnType<typeof getAdminReviews>>
+>;
+export type GetAdminReviewsQueryError = ErrorResponse;
+
+export function useGetAdminReviews<
+    TData = Awaited<ReturnType<typeof getAdminReviews>>,
+    TError = ErrorResponse,
+>(
+    params: GetAdminReviewsParams,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReviews>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminReviews>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminReviews>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminReviews<
+    TData = Awaited<ReturnType<typeof getAdminReviews>>,
+    TError = ErrorResponse,
+>(
+    params: GetAdminReviewsParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReviews>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminReviews>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminReviews>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminReviews<
+    TData = Awaited<ReturnType<typeof getAdminReviews>>,
+    TError = ErrorResponse,
+>(
+    params: GetAdminReviewsParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReviews>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetAdminReviews<
+    TData = Awaited<ReturnType<typeof getAdminReviews>>,
+    TError = ErrorResponse,
+>(
+    params: GetAdminReviewsParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReviews>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getGetAdminReviewsQueryOptions(params, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * Returns full review detail (author, subject, ride context) plus the most recent status history entries (newest first, capped at 50).
+ */
+export const getGetAdminReviewsByIdUrl = (id: ReviewId) => {
+    return `/admin/reviews/${id}`;
+};
+
+export const getAdminReviewsById = async (
+    id: ReviewId,
+    options?: RequestInit
+): Promise<AdminReviewDetailResponse> => {
+    return apiFetcher<AdminReviewDetailResponse>(
+        getGetAdminReviewsByIdUrl(id),
+        {
+            ...options,
+            method: "GET",
+        }
+    );
+};
+
+export const getGetAdminReviewsByIdQueryKey = (id?: ReviewId) => {
+    return [`/admin/reviews/${id}`] as const;
+};
+
+export const getGetAdminReviewsByIdQueryOptions = <
+    TData = Awaited<ReturnType<typeof getAdminReviewsById>>,
+    TError = ErrorResponse,
+>(
+    id: ReviewId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReviewsById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    }
+) => {
+    const { query: queryOptions, request: requestOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getGetAdminReviewsByIdQueryKey(id);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof getAdminReviewsById>>
+    > = () => getAdminReviewsById(id, requestOptions);
+
+    return {
+        queryKey,
+        queryFn,
+        enabled: !!id,
+        ...queryOptions,
+    } as UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminReviewsById>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetAdminReviewsByIdQueryResult = NonNullable<
+    Awaited<ReturnType<typeof getAdminReviewsById>>
+>;
+export type GetAdminReviewsByIdQueryError = ErrorResponse;
+
+export function useGetAdminReviewsById<
+    TData = Awaited<ReturnType<typeof getAdminReviewsById>>,
+    TError = ErrorResponse,
+>(
+    id: ReviewId,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReviewsById>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminReviewsById>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminReviewsById>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminReviewsById<
+    TData = Awaited<ReturnType<typeof getAdminReviewsById>>,
+    TError = ErrorResponse,
+>(
+    id: ReviewId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReviewsById>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminReviewsById>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminReviewsById>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminReviewsById<
+    TData = Awaited<ReturnType<typeof getAdminReviewsById>>,
+    TError = ErrorResponse,
+>(
+    id: ReviewId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReviewsById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetAdminReviewsById<
+    TData = Awaited<ReturnType<typeof getAdminReviewsById>>,
+    TError = ErrorResponse,
+>(
+    id: ReviewId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReviewsById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getGetAdminReviewsByIdQueryOptions(id, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * Changes a review's moderation status (VISIBLE / HIDDEN / REMOVED) and records an audit row in review_status_history. The reason is required so the moderation log makes the action traceable.
+ */
+export const getPatchAdminReviewsByIdStatusUrl = (id: ReviewId) => {
+    return `/admin/reviews/${id}/status`;
+};
+
+export const patchAdminReviewsByIdStatus = async (
+    id: ReviewId,
+    updateReviewStatusBody: UpdateReviewStatusBody,
+    options?: RequestInit
+): Promise<AdminReviewListItem> => {
+    return apiFetcher<AdminReviewListItem>(
+        getPatchAdminReviewsByIdStatusUrl(id),
+        {
+            ...options,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                ...options?.headers,
+            },
+            body: JSON.stringify(updateReviewStatusBody),
+        }
+    );
+};
+
+export const getPatchAdminReviewsByIdStatusMutationOptions = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof patchAdminReviewsByIdStatus>>,
+        TError,
+        { id: ReviewId; data: UpdateReviewStatusBody },
+        TContext
+    >;
+    request?: SecondParameter<typeof apiFetcher>;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof patchAdminReviewsByIdStatus>>,
+    TError,
+    { id: ReviewId; data: UpdateReviewStatusBody },
+    TContext
+> => {
+    const mutationKey = ["patchAdminReviewsByIdStatus"];
+    const { mutation: mutationOptions, request: requestOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey }, request: undefined };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof patchAdminReviewsByIdStatus>>,
+        { id: ReviewId; data: UpdateReviewStatusBody }
+    > = (props) => {
+        const { id, data } = props ?? {};
+
+        return patchAdminReviewsByIdStatus(id, data, requestOptions);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type PatchAdminReviewsByIdStatusMutationResult = NonNullable<
+    Awaited<ReturnType<typeof patchAdminReviewsByIdStatus>>
+>;
+export type PatchAdminReviewsByIdStatusMutationBody = UpdateReviewStatusBody;
+export type PatchAdminReviewsByIdStatusMutationError = ErrorResponse;
+
+export const usePatchAdminReviewsByIdStatus = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof patchAdminReviewsByIdStatus>>,
+            TError,
+            { id: ReviewId; data: UpdateReviewStatusBody },
+            TContext
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseMutationResult<
+    Awaited<ReturnType<typeof patchAdminReviewsByIdStatus>>,
+    TError,
+    { id: ReviewId; data: UpdateReviewStatusBody },
+    TContext
+> => {
+    const mutationOptions =
+        getPatchAdminReviewsByIdStatusMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+/**
+ * Force-cancels a ride as admin and cascades cancellation to all active passenger bookings (PENDING/CONFIRMED). Records an audit row in ride_status_history with the admin as changedByUserId. The reason is required so the audit log makes the override traceable.
+ */
+export const getPatchAdminRidesByIdCancelUrl = (id: RideId) => {
+    return `/admin/rides/${id}/cancel`;
+};
+
+export const patchAdminRidesByIdCancel = async (
+    id: RideId,
+    adminCancelRideBody: AdminCancelRideBody,
+    options?: RequestInit
+): Promise<AdminCancelRideResponse> => {
+    return apiFetcher<AdminCancelRideResponse>(
+        getPatchAdminRidesByIdCancelUrl(id),
+        {
+            ...options,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                ...options?.headers,
+            },
+            body: JSON.stringify(adminCancelRideBody),
+        }
+    );
+};
+
+export const getPatchAdminRidesByIdCancelMutationOptions = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof patchAdminRidesByIdCancel>>,
+        TError,
+        { id: RideId; data: AdminCancelRideBody },
+        TContext
+    >;
+    request?: SecondParameter<typeof apiFetcher>;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof patchAdminRidesByIdCancel>>,
+    TError,
+    { id: RideId; data: AdminCancelRideBody },
+    TContext
+> => {
+    const mutationKey = ["patchAdminRidesByIdCancel"];
+    const { mutation: mutationOptions, request: requestOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey }, request: undefined };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof patchAdminRidesByIdCancel>>,
+        { id: RideId; data: AdminCancelRideBody }
+    > = (props) => {
+        const { id, data } = props ?? {};
+
+        return patchAdminRidesByIdCancel(id, data, requestOptions);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type PatchAdminRidesByIdCancelMutationResult = NonNullable<
+    Awaited<ReturnType<typeof patchAdminRidesByIdCancel>>
+>;
+export type PatchAdminRidesByIdCancelMutationBody = AdminCancelRideBody;
+export type PatchAdminRidesByIdCancelMutationError = ErrorResponse;
+
+export const usePatchAdminRidesByIdCancel = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof patchAdminRidesByIdCancel>>,
+            TError,
+            { id: RideId; data: AdminCancelRideBody },
+            TContext
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseMutationResult<
+    Awaited<ReturnType<typeof patchAdminRidesByIdCancel>>,
+    TError,
+    { id: RideId; data: AdminCancelRideBody },
+    TContext
+> => {
+    const mutationOptions =
+        getPatchAdminRidesByIdCancelMutationOptions(options);
 
     return useMutation(mutationOptions, queryClient);
 };

@@ -13,6 +13,7 @@ import { notifications } from "./notification";
 import { userStatusHistory } from "./user_status_history";
 import { rideStatusHistory } from "./ride_status_history";
 import { bookingStatusHistory } from "./booking_status_history";
+import { reviewStatusHistory } from "./review_status_history";
 import { blocklist } from "./blocklist";
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -34,6 +35,7 @@ export const usersRelations = relations(users, ({ many }) => ({
     }),
     rideStatusChangesByUser: many(rideStatusHistory),
     bookingStatusChangesByUser: many(bookingStatusHistory),
+    reviewStatusChangesByUser: many(reviewStatusHistory),
     blocklistAsBlocker: many(blocklist, { relationName: "blocklist_blocker" }),
     blocklistAsBlocked: many(blocklist, { relationName: "blocklist_blocked" }),
     blocklistAsRevoker: many(blocklist, {
@@ -134,7 +136,7 @@ export const bookingsRelations = relations(bookings, ({ one, many }) => ({
     statusHistory: many(bookingStatusHistory),
 }));
 
-export const reviewsRelations = relations(reviews, ({ one }) => ({
+export const reviewsRelations = relations(reviews, ({ one, many }) => ({
     ride: one(rides, {
         fields: [reviews.rideId],
         references: [rides.id],
@@ -149,6 +151,7 @@ export const reviewsRelations = relations(reviews, ({ one }) => ({
         references: [users.id],
         relationName: "review_subject",
     }),
+    statusHistory: many(reviewStatusHistory),
 }));
 
 export const conversationsRelations = relations(
@@ -223,6 +226,20 @@ export const bookingStatusHistoryRelations = relations(
         }),
         changedByUser: one(users, {
             fields: [bookingStatusHistory.changedByUserId],
+            references: [users.id],
+        }),
+    })
+);
+
+export const reviewStatusHistoryRelations = relations(
+    reviewStatusHistory,
+    ({ one }) => ({
+        review: one(reviews, {
+            fields: [reviewStatusHistory.reviewId],
+            references: [reviews.id],
+        }),
+        changedByUser: one(users, {
+            fields: [reviewStatusHistory.changedByUserId],
             references: [users.id],
         }),
     })

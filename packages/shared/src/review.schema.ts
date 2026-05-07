@@ -10,6 +10,7 @@ export const ReviewIdSchema = z.uuid();
 export type ReviewId = z.infer<typeof ReviewIdSchema>;
 
 export const ReviewStatusSchema = z.enum(reviewStatusValues);
+export type ReviewStatus = z.infer<typeof ReviewStatusSchema>;
 
 const RatingSchema = z
     .number()

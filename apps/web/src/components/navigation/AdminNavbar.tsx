@@ -16,13 +16,19 @@ import logoLight from "../../assets/logo_light_mode.png";
 import logoDark from "../../assets/logo_dark_mode.png";
 import "./AdminNavbar.css";
 
-export type AdminNavbarTab = "dashboard" | "rides" | "users" | "reports";
+export type AdminNavbarTab =
+    | "dashboard"
+    | "rides"
+    | "users"
+    | "reviews"
+    | "reports";
 
 export type AdminNavbarLabels = {
     adminRole?: string;
     dashboard?: string;
     rides?: string;
     users?: string;
+    reviews?: string;
     reports?: string;
     settings?: string;
     logout?: string;
@@ -40,6 +46,7 @@ export type AdminNavbarProps = {
     onDashboardClick?: () => void;
     onRidesClick?: () => void;
     onUsersClick?: () => void;
+    onReviewsClick?: () => void;
     onReportsClick?: () => void;
     onMessagesClick?: () => void;
     onRatingsClick?: () => void;
@@ -129,6 +136,7 @@ export function AdminNavbar({
     onDashboardClick,
     onRidesClick,
     onUsersClick,
+    onReviewsClick,
     onReportsClick,
     onSettingsClick,
     onLogoutClick,
@@ -209,6 +217,13 @@ export function AdminNavbar({
                 onClick={onUsersClick}
             >
                 {labels?.users ?? "Users"}
+            </NavButton>
+            <NavButton
+                icon={<AlertIcon />}
+                active={activeTab === "reviews"}
+                onClick={onReviewsClick}
+            >
+                {labels?.reviews ?? "Reviews"}
             </NavButton>
             <NavButton
                 icon={<AlertIcon />}
