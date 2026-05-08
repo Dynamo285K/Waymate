@@ -14,17 +14,17 @@ export default defineConfig(({ mode }) => {
         plugins: [react(), tailwindcss()],
         server: {
             proxy: {
+                "/api/auth": {
+                    target: apiTarget,
+                    changeOrigin: true,
+                    // Auth routes already live under /api/auth on the API.
+                    // Keep the public same-origin path identical so OAuth
+                    // callback cookies are scoped to the web origin.
+                },
                 "/api": {
                     target: apiTarget,
                     changeOrigin: true,
                     rewrite: (path) => path.replace(/^\/api/, ""),
-                    // Don't override Origin: better-auth's CSRF protection
-                    // (`trustedOrigins`) checks it on authenticated mutations
-                    // like sign-out. The browser already sends the correct
-                    // `Origin: http://localhost:5173`, which matches
-                    // WEB_ORIGIN. Forcing it to `apiTarget` makes
-                    // /api/auth/sign-out 403 INVALID_ORIGIN, the session
-                    // never gets deleted, and the user bounces back to /admin.
                 },
             },
         },

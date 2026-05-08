@@ -1,13 +1,11 @@
 import { createAuthClient } from "better-auth/react";
 import { adminClient, inferAdditionalFields } from "better-auth/client/plugins";
 import type { Auth } from "@repo/api";
-import { API_BASE_URL } from "./api-fetcher";
-
 // better-auth requires an absolute baseURL; fall back to window.location.origin
-// so the dev-server `/api` proxy in vite.config.ts continues to forward requests.
+// so the same-origin `/api/auth` proxy handles cookies in dev and production.
 const AUTH_BASE_URL =
     import.meta.env.VITE_AUTH_BASE_URL?.replace(/\/$/, "") ??
-    `${window.location.origin}${API_BASE_URL}/api/auth`;
+    `${window.location.origin}/api/auth`;
 
 export const authClient = createAuthClient({
     baseURL: AUTH_BASE_URL,
