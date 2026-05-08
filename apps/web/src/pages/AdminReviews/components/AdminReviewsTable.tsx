@@ -104,7 +104,12 @@ export function AdminReviewsTable({
                                     {formatDate(review.createdAt, "—")}
                                 </td>
                                 <td className="px-5 py-4">
-                                    <Button variant="secondary" onClick={() => onView(review)}>{t("admin.view")}</Button>
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => onView(review)}
+                                    >
+                                        {t("admin.view")}
+                                    </Button>
                                 </td>
                             </tr>
                         );

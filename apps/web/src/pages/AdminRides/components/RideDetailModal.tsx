@@ -56,7 +56,12 @@ export function RideDetailModal({
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
                         {t("admin.rideDetail")}
                     </h2>
-                    <IconButton ariaLabel="Close" icon={<span aria-hidden>✕</span>} variant="ghost" onClick={onClose} />
+                    <IconButton
+                        ariaLabel="Close"
+                        icon={<span aria-hidden>✕</span>}
+                        variant="ghost"
+                        onClick={onClose}
+                    />
                 </div>
 
                 {detailQuery.isLoading && (

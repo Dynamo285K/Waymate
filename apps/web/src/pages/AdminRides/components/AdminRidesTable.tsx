@@ -50,7 +50,8 @@ export function AdminRidesTable({
                             ) || ride.driver.email;
                         const isThisRowMutating = rowMutatingId === ride.id;
                         const cancelDisabled =
-                            isThisRowMutating || ride.rideStatus === "CANCELLED";
+                            isThisRowMutating ||
+                            ride.rideStatus === "CANCELLED";
                         return (
                             <tr
                                 key={ride.id}
@@ -85,14 +86,23 @@ export function AdminRidesTable({
                                     })}
                                 </td>
                                 <td className="px-5 py-4">
-                                    <RideStatusBadge
-                                        status={ride.rideStatus}
-                                    />
+                                    <RideStatusBadge status={ride.rideStatus} />
                                 </td>
                                 <td className="px-5 py-4">
                                     <div className="flex gap-2 items-center">
-                                        <Button variant="secondary" onClick={() => onView(ride)}>{t("admin.view")}</Button>
-                                        <Button variant="red" onClick={() => onCancel(ride)} disabled={cancelDisabled}>{t("admin.forceCancel")}</Button>
+                                        <Button
+                                            variant="secondary"
+                                            onClick={() => onView(ride)}
+                                        >
+                                            {t("admin.view")}
+                                        </Button>
+                                        <Button
+                                            variant="red"
+                                            onClick={() => onCancel(ride)}
+                                            disabled={cancelDisabled}
+                                        >
+                                            {t("admin.forceCancel")}
+                                        </Button>
                                     </div>
                                 </td>
                             </tr>

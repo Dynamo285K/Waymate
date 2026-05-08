@@ -426,8 +426,7 @@
         "typeMessage": "Type a message...",
         "viewProfile": "View profile",
         "blockUser": "Block user",
-        "reportUser": "Report user",
-        "back": "Back"
+        "reportUser": "Report user"
     },
     "roles": {
         "passenger": "Passenger",

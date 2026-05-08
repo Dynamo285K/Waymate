@@ -16,10 +16,7 @@ import { CancelRideModal } from "./components/CancelRideModal";
 import { RideDetailModal } from "./components/RideDetailModal";
 import { useAdminRidesList } from "./hooks/useAdminRidesList";
 import { useDebounced } from "./hooks/useDebounced";
-import {
-    ADMIN_RIDE_NOT_FOUND_CODE,
-    adminRidesErrorMap,
-} from "./lib/errors";
+import { ADMIN_RIDE_NOT_FOUND_CODE, adminRidesErrorMap } from "./lib/errors";
 
 type AdminRidesPageProps = {
     language: Language;

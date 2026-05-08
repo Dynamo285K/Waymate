@@ -52,7 +52,12 @@ export function ReviewDetailModal({
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
                         {t("admin.reviewDetail")}
                     </h2>
-                    <IconButton ariaLabel="Close" icon={<span aria-hidden>✕</span>} variant="ghost" onClick={onClose} />
+                    <IconButton
+                        ariaLabel="Close"
+                        icon={<span aria-hidden>✕</span>}
+                        variant="ghost"
+                        onClick={onClose}
+                    />
                 </div>
 
                 {detailQuery.isLoading && (
@@ -136,10 +141,7 @@ export function ReviewDetailModal({
                                 {data.review.ride.destinationCity}
                             </p>
                             <p className="text-xs text-(--color-text-secondary) mt-1">
-                                {formatDate(
-                                    data.review.ride.departureAt,
-                                    "—"
-                                )}
+                                {formatDate(data.review.ride.departureAt, "—")}
                             </p>
                         </div>
 

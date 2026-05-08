@@ -42,7 +42,12 @@ export function SetReviewStatusModal({
                             status: labels[targetStatus],
                         })}
                     </h2>
-                    <IconButton ariaLabel="Close" icon={<span aria-hidden>✕</span>} variant="ghost" onClick={onClose} />
+                    <IconButton
+                        ariaLabel="Close"
+                        icon={<span aria-hidden>✕</span>}
+                        variant="ghost"
+                        onClick={onClose}
+                    />
                 </div>
 
                 {targetStatus !== "VISIBLE" && (

@@ -35,7 +35,12 @@ export function CancelRideModal({
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
                         {t("admin.forceCancelRide")} — {rideRoute}
                     </h2>
-                    <IconButton ariaLabel="Close" icon={<span aria-hidden>✕</span>} variant="ghost" onClick={onClose} />
+                    <IconButton
+                        ariaLabel="Close"
+                        icon={<span aria-hidden>✕</span>}
+                        variant="ghost"
+                        onClick={onClose}
+                    />
                 </div>
 
                 <div className="bg-(--color-danger-bg) border border-(--color-danger-border) rounded-xl p-4 mb-5 text-sm text-(--color-danger-text)">
