@@ -1,13 +1,14 @@
 {
     "$schema": "https://openapi.vercel.sh/vercel.json",
-    "routes": [
-        {
-            "src": "/api/(.*)",
-            "dest": "${API_PROXY_TARGET}/$1",
-            "env": ["API_PROXY_TARGET"]
-        }
-    ],
     "rewrites": [
+        {
+            "source": "/api/auth/:path*",
+            "destination": "https://waymate-vt5d.onrender.com/api/auth/:path*"
+        },
+        {
+            "source": "/api/:path*",
+            "destination": "https://waymate-vt5d.onrender.com/:path*"
+        },
         {
             "source": "/(.*)",
             "destination": "/index.html"
