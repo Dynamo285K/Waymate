@@ -108,13 +108,39 @@
 
 /* ── Tablet ── */
 .admin-navbar__tablet {
-    min-height: 72px;
-    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.admin-navbar__tablet-top {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    box-sizing: border-box;
+    justify-content: space-between;
+    padding: 10px 16px;
+    min-height: 60px;
+}
+
+.admin-navbar__tablet-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 16px 8px;
+    border-top: 1px solid var(--color-border);
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.admin-navbar__tablet-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.admin-navbar__tablet-nav .nav-button {
+    flex-shrink: 0;
+    font-size: 13px;
+    padding: 6px 12px;
+    gap: 6px;
 }
 
 /* Full-width inline panel (same as PassengerNavbar mobile panel) */

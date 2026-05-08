@@ -443,6 +443,7 @@ export function AdminRidesPage({
                         {FILTERS.map((f) => (
                             <Button
                                 key={f.key}
+                                variant="unstyled"
                                 onClick={() => setFilter(f.key)}
                                 className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
                                     filter === f.key

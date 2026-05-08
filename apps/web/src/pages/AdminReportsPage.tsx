@@ -242,8 +242,9 @@ export function AdminReportsPage({
                         {FILTERS.map((f) => (
                             <Button
                                 key={f.key}
+                                variant="unstyled"
                                 onClick={() => setFilter(f.key)}
-                                className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
                                     filter === f.key
                                         ? "bg-(--color-text-primary) text-(--color-card)"
                                         : "text-(--color-text-secondary) hover:text-(--color-text-primary)"

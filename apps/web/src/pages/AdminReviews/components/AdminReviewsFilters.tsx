@@ -32,12 +32,13 @@ export function AdminReviewsFilters({
 
     return (
         <div className="flex flex-wrap gap-3 mb-6 items-center">
-            <div className="flex flex-wrap gap-2">
+            <div className="flex gap-1 bg-(--color-card) border border-(--color-border) rounded-xl p-1">
                 {STATUS_FILTERS.map((f) => (
                     <Button
                         key={f.key}
+                        variant="unstyled"
                         onClick={() => onStatusFilterChange(f.key)}
-                        className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
                             statusFilter === f.key
                                 ? "bg-(--color-text-primary) text-(--color-card)"
                                 : "text-(--color-text-secondary) hover:text-(--color-text-primary)"

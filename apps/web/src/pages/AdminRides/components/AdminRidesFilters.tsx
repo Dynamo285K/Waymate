@@ -28,13 +28,14 @@ export function AdminRidesFilters({
     const { t } = useTranslation();
 
     return (
-        <div className="flex flex-wrap gap-3 mb-6 items-center">
-            <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+            <div className="flex flex-wrap gap-1 bg-(--color-card) border border-(--color-border) rounded-xl p-1 self-start">
                 {STATUS_FILTERS.map((f) => (
                     <Button
                         key={f.key}
+                        variant="unstyled"
                         onClick={() => onStatusFilterChange(f.key)}
-                        className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                        className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
                             statusFilter === f.key
                                 ? "bg-(--color-text-primary) text-(--color-card)"
                                 : "text-(--color-text-secondary) hover:text-(--color-text-primary)"
@@ -44,7 +45,7 @@ export function AdminRidesFilters({
                     </Button>
                 ))}
             </div>
-            <div className="ml-auto min-w-55">
+            <div className="sm:ml-auto w-full sm:max-w-xs">
                 <SearchInput
                     value={searchInput}
                     onChange={onSearchInputChange}

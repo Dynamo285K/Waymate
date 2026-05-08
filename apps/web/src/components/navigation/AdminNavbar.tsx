@@ -149,8 +149,8 @@ export function AdminNavbar({
     );
     const navbarRef = useRef<HTMLElement>(null);
 
-    const isDesktop = windowWidth > 1024;
-    const isTablet = windowWidth > 560 && windowWidth <= 1024;
+    const isDesktop = windowWidth > 1280;
+    const isTablet = windowWidth > 560 && windowWidth <= 1280;
     const isMobile = windowWidth <= 560;
 
     useEffect(() => {
@@ -305,19 +305,20 @@ export function AdminNavbar({
             )}
             {isTablet && (
                 <div className="admin-navbar__tablet">
-                    {logoImg}
-                    <nav className="admin-navbar__nav">{navTabs}</nav>
-                    <Button
-                        variant="unstyled"
-                        className="admin-navbar__hamburger"
-                        onClick={() => setIsMobileMenuOpen((c) => !c)}
-                    >
-                        <span />
-                        <span />
-                        <span />
-                    </Button>
+                    <div className="admin-navbar__tablet-top">
+                        {logoImg}
+                        <Button
+                            variant="unstyled"
+                            className="admin-navbar__hamburger"
+                            onClick={() => setIsMobileMenuOpen((c) => !c)}
+                        >
+                            <span />
+                            <span />
+                            <span />
+                        </Button>
+                    </div>
                     {isMobileMenuOpen && (
-                        <div className="admin-navbar__tablet-panel-full">
+                        <div className="admin-navbar__mobile-panel">
                             <span
                                 className="admin-navbar__role"
                                 style={{ alignSelf: "flex-start" }}
@@ -339,6 +340,7 @@ export function AdminNavbar({
                             </div>
                         </div>
                     )}
+                    <nav className="admin-navbar__tablet-nav">{navTabs}</nav>
                 </div>
             )}
             {isMobile && (

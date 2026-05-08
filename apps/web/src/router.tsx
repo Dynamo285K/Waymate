@@ -35,7 +35,7 @@ import { DriverRatingsPage } from "./pages/DriverRatingsPage";
 import { EditProfilePage } from "./pages/EditProfilePage";
 import { AddCarPage } from "./pages/AddCarPage";
 import { AdminDashboardPage } from "./pages/AdminDashboardPage";
-import { AdminRidesPage } from "./pages/AdminRidesPage";
+import { AdminRidesPage } from "./pages/AdminRides";
 import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { AdminReportsPage } from "./pages/AdminReportsPage";
 
