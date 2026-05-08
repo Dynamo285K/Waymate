@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import { Button } from "@waymate/ui";
+import { Button, Input, TextLink, IconButton } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { requestPasswordReset, resetPassword } from "../lib/auth";
 
@@ -150,9 +150,6 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
         navigate("/login");
     }
 
-    const inputClass =
-        "w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) px-3 py-3 text-sm outline-none focus:border-(--color-primary) transition-colors font-[Inter,sans-serif]";
-
     return (
         <div
             data-theme={theme}
@@ -198,37 +195,16 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                             <label className="text-sm font-semibold text-(--color-text-primary) mb-1 block">
                                 {t("forgotPassword.emailLabel")}
                             </label>
-                            <div className="flex items-center border border-(--color-border) rounded-xl bg-(--color-input-bg) px-3 gap-2">
-                                <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    className="text-(--color-text-secondary) flex-shrink-0"
-                                >
-                                    <rect
-                                        width="20"
-                                        height="16"
-                                        x="2"
-                                        y="4"
-                                        rx="2"
-                                    />
-                                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                                </svg>
-                                <input
-                                    className="flex-1 bg-transparent border-none outline-none py-3 text-sm text-(--color-text-primary)"
-                                    placeholder={t(
-                                        "forgotPassword.emailPlaceholder"
-                                    )}
-                                    type="email"
-                                    {...register("email")}
-                                />
-                            </div>
-                            {errors.email?.message && (
-                                <p className="mt-2 text-xs font-semibold text-red-500">
-                                    {t(errors.email.message)}
+                            <Input
+                                placeholder={t(
+                                    "forgotPassword.emailPlaceholder"
+                                )}
+                                type="email"
+                                {...register("email")}
+                            />
+                            {errors.email && (
+                                <p className="mt-2 text-xs font-semibold text-(--color-danger-text)">
+                                    {errors.email.message}
                                 </p>
                             )}
                         </div>
@@ -242,16 +218,18 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                 : `➤ ${t("forgotPassword.sendCode")}`}
                         </Button>
                         {resetError && (
-                            <p className="mt-3 text-xs font-semibold text-red-500">
-                                {t(resetError)}
+                            <p className="mt-3 text-xs font-semibold text-(--color-danger-text)">
+                                {resetError}
                             </p>
                         )}
-                        <button
-                            className="mt-4 text-sm text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors"
-                            onClick={() => navigate("/login")}
-                        >
-                            {t("forgotPassword.backToLogin")}
-                        </button>
+                        <div className="mt-4 text-sm">
+                            <TextLink
+                                variant="muted"
+                                onClick={() => navigate("/login")}
+                            >
+                                {t("forgotPassword.backToLogin")}
+                            </TextLink>
+                        </div>
                     </>
                 )}
 
@@ -305,12 +283,12 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                     {countdown}s
                                 </span>
                             ) : (
-                                <button
-                                    className="font-bold text-(--color-primary) hover:underline"
+                                <TextLink
+                                    variant="primary"
                                     onClick={handleSendCode}
                                 >
                                     {t("forgotPassword.resend")}
-                                </button>
+                                </TextLink>
                             )}
                         </p>
                     </>
@@ -344,37 +322,37 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                     {t("forgotPassword.newPassword")}
                                 </label>
                                 <div className="flex items-center border border-(--color-border) rounded-xl bg-(--color-input-bg) px-3 gap-2">
-                                    <input
-                                        className="flex-1 bg-transparent border-none outline-none py-3 text-sm text-(--color-text-primary)"
+                                    <Input
+                                        {...register("newPassword")}
                                         type={showPw ? "text" : "password"}
                                         placeholder="••••••••"
-                                        {...register("newPassword")}
                                     />
-                                    <button
-                                        type="button"
+                                    <IconButton
+                                        ariaLabel="Toggle password visibility"
+                                        icon={
+                                            <svg
+                                                width="18"
+                                                height="18"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                            >
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                                <circle
+                                                    cx="12"
+                                                    cy="12"
+                                                    r="3"
+                                                />
+                                            </svg>
+                                        }
+                                        variant="ghost"
                                         onClick={() => setShowPw((v) => !v)}
-                                        className="text-(--color-text-secondary)"
-                                    >
-                                        <svg
-                                            width="18"
-                                            height="18"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                        >
-                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                            <circle
-                                                cx="12"
-                                                cy="12"
-                                                r="3"
-                                            />
-                                        </svg>
-                                    </button>
+                                    />
                                 </div>
-                                {errors.newPassword?.message && (
-                                    <p className="mt-2 text-xs font-semibold text-red-500">
-                                        {t(errors.newPassword.message)}
+                                {errors.newPassword && (
+                                    <p className="mt-2 text-xs font-semibold text-(--color-danger-text)">
+                                        {errors.newPassword.message}
                                     </p>
                                 )}
                             </div>
@@ -382,15 +360,14 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                 <label className="text-sm font-semibold text-(--color-text-primary) mb-1 block">
                                     {t("forgotPassword.confirmPassword")}
                                 </label>
-                                <input
-                                    className={inputClass}
+                                <Input
+                                    {...register("confirmPassword")}
                                     type="password"
                                     placeholder="••••••••"
-                                    {...register("confirmPassword")}
                                 />
-                                {errors.confirmPassword?.message && (
-                                    <p className="mt-2 text-xs font-semibold text-red-500">
-                                        {t(errors.confirmPassword.message)}
+                                {errors.confirmPassword && (
+                                    <p className="mt-2 text-xs font-semibold text-(--color-danger-text)">
+                                        {errors.confirmPassword.message}
                                     </p>
                                 )}
                             </div>
@@ -405,8 +382,8 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                 : `✓ ${t("forgotPassword.setPassword")}`}
                         </Button>
                         {resetError && (
-                            <p className="mt-3 text-xs font-semibold text-red-500">
-                                {t(resetError)}
+                            <p className="mt-3 text-xs font-semibold text-(--color-danger-text)">
+                                {resetError}
                             </p>
                         )}
                     </>

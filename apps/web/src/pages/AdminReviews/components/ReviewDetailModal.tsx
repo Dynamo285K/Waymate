@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Avatar, Button, Modal } from "@waymate/ui";
+import { Avatar, Button, IconButton, Modal } from "@waymate/ui";
 import { useGetAdminReviewsById } from "../../../api-client/admin/admin";
 import type { ReviewStatus } from "../../../api-client/model/reviewStatus";
 import { getErrorI18nKey } from "../../../lib/api-errors";
@@ -52,12 +52,12 @@ export function ReviewDetailModal({
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
                         {t("admin.reviewDetail")}
                     </h2>
-                    <button
+                    <IconButton
+                        ariaLabel="Close"
+                        icon={<span aria-hidden>✕</span>}
+                        variant="ghost"
                         onClick={onClose}
-                        className="text-(--color-text-secondary) hover:text-(--color-text-primary) text-xl"
-                    >
-                        ✕
-                    </button>
+                    />
                 </div>
 
                 {detailQuery.isLoading && (
@@ -141,10 +141,7 @@ export function ReviewDetailModal({
                                 {data.review.ride.destinationCity}
                             </p>
                             <p className="text-xs text-(--color-text-secondary) mt-1">
-                                {formatDate(
-                                    data.review.ride.departureAt,
-                                    "—"
-                                )}
+                                {formatDate(data.review.ride.departureAt, "—")}
                             </p>
                         </div>
 

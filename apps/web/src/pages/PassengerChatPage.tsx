@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import {
     ConversationSidebar,
     ChatHeader,
+    IconButton,
     MessageBubble,
     MessageComposer,
 } from "@waymate/ui";
@@ -223,24 +224,25 @@ export function PassengerChatPage({
                     /* Chat view */
                     <div className="flex flex-col flex-1 overflow-hidden">
                         <div className="flex items-center gap-3 px-4 py-3 border-b border-(--color-border) bg-(--color-card)">
-                            <button
+                            <IconButton
+                                ariaLabel="Back"
+                                icon={
+                                    <svg
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <path d="M19 12H5M12 5l-7 7 7 7" />
+                                    </svg>
+                                }
+                                variant="ghost"
                                 onClick={handleBack}
-                                className="text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors"
-                                aria-label={t("chat.back")}
-                            >
-                                <svg
-                                    width="20"
-                                    height="20"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
-                                    <path d="M19 12H5M12 5l-7 7 7 7" />
-                                </svg>
-                            </button>
+                            />
                             <ChatHeader
                                 name={active.name}
                                 labels={chatHeaderLabels}

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
     Avatar,
+    Button,
     IconButton,
     NavButton,
     ProfileDropdown,
@@ -264,8 +265,8 @@ export function DriverNavbar({
                         {navButtons}
                     </nav>
                     <div className="driver-navbar__tablet-right">
-                        <button
-                            type="button"
+                        <Button
+                            variant="unstyled"
                             className="driver-navbar__hamburger"
                             onClick={() => setIsMobileMenuOpen((c) => !c)}
                             aria-label="Open menu"
@@ -274,7 +275,7 @@ export function DriverNavbar({
                             <span />
                             <span />
                             <span />
-                        </button>
+                        </Button>
                         {isMobileMenuOpen && (
                             <div className="driver-navbar__mobile-panel driver-navbar__tablet-panel">
                                 <RoleSwitcher
@@ -307,8 +308,8 @@ export function DriverNavbar({
                 <div className="driver-navbar__mobile">
                     <div className="driver-navbar__mobile-top">
                         {logoImg}
-                        <button
-                            type="button"
+                        <Button
+                            variant="unstyled"
                             className="driver-navbar__hamburger"
                             onClick={() => setIsMobileMenuOpen((c) => !c)}
                             aria-label="Open menu"
@@ -317,7 +318,7 @@ export function DriverNavbar({
                             <span />
                             <span />
                             <span />
-                        </button>
+                        </Button>
                     </div>
                     {isMobileMenuOpen && (
                         <div className="driver-navbar__mobile-panel">

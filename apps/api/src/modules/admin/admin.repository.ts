@@ -460,10 +460,7 @@ const findRideDetailById = async (
                 passengerProfilePhotoUrl: usersTable.profilePhotoUrl,
             })
             .from(bookingsTable)
-            .innerJoin(
-                usersTable,
-                eq(bookingsTable.passengerId, usersTable.id)
-            )
+            .innerJoin(usersTable, eq(bookingsTable.passengerId, usersTable.id))
             .where(
                 and(
                     eq(bookingsTable.rideId, id),
@@ -614,10 +611,7 @@ const findReviewList = async (
     const author = aliasedTable(usersTable, "admin_review_author");
     const subject = aliasedTable(usersTable, "admin_review_subject");
 
-    const conditions = [
-        isNull(author.deletedAt),
-        ne(author.userRole, "ADMIN"),
-    ];
+    const conditions = [isNull(author.deletedAt), ne(author.userRole, "ADMIN")];
 
     if (params.status) {
         conditions.push(eq(reviewsTable.reviewStatus, params.status));

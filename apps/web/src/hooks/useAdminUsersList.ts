@@ -2,7 +2,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import {
     getAdminUsers,
     getGetAdminUsersQueryKey,
-} from "../../../api-client/admin/admin";
+} from "../api-client/admin/admin";
 
 const PAGE_SIZE = 20;
 

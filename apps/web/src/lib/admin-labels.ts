@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import type { UserStatus } from "../../../api-client/model/userStatus";
+import type { UserStatus } from "../api-client/model/userStatus";
 
 export const STATUS_BADGE_CLASSES: Record<UserStatus, string> = {
     ACTIVE: "border border-(--color-success-border) bg-(--color-success-bg) text-(--color-success-text)",

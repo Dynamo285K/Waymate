@@ -5,6 +5,7 @@ import {
     PopularRouteChip,
     StatCard,
     FeatureCard,
+    Button,
 } from "@waymate/ui";
 import type { Language } from "./controls/LanguageSwitcher";
 import { AvailableRideCard } from "./AvailableRideCard";
@@ -193,28 +194,29 @@ export function HomeContent({
         isError: areAvailableRidesError,
     } = useGetRidesAvailable();
 
-    const availableRides: AvailableRide[] =
-        availableRideRows?.map((ride) => {
-            const driverName = [ride.driver.firstName, ride.driver.lastName]
-                .filter(Boolean)
-                .join(" ");
+    const availableRides: AvailableRide[] = Array.isArray(availableRideRows)
+        ? availableRideRows.map((ride) => {
+              const driverName = [ride.driver.firstName, ride.driver.lastName]
+                  .filter(Boolean)
+                  .join(" ");
 
-            return {
-                id: ride.rideId,
-                rideId: ride.rideId,
-                pickupStopId: ride.pickupStop.pickupStopId,
-                dropoffStopId: ride.dropoffStop.dropoffStopId,
-                from: ride.pickupStop.city,
-                to: ride.dropoffStop.city,
-                date: new Date(
-                    ride.pickupStop.plannedDepartureAt ?? ride.departureAt
-                ),
-                seatsLeft: ride.seatsLeft,
-                driverName: driverName || t("roles.driver"),
-                driverRating: ride.driver.averageRating ?? 0,
-                price: ride.priceAmount ?? 0,
-            };
-        }) ?? [];
+              return {
+                  id: ride.rideId,
+                  rideId: ride.rideId,
+                  pickupStopId: ride.pickupStop.pickupStopId,
+                  dropoffStopId: ride.dropoffStop.dropoffStopId,
+                  from: ride.pickupStop.city,
+                  to: ride.dropoffStop.city,
+                  date: new Date(
+                      ride.pickupStop.plannedDepartureAt ?? ride.departureAt
+                  ),
+                  seatsLeft: ride.seatsLeft,
+                  driverName: driverName || t("roles.driver"),
+                  driverRating: ride.driver.averageRating ?? 0,
+                  price: ride.priceAmount ?? 0,
+              };
+          })
+        : [];
     const visibleAvailableRides = availableRides.slice(0, 5);
 
     return (
@@ -278,8 +280,8 @@ export function HomeContent({
                 <StatCard
                     icon={
                         <IconBox
-                            bg="bg-green-100"
-                            color="text-green-700"
+                            bg="bg-(--color-success-bg)"
+                            color="text-(--color-success-text)"
                         >
                             <UsersIcon />
                         </IconBox>
@@ -290,8 +292,8 @@ export function HomeContent({
                 <StatCard
                     icon={
                         <IconBox
-                            bg="bg-amber-100"
-                            color="text-amber-500"
+                            bg="bg-(--color-warning-bg)"
+                            color="text-(--color-warning-text)"
                         >
                             <StarIcon />
                         </IconBox>
@@ -302,8 +304,8 @@ export function HomeContent({
                 <StatCard
                     icon={
                         <IconBox
-                            bg="bg-green-100"
-                            color="text-green-700"
+                            bg="bg-(--color-success-bg)"
+                            color="text-(--color-success-text)"
                         >
                             <LeafIcon />
                         </IconBox>
@@ -369,12 +371,12 @@ export function HomeContent({
                 </div>
                 {availableRides.length > 0 && (
                     <div className="flex justify-center mt-8">
-                        <button
+                        <Button
+                            variant="secondary"
                             onClick={onViewAllRides}
-                            className="border border-(--color-primary) text-(--color-primary) rounded-full px-6 py-2.5 font-medium text-sm hover:bg-(--color-primary)/10 transition-colors"
                         >
                             {t("home.availableRides.viewAll")}
-                        </button>
+                        </Button>
                     </div>
                 )}
             </section>
@@ -392,8 +394,8 @@ export function HomeContent({
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-green-100"
-                                    color="text-green-700"
+                                    bg="bg-(--color-success-bg)"
+                                    color="text-(--color-success-text)"
                                 >
                                     <ShieldIcon />
                                 </IconBox>
@@ -406,8 +408,8 @@ export function HomeContent({
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-green-100"
-                                    color="text-green-700"
+                                    bg="bg-(--color-success-bg)"
+                                    color="text-(--color-success-text)"
                                 >
                                     <CoinsIcon />
                                 </IconBox>
@@ -420,8 +422,8 @@ export function HomeContent({
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-purple-100"
-                                    color="text-purple-600"
+                                    bg="bg-(--color-primary)/10"
+                                    color="text-(--color-primary)"
                                 >
                                     <LeafIcon />
                                 </IconBox>
@@ -434,8 +436,8 @@ export function HomeContent({
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-purple-100"
-                                    color="text-purple-600"
+                                    bg="bg-(--color-primary)/10"
+                                    color="text-(--color-primary)"
                                 >
                                     <MessageIcon />
                                 </IconBox>
@@ -448,8 +450,8 @@ export function HomeContent({
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-yellow-100"
-                                    color="text-yellow-600"
+                                    bg="bg-(--color-warning-bg)"
+                                    color="text-(--color-warning-text)"
                                 >
                                     <BoltIcon />
                                 </IconBox>
@@ -462,8 +464,8 @@ export function HomeContent({
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-pink-100"
-                                    color="text-pink-600"
+                                    bg="bg-(--color-danger-bg)"
+                                    color="text-(--color-danger-text)"
                                 >
                                     <StarIcon />
                                 </IconBox>

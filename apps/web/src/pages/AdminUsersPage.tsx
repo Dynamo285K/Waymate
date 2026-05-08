@@ -2,21 +2,24 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@waymate/ui";
-import type { Language } from "../../components/controls/LanguageSwitcher";
-import { AdminNavbar } from "../../components/navigation/AdminNavbar";
-import { useAdminNavbarProps } from "../../hooks/useAdminNavbarProps";
-import { useSetUserStatus } from "../../hooks/useSetUserStatus";
-import { getGetAdminUsersQueryKey } from "../../api-client/admin/admin";
-import type { AdminUserListItem } from "../../api-client/model/adminUserListItem";
-import { getErrorCode, getErrorI18nKey } from "../../lib/api-errors";
-import { AdminUsersFilters } from "./components/AdminUsersFilters";
-import { AdminUsersTable } from "./components/AdminUsersTable";
-import { BanUserModal } from "./components/BanUserModal";
-import { UserDetailModal } from "./components/UserDetailModal";
-import { useAdminUsersList } from "./hooks/useAdminUsersList";
-import { useDebounced } from "./hooks/useDebounced";
-import { ADMIN_USER_NOT_FOUND_CODE, adminUsersErrorMap } from "./lib/errors";
-import { fullName } from "./lib/format";
+import type { Language } from "../components/controls/LanguageSwitcher";
+import { AdminNavbar } from "../components/navigation/AdminNavbar";
+import { useAdminNavbarProps } from "../hooks/useAdminNavbarProps";
+import { useSetUserStatus } from "../hooks/useSetUserStatus";
+import { getGetAdminUsersQueryKey } from "../api-client/admin/admin";
+import type { AdminUserListItem } from "../api-client/model/adminUserListItem";
+import { getErrorCode, getErrorI18nKey } from "../lib/api-errors";
+import { AdminUsersFilters } from "../components/admin/AdminUsersFilters";
+import { AdminUsersTable } from "../components/admin/AdminUsersTable";
+import { BanUserModal } from "../components/admin/BanUserModal";
+import { UserDetailModal } from "../components/admin/UserDetailModal";
+import { useAdminUsersList } from "../hooks/useAdminUsersList";
+import { useDebounced } from "../hooks/useDebounced";
+import {
+    ADMIN_USER_NOT_FOUND_CODE,
+    adminUsersErrorMap,
+} from "../lib/admin-errors";
+import { fullName } from "../lib/admin-format";
 
 type AdminUsersPageProps = {
     language: Language;

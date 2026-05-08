@@ -1,5 +1,6 @@
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import enJson from "../src/i18n/locales/en.json";
 import csJson from "../src/i18n/locales/cs.json";
 import skJson from "../src/i18n/locales/sk.json";
@@ -12,7 +13,7 @@ type JsonValue =
     | JsonValue[]
     | { [k: string]: JsonValue };
 
-const SRC_DIR = new URL("../src", import.meta.url).pathname;
+const SRC_DIR = fileURLToPath(new URL("../src", import.meta.url));
 const IGNORE_DIRS = new Set(["api-client", "node_modules", "i18n"]);
 
 function flatten(

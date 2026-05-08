@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
     Avatar,
+    Button,
     IconButton,
     NavButton,
     ProfileDropdown,
@@ -250,7 +251,8 @@ export function PassengerNavbar({
                         {navButtons}
                     </nav>
                     <div className="passenger-navbar__tablet-right">
-                        <button
+                        <Button
+                            variant="unstyled"
                             type="button"
                             className="passenger-navbar__hamburger"
                             onClick={() => setIsMobileMenuOpen((c) => !c)}
@@ -260,7 +262,7 @@ export function PassengerNavbar({
                             <span />
                             <span />
                             <span />
-                        </button>
+                        </Button>
                         {isMobileMenuOpen && (
                             <div className="passenger-navbar__mobile-panel passenger-navbar__tablet-panel">
                                 <RoleSwitcher
@@ -293,7 +295,8 @@ export function PassengerNavbar({
                 <div className="passenger-navbar__mobile">
                     <div className="passenger-navbar__mobile-top">
                         {logoImg(logoSrc)}
-                        <button
+                        <Button
+                            variant="unstyled"
                             type="button"
                             className="passenger-navbar__hamburger"
                             onClick={() => setIsMobileMenuOpen((c) => !c)}
@@ -303,7 +306,7 @@ export function PassengerNavbar({
                             <span />
                             <span />
                             <span />
-                        </button>
+                        </Button>
                     </div>
                     {isMobileMenuOpen && (
                         <div className="passenger-navbar__mobile-panel">

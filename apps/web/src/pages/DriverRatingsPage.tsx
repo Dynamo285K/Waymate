@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "../lib/router-compat";
-import { RatingSummaryCard, RatingCard } from "@waymate/ui";
+import { RatingSummaryCard, RatingCard, TextLink } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
@@ -86,12 +86,14 @@ export function DriverRatingsPage({
             <DriverNavbar {...navbarProps} />
 
             <section className="w-full px-4 sm:max-w-3xl sm:mx-auto sm:px-8 py-8 sm:py-12">
-                <button
-                    onClick={() => navigate("/driver/profile")}
-                    className="text-(--color-text-secondary) text-sm mb-4 hover:text-(--color-text-primary) transition-colors"
-                >
-                    {t("profile.backToProfile")}
-                </button>
+                <div className="text-sm mb-4">
+                    <TextLink
+                        variant="muted"
+                        onClick={() => navigate("/driver/profile")}
+                    >
+                        {t("profile.backToProfile")}
+                    </TextLink>
+                </div>
 
                 <h1 className="text-2xl font-bold text-(--color-text-primary) mb-6">
                     {isReceived ? t("ratings.title") : t("ratings.myRatings")}

@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
-import type { AdminUserStatusHistoryItem } from "../../../api-client/model/adminUserStatusHistoryItem";
-import { fullName, formatDate } from "../lib/format";
-import { useStatusLabels } from "../lib/labels";
+import type { AdminUserStatusHistoryItem } from "../../api-client/model/adminUserStatusHistoryItem";
+import { fullName, formatDate } from "../../lib/admin-format";
+import { useStatusLabels } from "../../lib/admin-labels";
 
 export function StatusHistoryEntry({
     entry,

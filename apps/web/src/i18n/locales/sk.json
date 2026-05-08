@@ -426,8 +426,7 @@
         "typeMessage": "Napíšte správu...",
         "viewProfile": "Zobraziť profil",
         "blockUser": "Zablokovať používateľa",
-        "reportUser": "Nahlásiť používateľa",
-        "back": "Späť"
+        "reportUser": "Nahlásiť používateľa"
     },
     "roles": {
         "passenger": "Cestujúci",

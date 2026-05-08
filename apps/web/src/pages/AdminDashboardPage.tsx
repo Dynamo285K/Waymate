@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { Button } from "@waymate/ui";
 import {
     BarChart,
     Bar,
@@ -253,9 +254,12 @@ export function AdminDashboardPage({
                                 </div>
                             ))}
                         </div>
-                        <button className="mt-4 w-full border border-(--color-border) rounded-xl py-2.5 text-sm text-(--color-text-secondary) hover:bg-(--color-border) transition-colors flex items-center justify-center gap-2">
+                        <Button
+                            variant="secondary"
+                            onClick={() => {}}
+                        >
                             ⬇ {t("admin.exportReport")}
-                        </button>
+                        </Button>
                     </Card>
                 </div>
             </div>

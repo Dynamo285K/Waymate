@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Avatar } from "@waymate/ui";
+import { Avatar, Button } from "@waymate/ui";
 import type { AdminReviewListItem } from "../../../api-client/model/adminReviewListItem";
 import { fullName, formatDate } from "../lib/format";
 import { RatingStars } from "./RatingStars";
@@ -104,12 +104,12 @@ export function AdminReviewsTable({
                                     {formatDate(review.createdAt, "—")}
                                 </td>
                                 <td className="px-5 py-4">
-                                    <button
+                                    <Button
+                                        variant="secondary"
                                         onClick={() => onView(review)}
-                                        className="px-3 py-1.5 border border-(--color-border) rounded-lg text-sm font-medium text-(--color-text-secondary) hover:bg-(--color-border) transition-colors"
                                     >
                                         {t("admin.view")}
-                                    </button>
+                                    </Button>
                                 </td>
                             </tr>
                         );

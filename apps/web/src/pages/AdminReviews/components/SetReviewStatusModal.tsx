@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, Modal } from "@waymate/ui";
+import { Button, IconButton, Modal, Textarea } from "@waymate/ui";
 import type { ReviewStatus } from "../../../api-client/model/reviewStatus";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { adminReviewsErrorMap } from "../lib/errors";
@@ -27,8 +27,6 @@ export function SetReviewStatusModal({
 
     const trimmedReason = reason.trim();
     const canConfirm = trimmedReason.length > 0 && !isPending;
-    const inputClass =
-        "w-full border border-(--color-border) rounded-xl bg-(--color-input-bg) text-(--color-text-primary) px-4 py-3 text-sm outline-none focus:border-(--color-primary) transition-colors";
 
     const variant = targetStatus === "VISIBLE" ? "primary" : "red";
 
@@ -44,12 +42,12 @@ export function SetReviewStatusModal({
                             status: labels[targetStatus],
                         })}
                     </h2>
-                    <button
+                    <IconButton
+                        ariaLabel="Close"
+                        icon={<span aria-hidden>✕</span>}
+                        variant="ghost"
                         onClick={onClose}
-                        className="text-(--color-text-secondary) hover:text-(--color-text-primary) text-xl"
-                    >
-                        ✕
-                    </button>
+                    />
                 </div>
 
                 {targetStatus !== "VISIBLE" && (
@@ -65,8 +63,7 @@ export function SetReviewStatusModal({
                         {t("admin.reasonForModeration")}{" "}
                         <span className="text-(--color-danger-text)">*</span>
                     </label>
-                    <textarea
-                        className={inputClass + " resize-y min-h-25"}
+                    <Textarea
                         placeholder={t("admin.reasonPlaceholder")}
                         maxLength={500}
                         value={reason}

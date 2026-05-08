@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { Button, SearchInput } from "@waymate/ui";
 import type { RideStatus } from "../../../api-client/model/rideStatus";
 
 type StatusFilter = "ALL" | RideStatus;
@@ -27,44 +28,28 @@ export function AdminRidesFilters({
     const { t } = useTranslation();
 
     return (
-        <div className="flex flex-wrap gap-3 mb-6 items-center">
-            <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+            <div className="flex flex-wrap gap-1 bg-(--color-card) border border-(--color-border) rounded-xl p-1 self-start">
                 {STATUS_FILTERS.map((f) => (
-                    <button
+                    <Button
                         key={f.key}
+                        variant="unstyled"
                         onClick={() => onStatusFilterChange(f.key)}
-                        className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                        className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
                             statusFilter === f.key
                                 ? "bg-(--color-text-primary) text-(--color-card)"
                                 : "text-(--color-text-secondary) hover:text-(--color-text-primary)"
                         }`}
                     >
                         {t(f.labelKey)}
-                    </button>
+                    </Button>
                 ))}
             </div>
-            <div className="flex items-center gap-2 border border-(--color-border) rounded-xl px-3 py-2 bg-(--color-card) ml-auto min-w-55">
-                <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    className="text-(--color-text-secondary) shrink-0"
-                >
-                    <circle
-                        cx="11"
-                        cy="11"
-                        r="8"
-                    />
-                    <path d="m21 21-4.35-4.35" />
-                </svg>
-                <input
-                    className="bg-transparent border-none outline-none text-sm text-(--color-text-primary) w-full"
-                    placeholder={t("admin.searchRides")}
+            <div className="sm:ml-auto w-full sm:max-w-xs">
+                <SearchInput
                     value={searchInput}
-                    onChange={(e) => onSearchInputChange(e.target.value)}
+                    onChange={onSearchInputChange}
+                    placeholder={t("admin.searchRides")}
                 />
             </div>
         </div>

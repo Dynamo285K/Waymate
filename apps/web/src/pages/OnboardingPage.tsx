@@ -3,7 +3,7 @@ import type { FormEvent } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import { AuthNavbar, Button } from "@waymate/ui";
+import { AuthNavbar, Button, Input } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
 import {
@@ -83,8 +83,10 @@ export function OnboardingPage({
         if (isInitialized || isLoadingProfile) return;
 
         if (loadError) {
-            setSubmitError("onboarding.loginRequired");
+            /* eslint-disable react-hooks/set-state-in-effect */
+            setSubmitError(t("onboarding.loginRequired"));
             setIsInitialized(true);
+            /* eslint-enable react-hooks/set-state-in-effect */
             return;
         }
 
@@ -139,9 +141,6 @@ export function OnboardingPage({
         }
     }
 
-    const inputClass =
-        "w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) px-4 py-3 text-sm outline-none focus:border-(--color-primary) transition-colors";
-
     return (
         <div
             data-theme={theme}
@@ -168,8 +167,7 @@ export function OnboardingPage({
                                 <span className="text-sm font-semibold text-(--color-text-primary)">
                                     {t("onboarding.firstName")}
                                 </span>
-                                <input
-                                    className={inputClass}
+                                <Input
                                     value={firstName}
                                     onChange={(event) =>
                                         setFirstName(event.target.value)
@@ -182,8 +180,7 @@ export function OnboardingPage({
                                 <span className="text-sm font-semibold text-(--color-text-primary)">
                                     {t("onboarding.lastName")}
                                 </span>
-                                <input
-                                    className={inputClass}
+                                <Input
                                     value={lastName}
                                     onChange={(event) =>
                                         setLastName(event.target.value)
@@ -196,13 +193,11 @@ export function OnboardingPage({
                                 <span className="text-sm font-semibold text-(--color-text-primary)">
                                     {t("onboarding.phone")}
                                 </span>
-                                <input
-                                    className={inputClass}
+                                <Input
                                     value={phone}
                                     onChange={(event) =>
                                         setPhone(event.target.value)
                                     }
-                                    type="tel"
                                     autoComplete="tel"
                                 />
                             </label>
