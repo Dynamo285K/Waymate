@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import { Button, FeatureCard } from "@waymate/ui";
+import { Button, FeatureCard, PlusIcon } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { RideCard } from "../components/RideCard";
@@ -256,11 +256,12 @@ export function DriverHomePage({
                     {t("driver.home.subtitle")}
                 </p>
                 <Button
+                    variant="outlineSuccess"
+                    rightIcon={<PlusIcon />}
                     onClick={() => navigate("/driver/offer")}
                     className="mt-8"
                 >
-                    {t("driver.home.createRide")}{" "}
-                    <span className="text-xl leading-none">+</span>
+                    {t("driver.home.createRide")}
                 </Button>
             </section>
 
@@ -329,7 +330,7 @@ export function DriverHomePage({
                     </div>
                     <div className="flex justify-center mt-6">
                         <Button
-                            variant="secondary"
+                            variant="outlineSuccess"
                             onClick={() => navigate("/driver/rides")}
                         >
                             {t("driver.home.viewAllRides")}
@@ -409,7 +410,7 @@ export function DriverHomePage({
                     </div>
                     <div className="flex justify-center mt-6">
                         <Button
-                            variant="secondary"
+                            variant="outlineSuccess"
                             onClick={() => navigate("/driver/requests")}
                         >
                             {t("driver.home.viewAllRequests")}

@@ -372,7 +372,7 @@ export function HomeContent({
                 {availableRides.length > 0 && (
                     <div className="flex justify-center mt-8">
                         <Button
-                            variant="secondary"
+                            variant="outlineSuccess"
                             onClick={onViewAllRides}
                         >
                             {t("home.availableRides.viewAll")}
