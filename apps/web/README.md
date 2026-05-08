@@ -76,8 +76,23 @@ export function MyPage(props: MyPageProps) {
 
 Copy `.env.example` to `.env.local` if you need to override defaults:
 
-- `VITE_API_PROXY_TARGET` — where Vite's dev server proxies `/api/*` requests. Default: `http://localhost:3000`. Set this if you ran the API on a different port.
-- `VITE_API_BASE_URL` — base URL the Eden client uses. Default: `/api` (i.e. through the proxy). Override to call the API directly.
+- `API_PROXY_TARGET` — where the same-origin `/api/*` proxy forwards requests. Vite uses it locally and Vercel uses it in `vercel.json`. Default in local Vite dev: `http://localhost:3000`. Set it if the API runs elsewhere, without a trailing slash.
+- `VITE_API_PROXY_TARGET` — backward-compatible local alias for `API_PROXY_TARGET`.
+- `VITE_API_BASE_URL` — base URL the generated API client uses. Default: `/api` (i.e. through the same-origin proxy). Override only if you intentionally want the browser to call the API directly.
+
+## Vercel deployment
+
+Deploy this app as a Vercel monorepo project with Root Directory set to `apps/web`. Keep `VITE_API_BASE_URL` unset so the browser keeps calling same-origin `/api/*`.
+
+Set this Vercel environment variable for the web project:
+
+```bash
+API_PROXY_TARGET=https://your-api.example.com
+```
+
+The `apps/web/vercel.json` route forwards `/api/*` to `API_PROXY_TARGET` while stripping the first `/api`, matching the local Vite proxy. It also rewrites non-file routes to `/index.html` so direct visits to client routes work.
+
+On the API deployment, set `WEB_ORIGIN` to your Vercel frontend origin, for example `https://your-app.vercel.app`. Add preview/staging frontend origins to `CORS_ORIGINS` if they should also be allowed to make authenticated requests.
 
 ## UI library
 

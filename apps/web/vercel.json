@@ -1,0 +1,16 @@
+{
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "routes": [
+        {
+            "src": "/api/(.*)",
+            "dest": "${API_PROXY_TARGET}/$1",
+            "env": ["API_PROXY_TARGET"]
+        }
+    ],
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
+        }
+    ]
+}
