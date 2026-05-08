@@ -83,12 +83,8 @@ export function OnboardingPage({
         if (isInitialized || isLoadingProfile) return;
 
         if (loadError) {
-<<<<<<< HEAD
-            setSubmitError("onboarding.loginRequired");
-=======
             /* eslint-disable react-hooks/set-state-in-effect */
             setSubmitError(t("onboarding.loginRequired"));
->>>>>>> 50ade9d (KAN-108: Replace raw elements with design system components and remove hardcoded colors)
             setIsInitialized(true);
             /* eslint-enable react-hooks/set-state-in-effect */
             return;

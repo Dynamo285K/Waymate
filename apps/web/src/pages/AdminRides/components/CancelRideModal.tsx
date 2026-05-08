@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, Modal } from "@waymate/ui";
+import { Button, IconButton, Modal, Textarea } from "@waymate/ui";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { adminRidesErrorMap } from "../lib/errors";
 
@@ -24,8 +24,6 @@ export function CancelRideModal({
 
     const trimmedReason = reason.trim();
     const canConfirm = trimmedReason.length > 0 && !isPending;
-    const inputClass =
-        "w-full border border-(--color-border) rounded-xl bg-(--color-input-bg) text-(--color-text-primary) px-4 py-3 text-sm outline-none focus:border-(--color-primary) transition-colors";
 
     return (
         <Modal
@@ -37,12 +35,7 @@ export function CancelRideModal({
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
                         {t("admin.forceCancelRide")} — {rideRoute}
                     </h2>
-                    <button
-                        onClick={onClose}
-                        className="text-(--color-text-secondary) hover:text-(--color-text-primary) text-xl"
-                    >
-                        ✕
-                    </button>
+                    <IconButton ariaLabel="Close" icon={<span aria-hidden>✕</span>} variant="ghost" onClick={onClose} />
                 </div>
 
                 <div className="bg-(--color-danger-bg) border border-(--color-danger-border) rounded-xl p-4 mb-5 text-sm text-(--color-danger-text)">
@@ -54,8 +47,7 @@ export function CancelRideModal({
                         {t("admin.reasonForCancel")}{" "}
                         <span className="text-(--color-danger-text)">*</span>
                     </label>
-                    <textarea
-                        className={inputClass + " resize-y min-h-25"}
+                    <Textarea
                         placeholder={t("admin.reasonPlaceholder")}
                         maxLength={500}
                         value={reason}

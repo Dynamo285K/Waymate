@@ -179,15 +179,6 @@ export function AddCarPage({
             )}
 
             <section className="w-full px-4 sm:max-w-2xl sm:mx-auto sm:px-8 py-8 sm:py-12">
-<<<<<<< HEAD
-                <button
-                    type="button"
-                    onClick={() => navigate(backPath)}
-                    className="text-(--color-text-secondary) text-sm mb-6 hover:text-(--color-text-primary) transition-colors"
-                >
-                    {t("profile.backToProfile")}
-                </button>
-=======
                 <div className="text-sm mb-6">
                     <TextLink
                         variant="muted"
@@ -196,7 +187,6 @@ export function AddCarPage({
                         {t("profile.backToProfile", "<- Back to My Profile")}
                     </TextLink>
                 </div>
->>>>>>> 50ade9d (KAN-108: Replace raw elements with design system components and remove hardcoded colors)
                 <h1 className="text-2xl font-bold text-(--color-text-primary) mb-8">
                     {t("addCar.title")}
                 </h1>

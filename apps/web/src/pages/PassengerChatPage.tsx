@@ -242,26 +242,7 @@ export function PassengerChatPage({
                                 }
                                 variant="ghost"
                                 onClick={handleBack}
-<<<<<<< HEAD
-                                className="text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors"
-                                aria-label={t("chat.back")}
-                            >
-                                <svg
-                                    width="20"
-                                    height="20"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
-                                    <path d="M19 12H5M12 5l-7 7 7 7" />
-                                </svg>
-                            </button>
-=======
                             />
->>>>>>> 50ade9d (KAN-108: Replace raw elements with design system components and remove hardcoded colors)
                             <ChatHeader
                                 name={active.name}
                                 labels={chatHeaderLabels}

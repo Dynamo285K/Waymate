@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Avatar } from "@waymate/ui";
+import { Avatar, Button } from "@waymate/ui";
 import type { AdminRideListItem } from "../../../api-client/model/adminRideListItem";
 import { fullName, formatDate } from "../lib/format";
 import { RideStatusBadge } from "./RideStatusBadge";
@@ -91,19 +91,8 @@ export function AdminRidesTable({
                                 </td>
                                 <td className="px-5 py-4">
                                     <div className="flex gap-2 items-center">
-                                        <button
-                                            onClick={() => onView(ride)}
-                                            className="px-3 py-1.5 border border-(--color-border) rounded-lg text-sm font-medium text-(--color-text-secondary) hover:bg-(--color-border) transition-colors"
-                                        >
-                                            {t("admin.view")}
-                                        </button>
-                                        <button
-                                            onClick={() => onCancel(ride)}
-                                            disabled={cancelDisabled}
-                                            className="px-3 py-1.5 bg-(--color-red) hover:bg-(--color-red)/90 text-(--color-card) rounded-lg text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                            {t("admin.forceCancel")}
-                                        </button>
+                                        <Button variant="secondary" onClick={() => onView(ride)}>{t("admin.view")}</Button>
+                                        <Button variant="red" onClick={() => onCancel(ride)} disabled={cancelDisabled}>{t("admin.forceCancel")}</Button>
                                     </div>
                                 </td>
                             </tr>
