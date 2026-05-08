@@ -56,7 +56,7 @@ export async function apiFetcher<T>(
 ): Promise<T> {
     let response: Response;
     try {
-        response = await fetch(`${API_BASE_URL}${url}`, {
+        response = await fetch(`${API_BASE_URL}${normalizeApiPath(url)}`, {
             credentials: "include",
             ...options,
         });
@@ -75,6 +75,22 @@ export async function apiFetcher<T>(
     }
 
     return data as T;
+}
+
+function normalizeApiPath(url: string): string {
+    const queryStart = url.indexOf("?");
+    const hashStart = url.indexOf("#");
+    const suffixStart = [queryStart, hashStart]
+        .filter((index) => index !== -1)
+        .sort((a, b) => a - b)[0];
+
+    const pathname =
+        suffixStart === undefined ? url : url.slice(0, suffixStart);
+    const suffix = suffixStart === undefined ? "" : url.slice(suffixStart);
+    const normalizedPathname =
+        pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+
+    return `${normalizedPathname}${suffix}`;
 }
 
 async function parseBody(response: Response): Promise<unknown> {
