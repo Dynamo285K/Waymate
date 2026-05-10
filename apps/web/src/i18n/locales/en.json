@@ -344,6 +344,18 @@
         "passengersError": "Select a ride to view passengers.",
         "cancelBookingError": "Could not cancel the booking. Please try again."
     },
+    "cancelBookingDialog": {
+        "title": "Cancel booking?",
+        "message": "Are you sure you want to cancel your booking? This action cannot be undone."
+    },
+    "cancelRideDialog": {
+        "title": "Cancel ride?",
+        "message": "Are you sure you want to cancel this ride? This action cannot be undone.",
+        "reasonLabel": "Reason (optional)",
+        "reasonPlaceholder": "Enter a reason for cancellation...",
+        "goBack": "Go back",
+        "confirm": "Confirm cancellation"
+    },
     "driver": {
         "nav": {
             "offerRide": "Offer ride",

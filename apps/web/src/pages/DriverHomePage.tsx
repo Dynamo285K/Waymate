@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { Button, FeatureCard, PlusIcon } from "@waymate/ui";
+import { CancelRideDialog } from "../components/CancelRideDialog";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { RideCard } from "../components/RideCard";
@@ -163,6 +165,7 @@ export function DriverHomePage({
         timeframe: "UPCOMING",
     });
     const cancelRide = useCancelRide();
+    const [rideToCancel, setRideToCancel] = useState<string | null>(null);
     const {
         data: rideRequests,
         isLoading: areRequestsLoading,
@@ -311,7 +314,7 @@ export function DriverHomePage({
                                     seatsLeft={ride.seatsLeft}
                                     onViewPassengers={() => {}}
                                     onCancelRide={() =>
-                                        cancelRide.mutate({ rideId: ride.id })
+                                        setRideToCancel(ride.id)
                                     }
                                     labels={rideLabels}
                                 />
@@ -514,6 +517,21 @@ export function DriverHomePage({
                     </div>
                 </div>
             </section>
+
+            <CancelRideDialog
+                open={rideToCancel !== null}
+                loading={cancelRide.isPending}
+                onOpenChange={(open) => {
+                    if (!open) setRideToCancel(null);
+                }}
+                onConfirm={(reason) => {
+                    if (!rideToCancel) return;
+                    cancelRide.mutate(
+                        { rideId: rideToCancel, reason },
+                        { onSettled: () => setRideToCancel(null) }
+                    );
+                }}
+            />
         </div>
     );
 }

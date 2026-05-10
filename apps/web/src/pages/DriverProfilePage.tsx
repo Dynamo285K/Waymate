@@ -8,6 +8,7 @@ import { RideCard } from "../components/RideCard";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { useCancelRide } from "../hooks/useCancelRide";
 import { useDeleteCar } from "../hooks/useDeleteCar";
+import { CancelRideDialog } from "../components/CancelRideDialog";
 import { useGetRidesMe } from "../api-client/rides/rides";
 import { formatRideDate as formatDate } from "../lib/date-format";
 import { useGetCarsMe } from "../api-client/cars/cars";
@@ -46,6 +47,7 @@ export function DriverProfilePage({
     const [cancellingRideId, setCancellingRideId] = useState<string | null>(
         null
     );
+    const [rideToCancel, setRideToCancel] = useState<string | null>(null);
     const [carToDelete, setCarToDelete] = useState<string | null>(null);
     const deleteCar = useDeleteCar();
     const {
@@ -95,15 +97,13 @@ export function DriverProfilePage({
             };
         }) ?? [];
 
-    function handleCancelRide(rideId: string) {
-        if (cancelRide.isPending && cancellingRideId === rideId) return;
-
-        setCancellingRideId(rideId);
+    function handleConfirmCancel(reason: string) {
+        if (!rideToCancel) return;
+        setCancellingRideId(rideToCancel);
+        setRideToCancel(null);
         cancelRide.mutate(
-            { rideId },
-            {
-                onSettled: () => setCancellingRideId(null),
-            }
+            { rideId: rideToCancel, reason },
+            { onSettled: () => setCancellingRideId(null) }
         );
     }
 
@@ -215,7 +215,7 @@ export function DriverProfilePage({
                                             )
                                         }
                                         onCancelRide={() =>
-                                            handleCancelRide(ride.id)
+                                            setRideToCancel(ride.id)
                                         }
                                         labels={{
                                             seatsLeft: (count) =>
@@ -314,6 +314,15 @@ export function DriverProfilePage({
                     </Button>
                 </div>
             </Modal>
+
+            <CancelRideDialog
+                open={rideToCancel !== null}
+                loading={cancelRide.isPending}
+                onOpenChange={(open) => {
+                    if (!open) setRideToCancel(null);
+                }}
+                onConfirm={handleConfirmCancel}
+            />
         </div>
     );
 }

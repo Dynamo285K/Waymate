@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { Button } from "@waymate/ui";
+import { CancelRideDialog } from "../components/CancelRideDialog";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { RideCard } from "../components/RideCard";
@@ -43,6 +44,7 @@ export function DriverMyRidesPage({
     const [cancellingRideId, setCancellingRideId] = useState<string | null>(
         null
     );
+    const [rideToCancel, setRideToCancel] = useState<string | null>(null);
     const timeframe = tab === "past" ? "PAST" : "UPCOMING";
     const {
         data: rides,
@@ -77,15 +79,13 @@ export function DriverMyRidesPage({
             };
         }) ?? [];
 
-    function handleCancelRide(rideId: string) {
-        if (cancelRide.isPending && cancellingRideId === rideId) return;
-
-        setCancellingRideId(rideId);
+    function handleConfirmCancel(reason: string) {
+        if (!rideToCancel) return;
+        setCancellingRideId(rideToCancel);
+        setRideToCancel(null);
         cancelRide.mutate(
-            { rideId },
-            {
-                onSettled: () => setCancellingRideId(null),
-            }
+            { rideId: rideToCancel, reason },
+            { onSettled: () => setCancellingRideId(null) }
         );
     }
 
@@ -172,7 +172,7 @@ export function DriverMyRidesPage({
                                         })
                                     }
                                     onCancelRide={() =>
-                                        handleCancelRide(ride.id)
+                                        setRideToCancel(ride.id)
                                     }
                                     labels={{
                                         seatsLeft: (count) =>
@@ -214,6 +214,15 @@ export function DriverMyRidesPage({
                         })}
                 </div>
             </section>
+
+            <CancelRideDialog
+                open={rideToCancel !== null}
+                loading={cancelRide.isPending}
+                onOpenChange={(open) => {
+                    if (!open) setRideToCancel(null);
+                }}
+                onConfirm={handleConfirmCancel}
+            />
         </div>
     );
 }
