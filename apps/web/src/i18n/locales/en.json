@@ -30,7 +30,6 @@
     },
     "register": {
         "title": "Create account",
-        "fullName": "Full name",
         "email": "Email",
         "password": "Password",
         "confirmPassword": "Confirm password",
@@ -39,7 +38,6 @@
         "or": "or",
         "alreadyHaveAccount": "Already have an account?",
         "login": "Login",
-        "requiredError": "Please fill in all fields.",
         "passwordMismatch": "Passwords do not match.",
         "invalidEmail": "Enter a valid email address.",
         "passwordTooShort": "Password must be at least 8 characters.",
@@ -59,7 +57,6 @@
         "save": "Save and continue",
         "requiredError": "Enter your first name, last name, and phone number.",
         "phoneError": "Use an international phone number, for example +421900123456.",
-        "verifyEmailFirst": "Verify your email address first, then complete your profile.",
         "loginRequired": "Please log in after verifying your email, then complete your profile.",
         "error": "Could not save your profile. Please try again."
     },
@@ -176,8 +173,52 @@
         "unbanUser": "Unban user",
         "selfActionDisabled": "You cannot perform this action on your own account",
         "errors": {
-            "userNotFound": "This user no longer exists. The list will refresh."
+            "userNotFound": "This user no longer exists. The list will refresh.",
+            "rideNotFound": "This ride no longer exists. The list will refresh.",
+            "rideAlreadyCancelled": "This ride has already been cancelled.",
+            "reviewNotFound": "This review no longer exists. The list will refresh."
         },
+        "reviewsTab": "Reviews",
+        "reviewsTitle": "Review Moderation",
+        "reviewsSubtitle": "Surface low-rated or flagged reviews and hide or remove abusive ones.",
+        "loadingReviews": "Loading reviews…",
+        "noReviewsFound": "No reviews match the current filters.",
+        "noComment": "(no comment)",
+        "searchReviews": "Search comment, author, subject…",
+        "lowRatingOnly": "Low rating only (≤2★)",
+        "visible": "Visible",
+        "hidden": "Hidden",
+        "removed": "Removed",
+        "author": "Author",
+        "subject": "Subject",
+        "comment": "Comment",
+        "created": "Created",
+        "reviewDetail": "Review detail",
+        "rideContext": "Ride context",
+        "setReviewStatus": "Set review status: {{status}}",
+        "hideReviewWarning": "Hidden reviews are kept on file but stop counting toward the subject's rating and aren't visible in the public profile.",
+        "removeReviewWarning": "Removed reviews are treated as deleted: invisible everywhere and excluded from rating aggregates. Use this for clear policy violations.",
+        "reasonForModeration": "Reason for moderation",
+        "confirm": "Confirm",
+        "makeVisible": "Make visible",
+        "hide": "Hide",
+        "remove": "Remove",
+        "planned": "Planned",
+        "inProgress": "In progress",
+        "loadingRides": "Loading rides…",
+        "noRidesFound": "No rides match the current filters.",
+        "noBookings": "No bookings yet.",
+        "rideDetail": "Ride detail",
+        "forceCancelRide": "Force cancel ride",
+        "cancelRideWarning": "This will immediately cancel the ride and all active passenger bookings. The intervention will be logged in the ride's status history.",
+        "reasonForCancel": "Reason for cancellation",
+        "confirmCancel": "Confirm cancellation",
+        "car": "Car",
+        "currency": "Currency",
+        "stops": "Stops",
+        "arrival": "Arrival",
+        "departure": "Departure",
+        "prices": "Prices",
         "reportTypes": {
             "inappropriateBehavior": "Inappropriate behavior",
             "noShow": "No-show",
@@ -200,25 +241,30 @@
         "sendCode": "Send reset code",
         "backToLogin": "← Back to login",
         "step2Title": "Check your email",
-        "step2Subtitle": "We sent a 6-digit code to",
-        "verifyCode": "Verify code",
         "resendIn": "Didn't receive it? Resend in",
         "resend": "Resend",
         "step3Title": "Set new password",
         "step3Subtitle": "Choose a strong password you haven't used before.",
         "newPassword": "New password",
         "confirmPassword": "Confirm password",
-        "setPassword": "Set new password"
+        "setPassword": "Set new password",
+        "invalidToken": "This reset link is invalid or expired. Please request a new one.",
+        "error": "Could not send reset email. Please try again.",
+        "resetError": "Could not reset your password. Please request a new link.",
+        "resetLinkSent": "We sent a password reset link to",
+        "sending": "Sending...",
+        "settingPassword": "Setting password..."
     },
     "editProfile": {
         "title": "Edit Profile",
         "fullName": "Full name",
         "email": "Email address",
         "phone": "Phone number",
-        "licensePlate": "License plate (SPZ)",
         "aboutMe": "About me",
         "save": "Save changes",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "saveError": "Could not save your changes. Please try again."
     },
     "offerRide": {
         "title": "Offer a ride",
@@ -253,18 +299,23 @@
         "loadingCarModels": "Loading models...",
         "licensePlate": "License plate (SPZ)",
         "platePlaceholder": "e.g., ABC 1234",
-        "plateError": "Use format BA-123AB.",
         "saveCarTitle": "Add this car to your cars?",
         "saveCarText": "Do you want to save {{car}} ({{plate}}) to your registered cars for next time?",
         "skipSaveCar": "No, just publish",
-        "saveCar": "Save car"
+        "saveCar": "Save car",
+        "missingFieldsError": "Please fill pickup, dropoff, date, time, seats, price, and choose a saved car.",
+        "invalidSeatsError": "Available seats must be a whole number greater than 0.",
+        "invalidPriceError": "Price per seat must be a whole number greater than 0.",
+        "carCreateError": "Could not save this car. Please check the car details."
     },
     "rideRequests": {
         "title": "Ride Requests",
         "subtitle": "Manage booking requests from passengers.",
         "seatsRequired": "{{count}} seat(s) required",
         "accept": "Accept",
-        "decline": "Decline"
+        "decline": "Decline",
+        "empty": "No pending requests.",
+        "passenger": "Passenger"
     },
     "driverRides": {
         "title": "My Rides",
@@ -280,7 +331,6 @@
         "full": "Full",
         "passengers": "Passengers",
         "backToMyRides": "← Back to My Rides",
-        "passengersCount": "{{count}} Passengers",
         "sendMessage": "Send message",
         "cancelBooking": "Cancel booking",
         "seatsReserved": "{{count}} seat(s) reserved",
@@ -288,7 +338,11 @@
         "kmTraveled": "{{km}}km traveled",
         "earned": "{{amount}}€ earned",
         "writeReview": "Write a review...",
-        "submitRating": "Submit rating"
+        "submitRating": "Submit rating",
+        "cancelling": "Cancelling...",
+        "noPassengers": "No passengers yet.",
+        "passengersError": "Select a ride to view passengers.",
+        "cancelBookingError": "Could not cancel the booking. Please try again."
     },
     "driver": {
         "nav": {
@@ -321,12 +375,18 @@
         "myCars": "My cars",
         "addCar": "Add car",
         "backToProfile": "← Back to My Profile",
-        "manage": "Manage",
-        "cancelRide": "Cancel ride"
+        "cancelRide": "Cancel ride",
+        "fallbackName": "User",
+        "loadingCars": "Loading cars...",
+        "noCars": "You have no saved cars yet."
     },
     "ratings": {
         "title": "My Ratings",
-        "totalRatings": "Total Ratings"
+        "totalRatings": "Total Ratings",
+        "myRatings": "My ratings",
+        "loading": "Loading ratings...",
+        "empty": "No ratings yet.",
+        "ride": "Ride"
     },
     "rateDriver": {
         "title": "Rate your driver",
@@ -439,5 +499,20 @@
                 "description": "Transparent reviews from other users."
             }
         }
+    },
+    "addCar": {
+        "title": "Add car",
+        "make": "Make",
+        "model": "Model",
+        "seats": "Available passenger seats",
+        "excludingDriver": "(excluding driver)",
+        "color": "Color",
+        "licensePlate": "License plate (SPZ)",
+        "selectMake": "Select make...",
+        "selectModel": "Select model...",
+        "loadingModels": "Loading models...",
+        "requiredError": "Fill in all required fields.",
+        "adding": "Adding...",
+        "addButton": "Add car"
     }
 }

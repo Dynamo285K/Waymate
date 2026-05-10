@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import { Button } from "@waymate/ui";
+import { Button, Input, TextLink, IconButton } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { requestPasswordReset, resetPassword } from "../lib/auth";
 
@@ -61,12 +61,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
     const [isSendingReset, setIsSendingReset] = useState(false);
     const [isResettingPassword, setIsResettingPassword] = useState(false);
     const [resetError, setResetError] = useState<string | null>(
-        initialFromUrl.hasError
-            ? t(
-                  "forgotPassword.invalidToken",
-                  "This reset link is invalid or expired. Please request a new one."
-              )
-            : null
+        initialFromUrl.hasError ? "forgotPassword.invalidToken" : null
     );
     const [resetToken] = useState<string | null>(initialFromUrl.token);
 
@@ -76,14 +71,14 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                 .string()
                 .trim()
                 .refine((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
-                    message: t("login.invalidEmail"),
+                    message: "login.invalidEmail",
                 }),
-            newPassword: z.string().min(8, t("register.passwordTooShort")),
+            newPassword: z.string().min(8, "register.passwordTooShort"),
             confirmPassword: z.string(),
         })
         .refine((values) => values.newPassword === values.confirmPassword, {
             path: ["confirmPassword"],
-            message: t("register.passwordMismatch"),
+            message: "register.passwordMismatch",
         });
 
     const {
@@ -126,12 +121,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
         setIsSendingReset(false);
 
         if (error) {
-            setResetError(
-                t(
-                    "forgotPassword.error",
-                    "Could not send reset email. Please try again."
-                )
-            );
+            setResetError("forgotPassword.error");
             return;
         }
 
@@ -153,20 +143,12 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
         setIsResettingPassword(false);
 
         if (error) {
-            setResetError(
-                t(
-                    "forgotPassword.resetError",
-                    "Could not reset your password. Please request a new link."
-                )
-            );
+            setResetError("forgotPassword.resetError");
             return;
         }
 
         navigate("/login");
     }
-
-    const inputClass =
-        "w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) px-3 py-3 text-sm outline-none focus:border-(--color-primary) transition-colors font-[Inter,sans-serif]";
 
     return (
         <div
@@ -213,36 +195,15 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                             <label className="text-sm font-semibold text-(--color-text-primary) mb-1 block">
                                 {t("forgotPassword.emailLabel")}
                             </label>
-                            <div className="flex items-center border border-(--color-border) rounded-xl bg-(--color-input-bg) px-3 gap-2">
-                                <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    className="text-(--color-text-secondary) flex-shrink-0"
-                                >
-                                    <rect
-                                        width="20"
-                                        height="16"
-                                        x="2"
-                                        y="4"
-                                        rx="2"
-                                    />
-                                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                                </svg>
-                                <input
-                                    className="flex-1 bg-transparent border-none outline-none py-3 text-sm text-(--color-text-primary)"
-                                    placeholder={t(
-                                        "forgotPassword.emailPlaceholder"
-                                    )}
-                                    type="email"
-                                    {...register("email")}
-                                />
-                            </div>
+                            <Input
+                                placeholder={t(
+                                    "forgotPassword.emailPlaceholder"
+                                )}
+                                type="email"
+                                {...register("email")}
+                            />
                             {errors.email && (
-                                <p className="mt-2 text-xs font-semibold text-red-500">
+                                <p className="mt-2 text-xs font-semibold text-(--color-danger-text)">
                                     {errors.email.message}
                                 </p>
                             )}
@@ -253,20 +214,22 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                             onClick={handleSendCode}
                         >
                             {isSendingReset
-                                ? t("forgotPassword.sending", "Sending...")
+                                ? t("forgotPassword.sending")
                                 : `➤ ${t("forgotPassword.sendCode")}`}
                         </Button>
                         {resetError && (
-                            <p className="mt-3 text-xs font-semibold text-red-500">
+                            <p className="mt-3 text-xs font-semibold text-(--color-danger-text)">
                                 {resetError}
                             </p>
                         )}
-                        <button
-                            className="mt-4 text-sm text-(--color-text-secondary) hover:text-(--color-text-primary) transition-colors"
-                            onClick={() => navigate("/login")}
-                        >
-                            {t("forgotPassword.backToLogin")}
-                        </button>
+                        <div className="mt-4 text-sm">
+                            <TextLink
+                                variant="muted"
+                                onClick={() => navigate("/login")}
+                            >
+                                {t("forgotPassword.backToLogin")}
+                            </TextLink>
+                        </div>
                     </>
                 )}
 
@@ -300,10 +263,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                             {t("forgotPassword.step2Title")}
                         </h1>
                         <p className="text-sm text-(--color-text-secondary) mb-1">
-                            {t(
-                                "forgotPassword.resetLinkSent",
-                                "We sent a password reset link to"
-                            )}
+                            {t("forgotPassword.resetLinkSent")}
                         </p>
                         <p className="text-sm font-bold text-(--color-text-primary) mb-6">
                             {enteredEmail}
@@ -323,12 +283,12 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                     {countdown}s
                                 </span>
                             ) : (
-                                <button
-                                    className="font-bold text-(--color-primary) hover:underline"
+                                <TextLink
+                                    variant="primary"
                                     onClick={handleSendCode}
                                 >
                                     {t("forgotPassword.resend")}
-                                </button>
+                                </TextLink>
                             )}
                         </p>
                     </>
@@ -362,36 +322,36 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                     {t("forgotPassword.newPassword")}
                                 </label>
                                 <div className="flex items-center border border-(--color-border) rounded-xl bg-(--color-input-bg) px-3 gap-2">
-                                    <input
-                                        className="flex-1 bg-transparent border-none outline-none py-3 text-sm text-(--color-text-primary)"
+                                    <Input
+                                        {...register("newPassword")}
                                         type={showPw ? "text" : "password"}
                                         placeholder="••••••••"
-                                        {...register("newPassword")}
                                     />
-                                    <button
-                                        type="button"
+                                    <IconButton
+                                        ariaLabel="Toggle password visibility"
+                                        icon={
+                                            <svg
+                                                width="18"
+                                                height="18"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                            >
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                                <circle
+                                                    cx="12"
+                                                    cy="12"
+                                                    r="3"
+                                                />
+                                            </svg>
+                                        }
+                                        variant="ghost"
                                         onClick={() => setShowPw((v) => !v)}
-                                        className="text-(--color-text-secondary)"
-                                    >
-                                        <svg
-                                            width="18"
-                                            height="18"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                        >
-                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                            <circle
-                                                cx="12"
-                                                cy="12"
-                                                r="3"
-                                            />
-                                        </svg>
-                                    </button>
+                                    />
                                 </div>
                                 {errors.newPassword && (
-                                    <p className="mt-2 text-xs font-semibold text-red-500">
+                                    <p className="mt-2 text-xs font-semibold text-(--color-danger-text)">
                                         {errors.newPassword.message}
                                     </p>
                                 )}
@@ -400,14 +360,13 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                 <label className="text-sm font-semibold text-(--color-text-primary) mb-1 block">
                                     {t("forgotPassword.confirmPassword")}
                                 </label>
-                                <input
-                                    className={inputClass}
+                                <Input
+                                    {...register("confirmPassword")}
                                     type="password"
                                     placeholder="••••••••"
-                                    {...register("confirmPassword")}
                                 />
                                 {errors.confirmPassword && (
-                                    <p className="mt-2 text-xs font-semibold text-red-500">
+                                    <p className="mt-2 text-xs font-semibold text-(--color-danger-text)">
                                         {errors.confirmPassword.message}
                                     </p>
                                 )}
@@ -419,14 +378,11 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                             onClick={handleSetPassword}
                         >
                             {isResettingPassword
-                                ? t(
-                                      "forgotPassword.settingPassword",
-                                      "Setting password..."
-                                  )
+                                ? t("forgotPassword.settingPassword")
                                 : `✓ ${t("forgotPassword.setPassword")}`}
                         </Button>
                         {resetError && (
-                            <p className="mt-3 text-xs font-semibold text-red-500">
+                            <p className="mt-3 text-xs font-semibold text-(--color-danger-text)">
                                 {resetError}
                             </p>
                         )}

@@ -55,15 +55,15 @@ export function RegisterPage({
         const trimmedEmail = email.trim();
 
         if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-            nextErrors.email = t("register.invalidEmail");
+            nextErrors.email = "register.invalidEmail";
         }
 
         if (password.length < 8) {
-            nextErrors.password = t("register.passwordTooShort");
+            nextErrors.password = "register.passwordTooShort";
         }
 
         if (password !== confirmPassword) {
-            nextErrors.confirmPassword = t("register.passwordMismatch");
+            nextErrors.confirmPassword = "register.passwordMismatch";
         }
 
         if (Object.keys(nextErrors).length > 0) {
@@ -81,12 +81,12 @@ export function RegisterPage({
 
             if (error) {
                 if (error.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL") {
-                    setErrors({ email: t("register.emailAlreadyInUse") });
+                    setErrors({ email: "register.emailAlreadyInUse" });
                     return;
                 }
                 console.error("Email sign-up failed", error);
                 setErrors({
-                    form: t(getEmailAuthErrorI18nKey(error, "register.error")),
+                    form: getEmailAuthErrorI18nKey(error, "register.error"),
                 });
                 return;
             }
@@ -106,7 +106,7 @@ export function RegisterPage({
             if (error) {
                 console.error("Google sign-in failed", error);
                 setErrors({
-                    form: t(getGoogleAuthErrorI18nKey(error, "register.error")),
+                    form: getGoogleAuthErrorI18nKey(error, "register.error"),
                 });
                 return;
             }
@@ -154,10 +154,16 @@ export function RegisterPage({
                         email={email}
                         password={password}
                         confirmPassword={confirmPassword}
-                        emailError={errors.email}
-                        passwordError={errors.password}
-                        confirmPasswordError={errors.confirmPassword}
-                        message={errors.form}
+                        emailError={errors.email ? t(errors.email) : undefined}
+                        passwordError={
+                            errors.password ? t(errors.password) : undefined
+                        }
+                        confirmPasswordError={
+                            errors.confirmPassword
+                                ? t(errors.confirmPassword)
+                                : undefined
+                        }
+                        message={errors.form ? t(errors.form) : undefined}
                         isSubmitting={submitting}
                         onEmailChange={setEmail}
                         onPasswordChange={setPassword}

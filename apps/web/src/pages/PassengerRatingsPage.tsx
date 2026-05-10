@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "../lib/router-compat";
-import { RatingSummaryCard, RatingCard } from "@waymate/ui";
+import { RatingSummaryCard, RatingCard, TextLink } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
@@ -87,17 +87,17 @@ export function PassengerRatingsPage({
             <PassengerNavbar {...navbarProps} />
 
             <section className="w-full px-4 sm:max-w-3xl sm:mx-auto sm:px-8 py-8 sm:py-12">
-                <button
-                    onClick={() => navigate("/passenger/profile")}
-                    className="text-(--color-text-secondary) text-sm mb-4 hover:text-(--color-text-primary) transition-colors"
-                >
-                    {t("profile.backToProfile")}
-                </button>
+                <div className="text-sm mb-4">
+                    <TextLink
+                        variant="muted"
+                        onClick={() => navigate("/passenger/profile")}
+                    >
+                        {t("profile.backToProfile")}
+                    </TextLink>
+                </div>
 
                 <h1 className="text-2xl font-bold text-(--color-text-primary) mb-6">
-                    {isReceived
-                        ? t("ratings.title")
-                        : t("ratings.myRatings", "My ratings")}
+                    {isReceived ? t("ratings.title") : t("ratings.myRatings")}
                 </h1>
 
                 <RatingSummaryCard
@@ -109,7 +109,7 @@ export function PassengerRatingsPage({
                 <div className="flex flex-col gap-4 mt-6">
                     {isLoading && (
                         <p className="text-(--color-text-secondary)">
-                            {t("ratings.loading", "Loading ratings...")}
+                            {t("ratings.loading")}
                         </p>
                     )}
                     {isError && (
@@ -119,7 +119,7 @@ export function PassengerRatingsPage({
                     )}
                     {!isLoading && !isError && ratings.length === 0 && (
                         <p className="text-(--color-text-secondary)">
-                            {t("ratings.empty", "No ratings yet.")}
+                            {t("ratings.empty")}
                         </p>
                     )}
                     {!isLoading &&
@@ -128,7 +128,7 @@ export function PassengerRatingsPage({
                             <RatingCard
                                 key={rating.id}
                                 name={rating.name}
-                                from={t("ratings.ride", "Ride")}
+                                from={t("ratings.ride")}
                                 to={rating.rideId.slice(0, 8)}
                                 rating={rating.rating}
                                 review={rating.review}

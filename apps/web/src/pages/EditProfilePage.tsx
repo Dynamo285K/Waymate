@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "../lib/router-compat";
-import { Input, Button } from "@waymate/ui";
+import { Input, Button, Textarea } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
@@ -149,10 +149,11 @@ export function EditProfilePage({
                         <label className="text-sm font-semibold text-(--color-text-primary)">
                             {t("editProfile.aboutMe")}
                         </label>
-                        <textarea
-                            className="w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) p-3 text-sm resize-y min-h-25 outline-none focus:border-(--color-primary) focus:ring-2 focus:ring-green-100 transition-colors font-[Inter,sans-serif]"
+                        <Textarea
                             value={about}
-                            onChange={(e) => setAbout(e.target.value)}
+                            onChange={(
+                                e: React.ChangeEvent<HTMLTextAreaElement>
+                            ) => setAbout(e.target.value)}
                         />
                     </div>
 
@@ -170,13 +171,13 @@ export function EditProfilePage({
                             disabled={updateProfile.isPending}
                         >
                             {updateProfile.isPending
-                                ? t("editProfile.saving", "Saving...")
+                                ? t("editProfile.saving")
                                 : t("editProfile.save")}
                         </Button>
                     </div>
 
                     {updateProfile.isError && (
-                        <p className="text-sm font-semibold text-red-500">
+                        <p className="text-sm font-semibold text-(--color-danger-text)">
                             {t(
                                 getErrorI18nKey(
                                     updateProfile.error,

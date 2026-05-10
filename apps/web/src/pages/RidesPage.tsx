@@ -63,25 +63,26 @@ export function RidesPage({
         canSearch,
     } = useRideSearch({ from, to, date: dateStr });
 
-    const availableRides =
-        availableRideRows?.map((ride) => {
-            const driverName = [ride.driver.firstName, ride.driver.lastName]
-                .filter(Boolean)
-                .join(" ");
+    const availableRides = Array.isArray(availableRideRows)
+        ? availableRideRows.map((ride) => {
+              const driverName = [ride.driver.firstName, ride.driver.lastName]
+                  .filter(Boolean)
+                  .join(" ");
 
-            return {
-                id: ride.rideId,
-                from: ride.pickupStop.city,
-                to: ride.dropoffStop.city,
-                date: new Date(
-                    ride.pickupStop.plannedDepartureAt ?? ride.departureAt
-                ),
-                seatsLeft: ride.seatsLeft,
-                driverName: driverName || t("roles.driver"),
-                driverRating: ride.driver.averageRating ?? 0,
-                price: ride.priceAmount ?? 0,
-            };
-        }) ?? [];
+              return {
+                  id: ride.rideId,
+                  from: ride.pickupStop.city,
+                  to: ride.dropoffStop.city,
+                  date: new Date(
+                      ride.pickupStop.plannedDepartureAt ?? ride.departureAt
+                  ),
+                  seatsLeft: ride.seatsLeft,
+                  driverName: driverName || t("roles.driver"),
+                  driverRating: ride.driver.averageRating ?? 0,
+                  price: ride.priceAmount ?? 0,
+              };
+          })
+        : [];
 
     const count = showAllRides ? availableRides.length : (rides?.length ?? 0);
 

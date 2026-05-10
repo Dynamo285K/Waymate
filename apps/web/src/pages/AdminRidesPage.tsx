@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Avatar, Button, Modal } from "@waymate/ui";
+import {
+    Avatar,
+    Button,
+    IconButton,
+    Input,
+    Modal,
+    SearchInput,
+} from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { AdminNavbar } from "../components/navigation/AdminNavbar";
 import { useAdminNavbarProps } from "../hooks/useAdminNavbarProps";
@@ -176,12 +183,12 @@ function RideModal({
                             to: ride.to,
                         })}
                     </h2>
-                    <button
+                    <IconButton
+                        ariaLabel="Close"
+                        icon={<span aria-hidden>✕</span>}
+                        variant="ghost"
                         onClick={onClose}
-                        className="text-(--color-text-secondary) hover:text-(--color-text-primary) text-xl leading-none"
-                    >
-                        ✕
-                    </button>
+                    />
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-8 gap-y-4 mb-6">
@@ -286,8 +293,6 @@ function ModifyRideModal({
     const [date, setDate] = useState(ride.date);
     const [time, setTime] = useState(ride.time);
 
-    const inputClass =
-        "w-full border border-(--color-border) rounded-xl bg-(--color-input-bg) text-(--color-text-primary) px-4 py-3 text-sm outline-none focus:border-(--color-primary) transition-colors";
     const labelClass =
         "text-sm font-semibold text-(--color-text-primary) mb-1.5 block";
 
@@ -301,43 +306,39 @@ function ModifyRideModal({
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
                         {t("admin.modifyRide", { id: ride.id })}
                     </h2>
-                    <button
+                    <IconButton
+                        ariaLabel="Close"
+                        icon={<span aria-hidden>✕</span>}
+                        variant="ghost"
                         onClick={onClose}
-                        className="text-(--color-text-secondary) hover:text-(--color-text-primary) text-xl leading-none"
-                    >
-                        ✕
-                    </button>
+                    />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
                     <div>
                         <label className={labelClass}>{t("admin.from")}</label>
-                        <input
-                            className={inputClass}
+                        <Input
                             value={from}
                             onChange={(e) => setFrom(e.target.value)}
                         />
                     </div>
                     <div>
                         <label className={labelClass}>{t("admin.to")}</label>
-                        <input
-                            className={inputClass}
+                        <Input
                             value={to}
                             onChange={(e) => setTo(e.target.value)}
                         />
                     </div>
                     <div>
                         <label className={labelClass}>{t("admin.date")}</label>
-                        <input
-                            className={inputClass}
+                        <Input
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
                         />
                     </div>
                     <div>
                         <label className={labelClass}>{t("admin.time")}</label>
-                        <input
-                            className={inputClass}
+                        <Input
                             value={time}
                             onChange={(e) => setTime(e.target.value)}
                         />
@@ -440,8 +441,9 @@ export function AdminRidesPage({
                 <div className="flex flex-wrap gap-3 mb-6 items-center">
                     <div className="flex gap-2">
                         {FILTERS.map((f) => (
-                            <button
+                            <Button
                                 key={f.key}
+                                variant="unstyled"
                                 onClick={() => setFilter(f.key)}
                                 className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
                                     filter === f.key
@@ -450,33 +452,14 @@ export function AdminRidesPage({
                                 }`}
                             >
                                 {f.label}
-                            </button>
+                            </Button>
                         ))}
                     </div>
-                    <div className="flex items-center gap-2 border border-(--color-border) rounded-xl px-3 py-2 bg-(--color-card) ml-auto min-w-55">
-                        <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            className="text-(--color-text-secondary) shrink-0"
-                        >
-                            <circle
-                                cx="11"
-                                cy="11"
-                                r="8"
-                            />
-                            <path d="m21 21-4.35-4.35" />
-                        </svg>
-                        <input
-                            className="bg-transparent border-none outline-none text-sm text-(--color-text-primary) w-full"
-                            placeholder={t("admin.searchRides")}
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
+                    <SearchInput
+                        value={search}
+                        onChange={setSearch}
+                        placeholder={t("admin.searchRides")}
+                    />
                 </div>
 
                 {/* Table */}
@@ -543,21 +526,21 @@ export function AdminRidesPage({
                                     </td>
                                     <td className="px-5 py-4">
                                         <div className="flex gap-2 items-center">
-                                            <button
+                                            <Button
+                                                variant="secondary"
                                                 onClick={() =>
                                                     setViewRide(ride)
                                                 }
-                                                className="px-3 py-1.5 border border-(--color-border) rounded-lg text-sm font-medium text-(--color-text-secondary) hover:bg-(--color-border) transition-colors whitespace-nowrap"
                                             >
                                                 {t("admin.view")}
-                                            </button>
+                                            </Button>
                                             {ride.status === "upcoming" && (
                                                 <>
-                                                    <button
+                                                    <Button
+                                                        variant="secondary"
                                                         onClick={() =>
                                                             setEditRide(ride)
                                                         }
-                                                        className="w-8 h-8 border border-(--color-border) rounded-lg flex items-center justify-center text-(--color-text-secondary) hover:bg-(--color-border) transition-colors"
                                                     >
                                                         <svg
                                                             width="14"
@@ -570,17 +553,17 @@ export function AdminRidesPage({
                                                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                                                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                                                         </svg>
-                                                    </button>
-                                                    <button
+                                                    </Button>
+                                                    <Button
+                                                        variant="red"
                                                         onClick={() =>
                                                             handleForceCancel(
                                                                 ride.id
                                                             )
                                                         }
-                                                        className="px-3 py-1.5 bg-(--color-red) hover:bg-(--color-red)/90 text-(--color-card) rounded-lg text-sm font-semibold transition-colors whitespace-nowrap"
                                                     >
                                                         {t("admin.forceCancel")}
-                                                    </button>
+                                                    </Button>
                                                 </>
                                             )}
                                         </div>

@@ -2130,6 +2130,674 @@
                 },
                 "operationId": "patchAdminUsersByIdStatus"
             }
+        },
+        "/admin/rides": {
+            "get": {
+                "tags": ["Admin"],
+                "description": "Returns a keyset-paginated list of rides for admin tooling. Supports filtering by status and case-insensitive driver email/firstName/lastName search.",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "default": 20,
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/RideId"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/RideStatus"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminRideListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Response for status 400",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Response for status 401",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Response for status 403",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Response for status 429",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "getAdminRides"
+            }
+        },
+        "/admin/rides/{id}": {
+            "get": {
+                "tags": ["Admin"],
+                "description": "Returns full ride detail (driver, car, stops, prices, bookings) plus the most recent status history entries (newest first, capped at 50). changedBy is null for system-triggered changes.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/RideId"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminRideDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Response for status 400",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Response for status 401",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Response for status 403",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Response for status 404",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Response for status 429",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "getAdminRidesById"
+            }
+        },
+        "/admin/reviews": {
+            "get": {
+                "tags": ["Admin"],
+                "description": "Returns a keyset-paginated list of reviews for moderation. Supports filtering by status, rating range, and case-insensitive search across comment text and author/subject email/name.",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "default": 20,
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/ReviewId"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/ReviewStatus"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "minRating",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 5
+                        }
+                    },
+                    {
+                        "name": "maxRating",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 5
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminReviewListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Response for status 400",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Response for status 401",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Response for status 403",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Response for status 429",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "getAdminReviews"
+            }
+        },
+        "/admin/reviews/{id}": {
+            "get": {
+                "tags": ["Admin"],
+                "description": "Returns full review detail (author, subject, ride context) plus the most recent status history entries (newest first, capped at 50).",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/ReviewId"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminReviewDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Response for status 400",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Response for status 401",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Response for status 403",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Response for status 404",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Response for status 429",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "getAdminReviewsById"
+            }
+        },
+        "/admin/reviews/{id}/status": {
+            "patch": {
+                "tags": ["Admin"],
+                "description": "Changes a review's moderation status (VISIBLE / HIDDEN / REMOVED) and records an audit row in review_status_history. The reason is required so the moderation log makes the action traceable.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/ReviewId"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateReviewStatusBody"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateReviewStatusBody"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateReviewStatusBody"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminReviewListItem"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Response for status 400",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Response for status 401",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Response for status 403",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Response for status 404",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Response for status 413",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Response for status 429",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "patchAdminReviewsByIdStatus"
+            }
+        },
+        "/admin/rides/{id}/cancel": {
+            "patch": {
+                "tags": ["Admin"],
+                "description": "Force-cancels a ride as admin and cascades cancellation to all active passenger bookings (PENDING/CONFIRMED). Records an audit row in ride_status_history with the admin as changedByUserId. The reason is required so the audit log makes the override traceable.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/RideId"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AdminCancelRideBody"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AdminCancelRideBody"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AdminCancelRideBody"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminCancelRideResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Response for status 400",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Response for status 401",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Response for status 403",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Response for status 404",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Response for status 413",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Response for status 429",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "patchAdminRidesByIdCancel"
+            }
         }
     },
     "components": {
@@ -3753,6 +4421,881 @@
                 "required": ["status"],
                 "additionalProperties": false
             },
+            "AdminRideIdParams": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "$ref": "#/components/schemas/RideId"
+                    }
+                },
+                "required": ["id"],
+                "additionalProperties": false
+            },
+            "AdminRideListQuery": {
+                "type": "object",
+                "properties": {
+                    "limit": {
+                        "default": 20,
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100
+                    },
+                    "cursor": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/RideId"
+                            }
+                        ]
+                    },
+                    "status": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/RideStatus"
+                            }
+                        ]
+                    },
+                    "search": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                    }
+                },
+                "required": ["limit"],
+                "additionalProperties": false
+            },
+            "AdminRideListItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "$ref": "#/components/schemas/RideId"
+                    },
+                    "rideStatus": {
+                        "$ref": "#/components/schemas/RideStatus"
+                    },
+                    "departureAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "offeredSeats": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency"
+                    },
+                    "originCity": {
+                        "type": "string"
+                    },
+                    "destinationCity": {
+                        "type": "string"
+                    },
+                    "activeSeatCount": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                    },
+                    "driver": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "$ref": "#/components/schemas/UserId"
+                            },
+                            "firstName": {
+                                "nullable": true,
+                                "type": "string"
+                            },
+                            "lastName": {
+                                "nullable": true,
+                                "type": "string"
+                            },
+                            "profilePhotoUrl": {
+                                "nullable": true,
+                                "type": "string",
+                                "format": "uri"
+                            },
+                            "email": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "firstName",
+                            "lastName",
+                            "profilePhotoUrl",
+                            "email"
+                        ],
+                        "additionalProperties": false
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "rideStatus",
+                    "departureAt",
+                    "offeredSeats",
+                    "currency",
+                    "originCity",
+                    "destinationCity",
+                    "activeSeatCount",
+                    "driver",
+                    "createdAt"
+                ],
+                "additionalProperties": false
+            },
+            "AdminRideListResponse": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AdminRideListItem"
+                        }
+                    },
+                    "nextCursor": {
+                        "nullable": true,
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/RideId"
+                            }
+                        ]
+                    }
+                },
+                "required": ["items", "nextCursor"],
+                "additionalProperties": false
+            },
+            "AdminRideDetail": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "$ref": "#/components/schemas/RideId"
+                    },
+                    "rideStatus": {
+                        "$ref": "#/components/schemas/RideStatus"
+                    },
+                    "departureAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "arrivalEstimateAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "offeredSeats": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency"
+                    },
+                    "description": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "driver": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "$ref": "#/components/schemas/UserId"
+                            },
+                            "firstName": {
+                                "nullable": true,
+                                "type": "string"
+                            },
+                            "lastName": {
+                                "nullable": true,
+                                "type": "string"
+                            },
+                            "profilePhotoUrl": {
+                                "nullable": true,
+                                "type": "string",
+                                "format": "uri"
+                            },
+                            "email": {
+                                "type": "string"
+                            },
+                            "userStatus": {
+                                "$ref": "#/components/schemas/UserStatus"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "firstName",
+                            "lastName",
+                            "profilePhotoUrl",
+                            "email",
+                            "userStatus"
+                        ],
+                        "additionalProperties": false
+                    },
+                    "car": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "spz": {
+                                "type": "string"
+                            },
+                            "brand": {
+                                "nullable": true,
+                                "type": "string"
+                            },
+                            "modelName": {
+                                "nullable": true,
+                                "type": "string"
+                            }
+                        },
+                        "required": ["id", "spz", "brand", "modelName"],
+                        "additionalProperties": false
+                    },
+                    "stops": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "$ref": "#/components/schemas/RideStopId"
+                                },
+                                "stopOrder": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                },
+                                "address": {
+                                    "type": "string"
+                                },
+                                "city": {
+                                    "type": "string"
+                                },
+                                "countryCode": {
+                                    "nullable": true,
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/CountryCode"
+                                        }
+                                    ]
+                                },
+                                "plannedArrivalAt": {
+                                    "nullable": true,
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                "plannedDepartureAt": {
+                                    "nullable": true,
+                                    "type": "string",
+                                    "format": "date-time"
+                                }
+                            },
+                            "required": [
+                                "id",
+                                "stopOrder",
+                                "address",
+                                "city",
+                                "countryCode",
+                                "plannedArrivalAt",
+                                "plannedDepartureAt"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    "prices": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "startStopId": {
+                                    "$ref": "#/components/schemas/RideStopId"
+                                },
+                                "endStopId": {
+                                    "$ref": "#/components/schemas/RideStopId"
+                                },
+                                "amount": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                },
+                                "currency": {
+                                    "$ref": "#/components/schemas/Currency"
+                                }
+                            },
+                            "required": [
+                                "startStopId",
+                                "endStopId",
+                                "amount",
+                                "currency"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    "bookings": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "bookingStatus": {
+                                    "type": "string",
+                                    "enum": [
+                                        "PENDING",
+                                        "CONFIRMED",
+                                        "REJECTED",
+                                        "CANCELLED",
+                                        "COMPLETED",
+                                        "NO_SHOW"
+                                    ]
+                                },
+                                "seatCount": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                },
+                                "passenger": {
+                                    "$ref": "#/components/schemas/PublicUserPreview"
+                                }
+                            },
+                            "required": [
+                                "id",
+                                "bookingStatus",
+                                "seatCount",
+                                "passenger"
+                            ],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "rideStatus",
+                    "departureAt",
+                    "arrivalEstimateAt",
+                    "offeredSeats",
+                    "currency",
+                    "description",
+                    "createdAt",
+                    "updatedAt",
+                    "driver",
+                    "car",
+                    "stops",
+                    "prices",
+                    "bookings"
+                ],
+                "additionalProperties": false
+            },
+            "AdminRideStatusHistoryItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "oldStatus": {
+                        "nullable": true,
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/RideStatus"
+                            }
+                        ]
+                    },
+                    "newStatus": {
+                        "$ref": "#/components/schemas/RideStatus"
+                    },
+                    "reason": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "changedBy": {
+                        "nullable": true,
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "$ref": "#/components/schemas/UserId"
+                            },
+                            "firstName": {
+                                "nullable": true,
+                                "type": "string"
+                            },
+                            "lastName": {
+                                "nullable": true,
+                                "type": "string"
+                            }
+                        },
+                        "required": ["id", "firstName", "lastName"],
+                        "additionalProperties": false
+                    }
+                },
+                "required": [
+                    "id",
+                    "oldStatus",
+                    "newStatus",
+                    "reason",
+                    "createdAt",
+                    "changedBy"
+                ],
+                "additionalProperties": false
+            },
+            "AdminRideDetailResponse": {
+                "type": "object",
+                "properties": {
+                    "ride": {
+                        "$ref": "#/components/schemas/AdminRideDetail"
+                    },
+                    "statusHistory": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AdminRideStatusHistoryItem"
+                        }
+                    }
+                },
+                "required": ["ride", "statusHistory"],
+                "additionalProperties": false
+            },
+            "AdminCancelRideBody": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 500
+                    }
+                },
+                "required": ["reason"],
+                "additionalProperties": false
+            },
+            "AdminCancelRideResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "$ref": "#/components/schemas/RideId"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": ["CANCELLED"]
+                    }
+                },
+                "required": ["id", "status"],
+                "additionalProperties": false
+            },
+            "AdminReviewIdParams": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "$ref": "#/components/schemas/ReviewId"
+                    }
+                },
+                "required": ["id"],
+                "additionalProperties": false
+            },
+            "AdminReviewListQuery": {
+                "type": "object",
+                "properties": {
+                    "limit": {
+                        "default": 20,
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100
+                    },
+                    "cursor": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ReviewId"
+                            }
+                        ]
+                    },
+                    "status": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ReviewStatus"
+                            }
+                        ]
+                    },
+                    "minRating": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 5
+                    },
+                    "maxRating": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 5
+                    },
+                    "search": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                    }
+                },
+                "required": ["limit"],
+                "additionalProperties": false
+            },
+            "AdminReviewListItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "$ref": "#/components/schemas/ReviewId"
+                    },
+                    "rideId": {
+                        "$ref": "#/components/schemas/RideId"
+                    },
+                    "rating": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 5
+                    },
+                    "comment": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "reviewStatus": {
+                        "$ref": "#/components/schemas/ReviewStatus"
+                    },
+                    "author": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "$ref": "#/components/schemas/UserId"
+                            },
+                            "firstName": {
+                                "nullable": true,
+                                "type": "string"
+                            },
+                            "lastName": {
+                                "nullable": true,
+                                "type": "string"
+                            },
+                            "profilePhotoUrl": {
+                                "nullable": true,
+                                "type": "string",
+                                "format": "uri"
+                            },
+                            "email": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "firstName",
+                            "lastName",
+                            "profilePhotoUrl",
+                            "email"
+                        ],
+                        "additionalProperties": false
+                    },
+                    "subject": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "$ref": "#/components/schemas/UserId"
+                            },
+                            "firstName": {
+                                "nullable": true,
+                                "type": "string"
+                            },
+                            "lastName": {
+                                "nullable": true,
+                                "type": "string"
+                            },
+                            "profilePhotoUrl": {
+                                "nullable": true,
+                                "type": "string",
+                                "format": "uri"
+                            },
+                            "email": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "firstName",
+                            "lastName",
+                            "profilePhotoUrl",
+                            "email"
+                        ],
+                        "additionalProperties": false
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "rideId",
+                    "rating",
+                    "comment",
+                    "reviewStatus",
+                    "author",
+                    "subject",
+                    "createdAt"
+                ],
+                "additionalProperties": false
+            },
+            "AdminReviewListResponse": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AdminReviewListItem"
+                        }
+                    },
+                    "nextCursor": {
+                        "nullable": true,
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ReviewId"
+                            }
+                        ]
+                    }
+                },
+                "required": ["items", "nextCursor"],
+                "additionalProperties": false
+            },
+            "AdminReviewDetail": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "$ref": "#/components/schemas/ReviewId"
+                    },
+                    "rideId": {
+                        "$ref": "#/components/schemas/RideId"
+                    },
+                    "rating": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 5
+                    },
+                    "comment": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "reviewStatus": {
+                        "$ref": "#/components/schemas/ReviewStatus"
+                    },
+                    "author": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "$ref": "#/components/schemas/UserId"
+                            },
+                            "firstName": {
+                                "nullable": true,
+                                "type": "string"
+                            },
+                            "lastName": {
+                                "nullable": true,
+                                "type": "string"
+                            },
+                            "profilePhotoUrl": {
+                                "nullable": true,
+                                "type": "string",
+                                "format": "uri"
+                            },
+                            "email": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "firstName",
+                            "lastName",
+                            "profilePhotoUrl",
+                            "email"
+                        ],
+                        "additionalProperties": false
+                    },
+                    "subject": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "$ref": "#/components/schemas/UserId"
+                            },
+                            "firstName": {
+                                "nullable": true,
+                                "type": "string"
+                            },
+                            "lastName": {
+                                "nullable": true,
+                                "type": "string"
+                            },
+                            "profilePhotoUrl": {
+                                "nullable": true,
+                                "type": "string",
+                                "format": "uri"
+                            },
+                            "email": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "firstName",
+                            "lastName",
+                            "profilePhotoUrl",
+                            "email"
+                        ],
+                        "additionalProperties": false
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "ride": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "$ref": "#/components/schemas/RideId"
+                            },
+                            "departureAt": {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "originCity": {
+                                "type": "string"
+                            },
+                            "destinationCity": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "departureAt",
+                            "originCity",
+                            "destinationCity"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "required": [
+                    "id",
+                    "rideId",
+                    "rating",
+                    "comment",
+                    "reviewStatus",
+                    "author",
+                    "subject",
+                    "createdAt",
+                    "updatedAt",
+                    "ride"
+                ],
+                "additionalProperties": false
+            },
+            "AdminReviewStatusHistoryItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "oldStatus": {
+                        "nullable": true,
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ReviewStatus"
+                            }
+                        ]
+                    },
+                    "newStatus": {
+                        "$ref": "#/components/schemas/ReviewStatus"
+                    },
+                    "reason": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "changedBy": {
+                        "nullable": true,
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "$ref": "#/components/schemas/UserId"
+                            },
+                            "firstName": {
+                                "nullable": true,
+                                "type": "string"
+                            },
+                            "lastName": {
+                                "nullable": true,
+                                "type": "string"
+                            }
+                        },
+                        "required": ["id", "firstName", "lastName"],
+                        "additionalProperties": false
+                    }
+                },
+                "required": [
+                    "id",
+                    "oldStatus",
+                    "newStatus",
+                    "reason",
+                    "createdAt",
+                    "changedBy"
+                ],
+                "additionalProperties": false
+            },
+            "AdminReviewDetailResponse": {
+                "type": "object",
+                "properties": {
+                    "review": {
+                        "$ref": "#/components/schemas/AdminReviewDetail"
+                    },
+                    "statusHistory": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AdminReviewStatusHistoryItem"
+                        }
+                    }
+                },
+                "required": ["review", "statusHistory"],
+                "additionalProperties": false
+            },
+            "UpdateReviewStatusBody": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "$ref": "#/components/schemas/ReviewStatus"
+                    },
+                    "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 500
+                    }
+                },
+                "required": ["status", "reason"],
+                "additionalProperties": false
+            },
             "CarId": {
                 "type": "string",
                 "format": "uuid",
@@ -3767,6 +5310,19 @@
                 "type": "string",
                 "format": "uuid",
                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "RideStatus": {
+                "type": "string",
+                "enum": ["PLANNED", "IN_PROGRESS", "COMPLETED", "CANCELLED"]
+            },
+            "ReviewId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "ReviewStatus": {
+                "type": "string",
+                "enum": ["VISIBLE", "HIDDEN", "REMOVED"]
             },
             "UserStatus": {
                 "type": "string",
@@ -3817,10 +5373,6 @@
                     "NO",
                     "CH"
                 ]
-            },
-            "RideStatus": {
-                "type": "string",
-                "enum": ["PLANNED", "IN_PROGRESS", "COMPLETED", "CANCELLED"]
             },
             "Currency": {
                 "type": "string",
@@ -4283,15 +5835,6 @@
                     "departureAt"
                 ],
                 "additionalProperties": false
-            },
-            "ReviewId": {
-                "type": "string",
-                "format": "uuid",
-                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-            },
-            "ReviewStatus": {
-                "type": "string",
-                "enum": ["VISIBLE", "HIDDEN", "REMOVED"]
             },
             "ReviewListItemList": {
                 "type": "array",

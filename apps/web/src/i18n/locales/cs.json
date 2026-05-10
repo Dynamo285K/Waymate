@@ -30,7 +30,6 @@
     },
     "register": {
         "title": "Vytvořit účet",
-        "fullName": "Celé jméno",
         "email": "E-mail",
         "password": "Heslo",
         "confirmPassword": "Potvrdit heslo",
@@ -39,7 +38,6 @@
         "or": "nebo",
         "alreadyHaveAccount": "Již máte účet?",
         "login": "Přihlásit se",
-        "requiredError": "Vyplňte všechna pole.",
         "passwordMismatch": "Hesla se neshodují.",
         "invalidEmail": "Zadejte platný e-mail.",
         "passwordTooShort": "Heslo musí mít alespoň 8 znaků.",
@@ -59,7 +57,6 @@
         "save": "Uložit a pokračovat",
         "requiredError": "Zadejte jméno, příjmení a telefonní číslo.",
         "phoneError": "Použijte mezinárodní formát, například +421900123456.",
-        "verifyEmailFirst": "Nejprve ověřte e-mailovou adresu, potom dokončete profil.",
         "loginRequired": "Po ověření e-mailu se přihlaste a dokončete profil.",
         "error": "Profil se nepodařilo uložit. Zkuste to znovu."
     },
@@ -176,8 +173,52 @@
         "unbanUser": "Odbanovat uživatele",
         "selfActionDisabled": "Tuto akci nelze provést u vlastního účtu",
         "errors": {
-            "userNotFound": "Tento uživatel již neexistuje. Seznam se obnoví."
+            "userNotFound": "Tento uživatel již neexistuje. Seznam se obnoví.",
+            "rideNotFound": "Tato jízda již neexistuje. Seznam se obnoví.",
+            "rideAlreadyCancelled": "Tato jízda již byla zrušena.",
+            "reviewNotFound": "Tato recenze již neexistuje. Seznam se obnoví."
         },
+        "reviewsTab": "Recenze",
+        "reviewsTitle": "Moderace recenzí",
+        "reviewsSubtitle": "Najdi nízko hodnocené nebo nahlášené recenze a skryj nebo odstraň ty nevhodné.",
+        "loadingReviews": "Načítání recenzí…",
+        "noReviewsFound": "Žádná recenze neodpovídá filtrům.",
+        "noComment": "(bez komentáře)",
+        "searchReviews": "Hledat v komentáři, autorovi, subjektu…",
+        "lowRatingOnly": "Jen nízká hodnocení (≤2★)",
+        "visible": "Viditelná",
+        "hidden": "Skrytá",
+        "removed": "Odstraněná",
+        "author": "Autor",
+        "subject": "Subjekt",
+        "comment": "Komentář",
+        "created": "Vytvořeno",
+        "reviewDetail": "Detail recenze",
+        "rideContext": "Kontext jízdy",
+        "setReviewStatus": "Změnit stav recenze: {{status}}",
+        "hideReviewWarning": "Skryté recenze zůstávají v evidenci, ale nezapočítávají se do hodnocení subjektu a nejsou veřejně viditelné.",
+        "removeReviewWarning": "Odstraněné recenze jsou považovány za smazané: nikde se nezobrazují a nezapočítávají do průměrů. Použij pro jasné porušení pravidel.",
+        "reasonForModeration": "Důvod moderace",
+        "confirm": "Potvrdit",
+        "makeVisible": "Zviditelnit",
+        "hide": "Skrýt",
+        "remove": "Odstranit",
+        "planned": "Plánovaná",
+        "inProgress": "Probíhá",
+        "loadingRides": "Načítání jízd…",
+        "noRidesFound": "Žádná jízda neodpovídá filtrům.",
+        "noBookings": "Žádné rezervace.",
+        "rideDetail": "Detail jízdy",
+        "forceCancelRide": "Vynutit zrušení jízdy",
+        "cancelRideWarning": "Tato akce okamžitě zruší jízdu i všechny aktivní rezervace cestujících. Zásah bude zaznamenán v historii jízdy.",
+        "reasonForCancel": "Důvod zrušení",
+        "confirmCancel": "Potvrdit zrušení",
+        "car": "Auto",
+        "currency": "Měna",
+        "stops": "Zastávky",
+        "arrival": "Příjezd",
+        "departure": "Odjezd",
+        "prices": "Ceny",
         "reportTypes": {
             "inappropriateBehavior": "Nevhodné chování",
             "noShow": "Nedostavení se",
@@ -200,25 +241,30 @@
         "sendCode": "Odeslat kód",
         "backToLogin": "← Zpět na přihlášení",
         "step2Title": "Zkontrolujte svůj e-mail",
-        "step2Subtitle": "Poslali jsme 6místný kód na",
-        "verifyCode": "Ověřit kód",
         "resendIn": "Neobdrželi jste? Znovu odeslat za",
         "resend": "Znovu odeslat",
         "step3Title": "Nastavte nové heslo",
         "step3Subtitle": "Zvolte silné heslo, které jste dosud nepoužili.",
         "newPassword": "Nové heslo",
         "confirmPassword": "Potvrdit heslo",
-        "setPassword": "Nastavit nové heslo"
+        "setPassword": "Nastavit nové heslo",
+        "invalidToken": "Tento odkaz pro obnovení je neplatný nebo vypršel. Vyžádejte si nový.",
+        "error": "Nepodařilo se odeslat e-mail pro obnovení. Zkuste to znovu.",
+        "resetError": "Heslo se nepodařilo obnovit. Vyžádejte si nový odkaz.",
+        "resetLinkSent": "Poslali jsme odkaz pro obnovení hesla na",
+        "sending": "Odesílám...",
+        "settingPassword": "Nastavuji heslo..."
     },
     "editProfile": {
         "title": "Upravit profil",
         "fullName": "Celé jméno",
         "email": "E-mailová adresa",
         "phone": "Telefonní číslo",
-        "licensePlate": "Registrační značka (SPZ)",
         "aboutMe": "O mně",
         "save": "Uložit změny",
-        "cancel": "Zrušit"
+        "cancel": "Zrušit",
+        "saving": "Ukládám...",
+        "saveError": "Nepodařilo se uložit změny. Zkuste to znovu."
     },
     "offerRide": {
         "title": "Nabídnout jízdu",
@@ -253,18 +299,23 @@
         "loadingCarModels": "Načítám modely...",
         "licensePlate": "SPZ",
         "platePlaceholder": "např. ABC 1234",
-        "plateError": "Použijte formát BA-123AB.",
         "saveCarTitle": "Přidat toto auto mezi vaše auta?",
         "saveCarText": "Chcete uložit {{car}} ({{plate}}) mezi registrovaná auta pro příště?",
         "skipSaveCar": "Ne, jen zveřejnit",
-        "saveCar": "Uložit auto"
+        "saveCar": "Uložit auto",
+        "missingFieldsError": "Vyplňte místo nástupu, cíl, datum, čas, místa, cenu a vyberte uložené auto.",
+        "invalidSeatsError": "Volná místa musí být celé kladné číslo.",
+        "invalidPriceError": "Cena za místo musí být celé kladné číslo.",
+        "carCreateError": "Nepodařilo se uložit auto. Zkontrolujte detaily auta."
     },
     "rideRequests": {
         "title": "Žádosti o jízdu",
         "subtitle": "Spravujte požadavky na rezervaci od cestujících.",
         "seatsRequired": "{{count}} míst požadováno",
         "accept": "Přijmout",
-        "decline": "Odmítnout"
+        "decline": "Odmítnout",
+        "empty": "Žádné čekající žádosti.",
+        "passenger": "Cestující"
     },
     "driverRides": {
         "title": "Moje jízdy",
@@ -280,7 +331,6 @@
         "full": "Plné",
         "passengers": "Cestující",
         "backToMyRides": "← Zpět na moje jízdy",
-        "passengersCount": "{{count}} cestujících",
         "sendMessage": "Poslat zprávu",
         "cancelBooking": "Zrušit rezervaci",
         "seatsReserved": "{{count}} míst rezervováno",
@@ -288,7 +338,11 @@
         "kmTraveled": "{{km}} km ujeto",
         "earned": "{{amount}}€ vyděláno",
         "writeReview": "Napište recenzi...",
-        "submitRating": "Odeslat hodnocení"
+        "submitRating": "Odeslat hodnocení",
+        "cancelling": "Ruším...",
+        "noPassengers": "Zatím žádní cestující.",
+        "passengersError": "Vyberte jízdu pro zobrazení cestujících.",
+        "cancelBookingError": "Nepodařilo se zrušit rezervaci. Zkuste to znovu."
     },
     "driver": {
         "nav": {
@@ -321,12 +375,18 @@
         "myCars": "Moje auta",
         "addCar": "Přidat auto",
         "backToProfile": "← Zpět na můj profil",
-        "manage": "Spravovat",
-        "cancelRide": "Zrušit jízdu"
+        "cancelRide": "Zrušit jízdu",
+        "fallbackName": "Uživatel",
+        "loadingCars": "Načítám auta...",
+        "noCars": "Zatím nemáte uložená žádná auta."
     },
     "ratings": {
         "title": "Moje hodnocení",
-        "totalRatings": "Celkem hodnocení"
+        "totalRatings": "Celkem hodnocení",
+        "myRatings": "Moje hodnocení",
+        "loading": "Načítám hodnocení...",
+        "empty": "Zatím žádná hodnocení.",
+        "ride": "Jízda"
     },
     "rateDriver": {
         "title": "Ohodnoťte svého řidiče",
@@ -439,5 +499,20 @@
                 "description": "Transparentní recenze od ostatních uživatelů."
             }
         }
+    },
+    "addCar": {
+        "title": "Přidat auto",
+        "make": "Značka",
+        "model": "Model",
+        "seats": "Volná místa pro cestující",
+        "excludingDriver": "(bez řidiče)",
+        "color": "Barva",
+        "licensePlate": "Registrační značka (SPZ)",
+        "selectMake": "Vyberte značku...",
+        "selectModel": "Vyberte model...",
+        "loadingModels": "Načítám modely...",
+        "requiredError": "Vyplňte všechna povinná pole.",
+        "adding": "Přidávám...",
+        "addButton": "Přidat auto"
     }
 }

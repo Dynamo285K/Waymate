@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
     Avatar,
+    Button,
     IconButton,
     NavButton,
     AdminProfileDropdown,
@@ -16,13 +17,19 @@ import logoLight from "../../assets/logo_light_mode.png";
 import logoDark from "../../assets/logo_dark_mode.png";
 import "./AdminNavbar.css";
 
-export type AdminNavbarTab = "dashboard" | "rides" | "users" | "reports";
+export type AdminNavbarTab =
+    | "dashboard"
+    | "rides"
+    | "users"
+    | "reviews"
+    | "reports";
 
 export type AdminNavbarLabels = {
     adminRole?: string;
     dashboard?: string;
     rides?: string;
     users?: string;
+    reviews?: string;
     reports?: string;
     settings?: string;
     logout?: string;
@@ -40,6 +47,7 @@ export type AdminNavbarProps = {
     onDashboardClick?: () => void;
     onRidesClick?: () => void;
     onUsersClick?: () => void;
+    onReviewsClick?: () => void;
     onReportsClick?: () => void;
     onMessagesClick?: () => void;
     onRatingsClick?: () => void;
@@ -129,6 +137,7 @@ export function AdminNavbar({
     onDashboardClick,
     onRidesClick,
     onUsersClick,
+    onReviewsClick,
     onReportsClick,
     onSettingsClick,
     onLogoutClick,
@@ -140,8 +149,8 @@ export function AdminNavbar({
     );
     const navbarRef = useRef<HTMLElement>(null);
 
-    const isDesktop = windowWidth > 1024;
-    const isTablet = windowWidth > 560 && windowWidth <= 1024;
+    const isDesktop = windowWidth > 1280;
+    const isTablet = windowWidth > 560 && windowWidth <= 1280;
     const isMobile = windowWidth <= 560;
 
     useEffect(() => {
@@ -209,6 +218,13 @@ export function AdminNavbar({
                 onClick={onUsersClick}
             >
                 {labels?.users ?? "Users"}
+            </NavButton>
+            <NavButton
+                icon={<AlertIcon />}
+                active={activeTab === "reviews"}
+                onClick={onReviewsClick}
+            >
+                {labels?.reviews ?? "Reviews"}
             </NavButton>
             <NavButton
                 icon={<AlertIcon />}
@@ -289,19 +305,20 @@ export function AdminNavbar({
             )}
             {isTablet && (
                 <div className="admin-navbar__tablet">
-                    {logoImg}
-                    <nav className="admin-navbar__nav">{navTabs}</nav>
-                    <button
-                        type="button"
-                        className="admin-navbar__hamburger"
-                        onClick={() => setIsMobileMenuOpen((c) => !c)}
-                    >
-                        <span />
-                        <span />
-                        <span />
-                    </button>
+                    <div className="admin-navbar__tablet-top">
+                        {logoImg}
+                        <Button
+                            variant="unstyled"
+                            className="admin-navbar__hamburger"
+                            onClick={() => setIsMobileMenuOpen((c) => !c)}
+                        >
+                            <span />
+                            <span />
+                            <span />
+                        </Button>
+                    </div>
                     {isMobileMenuOpen && (
-                        <div className="admin-navbar__tablet-panel-full">
+                        <div className="admin-navbar__mobile-panel">
                             <span
                                 className="admin-navbar__role"
                                 style={{ alignSelf: "flex-start" }}
@@ -323,6 +340,7 @@ export function AdminNavbar({
                             </div>
                         </div>
                     )}
+                    <nav className="admin-navbar__tablet-nav">{navTabs}</nav>
                 </div>
             )}
             {isMobile && (
@@ -332,15 +350,15 @@ export function AdminNavbar({
                 >
                     <div className="admin-navbar__mobile-top">
                         {logoImg}
-                        <button
-                            type="button"
+                        <Button
+                            variant="unstyled"
                             className="admin-navbar__hamburger"
                             onClick={() => setIsMobileMenuOpen((c) => !c)}
                         >
                             <span />
                             <span />
                             <span />
-                        </button>
+                        </Button>
                     </div>
                     {isMobileMenuOpen && (
                         <div className="admin-navbar__mobile-panel">

@@ -19,6 +19,7 @@ import {
     RequestErrorCodes,
     requestErrorToHttpStatus,
 } from "./shared/request-errors";
+import { AuthError, authErrorToHttpStatus } from "./modules/auth/auth.errors";
 
 const allowedOrigins = Array.from(
     new Set([env.WEB_ORIGIN, ...env.CORS_ORIGINS])
@@ -56,6 +57,19 @@ const RATE_LIMIT_RULES: RateLimitRule[] = [
         match: (method, path) =>
             method === "PATCH" && /^\/admin\/users\/[^/]+\/status$/.test(path),
         keyPrefix: "rl:admin:user-status",
+        max: 30,
+    },
+    {
+        match: (method, path) =>
+            method === "PATCH" && /^\/admin\/rides\/[^/]+\/cancel$/.test(path),
+        keyPrefix: "rl:admin:ride-cancel",
+        max: 30,
+    },
+    {
+        match: (method, path) =>
+            method === "PATCH" &&
+            /^\/admin\/reviews\/[^/]+\/status$/.test(path),
+        keyPrefix: "rl:admin:review-status",
         max: 30,
     },
     {
@@ -127,7 +141,7 @@ export const app = new Elysia()
             );
         }
     })
-    .onError(({ error, status, set }) => {
+    .onError(({ code, error, status, set }) => {
         if (error instanceof RateLimitError) {
             set.headers["retry-after"] = String(error.retryAfterSeconds);
             return status(429, { error: error.code });
@@ -137,6 +151,24 @@ export const app = new Elysia()
                 error: error.code,
             });
         }
+        // AuthError is thrown by globally-registered macros (`isAuthenticated`,
+        // `requireAdmin`, …). Because those plugins carry a `name`, Elysia
+        // hoists their resolve callbacks to the app scope, which means errors
+        // bypass per-module `.onError` handlers and land here. Map them to the
+        // same 401/403 shape the modules would have produced.
+        if (error instanceof AuthError) {
+            return status(authErrorToHttpStatus(error.code), {
+                error: error.code,
+            });
+        }
+        if (code === "VALIDATION" || code === "PARSE") {
+            return status(400, { error: "VALIDATION" });
+        }
+        if (code === "NOT_FOUND") {
+            return status(404, { error: "NOT_FOUND" });
+        }
+        console.error(error);
+        return status(500, { error: "INTERNAL_SERVER_ERROR" });
     })
     .use(
         openapi({

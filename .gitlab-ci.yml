@@ -53,6 +53,11 @@ typecheck:
     script:
         - bun run typecheck
 
+i18n-check:
+    stage: verify
+    script:
+        - bun run --cwd apps/web i18n:check
+
 build:
     stage: verify
     script:

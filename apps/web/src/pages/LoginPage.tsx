@@ -50,9 +50,9 @@ export function LoginPage({
             .string()
             .trim()
             .refine((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
-                message: t("login.invalidEmail"),
+                message: "login.invalidEmail",
             }),
-        password: z.string().min(8, t("login.passwordTooShort")),
+        password: z.string().min(8, "login.passwordTooShort"),
     });
 
     const {
@@ -79,7 +79,7 @@ export function LoginPage({
         if (error) {
             console.error("Email sign-in failed", error);
             setError("root", {
-                message: t(getEmailAuthErrorI18nKey(error, "login.error")),
+                message: getEmailAuthErrorI18nKey(error, "login.error"),
             });
             return;
         }
@@ -96,7 +96,7 @@ export function LoginPage({
             if (error) {
                 console.error("Google sign-in failed", error);
                 setError("root", {
-                    message: t(getGoogleAuthErrorI18nKey(error, "login.error")),
+                    message: getGoogleAuthErrorI18nKey(error, "login.error"),
                 });
                 return;
             }
@@ -124,9 +124,21 @@ export function LoginPage({
                 <LoginBox
                     email={email}
                     password={password}
-                    emailError={errors.email?.message}
-                    passwordError={errors.password?.message}
-                    message={errors.root?.message}
+                    emailError={
+                        errors.email?.message
+                            ? t(errors.email.message)
+                            : undefined
+                    }
+                    passwordError={
+                        errors.password?.message
+                            ? t(errors.password.message)
+                            : undefined
+                    }
+                    message={
+                        errors.root?.message
+                            ? t(errors.root.message)
+                            : undefined
+                    }
                     isSubmitting={submitting}
                     onEmailChange={(value) => setValue("email", value)}
                     onPasswordChange={(value) => setValue("password", value)}

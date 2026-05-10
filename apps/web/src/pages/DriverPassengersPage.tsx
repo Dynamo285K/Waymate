@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "../lib/router-compat";
-import { StatCard } from "@waymate/ui";
+import { StatCard, TextLink } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { PassengerCard } from "../components/PassengerCard";
@@ -101,12 +101,14 @@ export function DriverPassengersPage({
             <DriverNavbar {...navbarProps} />
 
             <section className="w-full px-4 sm:max-w-3xl sm:mx-auto sm:px-8 py-8 sm:py-12">
-                <button
-                    onClick={() => navigate("/driver/rides")}
-                    className="text-(--color-text-secondary) text-sm mb-4 hover:text-(--color-text-primary) transition-colors"
-                >
-                    {t("driverRides.backToMyRides")}
-                </button>
+                <div className="text-sm mb-4">
+                    <TextLink
+                        variant="muted"
+                        onClick={() => navigate("/driver/rides")}
+                    >
+                        {t("driverRides.backToMyRides")}
+                    </TextLink>
+                </div>
 
                 <h1 className="text-2xl font-bold text-(--color-text-primary) mb-2">
                     {t("driverRides.passengers")}
@@ -122,8 +124,8 @@ export function DriverPassengersPage({
                     <StatCard
                         icon={
                             <IconBox
-                                bg="bg-purple-100"
-                                color="text-purple-600"
+                                bg="bg-(--color-primary)/10"
+                                color="text-(--color-primary)"
                             >
                                 <UsersIcon />
                             </IconBox>
@@ -136,10 +138,7 @@ export function DriverPassengersPage({
                 <div className="flex flex-col gap-4">
                     {!ride?.id && (
                         <p className="text-(--color-text-secondary)">
-                            {t(
-                                "driverRides.passengersError",
-                                "Select a ride to view passengers."
-                            )}
+                            {t("driverRides.passengersError")}
                         </p>
                     )}
 
@@ -177,10 +176,7 @@ export function DriverPassengersPage({
                         !isError &&
                         passengersView?.passengers.length === 0 && (
                             <p className="text-(--color-text-secondary)">
-                                {t(
-                                    "driverRides.noPassengers",
-                                    "No passengers yet."
-                                )}
+                                {t("driverRides.noPassengers")}
                             </p>
                         )}
 

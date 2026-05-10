@@ -53,29 +53,28 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
             },
         }
     )
+    .get(
+        "/search",
+        async ({ query }) => {
+            return await RideService.searchRides(query);
+        },
+        {
+            query: SearchRidesQuerySchema,
+            response: {
+                200: "RideSearchResultList",
+                400: "ErrorResponse",
+                429: "ErrorResponse",
+                500: "ErrorResponse",
+            },
+            detail: {
+                description:
+                    "Search rides between two cities on a specific date",
+            },
+        }
+    )
     .use(isFullyOnboarded)
     .guard({ auth: true, onboarded: true }, (app) =>
         app
-            .get(
-                "/search",
-                async ({ query }) => {
-                    return await RideService.searchRides(query);
-                },
-                {
-                    query: SearchRidesQuerySchema,
-                    response: {
-                        200: "RideSearchResultList",
-                        400: "ErrorResponse",
-                        429: "ErrorResponse",
-                        500: "ErrorResponse",
-                    },
-                    detail: {
-                        description:
-                            "Search rides between two cities on a specific date",
-                    },
-                }
-            )
-
             .get(
                 "/me",
                 async ({ user, query }) => {

@@ -38,7 +38,7 @@ export function DriverProfilePage({
 }: Props) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const displayName = userName ?? t("profile.fallbackName", "User");
+    const displayName = userName ?? t("profile.fallbackName");
     const displayEmail = userEmail ?? "";
     const memberSince = formatMemberSince(userCreatedAt, language);
     const aboutMe = userBio?.trim();
@@ -224,10 +224,7 @@ export function DriverProfilePage({
                                                 "driverRides.viewPassengers"
                                             ),
                                             cancelRide: isCancelling
-                                                ? t(
-                                                      "driverRides.cancelling",
-                                                      "Cancelling..."
-                                                  )
+                                                ? t("driverRides.cancelling")
                                                 : t("profile.cancelRide"),
                                         }}
                                     />
@@ -252,7 +249,7 @@ export function DriverProfilePage({
                         </div>
                         {carsQuery.isLoading && (
                             <p className="text-(--color-text-secondary)">
-                                {t("profile.loadingCars", "Loading cars...")}
+                                {t("profile.loadingCars")}
                             </p>
                         )}
                         {carsQuery.isError && (
@@ -270,10 +267,7 @@ export function DriverProfilePage({
                             !carsQuery.isError &&
                             carsQuery.data?.length === 0 && (
                                 <p className="text-(--color-text-secondary)">
-                                    {t(
-                                        "profile.noCars",
-                                        "You have no saved cars yet."
-                                    )}
+                                    {t("profile.noCars")}
                                 </p>
                             )}
                         {carsQuery.data?.map((car) => (

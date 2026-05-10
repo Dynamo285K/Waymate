@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "../lib/router-compat";
 import * as Select from "@radix-ui/react-select";
-import { Button, ChevronDownIcon } from "@waymate/ui";
+import { Button, ChevronDownIcon, Input, TextLink } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
@@ -106,7 +106,7 @@ export function AddCarPage({
                 navigate(backPath);
             },
             onError: (error) => {
-                setFormError(t(getErrorI18nKey(error, {}, "addCar.error")));
+                setFormError(getErrorI18nKey(error, {}, "addCar.error"));
             },
         },
     });
@@ -141,7 +141,7 @@ export function AddCarPage({
     });
 
     const inputClass =
-        "w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) px-3 py-3 text-sm outline-none focus:border-(--color-primary) focus:ring-2 focus:ring-green-100 transition-colors font-[Inter,sans-serif] appearance-none";
+        "w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) px-3 py-3 text-sm outline-none focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10 transition-colors font-[Inter,sans-serif] appearance-none";
     const labelClass =
         "text-sm font-bold text-(--color-text-primary) mb-1 block";
 
@@ -152,9 +152,7 @@ export function AddCarPage({
         const normalizedPlate = plate.toUpperCase().replace(/[^A-Z0-9]/g, "");
 
         if (!make || !selectedModel || !seats || !color || !normalizedPlate) {
-            setFormError(
-                t("addCar.requiredError", "Fill in all required fields.")
-            );
+            setFormError("addCar.requiredError");
             return;
         }
 
@@ -181,15 +179,16 @@ export function AddCarPage({
             )}
 
             <section className="w-full px-4 sm:max-w-2xl sm:mx-auto sm:px-8 py-8 sm:py-12">
-                <button
-                    type="button"
-                    onClick={() => navigate(backPath)}
-                    className="text-(--color-text-secondary) text-sm mb-6 hover:text-(--color-text-primary) transition-colors"
-                >
-                    {t("profile.backToProfile", "<- Back to My Profile")}
-                </button>
+                <div className="text-sm mb-6">
+                    <TextLink
+                        variant="muted"
+                        onClick={() => navigate(backPath)}
+                    >
+                        {t("profile.backToProfile", "<- Back to My Profile")}
+                    </TextLink>
+                </div>
                 <h1 className="text-2xl font-bold text-(--color-text-primary) mb-8">
-                    {t("addCar.title", "Add car")}
+                    {t("addCar.title")}
                 </h1>
 
                 <div className="bg-(--color-card) rounded-2xl border border-(--color-border) overflow-hidden">
@@ -197,7 +196,7 @@ export function AddCarPage({
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className={labelClass}>
-                                    {t("addCar.make", "Make")}{" "}
+                                    {t("addCar.make")}{" "}
                                     <span className="text-(--color-red)">
                                         *
                                     </span>
@@ -217,10 +216,7 @@ export function AddCarPage({
                                         }
                                     >
                                         <Select.Value
-                                            placeholder={t(
-                                                "addCar.selectMake",
-                                                "Select make..."
-                                            )}
+                                            placeholder={t("addCar.selectMake")}
                                         />
                                         <Select.Icon className="text-(--color-text-secondary) shrink-0">
                                             <ChevronDownIcon />
@@ -251,7 +247,7 @@ export function AddCarPage({
                             </div>
                             <div>
                                 <label className={labelClass}>
-                                    {t("addCar.model", "Model")}{" "}
+                                    {t("addCar.model")}{" "}
                                     <span className="text-(--color-red)">
                                         *
                                     </span>
@@ -273,14 +269,8 @@ export function AddCarPage({
                                         <Select.Value
                                             placeholder={
                                                 modelsQuery.isLoading
-                                                    ? t(
-                                                          "addCar.loadingModels",
-                                                          "Loading models..."
-                                                      )
-                                                    : t(
-                                                          "addCar.selectModel",
-                                                          "Select model..."
-                                                      )
+                                                    ? t("addCar.loadingModels")
+                                                    : t("addCar.selectModel")
                                             }
                                         />
                                         <Select.Icon className="text-(--color-text-secondary) shrink-0">
@@ -315,46 +305,42 @@ export function AddCarPage({
 
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
-                            {t("addCar.seats", "Available passenger seats")}{" "}
+                            {t("addCar.seats")}{" "}
                             <span className="text-(--color-red)">*</span>
                             <span className="font-normal text-(--color-text-secondary) ml-2">
-                                {t(
-                                    "addCar.excludingDriver",
-                                    "(excluding driver)"
-                                )}
+                                {t("addCar.excludingDriver")}
                             </span>
                         </label>
                         <div className="flex gap-2 mt-3 flex-wrap">
                             {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                                <button
+                                <Button
                                     key={n}
-                                    type="button"
                                     onClick={() => {
                                         setSeats(n);
                                         setFormError("");
                                     }}
-                                    className={`w-12 h-12 rounded-xl border-2 font-semibold text-sm transition-all ${
+                                    className={`w-12 h-12 rounded-xl border-2 font-semibold text-sm transition-all p-0 ${
                                         seats === n
                                             ? "border-(--color-primary) bg-(--color-primary)/10 text-(--color-primary)"
                                             : "border-(--color-border) bg-(--color-card) text-(--color-text-primary) hover:border-(--color-primary)"
                                     }`}
                                 >
                                     {n}
-                                </button>
+                                </Button>
                             ))}
                         </div>
                     </div>
 
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
-                            {t("addCar.color", "Color")}{" "}
+                            {t("addCar.color")}{" "}
                             <span className="text-(--color-red)">*</span>
                         </label>
                         <div className="flex gap-3 mt-3 flex-wrap">
                             {COLORS.map((c) => (
-                                <button
+                                <Button
                                     key={c.value}
-                                    type="button"
+                                    variant="unstyled"
                                     onClick={() => {
                                         setColor(c.value);
                                         setFormError("");
@@ -371,25 +357,26 @@ export function AddCarPage({
                                     <span className="text-xs text-(--color-text-secondary)">
                                         {c.label}
                                     </span>
-                                </button>
+                                </Button>
                             ))}
                         </div>
                     </div>
 
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
-                            {t("addCar.licensePlate", "License plate (SPZ)")}{" "}
+                            {t("addCar.licensePlate")}{" "}
                             <span className="text-(--color-red)">*</span>
                         </label>
                         <div className="flex gap-2 mt-1 items-center">
-                            <div className="flex-shrink-0 w-16 h-12 rounded-xl bg-slate-800 flex flex-col items-center justify-center text-white text-xs font-bold">
+                            {/* eslint-disable no-restricted-syntax -- SK license plate visual uses real plate colors */}
+                            <div className="shrink-0 w-16 h-12 rounded-xl bg-slate-800 flex flex-col items-center justify-center text-white text-xs font-bold">
                                 <span className="text-yellow-300 tracking-widest text-[10px]">
                                     ***
                                 </span>
                                 <span className="text-[11px] mt-0.5">SK</span>
                             </div>
-                            <input
-                                className={inputClass + " flex-1"}
+                            {/* eslint-enable no-restricted-syntax */}
+                            <Input
                                 placeholder="BA123AB"
                                 value={plate}
                                 onChange={(e) => {
@@ -403,7 +390,7 @@ export function AddCarPage({
                     <div className="p-6 flex flex-col gap-4 sm:items-end">
                         {formError && (
                             <p className="w-full rounded-xl border border-(--color-danger-border) bg-(--color-danger-bg) px-4 py-3 text-sm font-semibold text-(--color-danger-text)">
-                                {formError}
+                                {t(formError)}
                             </p>
                         )}
                         <Button
@@ -413,8 +400,8 @@ export function AddCarPage({
                             disabled={createCarMutation.isPending}
                         >
                             {createCarMutation.isPending
-                                ? t("addCar.adding", "Adding...")
-                                : t("addCar.addButton", "Add car")}
+                                ? t("addCar.adding")
+                                : t("addCar.addButton")}
                         </Button>
                     </div>
                 </div>

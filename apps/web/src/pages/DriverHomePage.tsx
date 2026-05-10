@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import { FeatureCard } from "@waymate/ui";
+import { Button, FeatureCard, PlusIcon } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { RideCard } from "../components/RideCard";
@@ -207,7 +207,7 @@ export function DriverHomePage({
 
             return {
                 id: request.id,
-                name: fullName || t("rideRequests.passenger", "Passenger"),
+                name: fullName || t("rideRequests.passenger"),
                 rating: request.passenger.averageRating ?? 0,
                 seatsRequired: request.seatCount,
                 from: request.pickupCity,
@@ -255,13 +255,14 @@ export function DriverHomePage({
                 <p className="mt-3 text-lg text-(--color-text-secondary)">
                     {t("driver.home.subtitle")}
                 </p>
-                <button
+                <Button
+                    variant="outlineSuccess"
+                    rightIcon={<PlusIcon />}
                     onClick={() => navigate("/driver/offer")}
-                    className="mt-8 border-2 border-(--color-primary) text-(--color-primary) rounded-full px-8 py-3 font-semibold text-base hover:bg-(--color-primary)/10 transition-colors flex items-center gap-2"
+                    className="mt-8"
                 >
-                    {t("driver.home.createRide")}{" "}
-                    <span className="text-xl leading-none">+</span>
-                </button>
+                    {t("driver.home.createRide")}
+                </Button>
             </section>
 
             <div className="w-full px-4 sm:max-w-3xl sm:mx-auto sm:px-8 flex flex-col gap-10 pb-12">
@@ -328,12 +329,12 @@ export function DriverHomePage({
                         )}
                     </div>
                     <div className="flex justify-center mt-6">
-                        <button
+                        <Button
+                            variant="outlineSuccess"
                             onClick={() => navigate("/driver/rides")}
-                            className="border border-(--color-primary) text-(--color-primary) rounded-full px-6 py-2.5 font-medium text-sm hover:bg-(--color-primary)/10 transition-colors"
                         >
                             {t("driver.home.viewAllRides")}
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -380,10 +381,7 @@ export function DriverHomePage({
                             !areRequestsError &&
                             requests.length === 0 && (
                                 <p className="text-(--color-text-secondary)">
-                                    {t(
-                                        "rideRequests.empty",
-                                        "No pending requests."
-                                    )}
+                                    {t("rideRequests.empty")}
                                 </p>
                             )}
                         {!areRequestsLoading &&
@@ -411,12 +409,12 @@ export function DriverHomePage({
                             ))}
                     </div>
                     <div className="flex justify-center mt-6">
-                        <button
+                        <Button
+                            variant="outlineSuccess"
                             onClick={() => navigate("/driver/requests")}
-                            className="border border-(--color-primary) text-(--color-primary) rounded-full px-6 py-2.5 font-medium text-sm hover:bg-(--color-primary)/10 transition-colors"
                         >
                             {t("driver.home.viewAllRequests")}
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -434,8 +432,8 @@ export function DriverHomePage({
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-green-100"
-                                    color="text-green-700"
+                                    bg="bg-(--color-success-bg)"
+                                    color="text-(--color-success-text)"
                                 >
                                     <ShieldIcon />
                                 </IconBox>
@@ -448,8 +446,8 @@ export function DriverHomePage({
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-green-100"
-                                    color="text-green-700"
+                                    bg="bg-(--color-success-bg)"
+                                    color="text-(--color-success-text)"
                                 >
                                     <CoinsIcon />
                                 </IconBox>
@@ -462,8 +460,8 @@ export function DriverHomePage({
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-purple-100"
-                                    color="text-purple-600"
+                                    bg="bg-(--color-primary)/10"
+                                    color="text-(--color-primary)"
                                 >
                                     <LeafIcon />
                                 </IconBox>
@@ -476,8 +474,8 @@ export function DriverHomePage({
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-purple-100"
-                                    color="text-purple-600"
+                                    bg="bg-(--color-primary)/10"
+                                    color="text-(--color-primary)"
                                 >
                                     <MessageIcon />
                                 </IconBox>
@@ -490,8 +488,8 @@ export function DriverHomePage({
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-yellow-100"
-                                    color="text-yellow-600"
+                                    bg="bg-(--color-warning-bg)"
+                                    color="text-(--color-warning-text)"
                                 >
                                     <BoltIcon />
                                 </IconBox>
@@ -504,8 +502,8 @@ export function DriverHomePage({
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-pink-100"
-                                    color="text-pink-600"
+                                    bg="bg-(--color-danger-bg)"
+                                    color="text-(--color-danger-text)"
                                 >
                                     <StarIcon />
                                 </IconBox>
