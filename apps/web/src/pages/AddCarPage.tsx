@@ -315,11 +315,12 @@ export function AddCarPage({
                             {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
                                 <Button
                                     key={n}
+                                    variant="unstyled"
                                     onClick={() => {
                                         setSeats(n);
                                         setFormError("");
                                     }}
-                                    className={`w-12 h-12 rounded-xl border-2 font-semibold text-sm transition-all p-0 ${
+                                    className={`flex items-center justify-center w-12 h-12 rounded-xl border-2 font-semibold text-sm transition-all cursor-pointer ${
                                         seats === n
                                             ? "border-(--color-primary) bg-(--color-primary)/10 text-(--color-primary)"
                                             : "border-(--color-border) bg-(--color-card) text-(--color-text-primary) hover:border-(--color-primary)"

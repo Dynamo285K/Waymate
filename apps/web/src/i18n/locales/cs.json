@@ -378,7 +378,13 @@
         "cancelRide": "Zrušit jízdu",
         "fallbackName": "Uživatel",
         "loadingCars": "Načítám auta...",
-        "noCars": "Zatím nemáte uložená žádná auta."
+        "noCars": "Zatím nemáte uložená žádná auta.",
+        "deleteCar": {
+            "title": "Odebrat auto?",
+            "message": "Opravdu chcete toto auto odebrat? Tuto akci nelze vrátit.",
+            "cancel": "Zrušit",
+            "confirm": "Odebrat"
+        }
     },
     "ratings": {
         "title": "Moje hodnocení",

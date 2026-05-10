@@ -378,7 +378,13 @@
         "cancelRide": "Zrušiť jazdu",
         "fallbackName": "Používateľ",
         "loadingCars": "Načítavam autá...",
-        "noCars": "Zatiaľ nemáte uložené žiadne autá."
+        "noCars": "Zatiaľ nemáte uložené žiadne autá.",
+        "deleteCar": {
+            "title": "Odstrániť auto?",
+            "message": "Naozaj chcete odstrániť toto auto? Táto akcia sa nedá vrátiť.",
+            "cancel": "Zrušiť",
+            "confirm": "Odstrániť"
+        }
     },
     "ratings": {
         "title": "Moje hodnotenia",

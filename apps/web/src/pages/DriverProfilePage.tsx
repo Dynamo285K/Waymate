@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
-import { ProfileHeroCard, CarCard, Button } from "@waymate/ui";
+import { ProfileHeroCard, CarCard, Button, Modal } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { RideCard } from "../components/RideCard";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { useCancelRide } from "../hooks/useCancelRide";
+import { useDeleteCar } from "../hooks/useDeleteCar";
 import { useGetRidesMe } from "../api-client/rides/rides";
 import { formatRideDate as formatDate } from "../lib/date-format";
 import { useGetCarsMe } from "../api-client/cars/cars";
@@ -45,6 +46,8 @@ export function DriverProfilePage({
     const [cancellingRideId, setCancellingRideId] = useState<string | null>(
         null
     );
+    const [carToDelete, setCarToDelete] = useState<string | null>(null);
+    const deleteCar = useDeleteCar();
     const {
         data: rides,
         isLoading: ridesLoading,
@@ -274,11 +277,43 @@ export function DriverProfilePage({
                             <CarCard
                                 key={car.id}
                                 model={`${car.brand} ${car.modelName}`}
+                                onDelete={() => setCarToDelete(car.id)}
                             />
                         ))}
                     </div>
                 </div>
             </div>
+
+            <Modal
+                open={carToDelete !== null}
+                onClose={() => setCarToDelete(null)}
+            >
+                <h2 className="text-xl font-bold text-(--color-text-primary) mb-2">
+                    {t("profile.deleteCar.title")}
+                </h2>
+                <p className="text-sm text-(--color-text-secondary) mb-8 leading-relaxed">
+                    {t("profile.deleteCar.message")}
+                </p>
+                <div className="flex gap-3 justify-end">
+                    <Button
+                        variant="secondary"
+                        onClick={() => setCarToDelete(null)}
+                    >
+                        {t("profile.deleteCar.cancel")}
+                    </Button>
+                    <Button
+                        variant="unstyled"
+                        disabled={deleteCar.isPending}
+                        className="px-4 py-3 rounded-xl font-semibold text-sm text-white cursor-pointer disabled:opacity-50"
+                        style={{ background: "var(--color-red)" }}
+                        onClick={() => {
+                            if (carToDelete) deleteCar.mutate(carToDelete);
+                        }}
+                    >
+                        {t("profile.deleteCar.confirm")}
+                    </Button>
+                </div>
+            </Modal>
         </div>
     );
 }
