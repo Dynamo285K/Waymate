@@ -1,2 +1,8 @@
 @import "@waymate/ui/dist/index.css";
 @import "tailwindcss";
+
+/* Prevent Radix Select from locking page scroll — dropdowns are not modals */
+body[data-scroll-locked] {
+    overflow: unset !important;
+    margin-right: 0 !important;
+}

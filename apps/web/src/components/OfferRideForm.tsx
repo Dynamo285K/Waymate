@@ -428,7 +428,7 @@ export function OfferRideForm({
                                                     position="popper"
                                                     sideOffset={8}
                                                 >
-                                                    <Select.Viewport>
+                                                    <Select.Viewport className="offer-ride-form__select-viewport">
                                                         {manualBrandOptions?.map(
                                                             (brand) => (
                                                                 <Select.Item
@@ -497,7 +497,7 @@ export function OfferRideForm({
                                                     position="popper"
                                                     sideOffset={8}
                                                 >
-                                                    <Select.Viewport>
+                                                    <Select.Viewport className="offer-ride-form__select-viewport">
                                                         {manualModelOptions?.map(
                                                             (model) => (
                                                                 <Select.Item
