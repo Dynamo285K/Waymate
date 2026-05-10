@@ -378,7 +378,13 @@
         "cancelRide": "Cancel ride",
         "fallbackName": "User",
         "loadingCars": "Loading cars...",
-        "noCars": "You have no saved cars yet."
+        "noCars": "You have no saved cars yet.",
+        "deleteCar": {
+            "title": "Remove car?",
+            "message": "Are you sure you want to remove this car? This action cannot be undone.",
+            "cancel": "Cancel",
+            "confirm": "Remove"
+        }
     },
     "ratings": {
         "title": "My Ratings",
