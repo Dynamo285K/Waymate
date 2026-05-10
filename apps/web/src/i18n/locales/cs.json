@@ -344,6 +344,18 @@
         "passengersError": "Vyberte jízdu pro zobrazení cestujících.",
         "cancelBookingError": "Nepodařilo se zrušit rezervaci. Zkuste to znovu."
     },
+    "cancelBookingDialog": {
+        "title": "Zrušit rezervaci?",
+        "message": "Opravdu chcete zrušit svou rezervaci? Tuto akci nelze vrátit."
+    },
+    "cancelRideDialog": {
+        "title": "Zrušit jízdu?",
+        "message": "Opravdu chcete tuto jízdu zrušit? Tuto akci nelze vrátit.",
+        "reasonLabel": "Důvod (volitelné)",
+        "reasonPlaceholder": "Zadejte důvod zrušení...",
+        "goBack": "Zpět",
+        "confirm": "Potvrdit zrušení"
+    },
     "driver": {
         "nav": {
             "offerRide": "Nabídnout jízdu",

@@ -9,6 +9,8 @@ import { useGetBookingsMe } from "../api-client/bookings/bookings";
 import { getErrorI18nKey } from "../lib/api-errors";
 import { formatRideDate } from "../lib/date-format";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
+import { CancelRideDialog } from "../components/CancelRideDialog";
+import { useCancelBooking } from "../hooks/useCancelBooking";
 
 type PassengerMyRidesPageProps = {
     language: Language;
@@ -51,6 +53,8 @@ export function PassengerMyRidesPage({
     });
     const location = useLocation();
     const [tab, setTab] = useState("upcoming");
+    const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
+    const cancelBooking = useCancelBooking();
     const [ratingModalOpen, setRatingModalOpen] = useState(false);
     const [ratingDriverName, setRatingDriverName] = useState("");
     const [optimisticRide, setOptimisticRide] = useState<UpcomingRide | null>(
@@ -180,7 +184,9 @@ export function PassengerMyRidesPage({
                                 driverRating={ride.driverRating}
                                 seatsLeft={ride.seatsLeft}
                                 status={ride.status}
-                                onCancelBooking={() => {}}
+                                onCancelBooking={() =>
+                                    setBookingToCancel(String(ride.id))
+                                }
                                 labels={rideLabels}
                             />
                         ))}
@@ -212,6 +218,22 @@ export function PassengerMyRidesPage({
                         ))}
                 </div>
             </section>
+
+            <CancelRideDialog
+                open={bookingToCancel !== null}
+                loading={cancelBooking.isPending}
+                onOpenChange={(open) => {
+                    if (!open) setBookingToCancel(null);
+                }}
+                onConfirm={(reason) => {
+                    if (!bookingToCancel) return;
+                    cancelBooking.mutate(bookingToCancel, reason || undefined, {
+                        onSettled: () => setBookingToCancel(null),
+                    });
+                }}
+                title={t("cancelBookingDialog.title")}
+                message={t("cancelBookingDialog.message")}
+            />
 
             <RateDriverModal
                 open={ratingModalOpen}

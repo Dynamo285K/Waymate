@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { ProfileHeroCard } from "@waymate/ui";
+import { CancelRideDialog } from "../components/CancelRideDialog";
+import { useCancelBooking } from "../hooks/useCancelBooking";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
 import { RideCard } from "../components/RideCard";
@@ -35,6 +38,8 @@ export function PassengerProfilePage({
 }: PassengerProfilePageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
+    const cancelBooking = useCancelBooking();
     const navbarProps = usePassengerNavbarProps({
         activeTab: "find-ride",
         language,
@@ -167,7 +172,9 @@ export function PassengerProfilePage({
                                 driverName={ride.driverName}
                                 driverRating={ride.driverRating}
                                 status={ride.status}
-                                onCancelBooking={() => {}}
+                                onCancelBooking={() =>
+                                    setBookingToCancel(ride.id)
+                                }
                                 labels={{
                                     seatsLeft: (count) =>
                                         t("myRides.seatsLeft", {
@@ -182,6 +189,22 @@ export function PassengerProfilePage({
                         ))}
                 </div>
             </div>
+
+            <CancelRideDialog
+                open={bookingToCancel !== null}
+                loading={cancelBooking.isPending}
+                onOpenChange={(open) => {
+                    if (!open) setBookingToCancel(null);
+                }}
+                onConfirm={(reason) => {
+                    if (!bookingToCancel) return;
+                    cancelBooking.mutate(bookingToCancel, reason || undefined, {
+                        onSettled: () => setBookingToCancel(null),
+                    });
+                }}
+                title={t("cancelBookingDialog.title")}
+                message={t("cancelBookingDialog.message")}
+            />
         </div>
     );
 }
