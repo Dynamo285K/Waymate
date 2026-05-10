@@ -14,7 +14,7 @@ Out of scope (carried over from the ticket): performance benchmarking,
 column renames, anything inside the better-auth managed tables
 (`accounts`, `sessions`, `verifications`, `rate_limits`).
 
-> **Status (2026-05-06):** every P1 *and* every P2 item below shipped
+> **Status (2026-05-06):** every P1 _and_ every P2 item below shipped
 > in this PR (migration `0003_fast_true_believers.sql`). Findings are
 > kept verbatim as the audit trail; see the **Plan** section at the
 > end for what actually landed and what's still deferred.

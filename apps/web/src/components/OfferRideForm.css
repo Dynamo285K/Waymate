@@ -182,13 +182,21 @@
 /* Radix Select — dropdown content */
 .offer-ride-form__select-content {
     width: var(--radix-select-trigger-width);
+    max-height: min(320px, var(--radix-select-content-available-height));
+    overflow: hidden;
     border-radius: 12px;
     border: 1px solid var(--color-border);
     background: var(--color-card);
     padding: 4px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    z-index: 200;
+    z-index: 1000;
     font-family: "Inter", sans-serif;
+}
+
+.offer-ride-form__select-viewport {
+    max-height: min(320px, var(--radix-select-content-available-height));
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 .offer-ride-form__select-item {
