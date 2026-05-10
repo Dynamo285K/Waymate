@@ -5,7 +5,6 @@ import {
     integer,
     pgTable,
     text,
-    timestamp,
     uniqueIndex,
     uuid,
 } from "drizzle-orm/pg-core";
@@ -13,6 +12,7 @@ import { sql } from "drizzle-orm";
 import { users } from "./user";
 import { carModels } from "./car_model";
 import { carColorEnum, countryCodeEnum } from "./enums";
+import { timestamptz } from "./timestamps";
 
 export const cars = pgTable(
     "cars",
@@ -29,15 +29,15 @@ export const cars = pgTable(
         color: carColorEnum("color").notNull(),
         seatsTotal: integer("seats_total").notNull(),
         isActive: boolean("is_active").notNull().default(true),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at").defaultNow().notNull(),
-        deletedAt: timestamp("deleted_at"),
+        createdAt: timestamptz("created_at").defaultNow().notNull(),
+        updatedAt: timestamptz("updated_at").defaultNow().notNull(),
+        deletedAt: timestamptz("deleted_at"),
     },
     (table) => [
-        uniqueIndex("cars_spz_country_code_uq").on(
-            table.spz,
-            table.countryCode
-        ),
+        // Partial: a soft-deleted car must not permanently reserve its SPZ.
+        uniqueIndex("cars_spz_country_code_uq")
+            .on(table.spz, table.countryCode)
+            .where(sql`${table.deletedAt} IS NULL`),
         index("cars_owner_id_idx").on(table.ownerId),
         index("cars_model_id_idx").on(table.modelId),
 

@@ -126,7 +126,9 @@ Schema is defined with Drizzle ORM in `apps/api`, not in `packages/db`. Key desi
 
 - All PostgreSQL enums are defined in `enums.ts` and imported by table files.
 - Enum values (string arrays) live in `apps/api/src/shared/status-values.ts` and are shared with Zod schemas.
-- **Soft deletes** via `deletedAt` timestamp column — filtered with `isNull(table.deletedAt)` in queries.
+- **Timestamps** use `timestamp(6) with time zone` across every domain table (helper: `timestamptz(name)` in `db/schema/timestamps.ts`). Don't use bare `timestamp(...)` — it produces a naive `timestamp` and breaks ordering across writers in different locales.
+- **`updatedAt` is auto-bumped by a trigger** (`set_updated_at_to_now`, defined in `drizzle/0003_*.sql` and attached to every table that has an `updated_at` column). Service / repository code must NOT pass `updatedAt: new Date()` in `.set(...)` — the value will be silently overwritten by the trigger anyway, and the explicit assignment misleads readers about the source of truth. The column still has `defaultNow().notNull()` for INSERT.
+- **Soft deletes** via `deletedAt` timestamp column — filtered with `isNull(table.deletedAt)` in queries. Uniqueness-sensitive columns (`users.email`, `cars.spz`+`country_code`, `(rides.id, reviews.author_id, subject_id)`) use **partial unique indexes scoped to `WHERE deleted_at IS NULL`** so a soft-deleted row never permanently reserves a key.
 - **Status history tables** (`ride_status_history`, `booking_status_history`, `user_status_history`) provide a full audit trail of every status transition; always insert a history record when updating status.
 - **Ride stops** use a 0-indexed `stopOrder` integer. Stop 0 is the origin; the last stop is the destination. Prices are per-segment (a `prices` row references `startStopId` → `endStopId`), not a flat per-ride price. When creating a ride, the client sends stop orders; the service translates them to UUIDs inside a `db.transaction()`.
 - All ride/booking creation that spans multiple tables is wrapped in a `db.transaction()` — and that wrapper lives in the service layer, never in a repository (see "Layering rules" above).

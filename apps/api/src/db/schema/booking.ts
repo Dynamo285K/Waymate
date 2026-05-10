@@ -4,7 +4,6 @@ import {
     integer,
     pgTable,
     text,
-    timestamp,
     uuid,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
@@ -12,6 +11,7 @@ import { users } from "./user";
 import { rides } from "./ride";
 import { rideStops } from "./ride_stop";
 import { bookingStatusEnum } from "./enums";
+import { timestamptz } from "./timestamps";
 
 export const bookings = pgTable(
     "bookings",
@@ -30,19 +30,21 @@ export const bookings = pgTable(
             .notNull()
             .references(() => rideStops.id),
         seatCount: integer("seat_count").notNull(),
-        bookingStatus: bookingStatusEnum("booking_status").notNull(),
+        bookingStatus: bookingStatusEnum("booking_status")
+            .notNull()
+            .default("PENDING"),
         priceAmount: integer("price_amount").notNull(),
         currency: text("currency").notNull(),
-        confirmedAt: timestamp("confirmed_at"),
-        cancelledAt: timestamp("cancelled_at"),
+        confirmedAt: timestamptz("confirmed_at"),
+        cancelledAt: timestamptz("cancelled_at"),
         cancelledByUserId: uuid("cancelled_by_user_id").references(
             () => users.id
         ),
         cancellationReason: text("cancellation_reason"),
-        noShowMarkedAt: timestamp("no_show_marked_at"),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at").defaultNow().notNull(),
-        deletedAt: timestamp("deleted_at"),
+        noShowMarkedAt: timestamptz("no_show_marked_at"),
+        createdAt: timestamptz("created_at").defaultNow().notNull(),
+        updatedAt: timestamptz("updated_at").defaultNow().notNull(),
+        deletedAt: timestamptz("deleted_at"),
     },
     (table) => [
         index("bookings_passenger_id_idx").on(table.passengerId),

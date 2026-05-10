@@ -1,7 +1,8 @@
-import { index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { index, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { conversations } from "./conversation";
 import { users } from "./user";
 import { messageTypeEnum } from "./enums";
+import { timestamptz } from "./timestamps";
 
 export const messages = pgTable(
     "messages",
@@ -15,11 +16,11 @@ export const messages = pgTable(
             .references(() => users.id),
         messageType: messageTypeEnum("message_type").notNull(),
         content: text("content").notNull(),
-        sentAt: timestamp("sent_at").notNull(),
-        editedAt: timestamp("edited_at"),
-        deletedAt: timestamp("deleted_at"),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at").defaultNow().notNull(),
+        sentAt: timestamptz("sent_at").notNull(),
+        editedAt: timestamptz("edited_at"),
+        deletedAt: timestamptz("deleted_at"),
+        createdAt: timestamptz("created_at").defaultNow().notNull(),
+        updatedAt: timestamptz("updated_at").defaultNow().notNull(),
     },
     (table) => [
         index("messages_conversation_id_idx").on(table.conversationId),

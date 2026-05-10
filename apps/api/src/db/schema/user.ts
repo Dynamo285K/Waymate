@@ -4,12 +4,12 @@ import {
     index,
     pgTable,
     text,
-    timestamp,
     boolean,
     uniqueIndex,
     uuid,
 } from "drizzle-orm/pg-core";
 import { userRoleEnum, userStatusEnum } from "./enums";
+import { timestamptz } from "./timestamps";
 
 export const users = pgTable(
     "users",
@@ -17,32 +17,38 @@ export const users = pgTable(
         // --- 1. BETTER-AUTH REQUIRED COLUMNS ---
         id: uuid("id").primaryKey().defaultRandom(),
         name: text("name").notNull(),
-        email: text("email").notNull().unique(),
+        email: text("email").notNull(),
         emailVerified: boolean("email_verified").notNull().default(false),
         image: text("image"),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at").defaultNow().notNull(),
+        createdAt: timestamptz("created_at").defaultNow().notNull(),
+        updatedAt: timestamptz("updated_at").defaultNow().notNull(),
 
         // --- 2. CUSTOM WAYMATE COLUMNS ---
         firstName: text("first_name"),
         lastName: text("last_name"),
         displayName: text("display_name"),
         phone: text("phone"),
-        profilePhotoUrl: text("profile_photo_url"), // You can keep this, or just use the required 'image' above
+        profilePhotoUrl: text("profile_photo_url"),
         bio: text("bio"),
-        emailVerifiedAt: timestamp("email_verified_at"), // Kept for your historical tracking
-        phoneVerifiedAt: timestamp("phone_verified_at"),
-        lastActiveAt: timestamp("last_active_at"),
+        emailVerifiedAt: timestamptz("email_verified_at"),
+        phoneVerifiedAt: timestamptz("phone_verified_at"),
+        lastActiveAt: timestamptz("last_active_at"),
         userStatus: userStatusEnum("user_status").notNull().default("ACTIVE"),
         userRole: userRoleEnum("user_role").notNull().default("USER"),
         // --- 3. better-auth admin plugin columns ---
         banned: boolean("banned").notNull().default(false),
         banReason: text("ban_reason"),
-        banExpires: timestamp("ban_expires"),
-        deletedAt: timestamp("deleted_at"),
+        banExpires: timestamptz("ban_expires"),
+        deletedAt: timestamptz("deleted_at"),
     },
     (table) => [
-        uniqueIndex("user_email_lower_uq").on(sql`lower(${table.email})`),
+        // Partial unique index on the lower-cased email scoped to live rows
+        // — soft-deleted users must not block re-registration of the same
+        // address. There is no plain unique constraint on `email`; this index
+        // is the only uniqueness gate.
+        uniqueIndex("user_email_lower_uq")
+            .on(sql`lower(${table.email})`)
+            .where(sql`${table.deletedAt} IS NULL`),
         index("user_status_idx").on(table.userStatus),
         index("user_created_at_idx").on(table.createdAt),
 

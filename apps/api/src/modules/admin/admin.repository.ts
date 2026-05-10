@@ -208,7 +208,7 @@ const updateUserStatus = async (
 ): Promise<AdminUserListItem | null> => {
     const [updated] = await executor
         .update(usersTable)
-        .set({ userStatus: status, updatedAt: new Date() })
+        .set({ userStatus: status })
         .where(and(eq(usersTable.id, id), ...visibleUserConditions))
         .returning(adminUserListColumns);
 

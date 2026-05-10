@@ -1,5 +1,5 @@
 {
-  "id": "c8f8f102-3658-4378-b051-b2f193f500c4",
+  "id": "b60c4abf-3533-4cfd-b2c9-97d6ae5f302b",
   "prevId": "af79c896-621b-4650-8233-192aa3dedcf4",
   "version": "7",
   "dialect": "postgresql",
@@ -42,14 +42,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
@@ -92,19 +92,19 @@
         },
         "email_verified_at": {
           "name": "email_verified_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         },
         "phone_verified_at": {
           "name": "phone_verified_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         },
         "last_active_at": {
           "name": "last_active_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         },
@@ -139,13 +139,13 @@
         },
         "ban_expires": {
           "name": "ban_expires",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         },
         "deleted_at": {
           "name": "deleted_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         }
@@ -162,6 +162,7 @@
             }
           ],
           "isUnique": true,
+          "where": "\"users\".\"deleted_at\" IS NULL",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -199,15 +200,7 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "users_email_unique": {
-          "name": "users_email_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {
         "user_email_len_chk": {
@@ -638,21 +631,21 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "deleted_at": {
           "name": "deleted_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         }
@@ -675,6 +668,7 @@
             }
           ],
           "isUnique": true,
+          "where": "\"cars\".\"deleted_at\" IS NULL",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -782,13 +776,13 @@
         },
         "departure_at": {
           "name": "departure_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true
         },
         "arrival_estimate_at": {
           "name": "arrival_estimate_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         },
@@ -819,21 +813,21 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "deleted_at": {
           "name": "deleted_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         }
@@ -1037,26 +1031,26 @@
         },
         "planned_arrival_at": {
           "name": "planned_arrival_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         },
         "planned_departure_at": {
           "name": "planned_departure_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
@@ -1234,14 +1228,14 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
@@ -1412,7 +1406,8 @@
           "type": "booking_status",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "'PENDING'"
         },
         "price_amount": {
           "name": "price_amount",
@@ -1428,13 +1423,13 @@
         },
         "confirmed_at": {
           "name": "confirmed_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         },
         "cancelled_at": {
           "name": "cancelled_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         },
@@ -1452,27 +1447,27 @@
         },
         "no_show_marked_at": {
           "name": "no_show_marked_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "deleted_at": {
           "name": "deleted_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         }
@@ -1709,21 +1704,28 @@
           "type": "review_status",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "'VISIBLE'"
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp (6) with time zone",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -1750,6 +1752,7 @@
             }
           ],
           "isUnique": true,
+          "where": "\"reviews\".\"deleted_at\" IS NULL",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -1903,33 +1906,33 @@
         },
         "driver_last_read_at": {
           "name": "driver_last_read_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         },
         "passenger_last_read_at": {
           "name": "passenger_last_read_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "deleted_at": {
           "name": "deleted_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         }
@@ -2073,32 +2076,32 @@
         },
         "sent_at": {
           "name": "sent_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true
         },
         "edited_at": {
           "name": "edited_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         },
         "deleted_at": {
           "name": "deleted_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
@@ -2242,26 +2245,26 @@
         },
         "read_at": {
           "name": "read_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         },
         "sent_at": {
           "name": "sent_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
@@ -2410,7 +2413,7 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
@@ -2547,7 +2550,7 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
@@ -2684,7 +2687,7 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
@@ -2776,143 +2779,6 @@
       },
       "isRLSEnabled": false
     },
-    "public.review_status_history": {
-      "name": "review_status_history",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "review_id": {
-          "name": "review_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "old_status": {
-          "name": "old_status",
-          "type": "review_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "new_status": {
-          "name": "new_status",
-          "type": "review_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "changed_by_user_id": {
-          "name": "changed_by_user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "reason": {
-          "name": "reason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "review_status_history_review_id_idx": {
-          "name": "review_status_history_review_id_idx",
-          "columns": [
-            {
-              "expression": "review_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "review_status_history_new_status_idx": {
-          "name": "review_status_history_new_status_idx",
-          "columns": [
-            {
-              "expression": "new_status",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "review_status_history_created_at_idx": {
-          "name": "review_status_history_created_at_idx",
-          "columns": [
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "review_status_history_review_id_reviews_id_fk": {
-          "name": "review_status_history_review_id_reviews_id_fk",
-          "tableFrom": "review_status_history",
-          "tableTo": "reviews",
-          "columnsFrom": [
-            "review_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "review_status_history_changed_by_user_id_users_id_fk": {
-          "name": "review_status_history_changed_by_user_id_users_id_fk",
-          "tableFrom": "review_status_history",
-          "tableTo": "users",
-          "columnsFrom": [
-            "changed_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "review_status_history_reason_len_chk": {
-          "name": "review_status_history_reason_len_chk",
-          "value": "\"review_status_history\".\"reason\" IS NULL OR char_length(\"review_status_history\".\"reason\") <= 500"
-        }
-      },
-      "isRLSEnabled": false
-    },
     "public.blocklist": {
       "name": "blocklist",
       "schema": "",
@@ -2958,7 +2824,7 @@
         },
         "revoked_at": {
           "name": "revoked_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         },
@@ -2970,21 +2836,21 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
         "deleted_at": {
           "name": "deleted_at",
-          "type": "timestamp",
+          "type": "timestamp (6) with time zone",
           "primaryKey": false,
           "notNull": false
         }

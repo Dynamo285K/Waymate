@@ -5,13 +5,13 @@ import {
     integer,
     pgTable,
     text,
-    timestamp,
     uniqueIndex,
     uuid,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { rides } from "./ride";
 import { countryCodeEnum } from "./enums";
+import { timestamptz } from "./timestamps";
 
 export const rideStops = pgTable(
     "ride_stops",
@@ -26,10 +26,10 @@ export const rideStops = pgTable(
         lat: doublePrecision("lat").notNull(),
         lng: doublePrecision("lng").notNull(),
         stopOrder: integer("stop_order").notNull(),
-        plannedArrivalAt: timestamp("planned_arrival_at"),
-        plannedDepartureAt: timestamp("planned_departure_at"),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at").defaultNow().notNull(),
+        plannedArrivalAt: timestamptz("planned_arrival_at"),
+        plannedDepartureAt: timestamptz("planned_departure_at"),
+        createdAt: timestamptz("created_at").defaultNow().notNull(),
+        updatedAt: timestamptz("updated_at").defaultNow().notNull(),
     },
     (table) => [
         uniqueIndex("ride_stops_ride_id_stop_order_uq").on(

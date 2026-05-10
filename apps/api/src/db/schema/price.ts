@@ -3,7 +3,6 @@ import {
     index,
     pgTable,
     text,
-    timestamp,
     uniqueIndex,
     uuid,
     integer,
@@ -11,6 +10,7 @@ import {
 import { sql } from "drizzle-orm";
 import { rides } from "./ride";
 import { rideStops } from "./ride_stop";
+import { timestamptz } from "./timestamps";
 
 export const prices = pgTable(
     "prices",
@@ -27,8 +27,8 @@ export const prices = pgTable(
             .references(() => rideStops.id),
         amount: integer("amount").notNull(),
         currency: text("currency").notNull(),
-        createdAt: timestamp("created_at").defaultNow().notNull(),
-        updatedAt: timestamp("updated_at").defaultNow().notNull(),
+        createdAt: timestamptz("created_at").defaultNow().notNull(),
+        updatedAt: timestamptz("updated_at").defaultNow().notNull(),
     },
     (table) => [
         uniqueIndex("prices_ride_start_end_uq").on(

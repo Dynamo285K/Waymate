@@ -373,7 +373,7 @@ const updateBookingFields = async (
 ): Promise<{ id: string } | null> => {
     const [updatedBooking] = await executor
         .update(bookingsTable)
-        .set({ ...fields, updatedAt: new Date() })
+        .set(fields)
         .where(and(eq(bookingsTable.id, bookingId), bookingNotSoftDeleted))
         .returning({ id: bookingsTable.id });
 
