@@ -54,7 +54,8 @@
       "Bash(sed -n '320,335p' src/pages/DriverOfferRidePage.tsx)",
       "Bash(sed -n '535,545p' src/pages/DriverOfferRidePage.tsx)",
       "Bash(echo \"lint=$?\")",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "Bash(git stash *)"
     ]
   }
 }
