@@ -1,4 +1,6 @@
 import type {
+    AdminReportDetailResponse,
+    AdminReportListResponse,
     AdminReviewDetailResponse,
     AdminReviewListItem,
     AdminReviewListResponse,
@@ -7,6 +9,7 @@ import type {
     AdminUserDetailResponse,
     AdminUserListItem,
     AdminUserListResponse,
+    ReportStatus,
 } from "@repo/shared";
 import { db } from "../../db";
 import { AdminError, AdminErrorCodes } from "./admin.errors";
@@ -14,9 +17,11 @@ import { AdminRepository } from "./admin.repository";
 import { RideRepository } from "../rides/ride.repository";
 import type {
     AdminCancelRideInput,
+    AdminReportListFilters,
     AdminReviewListFilters,
     AdminRideListFilters,
     AdminUserListFilters,
+    SetReportStatusInput,
     SetReviewStatusInput,
     SetUserStatusInput,
 } from "./admin.types";
@@ -351,6 +356,148 @@ const setReviewStatus = async ({
     });
 };
 
+// Status workflow: OPEN can move to INVESTIGATING, RESOLVED, or DISMISSED.
+// INVESTIGATING can move forward to RESOLVED or DISMISSED. RESOLVED and
+// DISMISSED are terminal — admin must reopen a duplicate report instead of
+// reverting, which keeps the audit log linear.
+const ALLOWED_REPORT_TRANSITIONS: Record<ReportStatus, ReportStatus[]> = {
+    OPEN: ["INVESTIGATING", "RESOLVED", "DISMISSED"],
+    INVESTIGATING: ["RESOLVED", "DISMISSED"],
+    RESOLVED: [],
+    DISMISSED: [],
+};
+
+const REPORT_STATUSES_REQUIRING_REASON: ReportStatus[] = [
+    "RESOLVED",
+    "DISMISSED",
+];
+
+const getReportList = async (
+    filters: AdminReportListFilters
+): Promise<AdminReportListResponse> => {
+    let cursorPosition: { id: string; createdAt: Date } | undefined;
+
+    if (filters.cursor) {
+        const createdAt = await AdminRepository.findReportCreatedAt(
+            db,
+            filters.cursor
+        );
+        if (!createdAt) return { items: [], nextCursor: null };
+        cursorPosition = { id: filters.cursor, createdAt };
+    }
+
+    const rows = await AdminRepository.findReportList(db, {
+        limit: filters.limit + 1,
+        status: filters.status,
+        reportType: filters.reportType,
+        search: filters.search,
+        cursorPosition,
+    });
+
+    const hasMore = rows.length > filters.limit;
+    const items = hasMore ? rows.slice(0, filters.limit) : rows;
+    const nextCursor = hasMore ? (items[items.length - 1]?.id ?? null) : null;
+
+    return { items, nextCursor };
+};
+
+const getReportDetail = async (
+    reportId: string
+): Promise<AdminReportDetailResponse> => {
+    const [report, statusHistory] = await Promise.all([
+        AdminRepository.findReportDetailById(db, reportId),
+        AdminRepository.findReportStatusHistoryByReportId(
+            db,
+            reportId,
+            STATUS_HISTORY_DEFAULT_LIMIT
+        ),
+    ]);
+
+    if (!report) {
+        throw new AdminError(AdminErrorCodes.ReportNotFound);
+    }
+
+    return { report, statusHistory };
+};
+
+const setReportStatus = async ({
+    actorId,
+    reportId,
+    newStatus,
+    reason,
+}: SetReportStatusInput): Promise<AdminReportDetailResponse> => {
+    if (
+        REPORT_STATUSES_REQUIRING_REASON.includes(newStatus) &&
+        (!reason || reason.trim().length === 0)
+    ) {
+        throw new AdminError(AdminErrorCodes.ReportReasonRequired);
+    }
+
+    return await db.transaction(async (tx) => {
+        const report = await AdminRepository.findReportForAdminUpdate(
+            tx,
+            reportId
+        );
+
+        if (!report) {
+            throw new AdminError(AdminErrorCodes.ReportNotFound);
+        }
+
+        // Idempotent no-op: skip both UPDATE and history insert so updated_at
+        // and the audit log only reflect real transitions.
+        if (report.reportStatus !== newStatus) {
+            const allowed =
+                ALLOWED_REPORT_TRANSITIONS[report.reportStatus] ?? [];
+            if (!allowed.includes(newStatus)) {
+                throw new AdminError(AdminErrorCodes.ReportInvalidTransition);
+            }
+
+            const trimmedReason = reason?.trim() ?? null;
+            const resolutionReason = REPORT_STATUSES_REQUIRING_REASON.includes(
+                newStatus
+            )
+                ? trimmedReason
+                : null;
+
+            const updated = await AdminRepository.updateReportStatusById(
+                tx,
+                reportId,
+                newStatus,
+                resolutionReason
+            );
+
+            if (!updated) {
+                // Race: report was soft-deleted between the visibility check
+                // and the update. Roll back to keep history consistent.
+                throw new AdminError(AdminErrorCodes.ReportNotFound);
+            }
+
+            await AdminRepository.insertReportStatusHistoryRow(tx, {
+                reportId: updated.id,
+                oldStatus: report.reportStatus,
+                newStatus,
+                changedByUserId: actorId,
+                reason: trimmedReason,
+            });
+        }
+
+        const [detail, statusHistory] = await Promise.all([
+            AdminRepository.findReportDetailById(tx, reportId),
+            AdminRepository.findReportStatusHistoryByReportId(
+                tx,
+                reportId,
+                STATUS_HISTORY_DEFAULT_LIMIT
+            ),
+        ]);
+
+        if (!detail) {
+            throw new AdminError(AdminErrorCodes.ReportNotFound);
+        }
+
+        return { report: detail, statusHistory };
+    });
+};
+
 export const AdminService = {
     getUserList,
     getUserDetail,
@@ -361,4 +508,7 @@ export const AdminService = {
     getReviewList,
     getReviewDetail,
     setReviewStatus,
+    getReportList,
+    getReportDetail,
+    setReportStatus,
 };

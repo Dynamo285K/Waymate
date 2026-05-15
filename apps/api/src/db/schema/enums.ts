@@ -7,6 +7,8 @@ import {
     deliveryStatusValues,
     messageTypeValues,
     notificationTypeValues,
+    reportStatusValues,
+    reportTypeValues,
     reviewStatusValues,
     rideStatusValues,
     userRoleValues,
@@ -24,6 +26,10 @@ export const rideStatusEnum = pgEnum("ride_status", rideStatusValues);
 export const bookingStatusEnum = pgEnum("booking_status", bookingStatusValues);
 
 export const reviewStatusEnum = pgEnum("review_status", reviewStatusValues);
+
+export const reportTypeEnum = pgEnum("report_type", reportTypeValues);
+
+export const reportStatusEnum = pgEnum("report_status", reportStatusValues);
 
 export const conversationTypeEnum = pgEnum(
     "conversation_type",

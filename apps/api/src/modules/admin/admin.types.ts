@@ -1,4 +1,10 @@
-import type { ReviewStatus, RideStatus, UserStatus } from "@repo/shared";
+import type {
+    ReportStatus,
+    ReportType,
+    ReviewStatus,
+    RideStatus,
+    UserStatus,
+} from "@repo/shared";
 
 export type AdminUserListFilters = {
     limit: number;
@@ -40,4 +46,19 @@ export type SetReviewStatusInput = {
     reviewId: string;
     newStatus: ReviewStatus;
     reason: string;
+};
+
+export type AdminReportListFilters = {
+    limit: number;
+    cursor?: string;
+    status?: ReportStatus;
+    reportType?: ReportType;
+    search?: string;
+};
+
+export type SetReportStatusInput = {
+    actorId: string;
+    reportId: string;
+    newStatus: ReportStatus;
+    reason?: string;
 };

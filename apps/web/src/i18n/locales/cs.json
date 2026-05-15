@@ -64,7 +64,29 @@
         "dashboard": "Přehled",
         "rides": "Jízdy",
         "users": "Uživatelé",
-        "reports": "Hlášení",
+        "reports": {
+            "tab": "Hlášení",
+            "title": "Hlášení",
+            "subtitle": "Zkontrolujte hlášení uživatelů a řešení sporů.",
+            "loading": "Načítání hlášení…",
+            "empty": "Žádné hlášení neodpovídá filtrům.",
+            "searchPlaceholder": "Hledat popis, oznamovatele, cíl…",
+            "reporter": "Oznamovatel",
+            "target": "Nahlášený",
+            "type": "Typ",
+            "description": "Popis",
+            "detailTitle": "Detail hlášení",
+            "resolutionReason": "Důvod řešení",
+            "reasonLabel": "Důvod",
+            "setStatus": "Nastavit stav hlášení: {{status}}",
+            "markInvestigating": "Označit jako vyšetřované",
+            "markResolved": "Označit jako vyřešené",
+            "markDismissed": "Zamítnout",
+            "statusOpen": "Otevřené",
+            "statusInvestigating": "Vyšetřuje se",
+            "statusResolved": "Vyřešené",
+            "statusDismissed": "Zamítnuté"
+        },
         "settings": "Nastavení",
         "logout": "Odhlásit se",
         "adminRole": "Admin",
@@ -176,8 +198,12 @@
             "userNotFound": "Tento uživatel již neexistuje. Seznam se obnoví.",
             "rideNotFound": "Tato jízda již neexistuje. Seznam se obnoví.",
             "rideAlreadyCancelled": "Tato jízda již byla zrušena.",
-            "reviewNotFound": "Tato recenze již neexistuje. Seznam se obnoví."
+            "reviewNotFound": "Tato recenze již neexistuje. Seznam se obnoví.",
+            "reportNotFound": "Toto hlášení již neexistuje. Seznam se obnoví.",
+            "reportReasonRequired": "Při vyřešení nebo zamítnutí hlášení je nutné uvést důvod.",
+            "reportInvalidTransition": "Tato změna stavu není z aktuálního stavu hlášení povolena."
         },
+        "allTypes": "Všechny typy",
         "reviewsTab": "Recenze",
         "reviewsTitle": "Moderace recenzí",
         "reviewsSubtitle": "Najdi nízko hodnocené nebo nahlášené recenze a skryj nebo odstraň ty nevhodné.",
@@ -421,7 +447,8 @@
         "seatsLeft": "{{count}} míst zbývá",
         "pendingConfirmation": "Čeká na potvrzení",
         "cancelBooking": "Zrušit rezervaci",
-        "rateDriver": "Ohodnotit řidiče"
+        "rateDriver": "Ohodnotit řidiče",
+        "reportDriver": "Nahlásit řidiče"
     },
     "bookGuest": {
         "title": "Vytvořte účet pro rezervaci",
@@ -449,6 +476,30 @@
     "roles": {
         "passenger": "Cestující",
         "driver": "Řidič"
+    },
+    "report": {
+        "action": "Nahlásit",
+        "title": "Nahlásit uživatele",
+        "intro": "Popište, co se stalo. Hlášení putují k moderátorům a před jakýmkoli zásahem je posoudíme.",
+        "typeLabel": "Typ problému",
+        "descriptionLabel": "Popis",
+        "descriptionPlaceholder": "Popište, co se stalo (max 2000 znaků)…",
+        "cancel": "Zrušit",
+        "submit": "Odeslat hlášení",
+        "types": {
+            "inappropriateBehavior": "Nevhodné chování",
+            "noShow": "Nedostavil se",
+            "overcharging": "Předražování",
+            "leftLuggage": "Zapomenutá zavazadla",
+            "safetyIssue": "Bezpečnostní problém",
+            "other": "Jiné"
+        },
+        "errors": {
+            "targetNotFound": "Tento uživatel již není dostupný.",
+            "targetNotAllowed": "Nahlásit můžete pouze uživatele, se kterým jste sdíleli jízdu.",
+            "selfReport": "Nemůžete nahlásit sami sebe.",
+            "rideNotFound": "Tato jízda již neexistuje."
+        }
     },
     "nav": {
         "findRide": "Najít jízdu",
