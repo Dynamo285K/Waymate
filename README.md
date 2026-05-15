@@ -152,16 +152,22 @@ production web origin different from the dev one), set `CORS_ORIGINS` in
 ### 5. Apply migrations and seed development data
 
 The database container is empty after step 4 — schema and fixtures are
-applied separately:
+applied separately. For a fresh local database run all three commands in
+order:
 
 ```bash
 bun run --cwd apps/api db:migrate    # creates the tables
 bun run --cwd apps/api seed          # fills users, cars, rides, bookings
+bun run --cwd apps/api seed:cities   # fills the cities reference table (SK + CZ)
 ```
 
-The seed **truncates everything first**, so re-running it wipes any local
-state (sessions, registrations, rides). It prints the dev logins on the
-last lines:
+Each seed is idempotent — `seed` and `seed:cities` both **truncate their
+own tables first**, so re-running either one resets that slice without
+touching the other. There is no required order between `seed` and
+`seed:cities` today (cities is a standalone catalog with no FK from rides
+yet); pick whichever you need to refresh.
+
+`seed` prints the dev logins on the last lines:
 
 ```
 Seeding finished. Dev logins:
@@ -175,6 +181,19 @@ bookings so passenger/driver flows have something to load against.
 It also seeds 100 regular users (`user.1@example.com` … `user.100@example.com`,
 no password — they exist as fixtures for paginating/searching the admin user
 list).
+
+`seed:cities` downloads GeoNames country dumps for SK and CZ on first run
+(cached in `apps/api/.geonames-cache/`, gitignored) and inserts ~16 k
+populated places. City data © GeoNames (CC BY 4.0).
+
+#### Resetting after a manual schema wipe
+
+If you ever drop the `public` schema (e.g. `DROP SCHEMA public CASCADE` to
+clear a broken state), the three commands above are the full recipe to get
+back to a working app — `db:migrate` rebuilds the schema, then both seeds
+repopulate the data. Skipping `seed` is what causes the "I can't log in"
+symptom: the schema is fine but the `admin@example.com` / `driver.albert`
+accounts no longer exist.
 
 ### 6. Run the project
 

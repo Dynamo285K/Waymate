@@ -56,8 +56,8 @@
       "Bash(echo \"lint=$?\")",
       "Bash(curl *)",
       "Bash(git stash *)",
-      "Bash(awk -F: '{print $3}')",
-      "Bash(grep -rn 't\\(\\\\`' apps/web/src/ --include=\"*.tsx\" --include=\"*.ts\")"
+      "Bash(lsof -i :3000 -sTCP:LISTEN)",
+      "Bash(lsof -i :5173 -sTCP:LISTEN)"
     ]
   }
 }

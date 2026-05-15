@@ -1,5 +1,5 @@
 {
-  "id": "533209ca-9895-488c-8254-a1e868e3801e",
+  "id": "c1b96514-8926-4f57-a24d-7ac3703c2681",
   "prevId": "b60c4abf-3533-4cfd-b2c9-97d6ae5f302b",
   "version": "7",
   "dialect": "postgresql",
@@ -1874,201 +1874,6 @@
       },
       "isRLSEnabled": false
     },
-    "public.reports": {
-      "name": "reports",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "reporter_id": {
-          "name": "reporter_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "target_user_id": {
-          "name": "target_user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "ride_id": {
-          "name": "ride_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "report_type": {
-          "name": "report_type",
-          "type": "report_type",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "report_status": {
-          "name": "report_status",
-          "type": "report_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'OPEN'"
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "resolution_reason": {
-          "name": "resolution_reason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp (6) with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp (6) with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp (6) with time zone",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "reports_target_user_id_idx": {
-          "name": "reports_target_user_id_idx",
-          "columns": [
-            {
-              "expression": "target_user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "reports_reporter_id_idx": {
-          "name": "reports_reporter_id_idx",
-          "columns": [
-            {
-              "expression": "reporter_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "reports_status_idx": {
-          "name": "reports_status_idx",
-          "columns": [
-            {
-              "expression": "report_status",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "reports_created_at_idx": {
-          "name": "reports_created_at_idx",
-          "columns": [
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "reports_reporter_id_users_id_fk": {
-          "name": "reports_reporter_id_users_id_fk",
-          "tableFrom": "reports",
-          "tableTo": "users",
-          "columnsFrom": [
-            "reporter_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "reports_target_user_id_users_id_fk": {
-          "name": "reports_target_user_id_users_id_fk",
-          "tableFrom": "reports",
-          "tableTo": "users",
-          "columnsFrom": [
-            "target_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "reports_ride_id_rides_id_fk": {
-          "name": "reports_ride_id_rides_id_fk",
-          "tableFrom": "reports",
-          "tableTo": "rides",
-          "columnsFrom": [
-            "ride_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "reports_description_len_chk": {
-          "name": "reports_description_len_chk",
-          "value": "char_length(\"reports\".\"description\") BETWEEN 1 AND 2000"
-        },
-        "reports_resolution_reason_len_chk": {
-          "name": "reports_resolution_reason_len_chk",
-          "value": "\"reports\".\"resolution_reason\" IS NULL OR char_length(\"reports\".\"resolution_reason\") <= 500"
-        }
-      },
-      "isRLSEnabled": false
-    },
     "public.conversations": {
       "name": "conversations",
       "schema": "",
@@ -3111,143 +2916,6 @@
       },
       "isRLSEnabled": false
     },
-    "public.report_status_history": {
-      "name": "report_status_history",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "report_id": {
-          "name": "report_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "old_status": {
-          "name": "old_status",
-          "type": "report_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "new_status": {
-          "name": "new_status",
-          "type": "report_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "changed_by_user_id": {
-          "name": "changed_by_user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "reason": {
-          "name": "reason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp (6) with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "report_status_history_report_id_idx": {
-          "name": "report_status_history_report_id_idx",
-          "columns": [
-            {
-              "expression": "report_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "report_status_history_new_status_idx": {
-          "name": "report_status_history_new_status_idx",
-          "columns": [
-            {
-              "expression": "new_status",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "report_status_history_created_at_idx": {
-          "name": "report_status_history_created_at_idx",
-          "columns": [
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "report_status_history_report_id_reports_id_fk": {
-          "name": "report_status_history_report_id_reports_id_fk",
-          "tableFrom": "report_status_history",
-          "tableTo": "reports",
-          "columnsFrom": [
-            "report_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "report_status_history_changed_by_user_id_users_id_fk": {
-          "name": "report_status_history_changed_by_user_id_users_id_fk",
-          "tableFrom": "report_status_history",
-          "tableTo": "users",
-          "columnsFrom": [
-            "changed_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "report_status_history_reason_len_chk": {
-          "name": "report_status_history_reason_len_chk",
-          "value": "\"report_status_history\".\"reason\" IS NULL OR char_length(\"report_status_history\".\"reason\") <= 500"
-        }
-      },
-      "isRLSEnabled": false
-    },
     "public.blocklist": {
       "name": "blocklist",
       "schema": "",
@@ -3505,6 +3173,172 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
+    },
+    "public.cities": {
+      "name": "cities",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "external_id": {
+          "name": "external_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name_normalized": {
+          "name": "name_normalized",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "country_code": {
+          "name": "country_code",
+          "type": "country_code",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lat": {
+          "name": "lat",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lng": {
+          "name": "lng",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "population": {
+          "name": "population",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp (6) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp (6) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "cities_external_id_uq": {
+          "name": "cities_external_id_uq",
+          "columns": [
+            {
+              "expression": "external_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "cities_name_normalized_country_code_uq": {
+          "name": "cities_name_normalized_country_code_uq",
+          "columns": [
+            {
+              "expression": "name_normalized",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "country_code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "cities_country_code_idx": {
+          "name": "cities_country_code_idx",
+          "columns": [
+            {
+              "expression": "country_code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "cities_population_idx": {
+          "name": "cities_population_idx",
+          "columns": [
+            {
+              "expression": "population",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "cities_name_len_chk": {
+          "name": "cities_name_len_chk",
+          "value": "char_length(\"cities\".\"name\") BETWEEN 1 AND 200"
+        },
+        "cities_name_normalized_len_chk": {
+          "name": "cities_name_normalized_len_chk",
+          "value": "char_length(\"cities\".\"name_normalized\") BETWEEN 1 AND 200"
+        },
+        "cities_lat_chk": {
+          "name": "cities_lat_chk",
+          "value": "\"cities\".\"lat\" BETWEEN -90 AND 90"
+        },
+        "cities_lng_chk": {
+          "name": "cities_lng_chk",
+          "value": "\"cities\".\"lng\" BETWEEN -180 AND 180"
+        },
+        "cities_population_chk": {
+          "name": "cities_population_chk",
+          "value": "\"cities\".\"population\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
     }
   },
   "enums": {
@@ -3631,28 +3465,6 @@
         "MESSAGE_RECEIVED",
         "RIDE_UPDATED",
         "REVIEW_RECEIVED"
-      ]
-    },
-    "public.report_status": {
-      "name": "report_status",
-      "schema": "public",
-      "values": [
-        "OPEN",
-        "INVESTIGATING",
-        "RESOLVED",
-        "DISMISSED"
-      ]
-    },
-    "public.report_type": {
-      "name": "report_type",
-      "schema": "public",
-      "values": [
-        "INAPPROPRIATE_BEHAVIOR",
-        "NO_SHOW",
-        "OVERCHARGING",
-        "LEFT_LUGGAGE",
-        "SAFETY_ISSUE",
-        "OTHER"
       ]
     },
     "public.review_status": {
