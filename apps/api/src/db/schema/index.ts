@@ -20,3 +20,4 @@ export * from "./booking_status_history";
 export * from "./review_status_history";
 export * from "./blocklist";
 export * from "./rate_limit";
+export * from "./city";

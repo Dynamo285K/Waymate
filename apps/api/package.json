@@ -12,6 +12,7 @@
         "typecheck": "tsc -p tsconfig.json",
         "openapi:dump": "bun scripts/dump-openapi.ts",
         "seed": "bun src/db/seed.ts",
+        "seed:cities": "bun src/db/seed-cities.ts",
         "db:generate": "drizzle-kit generate",
         "db:migrate": "drizzle-kit migrate",
         "db:push": "drizzle-kit push",

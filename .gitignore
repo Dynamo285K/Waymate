@@ -41,6 +41,9 @@ Thumbs.db
 tmp
 temp
 
+# downloaded GeoNames dumps for cities seed (re-fetched on demand)
+.geonames-cache/
+
 # local bun config (contains auth tokens)
 bunfig.toml
 

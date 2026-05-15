@@ -55,7 +55,9 @@
       "Bash(sed -n '535,545p' src/pages/DriverOfferRidePage.tsx)",
       "Bash(echo \"lint=$?\")",
       "Bash(curl *)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Bash(lsof -i :3000 -sTCP:LISTEN)",
+      "Bash(lsof -i :5173 -sTCP:LISTEN)"
     ]
   }
 }
