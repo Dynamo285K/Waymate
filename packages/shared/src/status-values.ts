@@ -26,6 +26,22 @@ export const bookingStatusValues = [
 
 export const reviewStatusValues = ["VISIBLE", "HIDDEN", "REMOVED"] as const;
 
+export const reportTypeValues = [
+    "INAPPROPRIATE_BEHAVIOR",
+    "NO_SHOW",
+    "OVERCHARGING",
+    "LEFT_LUGGAGE",
+    "SAFETY_ISSUE",
+    "OTHER",
+] as const;
+
+export const reportStatusValues = [
+    "OPEN",
+    "INVESTIGATING",
+    "RESOLVED",
+    "DISMISSED",
+] as const;
+
 export const conversationTypeValues = ["RIDE", "BOOKING", "SUPPORT"] as const;
 
 export const messageTypeValues = ["TEXT", "SYSTEM"] as const;

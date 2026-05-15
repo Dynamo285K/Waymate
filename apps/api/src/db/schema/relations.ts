@@ -7,6 +7,7 @@ import { rideStops } from "./ride_stop";
 import { prices } from "./price";
 import { bookings } from "./booking";
 import { reviews } from "./review";
+import { reports } from "./report";
 import { conversations } from "./conversation";
 import { messages } from "./message";
 import { notifications } from "./notification";
@@ -14,6 +15,7 @@ import { userStatusHistory } from "./user_status_history";
 import { rideStatusHistory } from "./ride_status_history";
 import { bookingStatusHistory } from "./booking_status_history";
 import { reviewStatusHistory } from "./review_status_history";
+import { reportStatusHistory } from "./report_status_history";
 import { blocklist } from "./blocklist";
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -25,6 +27,9 @@ export const usersRelations = relations(users, ({ many }) => ({
     }),
     authoredReviews: many(reviews, { relationName: "review_author" }),
     receivedReviews: many(reviews, { relationName: "review_subject" }),
+    authoredReports: many(reports, { relationName: "report_reporter" }),
+    receivedReports: many(reports, { relationName: "report_target" }),
+    reportStatusChangesByUser: many(reportStatusHistory),
     messages: many(messages),
     notifications: many(notifications),
     userStatusHistory: many(userStatusHistory, {
@@ -72,6 +77,7 @@ export const ridesRelations = relations(rides, ({ one, many }) => ({
     prices: many(prices),
     bookings: many(bookings),
     reviews: many(reviews),
+    reports: many(reports),
     conversations: many(conversations),
     statusHistory: many(rideStatusHistory),
 }));
@@ -240,6 +246,38 @@ export const reviewStatusHistoryRelations = relations(
         }),
         changedByUser: one(users, {
             fields: [reviewStatusHistory.changedByUserId],
+            references: [users.id],
+        }),
+    })
+);
+
+export const reportsRelations = relations(reports, ({ one, many }) => ({
+    reporter: one(users, {
+        fields: [reports.reporterId],
+        references: [users.id],
+        relationName: "report_reporter",
+    }),
+    targetUser: one(users, {
+        fields: [reports.targetUserId],
+        references: [users.id],
+        relationName: "report_target",
+    }),
+    ride: one(rides, {
+        fields: [reports.rideId],
+        references: [rides.id],
+    }),
+    statusHistory: many(reportStatusHistory),
+}));
+
+export const reportStatusHistoryRelations = relations(
+    reportStatusHistory,
+    ({ one }) => ({
+        report: one(reports, {
+            fields: [reportStatusHistory.reportId],
+            references: [reports.id],
+        }),
+        changedByUser: one(users, {
+            fields: [reportStatusHistory.changedByUserId],
             references: [users.id],
         }),
     })

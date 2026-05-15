@@ -64,7 +64,29 @@
         "dashboard": "Dashboard",
         "rides": "Rides",
         "users": "Users",
-        "reports": "Reports",
+        "reports": {
+            "tab": "Reports",
+            "title": "Reports",
+            "subtitle": "Review user reports and dispute resolutions.",
+            "loading": "Loading reports…",
+            "empty": "No reports match the current filters.",
+            "searchPlaceholder": "Search description, reporter, target…",
+            "reporter": "Reporter",
+            "target": "Target",
+            "type": "Type",
+            "description": "Description",
+            "detailTitle": "Report detail",
+            "resolutionReason": "Resolution reason",
+            "reasonLabel": "Reason",
+            "setStatus": "Set report status: {{status}}",
+            "markInvestigating": "Mark investigating",
+            "markResolved": "Mark resolved",
+            "markDismissed": "Dismiss",
+            "statusOpen": "Open",
+            "statusInvestigating": "Investigating",
+            "statusResolved": "Resolved",
+            "statusDismissed": "Dismissed"
+        },
         "settings": "Settings",
         "logout": "Logout",
         "adminRole": "Admin",
@@ -176,8 +198,12 @@
             "userNotFound": "This user no longer exists. The list will refresh.",
             "rideNotFound": "This ride no longer exists. The list will refresh.",
             "rideAlreadyCancelled": "This ride has already been cancelled.",
-            "reviewNotFound": "This review no longer exists. The list will refresh."
+            "reviewNotFound": "This review no longer exists. The list will refresh.",
+            "reportNotFound": "This report no longer exists. The list will refresh.",
+            "reportReasonRequired": "A reason is required when resolving or dismissing a report.",
+            "reportInvalidTransition": "This status change is not allowed from the report's current state."
         },
+        "allTypes": "All types",
         "reviewsTab": "Reviews",
         "reviewsTitle": "Review Moderation",
         "reviewsSubtitle": "Surface low-rated or flagged reviews and hide or remove abusive ones.",
@@ -421,7 +447,8 @@
         "seatsLeft": "{{count}} seats left",
         "pendingConfirmation": "Pending confirmation",
         "cancelBooking": "Cancel booking",
-        "rateDriver": "Rate driver"
+        "rateDriver": "Rate driver",
+        "reportDriver": "Report driver"
     },
     "bookGuest": {
         "title": "Create an account to book",
@@ -449,6 +476,30 @@
     "roles": {
         "passenger": "Passenger",
         "driver": "Driver"
+    },
+    "report": {
+        "action": "Report",
+        "title": "Report user",
+        "intro": "Please describe what happened. Reports go to the moderation team and are reviewed before any action is taken.",
+        "typeLabel": "Type of issue",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Describe what happened (max 2000 characters)…",
+        "cancel": "Cancel",
+        "submit": "Submit report",
+        "types": {
+            "inappropriateBehavior": "Inappropriate behavior",
+            "noShow": "No-show",
+            "overcharging": "Overcharging",
+            "leftLuggage": "Left luggage behind",
+            "safetyIssue": "Safety issue",
+            "other": "Other"
+        },
+        "errors": {
+            "targetNotFound": "This user is no longer available.",
+            "targetNotAllowed": "You can only report users you have shared a ride with.",
+            "selfReport": "You cannot report yourself.",
+            "rideNotFound": "This ride no longer exists."
+        }
     },
     "nav": {
         "findRide": "Find ride",

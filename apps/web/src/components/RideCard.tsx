@@ -14,6 +14,7 @@ export type RideCardLabels = {
     pendingConfirmation?: string;
     cancelBooking?: string;
     rateDriver?: string;
+    reportDriver?: string;
     viewPassengers?: string;
     cancelRide?: string;
     ratePassengers?: string;
@@ -44,12 +45,14 @@ type PassengerUpcomingProps = RideCardBaseProps & {
     seatsLeft?: number;
     status: "pending" | "confirmed";
     onCancelBooking: () => void;
+    onReport?: () => void;
 };
 type PassengerPastProps = RideCardBaseProps & {
     variant: "passenger-past";
     driverName: string;
     driverRating: number;
     onRateDriver: () => void;
+    onReport?: () => void;
 };
 
 export type RideCardProps =
@@ -177,15 +180,33 @@ export function RideCard(props: RideCardProps) {
                                     {labels?.cancelBooking ?? "Cancel booking"}
                                 </Button>
                             )}
+                            {props.status === "confirmed" && props.onReport && (
+                                <Button
+                                    variant="secondary"
+                                    onClick={props.onReport}
+                                >
+                                    {labels?.reportDriver ?? "Report driver"}
+                                </Button>
+                            )}
                         </div>
                     )}
                     {props.variant === "passenger-past" && (
-                        <Button
-                            variant="black"
-                            onClick={props.onRateDriver}
-                        >
-                            {labels?.rateDriver ?? "Rate driver"}
-                        </Button>
+                        <div className="ride-card__actions">
+                            <Button
+                                variant="black"
+                                onClick={props.onRateDriver}
+                            >
+                                {labels?.rateDriver ?? "Rate driver"}
+                            </Button>
+                            {props.onReport && (
+                                <Button
+                                    variant="secondary"
+                                    onClick={props.onReport}
+                                >
+                                    {labels?.reportDriver ?? "Report driver"}
+                                </Button>
+                            )}
+                        </div>
                     )}
                 </div>
             </div>

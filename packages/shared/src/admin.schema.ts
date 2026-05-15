@@ -11,6 +11,11 @@ import {
     RideStopIdSchema,
 } from "./ride.schema";
 import { ReviewIdSchema, ReviewStatusSchema } from "./review.schema";
+import {
+    ReportIdSchema,
+    ReportStatusSchema,
+    ReportTypeSchema,
+} from "./report.schema";
 import { CountryCodeSchema } from "./country-code.schema";
 import { CurrencySchema } from "./currency.schema";
 import { bookingStatusValues } from "./status-values";
@@ -313,4 +318,96 @@ export type AdminReviewDetailResponse = z.infer<
 >;
 export type UpdateReviewStatusBody = z.infer<
     typeof UpdateReviewStatusBodySchema
+>;
+
+// ==========================================
+// Report moderation
+// ==========================================
+
+export const AdminReportIdParamsSchema = z.object({
+    id: ReportIdSchema,
+});
+
+export const AdminReportListQuerySchema = z.object({
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+    cursor: ReportIdSchema.optional(),
+    status: ReportStatusSchema.optional(),
+    reportType: ReportTypeSchema.optional(),
+    search: z.string().trim().min(1).max(100).optional(),
+});
+
+export const AdminReportListItemSchema = z.object({
+    id: ReportIdSchema,
+    reportType: ReportTypeSchema,
+    reportStatus: ReportStatusSchema,
+    description: z.string(),
+    rideId: RideIdSchema.nullable(),
+    reporter: PublicUserPreviewSchema.extend({
+        email: z.string(),
+    }),
+    target: PublicUserPreviewSchema.extend({
+        email: z.string(),
+    }),
+    createdAt: z.date(),
+});
+
+export const AdminReportListResponseSchema = z.object({
+    items: z.array(AdminReportListItemSchema),
+    nextCursor: ReportIdSchema.nullable(),
+});
+
+export const AdminReportDetailSchema = AdminReportListItemSchema.extend({
+    updatedAt: z.date(),
+    resolutionReason: z.string().nullable(),
+    ride: z
+        .object({
+            id: RideIdSchema,
+            departureAt: z.date(),
+            originCity: z.string(),
+            destinationCity: z.string(),
+        })
+        .nullable(),
+});
+
+export const AdminReportStatusHistoryItemSchema = z.object({
+    id: z.uuid(),
+    oldStatus: ReportStatusSchema.nullable(),
+    newStatus: ReportStatusSchema,
+    reason: z.string().nullable(),
+    createdAt: z.date(),
+    changedBy: z
+        .object({
+            id: UserIdSchema,
+            firstName: z.string().nullable(),
+            lastName: z.string().nullable(),
+        })
+        .nullable(),
+});
+
+export const AdminReportDetailResponseSchema = z.object({
+    report: AdminReportDetailSchema,
+    statusHistory: z.array(AdminReportStatusHistoryItemSchema),
+});
+
+export const UpdateReportStatusBodySchema = z
+    .object({
+        status: ReportStatusSchema,
+        reason: z.string().trim().min(1).max(500).optional(),
+    })
+    .strict();
+
+export type AdminReportListQuery = z.infer<typeof AdminReportListQuerySchema>;
+export type AdminReportListItem = z.infer<typeof AdminReportListItemSchema>;
+export type AdminReportListResponse = z.infer<
+    typeof AdminReportListResponseSchema
+>;
+export type AdminReportDetail = z.infer<typeof AdminReportDetailSchema>;
+export type AdminReportStatusHistoryItem = z.infer<
+    typeof AdminReportStatusHistoryItemSchema
+>;
+export type AdminReportDetailResponse = z.infer<
+    typeof AdminReportDetailResponseSchema
+>;
+export type UpdateReportStatusBody = z.infer<
+    typeof UpdateReportStatusBodySchema
 >;

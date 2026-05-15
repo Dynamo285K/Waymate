@@ -5,6 +5,7 @@ import { Button, RateDriverModal } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
 import { RideCard } from "../components/RideCard";
+import { ReportUserModal } from "../components/ReportUserModal";
 import { useGetBookingsMe } from "../api-client/bookings/bookings";
 import { getErrorI18nKey } from "../lib/api-errors";
 import { formatRideDate } from "../lib/date-format";
@@ -57,6 +58,11 @@ export function PassengerMyRidesPage({
     const cancelBooking = useCancelBooking();
     const [ratingModalOpen, setRatingModalOpen] = useState(false);
     const [ratingDriverName, setRatingDriverName] = useState("");
+    const [reportTarget, setReportTarget] = useState<{
+        driverId: string;
+        driverName: string;
+        rideId: string;
+    } | null>(null);
     const [optimisticRide, setOptimisticRide] = useState<UpcomingRide | null>(
         null
     );
@@ -86,22 +92,31 @@ export function PassengerMyRidesPage({
         }
     }, [incomingBooked]);
 
-    const bookingRides = bookings?.map((booking) => ({
-        id: booking.id,
-        from: booking.pickupCity,
-        to: booking.dropoffCity,
-        date: booking.ride.departureAt,
-        price: booking.priceAmount,
-        driverName:
-            `${booking.driver.firstName ?? ""} ${booking.driver.lastName ?? ""}`.trim(),
-        driverRating: 0,
-        seatsLeft: booking.seatsLeft,
-        status:
-            booking.bookingStatus === "CONFIRMED"
-                ? ("confirmed" as const)
-                : ("pending" as const),
-    }));
-    const displayedRides =
+    type DisplayedRide = UpcomingRide & {
+        driverId?: string;
+        rideId?: string;
+    };
+
+    const bookingRides: DisplayedRide[] | undefined = bookings?.map(
+        (booking) => ({
+            id: booking.id,
+            from: booking.pickupCity,
+            to: booking.dropoffCity,
+            date: booking.ride.departureAt,
+            price: booking.priceAmount,
+            driverName:
+                `${booking.driver.firstName ?? ""} ${booking.driver.lastName ?? ""}`.trim(),
+            driverRating: 0,
+            seatsLeft: booking.seatsLeft,
+            status:
+                booking.bookingStatus === "CONFIRMED"
+                    ? ("confirmed" as const)
+                    : ("pending" as const),
+            driverId: booking.driver.id,
+            rideId: booking.ride.id,
+        })
+    );
+    const displayedRides: DisplayedRide[] =
         tab === "upcoming" && optimisticRide
             ? [
                   optimisticRide,
@@ -116,6 +131,16 @@ export function PassengerMyRidesPage({
         pendingConfirmation: t("myRides.pendingConfirmation"),
         cancelBooking: t("myRides.cancelBooking"),
         rateDriver: t("myRides.rateDriver"),
+        reportDriver: t("myRides.reportDriver"),
+    };
+
+    const handleReport = (ride: DisplayedRide) => {
+        if (!ride.driverId || !ride.rideId) return;
+        setReportTarget({
+            driverId: ride.driverId,
+            driverName: ride.driverName,
+            rideId: ride.rideId,
+        });
     };
 
     return (
@@ -187,6 +212,11 @@ export function PassengerMyRidesPage({
                                 onCancelBooking={() =>
                                     setBookingToCancel(String(ride.id))
                                 }
+                                onReport={
+                                    ride.driverId && ride.rideId
+                                        ? () => handleReport(ride)
+                                        : undefined
+                                }
                                 labels={rideLabels}
                             />
                         ))}
@@ -213,6 +243,11 @@ export function PassengerMyRidesPage({
                                     setRatingDriverName(ride.driverName);
                                     setRatingModalOpen(true);
                                 }}
+                                onReport={
+                                    ride.driverId && ride.rideId
+                                        ? () => handleReport(ride)
+                                        : undefined
+                                }
                                 labels={rideLabels}
                             />
                         ))}
@@ -251,6 +286,16 @@ export function PassengerMyRidesPage({
                     setRatingModalOpen(false);
                 }}
             />
+
+            {reportTarget && (
+                <ReportUserModal
+                    key={`${reportTarget.driverId}-${reportTarget.rideId}`}
+                    targetUserId={reportTarget.driverId}
+                    targetName={reportTarget.driverName}
+                    rideId={reportTarget.rideId}
+                    onClose={() => setReportTarget(null)}
+                />
+            )}
         </div>
     );
 }

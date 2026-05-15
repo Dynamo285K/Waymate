@@ -24,6 +24,8 @@ import type {
 import type {
     AdminCancelRideBody,
     AdminCancelRideResponse,
+    AdminReportDetailResponse,
+    AdminReportListResponse,
     AdminReviewDetailResponse,
     AdminReviewListItem,
     AdminReviewListResponse,
@@ -33,11 +35,14 @@ import type {
     AdminUserListItem,
     AdminUserListResponse,
     ErrorResponse,
+    GetAdminReportsParams,
     GetAdminReviewsParams,
     GetAdminRidesParams,
     GetAdminUsersParams,
+    ReportId,
     ReviewId,
     RideId,
+    UpdateReportStatusBody,
     UpdateReviewStatusBody,
     UpdateUserStatusBody,
     UserId,
@@ -1360,6 +1365,450 @@ export const usePatchAdminRidesByIdCancel = <
 > => {
     const mutationOptions =
         getPatchAdminRidesByIdCancelMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+/**
+ * Returns a keyset-paginated list of user reports for moderation. Supports filtering by status, type, and case-insensitive search across description and reporter/target email/name.
+ */
+export const getGetAdminReportsUrl = (params: GetAdminReportsParams) => {
+    const normalizedParams = new URLSearchParams();
+
+    Object.entries(params || {}).forEach(([key, value]) => {
+        if (value !== undefined) {
+            normalizedParams.append(
+                key,
+                value === null ? "null" : value.toString()
+            );
+        }
+    });
+
+    const stringifiedParams = normalizedParams.toString();
+
+    return stringifiedParams.length > 0
+        ? `/admin/reports?${stringifiedParams}`
+        : `/admin/reports`;
+};
+
+export const getAdminReports = async (
+    params: GetAdminReportsParams,
+    options?: RequestInit
+): Promise<AdminReportListResponse> => {
+    return apiFetcher<AdminReportListResponse>(getGetAdminReportsUrl(params), {
+        ...options,
+        method: "GET",
+    });
+};
+
+export const getGetAdminReportsQueryKey = (params?: GetAdminReportsParams) => {
+    return [`/admin/reports`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetAdminReportsQueryOptions = <
+    TData = Awaited<ReturnType<typeof getAdminReports>>,
+    TError = ErrorResponse,
+>(
+    params: GetAdminReportsParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReports>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    }
+) => {
+    const { query: queryOptions, request: requestOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getGetAdminReportsQueryKey(params);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof getAdminReports>>
+    > = () => getAdminReports(params, requestOptions);
+
+    return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminReports>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetAdminReportsQueryResult = NonNullable<
+    Awaited<ReturnType<typeof getAdminReports>>
+>;
+export type GetAdminReportsQueryError = ErrorResponse;
+
+export function useGetAdminReports<
+    TData = Awaited<ReturnType<typeof getAdminReports>>,
+    TError = ErrorResponse,
+>(
+    params: GetAdminReportsParams,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReports>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminReports>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminReports>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminReports<
+    TData = Awaited<ReturnType<typeof getAdminReports>>,
+    TError = ErrorResponse,
+>(
+    params: GetAdminReportsParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReports>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminReports>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminReports>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminReports<
+    TData = Awaited<ReturnType<typeof getAdminReports>>,
+    TError = ErrorResponse,
+>(
+    params: GetAdminReportsParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReports>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetAdminReports<
+    TData = Awaited<ReturnType<typeof getAdminReports>>,
+    TError = ErrorResponse,
+>(
+    params: GetAdminReportsParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReports>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getGetAdminReportsQueryOptions(params, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * Returns full report detail (reporter, target, ride context if present, resolution reason) plus the status history (newest first, capped at 50).
+ */
+export const getGetAdminReportsByIdUrl = (id: ReportId) => {
+    return `/admin/reports/${id}`;
+};
+
+export const getAdminReportsById = async (
+    id: ReportId,
+    options?: RequestInit
+): Promise<AdminReportDetailResponse> => {
+    return apiFetcher<AdminReportDetailResponse>(
+        getGetAdminReportsByIdUrl(id),
+        {
+            ...options,
+            method: "GET",
+        }
+    );
+};
+
+export const getGetAdminReportsByIdQueryKey = (id?: ReportId) => {
+    return [`/admin/reports/${id}`] as const;
+};
+
+export const getGetAdminReportsByIdQueryOptions = <
+    TData = Awaited<ReturnType<typeof getAdminReportsById>>,
+    TError = ErrorResponse,
+>(
+    id: ReportId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReportsById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    }
+) => {
+    const { query: queryOptions, request: requestOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getGetAdminReportsByIdQueryKey(id);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof getAdminReportsById>>
+    > = () => getAdminReportsById(id, requestOptions);
+
+    return {
+        queryKey,
+        queryFn,
+        enabled: !!id,
+        ...queryOptions,
+    } as UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminReportsById>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetAdminReportsByIdQueryResult = NonNullable<
+    Awaited<ReturnType<typeof getAdminReportsById>>
+>;
+export type GetAdminReportsByIdQueryError = ErrorResponse;
+
+export function useGetAdminReportsById<
+    TData = Awaited<ReturnType<typeof getAdminReportsById>>,
+    TError = ErrorResponse,
+>(
+    id: ReportId,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReportsById>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminReportsById>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminReportsById>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminReportsById<
+    TData = Awaited<ReturnType<typeof getAdminReportsById>>,
+    TError = ErrorResponse,
+>(
+    id: ReportId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReportsById>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminReportsById>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminReportsById>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminReportsById<
+    TData = Awaited<ReturnType<typeof getAdminReportsById>>,
+    TError = ErrorResponse,
+>(
+    id: ReportId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReportsById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetAdminReportsById<
+    TData = Awaited<ReturnType<typeof getAdminReportsById>>,
+    TError = ErrorResponse,
+>(
+    id: ReportId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReportsById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getGetAdminReportsByIdQueryOptions(id, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * Moves a report through its workflow: OPEN→INVESTIGATING (no reason), OPEN/INVESTIGATING→RESOLVED or DISMISSED (reason required). RESOLVED and DISMISSED are terminal. Records an audit row in report_status_history with the admin as changedByUserId.
+ */
+export const getPatchAdminReportsByIdStatusUrl = (id: ReportId) => {
+    return `/admin/reports/${id}/status`;
+};
+
+export const patchAdminReportsByIdStatus = async (
+    id: ReportId,
+    updateReportStatusBody: UpdateReportStatusBody,
+    options?: RequestInit
+): Promise<AdminReportDetailResponse> => {
+    return apiFetcher<AdminReportDetailResponse>(
+        getPatchAdminReportsByIdStatusUrl(id),
+        {
+            ...options,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                ...options?.headers,
+            },
+            body: JSON.stringify(updateReportStatusBody),
+        }
+    );
+};
+
+export const getPatchAdminReportsByIdStatusMutationOptions = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof patchAdminReportsByIdStatus>>,
+        TError,
+        { id: ReportId; data: UpdateReportStatusBody },
+        TContext
+    >;
+    request?: SecondParameter<typeof apiFetcher>;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof patchAdminReportsByIdStatus>>,
+    TError,
+    { id: ReportId; data: UpdateReportStatusBody },
+    TContext
+> => {
+    const mutationKey = ["patchAdminReportsByIdStatus"];
+    const { mutation: mutationOptions, request: requestOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey }, request: undefined };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof patchAdminReportsByIdStatus>>,
+        { id: ReportId; data: UpdateReportStatusBody }
+    > = (props) => {
+        const { id, data } = props ?? {};
+
+        return patchAdminReportsByIdStatus(id, data, requestOptions);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type PatchAdminReportsByIdStatusMutationResult = NonNullable<
+    Awaited<ReturnType<typeof patchAdminReportsByIdStatus>>
+>;
+export type PatchAdminReportsByIdStatusMutationBody = UpdateReportStatusBody;
+export type PatchAdminReportsByIdStatusMutationError = ErrorResponse;
+
+export const usePatchAdminReportsByIdStatus = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof patchAdminReportsByIdStatus>>,
+            TError,
+            { id: ReportId; data: UpdateReportStatusBody },
+            TContext
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseMutationResult<
+    Awaited<ReturnType<typeof patchAdminReportsByIdStatus>>,
+    TError,
+    { id: ReportId; data: UpdateReportStatusBody },
+    TContext
+> => {
+    const mutationOptions =
+        getPatchAdminReportsByIdStatusMutationOptions(options);
 
     return useMutation(mutationOptions, queryClient);
 };

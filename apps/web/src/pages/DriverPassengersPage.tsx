@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "../lib/router-compat";
 import { StatCard, TextLink } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { PassengerCard } from "../components/PassengerCard";
+import { ReportUserModal } from "../components/ReportUserModal";
 import { useGetRidesByIdPassengers } from "../api-client/rides/rides";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { useCancelBookingByDriver } from "../hooks/useCancelBookingByDriver";
@@ -92,6 +94,11 @@ export function DriverPassengersPage({
         query: { enabled: Boolean(ride?.id) },
     });
     const cancelBooking = useCancelBookingByDriver();
+
+    const [reportTarget, setReportTarget] = useState<{
+        userId: string;
+        name: string;
+    } | null>(null);
 
     return (
         <div
@@ -204,6 +211,12 @@ export function DriverPassengersPage({
                                             reason: "Driver cancelled passenger booking",
                                         })
                                     }
+                                    onReport={() =>
+                                        setReportTarget({
+                                            userId: booking.passenger.id,
+                                            name: passengerName,
+                                        })
+                                    }
                                     labels={{
                                         seatsReserved: (count) =>
                                             t("driverRides.seatsReserved", {
@@ -215,12 +228,23 @@ export function DriverPassengersPage({
                                         cancelBooking: t(
                                             "driverRides.cancelBooking"
                                         ),
+                                        reportUser: t("report.action"),
                                     }}
                                 />
                             );
                         })}
                 </div>
             </section>
+
+            {reportTarget && (
+                <ReportUserModal
+                    key={reportTarget.userId}
+                    targetUserId={reportTarget.userId}
+                    targetName={reportTarget.name}
+                    rideId={ride?.id}
+                    onClose={() => setReportTarget(null)}
+                />
+            )}
         </div>
     );
 }
