@@ -3,6 +3,7 @@ import { z } from "zod";
 import * as adminSchemas from "./admin.schema";
 import * as bookingSchemas from "./booking.schema";
 import * as carSchemas from "./car.schema";
+import * as citySchemas from "./city.schema";
 import * as cityInputSchemas from "./city-input.schema";
 import * as countryCodeSchemas from "./country-code.schema";
 import * as currencySchemas from "./currency.schema";
@@ -18,6 +19,7 @@ const allModules = [
     adminSchemas,
     bookingSchemas,
     carSchemas,
+    citySchemas,
     cityInputSchemas,
     countryCodeSchemas,
     currencySchemas,
