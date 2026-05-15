@@ -2,6 +2,13 @@ import { Elysia } from "elysia";
 import {
     AdminCancelRideBodySchema,
     AdminCancelRideResponseSchema,
+    AdminReportDetailResponseSchema,
+    AdminReportDetailSchema,
+    AdminReportIdParamsSchema,
+    AdminReportListItemSchema,
+    AdminReportListQuerySchema,
+    AdminReportListResponseSchema,
+    AdminReportStatusHistoryItemSchema,
     AdminReviewDetailResponseSchema,
     AdminReviewDetailSchema,
     AdminReviewIdParamsSchema,
@@ -24,6 +31,7 @@ import {
     AdminUserListResponseSchema,
     AdminUserStatusHistoryItemSchema,
     ErrorResponseSchema,
+    UpdateReportStatusBodySchema,
     UpdateReviewStatusBodySchema,
     UpdateUserStatusBodySchema,
 } from "@repo/shared";
@@ -62,6 +70,14 @@ export const AdminRoutes = new Elysia({
         AdminReviewStatusHistoryItem: AdminReviewStatusHistoryItemSchema,
         AdminReviewDetailResponse: AdminReviewDetailResponseSchema,
         UpdateReviewStatusBody: UpdateReviewStatusBodySchema,
+        AdminReportIdParams: AdminReportIdParamsSchema,
+        AdminReportListQuery: AdminReportListQuerySchema,
+        AdminReportListItem: AdminReportListItemSchema,
+        AdminReportListResponse: AdminReportListResponseSchema,
+        AdminReportDetail: AdminReportDetailSchema,
+        AdminReportStatusHistoryItem: AdminReportStatusHistoryItemSchema,
+        AdminReportDetailResponse: AdminReportDetailResponseSchema,
+        UpdateReportStatusBody: UpdateReportStatusBodySchema,
         ErrorResponse: ErrorResponseSchema,
     })
     .onError(createErrorHandler(AdminError, adminErrorToHttpStatus))
@@ -290,6 +306,83 @@ export const AdminRoutes = new Elysia({
                     detail: {
                         description:
                             "Force-cancels a ride as admin and cascades cancellation to all active passenger bookings (PENDING/CONFIRMED). Records an audit row in ride_status_history with the admin as changedByUserId. The reason is required so the audit log makes the override traceable.",
+                    },
+                }
+            )
+            .get(
+                "/reports",
+                async ({ query }) => {
+                    return await AdminService.getReportList({
+                        limit: query.limit,
+                        cursor: query.cursor,
+                        status: query.status,
+                        reportType: query.reportType,
+                        search: query.search,
+                    });
+                },
+                {
+                    query: AdminReportListQuerySchema,
+                    response: {
+                        200: "AdminReportListResponse",
+                        400: "ErrorResponse",
+                        401: "ErrorResponse",
+                        403: "ErrorResponse",
+                        429: "ErrorResponse",
+                        500: "ErrorResponse",
+                    },
+                    detail: {
+                        description:
+                            "Returns a keyset-paginated list of user reports for moderation. Supports filtering by status, type, and case-insensitive search across description and reporter/target email/name.",
+                    },
+                }
+            )
+            .get(
+                "/reports/:id",
+                async ({ params }) =>
+                    await AdminService.getReportDetail(params.id),
+                {
+                    params: AdminReportIdParamsSchema,
+                    response: {
+                        200: "AdminReportDetailResponse",
+                        400: "ErrorResponse",
+                        401: "ErrorResponse",
+                        403: "ErrorResponse",
+                        404: "ErrorResponse",
+                        429: "ErrorResponse",
+                        500: "ErrorResponse",
+                    },
+                    detail: {
+                        description:
+                            "Returns full report detail (reporter, target, ride context if present, resolution reason) plus the status history (newest first, capped at 50).",
+                    },
+                }
+            )
+            .patch(
+                "/reports/:id/status",
+                async ({ user, params, body }) =>
+                    await AdminService.setReportStatus({
+                        actorId: user.id,
+                        reportId: params.id,
+                        newStatus: body.status,
+                        reason: body.reason,
+                    }),
+                {
+                    params: AdminReportIdParamsSchema,
+                    body: "UpdateReportStatusBody",
+                    response: {
+                        200: "AdminReportDetailResponse",
+                        400: "ErrorResponse",
+                        401: "ErrorResponse",
+                        403: "ErrorResponse",
+                        404: "ErrorResponse",
+                        409: "ErrorResponse",
+                        413: "ErrorResponse",
+                        429: "ErrorResponse",
+                        500: "ErrorResponse",
+                    },
+                    detail: {
+                        description:
+                            "Moves a report through its workflow: OPEN→INVESTIGATING (no reason), OPEN/INVESTIGATING→RESOLVED or DISMISSED (reason required). RESOLVED and DISMISSED are terminal. Records an audit row in report_status_history with the admin as changedByUserId.",
                     },
                 }
             )

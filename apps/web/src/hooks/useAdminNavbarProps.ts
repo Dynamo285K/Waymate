@@ -33,7 +33,7 @@ export function useAdminNavbarProps(params: {
             rides: t("admin.rides"),
             users: t("admin.users"),
             reviews: t("admin.reviewsTab"),
-            reports: t("admin.reports"),
+            reports: t("admin.reports.tab"),
             settings: t("admin.settings"),
             logout: t("admin.logout"),
         },

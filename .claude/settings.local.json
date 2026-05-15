@@ -55,7 +55,9 @@
       "Bash(sed -n '535,545p' src/pages/DriverOfferRidePage.tsx)",
       "Bash(echo \"lint=$?\")",
       "Bash(curl *)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Bash(awk -F: '{print $3}')",
+      "Bash(grep -rn 't\\(\\\\`' apps/web/src/ --include=\"*.tsx\" --include=\"*.ts\")"
     ]
   }
 }

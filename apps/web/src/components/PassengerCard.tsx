@@ -5,6 +5,7 @@ export type PassengerCardLabels = {
     seatsReserved?: (count: number) => string;
     sendMessage?: string;
     cancelBooking?: string;
+    reportUser?: string;
 };
 
 export type PassengerCardProps = {
@@ -13,6 +14,7 @@ export type PassengerCardProps = {
     seatsReserved: number;
     onSendMessage: () => void;
     onCancelBooking: () => void;
+    onReport?: () => void;
     labels?: PassengerCardLabels;
 };
 
@@ -22,6 +24,7 @@ export function PassengerCard({
     seatsReserved,
     onSendMessage,
     onCancelBooking,
+    onReport,
     labels,
 }: PassengerCardProps) {
     return (
@@ -59,6 +62,14 @@ export function PassengerCard({
                 >
                     {labels?.cancelBooking ?? "Cancel booking"}
                 </Button>
+                {onReport && (
+                    <Button
+                        variant="secondary"
+                        onClick={onReport}
+                    >
+                        {labels?.reportUser ?? "Report"}
+                    </Button>
+                )}
             </div>
         </div>
     );

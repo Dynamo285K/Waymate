@@ -11,6 +11,7 @@ import { CarRoutes } from "./modules/cars/car.routes";
 import { RideRoutes } from "./modules/rides/ride.routes";
 import { BookingRoutes } from "./modules/bookings/booking.routes";
 import { ReviewRoutes } from "./modules/reviews/review.routes";
+import { ReportRoutes } from "./modules/reports/report.routes";
 import { AdminRoutes } from "./modules/admin/admin.routes";
 import { checkRateLimit } from "./shared/rate-limit";
 import {
@@ -55,6 +56,12 @@ const RATE_LIMIT_RULES: RateLimitRule[] = [
     },
     {
         match: (method, path) =>
+            method === "POST" && (path === "/reports" || path === "/reports/"),
+        keyPrefix: "rl:reports:create",
+        max: 10,
+    },
+    {
+        match: (method, path) =>
             method === "PATCH" && /^\/admin\/users\/[^/]+\/status$/.test(path),
         keyPrefix: "rl:admin:user-status",
         max: 30,
@@ -70,6 +77,13 @@ const RATE_LIMIT_RULES: RateLimitRule[] = [
             method === "PATCH" &&
             /^\/admin\/reviews\/[^/]+\/status$/.test(path),
         keyPrefix: "rl:admin:review-status",
+        max: 30,
+    },
+    {
+        match: (method, path) =>
+            method === "PATCH" &&
+            /^\/admin\/reports\/[^/]+\/status$/.test(path),
+        keyPrefix: "rl:admin:report-status",
         max: 30,
     },
     {
@@ -208,6 +222,7 @@ export const app = new Elysia()
     .use(RideRoutes)
     .use(BookingRoutes)
     .use(ReviewRoutes)
+    .use(ReportRoutes)
     .use(AdminRoutes);
 
 export type App = typeof app;

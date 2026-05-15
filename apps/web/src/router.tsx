@@ -38,7 +38,7 @@ import { AdminDashboardPage } from "./pages/AdminDashboardPage";
 import { AdminRidesPage } from "./pages/AdminRides";
 import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { AdminReviewsPage } from "./pages/AdminReviews";
-import { AdminReportsPage } from "./pages/AdminReportsPage";
+import { AdminReportsPage } from "./pages/AdminReports";
 
 interface RouterContext {
     queryClient: QueryClient;
