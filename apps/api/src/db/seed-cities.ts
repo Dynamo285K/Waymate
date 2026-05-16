@@ -12,6 +12,7 @@ import { join } from "node:path";
 import type { CountryCode } from "@repo/shared";
 import { db } from "./index";
 import { cities } from "./schema";
+import { normalizeForSearch } from "../shared/text-normalize";
 
 const CACHE_DIR = join(import.meta.dir, "../../.geonames-cache");
 const COUNTRIES: readonly CountryCode[] = ["SK", "CZ"] as const;
@@ -82,11 +83,6 @@ const extractTsv = async (
     return text;
 };
 
-// Strip diacritics: "Žilina" → "zilina". Matches the JS form so the
-// search query can stay a plain ILIKE without unaccent extension.
-const normalize = (text: string): string =>
-    text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
-
 // Drizzle's `.values()` rejects empty arrays; filter callers must check.
 const parseTsv = (tsv: string, country: CountryCode): CityRow[] => {
     const out: CityRow[] = [];
@@ -113,7 +109,7 @@ const parseTsv = (tsv: string, country: CountryCode): CityRow[] => {
 
         // Normalize from the overridden name so search keys match the
         // displayed label ("praha" not "prague") for outliers.
-        const nameNormalized = normalize(name);
+        const nameNormalized = normalizeForSearch(name);
         if (!nameNormalized) continue;
 
         out.push({

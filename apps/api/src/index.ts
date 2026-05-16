@@ -8,6 +8,7 @@ import { auth } from "./modules/auth/auth";
 import { HealthRoutes } from "./modules/health/health.routes";
 import { UserRoutes } from "./modules/users/user.routes";
 import { CarRoutes } from "./modules/cars/car.routes";
+import { CityRoutes } from "./modules/cities/city.routes";
 import { RideRoutes } from "./modules/rides/ride.routes";
 import { BookingRoutes } from "./modules/bookings/booking.routes";
 import { ReviewRoutes } from "./modules/reviews/review.routes";
@@ -91,6 +92,15 @@ const RATE_LIMIT_RULES: RateLimitRule[] = [
             method === "GET" && path === "/admin/users" && search.has("search"),
         keyPrefix: "rl:admin:users-search",
         max: 30,
+    },
+    {
+        // Autocomplete fires once per debounced keystroke from the FE.
+        // Cap higher than typical 60/min because a normal typing session
+        // can comfortably reach ~3-4 req/s under a 250 ms debounce.
+        match: (method, path) =>
+            method === "GET" && (path === "/cities" || path === "/cities/"),
+        keyPrefix: "rl:cities:search",
+        max: 120,
     },
 ];
 
@@ -219,6 +229,7 @@ export const app = new Elysia()
     .use(HealthRoutes)
     .use(UserRoutes)
     .use(CarRoutes)
+    .use(CityRoutes)
     .use(RideRoutes)
     .use(BookingRoutes)
     .use(ReviewRoutes)
