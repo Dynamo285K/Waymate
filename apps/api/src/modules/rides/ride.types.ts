@@ -42,7 +42,9 @@ export type BookingStatus = (typeof bookingStatusValues)[number];
 export type PublicCarProfile = Pick<Car, "id" | "modelId" | "color" | "spz">;
 
 export type RideListItem = Ride & {
-    rideStops: Pick<RideStop, "city" | "stopOrder">[];
+    // `city` is sourced from cities.name via JOIN in the repository and
+    // flattened back to a plain string so this view-model stays stable.
+    rideStops: { city: string; stopOrder: number }[];
     bookings: { id: string; seatCount: number }[];
     prices: Pick<Price, "amount" | "currency" | "startStopId" | "endStopId">[];
 };
@@ -53,7 +55,7 @@ export type RidePassengersHeader = Pick<
     Ride,
     "id" | "departureAt" | "rideStatus" | "offeredSeats" | "currency"
 > & {
-    rideStops: Pick<RideStop, "id" | "city" | "stopOrder">[];
+    rideStops: { id: string; city: string; stopOrder: number }[];
     canReview: boolean;
 };
 
@@ -62,8 +64,8 @@ export type RidePassengerItem = {
     bookingStatus: BookingStatus;
     seatCount: number;
     passenger: PublicUserPreview;
-    pickupStop: Pick<RideStop, "id" | "city" | "stopOrder"> | null;
-    dropoffStop: Pick<RideStop, "id" | "city" | "stopOrder"> | null;
+    pickupStop: { id: string; city: string; stopOrder: number } | null;
+    dropoffStop: { id: string; city: string; stopOrder: number } | null;
     myReviewOfPassenger: { id: string; rating: number } | null;
 };
 

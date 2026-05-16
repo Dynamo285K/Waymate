@@ -11,7 +11,6 @@ import {
 import { sql } from "drizzle-orm";
 import { rides } from "./ride";
 import { cities } from "./city";
-import { countryCodeEnum } from "./enums";
 import { timestamptz } from "./timestamps";
 
 export const rideStops = pgTable(
@@ -22,16 +21,11 @@ export const rideStops = pgTable(
             .notNull()
             .references(() => rides.id),
         address: text("address").notNull(),
-        // Reference to the controlled vocabulary in `cities`. Nullable for
-        // now so the schema can be deployed without backfilling every
-        // existing row in one step; a follow-up migration tightens this to
-        // NOT NULL once all rides go through the city-id flow.
+        // Reference to the controlled vocabulary in `cities`. Display
+        // name and country code are read from cities via JOIN, not
+        // duplicated here. Nullable for now; the follow-up migration
+        // tightens this to NOT NULL.
         cityId: uuid("city_id").references(() => cities.id),
-        // Denormalized snapshot of the chosen city's display name at the
-        // time the stop was created — keeps historical rides readable even
-        // if the canonical `cities.name` is later edited.
-        city: text("city").notNull(),
-        countryCode: countryCodeEnum("country_code"),
         lat: doublePrecision("lat").notNull(),
         lng: doublePrecision("lng").notNull(),
         stopOrder: integer("stop_order").notNull(),
@@ -45,9 +39,7 @@ export const rideStops = pgTable(
             table.rideId,
             table.stopOrder
         ),
-        index("ride_stops_city_idx").on(table.city),
         index("ride_stops_city_id_idx").on(table.cityId),
-        index("ride_stops_country_code_idx").on(table.countryCode),
         index("ride_stops_lat_idx").on(table.lat),
         index("ride_stops_lng_idx").on(table.lng),
 
@@ -57,10 +49,6 @@ export const rideStops = pgTable(
         check(
             "ride_stops_address_len_chk",
             sql`char_length(${table.address}) BETWEEN 1 AND 255`
-        ),
-        check(
-            "ride_stops_city_len_chk",
-            sql`char_length(${table.city}) BETWEEN 1 AND 100`
         ),
         check(
             "ride_stops_planned_time_order_chk",

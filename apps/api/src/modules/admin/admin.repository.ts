@@ -38,6 +38,7 @@ import { users as usersTable } from "../../db/schema/user";
 import { userStatusHistory as userStatusHistoryTable } from "../../db/schema/user_status_history";
 import { rides as ridesTable } from "../../db/schema/ride";
 import { rideStops as rideStopsTable } from "../../db/schema/ride_stop";
+import { cities as citiesTable } from "../../db/schema/city";
 import { prices as pricesTable } from "../../db/schema/price";
 import { bookings as bookingsTable } from "../../db/schema/booking";
 import { cars as carsTable } from "../../db/schema/car";
@@ -289,6 +290,8 @@ const findRideList = async (
 
     const originStops = aliasedTable(rideStopsTable, "admin_origin_stops");
     const destStops = aliasedTable(rideStopsTable, "admin_dest_stops");
+    const originCities = aliasedTable(citiesTable, "admin_origin_cities");
+    const destCities = aliasedTable(citiesTable, "admin_dest_cities");
 
     // Subquery to find the last stop_order per ride so the destination join
     // can match without scanning every stop in the row group.
@@ -331,8 +334,8 @@ const findRideList = async (
             offeredSeats: ridesTable.offeredSeats,
             currency: ridesTable.currency,
             createdAt: ridesTable.createdAt,
-            originCity: originStops.city,
-            destinationCity: destStops.city,
+            originCity: originCities.name,
+            destinationCity: destCities.name,
             activeSeatCount: sql<number>`COALESCE(${seatsByRide.seats}, 0)::int`,
             driverId: usersTable.id,
             driverEmail: usersTable.email,
@@ -349,6 +352,7 @@ const findRideList = async (
                 eq(originStops.stopOrder, 0)
             )
         )
+        .innerJoin(originCities, eq(originCities.id, originStops.cityId))
         .innerJoin(lastStopOrders, eq(lastStopOrders.rideId, ridesTable.id))
         .innerJoin(
             destStops,
@@ -357,6 +361,7 @@ const findRideList = async (
                 eq(destStops.stopOrder, lastStopOrders.stopOrder)
             )
         )
+        .innerJoin(destCities, eq(destCities.id, destStops.cityId))
         .leftJoin(seatsByRide, eq(seatsByRide.rideId, ridesTable.id))
         .where(and(...conditions))
         .orderBy(desc(ridesTable.createdAt), desc(ridesTable.id))
@@ -439,12 +444,13 @@ const findRideDetailById = async (
                 id: rideStopsTable.id,
                 stopOrder: rideStopsTable.stopOrder,
                 address: rideStopsTable.address,
-                city: rideStopsTable.city,
-                countryCode: rideStopsTable.countryCode,
+                city: citiesTable.name,
+                countryCode: citiesTable.countryCode,
                 plannedArrivalAt: rideStopsTable.plannedArrivalAt,
                 plannedDepartureAt: rideStopsTable.plannedDepartureAt,
             })
             .from(rideStopsTable)
+            .innerJoin(citiesTable, eq(citiesTable.id, rideStopsTable.cityId))
             .where(eq(rideStopsTable.rideId, id))
             .orderBy(asc(rideStopsTable.stopOrder)),
         executor
@@ -726,6 +732,14 @@ const findReviewDetailById = async (
         "admin_review_detail_origin"
     );
     const destStops = aliasedTable(rideStopsTable, "admin_review_detail_dest");
+    const originCities = aliasedTable(
+        citiesTable,
+        "admin_review_detail_origin_cities"
+    );
+    const destCities = aliasedTable(
+        citiesTable,
+        "admin_review_detail_dest_cities"
+    );
 
     const lastStopOrders = executor
         .select({
@@ -758,8 +772,8 @@ const findReviewDetailById = async (
             subjectLastName: subject.lastName,
             subjectProfilePhotoUrl: subject.profilePhotoUrl,
             rideDepartureAt: ridesTable.departureAt,
-            originCity: originStops.city,
-            destinationCity: destStops.city,
+            originCity: originCities.name,
+            destinationCity: destCities.name,
         })
         .from(reviewsTable)
         .innerJoin(author, eq(reviewsTable.authorId, author.id))
@@ -772,6 +786,7 @@ const findReviewDetailById = async (
                 eq(originStops.stopOrder, 0)
             )
         )
+        .innerJoin(originCities, eq(originCities.id, originStops.cityId))
         .innerJoin(lastStopOrders, eq(lastStopOrders.rideId, ridesTable.id))
         .innerJoin(
             destStops,
@@ -780,6 +795,7 @@ const findReviewDetailById = async (
                 eq(destStops.stopOrder, lastStopOrders.stopOrder)
             )
         )
+        .innerJoin(destCities, eq(destCities.id, destStops.cityId))
         .where(
             and(
                 eq(reviewsTable.id, id),
@@ -1026,6 +1042,14 @@ const findReportDetailById = async (
         "admin_report_detail_origin"
     );
     const destStops = aliasedTable(rideStopsTable, "admin_report_detail_dest");
+    const originCities = aliasedTable(
+        citiesTable,
+        "admin_report_detail_origin_cities"
+    );
+    const destCities = aliasedTable(
+        citiesTable,
+        "admin_report_detail_dest_cities"
+    );
 
     const lastStopOrders = executor
         .select({
@@ -1059,8 +1083,8 @@ const findReportDetailById = async (
             targetLastName: target.lastName,
             targetProfilePhotoUrl: target.profilePhotoUrl,
             rideDepartureAt: ridesTable.departureAt,
-            originCity: originStops.city,
-            destinationCity: destStops.city,
+            originCity: originCities.name,
+            destinationCity: destCities.name,
         })
         .from(reportsTable)
         .innerJoin(reporter, eq(reportsTable.reporterId, reporter.id))
@@ -1073,6 +1097,7 @@ const findReportDetailById = async (
                 eq(originStops.stopOrder, 0)
             )
         )
+        .leftJoin(originCities, eq(originCities.id, originStops.cityId))
         .leftJoin(lastStopOrders, eq(lastStopOrders.rideId, ridesTable.id))
         .leftJoin(
             destStops,
@@ -1081,9 +1106,8 @@ const findReportDetailById = async (
                 eq(destStops.stopOrder, lastStopOrders.stopOrder)
             )
         )
-        .where(
-            and(eq(reportsTable.id, id), isNull(reportsTable.deletedAt))
-        )
+        .leftJoin(destCities, eq(destCities.id, destStops.cityId))
+        .where(and(eq(reportsTable.id, id), isNull(reportsTable.deletedAt)))
         .limit(1);
 
     if (!row) return null;
@@ -1112,7 +1136,10 @@ const findReportDetailById = async (
             profilePhotoUrl: row.targetProfilePhotoUrl,
         },
         ride:
-            row.rideId && row.rideDepartureAt && row.originCity && row.destinationCity
+            row.rideId &&
+            row.rideDepartureAt &&
+            row.originCity &&
+            row.destinationCity
                 ? {
                       id: row.rideId,
                       departureAt: row.rideDepartureAt,
