@@ -110,7 +110,6 @@ export * from "./createReviewBody";
 export * from "./createRideBody";
 export * from "./createRideBodyPricesItem";
 export * from "./createRideBodyStopsItem";
-export * from "./createRideBodyStopsItemCountryCode";
 export * from "./createRideResponse";
 export * from "./currency";
 export * from "./driverRideRequestItem";

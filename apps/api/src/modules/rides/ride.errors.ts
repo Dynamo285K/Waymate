@@ -5,6 +5,7 @@ export const RideErrorCodes = {
     InvalidPriceStopOrders: "RIDE_INVALID_PRICE_STOP_ORDERS",
     RideNotFoundOrNotOwner: "RIDE_NOT_FOUND_OR_NOT_OWNER",
     RideAlreadyCancelled: "RIDE_ALREADY_CANCELLED",
+    UnknownCity: "RIDE_UNKNOWN_CITY",
 } as const;
 
 export type RideErrorCode =
@@ -26,6 +27,7 @@ export function rideErrorToHttpStatus(code: RideErrorCode): number {
             return 403;
         case RideErrorCodes.InvalidPriceStopOrders:
         case RideErrorCodes.RideAlreadyCancelled:
+        case RideErrorCodes.UnknownCity:
             return 400;
         default:
             return assertNever(code);

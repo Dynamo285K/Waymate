@@ -2,6 +2,7 @@ import { db } from "../../db";
 import { RideRepository } from "./ride.repository";
 import { RideError, RideErrorCodes } from "./ride.errors";
 import { REVIEW_WINDOW_DAYS } from "../reviews/review.service";
+import { CityService } from "../cities/city.service";
 import type { CreateRideBody, SearchRidesQuery } from "@repo/shared";
 import type {
     CreateRideInput,
@@ -76,10 +77,14 @@ const getRidePassengers = async (
 };
 
 const searchRides = async (query: SearchRidesQuery) => {
+    // No pre-validation of cityIds — if either is bogus, the repository
+    // JOIN returns no rows and the caller sees an empty list. That is the
+    // same UX as "valid ids but no rides scheduled today", and saves a
+    // round-trip on the happy path.
     return await RideRepository.searchRides(
         db,
-        query.startCity,
-        query.destinationCity,
+        query.startCityId,
+        query.destinationCityId,
         query.travelDate
     );
 };
@@ -90,6 +95,21 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
         driverId,
         rideStatus: "PLANNED",
     };
+
+    // Resolve every cityId to its catalog row before opening the
+    // transaction. We need them for two things: (1) reject the request
+    // early with RIDE_UNKNOWN_CITY if any id is bogus — a cleaner failure
+    // than the FK violation we'd otherwise see mid-transaction, and (2)
+    // pull `name` + `countryCode` to denormalize onto ride_stops as a
+    // snapshot of what the user saw when they picked the city.
+    const requestedCityIds = Array.from(
+        new Set(input.stops.map((s) => s.cityId))
+    );
+    const cityRows = await CityService.getCitiesByIds(requestedCityIds);
+    if (cityRows.length !== requestedCityIds.length) {
+        throw new RideError(RideErrorCodes.UnknownCity);
+    }
+    const cityById = new Map(cityRows.map((c) => [c.id, c]));
 
     return await db.transaction(async (tx) => {
         const car = await RideRepository.findActiveCarForDriver(
@@ -113,17 +133,22 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
             description: input.description,
         });
 
-        const stopsToInsert = input.stops.map((stop, index) => ({
-            rideId: newRide.id,
-            stopOrder: index,
-            address: stop.address,
-            city: stop.city,
-            countryCode: stop.countryCode,
-            lat: stop.lat,
-            lng: stop.lng,
-            plannedArrivalAt: stop.plannedArrivalAt,
-            plannedDepartureAt: stop.plannedDepartureAt,
-        }));
+        const stopsToInsert = input.stops.map((stop, index) => {
+            // Non-null asserted because we verified the set above.
+            const city = cityById.get(stop.cityId)!;
+            return {
+                rideId: newRide.id,
+                stopOrder: index,
+                address: stop.address,
+                cityId: city.id,
+                city: city.name,
+                countryCode: city.countryCode,
+                lat: stop.lat,
+                lng: stop.lng,
+                plannedArrivalAt: stop.plannedArrivalAt,
+                plannedDepartureAt: stop.plannedDepartureAt,
+            };
+        });
 
         const insertedStops = await RideRepository.insertRideStops(
             tx,

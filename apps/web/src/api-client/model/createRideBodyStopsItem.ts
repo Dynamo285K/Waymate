@@ -5,21 +5,15 @@
  * Carpooling backend powering the Waymate web app.
  * OpenAPI spec version: 0.1.0
  */
-import type { CreateRideBodyStopsItemCountryCode } from "./createRideBodyStopsItemCountryCode";
+import type { CityId } from "./cityId";
 
 export type CreateRideBodyStopsItem = {
+    cityId: CityId;
     /**
      * @minLength 1
      * @maxLength 255
      */
     address: string;
-    /**
-     * @minLength 1
-     * @maxLength 100
-     */
-    city: string;
-    /** @nullable */
-    countryCode?: CreateRideBodyStopsItemCountryCode;
     /**
      * @minimum -90
      * @maximum 90

@@ -25,6 +25,14 @@ const searchCities = async (
     );
 };
 
+// Batch-fetch known cities by id. Used by other modules (e.g. rides) to
+// validate FK references and pull snapshot data (name, countryCode, …)
+// before opening a write transaction.
+const getCitiesByIds = async (ids: string[]): Promise<CityListItem[]> => {
+    return await CityRepository.findCitiesByIds(db, ids);
+};
+
 export const CityService = {
     searchCities,
+    getCitiesByIds,
 };

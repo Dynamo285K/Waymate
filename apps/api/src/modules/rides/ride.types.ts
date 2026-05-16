@@ -4,7 +4,6 @@ import type { rideStops } from "../../db/schema/ride_stop";
 import type { prices } from "../../db/schema/price";
 import type { rideStatusHistory } from "../../db/schema/ride_status_history";
 import type {
-    CountryCode,
     PublicUserPreview,
     PublicUserPreviewWithRating,
     bookingStatusValues,
@@ -114,9 +113,8 @@ export type CreateRideInput = Pick<
     | "description"
 > & {
     stops: Array<{
+        cityId: string;
         address: string;
-        city: string;
-        countryCode?: CountryCode | null;
         lat: number;
         lng: number;
         plannedArrivalAt?: Date | null;

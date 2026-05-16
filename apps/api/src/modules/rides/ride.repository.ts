@@ -336,8 +336,8 @@ const findAvailableRides = async (
 
 const searchRides = async (
     executor: Executor,
-    startCity: string,
-    destinationCity: string,
+    startCityId: string,
+    destinationCityId: string,
     travelDate: Date
 ): Promise<RideSearchResultItem[]> => {
     const startOfDay = new Date(travelDate);
@@ -418,14 +418,14 @@ const searchRides = async (
             pickupStops,
             and(
                 eq(ridesTable.id, pickupStops.rideId),
-                eq(pickupStops.city, startCity)
+                eq(pickupStops.cityId, startCityId)
             )
         )
         .innerJoin(
             dropoffStops,
             and(
                 eq(ridesTable.id, dropoffStops.rideId),
-                eq(dropoffStops.city, destinationCity)
+                eq(dropoffStops.cityId, destinationCityId)
             )
         )
         .leftJoin(

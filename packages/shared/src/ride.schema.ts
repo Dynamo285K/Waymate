@@ -5,6 +5,7 @@ import {
     PublicUserPreviewWithRatingSchema,
 } from "./user.schema";
 import { CarIdSchema } from "./car.schema";
+import { CityIdSchema } from "./city.schema";
 import { CountryCodeSchema } from "./country-code.schema";
 import { CurrencySchema } from "./currency.schema";
 import { bookingStatusValues, rideStatusValues } from "./status-values";
@@ -58,9 +59,12 @@ export const CreateRideBodySchema = z.object({
     stops: z
         .array(
             z.object({
+                // Reference to a row in the cities catalog. Server-side
+                // resolves cityId → name + countryCode and stores them as
+                // a snapshot on ride_stops; the client no longer chooses
+                // those values directly.
+                cityId: CityIdSchema,
                 address: z.string().min(1).max(255),
-                city: z.string().min(1).max(100),
-                countryCode: CountryCodeSchema.nullable().optional(),
                 lat: z.number().min(-90).max(90),
                 lng: z.number().min(-180).max(180),
                 plannedArrivalAt: z.coerce.date().nullable().optional(),
@@ -82,8 +86,8 @@ export const CreateRideBodySchema = z.object({
 });
 
 export const SearchRidesQuerySchema = z.object({
-    startCity: z.string().min(1),
-    destinationCity: z.string().min(1),
+    startCityId: CityIdSchema,
+    destinationCityId: CityIdSchema,
     travelDate: z.coerce.date(),
 });
 
