@@ -4,6 +4,14 @@
 //
 // Usage: bun run --cwd apps/api seed:cities
 //
+// IMPORTANT: also truncates rides + ride_stops + prices + bookings + their
+// status history. ride_stops references cities(id), so CASCADE through it
+// is unavoidable; rides is listed alongside so we don't leave zombie ride
+// rows that point at deleted stops. Run `bun run --cwd apps/api seed`
+// afterwards to repopulate the dev fixtures. Acceptable for local dev; a
+// shared environment needs a diff-based sync (UPSERT new + DELETE only
+// unused cities) instead.
+//
 // Data: GeoNames country dumps (https://download.geonames.org/export/dump/),
 // CC BY 4.0. ZIPs are cached in apps/api/.geonames-cache/ between runs.
 import { sql } from "drizzle-orm";
@@ -161,13 +169,15 @@ async function main() {
         // Reset to "current GeoNames + overrides" rather than upserting:
         // cities has TWO unique constraints (external_id and
         // (name_normalized, country_code)) and Postgres ON CONFLICT only
-        // resolves one. TRUNCATE is safe today because nothing references
-        // cities yet — once ride_stops gets a city_id FK, this needs a
-        // proper diff-based sync.
+        // resolves one. CASCADE wipes ride_stops (and through it prices +
+        // bookings); we list `rides` explicitly so re-running this seed
+        // does not leave orphan rides whose stops were just truncated.
         console.log(
-            `Truncating cities and inserting ${all.length} rows (batch size ${BATCH_SIZE})...`
+            `Truncating cities + rides (CASCADE) and inserting ${all.length} rows (batch size ${BATCH_SIZE})...`
         );
-        await db.execute(sql`TRUNCATE TABLE cities RESTART IDENTITY`);
+        await db.execute(
+            sql`TRUNCATE TABLE cities, rides RESTART IDENTITY CASCADE`
+        );
         for (let i = 0; i < all.length; i += BATCH_SIZE) {
             const batch = all.slice(i, i + BATCH_SIZE);
             await db.insert(cities).values(batch);

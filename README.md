@@ -153,19 +153,23 @@ production web origin different from the dev one), set `CORS_ORIGINS` in
 
 The database container is empty after step 4 — schema and fixtures are
 applied separately. For a fresh local database run all three commands in
-order:
+the order shown (it matters now):
 
 ```bash
 bun run --cwd apps/api db:migrate    # creates the tables
-bun run --cwd apps/api seed          # fills users, cars, rides, bookings
 bun run --cwd apps/api seed:cities   # fills the cities reference table (SK + CZ)
+bun run --cwd apps/api seed          # fills users, cars, rides, bookings
 ```
 
-Each seed is idempotent — `seed` and `seed:cities` both **truncate their
-own tables first**, so re-running either one resets that slice without
-touching the other. There is no required order between `seed` and
-`seed:cities` today (cities is a standalone catalog with no FK from rides
-yet); pick whichever you need to refresh.
+`seed:cities` **must run before `seed`** — fixture ride stops now
+reference `cities(id)` via FK, so `seed` looks each city up by name at
+insert time and aborts with a clear message if the row is missing.
+
+Both seeds truncate their own tables before inserting, so re-running is
+safe. `seed:cities` also truncates `rides` (and CASCADEs through
+`ride_stops`, `prices`, `bookings`, and their status history) so the
+ride graph stays consistent — always follow `seed:cities` with `seed`
+to repopulate the ride fixtures.
 
 `seed` prints the dev logins on the last lines:
 
@@ -190,10 +194,12 @@ populated places. City data © GeoNames (CC BY 4.0).
 
 If you ever drop the `public` schema (e.g. `DROP SCHEMA public CASCADE` to
 clear a broken state), the three commands above are the full recipe to get
-back to a working app — `db:migrate` rebuilds the schema, then both seeds
-repopulate the data. Skipping `seed` is what causes the "I can't log in"
-symptom: the schema is fine but the `admin@example.com` / `driver.albert`
-accounts no longer exist.
+back to a working app — `db:migrate` rebuilds the schema, then `seed:cities`
+fills the city catalog, then `seed` fills the rest. Running them out of
+order or skipping one causes predictable failures: skipping `seed:cities`
+makes `seed` abort with "Fixture city not found in DB"; skipping `seed`
+means you cannot log in (the `admin@example.com` / `driver.albert`
+accounts no longer exist).
 
 ### 6. Run the project
 

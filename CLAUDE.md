@@ -30,8 +30,11 @@ bun run --cwd apps/api db:generate   # diff schema vs last snapshot, write SQL i
 bun run --cwd apps/api db:migrate    # apply pending migrations to the local DB
 bun run --cwd apps/api db:push       # local-only: push the schema diff without writing migration files
 bun run --cwd apps/api db:studio     # browse the local DB in Drizzle Studio
-bun run --cwd apps/api seed:cities   # populate the `cities` reference table from GeoNames (SK + CZ); idempotent (TRUNCATE + INSERT). Caches dumps in apps/api/.geonames-cache/
+bun run --cwd apps/api seed:cities   # populate the `cities` reference table from GeoNames (SK + CZ); TRUNCATE…CASCADE + INSERT, so it also wipes rides/ride_stops/prices/bookings — follow with `seed`. Caches dumps in apps/api/.geonames-cache/
+bun run --cwd apps/api seed          # populate dev fixtures (admin, drivers, cars, rides, bookings). Must run AFTER seed:cities — ride stops look up city_id by name and abort if cities are missing.
 ```
+
+Fresh-DB sequence: `db:migrate` → `seed:cities` → `seed`. Order matters now that `ride_stops.city_id` references `cities(id)`.
 
 Schema changes go through `db:generate` and the resulting SQL in `apps/api/drizzle/` is committed alongside the schema diff — that's the audit trail and the only path that ships to shared environments. `db:push` exists for fast local iteration before a change is PR-ready, but never use it on a database anyone else relies on.
 

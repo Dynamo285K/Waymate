@@ -1,6 +1,6 @@
 // Resets a previously-migrated database — does NOT create the schema.
 // Run `bun run --cwd apps/api db:migrate` first on a fresh DB.
-import { sql, eq, and } from "drizzle-orm";
+import { sql, eq, and, inArray } from "drizzle-orm";
 import { db } from "./index";
 import {
     carModels,
@@ -11,10 +11,13 @@ import {
     prices,
     bookings,
     accounts,
+    cities,
 } from "./schema";
 import { randomUUID } from "crypto";
 import carData from "./cars-data.json";
 import { auth } from "../modules/auth/auth";
+import { normalizeForSearch } from "../shared/text-normalize";
+import type { CountryCode } from "@repo/shared";
 
 // Dev-only credentials. Documented here on purpose so anyone running
 // `db:seed` knows how to log in without re-deriving them.
@@ -46,6 +49,59 @@ async function main() {
         // (admin + driver passwords) can reference them.
         const adminId = randomUUID();
         const userAId = randomUUID(); // driver A — has password (see DRIVER_EMAIL)
+
+        // ride_stops now references cities(id), so every fixture stop has
+        // to know which city row to point at. Look them all up by their
+        // normalized name + country and fail loudly if `seed:cities` was
+        // not run first — far friendlier than a Postgres FK violation.
+        const FIXTURE_CITIES: { name: string; country: CountryCode }[] = [
+            { name: "Bratislava", country: "SK" },
+            { name: "Trnava", country: "SK" },
+            { name: "Nitra", country: "SK" },
+            { name: "Košice", country: "SK" },
+            { name: "Prešov", country: "SK" },
+            { name: "Trenčín", country: "SK" },
+        ];
+        const normalizedFixtures = FIXTURE_CITIES.map((c) => ({
+            ...c,
+            normalized: normalizeForSearch(c.name),
+        }));
+        const cityRows = await db
+            .select({
+                id: cities.id,
+                nameNormalized: cities.nameNormalized,
+                countryCode: cities.countryCode,
+            })
+            .from(cities)
+            .where(
+                and(
+                    inArray(
+                        cities.nameNormalized,
+                        normalizedFixtures.map((c) => c.normalized)
+                    ),
+                    inArray(
+                        cities.countryCode,
+                        Array.from(
+                            new Set(normalizedFixtures.map((c) => c.country))
+                        )
+                    )
+                )
+            );
+        const cityIdByKey = new Map(
+            cityRows.map((r) => [`${r.nameNormalized}|${r.countryCode}`, r.id])
+        );
+        const cityIdFor = (name: string, country: CountryCode): string => {
+            const id = cityIdByKey.get(
+                `${normalizeForSearch(name)}|${country}`
+            );
+            if (!id) {
+                throw new Error(
+                    `Fixture city not found in DB: "${name}" (${country}). ` +
+                        `Run \`bun run --cwd apps/api seed:cities\` before \`seed\`.`
+                );
+            }
+            return id;
+        };
 
         await db.transaction(async (tx) => {
             // Users
@@ -305,6 +361,7 @@ async function main() {
                     rideId: ride1Id,
                     address: "Hlavné námestie 1",
                     city: "Bratislava",
+                    cityId: cityIdFor("Bratislava", "SK"),
                     countryCode: "SK",
                     lat: 48.148598,
                     lng: 17.107748,
@@ -315,6 +372,7 @@ async function main() {
                     rideId: ride1Id,
                     address: "Námestie sv. Trojice",
                     city: "Trnava",
+                    cityId: cityIdFor("Trnava", "SK"),
                     countryCode: "SK",
                     lat: 48.377018,
                     lng: 17.588771,
@@ -325,6 +383,7 @@ async function main() {
                     rideId: ride1Id,
                     address: "Námestie SNP",
                     city: "Nitra",
+                    cityId: cityIdFor("Nitra", "SK"),
                     countryCode: "SK",
                     lat: 48.309085,
                     lng: 18.086213,
@@ -355,6 +414,7 @@ async function main() {
                     rideId: ride2Id,
                     address: "Hlavná 1",
                     city: "Košice",
+                    cityId: cityIdFor("Košice", "SK"),
                     countryCode: "SK",
                     lat: 48.716385,
                     lng: 21.261074,
@@ -365,6 +425,7 @@ async function main() {
                     rideId: ride2Id,
                     address: "Masarykova 2",
                     city: "Prešov",
+                    cityId: cityIdFor("Prešov", "SK"),
                     countryCode: "SK",
                     lat: 48.999569,
                     lng: 21.239329,
@@ -394,6 +455,7 @@ async function main() {
                     rideId: ride3Id,
                     address: "Mierové námestie",
                     city: "Trenčín",
+                    cityId: cityIdFor("Trenčín", "SK"),
                     countryCode: "SK",
                     lat: 48.894028,
                     lng: 18.042528,
@@ -404,6 +466,7 @@ async function main() {
                     rideId: ride3Id,
                     address: "Námestie SNP 1",
                     city: "Bratislava",
+                    cityId: cityIdFor("Bratislava", "SK"),
                     countryCode: "SK",
                     lat: 48.148598,
                     lng: 17.107748,
