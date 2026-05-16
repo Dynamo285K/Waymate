@@ -118,7 +118,7 @@ const findRidesByDriverId = async (
     return result.map((r) => ({
         ...r,
         rideStops: r.rideStops.map((rs) => ({
-            city: rs.city?.name ?? "",
+            city: rs.city.name,
             stopOrder: rs.stopOrder,
         })),
     })) as RideListItem[];
@@ -188,7 +188,7 @@ const findRidePassengersBundle = async (
         ...result,
         rideStops: result.rideStops.map((rs) => ({
             id: rs.id,
-            city: rs.city?.name ?? "",
+            city: rs.city.name,
             stopOrder: rs.stopOrder,
         })),
         bookings: result.bookings.map((b) => ({
@@ -196,14 +196,14 @@ const findRidePassengersBundle = async (
             pickupStop: b.pickupStop
                 ? {
                       id: b.pickupStop.id,
-                      city: b.pickupStop.city?.name ?? "",
+                      city: b.pickupStop.city.name,
                       stopOrder: b.pickupStop.stopOrder,
                   }
                 : null,
             dropoffStop: b.dropoffStop
                 ? {
                       id: b.dropoffStop.id,
-                      city: b.dropoffStop.city?.name ?? "",
+                      city: b.dropoffStop.city.name,
                       stopOrder: b.dropoffStop.stopOrder,
                   }
                 : null,

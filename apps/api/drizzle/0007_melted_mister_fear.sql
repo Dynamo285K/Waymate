@@ -1,0 +1,1 @@
+ALTER TABLE "ride_stops" ALTER COLUMN "city_id" SET NOT NULL;

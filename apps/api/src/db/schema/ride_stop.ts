@@ -23,9 +23,10 @@ export const rideStops = pgTable(
         address: text("address").notNull(),
         // Reference to the controlled vocabulary in `cities`. Display
         // name and country code are read from cities via JOIN, not
-        // duplicated here. Nullable for now; the follow-up migration
-        // tightens this to NOT NULL.
-        cityId: uuid("city_id").references(() => cities.id),
+        // duplicated here.
+        cityId: uuid("city_id")
+            .notNull()
+            .references(() => cities.id),
         lat: doublePrecision("lat").notNull(),
         lng: doublePrecision("lng").notNull(),
         stopOrder: integer("stop_order").notNull(),
