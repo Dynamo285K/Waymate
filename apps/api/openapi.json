@@ -733,21 +733,19 @@
                 "description": "Search rides between two cities on a specific date",
                 "parameters": [
                     {
-                        "name": "startCity",
+                        "name": "startCityId",
                         "in": "query",
                         "required": true,
                         "schema": {
-                            "type": "string",
-                            "minLength": 1
+                            "$ref": "#/components/schemas/CityId"
                         }
                     },
                     {
-                        "name": "destinationCity",
+                        "name": "destinationCityId",
                         "in": "query",
                         "required": true,
                         "schema": {
-                            "type": "string",
-                            "minLength": 1
+                            "$ref": "#/components/schemas/CityId"
                         }
                     },
                     {
@@ -4064,23 +4062,13 @@
                         "items": {
                             "type": "object",
                             "properties": {
+                                "cityId": {
+                                    "$ref": "#/components/schemas/CityId"
+                                },
                                 "address": {
                                     "type": "string",
                                     "minLength": 1,
                                     "maxLength": 255
-                                },
-                                "city": {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 100
-                                },
-                                "countryCode": {
-                                    "nullable": true,
-                                    "allOf": [
-                                        {
-                                            "$ref": "#/components/schemas/CountryCode"
-                                        }
-                                    ]
                                 },
                                 "lat": {
                                     "type": "number",
@@ -4103,7 +4091,7 @@
                                     "format": "date-time"
                                 }
                             },
-                            "required": ["address", "city", "lat", "lng"],
+                            "required": ["cityId", "address", "lat", "lng"],
                             "additionalProperties": false
                         }
                     },
@@ -4156,20 +4144,18 @@
             "SearchRidesQuery": {
                 "type": "object",
                 "properties": {
-                    "startCity": {
-                        "type": "string",
-                        "minLength": 1
+                    "startCityId": {
+                        "$ref": "#/components/schemas/CityId"
                     },
-                    "destinationCity": {
-                        "type": "string",
-                        "minLength": 1
+                    "destinationCityId": {
+                        "$ref": "#/components/schemas/CityId"
                     },
                     "travelDate": {
                         "type": "string",
                         "format": "date-time"
                     }
                 },
-                "required": ["startCity", "destinationCity", "travelDate"],
+                "required": ["startCityId", "destinationCityId", "travelDate"],
                 "additionalProperties": false
             },
             "CancelRideBody": {
@@ -6388,6 +6374,11 @@
                     "CH"
                 ]
             },
+            "CityId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
             "RideId": {
                 "type": "string",
                 "format": "uuid",
@@ -6444,11 +6435,6 @@
                 "exclusiveMinimum": true,
                 "maximum": 9007199254740991,
                 "minimum": 0
-            },
-            "CityId": {
-                "type": "string",
-                "format": "uuid",
-                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             },
             "Currency": {
                 "type": "string",

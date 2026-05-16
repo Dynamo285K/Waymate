@@ -1,4 +1,4 @@
-import { and, desc, eq, like } from "drizzle-orm";
+import { and, desc, eq, inArray, like } from "drizzle-orm";
 import type { Executor } from "../../db";
 import { cities as citiesTable } from "../../db/schema/city";
 import type { CountryCode } from "@repo/shared";
@@ -35,6 +35,25 @@ const findCitiesByPrefix = async (
     return rows;
 };
 
+const findCitiesByIds = async (
+    executor: Executor,
+    ids: string[]
+): Promise<CityListItem[]> => {
+    if (ids.length === 0) return [];
+    return await executor
+        .select({
+            id: citiesTable.id,
+            name: citiesTable.name,
+            countryCode: citiesTable.countryCode,
+            lat: citiesTable.lat,
+            lng: citiesTable.lng,
+            population: citiesTable.population,
+        })
+        .from(citiesTable)
+        .where(inArray(citiesTable.id, ids));
+};
+
 export const CityRepository = {
     findCitiesByPrefix,
+    findCitiesByIds,
 };
