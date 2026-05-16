@@ -17,6 +17,7 @@ import { bookingStatusHistory } from "./booking_status_history";
 import { reviewStatusHistory } from "./review_status_history";
 import { reportStatusHistory } from "./report_status_history";
 import { blocklist } from "./blocklist";
+import { cities } from "./city";
 
 export const usersRelations = relations(users, ({ many }) => ({
     cars: many(cars),
@@ -87,6 +88,10 @@ export const rideStopsRelations = relations(rideStops, ({ one, many }) => ({
         fields: [rideStops.rideId],
         references: [rides.id],
     }),
+    city: one(cities, {
+        fields: [rideStops.cityId],
+        references: [cities.id],
+    }),
     pricesAsStartStop: many(prices, { relationName: "price_start_stop" }),
     pricesAsEndStop: many(prices, { relationName: "price_end_stop" }),
     bookingsAsPickupStop: many(bookings, {
@@ -95,6 +100,10 @@ export const rideStopsRelations = relations(rideStops, ({ one, many }) => ({
     bookingsAsDropoffStop: many(bookings, {
         relationName: "booking_dropoff_stop",
     }),
+}));
+
+export const citiesRelations = relations(cities, ({ many }) => ({
+    rideStops: many(rideStops),
 }));
 
 export const pricesRelations = relations(prices, ({ one }) => ({
