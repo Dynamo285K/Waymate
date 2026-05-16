@@ -43,6 +43,13 @@
       "when": 1778936911434,
       "tag": "0005_purple_ulik",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1778945255779,
+      "tag": "0006_fresh_zombie",
+      "breakpoints": true
     }
   ]
 }

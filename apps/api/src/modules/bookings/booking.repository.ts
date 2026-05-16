@@ -17,6 +17,7 @@ import { rideStops as rideStopsTable } from "../../db/schema/ride_stop";
 import { prices as pricesTable } from "../../db/schema/price";
 import { users as usersTable } from "../../db/schema/user";
 import { reviews as reviewsTable } from "../../db/schema/review";
+import { cities as citiesTable } from "../../db/schema/city";
 import { bookingStatusHistory as bookingStatusHistoryTable } from "../../db/schema";
 import type {
     DriverRideRequestItem,
@@ -30,6 +31,8 @@ const rideNotSoftDeleted = isNull(ridesTable.deletedAt);
 
 const pickupStops = aliasedTable(rideStopsTable, "booking_pickup_stops");
 const dropoffStops = aliasedTable(rideStopsTable, "booking_dropoff_stops");
+const pickupCities = aliasedTable(citiesTable, "booking_pickup_cities");
+const dropoffCities = aliasedTable(citiesTable, "booking_dropoff_cities");
 const myReviewOfDriverTable = aliasedTable(
     reviewsTable,
     "booking_my_review_of_driver"
@@ -72,8 +75,8 @@ const findPendingRequestsForDriver = async (
                 profilePhotoUrl: usersTable.profilePhotoUrl,
                 averageRating: passengerRatings.averageRating,
             },
-            pickupCity: pickupStops.city,
-            dropoffCity: dropoffStops.city,
+            pickupCity: pickupCities.name,
+            dropoffCity: dropoffCities.name,
             departureAt: ridesTable.departureAt,
         })
         .from(bookingsTable)
@@ -84,10 +87,12 @@ const findPendingRequestsForDriver = async (
             eq(passengerRatings.subjectId, usersTable.id)
         )
         .innerJoin(pickupStops, eq(bookingsTable.pickupStopId, pickupStops.id))
+        .innerJoin(pickupCities, eq(pickupCities.id, pickupStops.cityId))
         .innerJoin(
             dropoffStops,
             eq(bookingsTable.dropoffStopId, dropoffStops.id)
         )
+        .innerJoin(dropoffCities, eq(dropoffCities.id, dropoffStops.cityId))
         .where(
             and(
                 eq(ridesTable.driverId, driverId),
@@ -187,8 +192,8 @@ const findBookingsByPassengerId = async (
                 averageRating: driverRatings.averageRating,
                 reviewCount: sql<number>`COALESCE(${driverRatings.reviewCount}, 0)::int`,
             },
-            pickupCity: pickupStops.city,
-            dropoffCity: dropoffStops.city,
+            pickupCity: pickupCities.name,
+            dropoffCity: dropoffCities.name,
             seatsLeft: sql<number>`GREATEST(0, ${ridesTable.offeredSeats} - COALESCE(${capacityByRide.occupiedSeats}, 0))::int`,
             myReviewOfDriverId: myReviewOfDriverTable.id,
             myReviewOfDriverRating: myReviewOfDriverTable.rating,
@@ -202,10 +207,12 @@ const findBookingsByPassengerId = async (
             eq(driverRatings.subjectId, ridesTable.driverId)
         )
         .innerJoin(pickupStops, eq(bookingsTable.pickupStopId, pickupStops.id))
+        .innerJoin(pickupCities, eq(pickupCities.id, pickupStops.cityId))
         .innerJoin(
             dropoffStops,
             eq(bookingsTable.dropoffStopId, dropoffStops.id)
         )
+        .innerJoin(dropoffCities, eq(dropoffCities.id, dropoffStops.cityId))
         .leftJoin(
             myReviewOfDriverTable,
             and(

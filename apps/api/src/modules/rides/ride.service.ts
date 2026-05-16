@@ -96,12 +96,9 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
         rideStatus: "PLANNED",
     };
 
-    // Resolve every cityId to its catalog row before opening the
-    // transaction. We need them for two things: (1) reject the request
-    // early with RIDE_UNKNOWN_CITY if any id is bogus — a cleaner failure
-    // than the FK violation we'd otherwise see mid-transaction, and (2)
-    // pull `name` + `countryCode` to denormalize onto ride_stops as a
-    // snapshot of what the user saw when they picked the city.
+    // Verify every requested cityId exists before opening the
+    // transaction. Catches bogus ids with RIDE_UNKNOWN_CITY (400)
+    // instead of letting Postgres raise an FK violation mid-insert.
     const requestedCityIds = Array.from(
         new Set(input.stops.map((s) => s.cityId))
     );
@@ -109,7 +106,6 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
     if (cityRows.length !== requestedCityIds.length) {
         throw new RideError(RideErrorCodes.UnknownCity);
     }
-    const cityById = new Map(cityRows.map((c) => [c.id, c]));
 
     return await db.transaction(async (tx) => {
         const car = await RideRepository.findActiveCarForDriver(
@@ -133,22 +129,18 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
             description: input.description,
         });
 
-        const stopsToInsert = input.stops.map((stop, index) => {
-            // Non-null asserted because we verified the set above.
-            const city = cityById.get(stop.cityId)!;
-            return {
-                rideId: newRide.id,
-                stopOrder: index,
-                address: stop.address,
-                cityId: city.id,
-                city: city.name,
-                countryCode: city.countryCode,
-                lat: stop.lat,
-                lng: stop.lng,
-                plannedArrivalAt: stop.plannedArrivalAt,
-                plannedDepartureAt: stop.plannedDepartureAt,
-            };
-        });
+        const stopsToInsert = input.stops.map((stop, index) => ({
+            rideId: newRide.id,
+            stopOrder: index,
+            address: stop.address,
+            // FK to the cities catalog; city name + country are read via
+            // JOIN at query time, not duplicated onto ride_stops.
+            cityId: stop.cityId,
+            lat: stop.lat,
+            lng: stop.lng,
+            plannedArrivalAt: stop.plannedArrivalAt,
+            plannedDepartureAt: stop.plannedDepartureAt,
+        }));
 
         const insertedStops = await RideRepository.insertRideStops(
             tx,
