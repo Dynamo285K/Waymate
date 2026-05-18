@@ -11,10 +11,22 @@ const isPostgresError = (error: unknown): error is Error & { code: string } =>
     "code" in error &&
     typeof (error as { code: unknown }).code === "string";
 
+// Drizzle wraps driver errors in DrizzleQueryError; the real PostgresError
+// (with SQLSTATE in `.code`) is on `.cause`. Walk the chain so the mapping
+// works regardless of wrapping depth.
+const MAX_CAUSE_DEPTH = 5;
+
 export const hasPostgresErrorCode = (
     error: unknown,
     code: PostgresErrorCode
-): boolean => isPostgresError(error) && error.code === code;
+): boolean => {
+    let current: unknown = error;
+    for (let i = 0; i < MAX_CAUSE_DEPTH && current; i++) {
+        if (isPostgresError(current) && current.code === code) return true;
+        current = (current as { cause?: unknown })?.cause;
+    }
+    return false;
+};
 
 /**
  * Runs `fn` and translates known Postgres SQLSTATE codes into domain errors
