@@ -617,14 +617,34 @@ const findReviewList = async (
         status?: ReviewStatus;
         minRating?: number;
         maxRating?: number;
+        subjectRole?: "DRIVER" | "PASSENGER";
         search?: string;
         cursorPosition?: { id: string; createdAt: Date };
     }
 ): Promise<AdminReviewListItem[]> => {
     const author = aliasedTable(usersTable, "admin_review_author");
     const subject = aliasedTable(usersTable, "admin_review_subject");
+    const originStops = aliasedTable(rideStopsTable, "admin_rl_origin_stops");
+    const destStops = aliasedTable(rideStopsTable, "admin_rl_dest_stops");
+    const originCities = aliasedTable(citiesTable, "admin_rl_origin_cities");
+    const destCities = aliasedTable(citiesTable, "admin_rl_dest_cities");
 
-    const conditions = [isNull(author.deletedAt), ne(author.userRole, "ADMIN")];
+    const lastStopOrders = executor
+        .select({
+            rideId: rideStopsTable.rideId,
+            stopOrder: sql<number>`MAX(${rideStopsTable.stopOrder})`.as(
+                "stopOrder"
+            ),
+        })
+        .from(rideStopsTable)
+        .groupBy(rideStopsTable.rideId)
+        .as("admin_rl_last_stops");
+
+    const conditions = [
+        isNull(author.deletedAt),
+        ne(author.userRole, "ADMIN"),
+        isNull(reviewsTable.deletedAt),
+    ];
 
     if (params.status) {
         conditions.push(eq(reviewsTable.reviewStatus, params.status));
@@ -634,6 +654,13 @@ const findReviewList = async (
     }
     if (params.maxRating !== undefined) {
         conditions.push(lte(reviewsTable.rating, params.maxRating));
+    }
+    if (params.subjectRole === "DRIVER") {
+        // Subject is driver → author is NOT the ride's driver
+        conditions.push(ne(reviewsTable.authorId, ridesTable.driverId));
+    } else if (params.subjectRole === "PASSENGER") {
+        // Subject is passenger → author IS the ride's driver
+        conditions.push(eq(reviewsTable.authorId, ridesTable.driverId));
     }
     if (params.search) {
         const pattern = `%${params.search}%`;
@@ -667,6 +694,12 @@ const findReviewList = async (
             comment: reviewsTable.comment,
             reviewStatus: reviewsTable.reviewStatus,
             createdAt: reviewsTable.createdAt,
+            authorIsDriver:
+                sql<boolean>`${reviewsTable.authorId} = ${ridesTable.driverId}`.as(
+                    "author_is_driver"
+                ),
+            originCity: originCities.name,
+            destinationCity: destCities.name,
             authorId: author.id,
             authorEmail: author.email,
             authorFirstName: author.firstName,
@@ -681,6 +714,24 @@ const findReviewList = async (
         .from(reviewsTable)
         .innerJoin(author, eq(reviewsTable.authorId, author.id))
         .innerJoin(subject, eq(reviewsTable.subjectId, subject.id))
+        .innerJoin(ridesTable, eq(reviewsTable.rideId, ridesTable.id))
+        .innerJoin(
+            originStops,
+            and(
+                eq(originStops.rideId, ridesTable.id),
+                eq(originStops.stopOrder, 0)
+            )
+        )
+        .innerJoin(originCities, eq(originCities.id, originStops.cityId))
+        .innerJoin(lastStopOrders, eq(lastStopOrders.rideId, ridesTable.id))
+        .innerJoin(
+            destStops,
+            and(
+                eq(destStops.rideId, ridesTable.id),
+                eq(destStops.stopOrder, lastStopOrders.stopOrder)
+            )
+        )
+        .innerJoin(destCities, eq(destCities.id, destStops.cityId))
         .where(and(...conditions))
         .orderBy(desc(reviewsTable.createdAt), desc(reviewsTable.id))
         .limit(params.limit);
@@ -691,6 +742,8 @@ const findReviewList = async (
         rating: row.rating,
         comment: row.comment,
         reviewStatus: row.reviewStatus,
+        authorRole: row.authorIsDriver ? "DRIVER" : "PASSENGER",
+        subjectRole: row.authorIsDriver ? "PASSENGER" : "DRIVER",
         author: {
             id: row.authorId,
             email: row.authorEmail,
@@ -705,8 +758,30 @@ const findReviewList = async (
             lastName: row.subjectLastName,
             profilePhotoUrl: row.subjectProfilePhotoUrl,
         },
+        ride: {
+            originCity: row.originCity,
+            destinationCity: row.destinationCity,
+        },
         createdAt: row.createdAt,
     }));
+};
+
+const findReviewCounts = async (
+    executor: Executor
+): Promise<{ all: number; visible: number; hidden: number }> => {
+    const author = aliasedTable(usersTable, "review_count_author");
+
+    const [row] = await executor
+        .select({
+            all: sql<number>`COUNT(*) FILTER (WHERE ${reviewsTable.deletedAt} IS NULL)::int`,
+            visible: sql<number>`COUNT(*) FILTER (WHERE ${reviewsTable.reviewStatus} = 'VISIBLE' AND ${reviewsTable.deletedAt} IS NULL)::int`,
+            hidden: sql<number>`COUNT(*) FILTER (WHERE ${reviewsTable.reviewStatus} = 'HIDDEN' AND ${reviewsTable.deletedAt} IS NULL)::int`,
+        })
+        .from(reviewsTable)
+        .innerJoin(author, eq(reviewsTable.authorId, author.id))
+        .where(and(isNull(author.deletedAt), ne(author.userRole, "ADMIN")));
+
+    return row ?? { all: 0, visible: 0, hidden: 0 };
 };
 
 const findReviewCreatedAt = async (
@@ -761,6 +836,10 @@ const findReviewDetailById = async (
             reviewStatus: reviewsTable.reviewStatus,
             createdAt: reviewsTable.createdAt,
             updatedAt: reviewsTable.updatedAt,
+            authorIsDriver:
+                sql<boolean>`${reviewsTable.authorId} = ${ridesTable.driverId}`.as(
+                    "detail_author_is_driver"
+                ),
             authorId: author.id,
             authorEmail: author.email,
             authorFirstName: author.firstName,
@@ -799,6 +878,7 @@ const findReviewDetailById = async (
         .where(
             and(
                 eq(reviewsTable.id, id),
+                isNull(reviewsTable.deletedAt),
                 isNull(author.deletedAt),
                 ne(author.userRole, "ADMIN")
             )
@@ -813,6 +893,8 @@ const findReviewDetailById = async (
         rating: row.rating,
         comment: row.comment,
         reviewStatus: row.reviewStatus,
+        authorRole: row.authorIsDriver ? "DRIVER" : "PASSENGER",
+        subjectRole: row.authorIsDriver ? "PASSENGER" : "DRIVER",
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
         author: {
@@ -836,6 +918,19 @@ const findReviewDetailById = async (
             destinationCity: row.destinationCity,
         },
     };
+};
+
+const deleteReviewById = async (
+    executor: Executor,
+    id: string
+): Promise<{ id: string } | null> => {
+    const [deleted] = await executor
+        .update(reviewsTable)
+        .set({ deletedAt: new Date() })
+        .where(and(eq(reviewsTable.id, id), isNull(reviewsTable.deletedAt)))
+        .returning({ id: reviewsTable.id });
+
+    return deleted ?? null;
 };
 
 const findReviewStatusHistoryByReviewId = async (
@@ -890,6 +985,7 @@ const findReviewForAdminUpdate = async (
         .where(
             and(
                 eq(reviewsTable.id, id),
+                isNull(reviewsTable.deletedAt),
                 isNull(author.deletedAt),
                 ne(author.userRole, "ADMIN")
             )
@@ -1245,12 +1341,14 @@ export const AdminRepository = {
     updateRideStatusToCancelledById,
     insertRideStatusHistoryRow,
     findReviewList,
+    findReviewCounts,
     findReviewCreatedAt,
     findReviewDetailById,
     findReviewStatusHistoryByReviewId,
     findReviewForAdminUpdate,
     updateReviewStatusById,
     insertReviewStatusHistoryRow,
+    deleteReviewById,
     findReportList,
     findReportCreatedAt,
     findReportDetailById,

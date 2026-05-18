@@ -7,6 +7,7 @@
  */
 import type { ReviewId } from "./reviewId";
 import type { ReviewStatus } from "./reviewStatus";
+import type { AdminReviewListQuerySubjectRole } from "./adminReviewListQuerySubjectRole";
 
 export interface AdminReviewListQuery {
     /**
@@ -26,6 +27,7 @@ export interface AdminReviewListQuery {
      * @maximum 5
      */
     maxRating?: number;
+    subjectRole?: AdminReviewListQuerySubjectRole;
     /**
      * @minLength 1
      * @maxLength 100

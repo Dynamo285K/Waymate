@@ -38,6 +38,7 @@ export type AdminReviewListFilters = {
     status?: ReviewStatus;
     minRating?: number;
     maxRating?: number;
+    subjectRole?: "DRIVER" | "PASSENGER";
     search?: string;
 };
 

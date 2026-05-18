@@ -9,7 +9,7 @@ if (!res.ok) {
 }
 
 const spec = fillMissingComponentSchemas(await res.json());
-const out = new URL("../openapi.json", import.meta.url).pathname;
+const out = import.meta.dir + "/../openapi.json";
 await Bun.write(out, JSON.stringify(spec, null, 2) + "\n");
 
 console.log(`Wrote OpenAPI spec → ${out}`);

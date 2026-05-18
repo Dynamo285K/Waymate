@@ -68,8 +68,7 @@ export function ReportUserModal({
     });
 
     const trimmedDescription = description.trim();
-    const canSubmit =
-        trimmedDescription.length > 0 && !mutation.isPending;
+    const canSubmit = trimmedDescription.length > 0 && !mutation.isPending;
 
     const handleSubmit = () => {
         if (!canSubmit) return;
@@ -142,9 +141,7 @@ export function ReportUserModal({
 
                 {mutation.isError && (
                     <p className="text-sm text-(--color-danger-text) mb-4">
-                        {t(
-                            getErrorI18nKey(mutation.error, reportUserErrorMap)
-                        )}
+                        {t(getErrorI18nKey(mutation.error, reportUserErrorMap))}
                     </p>
                 )}
 

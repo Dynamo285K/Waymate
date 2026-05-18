@@ -50,15 +50,11 @@ export function ReportDetailModal({
           ) || data.report.reporter.email
         : "";
     const targetName = data
-        ? fullName(
-              data.report.target.firstName,
-              data.report.target.lastName
-          ) || data.report.target.email
+        ? fullName(data.report.target.firstName, data.report.target.lastName) ||
+          data.report.target.email
         : "";
 
-    const allowed = data
-        ? ALLOWED_TRANSITIONS[data.report.reportStatus]
-        : [];
+    const allowed = data ? ALLOWED_TRANSITIONS[data.report.reportStatus] : [];
 
     return (
         <Modal
