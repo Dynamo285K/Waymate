@@ -12,6 +12,7 @@ import { formatRideDate } from "../lib/date-format";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 import { CancelRideDialog } from "../components/CancelRideDialog";
 import { useCancelBooking } from "../hooks/useCancelBooking";
+import { useSubmitReview } from "../hooks/useSubmitReview";
 
 type PassengerMyRidesPageProps = {
     language: Language;
@@ -58,6 +59,9 @@ export function PassengerMyRidesPage({
     const cancelBooking = useCancelBooking();
     const [ratingModalOpen, setRatingModalOpen] = useState(false);
     const [ratingDriverName, setRatingDriverName] = useState("");
+    const [ratingDriverId, setRatingDriverId] = useState("");
+    const [ratingRideId, setRatingRideId] = useState("");
+    const submitReview = useSubmitReview();
     const [reportTarget, setReportTarget] = useState<{
         driverId: string;
         driverName: string;
@@ -95,6 +99,7 @@ export function PassengerMyRidesPage({
     type DisplayedRide = UpcomingRide & {
         driverId?: string;
         rideId?: string;
+        alreadyReviewed?: boolean;
     };
 
     const bookingRides: DisplayedRide[] | undefined = bookings?.map(
@@ -114,6 +119,7 @@ export function PassengerMyRidesPage({
                     : ("pending" as const),
             driverId: booking.driver.id,
             rideId: booking.ride.id,
+            alreadyReviewed: booking.myReviewOfDriver !== null,
         })
     );
     const displayedRides: DisplayedRide[] =
@@ -240,7 +246,10 @@ export function PassengerMyRidesPage({
                                 driverName={ride.driverName}
                                 driverRating={ride.driverRating}
                                 onRateDriver={() => {
+                                    if (ride.alreadyReviewed) return;
                                     setRatingDriverName(ride.driverName);
+                                    setRatingDriverId(ride.driverId ?? "");
+                                    setRatingRideId(ride.rideId ?? "");
                                     setRatingModalOpen(true);
                                 }}
                                 onReport={
@@ -277,13 +286,25 @@ export function PassengerMyRidesPage({
                 title={t("rateDriver.title")}
                 submitLabel={t("rateDriver.submit")}
                 placeholder={t("rateDriver.placeholder")}
+                isSubmitting={submitReview.isPending}
                 onSubmit={({ rating, review }) => {
-                    console.log("Rating submitted", {
-                        driverName: ratingDriverName,
-                        rating,
-                        review,
-                    });
-                    setRatingModalOpen(false);
+                    if (!ratingDriverId || !ratingRideId) return;
+                    submitReview.mutate(
+                        {
+                            data: {
+                                rideId: ratingRideId,
+                                subjectId: ratingDriverId,
+                                rating,
+                                comment: review || undefined,
+                            },
+                        },
+                        {
+                            onSuccess: () => {
+                                setRatingModalOpen(false);
+                                submitReview.reset();
+                            },
+                        }
+                    );
                 }}
             />
 
