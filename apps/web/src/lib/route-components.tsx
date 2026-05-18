@@ -13,8 +13,8 @@ export function HomeRoute() {
             onLogoClick={() => navigate("/")}
             onSearch={(from, to, date) => {
                 const params = new URLSearchParams();
-                if (from) params.set("from", from);
-                if (to) params.set("to", to);
+                if (from) params.set("fromId", from.id);
+                if (to) params.set("toId", to.id);
                 if (date) params.set("date", date.toISOString());
                 navigate(`/rides?${params.toString()}`);
             }}

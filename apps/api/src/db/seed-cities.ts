@@ -54,7 +54,11 @@ const NAME_OVERRIDES = new Map<number, string>([
 type CityRow = typeof cities.$inferInsert;
 
 const downloadIfMissing = async (country: string): Promise<string> => {
-    await mkdir(CACHE_DIR, { recursive: true });
+    await mkdir(CACHE_DIR, { recursive: true }).catch(
+        (e: NodeJS.ErrnoException) => {
+            if (e.code !== "EEXIST") throw e;
+        }
+    );
     const zipPath = join(CACHE_DIR, `${country}.zip`);
     const cached = await stat(zipPath).catch(() => null);
     if (cached) {
@@ -77,7 +81,33 @@ const extractTsv = async (
     country: string
 ): Promise<string> => {
     // GeoNames country zips contain a single `<COUNTRY>.txt` TSV.
-    // `unzip -p` streams it to stdout — no temp file needed.
+    if (process.platform === "win32") {
+        // On Windows use .NET ZipFile via PowerShell — no unzip needed.
+        const script = [
+            "Add-Type -Assembly System.IO.Compression.FileSystem;",
+            `$zip = [System.IO.Compression.ZipFile]::OpenRead('${zipPath.replace(/\\/g, "\\\\")}');`,
+            `$entry = $zip.GetEntry('${country}.txt');`,
+            "$reader = [System.IO.StreamReader]::new($entry.Open());",
+            "$reader.ReadToEnd();",
+            "$reader.Close();",
+            "$zip.Dispose();",
+        ].join(" ");
+        const proc = Bun.spawn(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
+            { stdout: "pipe", stderr: "pipe" }
+        );
+        const text = await new Response(proc.stdout).text();
+        const exit = await proc.exited;
+        if (exit !== 0) {
+            const err = await new Response(proc.stderr).text();
+            throw new Error(
+                `PowerShell unzip ${zipPath} failed (exit ${exit}): ${err}`
+            );
+        }
+        return text;
+    }
+
+    // Unix: `unzip -p` streams the entry to stdout — no temp file needed.
     const proc = Bun.spawn(["unzip", "-p", zipPath, `${country}.txt`], {
         stdout: "pipe",
         stderr: "pipe",

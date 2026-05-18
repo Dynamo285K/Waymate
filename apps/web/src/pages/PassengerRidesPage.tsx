@@ -41,10 +41,10 @@ export function PassengerRidesPage({
     const [searchParams] = useSearchParams();
     const createBooking = useCreateBooking();
 
-    const from = searchParams.get("from");
-    const to = searchParams.get("to");
+    const fromId = searchParams.get("fromId");
+    const toId = searchParams.get("toId");
     const dateStr = searchParams.get("date");
-    const hasSearchParams = !!from || !!to || !!dateStr;
+    const hasSearchParams = !!fromId || !!toId || !!dateStr;
     const showAllRides = !hasSearchParams;
     const {
         data: availableRideRows,
@@ -59,7 +59,7 @@ export function PassengerRidesPage({
         isError,
         error: searchError,
         canSearch,
-    } = useRideSearch({ from, to, date: dateStr });
+    } = useRideSearch({ fromId, toId, date: dateStr });
 
     const availableRides = Array.isArray(availableRideRows)
         ? availableRideRows.map((ride) => {

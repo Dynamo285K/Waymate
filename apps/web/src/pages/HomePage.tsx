@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AuthNavbar, Button, Modal } from "@waymate/ui";
+import type { SearchBoxCityOption } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { HomeContent } from "../components/HomeContent";
 import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
@@ -13,7 +14,11 @@ type HomePageProps = {
     onLogin?: () => void;
     onRegister?: () => void;
     onLogoClick?: () => void;
-    onSearch?: (from: string, to: string, date: Date | undefined) => void;
+    onSearch?: (
+        from: SearchBoxCityOption | null,
+        to: SearchBoxCityOption | null,
+        date: Date | undefined
+    ) => void;
     onViewAllRides?: () => void;
 };
 
