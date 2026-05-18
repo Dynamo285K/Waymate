@@ -10,6 +10,7 @@ import {
     SunIcon,
     ChevronDownIcon,
     ListIcon,
+    StarIcon,
     UserIcon,
 } from "@waymate/ui";
 import { LanguageSwitcher, type Language } from "../controls/LanguageSwitcher";
@@ -220,7 +221,7 @@ export function AdminNavbar({
                 {labels?.users ?? "Users"}
             </NavButton>
             <NavButton
-                icon={<AlertIcon />}
+                icon={<StarIcon />}
                 active={activeTab === "reviews"}
                 onClick={onReviewsClick}
             >

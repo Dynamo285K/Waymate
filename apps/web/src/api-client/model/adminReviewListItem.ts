@@ -8,8 +8,11 @@
 import type { ReviewId } from "./reviewId";
 import type { RideId } from "./rideId";
 import type { ReviewStatus } from "./reviewStatus";
+import type { AdminReviewListItemAuthorRole } from "./adminReviewListItemAuthorRole";
+import type { AdminReviewListItemSubjectRole } from "./adminReviewListItemSubjectRole";
 import type { AdminReviewListItemAuthor } from "./adminReviewListItemAuthor";
 import type { AdminReviewListItemSubject } from "./adminReviewListItemSubject";
+import type { AdminReviewListItemRide } from "./adminReviewListItemRide";
 
 export interface AdminReviewListItem {
     id: ReviewId;
@@ -22,7 +25,10 @@ export interface AdminReviewListItem {
     /** @nullable */
     comment: string | null;
     reviewStatus: ReviewStatus;
+    authorRole: AdminReviewListItemAuthorRole;
+    subjectRole: AdminReviewListItemSubjectRole;
     author: AdminReviewListItemAuthor;
     subject: AdminReviewListItemSubject;
+    ride: AdminReviewListItemRide;
     createdAt: string;
 }

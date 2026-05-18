@@ -1,6 +1,8 @@
 import type {
+    AdminDeleteReviewResponse,
     AdminReportDetailResponse,
     AdminReportListResponse,
+    AdminReviewCounts,
     AdminReviewDetailResponse,
     AdminReviewListItem,
     AdminReviewListResponse,
@@ -265,6 +267,7 @@ const getReviewList = async (
         status: filters.status,
         minRating: filters.minRating,
         maxRating: filters.maxRating,
+        subjectRole: filters.subjectRole,
         search: filters.search,
         cursorPosition,
     });
@@ -274,6 +277,10 @@ const getReviewList = async (
     const nextCursor = hasMore ? (items[items.length - 1]?.id ?? null) : null;
 
     return { items, nextCursor };
+};
+
+const getReviewCounts = async (): Promise<AdminReviewCounts> => {
+    return await AdminRepository.findReviewCounts(db);
 };
 
 const getReviewDetail = async (
@@ -349,11 +356,27 @@ const setReviewStatus = async ({
             rating: detail.rating,
             comment: detail.comment,
             reviewStatus: detail.reviewStatus,
+            authorRole: detail.authorRole,
+            subjectRole: detail.subjectRole,
             author: detail.author,
             subject: detail.subject,
+            ride: {
+                originCity: detail.ride.originCity,
+                destinationCity: detail.ride.destinationCity,
+            },
             createdAt: detail.createdAt,
         };
     });
+};
+
+const deleteReview = async (
+    reviewId: string
+): Promise<AdminDeleteReviewResponse> => {
+    const deleted = await AdminRepository.deleteReviewById(db, reviewId);
+    if (!deleted) {
+        throw new AdminError(AdminErrorCodes.ReviewNotFound);
+    }
+    return { id: deleted.id };
 };
 
 // Status workflow: OPEN can move to INVESTIGATING, RESOLVED, or DISMISSED.
@@ -506,8 +529,10 @@ export const AdminService = {
     getRideDetail,
     cancelRide,
     getReviewList,
+    getReviewCounts,
     getReviewDetail,
     setReviewStatus,
+    deleteReview,
     getReportList,
     getReportDetail,
     setReportStatus,

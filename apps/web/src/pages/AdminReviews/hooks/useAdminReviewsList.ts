@@ -4,6 +4,7 @@ import {
     getGetAdminReviewsQueryKey,
 } from "../../../api-client/admin/admin";
 import type { ReviewStatus } from "../../../api-client/model/reviewStatus";
+import type { GetAdminReviewsSubjectRole } from "../../../api-client/model/getAdminReviewsSubjectRole";
 
 const PAGE_SIZE = 20;
 
@@ -11,6 +12,7 @@ export type AdminReviewsListFilters = {
     status?: ReviewStatus;
     minRating?: number;
     maxRating?: number;
+    subjectRole?: GetAdminReviewsSubjectRole;
     search?: string;
 };
 
@@ -21,6 +23,7 @@ export function useAdminReviewsList(filters: AdminReviewsListFilters) {
             status: filters.status,
             minRating: filters.minRating,
             maxRating: filters.maxRating,
+            subjectRole: filters.subjectRole,
             search: filters.search,
         }),
         queryFn: ({ pageParam }) =>
@@ -29,6 +32,7 @@ export function useAdminReviewsList(filters: AdminReviewsListFilters) {
                 status: filters.status,
                 minRating: filters.minRating,
                 maxRating: filters.maxRating,
+                subjectRole: filters.subjectRole,
                 search: filters.search,
                 cursor: pageParam,
             }),

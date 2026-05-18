@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 import {
     AdminCancelRideBodySchema,
     AdminCancelRideResponseSchema,
+    AdminDeleteReviewResponseSchema,
     AdminReportDetailResponseSchema,
     AdminReportDetailSchema,
     AdminReportIdParamsSchema,
@@ -9,6 +10,7 @@ import {
     AdminReportListQuerySchema,
     AdminReportListResponseSchema,
     AdminReportStatusHistoryItemSchema,
+    AdminReviewCountsSchema,
     AdminReviewDetailResponseSchema,
     AdminReviewDetailSchema,
     AdminReviewIdParamsSchema,
@@ -66,6 +68,8 @@ export const AdminRoutes = new Elysia({
         AdminReviewListQuery: AdminReviewListQuerySchema,
         AdminReviewListItem: AdminReviewListItemSchema,
         AdminReviewListResponse: AdminReviewListResponseSchema,
+        AdminReviewCounts: AdminReviewCountsSchema,
+        AdminDeleteReviewResponse: AdminDeleteReviewResponseSchema,
         AdminReviewDetail: AdminReviewDetailSchema,
         AdminReviewStatusHistoryItem: AdminReviewStatusHistoryItemSchema,
         AdminReviewDetailResponse: AdminReviewDetailResponseSchema,
@@ -230,6 +234,43 @@ export const AdminRoutes = new Elysia({
                     detail: {
                         description:
                             "Returns a keyset-paginated list of reviews for moderation. Supports filtering by status, rating range, and case-insensitive search across comment text and author/subject email/name.",
+                    },
+                }
+            )
+            .get(
+                "/reviews/counts",
+                async () => await AdminService.getReviewCounts(),
+                {
+                    response: {
+                        200: "AdminReviewCounts",
+                        401: "ErrorResponse",
+                        403: "ErrorResponse",
+                        429: "ErrorResponse",
+                        500: "ErrorResponse",
+                    },
+                    detail: {
+                        description:
+                            "Returns counts of non-deleted reviews grouped by status (all, visible, hidden) for admin tab badges.",
+                    },
+                }
+            )
+            .delete(
+                "/reviews/:id",
+                async ({ params }) =>
+                    await AdminService.deleteReview(params.id),
+                {
+                    params: AdminReviewIdParamsSchema,
+                    response: {
+                        200: "AdminDeleteReviewResponse",
+                        401: "ErrorResponse",
+                        403: "ErrorResponse",
+                        404: "ErrorResponse",
+                        429: "ErrorResponse",
+                        500: "ErrorResponse",
+                    },
+                    detail: {
+                        description:
+                            "Permanently soft-deletes a review. The review is removed from all public surfaces and excluded from rating aggregates.",
                     },
                 }
             )

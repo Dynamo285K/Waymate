@@ -48,7 +48,11 @@ const haveSharedRide = async (
     reporterId: string,
     targetUserId: string
 ): Promise<boolean> => {
-    const activeBookingStatuses = ["CONFIRMED", "COMPLETED", "NO_SHOW"] as const;
+    const activeBookingStatuses = [
+        "CONFIRMED",
+        "COMPLETED",
+        "NO_SHOW",
+    ] as const;
 
     const [row] = await executor
         .select({ rideId: ridesTable.id })

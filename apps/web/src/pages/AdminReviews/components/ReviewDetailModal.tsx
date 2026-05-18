@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Avatar, Button, IconButton, Modal } from "@waymate/ui";
+import { EyeIcon, EyeOffIcon, TrashIcon } from "@waymate/ui";
 import { useGetAdminReviewsById } from "../../../api-client/admin/admin";
 import type { ReviewStatus } from "../../../api-client/model/reviewStatus";
 import { getErrorI18nKey } from "../../../lib/api-errors";
@@ -15,6 +16,7 @@ type ReviewDetailModalProps = {
     mutationErrorForThisReview: unknown;
     onClose: () => void;
     onRequestStatus: (target: ReviewStatus) => void;
+    onRequestDelete: (id: string) => void;
 };
 
 export function ReviewDetailModal({
@@ -23,6 +25,7 @@ export function ReviewDetailModal({
     mutationErrorForThisReview,
     onClose,
     onRequestStatus,
+    onRequestDelete,
 }: ReviewDetailModalProps) {
     const { t } = useTranslation();
     const detailQuery = useGetAdminReviewsById(reviewId);
@@ -50,7 +53,9 @@ export function ReviewDetailModal({
             <div className="w-[calc(100vw-2rem)] max-w-2xl p-8 max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
-                        {t("admin.reviewDetail")}
+                        {data
+                            ? t("admin.reviewDetail")
+                            : t("admin.reviewDetail")}
                     </h2>
                     <IconButton
                         ariaLabel="Close"
@@ -79,6 +84,51 @@ export function ReviewDetailModal({
 
                 {!detailQuery.isLoading && data && (
                     <>
+                        {/* FROM → ABOUT header */}
+                        <div className="flex items-center gap-4 mb-6 p-4 border border-(--color-border) rounded-xl">
+                            <div className="flex items-center gap-2">
+                                <Avatar
+                                    name={authorName}
+                                    size="sm"
+                                />
+                                <div>
+                                    <p className="text-xs text-(--color-text-secondary) uppercase tracking-wider mb-0.5">
+                                        {t("admin.reviewer")}
+                                    </p>
+                                    <p className="text-sm font-semibold text-(--color-text-primary)">
+                                        {authorName}
+                                    </p>
+                                    <p className="text-xs text-(--color-text-secondary)">
+                                        {data.review.authorRole === "DRIVER"
+                                            ? t("admin.driver")
+                                            : t("admin.passenger")}
+                                    </p>
+                                </div>
+                            </div>
+                            <span className="text-(--color-text-secondary) mx-2">
+                                →
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <Avatar
+                                    name={subjectName}
+                                    size="sm"
+                                />
+                                <div>
+                                    <p className="text-xs text-(--color-text-secondary) uppercase tracking-wider mb-0.5">
+                                        {t("admin.target")}
+                                    </p>
+                                    <p className="text-sm font-semibold text-(--color-text-primary)">
+                                        {subjectName}
+                                    </p>
+                                    <p className="text-xs text-(--color-text-secondary)">
+                                        {data.review.subjectRole === "DRIVER"
+                                            ? t("admin.driver")
+                                            : t("admin.passenger")}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
                             <div className="flex items-center gap-3">
                                 <RatingStars rating={data.review.rating} />
@@ -89,47 +139,6 @@ export function ReviewDetailModal({
                             <ReviewStatusBadge
                                 status={data.review.reviewStatus}
                             />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4 mb-6">
-                            <div className="border border-(--color-border) rounded-xl p-4">
-                                <p className={labelClass}>
-                                    {t("admin.author")}
-                                </p>
-                                <div className="flex items-center gap-2">
-                                    <Avatar
-                                        name={authorName}
-                                        size="sm"
-                                    />
-                                    <div>
-                                        <p className="text-sm font-semibold text-(--color-text-primary)">
-                                            {authorName}
-                                        </p>
-                                        <p className="text-xs text-(--color-text-secondary)">
-                                            {data.review.author.email}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="border border-(--color-border) rounded-xl p-4">
-                                <p className={labelClass}>
-                                    {t("admin.subject")}
-                                </p>
-                                <div className="flex items-center gap-2">
-                                    <Avatar
-                                        name={subjectName}
-                                        size="sm"
-                                    />
-                                    <div>
-                                        <p className="text-sm font-semibold text-(--color-text-primary)">
-                                            {subjectName}
-                                        </p>
-                                        <p className="text-xs text-(--color-text-secondary)">
-                                            {data.review.subject.email}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         <div className="border border-(--color-border) rounded-xl p-4 mb-6">
@@ -149,7 +158,7 @@ export function ReviewDetailModal({
                             <p className={labelClass}>{t("admin.comment")}</p>
                             {data.review.comment ? (
                                 <p className="text-sm text-(--color-text-primary) whitespace-pre-wrap border border-(--color-border) rounded-xl p-3 bg-(--color-bg)">
-                                    {data.review.comment}
+                                    "{data.review.comment}"
                                 </p>
                             ) : (
                                 <p className="text-sm text-(--color-text-secondary) italic">
@@ -171,31 +180,32 @@ export function ReviewDetailModal({
                             )}
 
                         <div className="flex gap-2 flex-wrap mb-6">
+                            <Button
+                                variant="red"
+                                leftIcon={<TrashIcon />}
+                                onClick={() => onRequestDelete(reviewId)}
+                                disabled={isThisReviewMutating}
+                            >
+                                {t("admin.deleteReview")}
+                            </Button>
                             {data.review.reviewStatus !== "VISIBLE" && (
                                 <Button
                                     variant="primary"
+                                    leftIcon={<EyeIcon />}
                                     onClick={() => onRequestStatus("VISIBLE")}
                                     disabled={isThisReviewMutating}
                                 >
-                                    {t("admin.makeVisible")}
+                                    {t("admin.showReview")}
                                 </Button>
                             )}
                             {data.review.reviewStatus !== "HIDDEN" && (
                                 <Button
-                                    variant="secondary"
+                                    variant="outlineSuccess"
+                                    leftIcon={<EyeOffIcon />}
                                     onClick={() => onRequestStatus("HIDDEN")}
                                     disabled={isThisReviewMutating}
                                 >
-                                    {t("admin.hide")}
-                                </Button>
-                            )}
-                            {data.review.reviewStatus !== "REMOVED" && (
-                                <Button
-                                    variant="red"
-                                    onClick={() => onRequestStatus("REMOVED")}
-                                    disabled={isThisReviewMutating}
-                                >
-                                    {t("admin.remove")}
+                                    {t("admin.hideReview")}
                                 </Button>
                             )}
                         </div>

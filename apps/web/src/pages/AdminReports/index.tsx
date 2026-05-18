@@ -16,7 +16,10 @@ import { ReportDetailModal } from "./components/ReportDetailModal";
 import { SetReportStatusModal } from "./components/SetReportStatusModal";
 import { useAdminReportsList } from "./hooks/useAdminReportsList";
 import { useDebounced } from "./hooks/useDebounced";
-import { ADMIN_REPORT_NOT_FOUND_CODE, adminReportsErrorMap } from "./lib/errors";
+import {
+    ADMIN_REPORT_NOT_FOUND_CODE,
+    adminReportsErrorMap,
+} from "./lib/errors";
 
 type AdminReportsPageProps = {
     language: Language;

@@ -244,6 +244,7 @@ export const AdminReviewListQuerySchema = z.object({
     status: ReviewStatusSchema.optional(),
     minRating: z.coerce.number().int().min(1).max(5).optional(),
     maxRating: z.coerce.number().int().min(1).max(5).optional(),
+    subjectRole: z.enum(["DRIVER", "PASSENGER"]).optional(),
     search: z.string().trim().min(1).max(100).optional(),
 });
 
@@ -253,11 +254,17 @@ export const AdminReviewListItemSchema = z.object({
     rating: z.number().int().min(1).max(5),
     comment: z.string().nullable(),
     reviewStatus: ReviewStatusSchema,
+    authorRole: z.enum(["DRIVER", "PASSENGER"]),
+    subjectRole: z.enum(["DRIVER", "PASSENGER"]),
     author: PublicUserPreviewSchema.extend({
         email: z.string(),
     }),
     subject: PublicUserPreviewSchema.extend({
         email: z.string(),
+    }),
+    ride: z.object({
+        originCity: z.string(),
+        destinationCity: z.string(),
     }),
     createdAt: z.date(),
 });
@@ -265,6 +272,16 @@ export const AdminReviewListItemSchema = z.object({
 export const AdminReviewListResponseSchema = z.object({
     items: z.array(AdminReviewListItemSchema),
     nextCursor: ReviewIdSchema.nullable(),
+});
+
+export const AdminReviewCountsSchema = z.object({
+    all: z.number().int().nonnegative(),
+    visible: z.number().int().nonnegative(),
+    hidden: z.number().int().nonnegative(),
+});
+
+export const AdminDeleteReviewResponseSchema = z.object({
+    id: ReviewIdSchema,
 });
 
 export const AdminReviewDetailSchema = AdminReviewListItemSchema.extend({
@@ -308,6 +325,10 @@ export type AdminReviewListQuery = z.infer<typeof AdminReviewListQuerySchema>;
 export type AdminReviewListItem = z.infer<typeof AdminReviewListItemSchema>;
 export type AdminReviewListResponse = z.infer<
     typeof AdminReviewListResponseSchema
+>;
+export type AdminReviewCounts = z.infer<typeof AdminReviewCountsSchema>;
+export type AdminDeleteReviewResponse = z.infer<
+    typeof AdminDeleteReviewResponseSchema
 >;
 export type AdminReviewDetail = z.infer<typeof AdminReviewDetailSchema>;
 export type AdminReviewStatusHistoryItem = z.infer<

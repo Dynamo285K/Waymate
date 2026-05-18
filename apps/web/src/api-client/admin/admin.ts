@@ -24,8 +24,10 @@ import type {
 import type {
     AdminCancelRideBody,
     AdminCancelRideResponse,
+    AdminDeleteReviewResponse,
     AdminReportDetailResponse,
     AdminReportListResponse,
+    AdminReviewCounts,
     AdminReviewDetailResponse,
     AdminReviewListItem,
     AdminReviewListResponse,
@@ -1007,6 +1009,249 @@ export function useGetAdminReviews<
     return query;
 }
 
+/**
+ * Returns counts of non-deleted reviews grouped by status (all, visible, hidden) for admin tab badges.
+ */
+export const getGetAdminReviewsCountsUrl = () => {
+    return `/admin/reviews/counts`;
+};
+
+export const getAdminReviewsCounts = async (
+    options?: RequestInit
+): Promise<AdminReviewCounts> => {
+    return apiFetcher<AdminReviewCounts>(getGetAdminReviewsCountsUrl(), {
+        ...options,
+        method: "GET",
+    });
+};
+
+export const getGetAdminReviewsCountsQueryKey = () => {
+    return [`/admin/reviews/counts`] as const;
+};
+
+export const getGetAdminReviewsCountsQueryOptions = <
+    TData = Awaited<ReturnType<typeof getAdminReviewsCounts>>,
+    TError = ErrorResponse,
+>(options?: {
+    query?: Partial<
+        UseQueryOptions<
+            Awaited<ReturnType<typeof getAdminReviewsCounts>>,
+            TError,
+            TData
+        >
+    >;
+    request?: SecondParameter<typeof apiFetcher>;
+}) => {
+    const { query: queryOptions, request: requestOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getGetAdminReviewsCountsQueryKey();
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof getAdminReviewsCounts>>
+    > = () => getAdminReviewsCounts(requestOptions);
+
+    return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminReviewsCounts>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetAdminReviewsCountsQueryResult = NonNullable<
+    Awaited<ReturnType<typeof getAdminReviewsCounts>>
+>;
+export type GetAdminReviewsCountsQueryError = ErrorResponse;
+
+export function useGetAdminReviewsCounts<
+    TData = Awaited<ReturnType<typeof getAdminReviewsCounts>>,
+    TError = ErrorResponse,
+>(
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReviewsCounts>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminReviewsCounts>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminReviewsCounts>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminReviewsCounts<
+    TData = Awaited<ReturnType<typeof getAdminReviewsCounts>>,
+    TError = ErrorResponse,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReviewsCounts>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminReviewsCounts>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminReviewsCounts>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminReviewsCounts<
+    TData = Awaited<ReturnType<typeof getAdminReviewsCounts>>,
+    TError = ErrorResponse,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReviewsCounts>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetAdminReviewsCounts<
+    TData = Awaited<ReturnType<typeof getAdminReviewsCounts>>,
+    TError = ErrorResponse,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminReviewsCounts>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getGetAdminReviewsCountsQueryOptions(options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * Permanently soft-deletes a review. The review is removed from all public surfaces and excluded from rating aggregates.
+ */
+export const getDeleteAdminReviewsByIdUrl = (id: ReviewId) => {
+    return `/admin/reviews/${id}`;
+};
+
+export const deleteAdminReviewsById = async (
+    id: ReviewId,
+    options?: RequestInit
+): Promise<AdminDeleteReviewResponse> => {
+    return apiFetcher<AdminDeleteReviewResponse>(
+        getDeleteAdminReviewsByIdUrl(id),
+        {
+            ...options,
+            method: "DELETE",
+        }
+    );
+};
+
+export const getDeleteAdminReviewsByIdMutationOptions = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof deleteAdminReviewsById>>,
+        TError,
+        { id: ReviewId },
+        TContext
+    >;
+    request?: SecondParameter<typeof apiFetcher>;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof deleteAdminReviewsById>>,
+    TError,
+    { id: ReviewId },
+    TContext
+> => {
+    const mutationKey = ["deleteAdminReviewsById"];
+    const { mutation: mutationOptions, request: requestOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey }, request: undefined };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof deleteAdminReviewsById>>,
+        { id: ReviewId }
+    > = (props) => {
+        const { id } = props ?? {};
+
+        return deleteAdminReviewsById(id, requestOptions);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteAdminReviewsByIdMutationResult = NonNullable<
+    Awaited<ReturnType<typeof deleteAdminReviewsById>>
+>;
+
+export type DeleteAdminReviewsByIdMutationError = ErrorResponse;
+
+export const useDeleteAdminReviewsById = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof deleteAdminReviewsById>>,
+            TError,
+            { id: ReviewId },
+            TContext
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseMutationResult<
+    Awaited<ReturnType<typeof deleteAdminReviewsById>>,
+    TError,
+    { id: ReviewId },
+    TContext
+> => {
+    const mutationOptions = getDeleteAdminReviewsByIdMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
 /**
  * Returns full review detail (author, subject, ride context) plus the most recent status history entries (newest first, capped at 50).
  */

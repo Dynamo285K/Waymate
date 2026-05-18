@@ -7,6 +7,7 @@
  */
 import type { ReviewId } from "./reviewId";
 import type { ReviewStatus } from "./reviewStatus";
+import type { GetAdminReviewsSubjectRole } from "./getAdminReviewsSubjectRole";
 
 export type GetAdminReviewsParams = {
     /**
@@ -26,6 +27,7 @@ export type GetAdminReviewsParams = {
      * @maximum 5
      */
     maxRating?: number;
+    subjectRole?: GetAdminReviewsSubjectRole;
     /**
      * @minLength 1
      * @maxLength 100

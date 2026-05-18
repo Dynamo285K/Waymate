@@ -6,13 +6,20 @@ import type { Language } from "../../components/controls/LanguageSwitcher";
 import { AdminNavbar } from "../../components/navigation/AdminNavbar";
 import { useAdminNavbarProps } from "../../hooks/useAdminNavbarProps";
 import { useSetReviewStatus } from "../../hooks/useSetReviewStatus";
-import { getGetAdminReviewsQueryKey } from "../../api-client/admin/admin";
+import { useDeleteReview } from "../../hooks/useDeleteReview";
+import {
+    getGetAdminReviewsQueryKey,
+    getGetAdminReviewsCountsQueryKey,
+} from "../../api-client/admin/admin";
+import type { AdminReviewListItem } from "../../api-client/model/adminReviewListItem";
 import type { ReviewStatus } from "../../api-client/model/reviewStatus";
+import type { GetAdminReviewsSubjectRole } from "../../api-client/model/getAdminReviewsSubjectRole";
 import { getErrorCode, getErrorI18nKey } from "../../lib/api-errors";
 import { AdminReviewsFilters } from "./components/AdminReviewsFilters";
 import { AdminReviewsTable } from "./components/AdminReviewsTable";
 import { ReviewDetailModal } from "./components/ReviewDetailModal";
 import { SetReviewStatusModal } from "./components/SetReviewStatusModal";
+import { DeleteReviewModal } from "./components/DeleteReviewModal";
 import { useAdminReviewsList } from "./hooks/useAdminReviewsList";
 import { useDebounced } from "./hooks/useDebounced";
 import {
@@ -30,13 +37,8 @@ type AdminReviewsPageProps = {
 };
 
 type StatusFilter = "ALL" | ReviewStatus;
-type RatingFilter = "ALL" | "LOW";
 
 const SEARCH_DEBOUNCE_MS = 300;
-// "Low rating" threshold for the quick toggle. Reviews of 1 or 2 stars are
-// the moderation hot zone — surfacing them in one click keeps the noise
-// down without requiring a numeric range UI.
-const LOW_RATING_MAX = 2;
 
 export function AdminReviewsPage({
     language,
@@ -59,14 +61,18 @@ export function AdminReviewsPage({
     });
 
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
-    const [ratingFilter, setRatingFilter] = useState<RatingFilter>("ALL");
+    const [ratingFilter, setRatingFilter] = useState<number | null>(null);
+    const [targetRoleFilter, setTargetRoleFilter] =
+        useState<GetAdminReviewsSubjectRole | null>(null);
     const [searchInput, setSearchInput] = useState("");
     const debouncedSearch = useDebounced(searchInput, SEARCH_DEBOUNCE_MS);
 
     const trimmedSearch = debouncedSearch.trim();
     const list = useAdminReviewsList({
         status: statusFilter === "ALL" ? undefined : statusFilter,
-        maxRating: ratingFilter === "LOW" ? LOW_RATING_MAX : undefined,
+        minRating: ratingFilter ?? undefined,
+        maxRating: ratingFilter ?? undefined,
+        subjectRole: targetRoleFilter ?? undefined,
         search: trimmedSearch.length > 0 ? trimmedSearch : undefined,
     });
 
@@ -76,12 +82,17 @@ export function AdminReviewsPage({
     const [pendingStatus, setPendingStatus] = useState<ReviewStatus | null>(
         null
     );
+    const [deleteTarget, setDeleteTarget] =
+        useState<AdminReviewListItem | null>(null);
 
     const setReviewStatus = useSetReviewStatus();
+    const deleteReview = useDeleteReview();
 
     const rowMutatingId = setReviewStatus.isPending
         ? (setReviewStatus.variables?.id ?? null)
-        : null;
+        : deleteReview.isPending
+          ? (deleteReview.variables?.id ?? null)
+          : null;
 
     const errorTargetForStatus = setReviewStatus.isError
         ? (setReviewStatus.variables?.id ?? null)
@@ -105,14 +116,18 @@ export function AdminReviewsPage({
                 void queryClient.invalidateQueries({
                     queryKey: getGetAdminReviewsQueryKey(),
                 });
+                void queryClient.invalidateQueries({
+                    queryKey: getGetAdminReviewsCountsQueryKey(),
+                });
                 setSelectedReviewId(null);
                 setPendingStatus(null);
+                setDeleteTarget(null);
             }
         },
         [queryClient]
     );
 
-    const handleConfirm = (reason: string) => {
+    const handleConfirmStatus = (reason: string) => {
         if (!selectedReviewId || !pendingStatus) return;
         setReviewStatus.mutate(
             {
@@ -127,10 +142,36 @@ export function AdminReviewsPage({
         );
     };
 
+    const handleConfirmDelete = () => {
+        if (!deleteTarget) return;
+        deleteReview.mutate(deleteTarget.id, {
+            onSuccess: () => {
+                setDeleteTarget(null);
+                if (selectedReviewId === deleteTarget.id) {
+                    setSelectedReviewId(null);
+                }
+            },
+            onError: handleMutationFailure,
+        });
+    };
+
     const openDetail = (id: string | null) => {
         setReviewStatus.reset();
         setPendingStatus(null);
         setSelectedReviewId(id);
+    };
+
+    const handleToggleVisibility = (review: AdminReviewListItem) => {
+        setReviewStatus.reset();
+        setSelectedReviewId(review.id);
+        setPendingStatus(
+            review.reviewStatus === "VISIBLE" ? "HIDDEN" : "VISIBLE"
+        );
+    };
+
+    const handleDeleteClick = (review: AdminReviewListItem) => {
+        deleteReview.reset();
+        setDeleteTarget(review);
     };
 
     return (
@@ -153,6 +194,8 @@ export function AdminReviewsPage({
                     onStatusFilterChange={setStatusFilter}
                     ratingFilter={ratingFilter}
                     onRatingFilterChange={setRatingFilter}
+                    targetRoleFilter={targetRoleFilter}
+                    onTargetRoleFilterChange={setTargetRoleFilter}
                     searchInput={searchInput}
                     onSearchInputChange={setSearchInput}
                 />
@@ -185,6 +228,8 @@ export function AdminReviewsPage({
                                 items={list.items}
                                 rowMutatingId={rowMutatingId}
                                 onView={(r) => openDetail(r.id)}
+                                onToggleVisibility={handleToggleVisibility}
+                                onDelete={handleDeleteClick}
                             />
 
                             {list.nextCursor && (
@@ -210,6 +255,10 @@ export function AdminReviewsPage({
                     mutationErrorForThisReview={detailErrorForReview}
                     onClose={() => openDetail(null)}
                     onRequestStatus={(target) => setPendingStatus(target)}
+                    onRequestDelete={(id) => {
+                        const item = list.items.find((r) => r.id === id);
+                        if (item) handleDeleteClick(item);
+                    }}
                 />
             )}
 
@@ -217,10 +266,31 @@ export function AdminReviewsPage({
                 <SetReviewStatusModal
                     key={`${selectedReviewId}-${pendingStatus}`}
                     targetStatus={pendingStatus}
-                    isPending={rowMutatingId === selectedReviewId}
+                    isPending={
+                        setReviewStatus.isPending &&
+                        setReviewStatus.variables?.id === selectedReviewId
+                    }
                     error={modalError}
                     onClose={() => setPendingStatus(null)}
-                    onConfirm={handleConfirm}
+                    onConfirm={handleConfirmStatus}
+                />
+            )}
+
+            {deleteTarget && (
+                <DeleteReviewModal
+                    key={deleteTarget.id}
+                    isPending={
+                        deleteReview.isPending &&
+                        deleteReview.variables?.id === deleteTarget.id
+                    }
+                    error={
+                        deleteReview.isError &&
+                        deleteReview.variables?.id === deleteTarget.id
+                            ? deleteReview.error
+                            : null
+                    }
+                    onClose={() => setDeleteTarget(null)}
+                    onConfirm={handleConfirmDelete}
                 />
             )}
         </div>
