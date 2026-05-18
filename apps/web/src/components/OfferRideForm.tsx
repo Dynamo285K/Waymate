@@ -16,6 +16,8 @@ import {
     MapPinIcon,
     UserIcon,
 } from "@waymate/ui";
+import { CitySelect } from "./CitySelect";
+import type { CityListItem } from "./CitySelect";
 import "./OfferRideForm.css";
 
 export type OfferRideCar = {
@@ -62,10 +64,10 @@ export type OfferRideFormLabels = {
 
 export type OfferRideFormProps = {
     labels?: OfferRideFormLabels;
-    pickup?: string;
-    onPickupChange?: (value: string) => void;
-    dropoff?: string;
-    onDropoffChange?: (value: string) => void;
+    pickupCity?: CityListItem | null;
+    onPickupCityChange?: (city: CityListItem | null) => void;
+    dropoffCity?: CityListItem | null;
+    onDropoffCityChange?: (city: CityListItem | null) => void;
     date?: Date;
     onDateChange?: (date: Date | undefined) => void;
     dateLocale?: Locale;
@@ -106,10 +108,10 @@ const DEFAULT_TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
 
 export function OfferRideForm({
     labels,
-    pickup = "",
-    onPickupChange,
-    dropoff = "",
-    onDropoffChange,
+    pickupCity = null,
+    onPickupCityChange,
+    dropoffCity = null,
+    onDropoffCityChange,
     date,
     onDateChange,
     dateLocale,
@@ -169,9 +171,9 @@ export function OfferRideForm({
                             label={labels?.pickup ?? "Pickup location"}
                             icon={<CircleIcon />}
                         />
-                        <Input
-                            value={pickup}
-                            onChange={(e) => onPickupChange?.(e.target.value)}
+                        <CitySelect
+                            value={pickupCity ?? null}
+                            onChange={(city) => onPickupCityChange?.(city)}
                             placeholder={
                                 labels?.pickupPlaceholder ??
                                 "Enter pickup location"
@@ -183,9 +185,9 @@ export function OfferRideForm({
                             label={labels?.dropoff ?? "Dropoff location"}
                             icon={<MapPinIcon />}
                         />
-                        <Input
-                            value={dropoff}
-                            onChange={(e) => onDropoffChange?.(e.target.value)}
+                        <CitySelect
+                            value={dropoffCity ?? null}
+                            onChange={(city) => onDropoffCityChange?.(city)}
                             placeholder={
                                 labels?.dropoffPlaceholder ??
                                 "Enter destination"

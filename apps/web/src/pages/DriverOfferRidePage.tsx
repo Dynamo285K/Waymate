@@ -48,6 +48,7 @@ type UserCarRow = {
 
 import type { CreateRideBody } from "../api-client/model/createRideBody";
 import type { CreateCarBody as ApiCreateCarBody } from "../api-client/model/createCarBody";
+import type { CityListItem } from "../components/CitySelect";
 
 type CreateCarBody = ApiCreateCarBody & {
     countryCode: "SK";
@@ -165,8 +166,8 @@ export function DriverOfferRidePage({
     const [manualBrand, setManualBrand] = useState("");
     const [manualModel, setManualModel] = useState("");
     const [manualPlate, setManualPlate] = useState("");
-    const [pickup, setPickup] = useState("");
-    const [dropoff, setDropoff] = useState("");
+    const [pickupCity, setPickupCity] = useState<CityListItem | null>(null);
+    const [dropoffCity, setDropoffCity] = useState<CityListItem | null>(null);
     const [rideDate, setRideDate] = useState<Date | undefined>();
     const [rideTime, setRideTime] = useState("");
     const [seats, setSeats] = useState("");
@@ -176,7 +177,7 @@ export function DriverOfferRidePage({
     const [publishError, setPublishError] = useState("");
     const [hasUserSelectedCarMode, setHasUserSelectedCarMode] = useState(false);
 
-    const formKey = `${pickup}|${dropoff}|${rideDate?.toISOString() ?? ""}|${rideTime}|${seats}|${price}|${carMode}|${selectedCarId}|${manualBrand}|${manualModel}|${manualPlate}`;
+    const formKey = `${pickupCity?.id ?? ""}|${dropoffCity?.id ?? ""}|${rideDate?.toISOString() ?? ""}|${rideTime}|${seats}|${price}|${carMode}|${selectedCarId}|${manualBrand}|${manualModel}|${manualPlate}`;
     const [prevFormKey, setPrevFormKey] = useState(formKey);
     if (formKey !== prevFormKey) {
         setPrevFormKey(formKey);
@@ -318,8 +319,6 @@ export function DriverOfferRidePage({
         const departureAt = combineDateAndTime(rideDate, rideTime);
         const offeredSeats = parsePositiveInteger(seats);
         const priceAmount = parsePositiveInteger(price);
-        const pickupCity = pickup.trim();
-        const dropoffCity = dropoff.trim();
 
         if (!pickupCity || !dropoffCity || !departureAt || !carId) {
             return "offerRide.missingFieldsError";
@@ -340,8 +339,6 @@ export function DriverOfferRidePage({
         const departureAt = combineDateAndTime(rideDate, rideTime);
         const offeredSeats = parsePositiveInteger(seats);
         const priceAmount = parsePositiveInteger(price);
-        const pickupCity = pickup.trim();
-        const dropoffCity = dropoff.trim();
 
         if (
             !carId ||
@@ -363,20 +360,18 @@ export function DriverOfferRidePage({
             description: null,
             stops: [
                 {
-                    address: pickupCity,
-                    city: pickupCity,
-                    countryCode: "SK",
-                    lat: 0,
-                    lng: 0,
+                    cityId: pickupCity.id,
+                    address: pickupCity.name,
+                    lat: pickupCity.lat,
+                    lng: pickupCity.lng,
                     plannedArrivalAt: null,
                     plannedDepartureAt: departureAt.toISOString(),
                 },
                 {
-                    address: dropoffCity,
-                    city: dropoffCity,
-                    countryCode: "SK",
-                    lat: 0,
-                    lng: 0,
+                    cityId: dropoffCity.id,
+                    address: dropoffCity.name,
+                    lat: dropoffCity.lat,
+                    lng: dropoffCity.lng,
                     plannedArrivalAt: null,
                     plannedDepartureAt: null,
                 },
@@ -593,10 +588,10 @@ export function DriverOfferRidePage({
                         noCars: t("offerRide.noCars"),
                         publishLabel: t("offerRide.publish"),
                     }}
-                    pickup={pickup}
-                    onPickupChange={setPickup}
-                    dropoff={dropoff}
-                    onDropoffChange={setDropoff}
+                    pickupCity={pickupCity}
+                    onPickupCityChange={setPickupCity}
+                    dropoffCity={dropoffCity}
+                    onDropoffCityChange={setDropoffCity}
                     date={rideDate}
                     onDateChange={setRideDate}
                     dateLocale={datePickerLocale}

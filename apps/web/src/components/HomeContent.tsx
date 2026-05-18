@@ -7,11 +7,13 @@ import {
     FeatureCard,
     Button,
 } from "@waymate/ui";
+import type { SearchBoxCityOption } from "@waymate/ui";
 import type { Language } from "./controls/LanguageSwitcher";
 import { AvailableRideCard } from "./AvailableRideCard";
 import { formatRideDate } from "../lib/date-format";
 import { toUiLanguage } from "../lib/language";
 import { useGetRidesAvailable } from "../api-client/rides/rides";
+import { getCities } from "../api-client/cities/cities";
 
 type AvailableRide = {
     id: string | number;
@@ -29,7 +31,11 @@ type AvailableRide = {
 
 type HomeContentProps = {
     language: Language;
-    onSearch?: (from: string, to: string, date: Date | undefined) => void;
+    onSearch?: (
+        from: SearchBoxCityOption | null,
+        to: SearchBoxCityOption | null,
+        date: Date | undefined
+    ) => void;
     onViewAllRides?: () => void;
     onBook?: (ride: AvailableRide) => void;
 };
@@ -231,7 +237,13 @@ export function HomeContent({
                 </p>
                 <div className="mt-8 w-full max-w-2xl">
                     <SearchBox
-                        onSearchCities={async () => []}
+                        onSearchCities={async (q) => {
+                            const results = await getCities({ q, limit: 8 });
+                            return results.map((c) => ({
+                                id: c.id,
+                                name: c.name,
+                            }));
+                        }}
                         onSearch={(from, to, date) =>
                             onSearch?.(from, to, date)
                         }
