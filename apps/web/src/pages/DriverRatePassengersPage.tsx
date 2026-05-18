@@ -4,6 +4,9 @@ import { RatePassengerCard, StatCard, TextLink } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
+import { useGetRidesByIdPassengers } from "../api-client/rides/rides";
+import { useSubmitReview } from "../hooks/useSubmitReview";
+import { getErrorI18nKey } from "../lib/api-errors";
 
 type DriverRatePassengersPageProps = {
     language: Language;
@@ -13,12 +16,6 @@ type DriverRatePassengersPageProps = {
     userName?: string;
     userEmail?: string;
 };
-
-const PASSENGERS = [
-    { id: 1, name: "Bob Smith" },
-    { id: 2, name: "Alice Brown" },
-    { id: 3, name: "Carol Davis" },
-];
 
 function MapIcon() {
     return (
@@ -126,8 +123,19 @@ export function DriverRatePassengersPage({
     });
     const location = useLocation();
     const ride = (
-        location.state as { ride?: { from: string; to: string } } | null
+        location.state as {
+            ride?: { id: string; from: string; to: string; price?: number };
+        } | null
     )?.ride;
+
+    const passengersQuery = useGetRidesByIdPassengers(ride?.id ?? "", {
+        query: { enabled: Boolean(ride?.id) },
+    });
+    const submitReview = useSubmitReview();
+
+    const passengers = passengersQuery.data?.passengers ?? [];
+    const totalSeats = passengers.reduce((sum, p) => sum + p.seatCount, 0);
+    const totalEarned = ride?.price != null ? ride.price * totalSeats : null;
 
     return (
         <div
@@ -166,29 +174,31 @@ export function DriverRatePassengersPage({
                                 <MapIcon />
                             </IconBox>
                         }
-                        value="230km"
+                        value={ride ? `${ride.from} → ${ride.to}` : "—"}
                         label={
-                            t("driverRides.kmTraveled", { km: 230 })
-                                .replace("230km", "")
-                                .trim() || "traveled"
+                            t("driverRides.kmTraveled", { km: "" })
+                                .replace("km", "")
+                                .trim() || "route"
                         }
                     />
-                    <StatCard
-                        icon={
-                            <IconBox
-                                bg="bg-(--color-danger-bg)"
-                                color="text-(--color-danger-text)"
-                            >
-                                <DollarIcon />
-                            </IconBox>
-                        }
-                        value="36€"
-                        label={
-                            t("driverRides.earned", { amount: 36 })
-                                .replace("36€", "")
-                                .trim() || "earned"
-                        }
-                    />
+                    {totalEarned != null && (
+                        <StatCard
+                            icon={
+                                <IconBox
+                                    bg="bg-(--color-danger-bg)"
+                                    color="text-(--color-danger-text)"
+                                >
+                                    <DollarIcon />
+                                </IconBox>
+                            }
+                            value={`${totalEarned}€`}
+                            label={
+                                t("driverRides.earned", { amount: "" })
+                                    .replace("€", "")
+                                    .trim() || "earned"
+                            }
+                        />
+                    )}
                     <StatCard
                         icon={
                             <IconBox
@@ -198,25 +208,86 @@ export function DriverRatePassengersPage({
                                 <UsersIcon />
                             </IconBox>
                         }
-                        value={String(PASSENGERS.length)}
+                        value={String(passengers.length)}
                         label={t("driverRides.passengers")}
                     />
                 </div>
 
+                {!ride?.id && (
+                    <p className="text-(--color-text-secondary)">
+                        {t("driverRides.passengersError")}
+                    </p>
+                )}
+
+                {passengersQuery.isLoading && (
+                    <p className="text-(--color-text-secondary)">
+                        {t("driverRides.loading")}
+                    </p>
+                )}
+
+                {passengersQuery.isError && (
+                    <p className="text-(--color-text-secondary)">
+                        {t(
+                            getErrorI18nKey(
+                                passengersQuery.error,
+                                {},
+                                "driverRides.passengersError"
+                            )
+                        )}
+                    </p>
+                )}
+
+                {!passengersQuery.isLoading &&
+                    !passengersQuery.isError &&
+                    passengers.length === 0 &&
+                    ride?.id && (
+                        <p className="text-(--color-text-secondary)">
+                            {t("driverRides.noPassengers")}
+                        </p>
+                    )}
+
                 <div className="flex flex-col gap-4">
-                    {PASSENGERS.map((p) => (
-                        <RatePassengerCard
-                            key={p.id}
-                            name={p.name}
-                            onSubmit={(rating, review) =>
-                                console.log(p.name, rating, review)
-                            }
-                            labels={{
-                                placeholder: t("driverRides.writeReview"),
-                                submitRating: t("driverRides.submitRating"),
-                            }}
-                        />
-                    ))}
+                    {passengers.map((booking) => {
+                        const passengerName =
+                            `${booking.passenger.firstName ?? ""} ${booking.passenger.lastName ?? ""}`.trim() ||
+                            t("roles.passenger");
+                        const submittedRating =
+                            booking.myReviewOfPassenger?.rating ?? null;
+                        const isSubmitting =
+                            submitReview.isPending &&
+                            submitReview.variables?.data.subjectId ===
+                                booking.passenger.id;
+
+                        return (
+                            <RatePassengerCard
+                                key={booking.bookingId}
+                                name={passengerName}
+                                submittedRating={submittedRating}
+                                isSubmitting={isSubmitting}
+                                onSubmit={(rating, review) => {
+                                    if (!ride?.id) return;
+                                    submitReview.mutate(
+                                        {
+                                            data: {
+                                                rideId: ride.id,
+                                                subjectId: booking.passenger.id,
+                                                rating,
+                                                comment: review || undefined,
+                                            },
+                                        },
+                                        {
+                                            onSuccess: () =>
+                                                submitReview.reset(),
+                                        }
+                                    );
+                                }}
+                                labels={{
+                                    placeholder: t("driverRides.writeReview"),
+                                    submitRating: t("driverRides.submitRating"),
+                                }}
+                            />
+                        );
+                    })}
                 </div>
             </section>
         </div>
