@@ -12,12 +12,9 @@
         "typecheck": "tsc -p tsconfig.json",
         "openapi:dump": "bun scripts/dump-openapi.ts",
         "seed": "bun src/db/seed.ts",
-<<<<<<< HEAD
         "seed:cities": "bun src/db/seed-cities.ts",
-=======
         "test": "vitest",
         "test:run": "vitest run",
->>>>>>> 1c017b7 (KAN-166: Add tests)
         "db:generate": "drizzle-kit generate",
         "db:migrate": "drizzle-kit migrate",
         "db:push": "drizzle-kit push",
