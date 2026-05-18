@@ -4,7 +4,8 @@
     "packageManager": "bun@1.3.10",
     "workspaces": [
         "apps/*",
-        "packages/*"
+        "packages/*",
+        "e2e"
     ],
     "scripts": {
         "db:setup": "bun scripts/db-setup.mjs",
@@ -13,6 +14,8 @@
         "typecheck": "turbo typecheck",
         "db:generate": "turbo db:generate",
         "db:migrate": "turbo db:migrate",
+        "test": "turbo test",
+        "test:e2e": "bun run --cwd e2e test",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "format": "prettier . --write",
