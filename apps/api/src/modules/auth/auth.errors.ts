@@ -1,4 +1,6 @@
 import { assertNever, DomainError } from "../../shared/errors";
+import { logger } from "../../shared/logger";
+import { requestMeta } from "../../shared/request-meta";
 
 export const AuthErrorCodes = {
     Unauthorized: "UNAUTHORIZED",
@@ -36,6 +38,7 @@ type RouteErrorContext = {
     code: string | number;
     status: (code: number, body: { error: string }) => unknown;
     error: unknown;
+    request: Request;
 };
 
 /**
@@ -43,13 +46,18 @@ type RouteErrorContext = {
  * the module's own domain error first, then `AuthError` (so guard failures
  * surface as 401/403), then validation, then a 500 catch-all. Centralising
  * the chain means the response shape and the catch order live in one place.
+ *
+ * The 500 fall-through logs the underlying error with the request's id so
+ * production has a stack trace tied to the same request line emitted by
+ * `.onAfterResponse`. Domain / auth / validation errors are not logged here
+ * — they are expected outcomes and only show up in the request log line.
  */
 export function createErrorHandler<E extends DomainError>(
     DomainErrorClass: new (...args: never[]) => E,
     toHttpStatus: (code: E["code"]) => number
 ) {
     return (ctx: RouteErrorContext) => {
-        const { code, status, error } = ctx;
+        const { code, status, error, request } = ctx;
         if (error instanceof DomainErrorClass) {
             return status(toHttpStatus(error.code as E["code"]), {
                 error: error.code,
@@ -64,6 +72,11 @@ export function createErrorHandler<E extends DomainError>(
             return status(400, { error: "VALIDATION" });
         }
         if (code === "INTERNAL_SERVER_ERROR" || code === "UNKNOWN") {
+            const meta = requestMeta.get(request);
+            logger.error(
+                { err: error, requestId: meta?.requestId },
+                "unhandled_error"
+            );
             return status(500, { error: "INTERNAL_SERVER_ERROR" });
         }
     };

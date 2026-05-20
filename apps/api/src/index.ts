@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { openapi } from "@elysiajs/openapi";
@@ -22,6 +23,8 @@ import {
     requestErrorToHttpStatus,
 } from "./shared/request-errors";
 import { AuthError, authErrorToHttpStatus } from "./modules/auth/auth.errors";
+import { logger } from "./shared/logger";
+import { requestMeta } from "./shared/request-meta";
 
 const allowedOrigins = Array.from(
     new Set([env.WEB_ORIGIN, ...env.CORS_ORIGINS])
@@ -129,7 +132,16 @@ export const app = new Elysia()
             allowedHeaders: ["Content-Type", "Authorization"],
         })
     )
-    .onRequest(async ({ request }) => {
+    .onRequest(async ({ request, set }) => {
+        // Stash requestId + start time BEFORE any check that may throw so even
+        // rejected requests (413, 429) get a request line with timing.
+        const requestId = randomUUID();
+        requestMeta.set(request, {
+            requestId,
+            startedAt: performance.now(),
+        });
+        set.headers["x-request-id"] = requestId;
+
         if (!METHODS_WITHOUT_BODY.has(request.method)) {
             const header = request.headers.get("content-length");
             if (header !== null) {
@@ -165,7 +177,7 @@ export const app = new Elysia()
             );
         }
     })
-    .onError(({ code, error, status, set }) => {
+    .onError(({ code, error, status, set, request }) => {
         if (error instanceof RateLimitError) {
             set.headers["retry-after"] = String(error.retryAfterSeconds);
             return status(429, { error: error.code });
@@ -191,8 +203,34 @@ export const app = new Elysia()
         if (code === "NOT_FOUND") {
             return status(404, { error: "NOT_FOUND" });
         }
-        console.error(error);
+        const meta = requestMeta.get(request);
+        logger.error(
+            { err: error, requestId: meta?.requestId },
+            "unhandled_error"
+        );
         return status(500, { error: "INTERNAL_SERVER_ERROR" });
+    })
+    .onAfterResponse(({ request, set }) => {
+        const meta = requestMeta.get(request);
+        if (!meta) return;
+        const url = new URL(request.url);
+        const durationMs = Math.round(performance.now() - meta.startedAt);
+        const status =
+            typeof set.status === "number"
+                ? set.status
+                : typeof set.status === "string"
+                  ? Number.parseInt(set.status, 10) || 200
+                  : 200;
+        logger.info(
+            {
+                requestId: meta.requestId,
+                method: request.method,
+                path: url.pathname,
+                status,
+                durationMs,
+            },
+            "request"
+        );
     })
     .use(
         openapi({
@@ -241,7 +279,11 @@ export type Auth = typeof auth;
 
 if (import.meta.main) {
     const server = app.listen(env.PORT);
-    console.log(
-        `Waymate API is running at ${server.server?.hostname}:${server.server?.port}`
+    logger.info(
+        {
+            host: server.server?.hostname,
+            port: server.server?.port,
+        },
+        "Waymate API started"
     );
 }

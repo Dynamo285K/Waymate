@@ -47,6 +47,9 @@ const OriginListSchema = z
     .pipe(z.array(OriginSchema));
 
 const EnvSchema = z.object({
+    NODE_ENV: z
+        .enum(["development", "test", "production"])
+        .default("development"),
     PORT: z.coerce.number().int().min(1).max(65535).default(3000),
     DATABASE_URL: z.string().min(1),
     BETTER_AUTH_URL: z.url(),
@@ -57,6 +60,9 @@ const EnvSchema = z.object({
         .int()
         .min(1)
         .default(100 * 1024),
+    LOG_LEVEL: z
+        .enum(["trace", "debug", "info", "warn", "error", "fatal", "silent"])
+        .default("info"),
     RESEND_API_KEY: z.string().min(1),
     GOOGLE_CLIENT_ID: z.string().min(1).optional(),
     GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),

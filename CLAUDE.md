@@ -124,6 +124,18 @@ Both throw `RequestError` (`apps/api/src/shared/request-errors.ts`) and are caug
 
 Limits are constants in `apps/api/src/index.ts` for now — tuning them requires a redeploy. Promote to env vars when ops need to tweak without code changes.
 
+### Logging
+
+Structured logging uses **pino** (`apps/api/src/shared/logger.ts`). The single `logger` instance is JSON in production and pretty-printed (via `pino-pretty`) when `NODE_ENV=development`. Level is set by `LOG_LEVEL` (default `info`). Authorization / Cookie / Set-Cookie headers and `*.password` / `*.token` fields are redacted before serialization — never disable that.
+
+Request lifecycle logging lives in the root app (`apps/api/src/index.ts`):
+
+- The root `.onRequest` mints a `requestId` (UUID), stashes it with a start time in a per-request `WeakMap` (`apps/api/src/shared/request-meta.ts`), and echoes it back as the `x-request-id` response header.
+- The root `.onAfterResponse` emits one `request` log line per request: `{ requestId, method, path, status, durationMs }`. It reads the final HTTP status from `set.status`, which Elysia populates reliably for routed responses (success, in-handler `status(...)`, and `.onError` mappings). Genuinely unmatched paths swallowed by the mounted better-auth handler are the one exception — they log `200` even though the client gets `404`.
+- 500-class errors are logged with the full error (stack) and `requestId` in two places: the root `.onError` catch-all, and the per-module `.onError` factory (`createErrorHandler` in `apps/api/src/modules/auth/auth.errors.ts`) where it returns `INTERNAL_SERVER_ERROR`. Expected domain / auth / validation errors (4xx) are NOT logged as errors — they only appear in the `request` line.
+
+CLI scripts (`db/seed.ts`, `db/seed-cities.ts`) and the env-validation failure path (`config/env.ts`) intentionally stay on `console.*` — they run before/outside the request logger.
+
 ### Database schema (`apps/api/src/db/schema/`)
 
 Schema is defined with Drizzle ORM in `apps/api`, not in `packages/db`. Key design decisions:
