@@ -62,7 +62,16 @@
       "Bash(/home/tomas/splujazda-sketch/e2e/node_modules/.bin/playwright --version)",
       "Bash(echo \"---curl exit: $?\")",
       "Bash(kill bg7rmxi3d *)",
-      "Bash(docker exec splujazda-sketch-db-1 *)"
+      "Bash(docker exec splujazda-sketch-db-1 *)",
+      "Bash(LOG_LEVEL=info NODE_ENV=development bun src/index.ts)",
+      "Bash(pkill -f \"bun src/index.ts\")",
+      "Bash(sed 's/\\\\x1b\\\\[[0-9;]*m//g' /tmp/api2.log)",
+      "Bash(NODE_ENV=production BETTER_AUTH_SECRET=test-secret-1234567890 bun src/index.ts)",
+      "Bash(python3 -c 'import sys,json *)",
+      "Bash(NODE_ENV=production BETTER_AUTH_SECRET=test-secret-at-least-32-chars-long-xx bun src/index.ts)",
+      "Bash(PGPASSWORD=postgres psql *)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(e['idx'], e['tag']\\) for e in d['entries']]\")",
+      "Bash(echo \"EXIT=$?\")"
     ]
   }
 }
