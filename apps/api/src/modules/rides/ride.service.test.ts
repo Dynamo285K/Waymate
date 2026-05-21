@@ -492,7 +492,7 @@ describe("RideService.getDriverRides", () => {
     });
 });
 
-describe("RideService.completeRide", () => {
+describe("RideService ride termination", () => {
     const HOUR = 60 * 60 * 1000;
 
     // Creates a ride that has already departed (so it is eligible to complete)
@@ -546,7 +546,7 @@ describe("RideService.completeRide", () => {
         return booking;
     }
 
-    it("marks a departed PLANNED ride COMPLETED and carries confirmed bookings", async () => {
+    it("manually ends a departed PLANNED ride and carries confirmed bookings", async () => {
         const driver = await insertTestUser();
         const passenger = await insertTestUser();
         const car = await insertCarFor(driver.id);
@@ -560,7 +560,11 @@ describe("RideService.completeRide", () => {
         );
         const beforeEnd = new Date();
 
-        const returnedId = await RideService.completeRide(rideId, driver.id);
+        const returnedId = await RideService.endRide({
+            rideId,
+            actorUserId: driver.id,
+            source: "DRIVER",
+        });
         expect(returnedId).toBe(rideId);
 
         const completed = await db.query.rides.findFirst({
@@ -589,6 +593,7 @@ describe("RideService.completeRide", () => {
         );
         expect(completeRow!.oldStatus).toBe("PLANNED");
         expect(completeRow!.changedByUserId).toBe(driver.id);
+        expect(completeRow!.reason).toBe("Ride ended by driver");
 
         const bookingHistory = await db
             .select()
@@ -685,6 +690,88 @@ describe("RideService.completeRide", () => {
             (h) => h.newStatus === "COMPLETED"
         );
         expect(completeRow!.changedByUserId).toBeNull();
+        expect(completeRow!.reason).toBe("Ride ended automatically");
+    });
+
+    it("autoEndExpiredRides ends only active rides whose autoEndAt has expired", async () => {
+        const driver = await insertTestUser();
+        const car = await insertCarFor(driver.id);
+        const now = new Date();
+        const { rideId: expiredRideId } = await createDepartedRide(
+            driver.id,
+            car.id,
+            new Date(now.getTime() - 2 * HOUR)
+        );
+        const futureAutoEndRideId = await RideService.createRide(
+            driver.id,
+            buildCreateRideBody(car.id, {
+                departureAt: new Date(now.getTime() - HOUR),
+                arrivalEstimateAt: new Date(now.getTime() + HOUR),
+            })
+        );
+
+        const result = await RideService.autoEndExpiredRides({
+            now,
+            limit: 10,
+        });
+
+        expect(result).toMatchObject({
+            candidates: 1,
+            processed: 1,
+            failed: 0,
+            failures: [],
+        });
+
+        const expiredRide = await db.query.rides.findFirst({
+            where: eq(rides.id, expiredRideId),
+        });
+        expect(expiredRide!.rideStatus).toBe("COMPLETED");
+        expect(expiredRide!.endSource).toBe("AUTO");
+        expect(expiredRide!.endedByUserId).toBeNull();
+        expect(expiredRide!.endedAt!.getTime()).toBe(now.getTime());
+        expect(expiredRide!.autoEndProcessedAt!.getTime()).toBe(now.getTime());
+
+        const futureAutoEndRide = await db.query.rides.findFirst({
+            where: eq(rides.id, futureAutoEndRideId),
+        });
+        expect(futureAutoEndRide!.rideStatus).toBe("PLANNED");
+        expect(futureAutoEndRide!.endedAt).toBeNull();
+    });
+
+    it("autoEndExpiredRides does not duplicate termination or history on repeated runs", async () => {
+        const driver = await insertTestUser();
+        const car = await insertCarFor(driver.id);
+        const now = new Date();
+        const { rideId } = await createDepartedRide(
+            driver.id,
+            car.id,
+            new Date(now.getTime() - 2 * HOUR)
+        );
+
+        const firstRun = await RideService.autoEndExpiredRides({
+            now,
+            limit: 10,
+        });
+        const secondRun = await RideService.autoEndExpiredRides({
+            now: new Date(now.getTime() + HOUR),
+            limit: 10,
+        });
+
+        expect(firstRun.processed).toBe(1);
+        expect(secondRun).toMatchObject({
+            candidates: 0,
+            processed: 0,
+            failed: 0,
+            failures: [],
+        });
+
+        const rideHistory = await db
+            .select()
+            .from(rideStatusHistory)
+            .where(eq(rideStatusHistory.rideId, rideId));
+        expect(
+            rideHistory.filter((h) => h.newStatus === "COMPLETED")
+        ).toHaveLength(1);
     });
 
     it("throws RideNotCompletable for a cancelled ride", async () => {
