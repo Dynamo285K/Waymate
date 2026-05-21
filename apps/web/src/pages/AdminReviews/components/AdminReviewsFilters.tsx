@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Button, SearchInput } from "@waymate/ui";
+import { FilterSelect } from "../../../components/FilterSelect";
 import { useGetAdminReviewsCounts } from "../../../api-client/admin/admin";
 import type { ReviewStatus } from "../../../api-client/model/reviewStatus";
 import type { GetAdminReviewsSubjectRole } from "../../../api-client/model/getAdminReviewsSubjectRole";
@@ -101,41 +102,33 @@ export function AdminReviewsFilters({
                 ))}
             </div>
 
-            <select
-                value={ratingFilter ?? ""}
-                onChange={(e) => {
-                    const v = e.target.value;
-                    onRatingFilterChange(v === "" ? null : Number(v));
-                }}
-                className="border border-(--color-border) rounded-xl px-3 py-2 text-sm bg-(--color-card) text-(--color-text-primary) cursor-pointer"
-            >
-                {ratingOptions.map((opt) => (
-                    <option
-                        key={opt.value ?? "all"}
-                        value={opt.value ?? ""}
-                    >
-                        {opt.label}
-                    </option>
-                ))}
-            </select>
+            <FilterSelect
+                ariaLabel={t("admin.allRatings")}
+                value={ratingFilter === null ? "all" : String(ratingFilter)}
+                onValueChange={(value) =>
+                    onRatingFilterChange(value === "all" ? null : Number(value))
+                }
+                options={ratingOptions.map((opt) => ({
+                    value: opt.value === null ? "all" : String(opt.value),
+                    label: opt.label,
+                }))}
+            />
 
-            <select
-                value={targetRoleFilter ?? ""}
-                onChange={(e) => {
-                    const v = e.target.value as GetAdminReviewsSubjectRole | "";
-                    onTargetRoleFilterChange(v === "" ? null : v);
-                }}
-                className="border border-(--color-border) rounded-xl px-3 py-2 text-sm bg-(--color-card) text-(--color-text-primary) cursor-pointer"
-            >
-                {targetOptions.map((opt) => (
-                    <option
-                        key={opt.value ?? "all"}
-                        value={opt.value ?? ""}
-                    >
-                        {opt.label}
-                    </option>
-                ))}
-            </select>
+            <FilterSelect
+                ariaLabel={t("admin.allTargets")}
+                value={targetRoleFilter ?? "ALL"}
+                onValueChange={(value) =>
+                    onTargetRoleFilterChange(
+                        value === "ALL"
+                            ? null
+                            : (value as GetAdminReviewsSubjectRole)
+                    )
+                }
+                options={targetOptions.map((opt) => ({
+                    value: opt.value ?? "ALL",
+                    label: opt.label,
+                }))}
+            />
 
             <div className="ml-auto min-w-55">
                 <SearchInput

@@ -1,5 +1,9 @@
 import { useEffect } from "react";
+<<<<<<< HEAD
 import { useForm } from "react-hook-form";
+=======
+import { useForm, type SubmitHandler } from "react-hook-form";
+>>>>>>> 85c520f23c16a0046ac22cdbed01f864b4935623
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -102,6 +106,24 @@ export function OnboardingPage({
         });
     }, [user, isLoadingProfile, reset]);
 
+    const alreadyOnboarded = !!user && hasCompletedOnboarding(user);
+
+    const {
+        register,
+        handleSubmit,
+        setError,
+        formState: { errors, isSubmitting },
+    } = useForm<OnboardingFormInput, unknown, OnboardingFormValues>({
+        resolver: zodResolver(onboardingFormSchema),
+        // `values` keeps the form in sync with the async profile query without
+        // a reset()-in-effect — RHF re-applies these whenever `user` resolves.
+        values: {
+            firstName: user?.firstName ?? "",
+            lastName: user?.lastName ?? "",
+            phone: user?.phone ?? "",
+        },
+    });
+
     const onboardMutation = usePatchUsersMeOnboarding<ApiMutationError>({
         mutation: {
             onSuccess: (updatedUser) => {
@@ -110,6 +132,40 @@ export function OnboardingPage({
         },
     });
 
+<<<<<<< HEAD
+=======
+    // Redirect away once we know the user has already onboarded. No setState
+    // here, so it doesn't trigger set-state-in-effect.
+    useEffect(() => {
+        if (isInitialized || isLoadingProfile) return;
+
+        if (loadError) {
+            setSubmitError(t("onboarding.loginRequired"));
+            setIsInitialized(true);
+            return;
+        }
+
+        if (!user) return;
+
+        if (hasCompletedOnboarding(user)) {
+            let cancelled = false;
+            getPostAuthPath().then((path) => {
+                if (!cancelled) navigate(path, { replace: true });
+            });
+            return () => {
+                cancelled = true;
+            };
+        }
+
+        reset({
+            firstName: user.firstName ?? "",
+            lastName: user.lastName ?? "",
+            phone: user.phone ?? "",
+        });
+        setIsInitialized(true);
+    }, [user, loadError, isLoadingProfile, isInitialized, navigate, t, reset]);
+
+>>>>>>> 85c520f23c16a0046ac22cdbed01f864b4935623
     async function onSubmit(values: OnboardingFormValues) {
         try {
             await onboardMutation.mutateAsync({
@@ -126,7 +182,7 @@ export function OnboardingPage({
                 message: getErrorI18nKey(error, {}, "onboarding.error"),
             });
         }
-    }
+    };
 
     return (
         <div
@@ -136,7 +192,11 @@ export function OnboardingPage({
             <AuthNavbar {...authNavbarProps} />
 
             <main className="flex min-h-[calc(100vh-72px)] items-center justify-center px-4 py-12">
+<<<<<<< HEAD
                 {!isLoadingProfile && (
+=======
+                {!isLoadingProfile && !alreadyOnboarded && (
+>>>>>>> 85c520f23c16a0046ac22cdbed01f864b4935623
                     <form
                         onSubmit={handleSubmit(onSubmit)}
                         noValidate
@@ -157,6 +217,7 @@ export function OnboardingPage({
                                 <Input
                                     {...register("firstName")}
                                     autoComplete="given-name"
+                                    {...register("firstName")}
                                 />
                                 {errors.firstName && (
                                     <span className="text-sm font-semibold text-(--color-red)">
@@ -172,6 +233,7 @@ export function OnboardingPage({
                                 <Input
                                     {...register("lastName")}
                                     autoComplete="family-name"
+                                    {...register("lastName")}
                                 />
                                 {errors.lastName && (
                                     <span className="text-sm font-semibold text-(--color-red)">
@@ -187,6 +249,7 @@ export function OnboardingPage({
                                 <Input
                                     {...register("phone")}
                                     autoComplete="tel"
+                                    {...register("phone")}
                                 />
                                 {errors.phone && (
                                     <span className="text-sm font-semibold text-(--color-red)">
@@ -196,9 +259,18 @@ export function OnboardingPage({
                             </label>
                         </div>
 
+<<<<<<< HEAD
                         {errors.root && (
                             <p className="mt-5 text-sm font-semibold text-(--color-red)">
                                 {t(errors.root.message!)}
+=======
+                        {(errors.root?.message || loadError) && (
+                            <p className="mt-5 text-sm font-semibold text-(--color-red)">
+                                {t(
+                                    errors.root?.message ??
+                                        "onboarding.loginRequired"
+                                )}
+>>>>>>> 85c520f23c16a0046ac22cdbed01f864b4935623
                             </p>
                         )}
 
