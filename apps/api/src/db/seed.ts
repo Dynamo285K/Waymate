@@ -10,8 +10,12 @@ import {
     rideStops,
     prices,
     bookings,
+    bookingStatusHistory,
     accounts,
     cities,
+    reviews,
+    reviewStatusHistory,
+    rideStatusHistory,
 } from "./schema";
 import { randomUUID } from "crypto";
 import carData from "./cars-data.json";
@@ -25,6 +29,17 @@ const ADMIN_EMAIL = "admin@example.com";
 const ADMIN_PASSWORD = "admin1234";
 const DRIVER_EMAIL = "driver.albert@example.com";
 const DRIVER_PASSWORD = "driver1234";
+const MINUTE_MS = 60 * 1000;
+
+const dateAtOffset = (daysFromToday: number, hours: number, minutes = 0) => {
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    date.setDate(date.getDate() + daysFromToday);
+    return date;
+};
+
+const addMinutes = (date: Date, minutes: number) =>
+    new Date(date.getTime() + minutes * MINUTE_MS);
 
 async function main() {
     console.log("Starting reset and seeding of car models...");
@@ -33,7 +48,7 @@ async function main() {
     try {
         console.log("Clearing all old data and resetting IDs...");
         await db.execute(
-            sql`TRUNCATE TABLE accounts, sessions, verifications, bookings, booking_status_history, prices, ride_stops, ride_status_history, rides, cars, car_models, reviews, conversations, messages, notifications, user_status_history, users, blocklist RESTART IDENTITY CASCADE`
+            sql`TRUNCATE TABLE accounts, sessions, verifications, bookings, booking_status_history, prices, ride_stops, ride_status_history, rides, cars, car_models, reviews, review_status_history, conversations, messages, notifications, user_status_history, users, blocklist RESTART IDENTITY CASCADE`
         );
 
         console.log(`Inserting ${carData.length} car models...`);
@@ -43,8 +58,8 @@ async function main() {
             "All car models successfully reset and seeded into the database."
         );
 
-        // --- Additional seed data (users, cars, rides, prices, bookings) ---
-        console.log("Seeding users, cars, rides and bookings...");
+        // --- Additional seed data (users, cars, rides, prices, bookings, reviews) ---
+        console.log("Seeding users, cars, rides, bookings and reviews...");
 
         // Lifted out of the transaction so the post-commit accounts insert
         // (admin + driver passwords) can reference them.
@@ -62,6 +77,9 @@ async function main() {
             { name: "Košice", country: "SK" },
             { name: "Prešov", country: "SK" },
             { name: "Trenčín", country: "SK" },
+            { name: "Žilina", country: "SK" },
+            { name: "Banská Bystrica", country: "SK" },
+            { name: "Poprad", country: "SK" },
         ];
         const normalizedFixtures = FIXTURE_CITIES.map((c) => ({
             ...c,
@@ -311,207 +329,889 @@ async function main() {
                 },
             ]);
 
-            // Rides
-            const ride1Id = randomUUID();
-            const ride2Id = randomUUID();
-            const ride3Id = randomUUID();
+            type RideFixtureStatus = "PLANNED" | "COMPLETED";
+            type BookingFixtureStatus = "PENDING" | "CONFIRMED" | "COMPLETED";
+            type RatingFixture = 3 | 4 | 5;
+            type StopFixture = {
+                address: string;
+                city: string;
+                lat: number;
+                lng: number;
+                arrivalOffsetMinutes?: number;
+                departureOffsetMinutes?: number;
+            };
+            type PriceFixture = {
+                startStopOrder: number;
+                endStopOrder: number;
+                amount: number;
+            };
+            type SeededRide = {
+                id: string;
+                driverId: string;
+                departureAt: Date;
+                arrivalEstimateAt: Date;
+                rideStatus: RideFixtureStatus;
+                currency: "EUR";
+                stopIdsByOrder: Map<number, string>;
+                priceBySegment: Map<string, number>;
+            };
 
-            await tx.insert(rides).values([
-                {
-                    id: ride1Id,
-                    driverId: userAId,
-                    carId: car1Id,
-                    departureAt: new Date("2026-05-10T06:00:00+02:00"),
-                    arrivalEstimateAt: new Date("2026-05-10T08:00:00+02:00"),
-                    rideStatus: "PLANNED",
-                    offeredSeats: 3,
+            const passengerAdamId = bulkUsers[0].id;
+            const passengerEvaId = bulkUsers[4].id;
+            const passengerLuciaId = bulkUsers[11].id;
+
+            const segmentKey = (startStopOrder: number, endStopOrder: number) =>
+                `${startStopOrder}:${endStopOrder}`;
+
+            const seedRide = async (input: {
+                driverId: string;
+                carId: string;
+                departureAt: Date;
+                durationMinutes: number;
+                rideStatus: RideFixtureStatus;
+                offeredSeats: number;
+                description: string;
+                stops: StopFixture[];
+                prices: PriceFixture[];
+            }): Promise<SeededRide> => {
+                const rideId = randomUUID();
+                const arrivalEstimateAt = addMinutes(
+                    input.departureAt,
+                    input.durationMinutes
+                );
+                const createdAt =
+                    input.departureAt > new Date()
+                        ? addMinutes(new Date(), -180)
+                        : addMinutes(input.departureAt, -2 * 24 * 60);
+                const updatedAt =
+                    input.rideStatus === "COMPLETED"
+                        ? arrivalEstimateAt
+                        : createdAt;
+
+                await tx.insert(rides).values({
+                    id: rideId,
+                    driverId: input.driverId,
+                    carId: input.carId,
+                    departureAt: input.departureAt,
+                    arrivalEstimateAt,
+                    rideStatus: input.rideStatus,
+                    offeredSeats: input.offeredSeats,
                     currency: "EUR",
-                    description: "Bratislava → Nitra",
-                },
-                {
-                    id: ride2Id,
-                    driverId: userBId,
-                    carId: car2Id,
-                    departureAt: new Date("2026-05-11T05:30:00+02:00"),
-                    arrivalEstimateAt: new Date("2026-05-11T07:00:00+02:00"),
-                    rideStatus: "PLANNED",
-                    offeredSeats: 2,
-                    currency: "EUR",
-                    description: "Košice → Prešov",
-                },
-                {
-                    id: ride3Id,
-                    driverId: userAId,
-                    carId: car3Id,
-                    departureAt: new Date("2026-05-12T07:00:00+02:00"),
-                    arrivalEstimateAt: new Date("2026-05-12T09:30:00+02:00"),
-                    rideStatus: "PLANNED",
-                    offeredSeats: 2,
-                    currency: "EUR",
-                    description: "Trenčín → Bratislava",
-                },
-            ]);
+                    description: input.description,
+                    createdAt,
+                    updatedAt,
+                });
 
-            // Ride stops for ride1 (Bratislava -> Trnava -> Nitra)
-            const r1s0 = randomUUID();
-            const r1s1 = randomUUID();
-            const r1s2 = randomUUID();
-
-            await tx.insert(rideStops).values([
-                {
-                    id: r1s0,
-                    rideId: ride1Id,
-                    address: "Hlavné námestie 1",
-                    cityId: cityIdFor("Bratislava", "SK"),
-                    lat: 48.148598,
-                    lng: 17.107748,
-                    stopOrder: 0,
-                },
-                {
-                    id: r1s1,
-                    rideId: ride1Id,
-                    address: "Námestie sv. Trojice",
-                    cityId: cityIdFor("Trnava", "SK"),
-                    lat: 48.377018,
-                    lng: 17.588771,
-                    stopOrder: 1,
-                },
-                {
-                    id: r1s2,
-                    rideId: ride1Id,
-                    address: "Námestie SNP",
-                    cityId: cityIdFor("Nitra", "SK"),
-                    lat: 48.309085,
-                    lng: 18.086213,
-                    stopOrder: 2,
-                },
-            ]);
-
-            // Prices for ride1: Bratislava -> Nitra (direct segment)
-            const price1Id = randomUUID();
-            await tx.insert(prices).values([
-                {
-                    id: price1Id,
-                    rideId: ride1Id,
-                    startStopId: r1s0,
-                    endStopId: r1s2,
-                    amount: 8,
-                    currency: "EUR",
-                },
-            ]);
-
-            // Ride2 stops (Košice -> Prešov)
-            const r2s0 = randomUUID();
-            const r2s1 = randomUUID();
-
-            await tx.insert(rideStops).values([
-                {
-                    id: r2s0,
-                    rideId: ride2Id,
-                    address: "Hlavná 1",
-                    cityId: cityIdFor("Košice", "SK"),
-                    lat: 48.716385,
-                    lng: 21.261074,
-                    stopOrder: 0,
-                },
-                {
-                    id: r2s1,
-                    rideId: ride2Id,
-                    address: "Masarykova 2",
-                    cityId: cityIdFor("Prešov", "SK"),
-                    lat: 48.999569,
-                    lng: 21.239329,
-                    stopOrder: 1,
-                },
-            ]);
-
-            const price2Id = randomUUID();
-            await tx.insert(prices).values([
-                {
-                    id: price2Id,
-                    rideId: ride2Id,
-                    startStopId: r2s0,
-                    endStopId: r2s1,
-                    amount: 6,
-                    currency: "EUR",
-                },
-            ]);
-
-            // Ride3 stops (Trenčín -> Bratislava)
-            const r3s0 = randomUUID();
-            const r3s1 = randomUUID();
-
-            await tx.insert(rideStops).values([
-                {
-                    id: r3s0,
-                    rideId: ride3Id,
-                    address: "Mierové námestie",
-                    cityId: cityIdFor("Trenčín", "SK"),
-                    lat: 48.894028,
-                    lng: 18.042528,
-                    stopOrder: 0,
-                },
-                {
-                    id: r3s1,
-                    rideId: ride3Id,
-                    address: "Námestie SNP 1",
-                    cityId: cityIdFor("Bratislava", "SK"),
-                    lat: 48.148598,
-                    lng: 17.107748,
-                    stopOrder: 1,
-                },
-            ]);
-
-            const price3Id = randomUUID();
-            await tx.insert(prices).values([
-                {
-                    id: price3Id,
-                    rideId: ride3Id,
-                    startStopId: r3s0,
-                    endStopId: r3s1,
-                    amount: 10,
-                    currency: "EUR",
-                },
-            ]);
-
-            // Bookings
-            await tx.insert(bookings).values([
-                {
+                const stopRows = input.stops.map((stop, stopOrder) => ({
                     id: randomUUID(),
-                    passengerId: userCId,
-                    rideId: ride1Id,
-                    pickupStopId: r1s0,
-                    dropoffStopId: r1s2,
-                    seatCount: 1,
-                    bookingStatus: "CONFIRMED",
-                    priceAmount: 8,
+                    rideId,
+                    address: stop.address,
+                    cityId: cityIdFor(stop.city, "SK"),
+                    lat: stop.lat,
+                    lng: stop.lng,
+                    stopOrder,
+                    plannedArrivalAt:
+                        stop.arrivalOffsetMinutes === undefined
+                            ? null
+                            : addMinutes(
+                                  input.departureAt,
+                                  stop.arrivalOffsetMinutes
+                              ),
+                    plannedDepartureAt:
+                        stop.departureOffsetMinutes === undefined
+                            ? null
+                            : addMinutes(
+                                  input.departureAt,
+                                  stop.departureOffsetMinutes
+                              ),
+                    createdAt,
+                    updatedAt,
+                }));
+
+                await tx.insert(rideStops).values(stopRows);
+
+                const stopIdsByOrder = new Map(
+                    stopRows.map((stop) => [stop.stopOrder, stop.id])
+                );
+
+                await tx.insert(prices).values(
+                    input.prices.map((price) => {
+                        const startStopId = stopIdsByOrder.get(
+                            price.startStopOrder
+                        );
+                        const endStopId = stopIdsByOrder.get(
+                            price.endStopOrder
+                        );
+
+                        if (!startStopId || !endStopId) {
+                            throw new Error(
+                                `Invalid price stop order for fixture ride: ${input.description}`
+                            );
+                        }
+
+                        return {
+                            id: randomUUID(),
+                            rideId,
+                            startStopId,
+                            endStopId,
+                            amount: price.amount,
+                            currency: "EUR",
+                            createdAt,
+                            updatedAt,
+                        };
+                    })
+                );
+
+                await tx.insert(rideStatusHistory).values(
+                    input.rideStatus === "COMPLETED"
+                        ? [
+                              {
+                                  rideId,
+                                  newStatus: "PLANNED" as const,
+                                  changedByUserId: input.driverId,
+                                  reason: "Fixture ride created",
+                                  createdAt,
+                              },
+                              {
+                                  rideId,
+                                  oldStatus: "PLANNED" as const,
+                                  newStatus: "COMPLETED" as const,
+                                  changedByUserId: input.driverId,
+                                  reason: "Fixture ride completed",
+                                  createdAt: arrivalEstimateAt,
+                              },
+                          ]
+                        : [
+                              {
+                                  rideId,
+                                  newStatus: "PLANNED" as const,
+                                  changedByUserId: input.driverId,
+                                  reason: "Fixture ride created",
+                                  createdAt,
+                              },
+                          ]
+                );
+
+                return {
+                    id: rideId,
+                    driverId: input.driverId,
+                    departureAt: input.departureAt,
+                    arrivalEstimateAt,
+                    rideStatus: input.rideStatus,
                     currency: "EUR",
-                    confirmedAt: new Date(),
-                },
-                {
-                    id: randomUUID(),
-                    passengerId: userCId,
-                    rideId: ride2Id,
-                    pickupStopId: r2s0,
-                    dropoffStopId: r2s1,
-                    seatCount: 1,
-                    bookingStatus: "PENDING",
-                    priceAmount: 6,
-                    currency: "EUR",
-                },
-                {
-                    id: randomUUID(),
-                    passengerId: userBId,
-                    rideId: ride1Id,
-                    pickupStopId: r1s1,
-                    dropoffStopId: r1s2,
-                    seatCount: 1,
-                    bookingStatus: "CONFIRMED",
-                    priceAmount: 4,
-                    currency: "EUR",
-                    confirmedAt: new Date(),
-                },
-            ]);
+                    stopIdsByOrder,
+                    priceBySegment: new Map(
+                        input.prices.map((price) => [
+                            segmentKey(
+                                price.startStopOrder,
+                                price.endStopOrder
+                            ),
+                            price.amount,
+                        ])
+                    ),
+                };
+            };
+
+            const seedBooking = async (input: {
+                ride: SeededRide;
+                passengerId: string;
+                pickupStopOrder: number;
+                dropoffStopOrder: number;
+                seatCount: number;
+                bookingStatus: BookingFixtureStatus;
+                createdAt?: Date;
+            }) => {
+                const pickupStopId = input.ride.stopIdsByOrder.get(
+                    input.pickupStopOrder
+                );
+                const dropoffStopId = input.ride.stopIdsByOrder.get(
+                    input.dropoffStopOrder
+                );
+                const segmentAmount = input.ride.priceBySegment.get(
+                    segmentKey(input.pickupStopOrder, input.dropoffStopOrder)
+                );
+
+                if (
+                    !pickupStopId ||
+                    !dropoffStopId ||
+                    segmentAmount === undefined
+                ) {
+                    throw new Error(
+                        `Invalid booking segment for fixture ride ${input.ride.id}`
+                    );
+                }
+
+                const createdAt =
+                    input.createdAt ??
+                    (input.ride.departureAt > new Date()
+                        ? addMinutes(new Date(), -120)
+                        : addMinutes(input.ride.departureAt, -3 * 24 * 60));
+                const confirmedAt =
+                    input.bookingStatus === "PENDING"
+                        ? null
+                        : addMinutes(createdAt, 90);
+                const completedAt =
+                    input.bookingStatus === "COMPLETED"
+                        ? addMinutes(input.ride.arrivalEstimateAt, 15)
+                        : null;
+                const updatedAt = completedAt ?? confirmedAt ?? createdAt;
+                const bookingId = randomUUID();
+
+                await tx.insert(bookings).values({
+                    id: bookingId,
+                    passengerId: input.passengerId,
+                    rideId: input.ride.id,
+                    pickupStopId,
+                    dropoffStopId,
+                    seatCount: input.seatCount,
+                    bookingStatus: input.bookingStatus,
+                    priceAmount: segmentAmount * input.seatCount,
+                    currency: input.ride.currency,
+                    confirmedAt,
+                    createdAt,
+                    updatedAt,
+                });
+
+                await tx.insert(bookingStatusHistory).values([
+                    {
+                        bookingId,
+                        newStatus: "PENDING" as const,
+                        changedByUserId: input.passengerId,
+                        reason: "Fixture booking requested",
+                        createdAt,
+                    },
+                    ...(confirmedAt
+                        ? [
+                              {
+                                  bookingId,
+                                  oldStatus: "PENDING" as const,
+                                  newStatus: "CONFIRMED" as const,
+                                  changedByUserId: input.ride.driverId,
+                                  reason: "Fixture booking confirmed",
+                                  createdAt: confirmedAt,
+                              },
+                          ]
+                        : []),
+                    ...(completedAt
+                        ? [
+                              {
+                                  bookingId,
+                                  oldStatus: "CONFIRMED" as const,
+                                  newStatus: "COMPLETED" as const,
+                                  changedByUserId: input.ride.driverId,
+                                  reason: "Fixture ride completed",
+                                  createdAt: completedAt,
+                              },
+                          ]
+                        : []),
+                ]);
+
+                return bookingId;
+            };
+
+            const seedReview = async (input: {
+                ride: SeededRide;
+                authorId: string;
+                subjectId: string;
+                rating: RatingFixture;
+                comment: string;
+                createdAt?: Date;
+            }) => {
+                if (input.ride.rideStatus !== "COMPLETED") {
+                    throw new Error(
+                        "Fixture reviews must target completed rides"
+                    );
+                }
+
+                const reviewId = randomUUID();
+                const createdAt =
+                    input.createdAt ??
+                    addMinutes(input.ride.arrivalEstimateAt, 6 * 60);
+
+                await tx.insert(reviews).values({
+                    id: reviewId,
+                    rideId: input.ride.id,
+                    authorId: input.authorId,
+                    subjectId: input.subjectId,
+                    rating: input.rating,
+                    comment: input.comment,
+                    reviewStatus: "VISIBLE",
+                    createdAt,
+                    updatedAt: createdAt,
+                });
+
+                await tx.insert(reviewStatusHistory).values({
+                    reviewId,
+                    newStatus: "VISIBLE",
+                    changedByUserId: input.authorId,
+                    reason: "Fixture review created",
+                    createdAt,
+                });
+
+                return reviewId;
+            };
+
+            // Completed past rides for Albert and other test drivers.
+            const albertPastNitra = await seedRide({
+                driverId: userAId,
+                carId: car1Id,
+                departureAt: dateAtOffset(-3, 8, 15),
+                durationMinutes: 105,
+                rideStatus: "COMPLETED",
+                offeredSeats: 3,
+                description: "Bratislava → Nitra cez Trnavu",
+                stops: [
+                    {
+                        address: "Hlavné námestie 1",
+                        city: "Bratislava",
+                        lat: 48.148598,
+                        lng: 17.107748,
+                        departureOffsetMinutes: 0,
+                    },
+                    {
+                        address: "Námestie sv. Trojice",
+                        city: "Trnava",
+                        lat: 48.377018,
+                        lng: 17.588771,
+                        arrivalOffsetMinutes: 35,
+                        departureOffsetMinutes: 40,
+                    },
+                    {
+                        address: "Námestie SNP",
+                        city: "Nitra",
+                        lat: 48.309085,
+                        lng: 18.086213,
+                        arrivalOffsetMinutes: 105,
+                    },
+                ],
+                prices: [
+                    { startStopOrder: 0, endStopOrder: 1, amount: 4 },
+                    { startStopOrder: 1, endStopOrder: 2, amount: 5 },
+                    { startStopOrder: 0, endStopOrder: 2, amount: 9 },
+                ],
+            });
+
+            const albertPastBratislava = await seedRide({
+                driverId: userAId,
+                carId: car3Id,
+                departureAt: dateAtOffset(-6, 15, 30),
+                durationMinutes: 120,
+                rideStatus: "COMPLETED",
+                offeredSeats: 2,
+                description: "Trenčín → Bratislava cez Trnavu",
+                stops: [
+                    {
+                        address: "Mierové námestie",
+                        city: "Trenčín",
+                        lat: 48.894028,
+                        lng: 18.042528,
+                        departureOffsetMinutes: 0,
+                    },
+                    {
+                        address: "Námestie sv. Trojice",
+                        city: "Trnava",
+                        lat: 48.377018,
+                        lng: 17.588771,
+                        arrivalOffsetMinutes: 75,
+                        departureOffsetMinutes: 80,
+                    },
+                    {
+                        address: "Autobusová stanica Nivy",
+                        city: "Bratislava",
+                        lat: 48.146237,
+                        lng: 17.126046,
+                        arrivalOffsetMinutes: 120,
+                    },
+                ],
+                prices: [
+                    { startStopOrder: 0, endStopOrder: 1, amount: 6 },
+                    { startStopOrder: 1, endStopOrder: 2, amount: 5 },
+                    { startStopOrder: 0, endStopOrder: 2, amount: 11 },
+                ],
+            });
+
+            const albertPastKosice = await seedRide({
+                driverId: userAId,
+                carId: car1Id,
+                departureAt: dateAtOffset(-10, 7, 0),
+                durationMinutes: 330,
+                rideStatus: "COMPLETED",
+                offeredSeats: 4,
+                description: "Bratislava → Košice cez Banskú Bystricu a Poprad",
+                stops: [
+                    {
+                        address: "Einsteinova 18",
+                        city: "Bratislava",
+                        lat: 48.133412,
+                        lng: 17.107498,
+                        departureOffsetMinutes: 0,
+                    },
+                    {
+                        address: "Námestie SNP 1",
+                        city: "Banská Bystrica",
+                        lat: 48.736277,
+                        lng: 19.146191,
+                        arrivalOffsetMinutes: 115,
+                        departureOffsetMinutes: 125,
+                    },
+                    {
+                        address: "Železničná stanica Poprad-Tatry",
+                        city: "Poprad",
+                        lat: 49.06144,
+                        lng: 20.29798,
+                        arrivalOffsetMinutes: 225,
+                        departureOffsetMinutes: 235,
+                    },
+                    {
+                        address: "Staničné námestie",
+                        city: "Košice",
+                        lat: 48.716385,
+                        lng: 21.261074,
+                        arrivalOffsetMinutes: 330,
+                    },
+                ],
+                prices: [
+                    { startStopOrder: 0, endStopOrder: 1, amount: 11 },
+                    { startStopOrder: 1, endStopOrder: 2, amount: 8 },
+                    { startStopOrder: 2, endStopOrder: 3, amount: 9 },
+                    { startStopOrder: 0, endStopOrder: 2, amount: 18 },
+                    { startStopOrder: 0, endStopOrder: 3, amount: 24 },
+                    { startStopOrder: 1, endStopOrder: 3, amount: 15 },
+                ],
+            });
+
+            const belaPastPresov = await seedRide({
+                driverId: userBId,
+                carId: car2Id,
+                departureAt: dateAtOffset(-4, 17, 15),
+                durationMinutes: 50,
+                rideStatus: "COMPLETED",
+                offeredSeats: 2,
+                description: "Košice → Prešov",
+                stops: [
+                    {
+                        address: "Hlavná 1",
+                        city: "Košice",
+                        lat: 48.716385,
+                        lng: 21.261074,
+                        departureOffsetMinutes: 0,
+                    },
+                    {
+                        address: "Masarykova 2",
+                        city: "Prešov",
+                        lat: 48.999569,
+                        lng: 21.239329,
+                        arrivalOffsetMinutes: 50,
+                    },
+                ],
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 6 }],
+            });
+
+            const belaPastZilina = await seedRide({
+                driverId: userBId,
+                carId: car2Id,
+                departureAt: dateAtOffset(-8, 6, 45),
+                durationMinutes: 210,
+                rideStatus: "COMPLETED",
+                offeredSeats: 3,
+                description: "Košice → Žilina cez Poprad",
+                stops: [
+                    {
+                        address: "Staničné námestie",
+                        city: "Košice",
+                        lat: 48.716385,
+                        lng: 21.261074,
+                        departureOffsetMinutes: 0,
+                    },
+                    {
+                        address: "Železničná stanica Poprad-Tatry",
+                        city: "Poprad",
+                        lat: 49.06144,
+                        lng: 20.29798,
+                        arrivalOffsetMinutes: 80,
+                        departureOffsetMinutes: 90,
+                    },
+                    {
+                        address: "Mariánske námestie",
+                        city: "Žilina",
+                        lat: 49.223467,
+                        lng: 18.739313,
+                        arrivalOffsetMinutes: 210,
+                    },
+                ],
+                prices: [
+                    { startStopOrder: 0, endStopOrder: 1, amount: 8 },
+                    { startStopOrder: 1, endStopOrder: 2, amount: 10 },
+                    { startStopOrder: 0, endStopOrder: 2, amount: 17 },
+                ],
+            });
+
+            // Future Albert rides covering no-passenger, pending and confirmed states.
+            await seedRide({
+                driverId: userAId,
+                carId: car1Id,
+                departureAt: dateAtOffset(2, 9, 0),
+                durationMinutes: 95,
+                rideStatus: "PLANNED",
+                offeredSeats: 3,
+                description: "Bratislava → Nitra, voľné všetky miesta",
+                stops: [
+                    {
+                        address: "Hlavná stanica",
+                        city: "Bratislava",
+                        lat: 48.15812,
+                        lng: 17.10674,
+                        departureOffsetMinutes: 0,
+                    },
+                    {
+                        address: "Námestie sv. Trojice",
+                        city: "Trnava",
+                        lat: 48.377018,
+                        lng: 17.588771,
+                        arrivalOffsetMinutes: 35,
+                        departureOffsetMinutes: 40,
+                    },
+                    {
+                        address: "Námestie SNP",
+                        city: "Nitra",
+                        lat: 48.309085,
+                        lng: 18.086213,
+                        arrivalOffsetMinutes: 95,
+                    },
+                ],
+                prices: [
+                    { startStopOrder: 0, endStopOrder: 1, amount: 5 },
+                    { startStopOrder: 1, endStopOrder: 2, amount: 6 },
+                    { startStopOrder: 0, endStopOrder: 2, amount: 10 },
+                ],
+            });
+
+            const albertUpcomingPending = await seedRide({
+                driverId: userAId,
+                carId: car3Id,
+                departureAt: dateAtOffset(4, 14, 30),
+                durationMinutes: 70,
+                rideStatus: "PLANNED",
+                offeredSeats: 3,
+                description: "Trenčín → Žilina, čakajúce žiadosti",
+                stops: [
+                    {
+                        address: "Mierové námestie",
+                        city: "Trenčín",
+                        lat: 48.894028,
+                        lng: 18.042528,
+                        departureOffsetMinutes: 0,
+                    },
+                    {
+                        address: "Mariánske námestie",
+                        city: "Žilina",
+                        lat: 49.223467,
+                        lng: 18.739313,
+                        arrivalOffsetMinutes: 70,
+                    },
+                ],
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 8 }],
+            });
+
+            const albertUpcomingConfirmed = await seedRide({
+                driverId: userAId,
+                carId: car1Id,
+                departureAt: dateAtOffset(7, 6, 45),
+                durationMinutes: 180,
+                rideStatus: "PLANNED",
+                offeredSeats: 4,
+                description: "Bratislava → Žilina s potvrdenými pasažiermi",
+                stops: [
+                    {
+                        address: "Autobusová stanica Nivy",
+                        city: "Bratislava",
+                        lat: 48.146237,
+                        lng: 17.126046,
+                        departureOffsetMinutes: 0,
+                    },
+                    {
+                        address: "Mierové námestie",
+                        city: "Trenčín",
+                        lat: 48.894028,
+                        lng: 18.042528,
+                        arrivalOffsetMinutes: 95,
+                        departureOffsetMinutes: 105,
+                    },
+                    {
+                        address: "Mariánske námestie",
+                        city: "Žilina",
+                        lat: 49.223467,
+                        lng: 18.739313,
+                        arrivalOffsetMinutes: 180,
+                    },
+                ],
+                prices: [
+                    { startStopOrder: 0, endStopOrder: 1, amount: 11 },
+                    { startStopOrder: 1, endStopOrder: 2, amount: 8 },
+                    { startStopOrder: 0, endStopOrder: 2, amount: 17 },
+                ],
+            });
+
+            await seedBooking({
+                ride: albertPastNitra,
+                passengerId: userCId,
+                pickupStopOrder: 0,
+                dropoffStopOrder: 2,
+                seatCount: 1,
+                bookingStatus: "COMPLETED",
+            });
+            await seedBooking({
+                ride: albertPastNitra,
+                passengerId: passengerAdamId,
+                pickupStopOrder: 0,
+                dropoffStopOrder: 1,
+                seatCount: 1,
+                bookingStatus: "COMPLETED",
+            });
+            await seedBooking({
+                ride: albertPastBratislava,
+                passengerId: userBId,
+                pickupStopOrder: 0,
+                dropoffStopOrder: 2,
+                seatCount: 1,
+                bookingStatus: "COMPLETED",
+            });
+            await seedBooking({
+                ride: albertPastBratislava,
+                passengerId: passengerEvaId,
+                pickupStopOrder: 1,
+                dropoffStopOrder: 2,
+                seatCount: 1,
+                bookingStatus: "COMPLETED",
+            });
+            await seedBooking({
+                ride: albertPastKosice,
+                passengerId: userCId,
+                pickupStopOrder: 0,
+                dropoffStopOrder: 3,
+                seatCount: 1,
+                bookingStatus: "COMPLETED",
+            });
+            await seedBooking({
+                ride: albertPastKosice,
+                passengerId: passengerLuciaId,
+                pickupStopOrder: 1,
+                dropoffStopOrder: 2,
+                seatCount: 2,
+                bookingStatus: "COMPLETED",
+            });
+            await seedBooking({
+                ride: belaPastPresov,
+                passengerId: userCId,
+                pickupStopOrder: 0,
+                dropoffStopOrder: 1,
+                seatCount: 1,
+                bookingStatus: "COMPLETED",
+            });
+            await seedBooking({
+                ride: belaPastPresov,
+                passengerId: userAId,
+                pickupStopOrder: 0,
+                dropoffStopOrder: 1,
+                seatCount: 1,
+                bookingStatus: "COMPLETED",
+            });
+            await seedBooking({
+                ride: belaPastZilina,
+                passengerId: passengerAdamId,
+                pickupStopOrder: 0,
+                dropoffStopOrder: 2,
+                seatCount: 1,
+                bookingStatus: "COMPLETED",
+            });
+            await seedBooking({
+                ride: belaPastZilina,
+                passengerId: passengerEvaId,
+                pickupStopOrder: 1,
+                dropoffStopOrder: 2,
+                seatCount: 1,
+                bookingStatus: "COMPLETED",
+            });
+            await seedBooking({
+                ride: albertUpcomingPending,
+                passengerId: userCId,
+                pickupStopOrder: 0,
+                dropoffStopOrder: 1,
+                seatCount: 1,
+                bookingStatus: "PENDING",
+            });
+            await seedBooking({
+                ride: albertUpcomingPending,
+                passengerId: passengerAdamId,
+                pickupStopOrder: 0,
+                dropoffStopOrder: 1,
+                seatCount: 1,
+                bookingStatus: "PENDING",
+            });
+            await seedBooking({
+                ride: albertUpcomingConfirmed,
+                passengerId: userCId,
+                pickupStopOrder: 0,
+                dropoffStopOrder: 2,
+                seatCount: 1,
+                bookingStatus: "CONFIRMED",
+            });
+            await seedBooking({
+                ride: albertUpcomingConfirmed,
+                passengerId: passengerEvaId,
+                pickupStopOrder: 1,
+                dropoffStopOrder: 2,
+                seatCount: 2,
+                bookingStatus: "CONFIRMED",
+            });
+
+            await seedReview({
+                ride: albertPastNitra,
+                authorId: userCId,
+                subjectId: userAId,
+                rating: 5,
+                comment:
+                    "Albert prišiel načas, auto bolo čisté a cesta ubehla veľmi pohodovo.",
+            });
+            await seedReview({
+                ride: albertPastNitra,
+                authorId: passengerAdamId,
+                subjectId: userAId,
+                rating: 4,
+                comment:
+                    "Dobrá komunikácia pred odchodom a bezpečná jazda do Trnavy.",
+            });
+            await seedReview({
+                ride: albertPastNitra,
+                authorId: userAId,
+                subjectId: userCId,
+                rating: 5,
+                comment:
+                    "Cyril bol pripravený na zastávke a jazda s ním bola bez problémov.",
+            });
+            await seedReview({
+                ride: albertPastNitra,
+                authorId: userAId,
+                subjectId: passengerAdamId,
+                rating: 4,
+                comment:
+                    "Milý spolucestujúci, nastúpil načas a dal vedieť všetko potrebné.",
+            });
+            await seedReview({
+                ride: albertPastBratislava,
+                authorId: userBId,
+                subjectId: userAId,
+                rating: 5,
+                comment:
+                    "Plynulá jazda a príjemná debata, určite by som išiel znovu.",
+            });
+            await seedReview({
+                ride: albertPastBratislava,
+                authorId: passengerEvaId,
+                subjectId: userAId,
+                rating: 5,
+                comment:
+                    "Albert bol ochotný zastaviť v Trnave a všetko prebehlo presne podľa dohody.",
+            });
+            await seedReview({
+                ride: albertPastBratislava,
+                authorId: userAId,
+                subjectId: userBId,
+                rating: 4,
+                comment:
+                    "Bela komunikoval jasne a na nástup prišiel s predstihom.",
+            });
+            await seedReview({
+                ride: albertPastBratislava,
+                authorId: userAId,
+                subjectId: passengerEvaId,
+                rating: 5,
+                comment: "Bezproblémová pasažierka, príjemná a spoľahlivá.",
+            });
+            await seedReview({
+                ride: albertPastKosice,
+                authorId: userCId,
+                subjectId: userAId,
+                rating: 4,
+                comment:
+                    "Dlhšia cesta bola dobre naplánovaná, prestávky aj časy sedeli.",
+            });
+            await seedReview({
+                ride: albertPastKosice,
+                authorId: passengerLuciaId,
+                subjectId: userAId,
+                rating: 5,
+                comment: "Výborný vodič, pokojná jazda a férová cena za trasu.",
+            });
+            await seedReview({
+                ride: albertPastKosice,
+                authorId: userAId,
+                subjectId: passengerLuciaId,
+                rating: 5,
+                comment:
+                    "Lucia bola veľmi príjemná a s miestami pre batožinu sme sa dohodli vopred.",
+            });
+            await seedReview({
+                ride: belaPastPresov,
+                authorId: userCId,
+                subjectId: userBId,
+                rating: 5,
+                comment: "Bela poznal trasu, jazda bola rýchla a bezpečná.",
+            });
+            await seedReview({
+                ride: belaPastPresov,
+                authorId: userAId,
+                subjectId: userBId,
+                rating: 4,
+                comment:
+                    "Dobrá jazda medzi Košicami a Prešovom, všetko podľa plánu.",
+            });
+            await seedReview({
+                ride: belaPastPresov,
+                authorId: userBId,
+                subjectId: userCId,
+                rating: 5,
+                comment: "Cyril bol presný a dal včas vedieť, kde nastúpi.",
+            });
+            await seedReview({
+                ride: belaPastPresov,
+                authorId: userBId,
+                subjectId: userAId,
+                rating: 5,
+                comment:
+                    "Albert ako pasažier bol spoľahlivý a príjemný spoločník.",
+            });
+            await seedReview({
+                ride: belaPastZilina,
+                authorId: passengerAdamId,
+                subjectId: userBId,
+                rating: 4,
+                comment: "Spoľahlivá jazda s krátkou prestávkou v Poprade.",
+            });
+            await seedReview({
+                ride: belaPastZilina,
+                authorId: passengerEvaId,
+                subjectId: userBId,
+                rating: 5,
+                comment:
+                    "Bela bol ústretový pri čase nástupu a cesta bola pohodlná.",
+            });
+            await seedReview({
+                ride: belaPastZilina,
+                authorId: userBId,
+                subjectId: passengerAdamId,
+                rating: 4,
+                comment:
+                    "Adam nastúpil presne a cesta prebehla bez komplikácií.",
+            });
+            await seedReview({
+                ride: belaPastZilina,
+                authorId: userBId,
+                subjectId: passengerEvaId,
+                rating: 5,
+                comment:
+                    "Eva bola pripravená a komunikácia bola veľmi jednoduchá.",
+            });
         });
 
         // Set email/password credentials for designated dev users. Uses

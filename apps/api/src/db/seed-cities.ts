@@ -122,15 +122,18 @@ const extractTsv = async (
 };
 
 // Drizzle's `.values()` rejects empty arrays; filter callers must check.
-const parseTsv = (tsv: string, country: CountryCode): CityRow[] => {
-    const out: CityRow[] = [];
+// Raw row including featureCode so we can impute missing populations
+type RawRow = CityRow & { featureCode: string | null };
+
+const parseTsv = (tsv: string, country: CountryCode): RawRow[] => {
+    const out: RawRow[] = [];
     for (const line of tsv.split("\n")) {
         if (!line) continue;
         const cols = line.split("\t");
         if (cols.length < 19) continue;
 
         const featureClass = cols[6];
-        const featureCode = cols[7];
+        const featureCode = cols[7] ?? null;
         if (featureClass !== "P") continue;
         if (!featureCode || !ALLOWED_FEATURE_CODES.has(featureCode)) continue;
 
@@ -145,8 +148,6 @@ const parseTsv = (tsv: string, country: CountryCode): CityRow[] => {
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
         if (!name) continue;
 
-        // Normalize from the overridden name so search keys match the
-        // displayed label ("praha" not "prague") for outliers.
         const nameNormalized = normalizeForSearch(name);
         if (!nameNormalized) continue;
 
@@ -157,9 +158,8 @@ const parseTsv = (tsv: string, country: CountryCode): CityRow[] => {
             countryCode: country,
             lat,
             lng,
-            population: Number.isFinite(population)
-                ? Math.max(0, population)
-                : 0,
+            population: Number.isFinite(population) ? Math.max(0, population) : 0,
+            featureCode,
         });
     }
     return out;
@@ -168,33 +168,102 @@ const parseTsv = (tsv: string, country: CountryCode): CityRow[] => {
 // GeoNames sometimes lists the same place under multiple feature codes
 // (a town and its admin-seat alias). Collapse to one row per
 // (name_normalized, country_code) — the unique constraint requires it.
-const dedupe = (rows: CityRow[]): CityRow[] => {
-    const winners = new Map<string, CityRow>();
+// Dedupe raw rows, preferring the row with the largest (non-zero) population
+const dedupeRaw = (rows: RawRow[]): RawRow[] => {
+    const winners = new Map<string, RawRow>();
     for (const row of rows) {
         const key = `${row.nameNormalized}|${row.countryCode}`;
         const prev = winners.get(key);
-        if (!prev || (row.population ?? 0) > (prev.population ?? 0)) {
+        if (!prev) {
+            winners.set(key, row);
+            continue;
+        }
+        const prevPop = prev.population ?? 0;
+        const curPop = row.population ?? 0;
+        // Prefer larger population; if equal prefer non-zero; otherwise keep prev
+        if (curPop > prevPop || (curPop === prevPop && curPop > 0 && prevPop === 0)) {
             winners.set(key, row);
         }
     }
     return [...winners.values()];
 };
 
+// Compute median helper
+const median = (arr: number[]) => {
+    if (!arr.length) return 0;
+    const s = arr.slice().sort((a, b) => a - b);
+    const mid = Math.floor(s.length / 2);
+    return s.length % 2 === 0 ? Math.round((s[mid - 1] + s[mid]) / 2) : s[mid];
+};
+
 async function main() {
     try {
-        const all: CityRow[] = [];
+        // Collect deduped raw rows from all countries first so we can
+        // compute population statistics and impute missing values.
+        const allRaw: RawRow[] = [];
 
         for (const country of COUNTRIES) {
             console.log(`Processing ${country}...`);
             const zipPath = await downloadIfMissing(country);
             const tsv = await extractTsv(zipPath, country);
             const parsed = parseTsv(tsv, country);
-            const deduped = dedupe(parsed);
+            const deduped = dedupeRaw(parsed);
             console.log(
                 `  ${country}: ${parsed.length} populated places → ${deduped.length} after dedup`
             );
-            all.push(...deduped);
+            allRaw.push(...deduped);
         }
+
+        // Build per-featureCode population arrays (only non-zero values)
+        const popByFeature = new Map<string, number[]>();
+        const overallPops: number[] = [];
+        for (const r of allRaw) {
+            const p = r.population ?? 0;
+            if (p > 0) {
+                overallPops.push(p);
+                if (r.featureCode) {
+                    const arr = popByFeature.get(r.featureCode) ?? [];
+                    arr.push(p);
+                    popByFeature.set(r.featureCode, arr);
+                }
+            }
+        }
+
+        const medianByFeature = new Map<string, number>();
+        for (const [k, arr] of popByFeature.entries()) {
+            medianByFeature.set(k, median(arr));
+        }
+        const overallMedian = median(overallPops) || 1000;
+
+        // sensible fallbacks when no median exists for a feature code
+        const FALLBACK_BY_FEATURE: Record<string, number> = {
+            PPLC: 200000,
+            PPLA: 30000,
+            PPLA2: 10000,
+            PPLA3: 5000,
+            PPLA4: 2000,
+            PPLG: 2000,
+            PPLS: 1000,
+            PPL: 1500,
+        };
+
+        // Map RawRow -> CityRow with imputed population
+        const all: CityRow[] = allRaw.map((r) => {
+            let pop = r.population ?? 0;
+            if (!pop || pop <= 0) {
+                const med = r.featureCode ? medianByFeature.get(r.featureCode) : undefined;
+                pop = med && med > 0 ? med : FALLBACK_BY_FEATURE[r.featureCode ?? ""] ?? overallMedian;
+            }
+            return {
+                externalId: r.externalId,
+                name: r.name,
+                nameNormalized: r.nameNormalized,
+                countryCode: r.countryCode,
+                lat: r.lat,
+                lng: r.lng,
+                population: pop,
+            } as CityRow;
+        });
 
         // Reset to "current GeoNames + overrides" rather than upserting:
         // cities has TWO unique constraints (external_id and
