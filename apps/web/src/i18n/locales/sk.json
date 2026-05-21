@@ -26,7 +26,9 @@
         "createAccount": "Vytvoriť účet",
         "invalidEmail": "Zadajte platný e-mail.",
         "passwordTooShort": "Heslo musí mať aspoň 8 znakov.",
-        "error": "Prihlásenie zlyhalo. Skontrolujte údaje a skúste to znova."
+        "error": "Prihlásenie zlyhalo. Skontrolujte údaje a skúste to znova.",
+        "banned": "Váš účet bol zablokovaný.",
+        "suspended": "Váš účet bol pozastavený."
     },
     "register": {
         "title": "Vytvoriť účet",
@@ -58,7 +60,6 @@
         "firstNameRequired": "Zadajte meno.",
         "lastNameRequired": "Zadajte priezvisko.",
         "phoneRequired": "Zadajte telefónne číslo.",
-        "requiredError": "Zadajte meno, priezvisko a telefónne číslo.",
         "phoneError": "Použite medzinárodný formát, napríklad +421900123456.",
         "nameTooLong": "Meno môže mať najviac 20 znakov.",
         "nameNoSpaces": "Meno musí byť jedno slovo bez medzier.",
@@ -302,7 +303,8 @@
     },
     "editProfile": {
         "title": "Upraviť profil",
-        "fullName": "Celé meno",
+        "firstName": "Meno",
+        "lastName": "Priezvisko",
         "email": "E-mailová adresa",
         "phone": "Telefónne číslo",
         "aboutMe": "O mne",

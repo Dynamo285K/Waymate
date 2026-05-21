@@ -162,6 +162,7 @@ export function DriverNavbar({
                     className="driver-navbar__dropdown"
                     sideOffset={12}
                     align="end"
+                    data-theme={theme}
                 >
                     <ProfileDropdown
                         name={userName}

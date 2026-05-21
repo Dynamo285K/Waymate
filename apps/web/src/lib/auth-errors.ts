@@ -46,6 +46,17 @@ export function getEmailAuthErrorI18nKey(
     error: AuthClientError,
     fallback: string
 ): string {
+    const code = (error.code ?? "").toUpperCase();
+    const message = (error.message ?? "").toUpperCase();
+
+    if (code === "USER_BANNED" || message.includes("USER_BANNED")) {
+        return "login.banned";
+    }
+
+    if (code === "USER_SUSPENDED" || message.includes("USER_SUSPENDED")) {
+        return "login.suspended";
+    }
+
     if (error.status && error.status >= 500) return "errors.server";
     return fallback;
 }

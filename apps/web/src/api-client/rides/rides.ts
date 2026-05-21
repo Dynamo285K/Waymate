@@ -25,6 +25,8 @@ import type {
     AvailableRideList,
     CancelRideBody,
     CancelRideResponse,
+    CompleteRideBody,
+    CompleteRideResponse,
     CreateRideBody,
     CreateRideResponse,
     ErrorResponse,
@@ -885,6 +887,94 @@ export const usePatchRidesByIdCancel = <
     TContext
 > => {
     const mutationOptions = getPatchRidesByIdCancelMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+/**
+ * Marks the driver's ride as COMPLETED and carries confirmed bookings to COMPLETED, opening the review window
+ */
+export const getPatchRidesByIdCompleteUrl = (id: RideId) => {
+    return `/rides/${id}/complete`;
+};
+
+export const patchRidesByIdComplete = async (
+    id: RideId,
+    completeRideBody: CompleteRideBody,
+    options?: RequestInit
+): Promise<CompleteRideResponse> => {
+    return apiFetcher<CompleteRideResponse>(getPatchRidesByIdCompleteUrl(id), {
+        ...options,
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", ...options?.headers },
+        body: JSON.stringify(completeRideBody),
+    });
+};
+
+export const getPatchRidesByIdCompleteMutationOptions = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof patchRidesByIdComplete>>,
+        TError,
+        { id: RideId; data: CompleteRideBody },
+        TContext
+    >;
+    request?: SecondParameter<typeof apiFetcher>;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof patchRidesByIdComplete>>,
+    TError,
+    { id: RideId; data: CompleteRideBody },
+    TContext
+> => {
+    const mutationKey = ["patchRidesByIdComplete"];
+    const { mutation: mutationOptions, request: requestOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey }, request: undefined };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof patchRidesByIdComplete>>,
+        { id: RideId; data: CompleteRideBody }
+    > = (props) => {
+        const { id, data } = props ?? {};
+
+        return patchRidesByIdComplete(id, data, requestOptions);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type PatchRidesByIdCompleteMutationResult = NonNullable<
+    Awaited<ReturnType<typeof patchRidesByIdComplete>>
+>;
+export type PatchRidesByIdCompleteMutationBody = CompleteRideBody;
+export type PatchRidesByIdCompleteMutationError = ErrorResponse;
+
+export const usePatchRidesByIdComplete = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof patchRidesByIdComplete>>,
+            TError,
+            { id: RideId; data: CompleteRideBody },
+            TContext
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseMutationResult<
+    Awaited<ReturnType<typeof patchRidesByIdComplete>>,
+    TError,
+    { id: RideId; data: CompleteRideBody },
+    TContext
+> => {
+    const mutationOptions = getPatchRidesByIdCompleteMutationOptions(options);
 
     return useMutation(mutationOptions, queryClient);
 };

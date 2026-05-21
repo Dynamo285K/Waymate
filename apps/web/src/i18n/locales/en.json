@@ -26,7 +26,9 @@
         "createAccount": "Create account",
         "invalidEmail": "Enter a valid email address.",
         "passwordTooShort": "Password must be at least 8 characters.",
-        "error": "Login failed. Please check your credentials and try again."
+        "error": "Login failed. Please check your credentials and try again.",
+        "banned": "Your account has been banned.",
+        "suspended": "Your account has been suspended."
     },
     "register": {
         "title": "Create account",
@@ -58,7 +60,6 @@
         "firstNameRequired": "Enter your first name.",
         "lastNameRequired": "Enter your last name.",
         "phoneRequired": "Enter your phone number.",
-        "requiredError": "Enter your first name, last name, and phone number.",
         "phoneError": "Use an international phone number, for example +421900123456.",
         "nameTooLong": "Name can be at most 20 characters.",
         "nameNoSpaces": "Name must be a single word, without spaces.",
@@ -302,7 +303,8 @@
     },
     "editProfile": {
         "title": "Edit Profile",
-        "fullName": "Full name",
+        "firstName": "First name",
+        "lastName": "Last name",
         "email": "Email address",
         "phone": "Phone number",
         "aboutMe": "About me",

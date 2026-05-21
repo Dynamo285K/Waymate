@@ -184,6 +184,7 @@ async function main() {
                         phone: `+42190010${String(n).padStart(4, "0")}`,
                         createdAt: new Date(Date.now() - n * 3600 * 1000),
                         userStatus,
+                        banned: userStatus === "BANNED",
                     };
                 }
             );

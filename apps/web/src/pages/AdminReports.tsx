@@ -202,6 +202,7 @@ export function AdminReportsPage({
             {selectedReportId && (
                 <ReportDetailModal
                     key={selectedReportId}
+                    theme={theme}
                     reportId={selectedReportId}
                     isThisReportMutating={detailIsMutating}
                     mutationErrorForThisReport={detailErrorForReport}
@@ -213,6 +214,7 @@ export function AdminReportsPage({
             {selectedReportId && pendingStatus && (
                 <SetReportStatusModal
                     key={`${selectedReportId}-${pendingStatus}`}
+                    theme={theme}
                     targetStatus={pendingStatus}
                     isPending={rowMutatingId === selectedReportId}
                     error={modalError}

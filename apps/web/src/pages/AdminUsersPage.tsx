@@ -205,6 +205,7 @@ export function AdminUsersPage({
             {selectedUserId && (
                 <UserDetailModal
                     key={selectedUserId}
+                    theme={theme}
                     userId={selectedUserId}
                     isSelf={selectedUserId === userId}
                     isThisUserMutating={detailIsMutating}
@@ -231,6 +232,7 @@ export function AdminUsersPage({
             {banTarget && (
                 <BanUserModal
                     key={banTarget.id}
+                    theme={theme}
                     userName={
                         fullName(banTarget.firstName, banTarget.lastName) ||
                         banTarget.email

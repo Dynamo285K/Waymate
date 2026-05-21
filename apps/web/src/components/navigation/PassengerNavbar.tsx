@@ -145,6 +145,7 @@ export function PassengerNavbar({
                     className="passenger-navbar__dropdown"
                     sideOffset={12}
                     align="end"
+                    data-theme={theme}
                 >
                     <ProfileDropdown
                         name={userName}

@@ -256,6 +256,7 @@ export function AdminNavbar({
                     className="admin-navbar__dropdown"
                     sideOffset={12}
                     align="end"
+                    data-theme={theme}
                 >
                     <AdminProfileDropdown
                         name={userName}

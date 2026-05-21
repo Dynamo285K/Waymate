@@ -11,6 +11,7 @@ import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
+import { useGetUsersMe } from "../api-client/users/users";
 import { CURRENT_USER_QUERY_KEY, updateCurrentUserProfile } from "../lib/auth";
 import { getErrorI18nKey } from "../lib/api-errors";
 import {
@@ -26,8 +27,6 @@ type EditProfilePageProps = {
     onThemeToggle: () => void;
     userName?: string;
     userEmail?: string;
-    userPhone?: string;
-    userBio?: string;
 };
 
 // `fullName` is split into first/last name before being sent to the API,
@@ -64,8 +63,6 @@ export function EditProfilePage({
     onThemeToggle,
     userName,
     userEmail,
-    userPhone,
-    userBio,
 }: EditProfilePageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -76,6 +73,8 @@ export function EditProfilePage({
         "passenger";
     const backPath =
         role === "driver" ? "/driver/profile" : "/passenger/profile";
+
+    const { data: currentUser } = useGetUsersMe({ query: { retry: false } });
 
     const {
         register,
@@ -105,12 +104,10 @@ export function EditProfilePage({
     });
 
     const onSubmit: SubmitHandler<ProfileFormValues> = (values) => {
-        const { firstName, lastName } = splitFullName(values.fullName);
-
         updateProfile.mutate({
-            firstName,
-            lastName,
-            displayName: firstName,
+            firstName: values.firstName.trim(),
+            lastName: values.lastName.trim(),
+            displayName: values.firstName.trim(),
             phone: values.phone.trim(),
             bio: values.about.trim(),
         });
@@ -159,8 +156,9 @@ export function EditProfilePage({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1">
                             <Input
-                                label={t("editProfile.fullName")}
-                                {...register("fullName")}
+                                label={t("editProfile.firstName")}
+                                {...register("firstName")}
+                                autoComplete="given-name"
                             />
                             <FieldError>
                                 {errors.fullName?.message &&
@@ -178,6 +176,7 @@ export function EditProfilePage({
                             <Input
                                 label={t("editProfile.phone")}
                                 {...register("phone")}
+                                autoComplete="tel"
                             />
                             <FieldError>
                                 {errors.phone?.message &&
@@ -239,17 +238,4 @@ export function EditProfilePage({
             </section>
         </div>
     );
-}
-
-function splitFullName(fullName: string) {
-    const parts = fullName.trim().split(/\s+/).filter(Boolean);
-    const formatNamePart = (value: string) =>
-        value ? value.charAt(0).toLocaleUpperCase() + value.slice(1) : "";
-    const firstName = formatNamePart(parts[0] ?? "");
-    const lastName = formatNamePart(parts.slice(1).join(""));
-
-    return {
-        firstName: firstName || undefined,
-        lastName: lastName || undefined,
-    };
 }

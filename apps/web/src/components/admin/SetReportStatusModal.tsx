@@ -7,6 +7,7 @@ import { adminReportsErrorMap } from "../../lib/admin-report-errors";
 import { useReportStatusLabels } from "../../lib/admin-report-labels";
 
 type SetReportStatusModalProps = {
+    theme: "light" | "dark";
     targetStatus: ReportStatus;
     isPending: boolean;
     error: unknown;
@@ -20,6 +21,7 @@ type SetReportStatusModalProps = {
 const REQUIRES_REASON: ReadonlyArray<ReportStatus> = ["RESOLVED", "DISMISSED"];
 
 export function SetReportStatusModal({
+    theme,
     targetStatus,
     isPending,
     error,
@@ -46,6 +48,7 @@ export function SetReportStatusModal({
         <Modal
             open={true}
             onClose={onClose}
+            theme={theme}
         >
             <div className="w-[calc(100vw-2rem)] max-w-lg p-8">
                 <div className="flex justify-between items-center mb-5">
