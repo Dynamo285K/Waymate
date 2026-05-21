@@ -55,10 +55,7 @@ export async function createSignInUser(options: CreateSignInUserOptions = {}) {
  * value carrying the session token — replay it on later requests via
  * {@link authenticatedRequest}.
  */
-export async function signIn(
-    email: string,
-    password: string
-): Promise<string> {
+export async function signIn(email: string, password: string): Promise<string> {
     const response = await apiRequest("/api/auth/sign-in/email", {
         method: "POST",
         headers: { "content-type": "application/json" },

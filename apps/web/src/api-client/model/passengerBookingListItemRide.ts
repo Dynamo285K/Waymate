@@ -11,5 +11,7 @@ import type { RideStatus } from "./rideStatus";
 export type PassengerBookingListItemRide = {
     id: RideId;
     departureAt: string;
+    /** @nullable */
+    arrivalEstimateAt: string | null;
     rideStatus: RideStatus;
 };

@@ -8,7 +8,7 @@ import { useRideSearch } from "../hooks/useRideSearch";
 import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
 import { useGetRidesAvailable } from "../api-client/rides/rides";
 import { getErrorI18nKey } from "../lib/api-errors";
-import { formatRideDate } from "../lib/date-format";
+import { formatRideDate, formatDuration } from "../lib/date-format";
 
 type RidesPageProps = {
     language: Language;
@@ -77,6 +77,10 @@ export function RidesPage({
                       ride.pickupStop.plannedDepartureAt ?? ride.departureAt
                   ),
                   seatsLeft: ride.seatsLeft,
+                  duration: formatDuration(
+                      ride.departureAt,
+                      ride.arrivalEstimateAt
+                  ),
                   driverName: driverName || t("roles.driver"),
                   driverRating: ride.driver.averageRating ?? 0,
                   price: ride.priceAmount ?? 0,
@@ -174,6 +178,7 @@ export function RidesPage({
                                         ride.date,
                                         t("home.at")
                                     )}
+                                    duration={ride.duration}
                                     seatsLeft={ride.seatsLeft}
                                     driverName={ride.driverName}
                                     driverRating={ride.driverRating}
@@ -204,6 +209,10 @@ export function RidesPage({
                                             ride.departureAt
                                     ),
                                     t("home.at")
+                                )}
+                                duration={formatDuration(
+                                    ride.departureAt,
+                                    ride.arrivalEstimateAt
                                 )}
                                 seatsLeft={ride.seatsLeft}
                                 driverName={`${ride.driver.firstName} ${ride.driver.lastName}`}

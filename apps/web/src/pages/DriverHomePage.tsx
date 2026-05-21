@@ -9,7 +9,10 @@ import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { RideCard } from "../components/RideCard";
 import { RideRequestCard } from "../components/RideRequestCard";
-import { formatRideDate as formatDate } from "../lib/date-format";
+import {
+    formatRideDate as formatDate,
+    formatDuration,
+} from "../lib/date-format";
 import {
     useGetRidesMe,
     usePatchRidesByIdComplete,
@@ -214,6 +217,10 @@ export function DriverHomePage({
                 price: ride.prices[0]?.amount ?? 0,
                 seatsLeft:
                     remainingSeats > 0 ? remainingSeats : ("full" as const),
+                duration: formatDuration(
+                    ride.departureAt,
+                    ride.arrivalEstimateAt
+                ),
             };
         }) ?? [];
 
@@ -331,6 +338,7 @@ export function DriverHomePage({
                                     )}
                                     price={ride.price}
                                     seatsLeft={ride.seatsLeft}
+                                    duration={ride.duration}
                                     onViewPassengers={() =>
                                         navigate("/driver/rides/passengers", {
                                             state: { ride },

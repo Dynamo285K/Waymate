@@ -358,7 +358,8 @@
         "invalidPriceError": "Must be a whole number above 0.",
         "pastDeparture": "Pick a departure time in the future.",
         "plateLength": "License plate must be {{min}}-{{max}} characters.",
-        "carCreateError": "Could not save this car. Please check the car details."
+        "carCreateError": "Could not save this car. Please check the car details.",
+        "duration": "Duration"
     },
     "rideRequests": {
         "title": "Ride Requests",

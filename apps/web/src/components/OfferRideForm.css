@@ -56,6 +56,10 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.offer-ride-form__grid--three-columns {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 /* Time picker — Radix Select */
 .offer-ride-form__time-trigger {
     width: 100%;
@@ -296,7 +300,8 @@
 }
 
 @media (max-width: 768px) {
-    .offer-ride-form__grid--two-columns {
+    .offer-ride-form__grid--two-columns,
+    .offer-ride-form__grid--three-columns {
         grid-template-columns: 1fr;
     }
 }

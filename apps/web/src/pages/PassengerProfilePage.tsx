@@ -10,7 +10,7 @@ import { RideCard } from "../components/RideCard";
 import { useGetBookingsMe } from "../api-client/bookings/bookings";
 import { useGetReviewsUsersByUserId } from "../api-client/reviews/reviews";
 import { getErrorI18nKey } from "../lib/api-errors";
-import { formatRideDate } from "../lib/date-format";
+import { formatRideDate, formatDuration } from "../lib/date-format";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 
 type PassengerProfilePageProps = {
@@ -73,6 +73,10 @@ export function PassengerProfilePage({
             to: booking.dropoffCity,
             date: booking.ride.departureAt,
             price: booking.priceAmount,
+            duration: formatDuration(
+                booking.ride.departureAt,
+                booking.ride.arrivalEstimateAt
+            ),
             driverName:
                 `${booking.driver.firstName ?? ""} ${
                     booking.driver.lastName ?? ""
@@ -168,6 +172,7 @@ export function PassengerProfilePage({
                                     t("home.at")
                                 )}
                                 price={ride.price}
+                                duration={ride.duration}
                                 seatsLeft={ride.seatsLeft}
                                 driverName={ride.driverName}
                                 driverRating={ride.driverRating}

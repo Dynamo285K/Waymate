@@ -16,7 +16,7 @@ import {
 import { useCancelRide } from "../hooks/useCancelRide";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { getErrorI18nKey } from "../lib/api-errors";
-import { formatRideDate } from "../lib/date-format";
+import { formatRideDate, formatDuration } from "../lib/date-format";
 import type { ApiMutationError } from "../lib/api-fetcher";
 
 type DriverMyRidesPageProps = {
@@ -95,6 +95,10 @@ export function DriverMyRidesPage({
                 date: ride.departureAt,
                 price,
                 seatsLeft,
+                duration: formatDuration(
+                    ride.departureAt,
+                    ride.arrivalEstimateAt
+                ),
             };
         }) ?? [];
 
@@ -208,6 +212,7 @@ export function DriverMyRidesPage({
                                     )}
                                     price={ride.price}
                                     seatsLeft={ride.seatsLeft}
+                                    duration={ride.duration}
                                     onViewPassengers={() =>
                                         navigate("/driver/rides/passengers", {
                                             state: { ride },
@@ -247,6 +252,7 @@ export function DriverMyRidesPage({
                                         t("home.at")
                                     )}
                                     price={ride.price}
+                                    duration={ride.duration}
                                     onRatePassengers={() =>
                                         navigate("/driver/rides/rate", {
                                             state: { ride },

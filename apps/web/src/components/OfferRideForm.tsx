@@ -38,6 +38,7 @@ export type OfferRideFormLabels = {
     dateTimeSection?: string;
     date?: string;
     time?: string;
+    duration?: string;
     seatsPriceSection?: string;
     availableSeats?: string;
     seatsPlaceholder?: string;
@@ -79,6 +80,11 @@ export type OfferRideFormProps = {
     onTimeChange?: (time: string) => void;
     timeOptions?: string[];
     timeError?: string;
+    durationHours?: string;
+    onDurationHoursChange?: (value: string) => void;
+    durationMinutes?: string;
+    onDurationMinutesChange?: (value: string) => void;
+    durationError?: string;
     seats?: string;
     onSeatsChange?: (value: string) => void;
     seatsError?: string;
@@ -114,6 +120,14 @@ const DEFAULT_TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
     return `${String(h).padStart(2, "0")}:${m}`;
 });
 
+function clampDurationInput(value: string, max: number): string {
+    if (value === "") return "";
+    const n = Number.parseInt(value, 10);
+    if (Number.isNaN(n) || n < 0) return "0";
+    if (n > max) return String(max);
+    return String(n);
+}
+
 export function OfferRideForm({
     labels,
     pickupCity = null,
@@ -131,6 +145,11 @@ export function OfferRideForm({
     onTimeChange,
     timeOptions = DEFAULT_TIME_OPTIONS,
     timeError,
+    durationHours = "",
+    onDurationHoursChange,
+    durationMinutes = "",
+    onDurationMinutesChange,
+    durationError,
     seats = "",
     onSeatsChange,
     seatsError,
@@ -225,7 +244,7 @@ export function OfferRideForm({
                 <FormSectionCard
                     title={labels?.dateTimeSection ?? "Date & Time"}
                 >
-                    <div className="offer-ride-form__grid offer-ride-form__grid--two-columns">
+                    <div className="offer-ride-form__grid offer-ride-form__grid--three-columns">
                         <div className="offer-ride-form__field">
                             <FieldLabel
                                 label={labels?.date ?? "Date"}
@@ -286,6 +305,71 @@ export function OfferRideForm({
                             {timeError && (
                                 <p className="offer-ride-form__field-error">
                                     {timeError}
+                                </p>
+                            )}
+                        </div>
+                        <div className="offer-ride-form__field">
+                            <FieldLabel
+                                label={labels?.duration ?? "Duration"}
+                                icon={<ClockIcon />}
+                            />
+                            <div
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 8,
+                                }}
+                            >
+                                <Input
+                                    type="number"
+                                    value={durationHours}
+                                    onChange={(e) =>
+                                        onDurationHoursChange?.(
+                                            clampDurationInput(
+                                                e.target.value,
+                                                23
+                                            )
+                                        )
+                                    }
+                                    placeholder=""
+                                    style={{ width: "100%" }}
+                                />
+                                <span
+                                    style={{
+                                        whiteSpace: "nowrap",
+                                        color: "var(--color-text-secondary)",
+                                        fontSize: 14,
+                                    }}
+                                >
+                                    h
+                                </span>
+                                <Input
+                                    type="number"
+                                    value={durationMinutes}
+                                    onChange={(e) =>
+                                        onDurationMinutesChange?.(
+                                            clampDurationInput(
+                                                e.target.value,
+                                                59
+                                            )
+                                        )
+                                    }
+                                    placeholder=""
+                                    style={{ width: "100%" }}
+                                />
+                                <span
+                                    style={{
+                                        whiteSpace: "nowrap",
+                                        color: "var(--color-text-secondary)",
+                                        fontSize: 14,
+                                    }}
+                                >
+                                    min
+                                </span>
+                            </div>
+                            {durationError && (
+                                <p className="offer-ride-form__field-error">
+                                    {durationError}
                                 </p>
                             )}
                         </div>

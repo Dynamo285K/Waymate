@@ -63,6 +63,7 @@ export const PassengerBookingListItemSchema = z.object({
     ride: z.object({
         id: RideIdSchema,
         departureAt: z.date(),
+        arrivalEstimateAt: z.date().nullable(),
         rideStatus: RideStatusSchema,
     }),
     driver: PublicUserPreviewWithRatingSchema,

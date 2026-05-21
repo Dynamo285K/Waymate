@@ -15,6 +15,8 @@ import type { Currency } from "./currency";
 export interface RideSearchResultItem {
     rideId: RideId;
     departureAt: string;
+    /** @nullable */
+    arrivalEstimateAt: string | null;
     rideStatus: RideStatus;
     offeredSeats: number;
     /**

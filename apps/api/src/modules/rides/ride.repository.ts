@@ -306,6 +306,7 @@ const findAvailableRides = async (
         .select({
             rideId: ridesTable.id,
             departureAt: ridesTable.departureAt,
+            arrivalEstimateAt: ridesTable.arrivalEstimateAt,
             rideStatus: ridesTable.rideStatus,
             offeredSeats: ridesTable.offeredSeats,
             seatsLeft: sql<number>`GREATEST(0, ${ridesTable.offeredSeats} - COALESCE(${capacityByRide.occupiedSeats}, 0))::int`,
@@ -430,6 +431,7 @@ const searchRides = async (
         .select({
             rideId: ridesTable.id,
             departureAt: ridesTable.departureAt,
+            arrivalEstimateAt: ridesTable.arrivalEstimateAt,
             rideStatus: ridesTable.rideStatus,
             offeredSeats: ridesTable.offeredSeats,
             seatsLeft: sql<number>`GREATEST(0, ${ridesTable.offeredSeats} - COALESCE(${capacityByRide.occupiedSeats}, 0))::int`,

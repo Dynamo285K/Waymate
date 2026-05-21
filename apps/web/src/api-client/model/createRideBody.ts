@@ -16,6 +16,12 @@ export interface CreateRideBody {
     /** @nullable */
     arrivalEstimateAt?: string | null;
     /**
+     * @minimum 0
+     * @maximum 1440
+     * @exclusiveMinimum
+     */
+    durationMinutes?: number;
+    /**
      * @minimum 1
      * @maximum 9007199254740991
      */
@@ -26,7 +32,11 @@ export interface CreateRideBody {
      * @nullable
      */
     description?: string | null;
-    /** @minItems 2 */
+    /**
+     * @minItems 2
+     * @maxItems 25
+     */
     stops: CreateRideBodyStopsItem[];
+    /** @maxItems 300 */
     prices?: CreateRideBodyPricesItem[];
 }

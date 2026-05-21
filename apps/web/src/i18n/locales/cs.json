@@ -358,7 +358,8 @@
         "invalidPriceError": "Musí být celé číslo větší než 0.",
         "pastDeparture": "Vyberte čas odjezdu v budoucnosti.",
         "plateLength": "SPZ musí mít {{min}}-{{max}} znaků.",
-        "carCreateError": "Nepodařilo se uložit auto. Zkontrolujte detaily auta."
+        "carCreateError": "Nepodařilo se uložit auto. Zkontrolujte detaily auta.",
+        "duration": "Délka jízdy"
     },
     "rideRequests": {
         "title": "Žádosti o jízdu",

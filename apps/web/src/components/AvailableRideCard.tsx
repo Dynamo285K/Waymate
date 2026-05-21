@@ -10,6 +10,7 @@ export type AvailableRideCardProps = {
     from: string;
     to: string;
     datetime: string;
+    duration?: string;
     seatsLeft: number;
     driverName: string;
     driverRating: number;
@@ -22,6 +23,7 @@ export function AvailableRideCard({
     from,
     to,
     datetime,
+    duration,
     seatsLeft,
     driverName,
     driverRating,
@@ -40,6 +42,11 @@ export function AvailableRideCard({
                     <span className="available-ride-card__meta-text">
                         {datetime}
                     </span>
+                    {duration && (
+                        <span className="available-ride-card__meta-text">
+                            · {duration}
+                        </span>
+                    )}
                     <UserIcon />
                     <span className="available-ride-card__meta-text">
                         {labels?.seatsLeft
