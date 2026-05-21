@@ -392,7 +392,10 @@
         "cancelling": "Cancelling...",
         "noPassengers": "No passengers yet.",
         "passengersError": "Select a ride to view passengers.",
-        "cancelBookingError": "Could not cancel the booking. Please try again."
+        "cancelBookingError": "Could not cancel the booking. Please try again.",
+        "completeRide": "Complete ride",
+        "completing": "Completing...",
+        "completeError": "Failed to complete ride. Please try again."
     },
     "cancelBookingDialog": {
         "title": "Cancel booking?",
@@ -404,7 +407,8 @@
         "reasonLabel": "Reason (optional)",
         "reasonPlaceholder": "Enter a reason for cancellation...",
         "goBack": "Go back",
-        "confirm": "Confirm cancellation"
+        "confirm": "Confirm cancellation",
+        "reasonLabelRequired": "Reason"
     },
     "driver": {
         "nav": {
@@ -610,5 +614,15 @@
         "plateLength": "License plate must be {{min}}-{{max}} characters.",
         "adding": "Adding...",
         "addButton": "Add car"
+    },
+    "completeRideDialog": {
+        "title": "Complete ride?",
+        "message": "Are you sure you want to mark this ride as completed? This action will move the ride to past rides for all participants.",
+        "confirm": "Complete ride",
+        "cancel": "Cancel"
+    },
+    "cancelBookingDriverDialog": {
+        "title": "Cancel passenger booking?",
+        "message": "Are you sure you want to cancel this passenger's booking? This action cannot be undone."
     }
 }

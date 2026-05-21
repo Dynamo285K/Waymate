@@ -392,7 +392,10 @@
         "cancelling": "Ruším...",
         "noPassengers": "Zatím žádní cestující.",
         "passengersError": "Vyberte jízdu pro zobrazení cestujících.",
-        "cancelBookingError": "Nepodařilo se zrušit rezervaci. Zkuste to znovu."
+        "cancelBookingError": "Nepodařilo se zrušit rezervaci. Zkuste to znovu.",
+        "completeRide": "Dokončit jízdu",
+        "completing": "Dokončování...",
+        "completeError": "Nepodařilo se dokončit jízdu. Zkuste to prosím znovu."
     },
     "cancelBookingDialog": {
         "title": "Zrušit rezervaci?",
@@ -404,7 +407,8 @@
         "reasonLabel": "Důvod (volitelné)",
         "reasonPlaceholder": "Zadejte důvod zrušení...",
         "goBack": "Zpět",
-        "confirm": "Potvrdit zrušení"
+        "confirm": "Potvrdit zrušení",
+        "reasonLabelRequired": "Důvod"
     },
     "driver": {
         "nav": {
@@ -610,5 +614,15 @@
         "plateLength": "SPZ musí mít {{min}}-{{max}} znaků.",
         "adding": "Přidávám...",
         "addButton": "Přidat auto"
+    },
+    "completeRideDialog": {
+        "title": "Dokončit jízdu?",
+        "message": "Opravdu chcete označit tuto jízdu jako dokončenou? Tato akce přesune jízdu do minulých jízd pro všechny účastníky.",
+        "confirm": "Dokončit jízdu",
+        "cancel": "Zrušit"
+    },
+    "cancelBookingDriverDialog": {
+        "title": "Zrušit rezervaci cestujícího?",
+        "message": "Opravdu chcete zrušit rezervaci tohoto cestujícího? Tuto akci nelze vrátit zpět."
     }
 }

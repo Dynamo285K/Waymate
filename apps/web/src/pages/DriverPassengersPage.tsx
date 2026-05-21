@@ -5,6 +5,7 @@ import { StatCard, TextLink } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { PassengerCard } from "../components/PassengerCard";
+import { CancelRideDialog } from "../components/CancelRideDialog";
 import { ReportUserModal } from "../components/ReportUserModal";
 import { useGetRidesByIdPassengers } from "../api-client/rides/rides";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
@@ -94,6 +95,7 @@ export function DriverPassengersPage({
         query: { enabled: Boolean(ride?.id) },
     });
     const cancelBooking = useCancelBookingByDriver();
+    const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
 
     const [reportTarget, setReportTarget] = useState<{
         userId: string;
@@ -205,11 +207,7 @@ export function DriverPassengersPage({
                                         navigate("/driver/chat")
                                     }
                                     onCancelBooking={() =>
-                                        cancelBooking.mutate({
-                                            bookingId: booking.bookingId,
-                                            rideId: ride?.id,
-                                            reason: "Driver cancelled passenger booking",
-                                        })
+                                        setBookingToCancel(booking.bookingId)
                                     }
                                     onReport={() =>
                                         setReportTarget({
@@ -235,6 +233,26 @@ export function DriverPassengersPage({
                         })}
                 </div>
             </section>
+
+            <CancelRideDialog
+                open={bookingToCancel !== null}
+                loading={cancelBooking.isPending}
+                onOpenChange={(open) => {
+                    if (!open) setBookingToCancel(null);
+                }}
+                onConfirm={(reason) => {
+                    if (!bookingToCancel) return;
+                    cancelBooking.mutate({
+                        bookingId: bookingToCancel,
+                        rideId: ride?.id,
+                        reason: reason || undefined,
+                    });
+                    setBookingToCancel(null);
+                }}
+                title={t("cancelBookingDriverDialog.title")}
+                message={t("cancelBookingDriverDialog.message")}
+                reasonRequired
+            />
 
             {reportTarget && (
                 <ReportUserModal
