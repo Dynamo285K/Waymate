@@ -353,7 +353,9 @@ export function AddCarPage({
                                                                 className="flex items-center px-3 py-2 text-sm rounded-lg text-(--color-text-primary) cursor-pointer outline-none data-highlighted:bg-(--color-bg) data-[state=checked]:text-(--color-primary)"
                                                             >
                                                                 <Select.ItemText>
-                                                                    {m.modelName}
+                                                                    {
+                                                                        m.modelName
+                                                                    }
                                                                 </Select.ItemText>
                                                             </Select.Item>
                                                         ))}
@@ -498,7 +500,9 @@ export function AddCarPage({
                         <Button
                             type="submit"
                             variant="black"
-                            disabled={isSubmitting || createCarMutation.isPending}
+                            disabled={
+                                isSubmitting || createCarMutation.isPending
+                            }
                         >
                             {createCarMutation.isPending
                                 ? t("addCar.adding")
