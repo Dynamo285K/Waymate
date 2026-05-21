@@ -11,6 +11,7 @@ import {
     RideIdParamsSchema,
     CancelRideBodySchema,
     CompleteRideBodySchema,
+    EndRideBodySchema,
     TimeframeQuerySchema,
     RideListItemListSchema,
     RidePassengersViewSchema,
@@ -19,6 +20,7 @@ import {
     CreateRideResponseSchema,
     CancelRideResponseSchema,
     CompleteRideResponseSchema,
+    EndRideResponseSchema,
 } from "@repo/shared";
 
 export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
@@ -27,6 +29,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
         CreateRideBody: CreateRideBodySchema,
         SearchRidesQuery: SearchRidesQuerySchema,
         CancelRideBody: CancelRideBodySchema,
+        EndRideBody: EndRideBodySchema,
         RideIdParams: RideIdParamsSchema,
         TimeframeQuery: TimeframeQuerySchema,
         ErrorResponse: ErrorResponseSchema,
@@ -38,6 +41,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
         CancelRideResponse: CancelRideResponseSchema,
         CompleteRideBody: CompleteRideBodySchema,
         CompleteRideResponse: CompleteRideResponseSchema,
+        EndRideResponse: EndRideResponseSchema,
     })
     .onError(createErrorHandler(RideError, rideErrorToHttpStatus))
     .get(
@@ -167,6 +171,35 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                     detail: {
                         description:
                             "Cancels a ride and cascades cancellation to all active passenger bookings",
+                    },
+                }
+            )
+
+            .patch(
+                "/:id/end",
+                async ({ user, params, body }) => {
+                    const endedId = await RideService.endRide({
+                        rideId: params.id,
+                        actorUserId: user.id,
+                        source: "DRIVER",
+                        reason: body.reason,
+                    });
+                    return { id: endedId, status: "COMPLETED" as const };
+                },
+                {
+                    params: RideIdParamsSchema,
+                    body: "EndRideBody",
+                    response: {
+                        200: "EndRideResponse",
+                        400: "ErrorResponse",
+                        404: "ErrorResponse",
+                        413: "ErrorResponse",
+                        429: "ErrorResponse",
+                        500: "ErrorResponse",
+                    },
+                    detail: {
+                        description:
+                            "Ends the driver's ride idempotently and records ride end metadata",
                     },
                 }
             )

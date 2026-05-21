@@ -6,6 +6,7 @@ import type { rideStatusHistory } from "../../db/schema/ride_status_history";
 import type {
     PublicUserPreview,
     PublicUserPreviewWithRating,
+    RideEndSource,
     bookingStatusValues,
 } from "@repo/shared";
 import type { Car } from "../cars";
@@ -130,6 +131,14 @@ export type CreateRideInput = Pick<
     }>;
     changedByUserId?: string | null;
     reason?: string | null;
+};
+
+export type EndRideInput = {
+    rideId: string;
+    source: RideEndSource;
+    actorUserId?: string | null;
+    reason?: string | null;
+    endedAt?: Date;
 };
 
 export type PassengerRideListItem = {

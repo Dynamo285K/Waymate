@@ -1101,6 +1101,105 @@
                 "operationId": "patchRidesByIdCancel"
             }
         },
+        "/rides/{id}/end": {
+            "patch": {
+                "tags": ["Rides"],
+                "description": "Ends the driver's ride idempotently and records ride end metadata",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/RideId"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EndRideBody"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EndRideBody"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EndRideBody"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EndRideResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Response for status 400",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Response for status 404",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Response for status 413",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Response for status 429",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "patchRidesByIdEnd"
+            }
+        },
         "/rides/{id}/complete": {
             "patch": {
                 "tags": ["Rides"],
@@ -4503,6 +4602,16 @@
                 },
                 "additionalProperties": false
             },
+            "EndRideBody": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "maxLength": 500
+                    }
+                },
+                "additionalProperties": false
+            },
             "RideIdParams": {
                 "type": "object",
                 "properties": {
@@ -4745,6 +4854,20 @@
                 "additionalProperties": false
             },
             "CompleteRideResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "$ref": "#/components/schemas/RideId"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": ["COMPLETED"]
+                    }
+                },
+                "required": ["id", "status"],
+                "additionalProperties": false
+            },
+            "EndRideResponse": {
                 "type": "object",
                 "properties": {
                     "id": {
