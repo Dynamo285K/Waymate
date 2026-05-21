@@ -59,10 +59,9 @@ export const CreateRideBodySchema = z.object({
     stops: z
         .array(
             z.object({
-                // Reference to a row in the cities catalog. Server-side
-                // resolves cityId → name + countryCode and stores them as
-                // a snapshot on ride_stops; the client no longer chooses
-                // those values directly.
+                // Reference to a row in the cities catalog. API responses
+                // resolve cityId to display fields through joins; the client
+                // no longer chooses city/country text directly.
                 cityId: CityIdSchema,
                 address: z.string().min(1).max(255),
                 lat: z.number().min(-90).max(90),

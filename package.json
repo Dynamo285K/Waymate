@@ -14,7 +14,7 @@
         "typecheck": "turbo typecheck",
         "db:generate": "turbo db:generate",
         "db:migrate": "turbo db:migrate",
-        "test": "turbo test",
+        "test": "bun run --cwd apps/api test:run",
         "test:e2e": "bun run --cwd e2e test",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",

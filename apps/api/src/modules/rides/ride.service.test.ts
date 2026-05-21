@@ -12,6 +12,7 @@ import {
 } from "../../db/schema";
 import { RideService } from "./ride.service";
 import { RideError, RideErrorCodes } from "./ride.errors";
+import { TEST_CITY_IDS } from "../../../test/reference-data";
 import type { CreateRideBody } from "@repo/shared";
 
 async function insertTestUser() {
@@ -79,8 +80,7 @@ function buildCreateRideBody(
         stops: overrides.stops ?? [
             {
                 address: "Hlavná 1",
-                city: "Bratislava",
-                countryCode: "SK",
+                cityId: TEST_CITY_IDS.bratislava,
                 lat: 48.148,
                 lng: 17.107,
                 plannedArrivalAt: null,
@@ -88,8 +88,7 @@ function buildCreateRideBody(
             },
             {
                 address: "Námestie SNP 1",
-                city: "Banská Bystrica",
-                countryCode: "SK",
+                cityId: TEST_CITY_IDS.banskaBystrica,
                 lat: 48.736,
                 lng: 19.146,
                 plannedArrivalAt: new Date(
@@ -222,6 +221,43 @@ describe("RideService.createRide", () => {
             .from(rides)
             .where(eq(rides.driverId, driver.id));
         expect(leftoverRides).toEqual([]);
+    });
+
+    it("throws UnknownCity when a stop references a city outside the catalog", async () => {
+        const driver = await insertTestUser();
+        const car = await insertCarFor(driver.id);
+        const departureAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+        await expect(
+            RideService.createRide(
+                driver.id,
+                buildCreateRideBody(car.id, {
+                    departureAt,
+                    stops: [
+                        {
+                            address: "Hlavná 1",
+                            cityId: crypto.randomUUID(),
+                            lat: 48.148,
+                            lng: 17.107,
+                            plannedArrivalAt: null,
+                            plannedDepartureAt: departureAt,
+                        },
+                        {
+                            address: "Námestie SNP 1",
+                            cityId: TEST_CITY_IDS.banskaBystrica,
+                            lat: 48.736,
+                            lng: 19.146,
+                            plannedArrivalAt: new Date(
+                                departureAt.getTime() + 2 * 60 * 60 * 1000
+                            ),
+                            plannedDepartureAt: null,
+                        },
+                    ],
+                })
+            )
+        ).rejects.toMatchObject({
+            code: RideErrorCodes.UnknownCity,
+        });
     });
 });
 

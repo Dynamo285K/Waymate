@@ -9,22 +9,23 @@ const WEB_PORT = Number(process.env.E2E_WEB_PORT ?? 5174);
 const API_ORIGIN = `http://localhost:${API_PORT}`;
 const BASE_URL = `http://localhost:${WEB_PORT}`;
 
-// Env vars forwarded to the API webServer process. The merge with process.env
-// happens BEFORE Bun's auto .env loader runs in the child, and Bun preserves
-// existing process.env values rather than overwriting them — so the keys
-// below win over whatever lives in apps/api/.env.
+// Env vars forwarded to the API webServer process. Keeping the e2e defaults
+// here means start-api.ts can use the same validated env path as the real API
+// instead of mutating runtime env itself.
 const apiServerEnv: Record<string, string> = {
+    NODE_ENV: "test",
     DATABASE_URL: E2E_DATABASE_URL,
     PORT: String(API_PORT),
     BETTER_AUTH_URL: API_ORIGIN,
     WEB_ORIGIN: BASE_URL,
+    RESEND_API_KEY: "re_e2e",
+    LOG_LEVEL: "silent",
 };
 
 export default defineConfig({
     testDir: "./tests",
     timeout: 30_000,
     expect: { timeout: 5_000 },
-    globalSetup: "./global-setup.ts",
     // E2E tests share a single DB; running them in parallel would race
     // each other's writes. Single worker keeps things deterministic.
     fullyParallel: false,
@@ -45,7 +46,7 @@ export default defineConfig({
     ],
     webServer: [
         {
-            command: "bun run --cwd ../apps/api dev",
+            command: "bun start-api.ts",
             env: apiServerEnv,
             url: `${API_ORIGIN}/health`,
             // Locally we still allow reuse — but the e2e API runs on a unique
@@ -53,13 +54,16 @@ export default defineConfig({
             // never the developer's dev API.
             reuseExistingServer: !process.env.CI,
             timeout: 60_000,
-            stdout: "ignore",
+            stdout: "pipe",
             stderr: "pipe",
         },
         {
             command: `bun run --cwd ../apps/web dev --port ${WEB_PORT} --strictPort`,
             url: BASE_URL,
-            env: { VITE_API_PROXY_TARGET: API_ORIGIN },
+            env: {
+                API_PROXY_TARGET: API_ORIGIN,
+                VITE_API_PROXY_TARGET: API_ORIGIN,
+            },
             reuseExistingServer: !process.env.CI,
             timeout: 60_000,
             stdout: "ignore",

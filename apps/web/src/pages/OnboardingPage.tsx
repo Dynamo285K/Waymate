@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useForm, type SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -77,8 +77,7 @@ const onboardingFormSchema = z.object({
         .pipe(phoneField("onboarding.phoneError")),
 });
 
-type OnboardingFormInput = z.input<typeof onboardingFormSchema>;
-type OnboardingFormValues = z.output<typeof onboardingFormSchema>;
+type OnboardingFormValues = z.infer<typeof onboardingSchema>;
 
 export function OnboardingPage({
     language,
@@ -88,38 +87,52 @@ export function OnboardingPage({
 }: OnboardingPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    async function handleSwitchAccount(to: "/login" | "/register") {
+        await signOut().catch(() => {});
+        navigate(to);
+    }
+
     const authNavbarProps = useAuthNavbarProps({
         language,
         onLanguageChange,
         theme,
         onThemeToggle,
+        onLogin: () => handleSwitchAccount("/login"),
+        onRegister: () => handleSwitchAccount("/register"),
     });
     const queryClient = useQueryClient();
-    const {
-        data: user,
-        isPending: isLoadingProfile,
-        error: loadError,
-    } = useGetUsersMe({
-        query: { retry: false },
-    });
-
-    const alreadyOnboarded = !!user && hasCompletedOnboarding(user);
 
     const {
         register,
         handleSubmit,
+        reset,
         setError,
         formState: { errors, isSubmitting },
-    } = useForm<OnboardingFormInput, unknown, OnboardingFormValues>({
-        resolver: zodResolver(onboardingFormSchema),
-        // `values` keeps the form in sync with the async profile query without
-        // a reset()-in-effect — RHF re-applies these whenever `user` resolves.
-        values: {
-            firstName: user?.firstName ?? "",
-            lastName: user?.lastName ?? "",
-            phone: user?.phone ?? "",
-        },
+    } = useForm<OnboardingFormValues>({
+        resolver: zodResolver(onboardingSchema),
+        defaultValues: { firstName: "", lastName: "", phone: "" },
     });
+
+    const {
+        data: user,
+        isPending: isLoadingProfile,
+        error: loadError,
+    } = useGetUsersMe({ query: { retry: false } });
+
+    useEffect(() => {
+        if (loadError) {
+            setError("root", { message: "onboarding.loginRequired" });
+        }
+    }, [loadError, setError]);
+
+    useEffect(() => {
+        if (isLoadingProfile || !user) return;
+        reset({
+            firstName: user.firstName ?? "",
+            lastName: user.lastName ?? "",
+            phone: user.phone ?? "",
+        });
+    }, [user, isLoadingProfile, reset]);
 
     const onboardMutation = usePatchUsersMeOnboarding<ApiMutationError>({
         mutation: {
@@ -129,22 +142,15 @@ export function OnboardingPage({
         },
     });
 
-    // Redirect away once we know the user has already onboarded. No setState
-    // here, so it doesn't trigger set-state-in-effect.
-    useEffect(() => {
-        if (!alreadyOnboarded) return;
-        let cancelled = false;
-        getPostAuthPath().then((path) => {
-            if (!cancelled) navigate(path, { replace: true });
-        });
-        return () => {
-            cancelled = true;
-        };
-    }, [alreadyOnboarded, navigate]);
-
-    const onSubmit: SubmitHandler<OnboardingFormValues> = async (values) => {
+    async function onSubmit(values: OnboardingFormValues) {
         try {
-            await onboardMutation.mutateAsync({ data: values });
+            await onboardMutation.mutateAsync({
+                data: {
+                    firstName: formatNamePart(values.firstName),
+                    lastName: formatNamePart(values.lastName),
+                    phone: normalizePhone(values.phone),
+                },
+            });
             navigate(await getPostAuthPath());
         } catch (error) {
             console.error("Onboarding submit failed", error);
@@ -152,7 +158,7 @@ export function OnboardingPage({
                 message: getErrorI18nKey(error, {}, "onboarding.error"),
             });
         }
-    };
+    }
 
     return (
         <div
@@ -162,7 +168,7 @@ export function OnboardingPage({
             <AuthNavbar {...authNavbarProps} />
 
             <main className="flex min-h-[calc(100vh-72px)] items-center justify-center px-4 py-12">
-                {!isLoadingProfile && !alreadyOnboarded && (
+                {!isLoadingProfile && (
                     <form
                         onSubmit={handleSubmit(onSubmit)}
                         noValidate
@@ -181,8 +187,8 @@ export function OnboardingPage({
                                     {t("onboarding.firstName")}
                                 </span>
                                 <Input
-                                    autoComplete="given-name"
                                     {...register("firstName")}
+                                    autoComplete="given-name"
                                 />
                                 <FieldError>
                                     {errors.firstName?.message &&
@@ -195,8 +201,8 @@ export function OnboardingPage({
                                     {t("onboarding.lastName")}
                                 </span>
                                 <Input
-                                    autoComplete="family-name"
                                     {...register("lastName")}
+                                    autoComplete="family-name"
                                 />
                                 <FieldError>
                                     {errors.lastName?.message &&
@@ -209,8 +215,8 @@ export function OnboardingPage({
                                     {t("onboarding.phone")}
                                 </span>
                                 <Input
-                                    autoComplete="tel"
                                     {...register("phone")}
+                                    autoComplete="tel"
                                 />
                                 <FieldError>
                                     {errors.phone?.message &&

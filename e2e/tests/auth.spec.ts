@@ -53,9 +53,7 @@ test.describe("login page", () => {
             page.locator('input[name="waymate-login-password"]')
         ).toBeVisible();
         // The form's submit button is the only `type="submit"` inside it.
-        await expect(
-            page.locator('form button[type="submit"]')
-        ).toBeVisible();
+        await expect(page.locator('form button[type="submit"]')).toBeVisible();
     });
 
     test("clicking 'Create account' navigates to /register", async ({

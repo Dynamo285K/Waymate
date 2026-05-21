@@ -201,7 +201,56 @@ makes `seed` abort with "Fixture city not found in DB"; skipping `seed`
 means you cannot log in (the `admin@example.com` / `driver.albert`
 accounts no longer exist).
 
-### 6. Run the project
+### 6. Run backend tests
+
+Backend tests live under `apps/api/src/**/*.test.ts` and run with Vitest:
+
+```bash
+bun run test
+```
+
+That root shortcut runs the API test suite. The equivalent package-scoped
+command is:
+
+```bash
+bun run --cwd apps/api test:run
+```
+
+They use a separate Postgres database from `apps/api/.env.test`
+(`spolujazda_test` by default; copy `apps/api/.env.test.example` if you do
+not have one yet). The test global setup creates the database if needed,
+applies Drizzle migrations, and then every test starts from a clean schema via
+`TRUNCATE ... CASCADE`.
+
+The suite contains two backend layers:
+
+- Service integration tests call service functions directly and verify
+  business rules, transactions, status history, and database constraints.
+- API route tests call the exported Elysia `app.handle(...)` without starting
+  a server. They cover public request/response behavior such as `GET /health`,
+  `GET /cities`, and public ride search validation. Authenticated route flows
+  are intentionally left to targeted auth/e2e coverage.
+
+### 7. Run end-to-end tests
+
+E2E tests live in `e2e/tests` and run with Playwright:
+
+```bash
+bun run test:e2e
+```
+
+On a fresh machine install the Playwright Chromium binary first:
+
+```bash
+bun run --cwd e2e install:browsers
+```
+
+The e2e runner starts its own API and web dev servers on separate ports
+(`3010` and `5174` by default), recreates `spolujazda_e2e_db`, applies
+migrations, then runs `seed:cities` and `seed`. The local Postgres Docker
+service still has to be running; `bun run db:setup` from step 4 is enough.
+
+### 8. Run the project
 
 ```bash
 bun run dev

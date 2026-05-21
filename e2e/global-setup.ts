@@ -1,16 +1,12 @@
-import { spawn } from "node:child_process";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import postgres from "postgres";
 
-const dir = path.dirname(fileURLToPath(import.meta.url));
-const apiDir = path.resolve(dir, "../apps/api");
+const apiDirUrl = new URL("../apps/api", import.meta.url);
 
 // Single source of truth for the e2e Postgres URL. apps/api/.env points at the
 // dev DB (`spolujazda_db`) — we deliberately use a separate database so e2e
 // runs never trash the developer's data.
 export const E2E_DATABASE_URL =
-    process.env.E2E_DATABASE_URL ??
+    (typeof Bun === "undefined" ? undefined : Bun.env.E2E_DATABASE_URL) ??
     "postgres://postgres:postgres@localhost:5432/spolujazda_e2e_db";
 
 async function recreateDatabase(): Promise<void> {
@@ -41,38 +37,41 @@ async function recreateDatabase(): Promise<void> {
     }
 }
 
-function runApiScript(script: "db:migrate" | "seed"): Promise<void> {
-    return new Promise((resolve, reject) => {
-        const child = spawn("bun", ["run", script], {
-            cwd: apiDir,
-            // process.env first so Bun's .env loader (which respects existing
-            // process.env values) keeps our DATABASE_URL override.
-            env: { ...process.env, DATABASE_URL: E2E_DATABASE_URL },
-            stdio: ["ignore", "pipe", "pipe"],
-        });
+async function runApiScript(
+    script: "db:migrate" | "seed:cities" | "seed"
+): Promise<void> {
+    if (typeof Bun === "undefined") {
+        throw new Error("E2E API setup must be run with Bun");
+    }
 
-        const buffered: string[] = [];
-        child.stdout?.on("data", (chunk: Buffer) =>
-            buffered.push(chunk.toString())
-        );
-        child.stderr?.on("data", (chunk: Buffer) =>
-            buffered.push(chunk.toString())
-        );
-
-        child.on("error", reject);
-        child.on("close", (code) => {
-            if (code === 0) return resolve();
-            reject(
-                new Error(
-                    `bun run ${script} exited with code ${code}\n${buffered.join("")}`
-                )
-            );
-        });
+    const child = Bun.spawn(["bun", "run", script], {
+        cwd: Bun.fileURLToPath(apiDirUrl),
+        env: { ...Bun.env, DATABASE_URL: E2E_DATABASE_URL },
+        stdin: "ignore",
+        stdout: "pipe",
+        stderr: "pipe",
     });
+
+    const [stdout, stderr, code] = await Promise.all([
+        new Response(child.stdout).text(),
+        new Response(child.stderr).text(),
+        child.exited,
+    ]);
+
+    if (code !== 0) {
+        throw new Error(
+            `bun run ${script} exited with code ${code}\n${stdout}${stderr}`
+        );
+    }
 }
 
 export default async function globalSetup(): Promise<void> {
     await recreateDatabase();
     await runApiScript("db:migrate");
+    await runApiScript("seed:cities");
     await runApiScript("seed");
+}
+
+if (import.meta.main) {
+    await globalSetup();
 }
