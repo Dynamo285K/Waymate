@@ -153,13 +153,21 @@ export function AdminReviewsTable({
                                             }
                                             disabled={isMutating}
                                         />
-                                        <IconButton
-                                            ariaLabel={t("admin.deleteReview")}
-                                            icon={<TrashIcon />}
-                                            variant="ghost"
-                                            onClick={() => onDelete(review)}
-                                            disabled={isMutating}
-                                        />
+                                        <span
+                                            style={{
+                                                color: "var(--color-red)",
+                                            }}
+                                        >
+                                            <IconButton
+                                                ariaLabel={t(
+                                                    "admin.deleteReview"
+                                                )}
+                                                icon={<TrashIcon />}
+                                                variant="ghost"
+                                                onClick={() => onDelete(review)}
+                                                disabled={isMutating}
+                                            />
+                                        </span>
                                     </div>
                                 </td>
                             </tr>
