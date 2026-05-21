@@ -8,7 +8,11 @@ import { CarIdSchema } from "./car.schema";
 import { CityIdSchema } from "./city.schema";
 import { CountryCodeSchema } from "./country-code.schema";
 import { CurrencySchema } from "./currency.schema";
-import { bookingStatusValues, rideStatusValues } from "./status-values";
+import {
+    bookingStatusValues,
+    rideEndSourceValues,
+    rideStatusValues,
+} from "./status-values";
 
 export const RideIdSchema = z.uuid();
 export type RideId = z.infer<typeof RideIdSchema>;
@@ -22,7 +26,11 @@ export type PriceId = z.infer<typeof PriceIdSchema>;
 export const RideStatusSchema = z.enum(rideStatusValues);
 export type RideStatus = z.infer<typeof RideStatusSchema>;
 
+export const RideEndSourceSchema = z.enum(rideEndSourceValues);
+export type RideEndSource = z.infer<typeof RideEndSourceSchema>;
+
 const DescriptionSchema = z.string().max(500).nullable();
+const EndReasonSchema = z.string().max(500).nullable();
 
 export const RideSchema = z.object({
     // Identity and ownership
@@ -34,6 +42,12 @@ export const RideSchema = z.object({
     // Schedule
     departureAt: z.date(),
     arrivalEstimateAt: z.date().nullable(),
+    autoEndAt: z.date().nullable(),
+    endedAt: z.date().nullable(),
+    endedByUserId: UserIdSchema.nullable(),
+    endSource: RideEndSourceSchema.nullable(),
+    endReason: EndReasonSchema,
+    autoEndProcessedAt: z.date().nullable(),
 
     // Capacity and pricing
     offeredSeats: z.number().int().min(1),

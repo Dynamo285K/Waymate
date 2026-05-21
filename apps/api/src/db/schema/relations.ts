@@ -22,6 +22,7 @@ import { cities } from "./city";
 export const usersRelations = relations(users, ({ many }) => ({
     cars: many(cars),
     drivenRides: many(rides),
+    endedRides: many(rides, { relationName: "ride_ended_by_user" }),
     bookingsAsPassenger: many(bookings),
     bookingsCancelledByUser: many(bookings, {
         relationName: "booking_cancelled_by_user",
@@ -69,6 +70,11 @@ export const ridesRelations = relations(rides, ({ one, many }) => ({
     driver: one(users, {
         fields: [rides.driverId],
         references: [users.id],
+    }),
+    endedByUser: one(users, {
+        fields: [rides.endedByUserId],
+        references: [users.id],
+        relationName: "ride_ended_by_user",
     }),
     car: one(cars, {
         fields: [rides.carId],

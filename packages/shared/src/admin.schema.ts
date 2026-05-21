@@ -6,6 +6,7 @@ import {
     UserStatusSchema,
 } from "./user.schema";
 import {
+    RideEndSourceSchema,
     RideIdSchema,
     RideStatusSchema,
     RideStopIdSchema,
@@ -153,6 +154,12 @@ export const AdminRideDetailSchema = z.object({
     rideStatus: RideStatusSchema,
     departureAt: z.date(),
     arrivalEstimateAt: z.date().nullable(),
+    autoEndAt: z.date().nullable(),
+    endedAt: z.date().nullable(),
+    endedByUserId: UserIdSchema.nullable(),
+    endSource: RideEndSourceSchema.nullable(),
+    endReason: z.string().max(500).nullable(),
+    autoEndProcessedAt: z.date().nullable(),
     offeredSeats: z.number().int(),
     currency: CurrencySchema,
     description: z.string().nullable(),
