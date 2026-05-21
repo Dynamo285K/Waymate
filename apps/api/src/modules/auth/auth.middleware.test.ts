@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
+import { eq } from "drizzle-orm";
 import { apiRequest } from "../../../test/http";
+import { db } from "../../db";
+import { users } from "../../db/schema";
 import {
     authenticatedRequest,
     createSignInUser,
@@ -78,5 +81,40 @@ describe("Route protection — isFullyOnboarded", () => {
         const response = await authenticatedRequest("/cars/me", cookie);
 
         expect(response.status).toBe(200);
+    });
+});
+
+describe("Route protection — last-active tracking", () => {
+    // The middleware touch is fire-and-forget, so poll briefly for it to land.
+    async function waitForLastActive(
+        userId: string,
+        timeoutMs = 2000
+    ): Promise<Date | null> {
+        const deadline = Date.now() + timeoutMs;
+        while (Date.now() < deadline) {
+            const row = await db.query.users.findFirst({
+                where: eq(users.id, userId),
+            });
+            if (row?.lastActiveAt) return row.lastActiveAt;
+            await new Promise((resolve) => setTimeout(resolve, 25));
+        }
+        return null;
+    }
+
+    it("records last_active_at on an authenticated request", async () => {
+        const { user, email, password } = await createSignInUser();
+        const cookie = await signIn(email, password);
+
+        // Sign-in goes through better-auth, not our macros, so nothing has
+        // touched last_active_at yet.
+        const before = await db.query.users.findFirst({
+            where: eq(users.id, user.id),
+        });
+        expect(before!.lastActiveAt).toBeNull();
+
+        await authenticatedRequest("/users/me", cookie);
+
+        const lastActiveAt = await waitForLastActive(user.id);
+        expect(lastActiveAt).not.toBeNull();
     });
 });

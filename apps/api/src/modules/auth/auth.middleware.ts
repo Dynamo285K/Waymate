@@ -4,6 +4,8 @@ import { auth } from "./auth";
 import { AuthError, AuthErrorCodes } from "./auth.errors";
 import { db } from "../../db";
 import { users } from "../../db/schema";
+import { UserRepository } from "../users/user.repository";
+import { logger } from "../../shared/logger";
 
 type ResolvedSession = NonNullable<
     Awaited<ReturnType<typeof auth.api.getSession>>
@@ -54,6 +56,25 @@ async function assertUserCanUseSession(userId: string): Promise<void> {
 // guard fails consistently for the rest of the chain.
 const resolvedAuthByRequest = new WeakMap<Request, Promise<ResolvedAuth>>();
 
+// How long a user's last_active_at may go stale before the next authenticated
+// request refreshes it. Most requests therefore issue an UPDATE that matches
+// no rows, which keeps the tracking cheap.
+const LAST_ACTIVE_THROTTLE_MS = 5 * 60 * 1000;
+
+// Fire-and-forget activity tracking: never awaited, so it adds no latency to
+// the request, and never throws into the request — a failed touch is logged
+// and swallowed. Throttled inside the repository.
+function touchLastActive(userId: string): void {
+    void UserRepository.touchLastActiveAt(
+        db,
+        userId,
+        new Date(),
+        LAST_ACTIVE_THROTTLE_MS
+    ).catch((error) => {
+        logger.warn({ err: error, userId }, "last_active_touch_failed");
+    });
+}
+
 function resolveAuthenticatedUser(request: Request): Promise<ResolvedAuth> {
     const cached = resolvedAuthByRequest.get(request);
     if (cached) return cached;
@@ -66,6 +87,9 @@ function resolveAuthenticatedUser(request: Request): Promise<ResolvedAuth> {
         }
 
         await assertUserCanUseSession(result.user.id);
+
+        // Record activity. Fire-and-forget — see touchLastActive.
+        touchLastActive(result.user.id);
 
         return { user: result.user, session: result.session };
     })();
