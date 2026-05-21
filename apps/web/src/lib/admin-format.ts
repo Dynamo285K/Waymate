@@ -30,3 +30,16 @@ export function formatDate(
         hour12: false,
     }).format(date);
 }
+
+export function formatPrice(amount: number, currency: string): string {
+    const locale = LOCALE_MAP[i18n.language] ?? "en-US";
+    try {
+        return new Intl.NumberFormat(locale, {
+            style: "currency",
+            currency,
+            maximumFractionDigits: 0,
+        }).format(amount);
+    } catch {
+        return `${amount} ${currency}`;
+    }
+}
