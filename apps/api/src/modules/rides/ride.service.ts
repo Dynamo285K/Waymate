@@ -93,6 +93,10 @@ const searchRides = async (query: SearchRidesQuery) => {
 const createRide = async (driverId: string, data: CreateRideBody) => {
     const input: CreateRideInput = {
         ...data,
+        // The ride always stores an absolute arrival timestamp; when the
+        // client expresses arrival as a duration, resolve it here so nothing
+        // downstream has to know a duration was ever involved.
+        arrivalEstimateAt: resolveArrivalEstimateAt(data),
         driverId,
         rideStatus: "PLANNED",
     };
@@ -191,6 +195,20 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
 
         return newRide.id;
     });
+};
+
+// Arrival is supplied as a durationMinutes offset from departure (or, kept for
+// flexibility, as an absolute arrivalEstimateAt). The schema guarantees at most
+// one is set. Either way a ride stores an absolute timestamp — a duration is
+// never persisted, it has no meaning without the departure anchor.
+const resolveArrivalEstimateAt = (data: CreateRideBody): Date | null => {
+    if (data.arrivalEstimateAt) return data.arrivalEstimateAt;
+    if (data.durationMinutes != null) {
+        return new Date(
+            data.departureAt.getTime() + data.durationMinutes * 60_000
+        );
+    }
+    return null;
 };
 
 const computeAutoEndAt = (
