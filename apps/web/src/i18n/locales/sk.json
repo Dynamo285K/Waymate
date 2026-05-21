@@ -276,7 +276,9 @@
         },
         "loading": "Načítavanie...",
         "noData": "Žiadne dáta",
-        "dashboardLoadError": "Nepodarilo sa načítať dáta dashboardu."
+        "dashboardLoadError": "Nepodarilo sa načítať dáta dashboardu.",
+        "deleteReviewMessage": "Naozaj chcete zmazať túto recenziu? Túto akciu nie je možné vrátiť späť.",
+        "deleteReviewConfirm": "Zmazať"
     },
     "forgotPassword": {
         "step1Title": "Zabudli ste heslo?",

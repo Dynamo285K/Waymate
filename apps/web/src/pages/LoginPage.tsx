@@ -78,13 +78,6 @@ export function LoginPage({
     const email = useWatch({ control, name: "email" });
     const password = useWatch({ control, name: "password" });
 
-    async function finishLogin() {
-        await queryClient.invalidateQueries({
-            queryKey: CURRENT_USER_QUERY_KEY,
-        });
-        navigate(await getPostAuthPath());
-    }
-
     useEffect(() => {
         const urlError = searchParams.get("error");
         if (urlError === "banned") {

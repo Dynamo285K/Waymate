@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Button, IconButton, Modal } from "@waymate/ui";
+import { Button, Modal } from "@waymate/ui";
 import { getErrorI18nKey } from "../../lib/api-errors";
 import { adminReviewsErrorMap } from "../../lib/admin-review-errors";
 
@@ -26,23 +26,13 @@ export function DeleteReviewModal({
             onClose={onClose}
             theme={theme}
         >
-            <div className="w-[calc(100vw-2rem)] max-w-lg p-8">
-                <div className="flex justify-between items-center mb-5">
-                    <h2 className="text-xl font-bold text-(--color-text-primary)">
-                        {t("admin.deleteReviewTitle")}
-                    </h2>
-                    <IconButton
-                        ariaLabel="Close"
-                        icon={<span aria-hidden>✕</span>}
-                        variant="ghost"
-                        onClick={onClose}
-                        disabled={isPending}
-                    />
-                </div>
-
-                <div className="bg-(--color-danger-bg) border border-(--color-danger-border) rounded-xl p-4 mb-6 text-sm text-(--color-danger-text)">
-                    {t("admin.deleteReviewWarning")}
-                </div>
+            <div className="p-6">
+                <h2 className="text-xl font-bold text-(--color-text-primary) mb-2">
+                    {t("admin.deleteReviewTitle")}
+                </h2>
+                <p className="text-sm text-(--color-text-secondary) mb-6 leading-relaxed">
+                    {t("admin.deleteReviewMessage")}
+                </p>
 
                 {error !== null && error !== undefined && (
                     <p className="text-sm text-(--color-danger-text) mb-4">
@@ -59,11 +49,13 @@ export function DeleteReviewModal({
                         {t("admin.cancel")}
                     </Button>
                     <Button
-                        variant="red"
-                        onClick={onConfirm}
+                        variant="unstyled"
                         disabled={isPending}
+                        className="px-4 py-3 rounded-xl font-semibold text-sm text-white cursor-pointer disabled:opacity-50"
+                        style={{ background: "var(--color-red)" }}
+                        onClick={onConfirm}
                     >
-                        {t("admin.deletePermanently")}
+                        {t("admin.deleteReviewConfirm")}
                     </Button>
                 </div>
             </div>
