@@ -8,7 +8,7 @@ async function insertCredentialUser(
     overrides: Partial<typeof users.$inferInsert> = {}
 ) {
     const email =
-        overrides.email ?? `blocked-${crypto.randomUUID()}@example.com`;
+        overrides.email ?? `banned-${crypto.randomUUID()}@example.com`;
     const password = "password123";
 
     const [user] = await db

@@ -171,12 +171,6 @@ export const auth = betterAuth({
                             user.banReason ?? "This account has been banned.",
                     });
                 }
-                if (user?.userStatus === "SUSPENDED") {
-                    throw new APIError("FORBIDDEN", {
-                        code: "USER_SUSPENDED",
-                        message: "This account has been suspended.",
-                    });
-                }
                 return;
             }
 

@@ -41,6 +41,7 @@ export function signInWithGoogle() {
         provider: "google",
         callbackURL: `${window.location.origin}/onboarding`,
         newUserCallbackURL: `${window.location.origin}/onboarding`,
+        errorCallbackURL: `${window.location.origin}/login?error=banned`,
     });
 }
 
