@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
@@ -24,7 +23,6 @@ export function PassengerHomePage({
     userName,
     userEmail,
 }: PassengerHomePageProps) {
-    const { t } = useTranslation();
     const navigate = useNavigate();
     const navbarProps = usePassengerNavbarProps({
         activeTab: "find-ride",

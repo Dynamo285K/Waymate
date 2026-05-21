@@ -9,6 +9,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { LayoutProvider } from "./lib/layout-context";
 import type { useLayout } from "./lib/use-layout";
 import { HomeRoute } from "./lib/route-components";
+import { RouteErrorBoundary } from "./components/RouteErrorBoundary";
 import { makeAudienceComponent } from "./lib/make-audience-component";
 import {
     CURRENT_USER_QUERY_KEY,
@@ -251,6 +252,7 @@ export function createAppRouter(queryClient: QueryClient) {
     return createRouter({
         routeTree,
         context: { queryClient },
+        defaultErrorComponent: RouteErrorBoundary,
     });
 }
 

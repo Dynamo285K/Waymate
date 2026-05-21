@@ -15,11 +15,7 @@ import {
 } from "../api-client/users/users";
 import type { ApiMutationError } from "../lib/api-fetcher";
 import { getErrorI18nKey } from "../lib/api-errors";
-import {
-    CURRENT_USER_QUERY_KEY,
-    getPostAuthPath,
-    hasCompletedOnboarding,
-} from "../lib/auth";
+import { CURRENT_USER_QUERY_KEY, getPostAuthPath, signOut } from "../lib/auth";
 import {
     NAME_MAX_LENGTH,
     NO_WHITESPACE_REGEX,
@@ -66,7 +62,7 @@ const nameSchema = z
             .regex(NO_WHITESPACE_REGEX, "onboarding.nameNoSpaces")
     );
 
-const onboardingFormSchema = z.object({
+const onboardingSchema = z.object({
     firstName: nameSchema,
     lastName: nameSchema,
     phone: z

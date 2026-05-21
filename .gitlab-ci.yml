@@ -58,6 +58,26 @@ i18n-check:
     script:
         - bun run --cwd apps/web i18n:check
 
+test:
+    stage: verify
+    services:
+        - name: postgres:18
+          alias: postgres
+    variables:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: waymate_test
+        # Test env. The API's vitest globalSetup migrates this DB; per-test
+        # isolation is TRUNCATE in test/setup.ts. config/env.ts requires the
+        # auth/origin vars even though the test suite never sends real email.
+        DATABASE_URL: "postgres://postgres:postgres@postgres:5432/waymate_test"
+        BETTER_AUTH_URL: "http://localhost:3000"
+        WEB_ORIGIN: "http://localhost:5173"
+        RESEND_API_KEY: "re_ci_dummy_key"
+        NODE_ENV: "test"
+    script:
+        - bun run test
+
 build:
     stage: verify
     script:

@@ -60,6 +60,10 @@ const EnvSchema = z.object({
         .int()
         .min(1)
         .default(100 * 1024),
+    // Number of trusted reverse proxies in front of the API. The client IP is
+    // read that many entries from the end of `X-Forwarded-For`; entries further
+    // left are attacker-controlled and must never key the rate limiter.
+    TRUSTED_PROXY_COUNT: z.coerce.number().int().min(1).default(1),
     LOG_LEVEL: z
         .enum(["trace", "debug", "info", "warn", "error", "fatal", "silent"])
         .default("info"),

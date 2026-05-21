@@ -36,6 +36,13 @@ async function assertUserCanUseSession(userId: string): Promise<void> {
     if (user.userStatus === "SUSPENDED") {
         throw new AuthError(AuthErrorCodes.UserSuspended);
     }
+
+    // A DELETED account is gone for all practical purposes. Any session that
+    // still carries it is treated as unauthenticated so the holder is bounced
+    // to login instead of silently retaining full access.
+    if (user.userStatus === "DELETED") {
+        throw new AuthError(AuthErrorCodes.Unauthorized);
+    }
 }
 
 // Per-request memoization. A route that stacks guards (e.g.
