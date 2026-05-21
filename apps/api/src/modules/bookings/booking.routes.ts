@@ -32,10 +32,10 @@ export const BookingRoutes = new Elysia({
         DriverRideRequestList: DriverRideRequestListSchema,
         ErrorResponse: ErrorResponseSchema,
     })
-    .onError(createErrorHandler(BookingError, bookingErrorToHttpStatus))
     .use(isFullyOnboarded)
     .guard({ auth: true, onboarded: true }, (app) =>
         app
+            .onError(createErrorHandler(BookingError, bookingErrorToHttpStatus))
             // ==========================================
             // PASSENGER ROUTES
             // ==========================================

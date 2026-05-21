@@ -311,8 +311,9 @@
         "cancel": "Cancel",
         "saving": "Saving...",
         "saveError": "Could not save your changes. Please try again.",
-        "fullNameRequired": "Please enter your full name.",
-        "nameTooLong": "First and last name can each be at most 20 characters.",
+        "firstNameRequired": "Please enter your first name.",
+        "lastNameRequired": "Please enter your last name.",
+        "nameTooLong": "Name can be at most 20 characters.",
         "phoneInvalid": "Enter a valid phone number in international format (e.g. +421900123456).",
         "aboutTooLong": "About me can be at most 500 characters."
     },
@@ -479,7 +480,9 @@
         "register": "Register"
     },
     "bookings": {
-        "createError": "Could not create the booking request. Please try again."
+        "createError": "Could not create the booking request. Please try again.",
+        "alreadyBooked": "You already have an active booking for this ride.",
+        "errorTitle": "Could not book"
     },
     "rides": {
         "found": "{{count}} rides found",
