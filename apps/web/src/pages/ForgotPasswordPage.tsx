@@ -5,6 +5,7 @@ import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { Button, Input, TextLink, IconButton } from "@waymate/ui";
+import { FieldError } from "../components/FieldError";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { requestPasswordReset, resetPassword } from "../lib/auth";
 
@@ -15,11 +16,23 @@ type ForgotPasswordPageProps = {
     onThemeToggle: () => void;
 };
 
-type FormValues = {
-    email: string;
-    newPassword: string;
-    confirmPassword: string;
-};
+const formSchema = z
+    .object({
+        email: z
+            .string()
+            .trim()
+            .refine((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
+                message: "login.invalidEmail",
+            }),
+        newPassword: z.string().min(8, "register.passwordTooShort"),
+        confirmPassword: z.string(),
+    })
+    .refine((values) => values.newPassword === values.confirmPassword, {
+        path: ["confirmPassword"],
+        message: "register.passwordMismatch",
+    });
+
+type FormValues = z.infer<typeof formSchema>;
 
 function ProgressDots({ step }: { step: 1 | 2 | 3 }) {
     return (
@@ -64,22 +77,6 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
         initialFromUrl.hasError ? "forgotPassword.invalidToken" : null
     );
     const [resetToken] = useState<string | null>(initialFromUrl.token);
-
-    const formSchema = z
-        .object({
-            email: z
-                .string()
-                .trim()
-                .refine((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
-                    message: "login.invalidEmail",
-                }),
-            newPassword: z.string().min(8, "register.passwordTooShort"),
-            confirmPassword: z.string(),
-        })
-        .refine((values) => values.newPassword === values.confirmPassword, {
-            path: ["confirmPassword"],
-            message: "register.passwordMismatch",
-        });
 
     const {
         register,
@@ -202,11 +199,10 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                 type="email"
                                 {...register("email")}
                             />
-                            {errors.email && (
-                                <p className="mt-2 text-xs font-semibold text-(--color-danger-text)">
-                                    {errors.email.message}
-                                </p>
-                            )}
+                            <FieldError className="mt-2">
+                                {errors.email?.message &&
+                                    t(errors.email.message)}
+                            </FieldError>
                         </div>
 
                         <Button
@@ -218,9 +214,9 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                 : `➤ ${t("forgotPassword.sendCode")}`}
                         </Button>
                         {resetError && (
-                            <p className="mt-3 text-xs font-semibold text-(--color-danger-text)">
-                                {resetError}
-                            </p>
+                            <FieldError className="mt-3">
+                                {t(resetError)}
+                            </FieldError>
                         )}
                         <div className="mt-4 text-sm">
                             <TextLink
@@ -350,11 +346,10 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                         onClick={() => setShowPw((v) => !v)}
                                     />
                                 </div>
-                                {errors.newPassword && (
-                                    <p className="mt-2 text-xs font-semibold text-(--color-danger-text)">
-                                        {errors.newPassword.message}
-                                    </p>
-                                )}
+                                <FieldError className="mt-2">
+                                    {errors.newPassword?.message &&
+                                        t(errors.newPassword.message)}
+                                </FieldError>
                             </div>
                             <div className="text-left">
                                 <label className="text-sm font-semibold text-(--color-text-primary) mb-1 block">
@@ -365,11 +360,10 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                     type="password"
                                     placeholder="••••••••"
                                 />
-                                {errors.confirmPassword && (
-                                    <p className="mt-2 text-xs font-semibold text-(--color-danger-text)">
-                                        {errors.confirmPassword.message}
-                                    </p>
-                                )}
+                                <FieldError className="mt-2">
+                                    {errors.confirmPassword?.message &&
+                                        t(errors.confirmPassword.message)}
+                                </FieldError>
                             </div>
                         </div>
 
@@ -382,9 +376,9 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                                 : `✓ ${t("forgotPassword.setPassword")}`}
                         </Button>
                         {resetError && (
-                            <p className="mt-3 text-xs font-semibold text-(--color-danger-text)">
-                                {resetError}
-                            </p>
+                            <FieldError className="mt-3">
+                                {t(resetError)}
+                            </FieldError>
                         )}
                     </>
                 )}
