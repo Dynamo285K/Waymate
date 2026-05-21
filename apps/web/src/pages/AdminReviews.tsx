@@ -79,6 +79,7 @@ export function AdminReviewsPage({
     const [selectedReviewId, setSelectedReviewId] = useState<string | null>(
         null
     );
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [pendingStatus, setPendingStatus] = useState<ReviewStatus | null>(
         null
     );
@@ -120,6 +121,7 @@ export function AdminReviewsPage({
                     queryKey: getGetAdminReviewsCountsQueryKey(),
                 });
                 setSelectedReviewId(null);
+                setIsDetailOpen(false);
                 setPendingStatus(null);
                 setDeleteTarget(null);
             }
@@ -159,11 +161,13 @@ export function AdminReviewsPage({
         setReviewStatus.reset();
         setPendingStatus(null);
         setSelectedReviewId(id);
+        setIsDetailOpen(id !== null);
     };
 
     const handleToggleVisibility = (review: AdminReviewListItem) => {
         setReviewStatus.reset();
         setSelectedReviewId(review.id);
+        setIsDetailOpen(false);
         setPendingStatus(
             review.reviewStatus === "VISIBLE" ? "HIDDEN" : "VISIBLE"
         );
@@ -247,7 +251,7 @@ export function AdminReviewsPage({
                     )}
             </div>
 
-            {selectedReviewId && (
+            {selectedReviewId && isDetailOpen && (
                 <ReviewDetailModal
                     key={selectedReviewId}
                     theme={theme}
@@ -273,7 +277,10 @@ export function AdminReviewsPage({
                         setReviewStatus.variables?.id === selectedReviewId
                     }
                     error={modalError}
-                    onClose={() => setPendingStatus(null)}
+                    onClose={() => {
+                        setPendingStatus(null);
+                        if (!isDetailOpen) setSelectedReviewId(null);
+                    }}
                     onConfirm={handleConfirmStatus}
                 />
             )}
