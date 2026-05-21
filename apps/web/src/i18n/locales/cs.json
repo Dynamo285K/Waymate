@@ -26,8 +26,9 @@
         "createAccount": "Vytvořit účet",
         "invalidEmail": "Zadejte platný e-mail.",
         "passwordTooShort": "Heslo musí mít alespoň 8 znaků.",
+        "error": "Přihlášení selhalo. Zkontrolujte údaje a zkuste to znovu.",
         "banned": "Váš účet byl zablokován.",
-        "error": "Přihlášení selhalo. Zkontrolujte údaje a zkuste to znovu."
+        "suspended": "Váš účet byl pozastaven."
     },
     "register": {
         "title": "Vytvořit účet",
@@ -59,7 +60,6 @@
         "firstNameRequired": "Zadejte jméno.",
         "lastNameRequired": "Zadejte příjmení.",
         "phoneRequired": "Zadejte telefonní číslo.",
-        "requiredError": "Zadejte jméno, příjmení a telefonní číslo.",
         "phoneError": "Použijte mezinárodní formát, například +421900123456.",
         "loginRequired": "Po ověření e-mailu se přihlaste a dokončete profil.",
         "error": "Profil se nepodařilo uložit. Zkuste to znovu."

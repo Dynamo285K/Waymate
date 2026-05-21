@@ -118,6 +118,13 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
             throw new RideError(RideErrorCodes.CarNotAvailableForDriver);
         }
 
+        // A ride can't offer more seats than the chosen car physically has.
+        // Without this, the booking-capacity math downstream trusts a number
+        // that was never validated against the vehicle.
+        if (input.offeredSeats > car.seatsTotal) {
+            throw new RideError(RideErrorCodes.TooManySeats);
+        }
+
         const newRide = await RideRepository.insertRide(tx, {
             driverId: input.driverId,
             carId: input.carId,
@@ -257,6 +264,89 @@ const cancelRide = async (
     });
 };
 
+const completeRide = async (
+    rideId: string,
+    driverId: string,
+    reason?: string
+): Promise<string> => {
+    return await db.transaction(async (tx) => {
+        const ride = await RideRepository.findRideForComplete(
+            tx,
+            rideId,
+            driverId
+        );
+
+        if (!ride) {
+            throw new RideError(RideErrorCodes.RideNotFoundOrNotOwner);
+        }
+
+        if (ride.rideStatus === "COMPLETED") {
+            throw new RideError(RideErrorCodes.RideAlreadyCompleted);
+        }
+
+        // Only an in-flight ride can be completed. CANCELLED (or any other
+        // terminal state) is not a legal source for a COMPLETED transition.
+        if (
+            ride.rideStatus !== "PLANNED" &&
+            ride.rideStatus !== "IN_PROGRESS"
+        ) {
+            throw new RideError(RideErrorCodes.RideNotCompletable);
+        }
+
+        // Guard against marking a future ride complete — the review window and
+        // "past rides" listing both assume a COMPLETED ride has actually run.
+        if (ride.departureAt > new Date()) {
+            throw new RideError(RideErrorCodes.RideNotDeparted);
+        }
+
+        const updatedRide = await RideRepository.updateRideStatusToCompleted(
+            tx,
+            rideId,
+            driverId
+        );
+
+        if (!updatedRide) {
+            // Race: ride was soft-deleted between the check and the update.
+            throw new RideError(RideErrorCodes.RideNotFoundOrNotOwner);
+        }
+
+        const completionReason = reason || "Ride completed by driver";
+
+        await RideRepository.insertRideStatusHistory(tx, {
+            rideId: updatedRide.id,
+            oldStatus: ride.rideStatus,
+            newStatus: "COMPLETED",
+            changedByUserId: driverId,
+            reason: completionReason,
+        });
+
+        // Carry confirmed bookings to COMPLETED so the rating window opens for
+        // both sides and the passenger's "past rides" reflects reality. PENDING
+        // requests are left untouched — they were never accepted.
+        const confirmedBookings =
+            await RideRepository.findConfirmedBookingsByRideId(tx, rideId);
+
+        if (confirmedBookings.length > 0) {
+            const bookingIds = confirmedBookings.map((b) => b.id);
+
+            await RideRepository.bulkCompleteBookings(tx, bookingIds);
+
+            await RideRepository.bulkInsertBookingStatusHistory(
+                tx,
+                confirmedBookings.map((b) => ({
+                    bookingId: b.id,
+                    oldStatus: b.bookingStatus,
+                    newStatus: "COMPLETED" as const,
+                    changedByUserId: driverId,
+                    reason: completionReason,
+                }))
+            );
+        }
+
+        return updatedRide.id;
+    });
+};
+
 export const RideService = {
     getAvailableRides,
     getDriverRides,
@@ -264,4 +354,5 @@ export const RideService = {
     searchRides,
     createRide,
     cancelRide,
+    completeRide,
 };

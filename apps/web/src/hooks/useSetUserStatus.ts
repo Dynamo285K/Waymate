@@ -6,18 +6,18 @@ import {
     getGetAdminUsersByIdQueryKey,
 } from "../api-client/admin/admin";
 import type { AdminUserListItem } from "../api-client/model/adminUserListItem";
-import type { UserStatus } from "../api-client/model/userStatus";
+import type { AdminSettableUserStatus } from "../api-client/model/adminSettableUserStatus";
 import type { ApiMutationError } from "../lib/api-fetcher";
 
 type SetUserStatusInput = {
     userId: string;
-    status: UserStatus;
+    status: AdminSettableUserStatus;
     reason?: string;
 };
 
 type MutationVars = {
     id: string;
-    data: { status: UserStatus; reason?: string };
+    data: { status: AdminSettableUserStatus; reason?: string };
 };
 
 export function useSetUserStatus() {
