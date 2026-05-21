@@ -6,6 +6,7 @@ import {
     asc,
     desc,
     gte,
+    lte,
     lt,
     inArray,
     ne,
@@ -679,6 +680,27 @@ const findConfirmedBookingsByRideId = async (
     });
 };
 
+const findRidesDueForAutoEnd = async (
+    executor: Executor,
+    now: Date,
+    limit: number
+): Promise<{ id: string }[]> => {
+    return await executor
+        .select({ id: ridesTable.id })
+        .from(ridesTable)
+        .where(
+            and(
+                rideNotSoftDeleted,
+                isNull(ridesTable.endedAt),
+                isNotNull(ridesTable.autoEndAt),
+                lte(ridesTable.autoEndAt, now),
+                inArray(ridesTable.rideStatus, ["PLANNED", "IN_PROGRESS"])
+            )
+        )
+        .orderBy(asc(ridesTable.autoEndAt), asc(ridesTable.id))
+        .limit(limit);
+};
+
 const bulkCompleteBookings = async (
     executor: Executor,
     bookingIds: string[]
@@ -730,6 +752,7 @@ export const RideRepository = {
     findRideForEnd,
     updateRideToEnded,
     findConfirmedBookingsByRideId,
+    findRidesDueForAutoEnd,
     bulkCompleteBookings,
     bulkCancelBookings,
     bulkInsertBookingStatusHistory,
