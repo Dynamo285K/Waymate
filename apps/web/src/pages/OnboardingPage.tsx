@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
-import type { FormEvent } from "react";
+import { useEffect } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
@@ -42,6 +44,32 @@ function normalizePhone(phone: string) {
     return normalized;
 }
 
+// Names are capitalized and the phone is normalized (0XXX → +421XXX) as part
+// of validation, so the values handed to the API are already formatted.
+const onboardingFormSchema = z.object({
+    firstName: z
+        .string()
+        .trim()
+        .min(1, "onboarding.requiredError")
+        .transform(formatNamePart),
+    lastName: z
+        .string()
+        .trim()
+        .min(1, "onboarding.requiredError")
+        .transform(formatNamePart),
+    phone: z
+        .string()
+        .trim()
+        .min(1, "onboarding.requiredError")
+        .transform(normalizePhone)
+        .refine((value) => /^\+[1-9]\d{1,14}$/.test(value), {
+            message: "onboarding.phoneError",
+        }),
+});
+
+type OnboardingFormInput = z.input<typeof onboardingFormSchema>;
+type OnboardingFormValues = z.output<typeof onboardingFormSchema>;
+
 export function OnboardingPage({
     language,
     theme,
@@ -57,18 +85,30 @@ export function OnboardingPage({
         onThemeToggle,
     });
     const queryClient = useQueryClient();
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [phone, setPhone] = useState("");
-    const [isInitialized, setIsInitialized] = useState(false);
-    const [submitError, setSubmitError] = useState("");
-
     const {
         data: user,
         isPending: isLoadingProfile,
         error: loadError,
     } = useGetUsersMe({
         query: { retry: false },
+    });
+
+    const alreadyOnboarded = !!user && hasCompletedOnboarding(user);
+
+    const {
+        register,
+        handleSubmit,
+        setError,
+        formState: { errors, isSubmitting },
+    } = useForm<OnboardingFormInput, unknown, OnboardingFormValues>({
+        resolver: zodResolver(onboardingFormSchema),
+        // `values` keeps the form in sync with the async profile query without
+        // a reset()-in-effect — RHF re-applies these whenever `user` resolves.
+        values: {
+            firstName: user?.firstName ?? "",
+            lastName: user?.lastName ?? "",
+            phone: user?.phone ?? "",
+        },
     });
 
     const onboardMutation = usePatchUsersMeOnboarding<ApiMutationError>({
@@ -79,65 +119,30 @@ export function OnboardingPage({
         },
     });
 
+    // Redirect away once we know the user has already onboarded. No setState
+    // here, so it doesn't trigger set-state-in-effect.
     useEffect(() => {
-        if (isInitialized || isLoadingProfile) return;
+        if (!alreadyOnboarded) return;
+        let cancelled = false;
+        getPostAuthPath().then((path) => {
+            if (!cancelled) navigate(path, { replace: true });
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, [alreadyOnboarded, navigate]);
 
-        if (loadError) {
-            setSubmitError(t("onboarding.loginRequired"));
-            setIsInitialized(true);
-            return;
-        }
-
-        if (!user) return;
-
-        if (hasCompletedOnboarding(user)) {
-            let cancelled = false;
-            getPostAuthPath().then((path) => {
-                if (!cancelled) navigate(path, { replace: true });
-            });
-            return () => {
-                cancelled = true;
-            };
-        }
-
-        setFirstName(user.firstName ?? "");
-        setLastName(user.lastName ?? "");
-        setPhone(user.phone ?? "");
-        setIsInitialized(true);
-    }, [user, loadError, isLoadingProfile, isInitialized, navigate, t]);
-
-    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        setSubmitError("");
-
-        const formattedFirstName = formatNamePart(firstName);
-        const formattedLastName = formatNamePart(lastName);
-        const normalizedPhone = normalizePhone(phone);
-
-        if (!formattedFirstName || !formattedLastName || !normalizedPhone) {
-            setSubmitError("onboarding.requiredError");
-            return;
-        }
-
-        if (!/^\+[1-9]\d{1,14}$/.test(normalizedPhone)) {
-            setSubmitError("onboarding.phoneError");
-            return;
-        }
-
+    const onSubmit: SubmitHandler<OnboardingFormValues> = async (values) => {
         try {
-            await onboardMutation.mutateAsync({
-                data: {
-                    firstName: formattedFirstName,
-                    lastName: formattedLastName,
-                    phone: normalizedPhone,
-                },
-            });
+            await onboardMutation.mutateAsync({ data: values });
             navigate(await getPostAuthPath());
         } catch (error) {
             console.error("Onboarding submit failed", error);
-            setSubmitError(getErrorI18nKey(error, {}, "onboarding.error"));
+            setError("root", {
+                message: getErrorI18nKey(error, {}, "onboarding.error"),
+            });
         }
-    }
+    };
 
     return (
         <div
@@ -147,9 +152,9 @@ export function OnboardingPage({
             <AuthNavbar {...authNavbarProps} />
 
             <main className="flex min-h-[calc(100vh-72px)] items-center justify-center px-4 py-12">
-                {isInitialized && (
+                {!isLoadingProfile && !alreadyOnboarded && (
                     <form
-                        onSubmit={handleSubmit}
+                        onSubmit={handleSubmit(onSubmit)}
                         noValidate
                         className="w-full max-w-xl rounded-2xl border border-(--color-border) bg-(--color-card) p-6 shadow-xl sm:p-8"
                     >
@@ -166,12 +171,14 @@ export function OnboardingPage({
                                     {t("onboarding.firstName")}
                                 </span>
                                 <Input
-                                    value={firstName}
-                                    onChange={(event) =>
-                                        setFirstName(event.target.value)
-                                    }
                                     autoComplete="given-name"
+                                    {...register("firstName")}
                                 />
+                                {errors.firstName?.message && (
+                                    <span className="text-sm font-semibold text-(--color-red)">
+                                        {t(errors.firstName.message)}
+                                    </span>
+                                )}
                             </label>
 
                             <label className="flex flex-col gap-2">
@@ -179,12 +186,14 @@ export function OnboardingPage({
                                     {t("onboarding.lastName")}
                                 </span>
                                 <Input
-                                    value={lastName}
-                                    onChange={(event) =>
-                                        setLastName(event.target.value)
-                                    }
                                     autoComplete="family-name"
+                                    {...register("lastName")}
                                 />
+                                {errors.lastName?.message && (
+                                    <span className="text-sm font-semibold text-(--color-red)">
+                                        {t(errors.lastName.message)}
+                                    </span>
+                                )}
                             </label>
 
                             <label className="flex flex-col gap-2">
@@ -192,25 +201,30 @@ export function OnboardingPage({
                                     {t("onboarding.phone")}
                                 </span>
                                 <Input
-                                    value={phone}
-                                    onChange={(event) =>
-                                        setPhone(event.target.value)
-                                    }
                                     autoComplete="tel"
+                                    {...register("phone")}
                                 />
+                                {errors.phone?.message && (
+                                    <span className="text-sm font-semibold text-(--color-red)">
+                                        {t(errors.phone.message)}
+                                    </span>
+                                )}
                             </label>
                         </div>
 
-                        {submitError && (
+                        {(errors.root?.message || loadError) && (
                             <p className="mt-5 text-sm font-semibold text-(--color-red)">
-                                {t(submitError)}
+                                {t(
+                                    errors.root?.message ??
+                                        "onboarding.loginRequired"
+                                )}
                             </p>
                         )}
 
                         <div className="mt-8 flex justify-end">
                             <Button
                                 type="submit"
-                                disabled={onboardMutation.isPending}
+                                disabled={isSubmitting || onboardMutation.isPending}
                             >
                                 {t("onboarding.save")}
                             </Button>

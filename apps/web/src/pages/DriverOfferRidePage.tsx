@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 import type { ComponentProps, ComponentType } from "react";
 import { cs, enUS, sk as skLocale } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
@@ -139,6 +140,23 @@ function isIntegerInput(value: string) {
     return /^\d*$/.test(value);
 }
 
+// The straightforward ride-detail + manual-car inputs are managed by
+// react-hook-form. Car selection (carMode/selectedCarId) and UI flags stay as
+// useState because they react to the async saved-cars list and don't map onto
+// RHF's model. OfferRideForm is fully controlled, so values are read via
+// watch() and changes pushed back through setValue().
+type OfferRideFormValues = {
+    pickupCity: CityListItem | null;
+    dropoffCity: CityListItem | null;
+    rideDate: Date | undefined;
+    rideTime: string;
+    seats: string;
+    price: string;
+    manualBrand: string;
+    manualModel: string;
+    manualPlate: string;
+};
+
 export function DriverOfferRidePage({
     language,
     theme,
@@ -160,18 +178,35 @@ export function DriverOfferRidePage({
         userEmail,
     });
 
+    const { watch, setValue } = useForm<OfferRideFormValues>({
+        defaultValues: {
+            pickupCity: null,
+            dropoffCity: null,
+            rideDate: undefined,
+            rideTime: "",
+            seats: "",
+            price: "",
+            manualBrand: "",
+            manualModel: "",
+            manualPlate: "",
+        },
+    });
+
+    const {
+        pickupCity,
+        dropoffCity,
+        rideDate,
+        rideTime,
+        seats,
+        price,
+        manualBrand,
+        manualModel,
+        manualPlate,
+    } = watch();
+
     const [localSavedCars, setLocalSavedCars] = useState<OfferRideCar[]>([]);
     const [carMode, setCarMode] = useState<"saved" | "manual">("manual");
     const [selectedCarId, setSelectedCarId] = useState("");
-    const [manualBrand, setManualBrand] = useState("");
-    const [manualModel, setManualModel] = useState("");
-    const [manualPlate, setManualPlate] = useState("");
-    const [pickupCity, setPickupCity] = useState<CityListItem | null>(null);
-    const [dropoffCity, setDropoffCity] = useState<CityListItem | null>(null);
-    const [rideDate, setRideDate] = useState<Date | undefined>();
-    const [rideTime, setRideTime] = useState("");
-    const [seats, setSeats] = useState("");
-    const [price, setPrice] = useState("");
     const [showSaveCarPrompt, setShowSaveCarPrompt] = useState(false);
     const [publishedMessage, setPublishedMessage] = useState("");
     const [publishError, setPublishError] = useState("");
@@ -299,19 +334,19 @@ export function DriverOfferRidePage({
         enUS;
 
     function handleManualBrandChange(value: string) {
-        setManualBrand(value);
-        setManualModel("");
+        setValue("manualBrand", value);
+        setValue("manualModel", "");
     }
 
     function handleSeatsChange(value: string) {
         if (isIntegerInput(value)) {
-            setSeats(value);
+            setValue("seats", value);
         }
     }
 
     function handlePriceChange(value: string) {
         if (isIntegerInput(value)) {
-            setPrice(value);
+            setValue("price", value);
         }
     }
 
@@ -589,15 +624,19 @@ export function DriverOfferRidePage({
                         publishLabel: t("offerRide.publish"),
                     }}
                     pickupCity={pickupCity}
-                    onPickupCityChange={setPickupCity}
+                    onPickupCityChange={(city) =>
+                        setValue("pickupCity", city)
+                    }
                     dropoffCity={dropoffCity}
-                    onDropoffCityChange={setDropoffCity}
+                    onDropoffCityChange={(city) =>
+                        setValue("dropoffCity", city)
+                    }
                     date={rideDate}
-                    onDateChange={setRideDate}
+                    onDateChange={(date) => setValue("rideDate", date)}
                     dateLocale={datePickerLocale}
                     today={offerRideToday}
                     time={rideTime}
-                    onTimeChange={setRideTime}
+                    onTimeChange={(time) => setValue("rideTime", time)}
                     seats={seats}
                     onSeatsChange={handleSeatsChange}
                     price={price}
@@ -612,12 +651,16 @@ export function DriverOfferRidePage({
                     manualBrandOptions={carBrandOptions}
                     manualBrandLoading={isLoadingCarBrands}
                     manualModel={manualModel}
-                    onManualModelChange={setManualModel}
+                    onManualModelChange={(value) =>
+                        setValue("manualModel", value)
+                    }
                     manualModelOptions={carModelOptions}
                     manualModelLoading={isLoadingCarModels}
                     manualModelDisabled={!manualBrand}
                     manualPlate={manualPlate}
-                    onManualPlateChange={setManualPlate}
+                    onManualPlateChange={(value) =>
+                        setValue("manualPlate", value)
+                    }
                     manualPlateError={manualPlateError}
                     publishedMessage={
                         publishedMessage ? t(publishedMessage) : ""
