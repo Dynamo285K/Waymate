@@ -1,28 +1,24 @@
 import postgres from "postgres";
+import { env } from "../src/config/env";
 import { db } from "../src/db";
-import { carModels } from "../src/db/schema";
+import { carModels, cities } from "../src/db/schema";
 import carData from "../src/db/cars-data.json";
+import { TEST_CITIES } from "./reference-data";
 
 let client: postgres.Sql | null = null;
 let cachedTables: string[] | null = null;
 
 function getClient(): postgres.Sql {
     if (!client) {
-        const url = process.env.DATABASE_URL;
-        if (!url) {
-            throw new Error(
-                "DATABASE_URL not set — did load-env.ts run before this module?"
-            );
-        }
-        client = postgres(url, { max: 1, prepare: false });
+        client = postgres(env.DATABASE_URL, { max: 1, prepare: false });
     }
     return client;
 }
 
 /**
  * Truncates every table in the public schema except the drizzle migration
- * bookkeeping, then re-seeds reference data (car_models) so tests can rely
- * on it without each test re-inserting brands.
+ * bookkeeping, then re-seeds reference data (cities, car_models) so tests can
+ * rely on it without each test re-inserting lookup rows.
  *
  * Resetting via TRUNCATE (not transaction rollback) — services call
  * db.transaction() internally, and wrapping those in an outer test
@@ -49,7 +45,9 @@ export async function resetDatabase(): Promise<void> {
     await sql.unsafe(`TRUNCATE TABLE ${list} RESTART IDENTITY CASCADE`);
 
     // Re-seed reference data via drizzle so the camelCase → snake_case
-    // column mapping (modelName → model_name) is handled by the schema.
+    // column mapping (modelName → model_name, nameNormalized →
+    // name_normalized) is handled by the schema.
+    await db.insert(cities).values(TEST_CITIES);
     await db.insert(carModels).values(carData);
 }
 

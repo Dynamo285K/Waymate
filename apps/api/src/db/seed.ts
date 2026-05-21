@@ -28,6 +28,7 @@ const DRIVER_PASSWORD = "driver1234";
 
 async function main() {
     console.log("Starting reset and seeding of car models...");
+    let exitCode = 0;
 
     try {
         console.log("Clearing all old data and resetting IDs...");
@@ -539,8 +540,9 @@ async function main() {
         console.log(`  driver: ${DRIVER_EMAIL} / ${DRIVER_PASSWORD}`);
     } catch (error) {
         console.error("Error during seeding:", error);
+        exitCode = 1;
     } finally {
-        process.exit(0);
+        process.exit(exitCode);
     }
 }
 

@@ -9,7 +9,7 @@
         "resolveJsonModule": true,
         "skipLibCheck": true,
         "noEmit": true,
-        "types": ["node"]
+        "types": ["bun"]
     },
     "include": ["**/*.ts", "playwright.config.ts"]
 }

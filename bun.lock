@@ -90,6 +90,7 @@
       "name": "@repo/e2e",
       "devDependencies": {
         "@playwright/test": "^1.49.0",
+        "@types/bun": "latest",
       },
     },
     "packages/db": {

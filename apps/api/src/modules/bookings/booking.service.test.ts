@@ -13,6 +13,7 @@ import {
 import { BookingService } from "./booking.service";
 import { BookingError, BookingErrorCodes } from "./booking.errors";
 import { RideService } from "../rides/ride.service";
+import { TEST_CITY_IDS } from "../../../test/reference-data";
 import type { CreateRideBody } from "@repo/shared";
 
 async function insertTestUser() {
@@ -71,8 +72,7 @@ function buildCreateRideBody(
         stops: overrides.stops ?? [
             {
                 address: "Hlavná 1",
-                city: "Bratislava",
-                countryCode: "SK",
+                cityId: TEST_CITY_IDS.bratislava,
                 lat: 48.148,
                 lng: 17.107,
                 plannedArrivalAt: null,
@@ -80,8 +80,7 @@ function buildCreateRideBody(
             },
             {
                 address: "Námestie SNP 1",
-                city: "Banská Bystrica",
-                countryCode: "SK",
+                cityId: TEST_CITY_IDS.banskaBystrica,
                 lat: 48.736,
                 lng: 19.146,
                 plannedArrivalAt: new Date(
