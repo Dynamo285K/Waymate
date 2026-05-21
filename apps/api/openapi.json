@@ -654,16 +654,6 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Response for status 401",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        }
-                    },
                     "429": {
                         "description": "Response for status 429",
                         "content": {
@@ -1109,6 +1099,105 @@
                     }
                 },
                 "operationId": "patchRidesByIdCancel"
+            }
+        },
+        "/rides/{id}/complete": {
+            "patch": {
+                "tags": ["Rides"],
+                "description": "Marks the driver's ride as COMPLETED and carries confirmed bookings to COMPLETED, opening the review window",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/RideId"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CompleteRideBody"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CompleteRideBody"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CompleteRideBody"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompleteRideResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Response for status 400",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Response for status 404",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Response for status 413",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Response for status 429",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "patchRidesByIdComplete"
             }
         },
         "/bookings/requests": {
@@ -2588,6 +2677,15 @@
                         }
                     },
                     {
+                        "name": "subjectRole",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": ["DRIVER", "PASSENGER"]
+                        }
+                    },
+                    {
                         "name": "search",
                         "in": "query",
                         "required": false,
@@ -2663,7 +2761,143 @@
                 "operationId": "getAdminReviews"
             }
         },
+        "/admin/reviews/counts": {
+            "get": {
+                "tags": ["Admin"],
+                "description": "Returns counts of non-deleted reviews grouped by status (all, visible, hidden) for admin tab badges.",
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminReviewCounts"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Response for status 401",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Response for status 403",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Response for status 429",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "getAdminReviewsCounts"
+            }
+        },
         "/admin/reviews/{id}": {
+            "delete": {
+                "tags": ["Admin"],
+                "description": "Permanently soft-deletes a review. The review is removed from all public surfaces and excluded from rating aggregates.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/ReviewId"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminDeleteReviewResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Response for status 401",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Response for status 403",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Response for status 404",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Response for status 429",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "deleteAdminReviewsById"
+            },
             "get": {
                 "tags": ["Admin"],
                 "description": "Returns full review detail (author, subject, ride context) plus the most recent status history entries (newest first, capped at 50).",
@@ -4399,6 +4633,30 @@
                 "required": ["id", "status"],
                 "additionalProperties": false
             },
+            "CompleteRideBody": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "maxLength": 500
+                    }
+                },
+                "additionalProperties": false
+            },
+            "CompleteRideResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "$ref": "#/components/schemas/RideId"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": ["COMPLETED"]
+                    }
+                },
+                "required": ["id", "status"],
+                "additionalProperties": false
+            },
             "BookingIdParams": {
                 "type": "object",
                 "properties": {
@@ -5044,7 +5302,7 @@
                 "type": "object",
                 "properties": {
                     "status": {
-                        "$ref": "#/components/schemas/UserStatus"
+                        "$ref": "#/components/schemas/AdminSettableUserStatus"
                     },
                     "reason": {
                         "type": "string",
@@ -5577,6 +5835,10 @@
                         "minimum": 1,
                         "maximum": 5
                     },
+                    "subjectRole": {
+                        "type": "string",
+                        "enum": ["DRIVER", "PASSENGER"]
+                    },
                     "search": {
                         "type": "string",
                         "minLength": 1,
@@ -5607,6 +5869,14 @@
                     "reviewStatus": {
                         "$ref": "#/components/schemas/ReviewStatus"
                     },
+                    "authorRole": {
+                        "type": "string",
+                        "enum": ["DRIVER", "PASSENGER"]
+                    },
+                    "subjectRole": {
+                        "type": "string",
+                        "enum": ["DRIVER", "PASSENGER"]
+                    },
                     "author": {
                         "type": "object",
                         "properties": {
@@ -5671,6 +5941,19 @@
                         ],
                         "additionalProperties": false
                     },
+                    "ride": {
+                        "type": "object",
+                        "properties": {
+                            "originCity": {
+                                "type": "string"
+                            },
+                            "destinationCity": {
+                                "type": "string"
+                            }
+                        },
+                        "required": ["originCity", "destinationCity"],
+                        "additionalProperties": false
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time"
@@ -5682,8 +5965,11 @@
                     "rating",
                     "comment",
                     "reviewStatus",
+                    "authorRole",
+                    "subjectRole",
                     "author",
                     "subject",
+                    "ride",
                     "createdAt"
                 ],
                 "additionalProperties": false
@@ -5709,6 +5995,38 @@
                 "required": ["items", "nextCursor"],
                 "additionalProperties": false
             },
+            "AdminReviewCounts": {
+                "type": "object",
+                "properties": {
+                    "all": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                    },
+                    "visible": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                    },
+                    "hidden": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                    }
+                },
+                "required": ["all", "visible", "hidden"],
+                "additionalProperties": false
+            },
+            "AdminDeleteReviewResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "$ref": "#/components/schemas/ReviewId"
+                    }
+                },
+                "required": ["id"],
+                "additionalProperties": false
+            },
             "AdminReviewDetail": {
                 "type": "object",
                 "properties": {
@@ -5729,6 +6047,14 @@
                     },
                     "reviewStatus": {
                         "$ref": "#/components/schemas/ReviewStatus"
+                    },
+                    "authorRole": {
+                        "type": "string",
+                        "enum": ["DRIVER", "PASSENGER"]
+                    },
+                    "subjectRole": {
+                        "type": "string",
+                        "enum": ["DRIVER", "PASSENGER"]
                     },
                     "author": {
                         "type": "object",
@@ -5794,14 +6120,6 @@
                         ],
                         "additionalProperties": false
                     },
-                    "createdAt": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updatedAt": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
                     "ride": {
                         "type": "object",
                         "properties": {
@@ -5826,6 +6144,14 @@
                             "destinationCity"
                         ],
                         "additionalProperties": false
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
                     }
                 },
                 "required": [
@@ -5834,11 +6160,13 @@
                     "rating",
                     "comment",
                     "reviewStatus",
+                    "authorRole",
+                    "subjectRole",
                     "author",
                     "subject",
+                    "ride",
                     "createdAt",
-                    "updatedAt",
-                    "ride"
+                    "updatedAt"
                 ],
                 "additionalProperties": false
             },
@@ -6944,6 +7272,10 @@
                     "subject"
                 ],
                 "additionalProperties": false
+            },
+            "AdminSettableUserStatus": {
+                "type": "string",
+                "enum": ["ACTIVE", "SUSPENDED", "BANNED"]
             },
             "ReviewListItem": {
                 "type": "object",

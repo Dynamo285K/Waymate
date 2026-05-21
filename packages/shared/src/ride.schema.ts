@@ -203,12 +203,17 @@ export const CancelRideBodySchema = z.object({
     reason: z.string().trim().max(500).optional(),
 });
 
+export const CompleteRideBodySchema = z.object({
+    reason: z.string().trim().max(500).optional(),
+});
+
 export const TimeframeQuerySchema = z.object({
     timeframe: z.enum(["UPCOMING", "PAST", "ALL"]).default("UPCOMING"),
 });
 
 export type RideIdParams = z.infer<typeof RideIdParamsSchema>;
 export type CancelRideBody = z.infer<typeof CancelRideBodySchema>;
+export type CompleteRideBody = z.infer<typeof CompleteRideBodySchema>;
 export type TimeframeQuery = z.infer<typeof TimeframeQuerySchema>;
 
 export type CreateRideBody = z.infer<typeof CreateRideBodySchema>;
@@ -300,4 +305,9 @@ export const CreateRideResponseSchema = z.object({
 export const CancelRideResponseSchema = z.object({
     id: RideIdSchema,
     status: z.literal("CANCELLED"),
+});
+
+export const CompleteRideResponseSchema = z.object({
+    id: RideIdSchema,
+    status: z.literal("COMPLETED"),
 });

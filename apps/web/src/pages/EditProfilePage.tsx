@@ -22,8 +22,6 @@ type EditProfilePageProps = {
     onThemeToggle: () => void;
     userName?: string;
     userEmail?: string;
-    userPhone?: string;
-    userBio?: string;
 };
 
 const profileFormSchema = z.object({
@@ -45,8 +43,6 @@ export function EditProfilePage({
     onThemeToggle,
     userName,
     userEmail,
-    userPhone,
-    userBio,
 }: EditProfilePageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();

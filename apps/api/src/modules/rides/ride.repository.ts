@@ -23,6 +23,7 @@ import { rideStatusHistory as rideStatusHistoryTable } from "../../db/schema/rid
 import { bookingStatusHistory as bookingStatusHistoryTable } from "../../db/schema";
 import { cars as carsTable } from "../../db/schema/car";
 import { cities as citiesTable } from "../../db/schema/city";
+import { dayBoundsInTimeZone } from "../../shared/time";
 import type {
     RideListItem,
     RideTimeframe,
@@ -370,11 +371,11 @@ const searchRides = async (
     destinationCityId: string,
     travelDate: Date
 ): Promise<RideSearchResultItem[]> => {
-    const startOfDay = new Date(travelDate);
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date(travelDate);
-    endOfDay.setHours(23, 59, 59, 999);
+    // Bound the day in the business time zone, not the server's local time —
+    // on a UTC host setHours(0..) would shift the window 1–2h off the user's
+    // calendar day and drop early/late rides. See shared/time.ts.
+    const { start: startOfDay, end: endOfDay } =
+        dayBoundsInTimeZone(travelDate);
 
     const driverRatings = executor
         .select({
@@ -591,6 +592,70 @@ const findActiveBookingsByRideId = async (
     });
 };
 
+const findRideForComplete = async (
+    executor: Executor,
+    rideId: string,
+    driverId: string
+): Promise<{
+    rideStatus: RideListItem["rideStatus"];
+    departureAt: Date;
+} | null> => {
+    const ride = await executor.query.rides.findFirst({
+        where: and(
+            eq(ridesTable.id, rideId),
+            eq(ridesTable.driverId, driverId),
+            rideNotSoftDeleted
+        ),
+        columns: { rideStatus: true, departureAt: true },
+    });
+
+    return ride ?? null;
+};
+
+const updateRideStatusToCompleted = async (
+    executor: Executor,
+    rideId: string,
+    driverId: string
+): Promise<{ id: string } | null> => {
+    const [updatedRide] = await executor
+        .update(ridesTable)
+        .set({ rideStatus: "COMPLETED" })
+        .where(
+            and(
+                eq(ridesTable.id, rideId),
+                eq(ridesTable.driverId, driverId),
+                rideNotSoftDeleted
+            )
+        )
+        .returning({ id: ridesTable.id });
+
+    return updatedRide ?? null;
+};
+
+const findConfirmedBookingsByRideId = async (
+    executor: Executor,
+    rideId: string
+): Promise<{ id: string; bookingStatus: BookingStatus }[]> => {
+    return await executor.query.bookings.findMany({
+        where: and(
+            eq(bookingsTable.rideId, rideId),
+            eq(bookingsTable.bookingStatus, "CONFIRMED"),
+            bookingNotSoftDeleted
+        ),
+        columns: { id: true, bookingStatus: true },
+    });
+};
+
+const bulkCompleteBookings = async (
+    executor: Executor,
+    bookingIds: string[]
+): Promise<void> => {
+    await executor
+        .update(bookingsTable)
+        .set({ bookingStatus: "COMPLETED" })
+        .where(inArray(bookingsTable.id, bookingIds));
+};
+
 const bulkCancelBookings = async (
     executor: Executor,
     bookingIds: string[],
@@ -629,6 +694,10 @@ export const RideRepository = {
     findRideForCancel,
     updateRideStatusToCancelled,
     findActiveBookingsByRideId,
+    findRideForComplete,
+    updateRideStatusToCompleted,
+    findConfirmedBookingsByRideId,
+    bulkCompleteBookings,
     bulkCancelBookings,
     bulkInsertBookingStatusHistory,
 };

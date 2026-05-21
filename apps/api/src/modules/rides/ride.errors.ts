@@ -5,6 +5,10 @@ export const RideErrorCodes = {
     InvalidPriceStopOrders: "RIDE_INVALID_PRICE_STOP_ORDERS",
     RideNotFoundOrNotOwner: "RIDE_NOT_FOUND_OR_NOT_OWNER",
     RideAlreadyCancelled: "RIDE_ALREADY_CANCELLED",
+    RideAlreadyCompleted: "RIDE_ALREADY_COMPLETED",
+    RideNotCompletable: "RIDE_NOT_COMPLETABLE",
+    RideNotDeparted: "RIDE_NOT_DEPARTED",
+    TooManySeats: "RIDE_TOO_MANY_SEATS",
     UnknownCity: "RIDE_UNKNOWN_CITY",
 } as const;
 
@@ -27,6 +31,10 @@ export function rideErrorToHttpStatus(code: RideErrorCode): number {
             return 403;
         case RideErrorCodes.InvalidPriceStopOrders:
         case RideErrorCodes.RideAlreadyCancelled:
+        case RideErrorCodes.RideAlreadyCompleted:
+        case RideErrorCodes.RideNotCompletable:
+        case RideErrorCodes.RideNotDeparted:
+        case RideErrorCodes.TooManySeats:
         case RideErrorCodes.UnknownCity:
             return 400;
         default:

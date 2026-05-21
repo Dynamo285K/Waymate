@@ -8,6 +8,8 @@ import {
     rideStops,
     prices,
     rideStatusHistory,
+    bookings,
+    bookingStatusHistory,
     users,
 } from "../../db/schema";
 import { RideService } from "./ride.service";
@@ -223,6 +225,27 @@ describe("RideService.createRide", () => {
         expect(leftoverRides).toEqual([]);
     });
 
+    it("throws TooManySeats when offeredSeats exceeds the car's capacity", async () => {
+        const driver = await insertTestUser();
+        const car = await insertCarFor(driver.id, { seatsTotal: 3 });
+
+        await expect(
+            RideService.createRide(
+                driver.id,
+                buildCreateRideBody(car.id, { offeredSeats: 4 })
+            )
+        ).rejects.toMatchObject({
+            code: RideErrorCodes.TooManySeats,
+        });
+
+        // Rolled back — no orphan ride.
+        const leftover = await db
+            .select()
+            .from(rides)
+            .where(eq(rides.driverId, driver.id));
+        expect(leftover).toEqual([]);
+    });
+
     it("throws UnknownCity when a stop references a city outside the catalog", async () => {
         const driver = await insertTestUser();
         const car = await insertCarFor(driver.id);
@@ -420,6 +443,156 @@ describe("RideService.getDriverRides", () => {
 
         const result = await RideService.getDriverRides(driver.id, "UPCOMING");
         expect(result.map((r) => r.id)).toEqual([keptId]);
+    });
+});
+
+describe("RideService.completeRide", () => {
+    const HOUR = 60 * 60 * 1000;
+
+    // Creates a ride that has already departed (so it is eligible to complete)
+    // and returns its id plus the ordered stop ids.
+    async function createDepartedRide(
+        driverId: string,
+        carId: string,
+        departureAt = new Date(Date.now() - 2 * HOUR)
+    ) {
+        const rideId = await RideService.createRide(
+            driverId,
+            buildCreateRideBody(carId, {
+                departureAt,
+                arrivalEstimateAt: new Date(departureAt.getTime() + HOUR),
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }],
+            })
+        );
+        const stops = await db
+            .select({ id: rideStops.id, stopOrder: rideStops.stopOrder })
+            .from(rideStops)
+            .where(eq(rideStops.rideId, rideId));
+        const ordered = stops.sort((a, b) => a.stopOrder - b.stopOrder);
+        return {
+            rideId,
+            pickupStopId: ordered[0]!.id,
+            dropoffStopId: ordered[1]!.id,
+        };
+    }
+
+    async function insertConfirmedBooking(
+        rideId: string,
+        passengerId: string,
+        pickupStopId: string,
+        dropoffStopId: string
+    ) {
+        const [booking] = await db
+            .insert(bookings)
+            .values({
+                passengerId,
+                rideId,
+                pickupStopId,
+                dropoffStopId,
+                seatCount: 1,
+                bookingStatus: "CONFIRMED",
+                priceAmount: 500,
+                currency: "EUR",
+                confirmedAt: new Date(),
+            })
+            .returning();
+        if (!booking) throw new Error("Failed to insert booking");
+        return booking;
+    }
+
+    it("marks a departed PLANNED ride COMPLETED and carries confirmed bookings", async () => {
+        const driver = await insertTestUser();
+        const passenger = await insertTestUser();
+        const car = await insertCarFor(driver.id);
+        const { rideId, pickupStopId, dropoffStopId } =
+            await createDepartedRide(driver.id, car.id);
+        const booking = await insertConfirmedBooking(
+            rideId,
+            passenger.id,
+            pickupStopId,
+            dropoffStopId
+        );
+
+        const returnedId = await RideService.completeRide(rideId, driver.id);
+        expect(returnedId).toBe(rideId);
+
+        const completed = await db.query.rides.findFirst({
+            where: eq(rides.id, rideId),
+        });
+        expect(completed!.rideStatus).toBe("COMPLETED");
+
+        const updatedBooking = await db.query.bookings.findFirst({
+            where: eq(bookings.id, booking.id),
+        });
+        expect(updatedBooking!.bookingStatus).toBe("COMPLETED");
+
+        const rideHistory = await db
+            .select()
+            .from(rideStatusHistory)
+            .where(eq(rideStatusHistory.rideId, rideId));
+        const completeRow = rideHistory.find(
+            (h) => h.newStatus === "COMPLETED"
+        );
+        expect(completeRow!.oldStatus).toBe("PLANNED");
+        expect(completeRow!.changedByUserId).toBe(driver.id);
+
+        const bookingHistory = await db
+            .select()
+            .from(bookingStatusHistory)
+            .where(eq(bookingStatusHistory.bookingId, booking.id));
+        expect(bookingHistory.some((h) => h.newStatus === "COMPLETED")).toBe(
+            true
+        );
+    });
+
+    it("throws RideNotDeparted for a ride whose departure is still in the future", async () => {
+        const driver = await insertTestUser();
+        const car = await insertCarFor(driver.id);
+        const rideId = await RideService.createRide(
+            driver.id,
+            buildCreateRideBody(car.id, {
+                departureAt: new Date(Date.now() + 24 * HOUR),
+            })
+        );
+
+        await expect(
+            RideService.completeRide(rideId, driver.id)
+        ).rejects.toMatchObject({ code: RideErrorCodes.RideNotDeparted });
+    });
+
+    it("throws RideAlreadyCompleted on the second complete", async () => {
+        const driver = await insertTestUser();
+        const car = await insertCarFor(driver.id);
+        const { rideId } = await createDepartedRide(driver.id, car.id);
+        await RideService.completeRide(rideId, driver.id);
+
+        await expect(
+            RideService.completeRide(rideId, driver.id)
+        ).rejects.toMatchObject({ code: RideErrorCodes.RideAlreadyCompleted });
+    });
+
+    it("throws RideNotCompletable for a cancelled ride", async () => {
+        const driver = await insertTestUser();
+        const car = await insertCarFor(driver.id);
+        const { rideId } = await createDepartedRide(driver.id, car.id);
+        await RideService.cancelRide(rideId, driver.id);
+
+        await expect(
+            RideService.completeRide(rideId, driver.id)
+        ).rejects.toMatchObject({ code: RideErrorCodes.RideNotCompletable });
+    });
+
+    it("throws RideNotFoundOrNotOwner when a non-owner tries to complete", async () => {
+        const driver = await insertTestUser();
+        const stranger = await insertTestUser();
+        const car = await insertCarFor(driver.id);
+        const { rideId } = await createDepartedRide(driver.id, car.id);
+
+        await expect(
+            RideService.completeRide(rideId, stranger.id)
+        ).rejects.toMatchObject({
+            code: RideErrorCodes.RideNotFoundOrNotOwner,
+        });
     });
 });
 
