@@ -104,13 +104,17 @@ const requireAudience =
                 replace: true,
             });
         }
-        if (
-            current === "user" &&
-            location.pathname !== "/onboarding" &&
-            user &&
-            !hasCompletedOnboarding(user)
-        ) {
-            throw redirect({ to: "/onboarding", replace: true });
+        if (current === "user" && user) {
+            const onboarded = hasCompletedOnboarding(user);
+            if (!onboarded && location.pathname !== "/onboarding") {
+                throw redirect({ to: "/onboarding" as never, replace: true });
+            }
+            if (onboarded && location.pathname === "/onboarding") {
+                throw redirect({
+                    to: HOME_BY_AUDIENCE.user as never,
+                    replace: true,
+                });
+            }
         }
     };
 

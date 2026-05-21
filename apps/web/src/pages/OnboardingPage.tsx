@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -14,11 +14,7 @@ import {
 } from "../api-client/users/users";
 import type { ApiMutationError } from "../lib/api-fetcher";
 import { getErrorI18nKey } from "../lib/api-errors";
-import {
-    CURRENT_USER_QUERY_KEY,
-    getPostAuthPath,
-    hasCompletedOnboarding,
-} from "../lib/auth";
+import { CURRENT_USER_QUERY_KEY, getPostAuthPath } from "../lib/auth";
 
 type OnboardingPageProps = {
     language: Language;
@@ -73,13 +69,12 @@ export function OnboardingPage({
         onThemeToggle,
     });
     const queryClient = useQueryClient();
-    const [isInitialized, setIsInitialized] = useState(false);
-    const [submitError, setSubmitError] = useState("");
 
     const {
         register,
         handleSubmit,
         reset,
+        setError,
         formState: { errors, isSubmitting },
     } = useForm<OnboardingFormValues>({
         resolver: zodResolver(onboardingSchema),
@@ -90,9 +85,22 @@ export function OnboardingPage({
         data: user,
         isPending: isLoadingProfile,
         error: loadError,
-    } = useGetUsersMe({
-        query: { retry: false },
-    });
+    } = useGetUsersMe({ query: { retry: false } });
+
+    useEffect(() => {
+        if (loadError) {
+            setError("root", { message: "onboarding.loginRequired" });
+        }
+    }, [loadError, setError]);
+
+    useEffect(() => {
+        if (isLoadingProfile || !user) return;
+        reset({
+            firstName: user.firstName ?? "",
+            lastName: user.lastName ?? "",
+            phone: user.phone ?? "",
+        });
+    }, [user, isLoadingProfile, reset]);
 
     const onboardMutation = usePatchUsersMeOnboarding<ApiMutationError>({
         mutation: {
@@ -102,37 +110,7 @@ export function OnboardingPage({
         },
     });
 
-    useEffect(() => {
-        if (isInitialized || isLoadingProfile) return;
-
-        if (loadError) {
-            setSubmitError(t("onboarding.loginRequired"));
-            setIsInitialized(true);
-            return;
-        }
-
-        if (!user) return;
-
-        if (hasCompletedOnboarding(user)) {
-            let cancelled = false;
-            getPostAuthPath().then((path) => {
-                if (!cancelled) navigate(path, { replace: true });
-            });
-            return () => {
-                cancelled = true;
-            };
-        }
-
-        reset({
-            firstName: user.firstName ?? "",
-            lastName: user.lastName ?? "",
-            phone: user.phone ?? "",
-        });
-        setIsInitialized(true);
-    }, [user, loadError, isLoadingProfile, isInitialized, navigate, t, reset]);
-
     async function onSubmit(values: OnboardingFormValues) {
-        setSubmitError("");
         try {
             await onboardMutation.mutateAsync({
                 data: {
@@ -144,7 +122,9 @@ export function OnboardingPage({
             navigate(await getPostAuthPath());
         } catch (error) {
             console.error("Onboarding submit failed", error);
-            setSubmitError(getErrorI18nKey(error, {}, "onboarding.error"));
+            setError("root", {
+                message: getErrorI18nKey(error, {}, "onboarding.error"),
+            });
         }
     }
 
@@ -156,7 +136,7 @@ export function OnboardingPage({
             <AuthNavbar {...authNavbarProps} />
 
             <main className="flex min-h-[calc(100vh-72px)] items-center justify-center px-4 py-12">
-                {isInitialized && (
+                {!isLoadingProfile && (
                     <form
                         onSubmit={handleSubmit(onSubmit)}
                         noValidate
@@ -216,9 +196,9 @@ export function OnboardingPage({
                             </label>
                         </div>
 
-                        {submitError && (
+                        {errors.root && (
                             <p className="mt-5 text-sm font-semibold text-(--color-red)">
-                                {t(submitError)}
+                                {t(errors.root.message!)}
                             </p>
                         )}
 
