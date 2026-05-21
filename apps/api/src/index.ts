@@ -11,6 +11,7 @@ import { UserRoutes } from "./modules/users/user.routes";
 import { CarRoutes } from "./modules/cars/car.routes";
 import { CityRoutes } from "./modules/cities/city.routes";
 import { RideRoutes } from "./modules/rides/ride.routes";
+import { startRideAutoEndWorker } from "./modules/rides/ride.auto-end";
 import { BookingRoutes } from "./modules/bookings/booking.routes";
 import { ReviewRoutes } from "./modules/reviews/review.routes";
 import { ReportRoutes } from "./modules/reports/report.routes";
@@ -300,6 +301,7 @@ export type Auth = typeof auth;
 
 if (import.meta.main) {
     const server = app.listen(env.PORT);
+    startRideAutoEndWorker();
     logger.info(
         {
             host: server.server?.hostname,

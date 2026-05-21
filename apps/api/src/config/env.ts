@@ -46,6 +46,11 @@ const OriginListSchema = z
     )
     .pipe(z.array(OriginSchema));
 
+const BooleanEnvSchema = z
+    .enum(["true", "false", "1", "0"])
+    .default("true")
+    .transform((value) => value === "true" || value === "1");
+
 const EnvSchema = z.object({
     NODE_ENV: z
         .enum(["development", "test", "production"])
@@ -67,6 +72,18 @@ const EnvSchema = z.object({
     LOG_LEVEL: z
         .enum(["trace", "debug", "info", "warn", "error", "fatal", "silent"])
         .default("info"),
+    RIDE_AUTO_END_ENABLED: BooleanEnvSchema,
+    RIDE_AUTO_END_INTERVAL_MS: z.coerce
+        .number()
+        .int()
+        .min(1_000)
+        .default(60_000),
+    RIDE_AUTO_END_BATCH_SIZE: z.coerce
+        .number()
+        .int()
+        .min(1)
+        .max(500)
+        .default(50),
     RESEND_API_KEY: z.string().min(1),
     GOOGLE_CLIENT_ID: z.string().min(1).optional(),
     GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),

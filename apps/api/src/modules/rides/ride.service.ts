@@ -405,6 +405,53 @@ const completeRide = async (
     });
 };
 
+const autoEndExpiredRides = async ({
+    now = new Date(),
+    limit,
+}: {
+    now?: Date;
+    limit: number;
+}): Promise<{
+    candidates: number;
+    processed: number;
+    failed: number;
+    failures: { rideId: string; error: string }[];
+}> => {
+    const dueRides = await RideRepository.findRidesDueForAutoEnd(
+        db,
+        now,
+        limit
+    );
+    const failures: { rideId: string; error: string }[] = [];
+    let processed = 0;
+
+    for (const ride of dueRides) {
+        try {
+            await endRide({
+                rideId: ride.id,
+                source: "AUTO",
+                endedAt: now,
+            });
+            processed += 1;
+        } catch (error) {
+            failures.push({
+                rideId: ride.id,
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : "Unknown auto-end error",
+            });
+        }
+    }
+
+    return {
+        candidates: dueRides.length,
+        processed,
+        failed: failures.length,
+        failures,
+    };
+};
+
 export const RideService = {
     getAvailableRides,
     getDriverRides,
@@ -414,4 +461,5 @@ export const RideService = {
     cancelRide,
     endRide,
     completeRide,
+    autoEndExpiredRides,
 };
