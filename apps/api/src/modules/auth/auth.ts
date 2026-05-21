@@ -93,6 +93,9 @@ export const auth = betterAuth({
         max: 100,
         customRules: {
             "/sign-in/email": { window: 60, max: 5 },
+            // Sign-up triggers a Resend verification email — cap it like
+            // sign-in so the endpoint can't be used to bulk-send mail.
+            "/sign-up/email": { window: 60, max: 5 },
             "/forget-password": { window: 300, max: 3 },
             "/email-otp/send-verification-otp": { window: 60, max: 3 },
         },
@@ -169,6 +172,21 @@ export const auth = betterAuth({
                         code: "USER_BANNED",
                         message:
                             user.banReason ?? "This account has been banned.",
+                    });
+                }
+                // SUSPENDED and DELETED are enforced here too — `assertUser-
+                // CanUseSession` blocks them on API calls, but without this a
+                // sign-in would still mint a (useless) session.
+                if (user?.userStatus === "SUSPENDED") {
+                    throw new APIError("FORBIDDEN", {
+                        code: "USER_SUSPENDED",
+                        message: "This account has been suspended.",
+                    });
+                }
+                if (user?.userStatus === "DELETED") {
+                    throw new APIError("FORBIDDEN", {
+                        code: "USER_DELETED",
+                        message: "This account no longer exists.",
                     });
                 }
                 return;

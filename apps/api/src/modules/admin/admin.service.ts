@@ -127,7 +127,9 @@ const setUserStatus = async ({
             reason,
         });
 
-        if (newStatus === "BANNED") {
+        // Kill live sessions on any access-revoking transition so the change
+        // takes effect immediately rather than only on the next login.
+        if (newStatus === "BANNED" || newStatus === "DELETED") {
             await AdminRepository.deleteSessionsByUserId(tx, targetUserId);
         }
 

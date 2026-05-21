@@ -56,9 +56,6 @@
         "lastName": "Last name",
         "phone": "Phone number",
         "save": "Save and continue",
-        "firstNameRequired": "Enter your first name.",
-        "lastNameRequired": "Enter your last name.",
-        "phoneRequired": "Enter your phone number.",
         "phoneError": "Use an international phone number, for example +421900123456.",
         "nameTooLong": "Name can be at most 20 characters.",
         "nameNoSpaces": "Name must be a single word, without spaces.",
@@ -357,6 +354,7 @@
         "requiredField": "This field is required.",
         "invalidSeatsError": "Must be a whole number above 0.",
         "invalidPriceError": "Must be a whole number above 0.",
+        "pastDeparture": "Pick a departure time in the future.",
         "plateLength": "License plate must be {{min}}-{{max}} characters.",
         "carCreateError": "Could not save this car. Please check the car details."
     },

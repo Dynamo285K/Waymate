@@ -127,57 +127,74 @@ function isIntegerInput(value: string) {
 // fields are kept unconstrained here because they only apply in "manual" car
 // mode — that branch is validated imperatively in onSubmit, where the active
 // carMode is known.
-const offerRideSchema = z.object({
-    pickupCity: z
-        .custom<CityListItem | null>()
-        .refine(
-            (value): value is CityListItem => value !== null,
-            "offerRide.requiredField"
-        ),
-    dropoffCity: z
-        .custom<CityListItem | null>()
-        .refine(
-            (value): value is CityListItem => value !== null,
-            "offerRide.requiredField"
-        ),
-    rideDate: z
-        .date()
-        .optional()
-        .refine(
-            (value): value is Date => value instanceof Date,
-            "offerRide.requiredField"
-        ),
-    rideTime: z.string().min(1, "offerRide.requiredField"),
-    seats: z.string().superRefine((value, ctx) => {
-        if (value.trim() === "") {
-            ctx.addIssue({
-                code: "custom",
-                message: "offerRide.requiredField",
-            });
-        } else if (parsePositiveInteger(value) === null) {
-            ctx.addIssue({
-                code: "custom",
-                message: "offerRide.invalidSeatsError",
-            });
-        }
-    }),
-    price: z.string().superRefine((value, ctx) => {
-        if (value.trim() === "") {
-            ctx.addIssue({
-                code: "custom",
-                message: "offerRide.requiredField",
-            });
-        } else if (parsePositiveInteger(value) === null) {
-            ctx.addIssue({
-                code: "custom",
-                message: "offerRide.invalidPriceError",
-            });
-        }
-    }),
-    manualBrand: z.string(),
-    manualModel: z.string(),
-    manualPlate: z.string(),
-});
+const offerRideSchema = z
+    .object({
+        pickupCity: z
+            .custom<CityListItem | null>()
+            .refine(
+                (value): value is CityListItem => value !== null,
+                "offerRide.requiredField"
+            ),
+        dropoffCity: z
+            .custom<CityListItem | null>()
+            .refine(
+                (value): value is CityListItem => value !== null,
+                "offerRide.requiredField"
+            ),
+        rideDate: z
+            .date()
+            .optional()
+            .refine(
+                (value): value is Date => value instanceof Date,
+                "offerRide.requiredField"
+            ),
+        rideTime: z.string().min(1, "offerRide.requiredField"),
+        seats: z.string().superRefine((value, ctx) => {
+            if (value.trim() === "") {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "offerRide.requiredField",
+                });
+            } else if (parsePositiveInteger(value) === null) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "offerRide.invalidSeatsError",
+                });
+            }
+        }),
+        price: z.string().superRefine((value, ctx) => {
+            if (value.trim() === "") {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "offerRide.requiredField",
+                });
+            } else if (parsePositiveInteger(value) === null) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "offerRide.invalidPriceError",
+                });
+            }
+        }),
+        manualBrand: z.string(),
+        manualModel: z.string(),
+        manualPlate: z.string(),
+    })
+    .refine(
+        (values) => {
+            // `disablePastDates` on the picker blocks past calendar days; this
+            // additionally rejects a today + earlier-time combination, which the
+            // API would otherwise reject with a generic 400.
+            if (!(values.rideDate instanceof Date) || !values.rideTime) {
+                return true;
+            }
+            const departureAt = combineDateAndTime(
+                values.rideDate,
+                values.rideTime
+            );
+            return departureAt !== null && departureAt.getTime() > Date.now();
+        },
+        { message: "offerRide.pastDeparture", path: ["rideTime"] }
+    );
 
 type OfferRideFormInput = z.input<typeof offerRideSchema>;
 type OfferRideFormValues = z.output<typeof offerRideSchema>;

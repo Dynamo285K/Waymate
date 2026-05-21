@@ -603,7 +603,7 @@ const updateRideStatusToCancelledById = async (
 ): Promise<{ id: string } | null> => {
     const [updated] = await executor
         .update(ridesTable)
-        .set({ rideStatus: "CANCELLED", updatedAt: new Date() })
+        .set({ rideStatus: "CANCELLED" })
         .where(and(eq(ridesTable.id, id), isNull(ridesTable.deletedAt)))
         .returning({ id: ridesTable.id });
 
@@ -1019,7 +1019,7 @@ const updateReviewStatusById = async (
 ): Promise<{ id: string } | null> => {
     const [updated] = await executor
         .update(reviewsTable)
-        .set({ reviewStatus: status, updatedAt: new Date() })
+        .set({ reviewStatus: status })
         .where(eq(reviewsTable.id, id))
         .returning({ id: reviewsTable.id });
     return updated ?? null;

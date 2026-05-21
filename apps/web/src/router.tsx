@@ -9,6 +9,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { LayoutProvider } from "./lib/layout-context";
 import type { useLayout } from "./lib/use-layout";
 import { HomeRoute } from "./lib/route-components";
+import { RouteErrorBoundary } from "./components/RouteErrorBoundary";
 import { makeAudienceComponent } from "./lib/make-audience-component";
 import {
     CURRENT_USER_QUERY_KEY,
@@ -57,15 +58,16 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
     ),
 });
 
-// Resolve the current user with a fresh fetch every guard run. `fetchQuery`
-// (not `ensureQueryData`) bypasses any stale cached data — e.g. a pre-login
-// 401 — and the result is written under `CURRENT_USER_QUERY_KEY` so
-// `LayoutProvider` reuses it without an extra round trip.
+// Resolve the current user for the route guard. `fetchQuery` reuses the
+// `CURRENT_USER_QUERY_KEY` cache while it is fresh (the QueryClient default
+// staleTime), so a burst of navigations no longer fans out into one
+// `/users/me` request per route change. Auth transitions explicitly drop the
+// entry — `LoginPage` invalidates it, `useLogout` removes it — so the next
+// guard run re-fetches. `LayoutProvider` shares the same cache entry.
 async function fetchUser(queryClient: QueryClient): Promise<User | null> {
     return queryClient.fetchQuery({
         queryKey: CURRENT_USER_QUERY_KEY,
         queryFn: getCurrentUserOrNull,
-        staleTime: 0,
     });
 }
 
@@ -251,6 +253,7 @@ export function createAppRouter(queryClient: QueryClient) {
     return createRouter({
         routeTree,
         context: { queryClient },
+        defaultErrorComponent: RouteErrorBoundary,
     });
 }
 

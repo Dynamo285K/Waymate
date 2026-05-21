@@ -56,9 +56,6 @@
         "lastName": "Priezvisko",
         "phone": "Telefónne číslo",
         "save": "Uložiť a pokračovať",
-        "firstNameRequired": "Zadajte meno.",
-        "lastNameRequired": "Zadajte priezvisko.",
-        "phoneRequired": "Zadajte telefónne číslo.",
         "phoneError": "Použite medzinárodný formát, napríklad +421900123456.",
         "nameTooLong": "Meno môže mať najviac 20 znakov.",
         "nameNoSpaces": "Meno musí byť jedno slovo bez medzier.",
@@ -357,6 +354,7 @@
         "requiredField": "Toto pole je povinné.",
         "invalidSeatsError": "Musí byť celé číslo väčšie ako 0.",
         "invalidPriceError": "Musí byť celé číslo väčšie ako 0.",
+        "pastDeparture": "Vyberte čas odchodu v budúcnosti.",
         "plateLength": "ŠPZ musí mať {{min}}-{{max}} znakov.",
         "carCreateError": "Nepodarilo sa uložiť auto. Skontrolujte detaily auta."
     },

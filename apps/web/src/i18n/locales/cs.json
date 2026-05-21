@@ -56,9 +56,6 @@
         "lastName": "Příjmení",
         "phone": "Telefonní číslo",
         "save": "Uložit a pokračovat",
-        "firstNameRequired": "Zadejte jméno.",
-        "lastNameRequired": "Zadejte příjmení.",
-        "phoneRequired": "Zadejte telefonní číslo.",
         "phoneError": "Použijte mezinárodní formát, například +421900123456.",
         "nameTooLong": "Jméno může mít nejvýše 20 znaků.",
         "nameNoSpaces": "Jméno musí být jedno slovo bez mezer.",
@@ -357,6 +354,7 @@
         "requiredField": "Toto pole je povinné.",
         "invalidSeatsError": "Musí být celé číslo větší než 0.",
         "invalidPriceError": "Musí být celé číslo větší než 0.",
+        "pastDeparture": "Vyberte čas odjezdu v budoucnosti.",
         "plateLength": "SPZ musí mít {{min}}-{{max}} znaků.",
         "carCreateError": "Nepodařilo se uložit auto. Zkontrolujte detaily auta."
     },

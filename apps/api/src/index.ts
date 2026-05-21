@@ -108,13 +108,20 @@ const RATE_LIMIT_RULES: RateLimitRule[] = [
     },
 ];
 
+// The client IP is taken from X-Forwarded-For. Only the entries appended by
+// our own trusted reverse proxies can be trusted: a client can prefill the
+// header, so everything to the left of the trusted hops is attacker-supplied.
+// With `TRUSTED_PROXY_COUNT` proxies in front, the real client IP is the entry
+// that many positions from the end. Returning "unknown" on a malformed or
+// too-short header is safe — those requests just share a single bucket.
 function getClientIp(request: Request): string {
     const xff = request.headers.get("x-forwarded-for");
-    if (xff) {
-        const first = xff.split(",")[0]?.trim();
-        if (first) return first;
-    }
-    return "unknown";
+    if (!xff) return "unknown";
+    const hops = xff
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter((entry) => entry.length > 0);
+    return hops[hops.length - env.TRUSTED_PROXY_COUNT] ?? "unknown";
 }
 
 function shouldSkipRateLimit(path: string): boolean {

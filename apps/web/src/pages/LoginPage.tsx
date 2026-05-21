@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import { useForm, useWatch, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "../lib/router-compat";
 import { AuthNavbar, LoginBox } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
 import {
+    CURRENT_USER_QUERY_KEY,
     getPostAuthPath,
     signInWithEmail,
     signInWithGoogle,
@@ -44,6 +46,7 @@ export function LoginPage({
 }: LoginPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const [searchParams] = useSearchParams();
     const authNavbarProps = useAuthNavbarProps({
         language,
@@ -91,7 +94,7 @@ export function LoginPage({
             return;
         }
 
-        navigate(await getPostAuthPath());
+        await finishLogin();
     };
 
     async function handleGoogleLogin() {
@@ -113,7 +116,7 @@ export function LoginPage({
                 return;
             }
 
-            navigate(await getPostAuthPath());
+            await finishLogin();
         } finally {
             setIsGoogleLoading(false);
         }
