@@ -5,6 +5,7 @@ import { getErrorI18nKey } from "../../lib/api-errors";
 import { adminUsersErrorMap } from "../../lib/admin-errors";
 
 type BanUserModalProps = {
+    theme: "light" | "dark";
     userName: string;
     isPending: boolean;
     error: unknown;
@@ -13,6 +14,7 @@ type BanUserModalProps = {
 };
 
 export function BanUserModal({
+    theme,
     userName,
     isPending,
     error,
@@ -28,6 +30,7 @@ export function BanUserModal({
         <Modal
             open={true}
             onClose={onClose}
+            theme={theme}
         >
             <div className="w-[calc(100vw-2rem)] max-w-lg p-8">
                 <div className="flex justify-between items-center mb-5">

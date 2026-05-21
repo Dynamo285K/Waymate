@@ -10,6 +10,7 @@ import { ReportStatusBadge } from "./ReportStatusBadge";
 import { ReportStatusHistoryEntry } from "./ReportStatusHistoryEntry";
 
 type ReportDetailModalProps = {
+    theme: "light" | "dark";
     reportId: string;
     isThisReportMutating: boolean;
     mutationErrorForThisReport: unknown;
@@ -29,6 +30,7 @@ const ALLOWED_TRANSITIONS: Record<ReportStatus, ReportStatus[]> = {
 };
 
 export function ReportDetailModal({
+    theme,
     reportId,
     isThisReportMutating,
     mutationErrorForThisReport,
@@ -60,6 +62,7 @@ export function ReportDetailModal({
         <Modal
             open={true}
             onClose={onClose}
+            theme={theme}
         >
             <div className="w-[calc(100vw-2rem)] max-w-2xl p-8 max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">

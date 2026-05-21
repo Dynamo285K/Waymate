@@ -11,6 +11,7 @@ import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
+import { useGetUsersMe } from "../api-client/users/users";
 import { CURRENT_USER_QUERY_KEY, updateCurrentUserProfile } from "../lib/auth";
 import { getErrorI18nKey } from "../lib/api-errors";
 
@@ -26,7 +27,8 @@ type EditProfilePageProps = {
 };
 
 const profileFormSchema = z.object({
-    fullName: z.string().trim().min(1, "editProfile.fullNameRequired"),
+    firstName: z.string().trim().min(1, "editProfile.firstNameRequired"),
+    lastName: z.string().trim().min(1, "editProfile.lastNameRequired"),
     phone: z
         .string()
         .trim()
@@ -56,6 +58,8 @@ export function EditProfilePage({
     const backPath =
         role === "driver" ? "/driver/profile" : "/passenger/profile";
 
+    const { data: currentUser } = useGetUsersMe({ query: { retry: false } });
+
     const {
         register,
         control,
@@ -65,21 +69,22 @@ export function EditProfilePage({
     } = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
         defaultValues: {
-            fullName: userName ?? "",
-            phone: userPhone ?? "",
-            about: userBio ?? "",
+            firstName: "",
+            lastName: "",
+            phone: "",
+            about: "",
         },
     });
 
-    // Profile props arrive asynchronously (after the current-user query
-    // resolves), so reset the form once they're populated.
     useEffect(() => {
+        if (!currentUser) return;
         reset({
-            fullName: userName ?? "",
-            phone: userPhone ?? "",
-            about: userBio ?? "",
+            firstName: currentUser.firstName ?? "",
+            lastName: currentUser.lastName ?? "",
+            phone: currentUser.phone ?? "",
+            about: currentUser.bio ?? "",
         });
-    }, [userName, userPhone, userBio, reset]);
+    }, [currentUser, reset]);
 
     const updateProfile = useMutation({
         mutationFn: updateCurrentUserProfile,
@@ -92,12 +97,10 @@ export function EditProfilePage({
     });
 
     const onSubmit: SubmitHandler<ProfileFormValues> = (values) => {
-        const { firstName, lastName } = splitFullName(values.fullName);
-
         updateProfile.mutate({
-            firstName,
-            lastName,
-            displayName: firstName,
+            firstName: values.firstName.trim(),
+            lastName: values.lastName.trim(),
+            displayName: values.firstName.trim(),
             phone: values.phone.trim(),
             bio: values.about.trim(),
         });
@@ -146,12 +149,25 @@ export function EditProfilePage({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1">
                             <Input
-                                label={t("editProfile.fullName")}
-                                {...register("fullName")}
+                                label={t("editProfile.firstName")}
+                                {...register("firstName")}
+                                autoComplete="given-name"
                             />
-                            {errors.fullName?.message && (
+                            {errors.firstName?.message && (
                                 <p className="text-sm font-semibold text-(--color-danger-text)">
-                                    {t(errors.fullName.message)}
+                                    {t(errors.firstName.message)}
+                                </p>
+                            )}
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <Input
+                                label={t("editProfile.lastName")}
+                                {...register("lastName")}
+                                autoComplete="family-name"
+                            />
+                            {errors.lastName?.message && (
+                                <p className="text-sm font-semibold text-(--color-danger-text)">
+                                    {t(errors.lastName.message)}
                                 </p>
                             )}
                         </div>
@@ -166,6 +182,7 @@ export function EditProfilePage({
                             <Input
                                 label={t("editProfile.phone")}
                                 {...register("phone")}
+                                autoComplete="tel"
                             />
                             {errors.phone?.message && (
                                 <p className="text-sm font-semibold text-(--color-danger-text)">
@@ -230,17 +247,4 @@ export function EditProfilePage({
             </section>
         </div>
     );
-}
-
-function splitFullName(fullName: string) {
-    const parts = fullName.trim().split(/\s+/).filter(Boolean);
-    const formatNamePart = (value: string) =>
-        value ? value.charAt(0).toLocaleUpperCase() + value.slice(1) : "";
-    const firstName = formatNamePart(parts[0] ?? "");
-    const lastName = formatNamePart(parts.slice(1).join(""));
-
-    return {
-        firstName: firstName || undefined,
-        lastName: lastName || undefined,
-    };
 }

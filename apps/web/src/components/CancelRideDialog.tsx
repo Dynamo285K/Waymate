@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Modal, Button, Textarea } from "@waymate/ui";
+import { useLayout } from "../lib/use-layout";
 
 export type CancelRideDialogProps = {
     open: boolean;
@@ -20,6 +21,7 @@ export function CancelRideDialog({
     message,
 }: CancelRideDialogProps) {
     const { t } = useTranslation();
+    const { theme } = useLayout();
     const [reason, setReason] = useState("");
 
     // Clear the reason when the dialog transitions to closed. Adjusting state
@@ -35,6 +37,7 @@ export function CancelRideDialog({
         <Modal
             open={open}
             onClose={() => onOpenChange(false)}
+            theme={theme}
         >
             <h2 className="text-xl font-bold text-(--color-text-primary) mb-2">
                 {title ?? t("cancelRideDialog.title")}

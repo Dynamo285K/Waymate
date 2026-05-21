@@ -8,6 +8,7 @@ import { StatusBadge } from "./StatusBadge";
 import { StatusHistoryEntry } from "./StatusHistoryEntry";
 
 type UserDetailModalProps = {
+    theme: "light" | "dark";
     userId: string;
     isSelf: boolean;
     isThisUserMutating: boolean;
@@ -18,6 +19,7 @@ type UserDetailModalProps = {
 };
 
 export function UserDetailModal({
+    theme,
     userId,
     isSelf,
     isThisUserMutating,
@@ -43,6 +45,7 @@ export function UserDetailModal({
         <Modal
             open={true}
             onClose={onClose}
+            theme={theme}
         >
             <div className="w-[calc(100vw-2rem)] max-w-2xl p-8 max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">

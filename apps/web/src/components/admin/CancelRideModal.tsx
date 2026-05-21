@@ -5,6 +5,7 @@ import { getErrorI18nKey } from "../../lib/api-errors";
 import { adminRidesErrorMap } from "../../lib/admin-ride-errors";
 
 type CancelRideModalProps = {
+    theme: "light" | "dark";
     rideRoute: string;
     isPending: boolean;
     error: unknown;
@@ -13,6 +14,7 @@ type CancelRideModalProps = {
 };
 
 export function CancelRideModal({
+    theme,
     rideRoute,
     isPending,
     error,
@@ -29,6 +31,7 @@ export function CancelRideModal({
         <Modal
             open={true}
             onClose={onClose}
+            theme={theme}
         >
             <div className="w-[calc(100vw-2rem)] max-w-lg p-8">
                 <div className="flex justify-between items-center mb-5">

@@ -11,6 +11,7 @@ import { ReviewStatusBadge } from "./ReviewStatusBadge";
 import { ReviewStatusHistoryEntry } from "./ReviewStatusHistoryEntry";
 
 type ReviewDetailModalProps = {
+    theme: "light" | "dark";
     reviewId: string;
     isThisReviewMutating: boolean;
     mutationErrorForThisReview: unknown;
@@ -20,6 +21,7 @@ type ReviewDetailModalProps = {
 };
 
 export function ReviewDetailModal({
+    theme,
     reviewId,
     isThisReviewMutating,
     mutationErrorForThisReview,
@@ -49,13 +51,12 @@ export function ReviewDetailModal({
         <Modal
             open={true}
             onClose={onClose}
+            theme={theme}
         >
             <div className="w-[calc(100vw-2rem)] max-w-2xl p-8 max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
-                        {data
-                            ? t("admin.reviewDetail")
-                            : t("admin.reviewDetail")}
+                        {t("admin.reviewDetail")}
                     </h2>
                     <IconButton
                         ariaLabel="Close"
@@ -84,7 +85,6 @@ export function ReviewDetailModal({
 
                 {!detailQuery.isLoading && data && (
                     <>
-                        {/* FROM → ABOUT header */}
                         <div className="flex items-center gap-4 mb-6 p-4 border border-(--color-border) rounded-xl">
                             <div className="flex items-center gap-2">
                                 <Avatar

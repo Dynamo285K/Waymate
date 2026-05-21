@@ -301,7 +301,8 @@
     },
     "editProfile": {
         "title": "Edit Profile",
-        "fullName": "Full name",
+        "firstName": "First name",
+        "lastName": "Last name",
         "email": "Email address",
         "phone": "Phone number",
         "aboutMe": "About me",
@@ -309,7 +310,8 @@
         "cancel": "Cancel",
         "saving": "Saving...",
         "saveError": "Could not save your changes. Please try again.",
-        "fullNameRequired": "Please enter your full name.",
+        "firstNameRequired": "Please enter your first name.",
+        "lastNameRequired": "Please enter your last name.",
         "phoneInvalid": "Enter a valid phone number in international format (e.g. +421900123456).",
         "aboutTooLong": "About me can be at most 500 characters."
     },
