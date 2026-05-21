@@ -2,30 +2,30 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@waymate/ui";
-import type { Language } from "../../components/controls/LanguageSwitcher";
-import { AdminNavbar } from "../../components/navigation/AdminNavbar";
-import { useAdminNavbarProps } from "../../hooks/useAdminNavbarProps";
-import { useSetReviewStatus } from "../../hooks/useSetReviewStatus";
-import { useDeleteReview } from "../../hooks/useDeleteReview";
+import type { Language } from "../components/controls/LanguageSwitcher";
+import { AdminNavbar } from "../components/navigation/AdminNavbar";
+import { useAdminNavbarProps } from "../hooks/useAdminNavbarProps";
+import { useSetReviewStatus } from "../hooks/useSetReviewStatus";
+import { useDeleteReview } from "../hooks/useDeleteReview";
 import {
     getGetAdminReviewsQueryKey,
     getGetAdminReviewsCountsQueryKey,
-} from "../../api-client/admin/admin";
-import type { AdminReviewListItem } from "../../api-client/model/adminReviewListItem";
-import type { ReviewStatus } from "../../api-client/model/reviewStatus";
-import type { GetAdminReviewsSubjectRole } from "../../api-client/model/getAdminReviewsSubjectRole";
-import { getErrorCode, getErrorI18nKey } from "../../lib/api-errors";
-import { AdminReviewsFilters } from "../../components/admin/AdminReviewsFilters";
-import { AdminReviewsTable } from "../../components/admin/AdminReviewsTable";
-import { ReviewDetailModal } from "../../components/admin/ReviewDetailModal";
-import { SetReviewStatusModal } from "../../components/admin/SetReviewStatusModal";
-import { DeleteReviewModal } from "../../components/admin/DeleteReviewModal";
-import { useAdminReviewsList } from "../../hooks/useAdminReviewsList";
-import { useDebounced } from "../../hooks/useDebounced";
+} from "../api-client/admin/admin";
+import type { AdminReviewListItem } from "../api-client/model/adminReviewListItem";
+import type { ReviewStatus } from "../api-client/model/reviewStatus";
+import type { GetAdminReviewsSubjectRole } from "../api-client/model/getAdminReviewsSubjectRole";
+import { getErrorCode, getErrorI18nKey } from "../lib/api-errors";
+import { AdminReviewsFilters } from "../components/admin/AdminReviewsFilters";
+import { AdminReviewsTable } from "../components/admin/AdminReviewsTable";
+import { ReviewDetailModal } from "../components/admin/ReviewDetailModal";
+import { SetReviewStatusModal } from "../components/admin/SetReviewStatusModal";
+import { DeleteReviewModal } from "../components/admin/DeleteReviewModal";
+import { useAdminReviewsList } from "../hooks/useAdminReviewsList";
+import { useDebounced } from "../hooks/useDebounced";
 import {
     ADMIN_REVIEW_NOT_FOUND_CODE,
     adminReviewsErrorMap,
-} from "../../lib/admin-review-errors";
+} from "../lib/admin-review-errors";
 
 type AdminReviewsPageProps = {
     language: Language;

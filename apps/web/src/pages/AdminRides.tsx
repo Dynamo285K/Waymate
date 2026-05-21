@@ -2,24 +2,24 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@waymate/ui";
-import type { Language } from "../../components/controls/LanguageSwitcher";
-import { AdminNavbar } from "../../components/navigation/AdminNavbar";
-import { useAdminNavbarProps } from "../../hooks/useAdminNavbarProps";
-import { useAdminCancelRide } from "../../hooks/useAdminCancelRide";
-import { getGetAdminRidesQueryKey } from "../../api-client/admin/admin";
-import type { AdminRideListItem } from "../../api-client/model/adminRideListItem";
-import type { RideStatus } from "../../api-client/model/rideStatus";
-import { getErrorCode, getErrorI18nKey } from "../../lib/api-errors";
-import { AdminRidesFilters } from "../../components/admin/AdminRidesFilters";
-import { AdminRidesTable } from "../../components/admin/AdminRidesTable";
-import { CancelRideModal } from "../../components/admin/CancelRideModal";
-import { RideDetailModal } from "../../components/admin/RideDetailModal";
-import { useAdminRidesList } from "../../hooks/useAdminRidesList";
-import { useDebounced } from "../../hooks/useDebounced";
+import type { Language } from "../components/controls/LanguageSwitcher";
+import { AdminNavbar } from "../components/navigation/AdminNavbar";
+import { useAdminNavbarProps } from "../hooks/useAdminNavbarProps";
+import { useAdminCancelRide } from "../hooks/useAdminCancelRide";
+import { getGetAdminRidesQueryKey } from "../api-client/admin/admin";
+import type { AdminRideListItem } from "../api-client/model/adminRideListItem";
+import type { RideStatus } from "../api-client/model/rideStatus";
+import { getErrorCode, getErrorI18nKey } from "../lib/api-errors";
+import { AdminRidesFilters } from "../components/admin/AdminRidesFilters";
+import { AdminRidesTable } from "../components/admin/AdminRidesTable";
+import { CancelRideModal } from "../components/admin/CancelRideModal";
+import { RideDetailModal } from "../components/admin/RideDetailModal";
+import { useAdminRidesList } from "../hooks/useAdminRidesList";
+import { useDebounced } from "../hooks/useDebounced";
 import {
     ADMIN_RIDE_NOT_FOUND_CODE,
     adminRidesErrorMap,
-} from "../../lib/admin-ride-errors";
+} from "../lib/admin-ride-errors";
 
 type AdminRidesPageProps = {
     language: Language;

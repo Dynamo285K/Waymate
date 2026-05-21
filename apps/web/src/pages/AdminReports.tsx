@@ -2,24 +2,24 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@waymate/ui";
-import type { Language } from "../../components/controls/LanguageSwitcher";
-import { AdminNavbar } from "../../components/navigation/AdminNavbar";
-import { useAdminNavbarProps } from "../../hooks/useAdminNavbarProps";
-import { useSetReportStatus } from "../../hooks/useSetReportStatus";
-import { getGetAdminReportsQueryKey } from "../../api-client/admin/admin";
-import type { ReportStatus } from "../../api-client/model/reportStatus";
-import type { ReportType } from "../../api-client/model/reportType";
-import { getErrorCode, getErrorI18nKey } from "../../lib/api-errors";
-import { AdminReportsFilters } from "../../components/admin/AdminReportsFilters";
-import { AdminReportsTable } from "../../components/admin/AdminReportsTable";
-import { ReportDetailModal } from "../../components/admin/ReportDetailModal";
-import { SetReportStatusModal } from "../../components/admin/SetReportStatusModal";
-import { useAdminReportsList } from "../../hooks/useAdminReportsList";
-import { useDebounced } from "../../hooks/useDebounced";
+import type { Language } from "../components/controls/LanguageSwitcher";
+import { AdminNavbar } from "../components/navigation/AdminNavbar";
+import { useAdminNavbarProps } from "../hooks/useAdminNavbarProps";
+import { useSetReportStatus } from "../hooks/useSetReportStatus";
+import { getGetAdminReportsQueryKey } from "../api-client/admin/admin";
+import type { ReportStatus } from "../api-client/model/reportStatus";
+import type { ReportType } from "../api-client/model/reportType";
+import { getErrorCode, getErrorI18nKey } from "../lib/api-errors";
+import { AdminReportsFilters } from "../components/admin/AdminReportsFilters";
+import { AdminReportsTable } from "../components/admin/AdminReportsTable";
+import { ReportDetailModal } from "../components/admin/ReportDetailModal";
+import { SetReportStatusModal } from "../components/admin/SetReportStatusModal";
+import { useAdminReportsList } from "../hooks/useAdminReportsList";
+import { useDebounced } from "../hooks/useDebounced";
 import {
     ADMIN_REPORT_NOT_FOUND_CODE,
     adminReportsErrorMap,
-} from "../../lib/admin-report-errors";
+} from "../lib/admin-report-errors";
 
 type AdminReportsPageProps = {
     language: Language;
