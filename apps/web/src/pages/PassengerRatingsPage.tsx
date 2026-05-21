@@ -42,7 +42,7 @@ export function PassengerRatingsPage({
     });
     const [searchParams] = useSearchParams();
     const view =
-        searchParams.get("view") === "received" ? "received" : "authored";
+        searchParams.get("view") === "authored" ? "authored" : "received";
     const receivedReviews = useGetReviewsUsersByUserId(userId ?? "", {
         query: { enabled: Boolean(userId) },
     });

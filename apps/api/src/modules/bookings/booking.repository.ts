@@ -59,7 +59,12 @@ const findPendingRequestsForDriver = async (
             ),
         })
         .from(reviewsTable)
-        .where(eq(reviewsTable.reviewStatus, "VISIBLE"))
+        .where(
+            and(
+                eq(reviewsTable.reviewStatus, "VISIBLE"),
+                isNull(reviewsTable.deletedAt)
+            )
+        )
         .groupBy(reviewsTable.subjectId)
         .as("passenger_ratings");
 
@@ -145,7 +150,12 @@ const findBookingsByPassengerId = async (
             ),
         })
         .from(reviewsTable)
-        .where(eq(reviewsTable.reviewStatus, "VISIBLE"))
+        .where(
+            and(
+                eq(reviewsTable.reviewStatus, "VISIBLE"),
+                isNull(reviewsTable.deletedAt)
+            )
+        )
         .groupBy(reviewsTable.subjectId)
         .as("driver_ratings");
 

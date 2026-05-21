@@ -280,7 +280,12 @@ const findAvailableRides = async (
             ),
         })
         .from(reviewsTable)
-        .where(eq(reviewsTable.reviewStatus, "VISIBLE"))
+        .where(
+            and(
+                eq(reviewsTable.reviewStatus, "VISIBLE"),
+                isNull(reviewsTable.deletedAt)
+            )
+        )
         .groupBy(reviewsTable.subjectId)
         .as("available_driver_ratings");
 
@@ -388,7 +393,12 @@ const searchRides = async (
             ),
         })
         .from(reviewsTable)
-        .where(eq(reviewsTable.reviewStatus, "VISIBLE"))
+        .where(
+            and(
+                eq(reviewsTable.reviewStatus, "VISIBLE"),
+                isNull(reviewsTable.deletedAt)
+            )
+        )
         .groupBy(reviewsTable.subjectId)
         .as("driver_ratings");
 

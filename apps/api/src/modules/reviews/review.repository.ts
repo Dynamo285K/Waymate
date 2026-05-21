@@ -91,7 +91,8 @@ const findReviewsForSubject = async (
 }> => {
     const visibleFilter = and(
         eq(reviewsTable.subjectId, subjectId),
-        eq(reviewsTable.reviewStatus, "VISIBLE")
+        eq(reviewsTable.reviewStatus, "VISIBLE"),
+        isNull(reviewsTable.deletedAt)
     );
 
     const [aggregate] = await executor
