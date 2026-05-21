@@ -45,6 +45,7 @@ export type ReviewListItem = {
     reviewStatus: ReviewStatus;
     createdAt: Date;
     author: PublicUserProfile;
+    ride: { originCity: string; destinationCity: string };
 };
 
 // Aggregated reviews view for a user (subject).
@@ -64,4 +65,5 @@ export type AuthoredReviewListItem = {
     reviewStatus: ReviewStatus;
     createdAt: Date;
     subject: PublicUserProfile;
+    ride: { originCity: string; destinationCity: string };
 };

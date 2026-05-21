@@ -9,6 +9,7 @@ import type { ReviewId } from "./reviewId";
 import type { RideId } from "./rideId";
 import type { ReviewStatus } from "./reviewStatus";
 import type { PublicUserPreview } from "./publicUserPreview";
+import type { ReviewListItemRide } from "./reviewListItemRide";
 
 export interface ReviewListItem {
     id: ReviewId;
@@ -26,4 +27,5 @@ export interface ReviewListItem {
     reviewStatus: ReviewStatus;
     createdAt: string;
     author: PublicUserPreview;
+    ride: ReviewListItemRide;
 }

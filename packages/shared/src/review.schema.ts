@@ -71,6 +71,10 @@ export const ReviewListItemSchema = z.object({
     reviewStatus: ReviewStatusSchema,
     createdAt: z.date(),
     author: PublicUserPreviewSchema,
+    ride: z.object({
+        originCity: z.string(),
+        destinationCity: z.string(),
+    }),
 });
 
 export const ReviewListItemListSchema = z.array(ReviewListItemSchema);
@@ -90,6 +94,10 @@ export const AuthoredReviewListItemSchema = z.object({
     reviewStatus: ReviewStatusSchema,
     createdAt: z.date(),
     subject: PublicUserPreviewSchema,
+    ride: z.object({
+        originCity: z.string(),
+        destinationCity: z.string(),
+    }),
 });
 
 export const AuthoredReviewListSchema = z.array(AuthoredReviewListItemSchema);

@@ -73,7 +73,7 @@ const onboardingSchema = z.object({
         .pipe(phoneField("onboarding.phoneError")),
 });
 
-type OnboardingFormValues = z.infer<typeof onboardingSchema>;
+type OnboardingFormValues = z.infer<typeof onboardingFormSchema>;
 
 export function OnboardingPage({
     language,
@@ -105,7 +105,7 @@ export function OnboardingPage({
         setError,
         formState: { errors, isSubmitting },
     } = useForm<OnboardingFormValues>({
-        resolver: zodResolver(onboardingSchema),
+        resolver: zodResolver(onboardingFormSchema),
         defaultValues: { firstName: "", lastName: "", phone: "" },
     });
 

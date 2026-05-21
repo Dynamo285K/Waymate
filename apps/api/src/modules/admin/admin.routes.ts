@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 import {
     AdminCancelRideBodySchema,
     AdminCancelRideResponseSchema,
+    AdminDashboardResponseSchema,
     AdminDeleteReviewResponseSchema,
     AdminReportDetailResponseSchema,
     AdminReportDetailSchema,
@@ -47,6 +48,7 @@ export const AdminRoutes = new Elysia({
     tags: ["Admin"],
 })
     .model({
+        AdminDashboardResponse: AdminDashboardResponseSchema,
         AdminUserIdParams: AdminUserIdParamsSchema,
         AdminUserListQuery: AdminUserListQuerySchema,
         AdminUserListItem: AdminUserListItemSchema,
@@ -88,6 +90,19 @@ export const AdminRoutes = new Elysia({
     .use(requireAdmin)
     .guard({ auth: true, admin: true }, (app) =>
         app
+            .get("/dashboard", async () => await AdminService.getDashboard(), {
+                response: {
+                    200: "AdminDashboardResponse",
+                    401: "ErrorResponse",
+                    403: "ErrorResponse",
+                    429: "ErrorResponse",
+                    500: "ErrorResponse",
+                },
+                detail: {
+                    description:
+                        "Returns aggregated platform statistics for the admin dashboard: weekly ride/revenue charts, popular routes, and user metrics.",
+                },
+            })
             .get(
                 "/users",
                 async ({ query }) => {

@@ -24,6 +24,7 @@ import type {
 import type {
     AdminCancelRideBody,
     AdminCancelRideResponse,
+    AdminDashboardResponse,
     AdminDeleteReviewResponse,
     AdminReportDetailResponse,
     AdminReportListResponse,
@@ -53,6 +54,160 @@ import type {
 import { apiFetcher } from "../../lib/api-fetcher";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
+/**
+ * Returns aggregated platform statistics for the admin dashboard: weekly ride/revenue charts, popular routes, and user metrics.
+ */
+export const getGetAdminDashboardUrl = () => {
+    return `/admin/dashboard`;
+};
+
+export const getAdminDashboard = async (
+    options?: RequestInit
+): Promise<AdminDashboardResponse> => {
+    return apiFetcher<AdminDashboardResponse>(getGetAdminDashboardUrl(), {
+        ...options,
+        method: "GET",
+    });
+};
+
+export const getGetAdminDashboardQueryKey = () => {
+    return [`/admin/dashboard`] as const;
+};
+
+export const getGetAdminDashboardQueryOptions = <
+    TData = Awaited<ReturnType<typeof getAdminDashboard>>,
+    TError = ErrorResponse,
+>(options?: {
+    query?: Partial<
+        UseQueryOptions<
+            Awaited<ReturnType<typeof getAdminDashboard>>,
+            TError,
+            TData
+        >
+    >;
+    request?: SecondParameter<typeof apiFetcher>;
+}) => {
+    const { query: queryOptions, request: requestOptions } = options ?? {};
+
+    const queryKey = queryOptions?.queryKey ?? getGetAdminDashboardQueryKey();
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof getAdminDashboard>>
+    > = () => getAdminDashboard(requestOptions);
+
+    return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminDashboard>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetAdminDashboardQueryResult = NonNullable<
+    Awaited<ReturnType<typeof getAdminDashboard>>
+>;
+export type GetAdminDashboardQueryError = ErrorResponse;
+
+export function useGetAdminDashboard<
+    TData = Awaited<ReturnType<typeof getAdminDashboard>>,
+    TError = ErrorResponse,
+>(
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminDashboard>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminDashboard>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminDashboard>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminDashboard<
+    TData = Awaited<ReturnType<typeof getAdminDashboard>>,
+    TError = ErrorResponse,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminDashboard>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getAdminDashboard>>,
+                    TError,
+                    Awaited<ReturnType<typeof getAdminDashboard>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetAdminDashboard<
+    TData = Awaited<ReturnType<typeof getAdminDashboard>>,
+    TError = ErrorResponse,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminDashboard>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetAdminDashboard<
+    TData = Awaited<ReturnType<typeof getAdminDashboard>>,
+    TError = ErrorResponse,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getAdminDashboard>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getGetAdminDashboardQueryOptions(options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
 
 /**
  * Returns a keyset-paginated list of users for admin tooling. Supports a case-insensitive substring search across email, firstName, lastName.

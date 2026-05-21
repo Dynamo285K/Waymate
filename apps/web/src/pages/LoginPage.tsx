@@ -80,16 +80,6 @@ export function LoginPage({
         }
     }, [searchParams, setError]);
 
-    // After a successful sign-in, drop the cached current user (which may be a
-    // pre-login `null`) so the route guard re-fetches it instead of bouncing
-    // straight back to /login.
-    async function finishLogin() {
-        await queryClient.invalidateQueries({
-            queryKey: CURRENT_USER_QUERY_KEY,
-        });
-        navigate(await getPostAuthPath());
-    }
-
     const onSubmit: SubmitHandler<LoginFormValues> = async (values) => {
         const { error } = await signInWithEmail({
             email: values.email.trim(),

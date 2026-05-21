@@ -273,7 +273,10 @@
             "overcharging": "Driver charged more than the agreed price without explanation.",
             "leftLuggage": "Passenger forgot a bag in the car and the driver refused to return it.",
             "passengerNoShow": "Passenger booked a seat but never appeared and didn't cancel in advance."
-        }
+        },
+        "loading": "Loading...",
+        "noData": "No data available",
+        "dashboardLoadError": "Failed to load dashboard data."
     },
     "forgotPassword": {
         "step1Title": "Forgot your password?",

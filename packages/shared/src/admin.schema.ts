@@ -442,3 +442,43 @@ export type AdminReportDetailResponse = z.infer<
 export type UpdateReportStatusBody = z.infer<
     typeof UpdateReportStatusBodySchema
 >;
+
+// ==========================================
+// Dashboard
+// ==========================================
+
+export const AdminDashboardDayRidesSchema = z.object({
+    date: z.string(),
+    count: z.number().int().nonnegative(),
+});
+
+export const AdminDashboardDayRevenueSchema = z.object({
+    date: z.string(),
+    totalCents: z.number().int().nonnegative(),
+});
+
+export const AdminDashboardPopularRouteSchema = z.object({
+    originCity: z.string(),
+    destinationCity: z.string(),
+    count: z.number().int().nonnegative(),
+});
+
+export const AdminDashboardUserMetricsSchema = z.object({
+    totalRegistered: z.number().int().nonnegative(),
+    activeInLast24h: z.number().int().nonnegative(),
+    drivers: z.number().int().nonnegative(),
+    passengers: z.number().int().nonnegative(),
+    pendingVerification: z.number().int().nonnegative(),
+    bannedAccounts: z.number().int().nonnegative(),
+});
+
+export const AdminDashboardResponseSchema = z.object({
+    weeklyRides: z.array(AdminDashboardDayRidesSchema),
+    weeklyRevenue: z.array(AdminDashboardDayRevenueSchema),
+    popularRoutes: z.array(AdminDashboardPopularRouteSchema),
+    userMetrics: AdminDashboardUserMetricsSchema,
+});
+
+export type AdminDashboardResponse = z.infer<
+    typeof AdminDashboardResponseSchema
+>;

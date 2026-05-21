@@ -42,7 +42,7 @@ export function PassengerRatingsPage({
     });
     const [searchParams] = useSearchParams();
     const view =
-        searchParams.get("view") === "received" ? "received" : "authored";
+        searchParams.get("view") === "authored" ? "authored" : "received";
     const receivedReviews = useGetReviewsUsersByUserId(userId ?? "", {
         query: { enabled: Boolean(userId) },
     });
@@ -61,7 +61,8 @@ export function PassengerRatingsPage({
               name: formatName(review.author.firstName, review.author.lastName),
               rating: review.rating,
               review: review.comment ?? "",
-              rideId: review.rideId,
+              originCity: review.ride.originCity,
+              destinationCity: review.ride.destinationCity,
           })) ?? [])
         : (authoredReviews.data?.map((review) => ({
               id: review.id,
@@ -71,7 +72,8 @@ export function PassengerRatingsPage({
               ),
               rating: review.rating,
               review: review.comment ?? "",
-              rideId: review.rideId,
+              originCity: review.ride.originCity,
+              destinationCity: review.ride.destinationCity,
           })) ?? []);
     const averageRating = isReceived
         ? (receivedReviews.data?.averageRating ?? 0)
@@ -128,8 +130,8 @@ export function PassengerRatingsPage({
                             <RatingCard
                                 key={rating.id}
                                 name={rating.name}
-                                from={t("ratings.ride")}
-                                to={rating.rideId.slice(0, 8)}
+                                from={rating.originCity}
+                                to={rating.destinationCity}
                                 rating={rating.rating}
                                 review={rating.review}
                             />

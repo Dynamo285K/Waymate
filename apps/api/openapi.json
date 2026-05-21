@@ -2099,6 +2099,65 @@
                 "operationId": "postReports"
             }
         },
+        "/admin/dashboard": {
+            "get": {
+                "tags": ["Admin"],
+                "description": "Returns aggregated platform statistics for the admin dashboard: weekly ride/revenue charts, popular routes, and user metrics.",
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminDashboardResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Response for status 401",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Response for status 403",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Response for status 429",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "getAdminDashboard"
+            }
+        },
         "/admin/users": {
             "get": {
                 "tags": ["Admin"],
@@ -4981,6 +5040,39 @@
                 "required": ["id", "reportStatus"],
                 "additionalProperties": false
             },
+            "AdminDashboardResponse": {
+                "type": "object",
+                "properties": {
+                    "weeklyRides": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AdminDashboardDayRides"
+                        }
+                    },
+                    "weeklyRevenue": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AdminDashboardDayRevenue"
+                        }
+                    },
+                    "popularRoutes": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AdminDashboardPopularRoute"
+                        }
+                    },
+                    "userMetrics": {
+                        "$ref": "#/components/schemas/AdminDashboardUserMetrics"
+                    }
+                },
+                "required": [
+                    "weeklyRides",
+                    "weeklyRevenue",
+                    "popularRoutes",
+                    "userMetrics"
+                ],
+                "additionalProperties": false
+            },
             "AdminUserIdParams": {
                 "type": "object",
                 "properties": {
@@ -7260,6 +7352,19 @@
                     },
                     "subject": {
                         "$ref": "#/components/schemas/PublicUserPreview"
+                    },
+                    "ride": {
+                        "type": "object",
+                        "properties": {
+                            "originCity": {
+                                "type": "string"
+                            },
+                            "destinationCity": {
+                                "type": "string"
+                            }
+                        },
+                        "required": ["originCity", "destinationCity"],
+                        "additionalProperties": false
                     }
                 },
                 "required": [
@@ -7269,7 +7374,100 @@
                     "comment",
                     "reviewStatus",
                     "createdAt",
-                    "subject"
+                    "subject",
+                    "ride"
+                ],
+                "additionalProperties": false
+            },
+            "AdminDashboardDayRides": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string"
+                    },
+                    "count": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                    }
+                },
+                "required": ["date", "count"],
+                "additionalProperties": false
+            },
+            "AdminDashboardDayRevenue": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string"
+                    },
+                    "totalCents": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                    }
+                },
+                "required": ["date", "totalCents"],
+                "additionalProperties": false
+            },
+            "AdminDashboardPopularRoute": {
+                "type": "object",
+                "properties": {
+                    "originCity": {
+                        "type": "string"
+                    },
+                    "destinationCity": {
+                        "type": "string"
+                    },
+                    "count": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                    }
+                },
+                "required": ["originCity", "destinationCity", "count"],
+                "additionalProperties": false
+            },
+            "AdminDashboardUserMetrics": {
+                "type": "object",
+                "properties": {
+                    "totalRegistered": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                    },
+                    "activeInLast24h": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                    },
+                    "drivers": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                    },
+                    "passengers": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                    },
+                    "pendingVerification": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                    },
+                    "bannedAccounts": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                    }
+                },
+                "required": [
+                    "totalRegistered",
+                    "activeInLast24h",
+                    "drivers",
+                    "passengers",
+                    "pendingVerification",
+                    "bannedAccounts"
                 ],
                 "additionalProperties": false
             },
@@ -7305,6 +7503,19 @@
                     },
                     "author": {
                         "$ref": "#/components/schemas/PublicUserPreview"
+                    },
+                    "ride": {
+                        "type": "object",
+                        "properties": {
+                            "originCity": {
+                                "type": "string"
+                            },
+                            "destinationCity": {
+                                "type": "string"
+                            }
+                        },
+                        "required": ["originCity", "destinationCity"],
+                        "additionalProperties": false
                     }
                 },
                 "required": [
@@ -7314,7 +7525,8 @@
                     "comment",
                     "reviewStatus",
                     "createdAt",
-                    "author"
+                    "author",
+                    "ride"
                 ],
                 "additionalProperties": false
             }
