@@ -7,6 +7,7 @@ import { adminReviewsErrorMap } from "../../lib/admin-review-errors";
 import { useReviewStatusLabels } from "../../lib/admin-review-labels";
 
 type SetReviewStatusModalProps = {
+    theme: "light" | "dark";
     targetStatus: ReviewStatus;
     isPending: boolean;
     error: unknown;
@@ -15,6 +16,7 @@ type SetReviewStatusModalProps = {
 };
 
 export function SetReviewStatusModal({
+    theme,
     targetStatus,
     isPending,
     error,
@@ -34,6 +36,7 @@ export function SetReviewStatusModal({
         <Modal
             open={true}
             onClose={onClose}
+            theme={theme}
         >
             <div className="w-[calc(100vw-2rem)] max-w-lg p-8">
                 <div className="flex justify-between items-center mb-5">

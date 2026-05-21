@@ -199,6 +199,7 @@ export function AdminRidesPage({
             {selectedRideId && (
                 <RideDetailModal
                     key={selectedRideId}
+                    theme={theme}
                     rideId={selectedRideId}
                     isThisRideMutating={detailIsMutating}
                     mutationErrorForThisRide={detailErrorForRide}
@@ -218,6 +219,7 @@ export function AdminRidesPage({
             {cancelTarget && (
                 <CancelRideModal
                     key={cancelTarget.id}
+                    theme={theme}
                     rideRoute={`${cancelTarget.originCity} → ${cancelTarget.destinationCity}`}
                     isPending={rowMutatingId === cancelTarget.id}
                     error={cancelErrorForTarget}

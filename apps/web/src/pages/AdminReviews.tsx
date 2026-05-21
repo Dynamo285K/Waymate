@@ -250,6 +250,7 @@ export function AdminReviewsPage({
             {selectedReviewId && (
                 <ReviewDetailModal
                     key={selectedReviewId}
+                    theme={theme}
                     reviewId={selectedReviewId}
                     isThisReviewMutating={detailIsMutating}
                     mutationErrorForThisReview={detailErrorForReview}
@@ -265,6 +266,7 @@ export function AdminReviewsPage({
             {selectedReviewId && pendingStatus && (
                 <SetReviewStatusModal
                     key={`${selectedReviewId}-${pendingStatus}`}
+                    theme={theme}
                     targetStatus={pendingStatus}
                     isPending={
                         setReviewStatus.isPending &&
@@ -279,6 +281,7 @@ export function AdminReviewsPage({
             {deleteTarget && (
                 <DeleteReviewModal
                     key={deleteTarget.id}
+                    theme={theme}
                     isPending={
                         deleteReview.isPending &&
                         deleteReview.variables?.id === deleteTarget.id

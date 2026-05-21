@@ -8,6 +8,7 @@ import type { CreateReportBody } from "../api-client/model/createReportBody";
 import { useQueryClient } from "@tanstack/react-query";
 import { getErrorI18nKey } from "../lib/api-errors";
 import { reportUserErrorMap } from "../lib/report-errors";
+import { useLayout } from "../lib/use-layout";
 
 const REPORT_TYPE_OPTIONS: ReadonlyArray<{
     value: ReportType;
@@ -49,6 +50,7 @@ export function ReportUserModal({
     onSuccess,
 }: ReportUserModalProps) {
     const { t } = useTranslation();
+    const { theme } = useLayout();
     const queryClient = useQueryClient();
     const [reportType, setReportType] = useState<ReportType>(
         ReportType.INAPPROPRIATE_BEHAVIOR
@@ -85,6 +87,7 @@ export function ReportUserModal({
         <Modal
             open={true}
             onClose={onClose}
+            theme={theme}
         >
             <div className="w-[calc(100vw-2rem)] max-w-lg p-8">
                 <div className="flex justify-between items-center mb-5">

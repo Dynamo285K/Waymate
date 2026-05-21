@@ -300,7 +300,8 @@
     },
     "editProfile": {
         "title": "Upraviť profil",
-        "fullName": "Celé meno",
+        "firstName": "Meno",
+        "lastName": "Priezvisko",
         "email": "E-mailová adresa",
         "phone": "Telefónne číslo",
         "aboutMe": "O mne",
@@ -308,7 +309,8 @@
         "cancel": "Zrušiť",
         "saving": "Ukladám...",
         "saveError": "Nepodarilo sa uložiť zmeny. Skúste to znova.",
-        "fullNameRequired": "Zadajte svoje celé meno.",
+        "firstNameRequired": "Zadajte svoje meno.",
+        "lastNameRequired": "Zadajte svoje priezvisko.",
         "phoneInvalid": "Zadajte platné telefónne číslo v medzinárodnom formáte (napr. +421900123456).",
         "aboutTooLong": "Sekcia O mne môže mať najviac 500 znakov."
     },

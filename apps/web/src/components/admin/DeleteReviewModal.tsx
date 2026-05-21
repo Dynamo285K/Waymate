@@ -4,6 +4,7 @@ import { getErrorI18nKey } from "../../lib/api-errors";
 import { adminReviewsErrorMap } from "../../lib/admin-review-errors";
 
 type DeleteReviewModalProps = {
+    theme: "light" | "dark";
     isPending: boolean;
     error: unknown;
     onClose: () => void;
@@ -11,6 +12,7 @@ type DeleteReviewModalProps = {
 };
 
 export function DeleteReviewModal({
+    theme,
     isPending,
     error,
     onClose,
@@ -22,6 +24,7 @@ export function DeleteReviewModal({
         <Modal
             open={true}
             onClose={onClose}
+            theme={theme}
         >
             <div className="w-[calc(100vw-2rem)] max-w-lg p-8">
                 <div className="flex justify-between items-center mb-5">

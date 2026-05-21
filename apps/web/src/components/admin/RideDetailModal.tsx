@@ -8,6 +8,7 @@ import { RideStatusBadge } from "./RideStatusBadge";
 import { RideStatusHistoryEntry } from "./RideStatusHistoryEntry";
 
 type RideDetailModalProps = {
+    theme: "light" | "dark";
     rideId: string;
     isThisRideMutating: boolean;
     mutationErrorForThisRide: unknown;
@@ -16,6 +17,7 @@ type RideDetailModalProps = {
 };
 
 export function RideDetailModal({
+    theme,
     rideId,
     isThisRideMutating,
     mutationErrorForThisRide,
@@ -50,6 +52,7 @@ export function RideDetailModal({
         <Modal
             open={true}
             onClose={onClose}
+            theme={theme}
         >
             <div className="w-[calc(100vw-2rem)] max-w-3xl p-8 max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
@@ -219,23 +222,21 @@ export function RideDetailModal({
                                     return (
                                         <li
                                             key={b.id}
-                                            className="border border-(--color-border) rounded-xl p-3 flex items-center justify-between gap-3"
+                                            className="border border-(--color-border) rounded-xl p-3 flex items-center gap-3"
                                         >
-                                            <div className="flex items-center gap-3">
-                                                <Avatar
-                                                    name={passengerName}
-                                                    size="sm"
-                                                />
-                                                <div>
-                                                    <p className="text-sm font-semibold text-(--color-text-primary)">
-                                                        {passengerName}
-                                                    </p>
-                                                    <p className="text-xs text-(--color-text-secondary)">
-                                                        {b.bookingStatus} ·{" "}
-                                                        {b.seatCount}{" "}
-                                                        {t("admin.seats")}
-                                                    </p>
-                                                </div>
+                                            <Avatar
+                                                name={passengerName}
+                                                size="sm"
+                                            />
+                                            <div>
+                                                <p className="text-sm font-semibold text-(--color-text-primary)">
+                                                    {passengerName}
+                                                </p>
+                                                <p className="text-xs text-(--color-text-secondary)">
+                                                    {b.bookingStatus} ·{" "}
+                                                    {b.seatCount}{" "}
+                                                    {t("admin.seats")}
+                                                </p>
                                             </div>
                                         </li>
                                     );
