@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { AuthNavbar, Button, Input } from "@waymate/ui";
+import { FieldError } from "../components/FieldError";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
 import {
@@ -19,6 +20,11 @@ import {
     getPostAuthPath,
     hasCompletedOnboarding,
 } from "../lib/auth";
+import {
+    NAME_MAX_LENGTH,
+    NO_WHITESPACE_REGEX,
+    phoneField,
+} from "@repo/shared/validation";
 
 type OnboardingPageProps = {
     language: Language;
@@ -45,26 +51,30 @@ function normalizePhone(phone: string) {
 }
 
 // Names are capitalized and the phone is normalized (0XXX → +421XXX) as part
-// of validation, so the values handed to the API are already formatted.
+// of validation, so the values handed to the API are already formatted. The
+// post-transform length/format checks mirror the API's CapitalizedNameSchema /
+// PhoneSchema (shared rules), so a value that passes here also passes the API.
+const nameSchema = z
+    .string()
+    .trim()
+    .min(1, "onboarding.requiredError")
+    .transform(formatNamePart)
+    .pipe(
+        z
+            .string()
+            .max(NAME_MAX_LENGTH, "onboarding.nameTooLong")
+            .regex(NO_WHITESPACE_REGEX, "onboarding.nameNoSpaces")
+    );
+
 const onboardingFormSchema = z.object({
-    firstName: z
-        .string()
-        .trim()
-        .min(1, "onboarding.requiredError")
-        .transform(formatNamePart),
-    lastName: z
-        .string()
-        .trim()
-        .min(1, "onboarding.requiredError")
-        .transform(formatNamePart),
+    firstName: nameSchema,
+    lastName: nameSchema,
     phone: z
         .string()
         .trim()
         .min(1, "onboarding.requiredError")
         .transform(normalizePhone)
-        .refine((value) => /^\+[1-9]\d{1,14}$/.test(value), {
-            message: "onboarding.phoneError",
-        }),
+        .pipe(phoneField("onboarding.phoneError")),
 });
 
 type OnboardingFormInput = z.input<typeof onboardingFormSchema>;
@@ -174,11 +184,10 @@ export function OnboardingPage({
                                     autoComplete="given-name"
                                     {...register("firstName")}
                                 />
-                                {errors.firstName?.message && (
-                                    <span className="text-sm font-semibold text-(--color-red)">
-                                        {t(errors.firstName.message)}
-                                    </span>
-                                )}
+                                <FieldError>
+                                    {errors.firstName?.message &&
+                                        t(errors.firstName.message)}
+                                </FieldError>
                             </label>
 
                             <label className="flex flex-col gap-2">
@@ -189,11 +198,10 @@ export function OnboardingPage({
                                     autoComplete="family-name"
                                     {...register("lastName")}
                                 />
-                                {errors.lastName?.message && (
-                                    <span className="text-sm font-semibold text-(--color-red)">
-                                        {t(errors.lastName.message)}
-                                    </span>
-                                )}
+                                <FieldError>
+                                    {errors.lastName?.message &&
+                                        t(errors.lastName.message)}
+                                </FieldError>
                             </label>
 
                             <label className="flex flex-col gap-2">
@@ -204,27 +212,28 @@ export function OnboardingPage({
                                     autoComplete="tel"
                                     {...register("phone")}
                                 />
-                                {errors.phone?.message && (
-                                    <span className="text-sm font-semibold text-(--color-red)">
-                                        {t(errors.phone.message)}
-                                    </span>
-                                )}
+                                <FieldError>
+                                    {errors.phone?.message &&
+                                        t(errors.phone.message)}
+                                </FieldError>
                             </label>
                         </div>
 
                         {(errors.root?.message || loadError) && (
-                            <p className="mt-5 text-sm font-semibold text-(--color-red)">
+                            <FieldError className="mt-5">
                                 {t(
                                     errors.root?.message ??
                                         "onboarding.loginRequired"
                                 )}
-                            </p>
+                            </FieldError>
                         )}
 
                         <div className="mt-8 flex justify-end">
                             <Button
                                 type="submit"
-                                disabled={isSubmitting || onboardMutation.isPending}
+                                disabled={
+                                    isSubmitting || onboardMutation.isPending
+                                }
                             >
                                 {t("onboarding.save")}
                             </Button>

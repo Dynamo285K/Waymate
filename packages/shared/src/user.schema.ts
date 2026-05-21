@@ -1,5 +1,12 @@
 import { z } from "zod";
 import { userRoleValues, userStatusValues } from "./status-values";
+import {
+    BIO_MAX_LENGTH,
+    NAME_MAX_LENGTH,
+    NAME_START_CAPITAL_REGEX,
+    NO_WHITESPACE_REGEX,
+    phoneField,
+} from "./validation";
 
 export const UserIdSchema = z.uuid();
 export type UserId = z.infer<typeof UserIdSchema>;
@@ -12,23 +19,20 @@ export type UserRole = z.infer<typeof UserRoleSchema>;
 
 const EmailSchema = z.email().max(254);
 
-const PhoneSchema = z
-    .string()
-    .regex(/^\+[1-9]\d{1,14}$/)
-    .max(16);
+const PhoneSchema = phoneField();
 
 const CapitalizedNameSchema = z
     .string()
     .min(1)
-    .max(20)
-    .regex(/^\p{Lu}/u, "Must start with a capital letter")
-    .regex(/^\S+$/, "Must not contain spaces");
+    .max(NAME_MAX_LENGTH)
+    .regex(NAME_START_CAPITAL_REGEX, "Must start with a capital letter")
+    .regex(NO_WHITESPACE_REGEX, "Must not contain spaces");
 
 const DisplayNameSchema = z
     .string()
     .min(1)
-    .max(20)
-    .regex(/^\S+$/, "Must not contain spaces");
+    .max(NAME_MAX_LENGTH)
+    .regex(NO_WHITESPACE_REGEX, "Must not contain spaces");
 
 export const UserEntitySchema = z.object({
     id: UserIdSchema,
@@ -42,7 +46,7 @@ export const UserEntitySchema = z.object({
     displayName: DisplayNameSchema.nullable(),
     phone: PhoneSchema.nullable(),
     profilePhotoUrl: z.url().nullable(),
-    bio: z.string().max(500).nullable(),
+    bio: z.string().max(BIO_MAX_LENGTH).nullable(),
     userStatus: UserStatusSchema,
     userRole: UserRoleSchema,
 
@@ -66,7 +70,7 @@ export const UpdateUserBodySchema = z.object({
     lastName: CapitalizedNameSchema.optional(),
     displayName: DisplayNameSchema.optional(),
     phone: PhoneSchema.optional(),
-    bio: z.string().trim().max(500).optional(),
+    bio: z.string().trim().max(BIO_MAX_LENGTH).optional(),
     profilePhotoUrl: z.url().optional(),
 });
 

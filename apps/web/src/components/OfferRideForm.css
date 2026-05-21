@@ -229,7 +229,7 @@
 
 .offer-ride-form__field-error {
     margin: -2px 0 0;
-    color: #dc2626;
+    color: var(--color-danger-text);
     font-size: 12px;
     font-weight: 600;
 }

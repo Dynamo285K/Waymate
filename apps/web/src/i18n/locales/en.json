@@ -57,6 +57,8 @@
         "save": "Save and continue",
         "requiredError": "Enter your first name, last name, and phone number.",
         "phoneError": "Use an international phone number, for example +421900123456.",
+        "nameTooLong": "Name can be at most 20 characters.",
+        "nameNoSpaces": "Name must be a single word, without spaces.",
         "loginRequired": "Please log in after verifying your email, then complete your profile.",
         "error": "Could not save your profile. Please try again."
     },
@@ -306,6 +308,7 @@
         "saving": "Saving...",
         "saveError": "Could not save your changes. Please try again.",
         "fullNameRequired": "Please enter your full name.",
+        "nameTooLong": "First and last name can each be at most 20 characters.",
         "phoneInvalid": "Enter a valid phone number in international format (e.g. +421900123456).",
         "aboutTooLong": "About me can be at most 500 characters."
     },
@@ -342,13 +345,11 @@
         "loadingCarModels": "Loading models...",
         "licensePlate": "License plate (SPZ)",
         "platePlaceholder": "e.g., ABC 1234",
-        "saveCarTitle": "Add this car to your cars?",
-        "saveCarText": "Do you want to save {{car}} ({{plate}}) to your registered cars for next time?",
-        "skipSaveCar": "No, just publish",
-        "saveCar": "Save car",
         "missingFieldsError": "Please fill pickup, dropoff, date, time, seats, price, and choose a saved car.",
-        "invalidSeatsError": "Available seats must be a whole number greater than 0.",
-        "invalidPriceError": "Price per seat must be a whole number greater than 0.",
+        "requiredField": "This field is required.",
+        "invalidSeatsError": "Must be a whole number above 0.",
+        "invalidPriceError": "Must be a whole number above 0.",
+        "plateLength": "License plate must be {{min}}-{{max}} characters.",
         "carCreateError": "Could not save this car. Please check the car details."
     },
     "rideRequests": {
@@ -598,6 +599,7 @@
         "selectModel": "Select model...",
         "loadingModels": "Loading models...",
         "requiredError": "Fill in all required fields.",
+        "plateLength": "License plate must be {{min}}-{{max}} characters.",
         "adding": "Adding...",
         "addButton": "Add car"
     }

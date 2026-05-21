@@ -57,6 +57,8 @@
         "save": "Uložit a pokračovat",
         "requiredError": "Zadejte jméno, příjmení a telefonní číslo.",
         "phoneError": "Použijte mezinárodní formát, například +421900123456.",
+        "nameTooLong": "Jméno může mít nejvýše 20 znaků.",
+        "nameNoSpaces": "Jméno musí být jedno slovo bez mezer.",
         "loginRequired": "Po ověření e-mailu se přihlaste a dokončete profil.",
         "error": "Profil se nepodařilo uložit. Zkuste to znovu."
     },
@@ -306,6 +308,7 @@
         "saving": "Ukládám...",
         "saveError": "Nepodařilo se uložit změny. Zkuste to znovu.",
         "fullNameRequired": "Zadejte své celé jméno.",
+        "nameTooLong": "Jméno a příjmení mohou mít každé nejvýše 20 znaků.",
         "phoneInvalid": "Zadejte platné telefonní číslo v mezinárodním formátu (např. +420777123456).",
         "aboutTooLong": "Sekce O mně může mít nejvýše 500 znaků."
     },
@@ -342,13 +345,11 @@
         "loadingCarModels": "Načítám modely...",
         "licensePlate": "SPZ",
         "platePlaceholder": "např. ABC 1234",
-        "saveCarTitle": "Přidat toto auto mezi vaše auta?",
-        "saveCarText": "Chcete uložit {{car}} ({{plate}}) mezi registrovaná auta pro příště?",
-        "skipSaveCar": "Ne, jen zveřejnit",
-        "saveCar": "Uložit auto",
         "missingFieldsError": "Vyplňte místo nástupu, cíl, datum, čas, místa, cenu a vyberte uložené auto.",
-        "invalidSeatsError": "Volná místa musí být celé kladné číslo.",
-        "invalidPriceError": "Cena za místo musí být celé kladné číslo.",
+        "requiredField": "Toto pole je povinné.",
+        "invalidSeatsError": "Musí být celé číslo větší než 0.",
+        "invalidPriceError": "Musí být celé číslo větší než 0.",
+        "plateLength": "SPZ musí mít {{min}}-{{max}} znaků.",
         "carCreateError": "Nepodařilo se uložit auto. Zkontrolujte detaily auta."
     },
     "rideRequests": {
@@ -598,6 +599,7 @@
         "selectModel": "Vyberte model...",
         "loadingModels": "Načítám modely...",
         "requiredError": "Vyplňte všechna povinná pole.",
+        "plateLength": "SPZ musí mít {{min}}-{{max}} znaků.",
         "adding": "Přidávám...",
         "addButton": "Přidat auto"
     }

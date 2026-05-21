@@ -13,6 +13,14 @@ export default defineConfig(({ mode }) => {
     return {
         plugins: [react(), tailwindcss()],
         server: {
+            // Pinned: the API's Better Auth `trustedOrigins` is built from
+            // WEB_ORIGIN (http://localhost:5173). If Vite silently fell back
+            // to 5174 because 5173 was taken, the browser Origin would no
+            // longer be trusted and every state-changing auth call (sign-in,
+            // sign-out) would be rejected. `strictPort` turns that silent
+            // drift into a loud "port in use" error instead.
+            port: 5173,
+            strictPort: true,
             proxy: {
                 "/api/auth": {
                     target: apiTarget,

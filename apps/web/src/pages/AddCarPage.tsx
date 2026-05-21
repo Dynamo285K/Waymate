@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "../lib/router-compat";
 import * as Select from "@radix-ui/react-select";
 import { Button, ChevronDownIcon, Input, TextLink } from "@waymate/ui";
+import { FieldError } from "../components/FieldError";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
@@ -18,6 +19,7 @@ import {
     getGetCarsMeQueryKey,
 } from "../api-client/cars/cars";
 import { getErrorI18nKey } from "../lib/api-errors";
+import { PLATE_MAX_LENGTH, PLATE_MIN_LENGTH } from "@repo/shared/validation";
 import carData from "../../../api/src/db/cars-data.json";
 
 type AddCarPageProps = {
@@ -69,6 +71,8 @@ const COLORS = [
 
 type CarColor = (typeof COLORS)[number]["value"];
 
+const CAR_COLORS = COLORS.map((c) => c.value) as [CarColor, ...CarColor[]];
+
 const carFormSchema = z.object({
     make: z.string().min(1, "addCar.requiredError"),
     model: z.string().min(1, "addCar.requiredError"),
@@ -77,15 +81,27 @@ const carFormSchema = z.object({
         .int()
         .positive()
         .nullable()
-        .refine((value) => value !== null, "addCar.requiredError"),
+        .refine(
+            (value): value is number => value !== null,
+            "addCar.requiredError"
+        ),
     color: z
-        .string()
+        .enum(CAR_COLORS)
         .nullable()
-        .refine((value) => !!value, "addCar.requiredError"),
+        .refine(
+            (value): value is CarColor => value !== null,
+            "addCar.requiredError"
+        ),
     plate: z
         .string()
         .transform((value) => value.toUpperCase().replace(/[^A-Z0-9]/g, ""))
-        .pipe(z.string().min(1, "addCar.requiredError")),
+        .pipe(
+            z
+                .string()
+                .min(1, "addCar.requiredError")
+                .min(PLATE_MIN_LENGTH, "addCar.plateLength")
+                .max(PLATE_MAX_LENGTH, "addCar.plateLength")
+        ),
 });
 
 type CarFormInput = z.input<typeof carFormSchema>;
@@ -194,14 +210,14 @@ export function AddCarPage({
             return;
         }
 
-        // Schema guarantees seats/color are non-null and plate is normalized.
+        // Schema narrows seats/color to non-null and normalizes plate.
         createCarMutation.mutate({
             data: {
                 modelId: selectedModel.id,
                 spz: values.plate,
                 countryCode: "SK",
-                color: values.color as CarColor,
-                seatsTotal: values.seats! + 1,
+                color: values.color,
+                seatsTotal: values.seats + 1,
             },
         });
     };
@@ -240,7 +256,7 @@ export function AddCarPage({
                             <div>
                                 <label className={labelClass}>
                                     {t("addCar.make")}{" "}
-                                    <span className="text-(--color-red)">
+                                    <span className="text-(--color-danger-text)">
                                         *
                                     </span>
                                 </label>
@@ -294,16 +310,15 @@ export function AddCarPage({
                                         </Select.Root>
                                     )}
                                 />
-                                {errors.make?.message && (
-                                    <p className="mt-1 text-sm font-semibold text-(--color-red)">
-                                        {t(errors.make.message)}
-                                    </p>
-                                )}
+                                <FieldError className="mt-1">
+                                    {errors.make?.message &&
+                                        t(errors.make.message)}
+                                </FieldError>
                             </div>
                             <div>
                                 <label className={labelClass}>
                                     {t("addCar.model")}{" "}
-                                    <span className="text-(--color-red)">
+                                    <span className="text-(--color-danger-text)">
                                         *
                                     </span>
                                 </label>
@@ -353,7 +368,9 @@ export function AddCarPage({
                                                                 className="flex items-center px-3 py-2 text-sm rounded-lg text-(--color-text-primary) cursor-pointer outline-none data-highlighted:bg-(--color-bg) data-[state=checked]:text-(--color-primary)"
                                                             >
                                                                 <Select.ItemText>
-                                                                    {m.modelName}
+                                                                    {
+                                                                        m.modelName
+                                                                    }
                                                                 </Select.ItemText>
                                                             </Select.Item>
                                                         ))}
@@ -363,11 +380,10 @@ export function AddCarPage({
                                         </Select.Root>
                                     )}
                                 />
-                                {errors.model?.message && (
-                                    <p className="mt-1 text-sm font-semibold text-(--color-red)">
-                                        {t(errors.model.message)}
-                                    </p>
-                                )}
+                                <FieldError className="mt-1">
+                                    {errors.model?.message &&
+                                        t(errors.model.message)}
+                                </FieldError>
                             </div>
                         </div>
                     </div>
@@ -375,7 +391,7 @@ export function AddCarPage({
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
                             {t("addCar.seats")}{" "}
-                            <span className="text-(--color-red)">*</span>
+                            <span className="text-(--color-danger-text)">*</span>
                             <span className="font-normal text-(--color-text-secondary) ml-2">
                                 {t("addCar.excludingDriver")}
                             </span>
@@ -403,17 +419,15 @@ export function AddCarPage({
                                 </div>
                             )}
                         />
-                        {errors.seats?.message && (
-                            <p className="mt-2 text-sm font-semibold text-(--color-red)">
-                                {t(errors.seats.message)}
-                            </p>
-                        )}
+                        <FieldError className="mt-2">
+                            {errors.seats?.message && t(errors.seats.message)}
+                        </FieldError>
                     </div>
 
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
                             {t("addCar.color")}{" "}
-                            <span className="text-(--color-red)">*</span>
+                            <span className="text-(--color-danger-text)">*</span>
                         </label>
                         <Controller
                             control={control}
@@ -445,17 +459,15 @@ export function AddCarPage({
                                 </div>
                             )}
                         />
-                        {errors.color?.message && (
-                            <p className="mt-2 text-sm font-semibold text-(--color-red)">
-                                {t(errors.color.message)}
-                            </p>
-                        )}
+                        <FieldError className="mt-2">
+                            {errors.color?.message && t(errors.color.message)}
+                        </FieldError>
                     </div>
 
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
                             {t("addCar.licensePlate")}{" "}
-                            <span className="text-(--color-red)">*</span>
+                            <span className="text-(--color-danger-text)">*</span>
                         </label>
                         <div className="flex gap-2 mt-1 items-center">
                             {/* eslint-disable no-restricted-syntax -- SK license plate visual uses real plate colors */}
@@ -482,11 +494,13 @@ export function AddCarPage({
                                 )}
                             />
                         </div>
-                        {errors.plate?.message && (
-                            <p className="mt-2 text-sm font-semibold text-(--color-red)">
-                                {t(errors.plate.message)}
-                            </p>
-                        )}
+                        <FieldError className="mt-2">
+                            {errors.plate?.message &&
+                                t(errors.plate.message, {
+                                    min: PLATE_MIN_LENGTH,
+                                    max: PLATE_MAX_LENGTH,
+                                })}
+                        </FieldError>
                     </div>
 
                     <div className="p-6 flex flex-col gap-4 sm:items-end">
@@ -498,7 +512,9 @@ export function AddCarPage({
                         <Button
                             type="submit"
                             variant="black"
-                            disabled={isSubmitting || createCarMutation.isPending}
+                            disabled={
+                                isSubmitting || createCarMutation.isPending
+                            }
                         >
                             {createCarMutation.isPending
                                 ? t("addCar.adding")

@@ -53,6 +53,9 @@ export function CitySelect({
     if (value?.id !== prevValueId) {
         setPrevValueId(value?.id);
         setInputValue(value?.name ?? "");
+        setSuggestions([]);
+        setOpen(false);
+        setActiveIndex(-1);
     }
 
     useEffect(() => {
