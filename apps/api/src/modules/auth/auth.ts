@@ -4,6 +4,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { admin } from "better-auth/plugins";
 import { randomUUID } from "crypto";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { env } from "../../config/env";
 import { db } from "../../db";
 import * as schema from "../../db/schema";
@@ -41,6 +42,25 @@ const googleProvider =
               },
           }
         : {};
+
+async function findAuthUserByEmail(email: string) {
+    const [user] = await db
+        .select({
+            banned: schema.users.banned,
+            banReason: schema.users.banReason,
+            userStatus: schema.users.userStatus,
+        })
+        .from(schema.users)
+        .where(
+            and(
+                eq(sql`lower(${schema.users.email})`, email.toLowerCase()),
+                isNull(schema.users.deletedAt)
+            )
+        )
+        .limit(1);
+
+    return user ?? null;
+}
 
 export const auth = betterAuth({
     baseURL: env.BETTER_AUTH_URL,
@@ -139,10 +159,23 @@ export const auth = betterAuth({
         // enumeration. We trade that off for a real error so the UI can show
         // "email already in use".
         before: createAuthMiddleware(async (ctx) => {
-            if (ctx.path !== "/sign-up/email") return;
-
             const email = ctx.body?.email;
             if (typeof email !== "string") return;
+
+            if (ctx.path === "/sign-in/email") {
+                const user = await findAuthUserByEmail(email);
+                if (user?.banned || user?.userStatus === "BANNED") {
+                    throw new APIError("FORBIDDEN", {
+                        code: "USER_BANNED",
+                        message:
+                            user.banReason ??
+                            "This account has been banned.",
+                    });
+                }
+                return;
+            }
+
+            if (ctx.path !== "/sign-up/email") return;
 
             const existing = await ctx.context.internalAdapter.findUserByEmail(
                 email.toLowerCase()

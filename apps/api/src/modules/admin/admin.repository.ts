@@ -43,6 +43,7 @@ import { prices as pricesTable } from "../../db/schema/price";
 import { bookings as bookingsTable } from "../../db/schema/booking";
 import { cars as carsTable } from "../../db/schema/car";
 import { carModels as carModelsTable } from "../../db/schema/car_model";
+import { sessions as sessionsTable } from "../../db/schema/session";
 import { rideStatusHistory as rideStatusHistoryTable } from "../../db/schema/ride_status_history";
 import { reviews as reviewsTable } from "../../db/schema/review";
 import { reviewStatusHistory as reviewStatusHistoryTable } from "../../db/schema/review_status_history";
@@ -212,15 +213,31 @@ const findStatusHistoryByUserId = async (
 const updateUserStatus = async (
     executor: Executor,
     id: string,
-    status: UserStatus
+    status: UserStatus,
+    reason?: string
 ): Promise<AdminUserListItem | null> => {
+    const isBanned = status === "BANNED";
     const [updated] = await executor
         .update(usersTable)
-        .set({ userStatus: status })
+        .set({
+            userStatus: status,
+            banned: isBanned,
+            banReason: isBanned ? (reason ?? null) : null,
+            banExpires: null,
+        })
         .where(and(eq(usersTable.id, id), ...visibleUserConditions))
         .returning(adminUserListColumns);
 
     return updated ?? null;
+};
+
+const deleteSessionsByUserId = async (
+    executor: Executor,
+    userId: string
+): Promise<void> => {
+    await executor
+        .delete(sessionsTable)
+        .where(eq(sessionsTable.userId, userId));
 };
 
 const insertUserStatusHistory = async (
@@ -1332,6 +1349,7 @@ export const AdminRepository = {
     findUserDetailById,
     findStatusHistoryByUserId,
     updateUserStatus,
+    deleteSessionsByUserId,
     insertUserStatusHistory,
     findRideList,
     findRideCreatedAt,

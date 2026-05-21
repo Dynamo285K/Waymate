@@ -26,6 +26,7 @@
         "createAccount": "Create account",
         "invalidEmail": "Enter a valid email address.",
         "passwordTooShort": "Password must be at least 8 characters.",
+        "banned": "Your account has been banned.",
         "error": "Login failed. Please check your credentials and try again."
     },
     "register": {
