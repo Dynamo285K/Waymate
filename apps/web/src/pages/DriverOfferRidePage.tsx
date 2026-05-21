@@ -24,7 +24,7 @@ import {
 } from "../api-client/cars/cars";
 import { usePostRides, getGetRidesMeQueryKey } from "../api-client/rides/rides";
 import { PLATE_MAX_LENGTH, PLATE_MIN_LENGTH } from "@repo/shared/validation";
-import carData from "../../../api/src/db/cars-data.json";
+import { carCatalog } from "@repo/shared/car-catalog";
 
 type Props = {
     language: Language;
@@ -61,12 +61,7 @@ type CreatedCarRow = {
     id: string;
 };
 
-type CarDataRow = {
-    brand: string;
-    modelName: string;
-};
-
-const CAR_DATA = carData as CarDataRow[];
+const CAR_DATA = carCatalog;
 
 const FALLBACK_CAR_BRANDS = Array.from(
     new Set(CAR_DATA.map((row) => row.brand))

@@ -18,7 +18,7 @@ import {
     rideStatusHistory,
 } from "./schema";
 import { randomUUID } from "crypto";
-import carData from "./cars-data.json";
+import { carCatalog } from "@repo/shared/car-catalog";
 import { auth } from "../modules/auth/auth";
 import { normalizeForSearch } from "../shared/text-normalize";
 import type { CountryCode } from "@repo/shared";
@@ -51,8 +51,8 @@ async function main() {
             sql`TRUNCATE TABLE accounts, sessions, verifications, bookings, booking_status_history, prices, ride_stops, ride_status_history, rides, cars, car_models, reviews, review_status_history, conversations, messages, notifications, user_status_history, users, blocklist RESTART IDENTITY CASCADE`
         );
 
-        console.log(`Inserting ${carData.length} car models...`);
-        await db.insert(carModels).values(carData);
+        console.log(`Inserting ${carCatalog.length} car models...`);
+        await db.insert(carModels).values(carCatalog);
 
         console.log(
             "All car models successfully reset and seeded into the database."
