@@ -43,7 +43,9 @@ export async function resetDatabase(): Promise<void> {
 
     if (cachedTables.length === 0) return;
 
-    const list = cachedTables.map((t) => `"${t.replace(/"/g, '""')}"`).join(", ");
+    const list = cachedTables
+        .map((t) => `"${t.replace(/"/g, '""')}"`)
+        .join(", ");
     await sql.unsafe(`TRUNCATE TABLE ${list} RESTART IDENTITY CASCADE`);
 
     // Re-seed reference data via drizzle so the camelCase → snake_case

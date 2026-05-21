@@ -61,10 +61,7 @@ async function insertCarFor(ownerId: string) {
     return car;
 }
 
-function buildRideBody(
-    carId: string,
-    departureAt: Date
-): CreateRideBody {
+function buildRideBody(carId: string, departureAt: Date): CreateRideBody {
     return {
         carId,
         departureAt,
