@@ -8,6 +8,7 @@ const API_PORT = Number(process.env.E2E_API_PORT ?? 3010);
 const WEB_PORT = Number(process.env.E2E_WEB_PORT ?? 5174);
 const API_ORIGIN = `http://localhost:${API_PORT}`;
 const BASE_URL = `http://localhost:${WEB_PORT}`;
+const REUSE_EXISTING_SERVER = process.env.E2E_REUSE_EXISTING_SERVER === "1";
 
 // Env vars forwarded to the API webServer process. Keeping the e2e defaults
 // here means start-api.ts can use the same validated env path as the real API
@@ -20,6 +21,7 @@ const apiServerEnv: Record<string, string> = {
     WEB_ORIGIN: BASE_URL,
     RESEND_API_KEY: "re_e2e",
     LOG_LEVEL: "silent",
+    RIDE_AUTO_END_ENABLED: "false",
 };
 
 export default defineConfig({
@@ -49,10 +51,9 @@ export default defineConfig({
             command: "bun start-api.ts",
             env: apiServerEnv,
             url: `${API_ORIGIN}/health`,
-            // Locally we still allow reuse — but the e2e API runs on a unique
-            // port + DB, so "reuse" only ever picks up a stale e2e process,
-            // never the developer's dev API.
-            reuseExistingServer: !process.env.CI,
+            // Reuse is opt-in. A stale Vite/API process can carry an old proxy
+            // target or DB env and make auth tests fail with misleading 500s.
+            reuseExistingServer: REUSE_EXISTING_SERVER,
             timeout: 60_000,
             stdout: "pipe",
             stderr: "pipe",
@@ -64,7 +65,7 @@ export default defineConfig({
                 API_PROXY_TARGET: API_ORIGIN,
                 VITE_API_PROXY_TARGET: API_ORIGIN,
             },
-            reuseExistingServer: !process.env.CI,
+            reuseExistingServer: REUSE_EXISTING_SERVER,
             timeout: 60_000,
             stdout: "ignore",
             stderr: "pipe",

@@ -62,7 +62,7 @@ const nameSchema = z
             .regex(NO_WHITESPACE_REGEX, "onboarding.nameNoSpaces")
     );
 
-const onboardingSchema = z.object({
+const onboardingFormSchema = z.object({
     firstName: nameSchema,
     lastName: nameSchema,
     phone: z

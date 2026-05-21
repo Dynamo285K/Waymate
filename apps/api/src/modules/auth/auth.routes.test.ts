@@ -43,6 +43,15 @@ async function insertCredentialUser(
 }
 
 describe("Auth routes", () => {
+    it("returns 401 for /users/me without a session", async () => {
+        const response = await apiRequest("/users/me");
+
+        expect(response.status).toBe(401);
+        await expect(response.json()).resolves.toEqual({
+            error: "UNAUTHORIZED",
+        });
+    });
+
     it("rejects email sign-in for a banned user with USER_BANNED", async () => {
         const credentials = await insertCredentialUser({
             banReason: "Policy violation",
