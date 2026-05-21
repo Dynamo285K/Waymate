@@ -7352,6 +7352,19 @@
                     },
                     "subject": {
                         "$ref": "#/components/schemas/PublicUserPreview"
+                    },
+                    "ride": {
+                        "type": "object",
+                        "properties": {
+                            "originCity": {
+                                "type": "string"
+                            },
+                            "destinationCity": {
+                                "type": "string"
+                            }
+                        },
+                        "required": ["originCity", "destinationCity"],
+                        "additionalProperties": false
                     }
                 },
                 "required": [
@@ -7361,7 +7374,8 @@
                     "comment",
                     "reviewStatus",
                     "createdAt",
-                    "subject"
+                    "subject",
+                    "ride"
                 ],
                 "additionalProperties": false
             },
@@ -7489,6 +7503,19 @@
                     },
                     "author": {
                         "$ref": "#/components/schemas/PublicUserPreview"
+                    },
+                    "ride": {
+                        "type": "object",
+                        "properties": {
+                            "originCity": {
+                                "type": "string"
+                            },
+                            "destinationCity": {
+                                "type": "string"
+                            }
+                        },
+                        "required": ["originCity", "destinationCity"],
+                        "additionalProperties": false
                     }
                 },
                 "required": [
@@ -7498,7 +7525,8 @@
                     "comment",
                     "reviewStatus",
                     "createdAt",
-                    "author"
+                    "author",
+                    "ride"
                 ],
                 "additionalProperties": false
             }
