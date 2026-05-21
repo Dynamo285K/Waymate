@@ -183,4 +183,15 @@ const { data } = useGetCarsBrands();
 
 ### CI (GitLab)
 
-`.gitlab-ci.yml` runs four jobs in parallel on every MR and push: `lint`, `format`, `typecheck`, `build`. All must pass before merge.
+`.gitlab-ci.yml` runs every job in a single `verify` stage — all in parallel — on every MR and push, and all must pass before merge:
+
+- `lint` — ESLint across the monorepo
+- `format` — Prettier check
+- `typecheck` — TypeScript check across the monorepo
+- `i18n-check` — flags unused keys and en/cs/sk drift in `apps/web`
+- `test` — the Vitest API suite (`apps/api`), run against a throwaway PostgreSQL service container
+- `build` — Turbo build of all apps
+- `migration-drift` — re-runs `db:generate` and fails if `apps/api/drizzle/` is out of sync with the schema
+- `generate-lockfile` — publishes `bun.lock` as a pipeline artifact
+
+The `test` job provisions a `postgres:18` service and overrides `DATABASE_URL` to point at it; the API's vitest `globalSetup` then migrates that database. The Playwright e2e suite (`e2e/`) is **not** part of CI.
