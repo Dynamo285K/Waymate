@@ -207,7 +207,7 @@ export function RidesPage({
                                 )}
                                 seatsLeft={ride.seatsLeft}
                                 driverName={`${ride.driver.firstName} ${ride.driver.lastName}`}
-                                driverRating={0}
+                                driverRating={ride.driver.averageRating ?? 0}
                                 price={ride.priceAmount ?? 0}
                                 onBook={() => setShowGuestModal(true)}
                                 labels={{

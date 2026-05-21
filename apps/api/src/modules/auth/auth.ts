@@ -93,6 +93,9 @@ export const auth = betterAuth({
         max: 100,
         customRules: {
             "/sign-in/email": { window: 60, max: 5 },
+            // Sign-up triggers a Resend verification email — cap it like
+            // sign-in so the endpoint can't be used to bulk-send mail.
+            "/sign-up/email": { window: 60, max: 5 },
             "/forget-password": { window: 300, max: 3 },
             "/email-otp/send-verification-otp": { window: 60, max: 3 },
         },
