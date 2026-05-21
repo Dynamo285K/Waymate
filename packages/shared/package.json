@@ -4,6 +4,7 @@
     "type": "module",
     "exports": {
         ".": "./src/index.ts",
+        "./car-catalog": "./src/car-catalog.ts",
         "./validation": "./src/validation.ts"
     },
     "scripts": {

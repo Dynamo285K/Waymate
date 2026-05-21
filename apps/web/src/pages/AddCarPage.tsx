@@ -20,7 +20,7 @@ import {
 } from "../api-client/cars/cars";
 import { getErrorI18nKey } from "../lib/api-errors";
 import { PLATE_MAX_LENGTH, PLATE_MIN_LENGTH } from "@repo/shared/validation";
-import carData from "../../../api/src/db/cars-data.json";
+import { carCatalog } from "@repo/shared/car-catalog";
 
 type AddCarPageProps = {
     language: Language;
@@ -169,7 +169,7 @@ export function AddCarPage({
     const apiCarMakes =
         brandsQuery.data?.map((row) => row.brand).filter(Boolean) ?? [];
     const carMakes = apiCarMakes.length > 0 ? apiCarMakes : FALLBACK_CAR_MAKES;
-    const fallbackModels = (carData as CarModelRow[])
+    const fallbackModels = (carCatalog as CarModelRow[])
         .filter((row) => row.brand === make)
         .sort((a, b) => a.modelName.localeCompare(b.modelName));
     const carModels =

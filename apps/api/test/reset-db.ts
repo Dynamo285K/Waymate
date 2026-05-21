@@ -2,7 +2,7 @@ import postgres from "postgres";
 import { env } from "../src/config/env";
 import { db } from "../src/db";
 import { carModels, cities } from "../src/db/schema";
-import carData from "../src/db/cars-data.json";
+import { carCatalog } from "@repo/shared/car-catalog";
 import { TEST_CITIES } from "./reference-data";
 
 let client: postgres.Sql | null = null;
@@ -48,7 +48,7 @@ export async function resetDatabase(): Promise<void> {
     // column mapping (modelName → model_name, nameNormalized →
     // name_normalized) is handled by the schema.
     await db.insert(cities).values(TEST_CITIES);
-    await db.insert(carModels).values(carData);
+    await db.insert(carModels).values(carCatalog);
 }
 
 export async function closeResetClient(): Promise<void> {
