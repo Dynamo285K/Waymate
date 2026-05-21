@@ -1,16 +1,23 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "../lib/router-compat";
 import { Button } from "@waymate/ui";
 import { CancelRideDialog } from "../components/CancelRideDialog";
+import { CompleteRideDialog } from "../components/CompleteRideDialog";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { RideCard } from "../components/RideCard";
-import { useGetRidesMe } from "../api-client/rides/rides";
+import {
+    useGetRidesMe,
+    usePatchRidesByIdComplete,
+    getGetRidesMeQueryKey,
+} from "../api-client/rides/rides";
 import { useCancelRide } from "../hooks/useCancelRide";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { getErrorI18nKey } from "../lib/api-errors";
 import { formatRideDate } from "../lib/date-format";
+import type { ApiMutationError } from "../lib/api-fetcher";
 
 type DriverMyRidesPageProps = {
     language: Language;
@@ -31,6 +38,7 @@ export function DriverMyRidesPage({
 }: DriverMyRidesPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const navbarProps = useDriverNavbarProps({
         activeTab: "my-rides",
         language,
@@ -45,6 +53,7 @@ export function DriverMyRidesPage({
         null
     );
     const [rideToCancel, setRideToCancel] = useState<string | null>(null);
+    const [rideToComplete, setRideToComplete] = useState<string | null>(null);
     const timeframe = tab === "past" ? "PAST" : "UPCOMING";
     const {
         data: rides,
@@ -53,6 +62,16 @@ export function DriverMyRidesPage({
         error,
     } = useGetRidesMe({ timeframe });
     const cancelRide = useCancelRide();
+    const completeRide = usePatchRidesByIdComplete<ApiMutationError>({
+        mutation: {
+            onSuccess: () => {
+                void queryClient.invalidateQueries({
+                    queryKey: getGetRidesMeQueryKey(),
+                });
+            },
+        },
+    });
+
     const displayedRides =
         rides?.map((ride) => {
             const sortedStops = [...ride.rideStops].sort(
@@ -89,6 +108,14 @@ export function DriverMyRidesPage({
         );
     }
 
+    function handleConfirmComplete() {
+        if (!rideToComplete) return;
+        completeRide.mutate(
+            { id: rideToComplete, data: {} },
+            { onSettled: () => setRideToComplete(null) }
+        );
+    }
+
     return (
         <div
             data-theme={theme}
@@ -96,7 +123,7 @@ export function DriverMyRidesPage({
         >
             <DriverNavbar {...navbarProps} />
 
-            <section className="w-full px-4 sm:max-w-3xl sm:mx-auto sm:px-8 py-8 sm:py-12">
+            <section className="w-full px-4 sm:max-w-4xl sm:mx-auto sm:px-8 py-8 sm:py-12">
                 <h1 className="text-2xl font-bold text-(--color-text-primary) mb-6">
                     {t("driverRides.title")}
                 </h1>
@@ -141,6 +168,18 @@ export function DriverMyRidesPage({
                         </p>
                     )}
 
+                    {completeRide.isError && (
+                        <p className="text-(--color-text-secondary)">
+                            {t(
+                                getErrorI18nKey(
+                                    completeRide.error,
+                                    {},
+                                    "driverRides.completeError"
+                                )
+                            )}
+                        </p>
+                    )}
+
                     {!isLoading && !isError && displayedRides.length === 0 && (
                         <p className="text-(--color-text-secondary)">
                             {t("driverRides.noResults")}
@@ -153,6 +192,9 @@ export function DriverMyRidesPage({
                             const isCancelling =
                                 cancelRide.isPending &&
                                 cancellingRideId === ride.id;
+                            const isCompleting =
+                                completeRide.isPending &&
+                                rideToComplete === null;
 
                             return tab === "upcoming" ? (
                                 <RideCard
@@ -171,6 +213,9 @@ export function DriverMyRidesPage({
                                             state: { ride },
                                         })
                                     }
+                                    onCompleteRide={() =>
+                                        setRideToComplete(ride.id)
+                                    }
                                     onCancelRide={() =>
                                         setRideToCancel(ride.id)
                                     }
@@ -183,6 +228,9 @@ export function DriverMyRidesPage({
                                         viewPassengers: t(
                                             "driverRides.viewPassengers"
                                         ),
+                                        completeRide: isCompleting
+                                            ? t("driverRides.completing")
+                                            : t("driverRides.completeRide"),
                                         cancelRide: isCancelling
                                             ? t("driverRides.cancelling")
                                             : t("driverRides.cancelRide"),
@@ -222,6 +270,15 @@ export function DriverMyRidesPage({
                     if (!open) setRideToCancel(null);
                 }}
                 onConfirm={handleConfirmCancel}
+            />
+
+            <CompleteRideDialog
+                open={rideToComplete !== null}
+                loading={completeRide.isPending}
+                onOpenChange={(open) => {
+                    if (!open) setRideToComplete(null);
+                }}
+                onConfirm={handleConfirmComplete}
             />
         </div>
     );

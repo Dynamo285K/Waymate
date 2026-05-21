@@ -10,6 +10,7 @@ export type CancelRideDialogProps = {
     onConfirm: (reason: string) => void;
     title?: string;
     message?: string;
+    reasonRequired?: boolean;
 };
 
 export function CancelRideDialog({
@@ -19,6 +20,7 @@ export function CancelRideDialog({
     onConfirm,
     title,
     message,
+    reasonRequired,
 }: CancelRideDialogProps) {
     const { t } = useTranslation();
     const { theme } = useLayout();
@@ -47,7 +49,11 @@ export function CancelRideDialog({
             </p>
             <div className="mb-6">
                 <Textarea
-                    label={t("cancelRideDialog.reasonLabel")}
+                    label={
+                        reasonRequired
+                            ? t("cancelRideDialog.reasonLabelRequired")
+                            : t("cancelRideDialog.reasonLabel")
+                    }
                     placeholder={t("cancelRideDialog.reasonPlaceholder")}
                     value={reason}
                     rows={3}
@@ -65,7 +71,7 @@ export function CancelRideDialog({
                 </Button>
                 <Button
                     variant="red"
-                    disabled={loading}
+                    disabled={loading || (reasonRequired && !reason.trim())}
                     onClick={() => onConfirm(reason.trim())}
                 >
                     {t("cancelRideDialog.confirm")}

@@ -1,17 +1,24 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "../lib/router-compat";
 import { Button, FeatureCard, PlusIcon } from "@waymate/ui";
 import { CancelRideDialog } from "../components/CancelRideDialog";
+import { CompleteRideDialog } from "../components/CompleteRideDialog";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { RideCard } from "../components/RideCard";
 import { RideRequestCard } from "../components/RideRequestCard";
 import { formatRideDate as formatDate } from "../lib/date-format";
-import { useGetRidesMe } from "../api-client/rides/rides";
+import {
+    useGetRidesMe,
+    usePatchRidesByIdComplete,
+    getGetRidesMeQueryKey,
+} from "../api-client/rides/rides";
 import { useCancelRide } from "../hooks/useCancelRide";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { getErrorI18nKey } from "../lib/api-errors";
+import type { ApiMutationError } from "../lib/api-fetcher";
 import {
     useAcceptRideRequest,
     useDeclineRideRequest,
@@ -164,8 +171,19 @@ export function DriverHomePage({
     } = useGetRidesMe({
         timeframe: "UPCOMING",
     });
+    const queryClient = useQueryClient();
     const cancelRide = useCancelRide();
     const [rideToCancel, setRideToCancel] = useState<string | null>(null);
+    const [rideToComplete, setRideToComplete] = useState<string | null>(null);
+    const completeRide = usePatchRidesByIdComplete<ApiMutationError>({
+        mutation: {
+            onSuccess: () => {
+                void queryClient.invalidateQueries({
+                    queryKey: getGetRidesMeQueryKey(),
+                });
+            },
+        },
+    });
     const {
         data: rideRequests,
         isLoading: areRequestsLoading,
@@ -222,7 +240,8 @@ export function DriverHomePage({
     const rideLabels = {
         seatsLeft: (count: number) =>
             t("home.availableRides.seatsLeft", { count }),
-        viewPassengers: "",
+        viewPassengers: t("driverRides.viewPassengers"),
+        completeRide: t("driverRides.completeRide"),
         cancelRide: t("driver.home.cancelRide"),
     };
 
@@ -268,7 +287,7 @@ export function DriverHomePage({
                 </Button>
             </section>
 
-            <div className="w-full px-4 sm:max-w-3xl sm:mx-auto sm:px-8 flex flex-col gap-10 pb-12">
+            <div className="w-full px-4 sm:max-w-4xl sm:mx-auto sm:px-8 flex flex-col gap-10 pb-12">
                 {/* Upcoming Rides */}
                 <div>
                     <h2 className="text-xl font-bold text-(--color-text-primary) mb-4">
@@ -312,7 +331,14 @@ export function DriverHomePage({
                                     )}
                                     price={ride.price}
                                     seatsLeft={ride.seatsLeft}
-                                    onViewPassengers={() => {}}
+                                    onViewPassengers={() =>
+                                        navigate("/driver/rides/passengers", {
+                                            state: { ride },
+                                        })
+                                    }
+                                    onCompleteRide={() =>
+                                        setRideToComplete(ride.id)
+                                    }
                                     onCancelRide={() =>
                                         setRideToCancel(ride.id)
                                     }
@@ -344,7 +370,7 @@ export function DriverHomePage({
 
             {/* Ride Requests */}
             <div className="border-t border-(--color-border)">
-                <div className="w-full px-4 sm:max-w-3xl sm:mx-auto sm:px-8 py-10">
+                <div className="w-full px-4 sm:max-w-4xl sm:mx-auto sm:px-8 py-10">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
                         {t("driver.home.rideRequests")}
                     </h2>
@@ -529,6 +555,21 @@ export function DriverHomePage({
                     cancelRide.mutate(
                         { rideId: rideToCancel, reason },
                         { onSettled: () => setRideToCancel(null) }
+                    );
+                }}
+            />
+
+            <CompleteRideDialog
+                open={rideToComplete !== null}
+                loading={completeRide.isPending}
+                onOpenChange={(open) => {
+                    if (!open) setRideToComplete(null);
+                }}
+                onConfirm={() => {
+                    if (!rideToComplete) return;
+                    completeRide.mutate(
+                        { id: rideToComplete, data: {} },
+                        { onSettled: () => setRideToComplete(null) }
                     );
                 }}
             />

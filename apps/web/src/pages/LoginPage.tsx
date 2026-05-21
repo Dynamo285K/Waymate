@@ -56,6 +56,13 @@ export function LoginPage({
     });
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
+    async function finishLogin() {
+        await queryClient.invalidateQueries({
+            queryKey: CURRENT_USER_QUERY_KEY,
+        });
+        navigate(await getPostAuthPath());
+    }
+
     const {
         handleSubmit,
         control,

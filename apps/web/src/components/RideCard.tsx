@@ -17,6 +17,7 @@ export type RideCardLabels = {
     reportDriver?: string;
     viewPassengers?: string;
     cancelRide?: string;
+    completeRide?: string;
     ratePassengers?: string;
 };
 
@@ -37,6 +38,7 @@ type DriverUpcomingProps = RideCardBaseProps & {
     seatsLeft: number | "full";
     onViewPassengers: () => void;
     onCancelRide: () => void;
+    onCompleteRide?: () => void;
 };
 type PassengerUpcomingProps = RideCardBaseProps & {
     variant: "passenger-upcoming";
@@ -141,6 +143,16 @@ export function RideCard(props: RideCardProps) {
                                     >
                                         {labels?.viewPassengers ??
                                             "View passengers"}
+                                    </Button>
+                                )}
+                                {props.onCompleteRide && (
+                                    <Button
+                                        variant="outlineSuccess"
+                                        className="rounded-lg!"
+                                        onClick={props.onCompleteRide}
+                                    >
+                                        {labels?.completeRide ??
+                                            "Complete ride"}
                                     </Button>
                                 )}
                                 <Button
