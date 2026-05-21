@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -94,6 +94,24 @@ export function OnboardingPage({
         query: { retry: false },
     });
 
+    const alreadyOnboarded = !!user && hasCompletedOnboarding(user);
+
+    const {
+        register,
+        handleSubmit,
+        setError,
+        formState: { errors, isSubmitting },
+    } = useForm<OnboardingFormInput, unknown, OnboardingFormValues>({
+        resolver: zodResolver(onboardingFormSchema),
+        // `values` keeps the form in sync with the async profile query without
+        // a reset()-in-effect — RHF re-applies these whenever `user` resolves.
+        values: {
+            firstName: user?.firstName ?? "",
+            lastName: user?.lastName ?? "",
+            phone: user?.phone ?? "",
+        },
+    });
+
     const onboardMutation = usePatchUsersMeOnboarding<ApiMutationError>({
         mutation: {
             onSuccess: (updatedUser) => {
@@ -102,6 +120,8 @@ export function OnboardingPage({
         },
     });
 
+    // Redirect away once we know the user has already onboarded. No setState
+    // here, so it doesn't trigger set-state-in-effect.
     useEffect(() => {
         if (isInitialized || isLoadingProfile) return;
 
@@ -144,9 +164,11 @@ export function OnboardingPage({
             navigate(await getPostAuthPath());
         } catch (error) {
             console.error("Onboarding submit failed", error);
-            setSubmitError(getErrorI18nKey(error, {}, "onboarding.error"));
+            setError("root", {
+                message: getErrorI18nKey(error, {}, "onboarding.error"),
+            });
         }
-    }
+    };
 
     return (
         <div
@@ -156,7 +178,7 @@ export function OnboardingPage({
             <AuthNavbar {...authNavbarProps} />
 
             <main className="flex min-h-[calc(100vh-72px)] items-center justify-center px-4 py-12">
-                {isInitialized && (
+                {!isLoadingProfile && !alreadyOnboarded && (
                     <form
                         onSubmit={handleSubmit(onSubmit)}
                         noValidate
@@ -177,6 +199,7 @@ export function OnboardingPage({
                                 <Input
                                     {...register("firstName")}
                                     autoComplete="given-name"
+                                    {...register("firstName")}
                                 />
                                 {errors.firstName && (
                                     <span className="text-sm font-semibold text-(--color-red)">
@@ -192,6 +215,7 @@ export function OnboardingPage({
                                 <Input
                                     {...register("lastName")}
                                     autoComplete="family-name"
+                                    {...register("lastName")}
                                 />
                                 {errors.lastName && (
                                     <span className="text-sm font-semibold text-(--color-red)">
@@ -207,6 +231,7 @@ export function OnboardingPage({
                                 <Input
                                     {...register("phone")}
                                     autoComplete="tel"
+                                    {...register("phone")}
                                 />
                                 {errors.phone && (
                                     <span className="text-sm font-semibold text-(--color-red)">
@@ -216,9 +241,12 @@ export function OnboardingPage({
                             </label>
                         </div>
 
-                        {submitError && (
+                        {(errors.root?.message || loadError) && (
                             <p className="mt-5 text-sm font-semibold text-(--color-red)">
-                                {t(submitError)}
+                                {t(
+                                    errors.root?.message ??
+                                        "onboarding.loginRequired"
+                                )}
                             </p>
                         )}
 

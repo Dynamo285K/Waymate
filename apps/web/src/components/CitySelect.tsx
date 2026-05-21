@@ -46,9 +46,14 @@ export function CitySelect({
     const containerRef = useRef<HTMLDivElement>(null);
     const requestIdRef = useRef(0);
 
-    useEffect(() => {
+    // Sync the displayed text when the selected city changes externally.
+    // Adjusting during render (tracking the previous id) avoids a
+    // setState-in-effect cascade.
+    const [prevValueId, setPrevValueId] = useState(value?.id);
+    if (value?.id !== prevValueId) {
+        setPrevValueId(value?.id);
         setInputValue(value?.name ?? "");
-    }, [value?.id]);
+    }
 
     useEffect(() => {
         function handleClickOutside(e: MouseEvent) {
@@ -66,18 +71,16 @@ export function CitySelect({
     }, [value?.name]);
 
     useEffect(() => {
-        if (inputValue.length < MIN_QUERY_LENGTH) {
-            setSuggestions([]);
-            setOpen(false);
-            setIsLoading(false);
-            return;
-        }
+        // Short queries are cleared synchronously in `handleChange`; nothing
+        // to fetch here. Bailing out keeps all setState calls inside the async
+        // timer callback (never synchronous in the effect body).
+        if (inputValue.length < MIN_QUERY_LENGTH) return;
         if (value && inputValue === value.name) return;
 
-        setIsLoading(true);
         const id = ++requestIdRef.current;
 
         const timer = setTimeout(async () => {
+            setIsLoading(true);
             try {
                 const results = await getCities({ q: inputValue, limit: 8 });
                 if (id !== requestIdRef.current) return;
@@ -108,6 +111,11 @@ export function CitySelect({
         const text = e.target.value;
         setInputValue(text);
         if (!text) onChange(null);
+        if (text.length < MIN_QUERY_LENGTH) {
+            setSuggestions([]);
+            setOpen(false);
+            setIsLoading(false);
+        }
     }
 
     function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {

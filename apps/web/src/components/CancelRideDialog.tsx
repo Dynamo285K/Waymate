@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Modal, Button, Textarea } from "@waymate/ui";
 
@@ -22,9 +22,14 @@ export function CancelRideDialog({
     const { t } = useTranslation();
     const [reason, setReason] = useState("");
 
-    useEffect(() => {
+    // Clear the reason when the dialog transitions to closed. Adjusting state
+    // during render (tracking the previous `open`) avoids a setState-in-effect
+    // cascade — the React-recommended pattern for resetting on prop change.
+    const [prevOpen, setPrevOpen] = useState(open);
+    if (open !== prevOpen) {
+        setPrevOpen(open);
         if (!open) setReason("");
-    }, [open]);
+    }
 
     return (
         <Modal

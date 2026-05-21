@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Button, SearchInput } from "@waymate/ui";
+import { FilterSelect } from "../../../components/FilterSelect";
 import type { ReportStatus } from "../../../api-client/model/reportStatus";
 import type { ReportType } from "../../../api-client/model/reportType";
 
@@ -64,22 +65,15 @@ export function AdminReportsFilters({
                     </Button>
                 ))}
             </div>
-            <select
+            <FilterSelect
+                ariaLabel={t("admin.allTypes")}
                 value={typeFilter}
-                onChange={(e) =>
-                    onTypeFilterChange(e.target.value as TypeFilter)
-                }
-                className="rounded-xl border border-(--color-border) bg-(--color-card) px-3 py-2 text-sm text-(--color-text-primary)"
-            >
-                {TYPE_FILTERS.map((f) => (
-                    <option
-                        key={f.key}
-                        value={f.key}
-                    >
-                        {t(f.labelKey)}
-                    </option>
-                ))}
-            </select>
+                onValueChange={onTypeFilterChange}
+                options={TYPE_FILTERS.map((f) => ({
+                    value: f.key,
+                    label: t(f.labelKey),
+                }))}
+            />
             <div className="ml-auto min-w-55">
                 <SearchInput
                     value={searchInput}

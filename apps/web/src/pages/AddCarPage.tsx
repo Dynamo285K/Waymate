@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { Controller, useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "../lib/router-compat";
@@ -67,6 +69,28 @@ const COLORS = [
 
 type CarColor = (typeof COLORS)[number]["value"];
 
+const carFormSchema = z.object({
+    make: z.string().min(1, "addCar.requiredError"),
+    model: z.string().min(1, "addCar.requiredError"),
+    seats: z
+        .number()
+        .int()
+        .positive()
+        .nullable()
+        .refine((value) => value !== null, "addCar.requiredError"),
+    color: z
+        .string()
+        .nullable()
+        .refine((value) => !!value, "addCar.requiredError"),
+    plate: z
+        .string()
+        .transform((value) => value.toUpperCase().replace(/[^A-Z0-9]/g, ""))
+        .pipe(z.string().min(1, "addCar.requiredError")),
+});
+
+type CarFormInput = z.input<typeof carFormSchema>;
+type CarFormValues = z.output<typeof carFormSchema>;
+
 export function AddCarPage({
     language,
     theme,
@@ -85,12 +109,25 @@ export function AddCarPage({
     const backPath =
         role === "driver" ? "/driver/profile" : "/passenger/profile";
 
-    const [make, setMake] = useState("");
-    const [model, setModel] = useState("");
-    const [seats, setSeats] = useState<number | null>(null);
-    const [color, setColor] = useState<CarColor | null>(null);
-    const [plate, setPlate] = useState("");
-    const [formError, setFormError] = useState("");
+    const {
+        control,
+        handleSubmit,
+        watch,
+        setValue,
+        setError,
+        formState: { errors, isSubmitting },
+    } = useForm<CarFormInput, unknown, CarFormValues>({
+        resolver: zodResolver(carFormSchema),
+        defaultValues: {
+            make: "",
+            model: "",
+            seats: null,
+            color: null,
+            plate: "",
+        },
+    });
+
+    const make = watch("make");
 
     const brandsQuery = useGetCarsBrands();
     const modelsQuery = useGetCarsBrandsByBrandModels(make, {
@@ -106,7 +143,9 @@ export function AddCarPage({
                 navigate(backPath);
             },
             onError: (error) => {
-                setFormError(getErrorI18nKey(error, {}, "addCar.error"));
+                setError("root", {
+                    message: getErrorI18nKey(error, {}, "addCar.error"),
+                });
             },
         },
     });
@@ -145,27 +184,27 @@ export function AddCarPage({
     const labelClass =
         "text-sm font-bold text-(--color-text-primary) mb-1 block";
 
-    function handleAddCar() {
-        setFormError("");
+    const onSubmit: SubmitHandler<CarFormValues> = (values) => {
+        const selectedModel = carModels.find(
+            (row) => row.modelName === values.model
+        );
 
-        const selectedModel = carModels.find((row) => row.modelName === model);
-        const normalizedPlate = plate.toUpperCase().replace(/[^A-Z0-9]/g, "");
-
-        if (!make || !selectedModel || !seats || !color || !normalizedPlate) {
-            setFormError("addCar.requiredError");
+        if (!selectedModel) {
+            setError("model", { message: "addCar.requiredError" });
             return;
         }
 
+        // Schema guarantees seats/color are non-null and plate is normalized.
         createCarMutation.mutate({
             data: {
                 modelId: selectedModel.id,
-                spz: normalizedPlate,
+                spz: values.plate,
                 countryCode: "SK",
-                color,
-                seatsTotal: seats + 1,
+                color: values.color as CarColor,
+                seatsTotal: values.seats! + 1,
             },
         });
-    }
+    };
 
     return (
         <div
@@ -191,7 +230,11 @@ export function AddCarPage({
                     {t("addCar.title")}
                 </h1>
 
-                <div className="bg-(--color-card) rounded-2xl border border-(--color-border) overflow-hidden">
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    noValidate
+                    className="bg-(--color-card) rounded-2xl border border-(--color-border) overflow-hidden"
+                >
                     <div className="p-6 border-b border-(--color-border)">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
@@ -201,49 +244,61 @@ export function AddCarPage({
                                         *
                                     </span>
                                 </label>
-                                <Select.Root
-                                    value={make}
-                                    onValueChange={(val) => {
-                                        setMake(val);
-                                        setModel("");
-                                        setFormError("");
-                                    }}
-                                >
-                                    <Select.Trigger
-                                        className={
-                                            inputClass +
-                                            " flex items-center justify-between cursor-pointer"
-                                        }
-                                    >
-                                        <Select.Value
-                                            placeholder={t("addCar.selectMake")}
-                                        />
-                                        <Select.Icon className="text-(--color-text-secondary) shrink-0">
-                                            <ChevronDownIcon />
-                                        </Select.Icon>
-                                    </Select.Trigger>
-                                    <Select.Portal>
-                                        <Select.Content
-                                            className="z-1100 w-(--radix-select-trigger-width) rounded-xl border border-(--color-border) bg-(--color-card) p-1 shadow-lg"
-                                            position="popper"
-                                            sideOffset={4}
+                                <Controller
+                                    control={control}
+                                    name="make"
+                                    render={({ field }) => (
+                                        <Select.Root
+                                            value={field.value}
+                                            onValueChange={(val) => {
+                                                field.onChange(val);
+                                                setValue("model", "");
+                                            }}
                                         >
-                                            <Select.Viewport>
-                                                {carMakes.map((m) => (
-                                                    <Select.Item
-                                                        key={m}
-                                                        value={m}
-                                                        className="flex items-center px-3 py-2 text-sm rounded-lg text-(--color-text-primary) cursor-pointer outline-none data-highlighted:bg-(--color-bg) data-[state=checked]:text-(--color-primary)"
-                                                    >
-                                                        <Select.ItemText>
-                                                            {m}
-                                                        </Select.ItemText>
-                                                    </Select.Item>
-                                                ))}
-                                            </Select.Viewport>
-                                        </Select.Content>
-                                    </Select.Portal>
-                                </Select.Root>
+                                            <Select.Trigger
+                                                className={
+                                                    inputClass +
+                                                    " flex items-center justify-between cursor-pointer"
+                                                }
+                                            >
+                                                <Select.Value
+                                                    placeholder={t(
+                                                        "addCar.selectMake"
+                                                    )}
+                                                />
+                                                <Select.Icon className="text-(--color-text-secondary) shrink-0">
+                                                    <ChevronDownIcon />
+                                                </Select.Icon>
+                                            </Select.Trigger>
+                                            <Select.Portal>
+                                                <Select.Content
+                                                    className="z-1100 w-(--radix-select-trigger-width) rounded-xl border border-(--color-border) bg-(--color-card) p-1 shadow-lg"
+                                                    position="popper"
+                                                    sideOffset={4}
+                                                >
+                                                    <Select.Viewport>
+                                                        {carMakes.map((m) => (
+                                                            <Select.Item
+                                                                key={m}
+                                                                value={m}
+                                                                className="flex items-center px-3 py-2 text-sm rounded-lg text-(--color-text-primary) cursor-pointer outline-none data-highlighted:bg-(--color-bg) data-[state=checked]:text-(--color-primary)"
+                                                            >
+                                                                <Select.ItemText>
+                                                                    {m}
+                                                                </Select.ItemText>
+                                                            </Select.Item>
+                                                        ))}
+                                                    </Select.Viewport>
+                                                </Select.Content>
+                                            </Select.Portal>
+                                        </Select.Root>
+                                    )}
+                                />
+                                {errors.make?.message && (
+                                    <p className="mt-1 text-sm font-semibold text-(--color-red)">
+                                        {t(errors.make.message)}
+                                    </p>
+                                )}
                             </div>
                             <div>
                                 <label className={labelClass}>
@@ -252,53 +307,67 @@ export function AddCarPage({
                                         *
                                     </span>
                                 </label>
-                                <Select.Root
-                                    value={model}
-                                    onValueChange={(val) => {
-                                        setModel(val);
-                                        setFormError("");
-                                    }}
-                                    disabled={!make}
-                                >
-                                    <Select.Trigger
-                                        className={
-                                            inputClass +
-                                            " flex items-center justify-between cursor-pointer data-disabled:opacity-50 data-disabled:cursor-not-allowed"
-                                        }
-                                    >
-                                        <Select.Value
-                                            placeholder={
-                                                modelsQuery.isLoading
-                                                    ? t("addCar.loadingModels")
-                                                    : t("addCar.selectModel")
-                                            }
-                                        />
-                                        <Select.Icon className="text-(--color-text-secondary) shrink-0">
-                                            <ChevronDownIcon />
-                                        </Select.Icon>
-                                    </Select.Trigger>
-                                    <Select.Portal>
-                                        <Select.Content
-                                            className="z-1100 w-(--radix-select-trigger-width) rounded-xl border border-(--color-border) bg-(--color-card) p-1 shadow-lg"
-                                            position="popper"
-                                            sideOffset={4}
+                                <Controller
+                                    control={control}
+                                    name="model"
+                                    render={({ field }) => (
+                                        <Select.Root
+                                            value={field.value}
+                                            onValueChange={field.onChange}
+                                            disabled={!make}
                                         >
-                                            <Select.Viewport>
-                                                {carModels.map((m) => (
-                                                    <Select.Item
-                                                        key={m.id}
-                                                        value={m.modelName}
-                                                        className="flex items-center px-3 py-2 text-sm rounded-lg text-(--color-text-primary) cursor-pointer outline-none data-highlighted:bg-(--color-bg) data-[state=checked]:text-(--color-primary)"
-                                                    >
-                                                        <Select.ItemText>
-                                                            {m.modelName}
-                                                        </Select.ItemText>
-                                                    </Select.Item>
-                                                ))}
-                                            </Select.Viewport>
-                                        </Select.Content>
-                                    </Select.Portal>
-                                </Select.Root>
+                                            <Select.Trigger
+                                                className={
+                                                    inputClass +
+                                                    " flex items-center justify-between cursor-pointer data-disabled:opacity-50 data-disabled:cursor-not-allowed"
+                                                }
+                                            >
+                                                <Select.Value
+                                                    placeholder={
+                                                        modelsQuery.isLoading
+                                                            ? t(
+                                                                  "addCar.loadingModels"
+                                                              )
+                                                            : t(
+                                                                  "addCar.selectModel"
+                                                              )
+                                                    }
+                                                />
+                                                <Select.Icon className="text-(--color-text-secondary) shrink-0">
+                                                    <ChevronDownIcon />
+                                                </Select.Icon>
+                                            </Select.Trigger>
+                                            <Select.Portal>
+                                                <Select.Content
+                                                    className="z-1100 w-(--radix-select-trigger-width) rounded-xl border border-(--color-border) bg-(--color-card) p-1 shadow-lg"
+                                                    position="popper"
+                                                    sideOffset={4}
+                                                >
+                                                    <Select.Viewport>
+                                                        {carModels.map((m) => (
+                                                            <Select.Item
+                                                                key={m.id}
+                                                                value={
+                                                                    m.modelName
+                                                                }
+                                                                className="flex items-center px-3 py-2 text-sm rounded-lg text-(--color-text-primary) cursor-pointer outline-none data-highlighted:bg-(--color-bg) data-[state=checked]:text-(--color-primary)"
+                                                            >
+                                                                <Select.ItemText>
+                                                                    {m.modelName}
+                                                                </Select.ItemText>
+                                                            </Select.Item>
+                                                        ))}
+                                                    </Select.Viewport>
+                                                </Select.Content>
+                                            </Select.Portal>
+                                        </Select.Root>
+                                    )}
+                                />
+                                {errors.model?.message && (
+                                    <p className="mt-1 text-sm font-semibold text-(--color-red)">
+                                        {t(errors.model.message)}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -311,25 +380,34 @@ export function AddCarPage({
                                 {t("addCar.excludingDriver")}
                             </span>
                         </label>
-                        <div className="flex gap-2 mt-3 flex-wrap">
-                            {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                                <Button
-                                    key={n}
-                                    variant="unstyled"
-                                    onClick={() => {
-                                        setSeats(n);
-                                        setFormError("");
-                                    }}
-                                    className={`flex items-center justify-center w-12 h-12 rounded-xl border-2 font-semibold text-sm transition-all cursor-pointer ${
-                                        seats === n
-                                            ? "border-(--color-primary) bg-(--color-primary)/10 text-(--color-primary)"
-                                            : "border-(--color-border) bg-(--color-card) text-(--color-text-primary) hover:border-(--color-primary)"
-                                    }`}
-                                >
-                                    {n}
-                                </Button>
-                            ))}
-                        </div>
+                        <Controller
+                            control={control}
+                            name="seats"
+                            render={({ field }) => (
+                                <div className="flex gap-2 mt-3 flex-wrap">
+                                    {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                                        <Button
+                                            key={n}
+                                            type="button"
+                                            variant="unstyled"
+                                            onClick={() => field.onChange(n)}
+                                            className={`flex items-center justify-center w-12 h-12 rounded-xl border-2 font-semibold text-sm transition-all cursor-pointer ${
+                                                field.value === n
+                                                    ? "border-(--color-primary) bg-(--color-primary)/10 text-(--color-primary)"
+                                                    : "border-(--color-border) bg-(--color-card) text-(--color-text-primary) hover:border-(--color-primary)"
+                                            }`}
+                                        >
+                                            {n}
+                                        </Button>
+                                    ))}
+                                </div>
+                            )}
+                        />
+                        {errors.seats?.message && (
+                            <p className="mt-2 text-sm font-semibold text-(--color-red)">
+                                {t(errors.seats.message)}
+                            </p>
+                        )}
                     </div>
 
                     <div className="p-6 border-b border-(--color-border)">
@@ -337,30 +415,41 @@ export function AddCarPage({
                             {t("addCar.color")}{" "}
                             <span className="text-(--color-red)">*</span>
                         </label>
-                        <div className="flex gap-3 mt-3 flex-wrap">
-                            {COLORS.map((c) => (
-                                <Button
-                                    key={c.value}
-                                    variant="unstyled"
-                                    onClick={() => {
-                                        setColor(c.value);
-                                        setFormError("");
-                                    }}
-                                    className="flex flex-col items-center gap-1"
-                                >
-                                    <span
-                                        className={`w-10 h-10 rounded-full transition-all ${color === c.value ? "ring-2 ring-offset-2 ring-(--color-primary) scale-110" : ""}`}
-                                        style={{
-                                            backgroundColor: c.hex,
-                                            border: `1.5px solid ${c.border}`,
-                                        }}
-                                    />
-                                    <span className="text-xs text-(--color-text-secondary)">
-                                        {c.label}
-                                    </span>
-                                </Button>
-                            ))}
-                        </div>
+                        <Controller
+                            control={control}
+                            name="color"
+                            render={({ field }) => (
+                                <div className="flex gap-3 mt-3 flex-wrap">
+                                    {COLORS.map((c) => (
+                                        <Button
+                                            key={c.value}
+                                            type="button"
+                                            variant="unstyled"
+                                            onClick={() =>
+                                                field.onChange(c.value)
+                                            }
+                                            className="flex flex-col items-center gap-1"
+                                        >
+                                            <span
+                                                className={`w-10 h-10 rounded-full transition-all ${field.value === c.value ? "ring-2 ring-offset-2 ring-(--color-primary) scale-110" : ""}`}
+                                                style={{
+                                                    backgroundColor: c.hex,
+                                                    border: `1.5px solid ${c.border}`,
+                                                }}
+                                            />
+                                            <span className="text-xs text-(--color-text-secondary)">
+                                                {c.label}
+                                            </span>
+                                        </Button>
+                                    ))}
+                                </div>
+                            )}
+                        />
+                        {errors.color?.message && (
+                            <p className="mt-2 text-sm font-semibold text-(--color-red)">
+                                {t(errors.color.message)}
+                            </p>
+                        )}
                     </div>
 
                     <div className="p-6 border-b border-(--color-border)">
@@ -377,35 +466,46 @@ export function AddCarPage({
                                 <span className="text-[11px] mt-0.5">SK</span>
                             </div>
                             {/* eslint-enable no-restricted-syntax */}
-                            <Input
-                                placeholder="BA123AB"
-                                value={plate}
-                                onChange={(e) => {
-                                    setPlate(e.target.value.toUpperCase());
-                                    setFormError("");
-                                }}
+                            <Controller
+                                control={control}
+                                name="plate"
+                                render={({ field }) => (
+                                    <Input
+                                        placeholder="BA123AB"
+                                        value={field.value}
+                                        onChange={(e) =>
+                                            field.onChange(
+                                                e.target.value.toUpperCase()
+                                            )
+                                        }
+                                    />
+                                )}
                             />
                         </div>
+                        {errors.plate?.message && (
+                            <p className="mt-2 text-sm font-semibold text-(--color-red)">
+                                {t(errors.plate.message)}
+                            </p>
+                        )}
                     </div>
 
                     <div className="p-6 flex flex-col gap-4 sm:items-end">
-                        {formError && (
+                        {errors.root?.message && (
                             <p className="w-full rounded-xl border border-(--color-danger-border) bg-(--color-danger-bg) px-4 py-3 text-sm font-semibold text-(--color-danger-text)">
-                                {t(formError)}
+                                {t(errors.root.message)}
                             </p>
                         )}
                         <Button
-                            type="button"
+                            type="submit"
                             variant="black"
-                            onClick={handleAddCar}
-                            disabled={createCarMutation.isPending}
+                            disabled={isSubmitting || createCarMutation.isPending}
                         >
                             {createCarMutation.isPending
                                 ? t("addCar.adding")
                                 : t("addCar.addButton")}
                         </Button>
                     </div>
-                </div>
+                </form>
             </section>
         </div>
     );
