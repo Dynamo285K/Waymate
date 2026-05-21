@@ -48,41 +48,67 @@ export const RideSchema = z.object({
     deletedAt: z.date().nullable(),
 });
 
-export const CreateRideBodySchema = z.object({
-    carId: CarIdSchema,
-    departureAt: z.coerce.date(),
-    arrivalEstimateAt: z.coerce.date().nullable().optional(),
-    offeredSeats: z.number().int().min(1),
-    currency: CurrencySchema,
-    description: z.string().trim().max(500).nullable().optional(),
+export const CreateRideBodySchema = z
+    .object({
+        carId: CarIdSchema,
+        departureAt: z.coerce.date(),
+        arrivalEstimateAt: z.coerce.date().nullable().optional(),
+        offeredSeats: z.number().int().min(1),
+        currency: CurrencySchema,
+        description: z.string().trim().max(500).nullable().optional(),
 
-    stops: z
-        .array(
-            z.object({
-                // Reference to a row in the cities catalog. API responses
-                // resolve cityId to display fields through joins; the client
-                // no longer chooses city/country text directly.
-                cityId: CityIdSchema,
-                address: z.string().min(1).max(255),
-                lat: z.number().min(-90).max(90),
-                lng: z.number().min(-180).max(180),
-                plannedArrivalAt: z.coerce.date().nullable().optional(),
-                plannedDepartureAt: z.coerce.date().nullable().optional(),
-            })
-        )
-        .min(2, "Ride must have at least a start and an end stop"),
+        stops: z
+            .array(
+                z.object({
+                    // Reference to a row in the cities catalog. API responses
+                    // resolve cityId to display fields through joins; the client
+                    // no longer chooses city/country text directly.
+                    cityId: CityIdSchema,
+                    address: z.string().min(1).max(255),
+                    lat: z.number().min(-90).max(90),
+                    lng: z.number().min(-180).max(180),
+                    plannedArrivalAt: z.coerce.date().nullable().optional(),
+                    plannedDepartureAt: z.coerce.date().nullable().optional(),
+                })
+            )
+            .min(2, "Ride must have at least a start and an end stop")
+            .max(25, "A ride can have at most 25 stops"),
 
-    prices: z
-        .array(
-            z.object({
-                startStopOrder: z.number().int().min(0),
-                endStopOrder: z.number().int().min(0),
-                amount: z.number().int().min(0, "Price cannot be negative"),
-                currency: CurrencySchema.optional(),
-            })
-        )
-        .optional(),
-});
+        prices: z
+            .array(
+                z
+                    .object({
+                        startStopOrder: z.number().int().min(0),
+                        endStopOrder: z.number().int().min(0),
+                        amount: z
+                            .number()
+                            .int()
+                            .min(0, "Price cannot be negative"),
+                        currency: CurrencySchema.optional(),
+                    })
+                    // A price covers a forward segment; equal or reversed
+                    // orders would map to the same stop (prices_distinct_stops_chk)
+                    // or to an unbookable backwards segment.
+                    .refine(
+                        (price) => price.startStopOrder < price.endStopOrder,
+                        {
+                            message:
+                                "startStopOrder must come before endStopOrder",
+                            path: ["endStopOrder"],
+                        }
+                    )
+            )
+            .max(300, "Too many price segments")
+            .optional(),
+    })
+    // A ride is always offered for the future. Validating it at the boundary
+    // turns a past departure into a 400 instead of creating a ride that is
+    // invisible to search yet immediately completable. Arrival-time ordering
+    // is intentionally left to the DB CHECK constraints for now.
+    .refine((data) => data.departureAt.getTime() > Date.now(), {
+        message: "departureAt must be in the future",
+        path: ["departureAt"],
+    });
 
 export const SearchRidesQuerySchema = z.object({
     startCityId: CityIdSchema,

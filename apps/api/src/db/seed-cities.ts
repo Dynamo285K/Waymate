@@ -158,7 +158,9 @@ const parseTsv = (tsv: string, country: CountryCode): RawRow[] => {
             countryCode: country,
             lat,
             lng,
-            population: Number.isFinite(population) ? Math.max(0, population) : 0,
+            population: Number.isFinite(population)
+                ? Math.max(0, population)
+                : 0,
             featureCode,
         });
     }
@@ -181,7 +183,10 @@ const dedupeRaw = (rows: RawRow[]): RawRow[] => {
         const prevPop = prev.population ?? 0;
         const curPop = row.population ?? 0;
         // Prefer larger population; if equal prefer non-zero; otherwise keep prev
-        if (curPop > prevPop || (curPop === prevPop && curPop > 0 && prevPop === 0)) {
+        if (
+            curPop > prevPop ||
+            (curPop === prevPop && curPop > 0 && prevPop === 0)
+        ) {
             winners.set(key, row);
         }
     }
@@ -251,8 +256,14 @@ async function main() {
         const all: CityRow[] = allRaw.map((r) => {
             let pop = r.population ?? 0;
             if (!pop || pop <= 0) {
-                const med = r.featureCode ? medianByFeature.get(r.featureCode) : undefined;
-                pop = med && med > 0 ? med : FALLBACK_BY_FEATURE[r.featureCode ?? ""] ?? overallMedian;
+                const med = r.featureCode
+                    ? medianByFeature.get(r.featureCode)
+                    : undefined;
+                pop =
+                    med && med > 0
+                        ? med
+                        : (FALLBACK_BY_FEATURE[r.featureCode ?? ""] ??
+                          overallMedian);
             }
             return {
                 externalId: r.externalId,

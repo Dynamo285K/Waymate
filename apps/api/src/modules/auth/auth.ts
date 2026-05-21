@@ -171,6 +171,21 @@ export const auth = betterAuth({
                             user.banReason ?? "This account has been banned.",
                     });
                 }
+                // SUSPENDED and DELETED are enforced here too — `assertUser-
+                // CanUseSession` blocks them on API calls, but without this a
+                // sign-in would still mint a (useless) session.
+                if (user?.userStatus === "SUSPENDED") {
+                    throw new APIError("FORBIDDEN", {
+                        code: "USER_SUSPENDED",
+                        message: "This account has been suspended.",
+                    });
+                }
+                if (user?.userStatus === "DELETED") {
+                    throw new APIError("FORBIDDEN", {
+                        code: "USER_DELETED",
+                        message: "This account no longer exists.",
+                    });
+                }
                 return;
             }
 
