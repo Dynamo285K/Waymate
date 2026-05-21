@@ -1,9 +1,11 @@
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
 import { HomeContent } from "../components/HomeContent";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 import { useCreateBooking } from "../hooks/useCreateBooking";
+import { BookingErrorModal } from "../components/BookingErrorModal";
 
 type PassengerHomePageProps = {
     language: Language;
@@ -22,6 +24,7 @@ export function PassengerHomePage({
     userName,
     userEmail,
 }: PassengerHomePageProps) {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const navbarProps = usePassengerNavbarProps({
         activeTab: "find-ride",
@@ -40,6 +43,11 @@ export function PassengerHomePage({
             className="min-h-screen bg-(--color-bg)"
         >
             <PassengerNavbar {...navbarProps} />
+            <BookingErrorModal
+                isError={createBooking.isError}
+                error={createBooking.error}
+                onClose={() => createBooking.reset()}
+            />
             <HomeContent
                 language={language}
                 onBook={(ride) => {

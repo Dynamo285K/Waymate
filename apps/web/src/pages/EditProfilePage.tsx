@@ -29,27 +29,17 @@ type EditProfilePageProps = {
     userEmail?: string;
 };
 
-// `fullName` is split into first/last name before being sent to the API,
-// where each part is validated by the shared CapitalizedNameSchema. Checking
-// the split parts here surfaces an over-long name as an inline field error
-// instead of a server-side rejection.
 const profileFormSchema = z.object({
-    fullName: z
+    firstName: z
         .string()
         .trim()
-        .min(1, "editProfile.fullNameRequired")
-        .superRefine((value, ctx) => {
-            const { firstName, lastName } = splitFullName(value);
-            if (
-                (firstName ?? "").length > NAME_MAX_LENGTH ||
-                (lastName ?? "").length > NAME_MAX_LENGTH
-            ) {
-                ctx.addIssue({
-                    code: "custom",
-                    message: "editProfile.nameTooLong",
-                });
-            }
-        }),
+        .min(1, "editProfile.firstNameRequired")
+        .max(NAME_MAX_LENGTH, "editProfile.nameTooLong"),
+    lastName: z
+        .string()
+        .trim()
+        .min(1, "editProfile.lastNameRequired")
+        .max(NAME_MAX_LENGTH, "editProfile.nameTooLong"),
     phone: z.string().trim().pipe(phoneField("editProfile.phoneInvalid")),
     about: z.string().trim().max(BIO_MAX_LENGTH, "editProfile.aboutTooLong"),
 });
@@ -83,13 +73,13 @@ export function EditProfilePage({
         formState: { errors, isSubmitting },
     } = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
-        // Profile props arrive asynchronously (after the current-user query
-        // resolves). `values` re-syncs them without a reset()-in-effect that
-        // would clobber in-progress edits on a background refetch.
+        // `values` keeps the form in sync with the async profile query without
+        // a reset()-in-effect — RHF re-applies these whenever `currentUser` resolves.
         values: {
-            fullName: userName ?? "",
-            phone: userPhone ?? "",
-            about: userBio ?? "",
+            firstName: currentUser?.firstName ?? "",
+            lastName: currentUser?.lastName ?? "",
+            phone: currentUser?.phone ?? "",
+            about: currentUser?.bio ?? "",
         },
     });
 
@@ -152,7 +142,6 @@ export function EditProfilePage({
                     onSubmit={handleSubmit(onSubmit)}
                     className="bg-(--color-card) rounded-2xl p-6 sm:p-8 border border-(--color-border) flex flex-col gap-6"
                 >
-                    {/* Two-column grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1">
                             <Input
@@ -161,8 +150,19 @@ export function EditProfilePage({
                                 autoComplete="given-name"
                             />
                             <FieldError>
-                                {errors.fullName?.message &&
-                                    t(errors.fullName.message)}
+                                {errors.firstName?.message &&
+                                    t(errors.firstName.message)}
+                            </FieldError>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <Input
+                                label={t("editProfile.lastName")}
+                                {...register("lastName")}
+                                autoComplete="family-name"
+                            />
+                            <FieldError>
+                                {errors.lastName?.message &&
+                                    t(errors.lastName.message)}
                             </FieldError>
                         </div>
                         <Input
@@ -204,7 +204,6 @@ export function EditProfilePage({
                         </FieldError>
                     </div>
 
-                    {/* Actions */}
                     <div className="flex justify-end gap-3 pt-2">
                         <Button
                             type="button"

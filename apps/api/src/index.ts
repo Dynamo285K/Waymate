@@ -23,6 +23,7 @@ import {
     requestErrorToHttpStatus,
 } from "./shared/request-errors";
 import { AuthError, authErrorToHttpStatus } from "./modules/auth/auth.errors";
+import { DomainError } from "./shared/errors";
 import { logger } from "./shared/logger";
 import { requestMeta } from "./shared/request-meta";
 
@@ -202,6 +203,12 @@ export const app = new Elysia()
         }
         if (code === "NOT_FOUND") {
             return status(404, { error: "NOT_FOUND" });
+        }
+        // Domain errors that bypassed per-module .onError handlers due to
+        // Elysia's named-plugin hoisting. Surface the error code to the
+        // client so frontends can map it; use 409 as a safe non-5xx status.
+        if (error instanceof DomainError) {
+            return status(409, { error: error.code });
         }
         const meta = requestMeta.get(request);
         logger.error(

@@ -9,6 +9,7 @@ import { useGetRidesAvailable } from "../api-client/rides/rides";
 import { useRideSearch } from "../hooks/useRideSearch";
 import { getErrorI18nKey } from "../lib/api-errors";
 import { formatRideDate } from "../lib/date-format";
+import { BookingErrorModal } from "../components/BookingErrorModal";
 
 type PassengerRidesPageProps = {
     language: Language;
@@ -148,17 +149,11 @@ export function PassengerRidesPage({
                     </p>
                 )}
 
-                {createBooking.isError && (
-                    <p className="text-(--color-text-secondary) mt-4">
-                        {t(
-                            getErrorI18nKey(
-                                createBooking.error,
-                                {},
-                                "bookings.createError"
-                            )
-                        )}
-                    </p>
-                )}
+                <BookingErrorModal
+                    isError={createBooking.isError}
+                    error={createBooking.error}
+                    onClose={() => createBooking.reset()}
+                />
 
                 {canSearch && !isLoading && !isError && rides?.length === 0 && (
                     <p className="text-(--color-text-secondary) mt-4">

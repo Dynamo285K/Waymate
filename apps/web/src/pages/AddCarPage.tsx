@@ -391,7 +391,9 @@ export function AddCarPage({
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
                             {t("addCar.seats")}{" "}
-                            <span className="text-(--color-danger-text)">*</span>
+                            <span className="text-(--color-danger-text)">
+                                *
+                            </span>
                             <span className="font-normal text-(--color-text-secondary) ml-2">
                                 {t("addCar.excludingDriver")}
                             </span>
@@ -427,7 +429,9 @@ export function AddCarPage({
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
                             {t("addCar.color")}{" "}
-                            <span className="text-(--color-danger-text)">*</span>
+                            <span className="text-(--color-danger-text)">
+                                *
+                            </span>
                         </label>
                         <Controller
                             control={control}
@@ -467,7 +471,9 @@ export function AddCarPage({
                     <div className="p-6 border-b border-(--color-border)">
                         <label className={labelClass}>
                             {t("addCar.licensePlate")}{" "}
-                            <span className="text-(--color-danger-text)">*</span>
+                            <span className="text-(--color-danger-text)">
+                                *
+                            </span>
                         </label>
                         <div className="flex gap-2 mt-1 items-center">
                             {/* eslint-disable no-restricted-syntax -- SK license plate visual uses real plate colors */}

@@ -311,8 +311,9 @@
         "cancel": "Zrušiť",
         "saving": "Ukladám...",
         "saveError": "Nepodarilo sa uložiť zmeny. Skúste to znova.",
-        "fullNameRequired": "Zadajte svoje celé meno.",
-        "nameTooLong": "Meno a priezvisko môžu mať každé najviac 20 znakov.",
+        "firstNameRequired": "Zadajte svoje meno.",
+        "lastNameRequired": "Zadajte svoje priezvisko.",
+        "nameTooLong": "Meno môže mať najviac 20 znakov.",
         "phoneInvalid": "Zadajte platné telefónne číslo v medzinárodnom formáte (napr. +421900123456).",
         "aboutTooLong": "Sekcia O mne môže mať najviac 500 znakov."
     },
@@ -479,7 +480,9 @@
         "register": "Registrovať"
     },
     "bookings": {
-        "createError": "Nepodarilo sa vytvoriť žiadosť o rezerváciu. Skúste to znova."
+        "createError": "Nepodarilo sa vytvoriť žiadosť o rezerváciu. Skúste to znova.",
+        "alreadyBooked": "Na túto jazdu už máte aktívnu rezerváciu.",
+        "errorTitle": "Rezerváciu sa nepodarilo vytvoriť"
     },
     "rides": {
         "found": "Nájdených {{count}} jázd",
