@@ -60,7 +60,7 @@ export function AvailableRideCard({
                     <div className="available-ride-card__driver-rating">
                         <StarIcon />
                         <span className="available-ride-card__driver-rating-value">
-                            {driverRating}
+                            {driverRating.toFixed(1)}
                         </span>
                     </div>
                 </div>

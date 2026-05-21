@@ -123,7 +123,7 @@ export function RideCard(props: RideCardProps) {
                             <div className="ride-card__driver-rating">
                                 <StarIcon />
                                 <span className="ride-card__driver-rating-value">
-                                    {props.driverRating}
+                                    {props.driverRating.toFixed(1)}
                                 </span>
                             </div>
                         </div>
