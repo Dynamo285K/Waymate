@@ -67,6 +67,17 @@ export const CreateRideBodySchema = z
         carId: CarIdSchema,
         departureAt: z.coerce.date(),
         arrivalEstimateAt: z.coerce.date().nullable().optional(),
+        // The trip length in minutes — the way the client is expected to
+        // express arrival. The service resolves it to an absolute
+        // arrivalEstimateAt (departureAt + duration); a duration is never
+        // stored, it is meaningless without the departure anchor. Capped at
+        // 24 h. At most one of arrivalEstimateAt / durationMinutes may be sent.
+        durationMinutes: z
+            .number()
+            .int()
+            .positive()
+            .max(24 * 60)
+            .optional(),
         offeredSeats: z.number().int().min(1),
         currency: CurrencySchema,
         description: z.string().trim().max(500).nullable().optional(),
@@ -122,7 +133,18 @@ export const CreateRideBodySchema = z
     .refine((data) => data.departureAt.getTime() > Date.now(), {
         message: "departureAt must be in the future",
         path: ["departureAt"],
-    });
+    })
+    // Arrival is expressed as a duration; arrivalEstimateAt stays accepted for
+    // flexibility, but sending both is ambiguous — two sources for one value.
+    .refine(
+        (data) =>
+            data.arrivalEstimateAt == null || data.durationMinutes == null,
+        {
+            message:
+                "Provide either arrivalEstimateAt or durationMinutes, not both",
+            path: ["durationMinutes"],
+        }
+    );
 
 export const SearchRidesQuerySchema = z.object({
     startCityId: CityIdSchema,

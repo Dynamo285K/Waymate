@@ -15,7 +15,7 @@ import {
 import { RideService } from "./ride.service";
 import { RideError, RideErrorCodes } from "./ride.errors";
 import { TEST_CITY_IDS } from "../../../test/reference-data";
-import type { CreateRideBody } from "@repo/shared";
+import { CreateRideBodySchema, type CreateRideBody } from "@repo/shared";
 
 async function insertTestUser() {
     const [user] = await db
@@ -101,6 +101,7 @@ function buildCreateRideBody(
             },
         ],
         prices: overrides.prices,
+        durationMinutes: overrides.durationMinutes,
     };
 }
 
@@ -327,6 +328,76 @@ describe("RideService.createRide", () => {
         ).rejects.toMatchObject({
             code: RideErrorCodes.UnknownCity,
         });
+    });
+});
+
+describe("RideService.createRide — arrival from duration", () => {
+    it("resolves durationMinutes into an absolute arrivalEstimateAt and autoEndAt", async () => {
+        const driver = await insertTestUser();
+        const car = await insertCarFor(driver.id);
+        const departureAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+        const rideId = await RideService.createRide(
+            driver.id,
+            buildCreateRideBody(car.id, {
+                departureAt,
+                // Arrival is expressed purely as a duration here.
+                arrivalEstimateAt: null,
+                durationMinutes: 150,
+            })
+        );
+
+        const ride = await db.query.rides.findFirst({
+            where: eq(rides.id, rideId),
+        });
+        const expectedArrival = new Date(
+            departureAt.getTime() + 150 * 60 * 1000
+        );
+        expect(ride!.arrivalEstimateAt?.getTime()).toBe(
+            expectedArrival.getTime()
+        );
+        // autoEndAt is derived from the resolved arrival, so it matches too.
+        expect(ride!.autoEndAt?.getTime()).toBe(expectedArrival.getTime());
+    });
+});
+
+describe("CreateRideBodySchema — arrival input", () => {
+    const baseBody = () => ({
+        carId: crypto.randomUUID(),
+        departureAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        offeredSeats: 3,
+        currency: "EUR",
+        stops: [
+            {
+                cityId: TEST_CITY_IDS.bratislava,
+                address: "Hlavná 1",
+                lat: 48.148,
+                lng: 17.107,
+            },
+            {
+                cityId: TEST_CITY_IDS.banskaBystrica,
+                address: "Námestie SNP 1",
+                lat: 48.736,
+                lng: 19.146,
+            },
+        ],
+    });
+
+    it("accepts a body that supplies only durationMinutes", () => {
+        const result = CreateRideBodySchema.safeParse({
+            ...baseBody(),
+            durationMinutes: 120,
+        });
+        expect(result.success).toBe(true);
+    });
+
+    it("rejects a body that supplies both arrivalEstimateAt and durationMinutes", () => {
+        const result = CreateRideBodySchema.safeParse({
+            ...baseBody(),
+            arrivalEstimateAt: new Date(Date.now() + 25 * 60 * 60 * 1000),
+            durationMinutes: 120,
+        });
+        expect(result.success).toBe(false);
     });
 });
 
