@@ -1,4 +1,5 @@
 import type {
+    AdminDashboardResponse,
     AdminDeleteReviewResponse,
     AdminReportDetailResponse,
     AdminReportListResponse,
@@ -526,6 +527,10 @@ const setReportStatus = async ({
     });
 };
 
+const getDashboard = async (): Promise<AdminDashboardResponse> => {
+    return await AdminRepository.getDashboardMetrics(db);
+};
+
 export const AdminService = {
     getUserList,
     getUserDetail,
@@ -541,4 +546,5 @@ export const AdminService = {
     getReportList,
     getReportDetail,
     setReportStatus,
+    getDashboard,
 };

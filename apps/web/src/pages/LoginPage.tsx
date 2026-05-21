@@ -77,7 +77,7 @@ export function LoginPage({
         }
     }, [searchParams, setError]);
 
-    const onSubmit: SubmitHandler<FormValues> = async (values) => {
+    const onSubmit: SubmitHandler<LoginFormValues> = async (values) => {
         const { error } = await signInWithEmail({
             email: values.email.trim(),
             password: values.password,

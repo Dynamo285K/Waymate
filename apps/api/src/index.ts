@@ -266,7 +266,7 @@ export const app = new Elysia()
                 },
             },
             exclude: {
-                paths: ["/", /^\/api\/auth(\/|$)/],
+                paths: ["/", "/api/auth/error", /^\/api\/auth(\/|$)/],
             },
         })
     )

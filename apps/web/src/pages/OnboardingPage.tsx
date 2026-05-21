@@ -15,11 +15,7 @@ import {
 } from "../api-client/users/users";
 import type { ApiMutationError } from "../lib/api-fetcher";
 import { getErrorI18nKey } from "../lib/api-errors";
-import {
-    CURRENT_USER_QUERY_KEY,
-    getPostAuthPath,
-    hasCompletedOnboarding,
-} from "../lib/auth";
+import { CURRENT_USER_QUERY_KEY, getPostAuthPath, signOut } from "../lib/auth";
 import {
     NAME_MAX_LENGTH,
     NO_WHITESPACE_REGEX,
@@ -77,7 +73,7 @@ const onboardingFormSchema = z.object({
         .pipe(phoneField("onboarding.phoneError")),
 });
 
-type OnboardingFormValues = z.infer<typeof onboardingSchema>;
+type OnboardingFormValues = z.infer<typeof onboardingFormSchema>;
 
 export function OnboardingPage({
     language,
@@ -109,7 +105,7 @@ export function OnboardingPage({
         setError,
         formState: { errors, isSubmitting },
     } = useForm<OnboardingFormValues>({
-        resolver: zodResolver(onboardingSchema),
+        resolver: zodResolver(onboardingFormSchema),
         defaultValues: { firstName: "", lastName: "", phone: "" },
     });
 

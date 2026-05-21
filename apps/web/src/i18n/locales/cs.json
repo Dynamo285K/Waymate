@@ -276,7 +276,10 @@
             "overcharging": "Řidič si bez vysvětlení účtoval více než dohodnutou cenu.",
             "leftLuggage": "Cestující si zapomněl tašku v autě a řidič ji odmítl vrátit.",
             "passengerNoShow": "Cestující si rezervoval místo, ale nepřišel a rezervaci předem nezrušil."
-        }
+        },
+        "loading": "Načítání...",
+        "noData": "Žádná data",
+        "dashboardLoadError": "Nepodařilo se načíst data dashboardu."
     },
     "forgotPassword": {
         "step1Title": "Zapomněli jste heslo?",
