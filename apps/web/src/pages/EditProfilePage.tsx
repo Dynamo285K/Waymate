@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { Controller, useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "../lib/router-compat";
@@ -22,6 +25,17 @@ type EditProfilePageProps = {
     userBio?: string;
 };
 
+const profileFormSchema = z.object({
+    fullName: z.string().trim().min(1, "editProfile.fullNameRequired"),
+    phone: z
+        .string()
+        .trim()
+        .regex(/^\+[1-9]\d{1,14}$/, "editProfile.phoneInvalid"),
+    about: z.string().trim().max(500, "editProfile.aboutTooLong"),
+});
+
+type ProfileFormValues = z.infer<typeof profileFormSchema>;
+
 export function EditProfilePage({
     language,
     theme,
@@ -42,29 +56,30 @@ export function EditProfilePage({
     const backPath =
         role === "driver" ? "/driver/profile" : "/passenger/profile";
 
-    const [name, setName] = useState(userName ?? "");
-    const [email, setEmail] = useState(userEmail ?? "");
-    const [phone, setPhone] = useState(userPhone ?? "");
-    const [about, setAbout] = useState(userBio ?? "");
-    const [prevProfile, setPrevProfile] = useState({
-        userName,
-        userEmail,
-        userPhone,
-        userBio,
+    const {
+        register,
+        control,
+        handleSubmit,
+        reset,
+        formState: { errors, isSubmitting },
+    } = useForm<ProfileFormValues>({
+        resolver: zodResolver(profileFormSchema),
+        defaultValues: {
+            fullName: userName ?? "",
+            phone: userPhone ?? "",
+            about: userBio ?? "",
+        },
     });
 
-    if (
-        prevProfile.userName !== userName ||
-        prevProfile.userEmail !== userEmail ||
-        prevProfile.userPhone !== userPhone ||
-        prevProfile.userBio !== userBio
-    ) {
-        setPrevProfile({ userName, userEmail, userPhone, userBio });
-        if (userName) setName(userName);
-        if (userEmail) setEmail(userEmail);
-        if (userPhone) setPhone(userPhone);
-        if (userBio) setAbout(userBio);
-    }
+    // Profile props arrive asynchronously (after the current-user query
+    // resolves), so reset the form once they're populated.
+    useEffect(() => {
+        reset({
+            fullName: userName ?? "",
+            phone: userPhone ?? "",
+            about: userBio ?? "",
+        });
+    }, [userName, userPhone, userBio, reset]);
 
     const updateProfile = useMutation({
         mutationFn: updateCurrentUserProfile,
@@ -76,17 +91,17 @@ export function EditProfilePage({
         },
     });
 
-    function handleSave() {
-        const { firstName, lastName } = splitFullName(name);
+    const onSubmit: SubmitHandler<ProfileFormValues> = (values) => {
+        const { firstName, lastName } = splitFullName(values.fullName);
 
         updateProfile.mutate({
             firstName,
             lastName,
             displayName: firstName,
-            phone: phone.trim(),
-            bio: about.trim(),
+            phone: values.phone.trim(),
+            bio: values.about.trim(),
         });
-    }
+    };
 
     const driverNavbarProps = useDriverNavbarProps({
         activeTab: undefined,
@@ -123,38 +138,62 @@ export function EditProfilePage({
                     {t("editProfile.title")}
                 </h1>
 
-                <div className="bg-(--color-card) rounded-2xl p-6 sm:p-8 border border-(--color-border) flex flex-col gap-6">
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    className="bg-(--color-card) rounded-2xl p-6 sm:p-8 border border-(--color-border) flex flex-col gap-6"
+                >
                     {/* Two-column grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <Input
-                            label={t("editProfile.fullName")}
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                        />
+                        <div className="flex flex-col gap-1">
+                            <Input
+                                label={t("editProfile.fullName")}
+                                {...register("fullName")}
+                            />
+                            {errors.fullName?.message && (
+                                <p className="text-sm font-semibold text-(--color-danger-text)">
+                                    {t(errors.fullName.message)}
+                                </p>
+                            )}
+                        </div>
                         <Input
                             label={t("editProfile.email")}
                             type="email"
-                            value={email}
+                            value={userEmail ?? ""}
                             disabled
                             onChange={() => {}}
                         />
-                        <Input
-                            label={t("editProfile.phone")}
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                        />
+                        <div className="flex flex-col gap-1">
+                            <Input
+                                label={t("editProfile.phone")}
+                                {...register("phone")}
+                            />
+                            {errors.phone?.message && (
+                                <p className="text-sm font-semibold text-(--color-danger-text)">
+                                    {t(errors.phone.message)}
+                                </p>
+                            )}
+                        </div>
                     </div>
 
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-semibold text-(--color-text-primary)">
                             {t("editProfile.aboutMe")}
                         </label>
-                        <Textarea
-                            value={about}
-                            onChange={(
-                                e: React.ChangeEvent<HTMLTextAreaElement>
-                            ) => setAbout(e.target.value)}
+                        <Controller
+                            control={control}
+                            name="about"
+                            render={({ field }) => (
+                                <Textarea
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                />
+                            )}
                         />
+                        {errors.about?.message && (
+                            <p className="text-sm font-semibold text-(--color-danger-text)">
+                                {t(errors.about.message)}
+                            </p>
+                        )}
                     </div>
 
                     {/* Actions */}
@@ -167,8 +206,8 @@ export function EditProfilePage({
                             {t("editProfile.cancel")}
                         </Button>
                         <Button
-                            onClick={handleSave}
-                            disabled={updateProfile.isPending}
+                            type="submit"
+                            disabled={isSubmitting || updateProfile.isPending}
                         >
                             {updateProfile.isPending
                                 ? t("editProfile.saving")
@@ -187,7 +226,7 @@ export function EditProfilePage({
                             )}
                         </p>
                     )}
-                </div>
+                </form>
             </section>
         </div>
     );

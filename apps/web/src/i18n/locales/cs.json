@@ -304,7 +304,10 @@
         "save": "Uložit změny",
         "cancel": "Zrušit",
         "saving": "Ukládám...",
-        "saveError": "Nepodařilo se uložit změny. Zkuste to znovu."
+        "saveError": "Nepodařilo se uložit změny. Zkuste to znovu.",
+        "fullNameRequired": "Zadejte své celé jméno.",
+        "phoneInvalid": "Zadejte platné telefonní číslo v mezinárodním formátu (např. +420777123456).",
+        "aboutTooLong": "Sekce O mně může mít nejvýše 500 znaků."
     },
     "offerRide": {
         "title": "Nabídnout jízdu",
