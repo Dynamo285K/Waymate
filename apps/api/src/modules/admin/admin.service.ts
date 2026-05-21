@@ -108,7 +108,8 @@ const setUserStatus = async ({
         const updated = await AdminRepository.updateUserStatus(
             tx,
             targetUserId,
-            newStatus
+            newStatus,
+            reason
         );
 
         if (!updated) {
@@ -124,6 +125,10 @@ const setUserStatus = async ({
             changedByUserId: actorId,
             reason,
         });
+
+        if (newStatus === "BANNED") {
+            await AdminRepository.deleteSessionsByUserId(tx, targetUserId);
+        }
 
         return updated;
     });
