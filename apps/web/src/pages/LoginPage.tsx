@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, useWatch, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "../lib/router-compat";
+import { useNavigate, useSearchParams } from "../lib/router-compat";
 import { AuthNavbar, LoginBox } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
@@ -37,6 +37,7 @@ export function LoginPage({
 }: LoginPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const authNavbarProps = useAuthNavbarProps({
         language,
         onLanguageChange,
@@ -69,6 +70,15 @@ export function LoginPage({
 
     const email = useWatch({ control, name: "email" });
     const password = useWatch({ control, name: "password" });
+
+    useEffect(() => {
+        const urlError = searchParams.get("error");
+        if (urlError === "banned") {
+            setError("root", { message: "login.banned" });
+        } else if (urlError) {
+            setError("root", { message: "login.error" });
+        }
+    }, [searchParams, setError]);
 
     const onSubmit: SubmitHandler<FormValues> = async (values) => {
         const { error } = await signInWithEmail({

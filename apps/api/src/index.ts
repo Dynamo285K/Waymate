@@ -263,6 +263,13 @@ export const app = new Elysia()
             },
         })
     )
+    .get("/api/auth/error", ({ query, redirect }) => {
+        const error = (query as Record<string, string>).error ?? "unknown";
+        return redirect(
+            `${env.WEB_ORIGIN}/login?error=${encodeURIComponent(error)}`,
+            302
+        );
+    })
     .mount(auth.handler)
     .use(HealthRoutes)
     .use(UserRoutes)

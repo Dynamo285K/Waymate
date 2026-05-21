@@ -8,7 +8,7 @@
         "@supabase/ssr": "^0.10.2",
         "@supabase/supabase-js": "^2.105.3",
         "@tailwindcss/vite": "^4.2.4",
-        "@waymate/ui": "^0.1.36",
+        "@waymate/ui": "^0.1.37",
         "better-auth": "^1.6.8",
         "drizzle-orm": "^0.45.2",
         "postgres": "^3.4.9",
@@ -58,7 +58,7 @@
         "@tanstack/react-query": "^5.66.0",
         "@tanstack/react-query-devtools": "^5.66.0",
         "@tanstack/react-router": "^1.99.0",
-        "@waymate/ui": "0.1.36",
+        "@waymate/ui": "0.1.37",
         "date-fns": "^4.1.0",
         "i18next": "^26.0.7",
         "react": "^19.2.0",
@@ -695,7 +695,7 @@
 
     "@vitest/utils": ["@vitest/utils@4.1.6", "", { "dependencies": { "@vitest/pretty-format": "4.1.6", "convert-source-map": "^2.0.0", "tinyrainbow": "^3.1.0" } }, "sha512-FxIY+U81R3LGKCxaHHFRQ5+g6/iRgGLmeHWdp2Amj4ljQRrEIWHmZyDfDYBRZlpyqA7qKxtS9DD1dhk8RnRIVQ=="],
 
-    "@waymate/ui": ["@waymate/ui@0.1.36", "https://gitlab.fi.muni.cz/api/v4/projects/48090/packages/npm/@waymate/ui/-/@waymate/ui-0.1.36.tgz", { "dependencies": { "@radix-ui/react-dialog": "^1.1.15", "@radix-ui/react-dropdown-menu": "^2.1.16", "@radix-ui/react-popover": "^1.1.15", "@radix-ui/react-select": "^2.2.6", "date-fns": "^4.1.0", "fs-extra": "^11.3.4", "lucide-react": "^1.8.0", "react-day-picker": "^9.14.0" }, "peerDependencies": { "react": "^19.0.0", "react-dom": "^19.0.0" } }, "sha1-+m+e4dmCbeuZjnArHX7/ZO99aSE="],
+    "@waymate/ui": ["@waymate/ui@0.1.37", "https://gitlab.fi.muni.cz/api/v4/projects/48090/packages/npm/@waymate/ui/-/@waymate/ui-0.1.37.tgz", { "dependencies": { "@radix-ui/react-dialog": "^1.1.15", "@radix-ui/react-dropdown-menu": "^2.1.16", "@radix-ui/react-popover": "^1.1.15", "@radix-ui/react-select": "^2.2.6", "date-fns": "^4.1.0", "fs-extra": "^11.3.4", "lucide-react": "^1.8.0", "react-day-picker": "^9.14.0" }, "peerDependencies": { "react": "^19.0.0", "react-dom": "^19.0.0" } }, "sha1-dAdaJtInxRpykrZxAqbKxqqiB9I="],
 
     "abort-controller": ["abort-controller@3.0.0", "", { "dependencies": { "event-target-shim": "^5.0.0" } }, "sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg=="],
 

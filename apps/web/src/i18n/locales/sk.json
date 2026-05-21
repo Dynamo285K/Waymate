@@ -26,7 +26,7 @@
         "createAccount": "Vytvoriť účet",
         "invalidEmail": "Zadajte platný e-mail.",
         "passwordTooShort": "Heslo musí mať aspoň 8 znakov.",
-        "banned": "Váš účet bol zablokovaný.",
+        "banned": "Váš účet bol pozastavený. Pre viac informácií kontaktujte podporu.",
         "error": "Prihlásenie zlyhalo. Skontrolujte údaje a skúste to znova."
     },
     "register": {
