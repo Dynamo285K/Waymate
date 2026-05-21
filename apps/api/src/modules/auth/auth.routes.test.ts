@@ -14,10 +14,10 @@ async function insertCredentialUser(
     const [user] = await db
         .insert(users)
         .values({
-            name: overrides.name ?? "Banned User",
+            name: overrides.name ?? "Blocked User",
             email,
             emailVerified: true,
-            firstName: "Banned",
+            firstName: "Blocked",
             lastName: "User",
             phone: "+421900000003",
             userStatus: overrides.userStatus ?? "BANNED",
@@ -58,6 +58,27 @@ describe("Auth routes", () => {
         await expect(response.json()).resolves.toMatchObject({
             code: "USER_BANNED",
             message: "Policy violation",
+        });
+    });
+
+    it("rejects email sign-in for a suspended user with USER_SUSPENDED", async () => {
+        // userStatus SUSPENDED with banned=false — the suspend path is distinct
+        // from the better-auth `banned` flag and must be enforced on its own.
+        const credentials = await insertCredentialUser({
+            userStatus: "SUSPENDED",
+            banned: false,
+        });
+
+        const response = await apiRequest("/api/auth/sign-in/email", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(credentials),
+        });
+
+        expect(response.status).toBe(403);
+        await expect(response.json()).resolves.toMatchObject({
+            code: "USER_SUSPENDED",
+            message: "This account has been suspended.",
         });
     });
 });

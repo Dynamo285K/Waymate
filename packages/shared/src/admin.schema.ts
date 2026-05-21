@@ -84,9 +84,19 @@ export const AdminUserDetailResponseSchema = z.object({
     statusHistory: z.array(AdminUserStatusHistoryItemSchema),
 });
 
+// Admin tooling may only move an account between these moderation states.
+// PENDING is owned by the sign-up flow, and DELETED must go through soft-delete
+// (which also sets deletedAt) — allowing them here would create an account that
+// reads as "deleted"/"pending" while staying fully visible and usable.
+export const AdminSettableUserStatusSchema = z.enum([
+    "ACTIVE",
+    "SUSPENDED",
+    "BANNED",
+]);
+
 export const UpdateUserStatusBodySchema = z
     .object({
-        status: UserStatusSchema,
+        status: AdminSettableUserStatusSchema,
         reason: z.string().trim().min(1).max(500).optional(),
     })
     .strict();

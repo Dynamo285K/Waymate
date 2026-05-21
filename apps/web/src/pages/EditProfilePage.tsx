@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -6,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "../lib/router-compat";
 import { Input, Button, Textarea } from "@waymate/ui";
+import { FieldError } from "../components/FieldError";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
@@ -14,6 +14,11 @@ import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 import { useGetUsersMe } from "../api-client/users/users";
 import { CURRENT_USER_QUERY_KEY, updateCurrentUserProfile } from "../lib/auth";
 import { getErrorI18nKey } from "../lib/api-errors";
+import {
+    BIO_MAX_LENGTH,
+    NAME_MAX_LENGTH,
+    phoneField,
+} from "@repo/shared/validation";
 
 type EditProfilePageProps = {
     language: Language;
@@ -22,18 +27,31 @@ type EditProfilePageProps = {
     onThemeToggle: () => void;
     userName?: string;
     userEmail?: string;
-    userPhone?: string;
-    userBio?: string;
 };
 
+// `fullName` is split into first/last name before being sent to the API,
+// where each part is validated by the shared CapitalizedNameSchema. Checking
+// the split parts here surfaces an over-long name as an inline field error
+// instead of a server-side rejection.
 const profileFormSchema = z.object({
-    firstName: z.string().trim().min(1, "editProfile.firstNameRequired"),
-    lastName: z.string().trim().min(1, "editProfile.lastNameRequired"),
-    phone: z
+    fullName: z
         .string()
         .trim()
-        .regex(/^\+[1-9]\d{1,14}$/, "editProfile.phoneInvalid"),
-    about: z.string().trim().max(500, "editProfile.aboutTooLong"),
+        .min(1, "editProfile.fullNameRequired")
+        .superRefine((value, ctx) => {
+            const { firstName, lastName } = splitFullName(value);
+            if (
+                (firstName ?? "").length > NAME_MAX_LENGTH ||
+                (lastName ?? "").length > NAME_MAX_LENGTH
+            ) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "editProfile.nameTooLong",
+                });
+            }
+        }),
+    phone: z.string().trim().pipe(phoneField("editProfile.phoneInvalid")),
+    about: z.string().trim().max(BIO_MAX_LENGTH, "editProfile.aboutTooLong"),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -45,8 +63,6 @@ export function EditProfilePage({
     onThemeToggle,
     userName,
     userEmail,
-    userPhone,
-    userBio,
 }: EditProfilePageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -64,27 +80,18 @@ export function EditProfilePage({
         register,
         control,
         handleSubmit,
-        reset,
         formState: { errors, isSubmitting },
     } = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
-        defaultValues: {
-            firstName: "",
-            lastName: "",
-            phone: "",
-            about: "",
+        // Profile props arrive asynchronously (after the current-user query
+        // resolves). `values` re-syncs them without a reset()-in-effect that
+        // would clobber in-progress edits on a background refetch.
+        values: {
+            fullName: userName ?? "",
+            phone: userPhone ?? "",
+            about: userBio ?? "",
         },
     });
-
-    useEffect(() => {
-        if (!currentUser) return;
-        reset({
-            firstName: currentUser.firstName ?? "",
-            lastName: currentUser.lastName ?? "",
-            phone: currentUser.phone ?? "",
-            about: currentUser.bio ?? "",
-        });
-    }, [currentUser, reset]);
 
     const updateProfile = useMutation({
         mutationFn: updateCurrentUserProfile,
@@ -153,23 +160,10 @@ export function EditProfilePage({
                                 {...register("firstName")}
                                 autoComplete="given-name"
                             />
-                            {errors.firstName?.message && (
-                                <p className="text-sm font-semibold text-(--color-danger-text)">
-                                    {t(errors.firstName.message)}
-                                </p>
-                            )}
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <Input
-                                label={t("editProfile.lastName")}
-                                {...register("lastName")}
-                                autoComplete="family-name"
-                            />
-                            {errors.lastName?.message && (
-                                <p className="text-sm font-semibold text-(--color-danger-text)">
-                                    {t(errors.lastName.message)}
-                                </p>
-                            )}
+                            <FieldError>
+                                {errors.fullName?.message &&
+                                    t(errors.fullName.message)}
+                            </FieldError>
                         </div>
                         <Input
                             label={t("editProfile.email")}
@@ -184,11 +178,10 @@ export function EditProfilePage({
                                 {...register("phone")}
                                 autoComplete="tel"
                             />
-                            {errors.phone?.message && (
-                                <p className="text-sm font-semibold text-(--color-danger-text)">
-                                    {t(errors.phone.message)}
-                                </p>
-                            )}
+                            <FieldError>
+                                {errors.phone?.message &&
+                                    t(errors.phone.message)}
+                            </FieldError>
                         </div>
                     </div>
 
@@ -206,11 +199,9 @@ export function EditProfilePage({
                                 />
                             )}
                         />
-                        {errors.about?.message && (
-                            <p className="text-sm font-semibold text-(--color-danger-text)">
-                                {t(errors.about.message)}
-                            </p>
-                        )}
+                        <FieldError>
+                            {errors.about?.message && t(errors.about.message)}
+                        </FieldError>
                     </div>
 
                     {/* Actions */}
@@ -233,7 +224,7 @@ export function EditProfilePage({
                     </div>
 
                     {updateProfile.isError && (
-                        <p className="text-sm font-semibold text-(--color-danger-text)">
+                        <FieldError>
                             {t(
                                 getErrorI18nKey(
                                     updateProfile.error,
@@ -241,7 +232,7 @@ export function EditProfilePage({
                                     "editProfile.saveError"
                                 )
                             )}
-                        </p>
+                        </FieldError>
                     )}
                 </form>
             </section>

@@ -7,6 +7,7 @@ export const AuthErrorCodes = {
     Forbidden: "FORBIDDEN",
     OnboardingRequired: "ONBOARDING_REQUIRED",
     UserBanned: "USER_BANNED",
+    UserSuspended: "USER_SUSPENDED",
 } as const;
 
 export type AuthErrorCode =
@@ -27,6 +28,7 @@ export function authErrorToHttpStatus(code: AuthErrorCode): number {
         case AuthErrorCodes.Forbidden:
         case AuthErrorCodes.OnboardingRequired:
         case AuthErrorCodes.UserBanned:
+        case AuthErrorCodes.UserSuspended:
             return 403;
         default:
             return assertNever(code);
@@ -73,13 +75,15 @@ export function createErrorHandler<E extends DomainError>(
         if (code === "VALIDATION" || code === "PARSE") {
             return status(400, { error: "VALIDATION" });
         }
-        if (code === "INTERNAL_SERVER_ERROR" || code === "UNKNOWN") {
-            const meta = requestMeta.get(request);
-            logger.error(
-                { err: error, requestId: meta?.requestId },
-                "unhandled_error"
-            );
-            return status(500, { error: "INTERNAL_SERVER_ERROR" });
-        }
+        // Catch-all: any remaining error (INTERNAL_SERVER_ERROR, UNKNOWN, or an
+        // unexpected Elysia code) is unhandled. Log it with the request id and
+        // return a 500 — never fall through to `undefined`, which would leak an
+        // unshaped default response.
+        const meta = requestMeta.get(request);
+        logger.error(
+            { err: error, requestId: meta?.requestId },
+            "unhandled_error"
+        );
+        return status(500, { error: "INTERNAL_SERVER_ERROR" });
     };
 }

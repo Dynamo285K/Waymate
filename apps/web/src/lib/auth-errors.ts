@@ -53,6 +53,10 @@ export function getEmailAuthErrorI18nKey(
         return "login.banned";
     }
 
+    if (code === "USER_SUSPENDED" || message.includes("USER_SUSPENDED")) {
+        return "login.suspended";
+    }
+
     if (error.status && error.status >= 500) return "errors.server";
     return fallback;
 }

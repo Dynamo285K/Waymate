@@ -5,10 +5,10 @@
  * Carpooling backend powering the Waymate web app.
  * OpenAPI spec version: 0.1.0
  */
-import type { UserStatus } from "./userStatus";
+import type { AdminSettableUserStatus } from "./adminSettableUserStatus";
 
 export interface UpdateUserStatusBody {
-    status: UserStatus;
+    status: AdminSettableUserStatus;
     /**
      * @minLength 1
      * @maxLength 500

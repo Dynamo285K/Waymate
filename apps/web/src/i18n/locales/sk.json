@@ -59,8 +59,9 @@
         "firstNameRequired": "Zadajte meno.",
         "lastNameRequired": "Zadajte priezvisko.",
         "phoneRequired": "Zadajte telefónne číslo.",
-        "requiredError": "Zadajte meno, priezvisko a telefónne číslo.",
         "phoneError": "Použite medzinárodný formát, napríklad +421900123456.",
+        "nameTooLong": "Meno môže mať najviac 20 znakov.",
+        "nameNoSpaces": "Meno musí byť jedno slovo bez medzier.",
         "loginRequired": "Po overení e-mailu sa prihláste a dokončite profil.",
         "error": "Profil sa nepodarilo uložiť. Skúste to znova."
     },
@@ -310,8 +311,8 @@
         "cancel": "Zrušiť",
         "saving": "Ukladám...",
         "saveError": "Nepodarilo sa uložiť zmeny. Skúste to znova.",
-        "firstNameRequired": "Zadajte svoje meno.",
-        "lastNameRequired": "Zadajte svoje priezvisko.",
+        "fullNameRequired": "Zadajte svoje celé meno.",
+        "nameTooLong": "Meno a priezvisko môžu mať každé najviac 20 znakov.",
         "phoneInvalid": "Zadajte platné telefónne číslo v medzinárodnom formáte (napr. +421900123456).",
         "aboutTooLong": "Sekcia O mne môže mať najviac 500 znakov."
     },
@@ -348,13 +349,11 @@
         "loadingCarModels": "Načítavam modely...",
         "licensePlate": "ŠPZ",
         "platePlaceholder": "napr. ABC 1234",
-        "saveCarTitle": "Pridať toto auto medzi vaše autá?",
-        "saveCarText": "Chcete uložiť {{car}} ({{plate}}) medzi registrované autá nabudúce?",
-        "skipSaveCar": "Nie, iba zverejniť",
-        "saveCar": "Uložiť auto",
         "missingFieldsError": "Vyplňte miesto nástupu, cieľ, dátum, čas, miesta, cenu a vyberte uložené auto.",
-        "invalidSeatsError": "Voľné miesta musia byť celé kladné číslo.",
-        "invalidPriceError": "Cena za miesto musí byť celé kladné číslo.",
+        "requiredField": "Toto pole je povinné.",
+        "invalidSeatsError": "Musí byť celé číslo väčšie ako 0.",
+        "invalidPriceError": "Musí byť celé číslo väčšie ako 0.",
+        "plateLength": "ŠPZ musí mať {{min}}-{{max}} znakov.",
         "carCreateError": "Nepodarilo sa uložiť auto. Skontrolujte detaily auta."
     },
     "rideRequests": {
@@ -604,6 +603,7 @@
         "selectModel": "Vyberte model...",
         "loadingModels": "Načítavam modely...",
         "requiredError": "Vyplňte všetky povinné polia.",
+        "plateLength": "ŠPZ musí mať {{min}}-{{max}} znakov.",
         "adding": "Pridávam...",
         "addButton": "Pridať auto"
     }

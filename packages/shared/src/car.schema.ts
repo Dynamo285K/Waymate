@@ -2,6 +2,13 @@ import { z } from "zod";
 import { UserIdSchema } from "./user.schema";
 import { CountryCodeSchema } from "./country-code.schema";
 import { carColors } from "./status-values";
+import {
+    CAR_SEATS_MAX,
+    CAR_SEATS_MIN,
+    PLATE_MAX_LENGTH,
+    PLATE_MIN_LENGTH,
+    PLATE_REGEX,
+} from "./validation";
 
 export const CarIdSchema = z.uuid();
 export type CarId = z.infer<typeof CarIdSchema>;
@@ -13,9 +20,9 @@ const CarPlateSchema = z
     .string()
     .trim()
     .toUpperCase()
-    .min(2)
-    .max(12)
-    .regex(/^[A-Z0-9]+$/, "Plate can contain only letters and numbers");
+    .min(PLATE_MIN_LENGTH)
+    .max(PLATE_MAX_LENGTH)
+    .regex(PLATE_REGEX, "Plate can contain only letters and numbers");
 
 export type CarPlate = z.infer<typeof CarPlateSchema>;
 
@@ -69,7 +76,12 @@ export const CreateCarBodySchema = z.object({
     spz: CarPlateSchema,
     countryCode: CountryCodeSchema.default("SK"),
     color: z.enum(carColors),
-    seatsTotal: z.number().int().min(2).max(9).default(4),
+    seatsTotal: z
+        .number()
+        .int()
+        .min(CAR_SEATS_MIN)
+        .max(CAR_SEATS_MAX)
+        .default(4),
 });
 
 export const CarIdParamsSchema = z.object({

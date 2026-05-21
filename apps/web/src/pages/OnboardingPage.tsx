@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../lib/router-compat";
 import { AuthNavbar, Button, Input } from "@waymate/ui";
+import { FieldError } from "../components/FieldError";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
 import {
@@ -14,7 +15,16 @@ import {
 } from "../api-client/users/users";
 import type { ApiMutationError } from "../lib/api-fetcher";
 import { getErrorI18nKey } from "../lib/api-errors";
-import { CURRENT_USER_QUERY_KEY, getPostAuthPath, signOut } from "../lib/auth";
+import {
+    CURRENT_USER_QUERY_KEY,
+    getPostAuthPath,
+    hasCompletedOnboarding,
+} from "../lib/auth";
+import {
+    NAME_MAX_LENGTH,
+    NO_WHITESPACE_REGEX,
+    phoneField,
+} from "@repo/shared/validation";
 
 type OnboardingPageProps = {
     language: Language;
@@ -40,16 +50,31 @@ function normalizePhone(phone: string) {
     return normalized;
 }
 
-const onboardingSchema = z.object({
-    firstName: z.string().min(1, "onboarding.firstNameRequired"),
-    lastName: z.string().min(1, "onboarding.lastNameRequired"),
+// Names are capitalized and the phone is normalized (0XXX → +421XXX) as part
+// of validation, so the values handed to the API are already formatted. The
+// post-transform length/format checks mirror the API's CapitalizedNameSchema /
+// PhoneSchema (shared rules), so a value that passes here also passes the API.
+const nameSchema = z
+    .string()
+    .trim()
+    .min(1, "onboarding.requiredError")
+    .transform(formatNamePart)
+    .pipe(
+        z
+            .string()
+            .max(NAME_MAX_LENGTH, "onboarding.nameTooLong")
+            .regex(NO_WHITESPACE_REGEX, "onboarding.nameNoSpaces")
+    );
+
+const onboardingFormSchema = z.object({
+    firstName: nameSchema,
+    lastName: nameSchema,
     phone: z
         .string()
-        .min(1, "onboarding.phoneRequired")
-        .refine(
-            (val) => /^\+[1-9]\d{1,14}$/.test(normalizePhone(val)),
-            "onboarding.phoneError"
-        ),
+        .trim()
+        .min(1, "onboarding.requiredError")
+        .transform(normalizePhone)
+        .pipe(phoneField("onboarding.phoneError")),
 });
 
 type OnboardingFormValues = z.infer<typeof onboardingSchema>;
@@ -165,11 +190,10 @@ export function OnboardingPage({
                                     {...register("firstName")}
                                     autoComplete="given-name"
                                 />
-                                {errors.firstName && (
-                                    <span className="text-sm font-semibold text-(--color-red)">
-                                        {t(errors.firstName.message!)}
-                                    </span>
-                                )}
+                                <FieldError>
+                                    {errors.firstName?.message &&
+                                        t(errors.firstName.message)}
+                                </FieldError>
                             </label>
 
                             <label className="flex flex-col gap-2">
@@ -180,11 +204,10 @@ export function OnboardingPage({
                                     {...register("lastName")}
                                     autoComplete="family-name"
                                 />
-                                {errors.lastName && (
-                                    <span className="text-sm font-semibold text-(--color-red)">
-                                        {t(errors.lastName.message!)}
-                                    </span>
-                                )}
+                                <FieldError>
+                                    {errors.lastName?.message &&
+                                        t(errors.lastName.message)}
+                                </FieldError>
                             </label>
 
                             <label className="flex flex-col gap-2">
@@ -195,24 +218,28 @@ export function OnboardingPage({
                                     {...register("phone")}
                                     autoComplete="tel"
                                 />
-                                {errors.phone && (
-                                    <span className="text-sm font-semibold text-(--color-red)">
-                                        {t(errors.phone.message!)}
-                                    </span>
-                                )}
+                                <FieldError>
+                                    {errors.phone?.message &&
+                                        t(errors.phone.message)}
+                                </FieldError>
                             </label>
                         </div>
 
-                        {errors.root && (
-                            <p className="mt-5 text-sm font-semibold text-(--color-red)">
-                                {t(errors.root.message!)}
-                            </p>
+                        {(errors.root?.message || loadError) && (
+                            <FieldError className="mt-5">
+                                {t(
+                                    errors.root?.message ??
+                                        "onboarding.loginRequired"
+                                )}
+                            </FieldError>
                         )}
 
                         <div className="mt-8 flex justify-end">
                             <Button
                                 type="submit"
-                                disabled={isSubmitting}
+                                disabled={
+                                    isSubmitting || onboardMutation.isPending
+                                }
                             >
                                 {t("onboarding.save")}
                             </Button>

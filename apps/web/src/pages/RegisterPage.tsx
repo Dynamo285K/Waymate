@@ -65,7 +65,7 @@ export function RegisterPage({
         setValue,
         setError,
         clearErrors,
-        formState: { errors, isSubmitting },
+        formState: { errors, isSubmitting, isSubmitted },
     } = useForm<RegisterFormValues>({
         resolver: zodResolver(registerFormSchema),
         defaultValues: { email: "", password: "", confirmPassword: "" },
@@ -175,12 +175,20 @@ export function RegisterPage({
                                 : undefined
                         }
                         isSubmitting={submitting}
-                        onEmailChange={(value) => setValue("email", value)}
+                        onEmailChange={(value) =>
+                            setValue("email", value, {
+                                shouldValidate: isSubmitted,
+                            })
+                        }
                         onPasswordChange={(value) =>
-                            setValue("password", value)
+                            setValue("password", value, {
+                                shouldValidate: isSubmitted,
+                            })
                         }
                         onConfirmPasswordChange={(value) =>
-                            setValue("confirmPassword", value)
+                            setValue("confirmPassword", value, {
+                                shouldValidate: isSubmitted,
+                            })
                         }
                         onSubmit={handleSubmit(onSubmit)}
                         onGoogleRegisterClick={handleGoogleRegister}

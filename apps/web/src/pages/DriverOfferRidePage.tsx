@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
-import type { ComponentProps, ComponentType } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { cs, enUS, sk as skLocale } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { Button, Modal } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { OfferRideForm } from "../components/OfferRideForm";
@@ -23,6 +23,7 @@ import {
     getGetCarsMeQueryKey,
 } from "../api-client/cars/cars";
 import { usePostRides, getGetRidesMeQueryKey } from "../api-client/rides/rides";
+import { PLATE_MAX_LENGTH, PLATE_MIN_LENGTH } from "@repo/shared/validation";
 import carData from "../../../api/src/db/cars-data.json";
 
 type Props = {
@@ -70,25 +71,6 @@ const CAR_DATA = carData as CarDataRow[];
 const FALLBACK_CAR_BRANDS = Array.from(
     new Set(CAR_DATA.map((row) => row.brand))
 ).sort((a, b) => a.localeCompare(b));
-
-type OfferRideFormWithCarOptionsProps = ComponentProps<typeof OfferRideForm> & {
-    labels?: ComponentProps<typeof OfferRideForm>["labels"] & {
-        selectCarBrand?: string;
-        selectCarModel?: string;
-        loadingCarBrands?: string;
-        loadingCarModels?: string;
-        plateError?: string;
-    };
-    manualBrandOptions?: string[];
-    manualBrandLoading?: boolean;
-    manualModelOptions?: string[];
-    manualModelLoading?: boolean;
-    manualModelDisabled?: boolean;
-    manualPlateError?: string;
-};
-
-const OfferRideFormWithCarOptions =
-    OfferRideForm as ComponentType<OfferRideFormWithCarOptionsProps>;
 
 function normalizePlate(plate: string) {
     return plate
@@ -140,22 +122,65 @@ function isIntegerInput(value: string) {
     return /^\d*$/.test(value);
 }
 
-// The straightforward ride-detail + manual-car inputs are managed by
-// react-hook-form. Car selection (carMode/selectedCarId) and UI flags stay as
-// useState because they react to the async saved-cars list and don't map onto
-// RHF's model. OfferRideForm is fully controlled, so values are read via
-// watch() and changes pushed back through setValue().
-type OfferRideFormValues = {
-    pickupCity: CityListItem | null;
-    dropoffCity: CityListItem | null;
-    rideDate: Date | undefined;
-    rideTime: string;
-    seats: string;
-    price: string;
-    manualBrand: string;
-    manualModel: string;
-    manualPlate: string;
-};
+// Ride-detail fields (pickup, dropoff, date, time, seats, price) are always
+// required and validated by this schema via the RHF resolver. The manual-car
+// fields are kept unconstrained here because they only apply in "manual" car
+// mode — that branch is validated imperatively in onSubmit, where the active
+// carMode is known.
+const offerRideSchema = z.object({
+    pickupCity: z
+        .custom<CityListItem | null>()
+        .refine(
+            (value): value is CityListItem => value !== null,
+            "offerRide.requiredField"
+        ),
+    dropoffCity: z
+        .custom<CityListItem | null>()
+        .refine(
+            (value): value is CityListItem => value !== null,
+            "offerRide.requiredField"
+        ),
+    rideDate: z
+        .date()
+        .optional()
+        .refine(
+            (value): value is Date => value instanceof Date,
+            "offerRide.requiredField"
+        ),
+    rideTime: z.string().min(1, "offerRide.requiredField"),
+    seats: z.string().superRefine((value, ctx) => {
+        if (value.trim() === "") {
+            ctx.addIssue({
+                code: "custom",
+                message: "offerRide.requiredField",
+            });
+        } else if (parsePositiveInteger(value) === null) {
+            ctx.addIssue({
+                code: "custom",
+                message: "offerRide.invalidSeatsError",
+            });
+        }
+    }),
+    price: z.string().superRefine((value, ctx) => {
+        if (value.trim() === "") {
+            ctx.addIssue({
+                code: "custom",
+                message: "offerRide.requiredField",
+            });
+        } else if (parsePositiveInteger(value) === null) {
+            ctx.addIssue({
+                code: "custom",
+                message: "offerRide.invalidPriceError",
+            });
+        }
+    }),
+    manualBrand: z.string(),
+    manualModel: z.string(),
+    manualPlate: z.string(),
+});
+
+type OfferRideFormInput = z.input<typeof offerRideSchema>;
+type OfferRideFormValues = z.output<typeof offerRideSchema>;
 
 export function DriverOfferRidePage({
     language,
@@ -178,7 +203,15 @@ export function DriverOfferRidePage({
         userEmail,
     });
 
-    const { watch, setValue } = useForm<OfferRideFormValues>({
+    const {
+        watch,
+        setValue,
+        handleSubmit,
+        setError,
+        clearErrors,
+        formState: { errors, isSubmitted },
+    } = useForm<OfferRideFormInput, unknown, OfferRideFormValues>({
+        resolver: zodResolver(offerRideSchema),
         defaultValues: {
             pickupCity: null,
             dropoffCity: null,
@@ -204,10 +237,12 @@ export function DriverOfferRidePage({
         manualPlate,
     } = watch();
 
+    // Car selection reacts to the async saved-cars list, so it stays in local
+    // state and is synced during render (the prev-key pattern below) rather
+    // than through an effect.
     const [localSavedCars, setLocalSavedCars] = useState<OfferRideCar[]>([]);
     const [carMode, setCarMode] = useState<"saved" | "manual">("manual");
     const [selectedCarId, setSelectedCarId] = useState("");
-    const [showSaveCarPrompt, setShowSaveCarPrompt] = useState(false);
     const [publishedMessage, setPublishedMessage] = useState("");
     const [publishError, setPublishError] = useState("");
     const [hasUserSelectedCarMode, setHasUserSelectedCarMode] = useState(false);
@@ -238,6 +273,7 @@ export function DriverOfferRidePage({
     function handleCarModeChange(mode: "saved" | "manual") {
         setHasUserSelectedCarMode(true);
         setCarMode(mode);
+        clearErrors(["manualBrand", "manualModel", "manualPlate"]);
     }
 
     const driverCarsKey = driverCars.map((car) => car.id).join("|");
@@ -326,7 +362,6 @@ export function DriverOfferRidePage({
         modelsQuery.isLoading &&
         apiCarModelOptions.length === 0 &&
         fallbackCarModelOptions.length === 0;
-    const manualPlateError = undefined;
 
     const datePickerLocale =
         LOCALES[language as keyof typeof LOCALES] ??
@@ -334,43 +369,34 @@ export function DriverOfferRidePage({
         enUS;
 
     function handleManualBrandChange(value: string) {
-        setValue("manualBrand", value);
-        setValue("manualModel", "");
+        setValue("manualBrand", value, { shouldValidate: isSubmitted });
+        setValue("manualModel", "", { shouldValidate: isSubmitted });
+        clearErrors(["manualBrand", "manualModel"]);
+    }
+
+    function handleManualModelChange(value: string) {
+        setValue("manualModel", value, { shouldValidate: isSubmitted });
+        clearErrors("manualModel");
+    }
+
+    function handleManualPlateChange(value: string) {
+        setValue("manualPlate", value, { shouldValidate: isSubmitted });
+        clearErrors("manualPlate");
     }
 
     function handleSeatsChange(value: string) {
         if (isIntegerInput(value)) {
-            setValue("seats", value);
+            setValue("seats", value, { shouldValidate: isSubmitted });
         }
     }
 
     function handlePriceChange(value: string) {
         if (isIntegerInput(value)) {
-            setValue("price", value);
+            setValue("price", value, { shouldValidate: isSubmitted });
         }
     }
 
-    function getRideFormValidationError(carId = selectedCarId) {
-        const departureAt = combineDateAndTime(rideDate, rideTime);
-        const offeredSeats = parsePositiveInteger(seats);
-        const priceAmount = parsePositiveInteger(price);
-
-        if (!pickupCity || !dropoffCity || !departureAt || !carId) {
-            return "offerRide.missingFieldsError";
-        }
-
-        if (!offeredSeats) {
-            return "offerRide.invalidSeatsError";
-        }
-
-        if (!priceAmount) {
-            return "offerRide.invalidPriceError";
-        }
-
-        return "";
-    }
-
-    function buildCreateRideBody(carId = selectedCarId): CreateRideBody | null {
+    function buildCreateRideBody(carId: string): CreateRideBody | null {
         const departureAt = combineDateAndTime(rideDate, rideTime);
         const offeredSeats = parsePositiveInteger(seats);
         const priceAmount = parsePositiveInteger(price);
@@ -493,14 +519,13 @@ export function DriverOfferRidePage({
         return createdCar.id;
     }
 
-    async function publishRide(carId = selectedCarId) {
-        setShowSaveCarPrompt(false);
+    async function publishRide(carId: string) {
         setPublishedMessage("");
 
         const body = buildCreateRideBody(carId);
 
         if (!body) {
-            setPublishError(getRideFormValidationError(carId));
+            setPublishError("offerRide.missingFieldsError");
             return;
         }
 
@@ -508,23 +533,39 @@ export function DriverOfferRidePage({
         await createRideMutation.mutateAsync({ data: body });
     }
 
-    async function handlePublish() {
+    const onSubmit: SubmitHandler<OfferRideFormValues> = async (values) => {
         setPublishedMessage("");
-        setPublishError("");
 
-        if (
-            carMode === "manual" &&
-            manualBrand.trim() &&
-            manualModel.trim() &&
-            manualPlate.trim()
-        ) {
-            const plate = normalizePlate(manualPlate);
+        if (carMode === "manual") {
+            const brand = values.manualBrand.trim();
+            const model = values.manualModel.trim();
+            const plate = normalizePlate(values.manualPlate);
+
+            let hasError = false;
+            if (!brand) {
+                setError("manualBrand", { message: "offerRide.requiredField" });
+                hasError = true;
+            }
+            if (!model) {
+                setError("manualModel", { message: "offerRide.requiredField" });
+                hasError = true;
+            }
+            if (!plate) {
+                setError("manualPlate", { message: "offerRide.requiredField" });
+                hasError = true;
+            } else if (
+                plate.length < PLATE_MIN_LENGTH ||
+                plate.length > PLATE_MAX_LENGTH
+            ) {
+                setError("manualPlate", { message: "offerRide.plateLength" });
+                hasError = true;
+            }
+            if (hasError) return;
+
             const alreadySaved = driverCars.find(
                 (car) =>
-                    car.brand.toLowerCase() ===
-                        manualBrand.trim().toLowerCase() &&
-                    car.model.toLowerCase() ===
-                        manualModel.trim().toLowerCase() &&
+                    car.brand.toLowerCase() === brand.toLowerCase() &&
+                    car.model.toLowerCase() === model.toLowerCase() &&
                     normalizePlate(car.plate) === plate
             );
 
@@ -548,38 +589,22 @@ export function DriverOfferRidePage({
             return;
         }
 
-        if (carMode === "manual") {
+        if (!selectedCarId) {
             setPublishError("offerRide.missingFieldsError");
             return;
         }
 
         try {
-            await publishRide();
+            await publishRide(selectedCarId);
         } catch (error) {
             console.error("Publish ride failed", error);
             setPublishError(
                 getErrorI18nKey(error, {}, "offerRide.publishError")
             );
         }
-    }
+    };
 
-    async function handleSaveManualCar() {
-        try {
-            const carId = await createManualCarForRide();
-
-            if (!carId) {
-                setPublishError("offerRide.carCreateError");
-                return;
-            }
-
-            await publishRide(carId);
-        } catch (error) {
-            console.error("Publish ride failed", error);
-            setPublishError(
-                getErrorI18nKey(error, {}, "offerRide.publishError")
-            );
-        }
-    }
+    const fieldError = (key?: string) => (key ? t(key) : undefined);
 
     return (
         <div
@@ -589,7 +614,7 @@ export function DriverOfferRidePage({
             <DriverNavbar {...navbarProps} />
 
             <div className="w-full px-4 sm:max-w-3xl sm:mx-auto sm:px-8 py-8 sm:py-12">
-                <OfferRideFormWithCarOptions
+                <OfferRideForm
                     labels={{
                         title: t("offerRide.title"),
                         subtitle: t("offerRide.subtitle"),
@@ -624,21 +649,41 @@ export function DriverOfferRidePage({
                         publishLabel: t("offerRide.publish"),
                     }}
                     pickupCity={pickupCity}
-                    onPickupCityChange={(city) => setValue("pickupCity", city)}
+                    onPickupCityChange={(city) =>
+                        setValue("pickupCity", city, {
+                            shouldValidate: isSubmitted,
+                        })
+                    }
+                    pickupError={fieldError(errors.pickupCity?.message)}
                     dropoffCity={dropoffCity}
                     onDropoffCityChange={(city) =>
-                        setValue("dropoffCity", city)
+                        setValue("dropoffCity", city, {
+                            shouldValidate: isSubmitted,
+                        })
                     }
+                    dropoffError={fieldError(errors.dropoffCity?.message)}
                     date={rideDate}
-                    onDateChange={(date) => setValue("rideDate", date)}
+                    onDateChange={(date) =>
+                        setValue("rideDate", date, {
+                            shouldValidate: isSubmitted,
+                        })
+                    }
                     dateLocale={datePickerLocale}
                     today={offerRideToday}
+                    dateError={fieldError(errors.rideDate?.message)}
                     time={rideTime}
-                    onTimeChange={(time) => setValue("rideTime", time)}
+                    onTimeChange={(time) =>
+                        setValue("rideTime", time, {
+                            shouldValidate: isSubmitted,
+                        })
+                    }
+                    timeError={fieldError(errors.rideTime?.message)}
                     seats={seats}
                     onSeatsChange={handleSeatsChange}
+                    seatsError={fieldError(errors.seats?.message)}
                     price={price}
                     onPriceChange={handlePriceChange}
+                    priceError={fieldError(errors.price?.message)}
                     savedCars={driverCars}
                     carMode={carMode}
                     onCarModeChange={handleCarModeChange}
@@ -648,22 +693,27 @@ export function DriverOfferRidePage({
                     onManualBrandChange={handleManualBrandChange}
                     manualBrandOptions={carBrandOptions}
                     manualBrandLoading={isLoadingCarBrands}
+                    manualBrandError={fieldError(errors.manualBrand?.message)}
                     manualModel={manualModel}
-                    onManualModelChange={(value) =>
-                        setValue("manualModel", value)
-                    }
+                    onManualModelChange={handleManualModelChange}
                     manualModelOptions={carModelOptions}
                     manualModelLoading={isLoadingCarModels}
                     manualModelDisabled={!manualBrand}
+                    manualModelError={fieldError(errors.manualModel?.message)}
                     manualPlate={manualPlate}
-                    onManualPlateChange={(value) =>
-                        setValue("manualPlate", value)
+                    onManualPlateChange={handleManualPlateChange}
+                    manualPlateError={
+                        errors.manualPlate?.message
+                            ? t(errors.manualPlate.message, {
+                                  min: PLATE_MIN_LENGTH,
+                                  max: PLATE_MAX_LENGTH,
+                              })
+                            : undefined
                     }
-                    manualPlateError={manualPlateError}
                     publishedMessage={
                         publishedMessage ? t(publishedMessage) : ""
                     }
-                    onPublishClick={handlePublish}
+                    onPublishClick={handleSubmit(onSubmit)}
                 />
                 {publishError && (
                     <p className="mt-4 w-full rounded-xl border border-(--color-danger-border) bg-(--color-danger-bg) px-4 py-3 text-sm font-semibold text-(--color-danger-text)">
@@ -671,34 +721,6 @@ export function DriverOfferRidePage({
                     </p>
                 )}
             </div>
-
-            <Modal
-                open={showSaveCarPrompt}
-                onClose={() => setShowSaveCarPrompt(false)}
-            >
-                <div className="w-[calc(100vw-2rem)] max-w-md p-6">
-                    <h2 className="text-xl font-bold text-(--color-text-primary)">
-                        {t("offerRide.saveCarTitle")}
-                    </h2>
-                    <p className="mt-2 text-sm text-(--color-text-secondary)">
-                        {t("offerRide.saveCarText", {
-                            car: `${manualBrand.trim()} ${manualModel.trim()}`.trim(),
-                            plate: manualPlate.trim().toUpperCase(),
-                        })}
-                    </p>
-                    <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
-                        <Button
-                            variant="secondary"
-                            onClick={() => void publishRide()}
-                        >
-                            {t("offerRide.skipSaveCar")}
-                        </Button>
-                        <Button onClick={handleSaveManualCar}>
-                            {t("offerRide.saveCar")}
-                        </Button>
-                    </div>
-                </div>
-            </Modal>
         </div>
     );
 }

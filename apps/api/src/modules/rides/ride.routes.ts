@@ -10,6 +10,7 @@ import {
     SearchRidesQuerySchema,
     RideIdParamsSchema,
     CancelRideBodySchema,
+    CompleteRideBodySchema,
     TimeframeQuerySchema,
     RideListItemListSchema,
     RidePassengersViewSchema,
@@ -17,6 +18,7 @@ import {
     AvailableRideListSchema,
     CreateRideResponseSchema,
     CancelRideResponseSchema,
+    CompleteRideResponseSchema,
 } from "@repo/shared";
 
 export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
@@ -34,6 +36,8 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
         AvailableRideList: AvailableRideListSchema,
         CreateRideResponse: CreateRideResponseSchema,
         CancelRideResponse: CancelRideResponseSchema,
+        CompleteRideBody: CompleteRideBodySchema,
+        CompleteRideResponse: CompleteRideResponseSchema,
     })
     .onError(createErrorHandler(RideError, rideErrorToHttpStatus))
     .get(
@@ -163,6 +167,34 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                     detail: {
                         description:
                             "Cancels a ride and cascades cancellation to all active passenger bookings",
+                    },
+                }
+            )
+
+            .patch(
+                "/:id/complete",
+                async ({ user, params, body }) => {
+                    const completedId = await RideService.completeRide(
+                        params.id,
+                        user.id,
+                        body.reason
+                    );
+                    return { id: completedId, status: "COMPLETED" as const };
+                },
+                {
+                    params: RideIdParamsSchema,
+                    body: "CompleteRideBody",
+                    response: {
+                        200: "CompleteRideResponse",
+                        400: "ErrorResponse",
+                        404: "ErrorResponse",
+                        413: "ErrorResponse",
+                        429: "ErrorResponse",
+                        500: "ErrorResponse",
+                    },
+                    detail: {
+                        description:
+                            "Marks the driver's ride as COMPLETED and carries confirmed bookings to COMPLETED, opening the review window",
                     },
                 }
             )

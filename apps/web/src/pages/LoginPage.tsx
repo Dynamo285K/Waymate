@@ -24,10 +24,17 @@ type LoginPageProps = {
     onThemeToggle: () => void;
 };
 
-type FormValues = {
-    email: string;
-    password: string;
-};
+const loginFormSchema = z.object({
+    email: z
+        .string()
+        .trim()
+        .refine((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
+            message: "login.invalidEmail",
+        }),
+    password: z.string().min(8, "login.passwordTooShort"),
+});
+
+type LoginFormValues = z.infer<typeof loginFormSchema>;
 
 export function LoginPage({
     language,
@@ -46,25 +53,15 @@ export function LoginPage({
     });
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
-    const formSchema = z.object({
-        email: z
-            .string()
-            .trim()
-            .refine((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
-                message: "login.invalidEmail",
-            }),
-        password: z.string().min(8, "login.passwordTooShort"),
-    });
-
     const {
         handleSubmit,
         control,
         setValue,
         setError,
         clearErrors,
-        formState: { errors, isSubmitting },
-    } = useForm<FormValues>({
-        resolver: zodResolver(formSchema),
+        formState: { errors, isSubmitting, isSubmitted },
+    } = useForm<LoginFormValues>({
+        resolver: zodResolver(loginFormSchema),
         defaultValues: { email: "", password: "" },
     });
 
@@ -150,8 +147,16 @@ export function LoginPage({
                             : undefined
                     }
                     isSubmitting={submitting}
-                    onEmailChange={(value) => setValue("email", value)}
-                    onPasswordChange={(value) => setValue("password", value)}
+                    onEmailChange={(value) =>
+                        setValue("email", value, {
+                            shouldValidate: isSubmitted,
+                        })
+                    }
+                    onPasswordChange={(value) =>
+                        setValue("password", value, {
+                            shouldValidate: isSubmitted,
+                        })
+                    }
                     onSubmit={handleSubmit(onSubmit)}
                     onGoogleLoginClick={handleGoogleLogin}
                     onForgotPasswordClick={() => navigate("/forgot-password")}

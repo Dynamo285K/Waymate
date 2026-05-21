@@ -66,19 +66,25 @@ export type OfferRideFormProps = {
     labels?: OfferRideFormLabels;
     pickupCity?: CityListItem | null;
     onPickupCityChange?: (city: CityListItem | null) => void;
+    pickupError?: string;
     dropoffCity?: CityListItem | null;
     onDropoffCityChange?: (city: CityListItem | null) => void;
+    dropoffError?: string;
     date?: Date;
     onDateChange?: (date: Date | undefined) => void;
     dateLocale?: Locale;
     today?: Date;
+    dateError?: string;
     time?: string;
     onTimeChange?: (time: string) => void;
     timeOptions?: string[];
+    timeError?: string;
     seats?: string;
     onSeatsChange?: (value: string) => void;
+    seatsError?: string;
     price?: string;
     onPriceChange?: (value: string) => void;
+    priceError?: string;
     savedCars?: OfferRideCar[];
     carMode?: "saved" | "manual";
     onCarModeChange?: (mode: "saved" | "manual") => void;
@@ -88,11 +94,13 @@ export type OfferRideFormProps = {
     onManualBrandChange?: (value: string) => void;
     manualBrandOptions?: string[];
     manualBrandLoading?: boolean;
+    manualBrandError?: string;
     manualModel?: string;
     onManualModelChange?: (value: string) => void;
     manualModelOptions?: string[];
     manualModelLoading?: boolean;
     manualModelDisabled?: boolean;
+    manualModelError?: string;
     manualPlate?: string;
     onManualPlateChange?: (value: string) => void;
     manualPlateError?: string;
@@ -110,19 +118,25 @@ export function OfferRideForm({
     labels,
     pickupCity = null,
     onPickupCityChange,
+    pickupError,
     dropoffCity = null,
     onDropoffCityChange,
+    dropoffError,
     date,
     onDateChange,
     dateLocale,
     today,
+    dateError,
     time = "",
     onTimeChange,
     timeOptions = DEFAULT_TIME_OPTIONS,
+    timeError,
     seats = "",
     onSeatsChange,
+    seatsError,
     price = "",
     onPriceChange,
+    priceError,
     savedCars = [],
     carMode = "saved",
     onCarModeChange,
@@ -132,11 +146,13 @@ export function OfferRideForm({
     onManualBrandChange,
     manualBrandOptions,
     manualBrandLoading = false,
+    manualBrandError,
     manualModel = "",
     onManualModelChange,
     manualModelOptions,
     manualModelLoading = false,
     manualModelDisabled = false,
+    manualModelError,
     manualPlate = "",
     onManualPlateChange,
     manualPlateError,
@@ -179,6 +195,11 @@ export function OfferRideForm({
                                 "Enter pickup location"
                             }
                         />
+                        {pickupError && (
+                            <p className="offer-ride-form__field-error">
+                                {pickupError}
+                            </p>
+                        )}
                     </div>
                     <div className="offer-ride-form__field">
                         <FieldLabel
@@ -193,6 +214,11 @@ export function OfferRideForm({
                                 "Enter destination"
                             }
                         />
+                        {dropoffError && (
+                            <p className="offer-ride-form__field-error">
+                                {dropoffError}
+                            </p>
+                        )}
                     </div>
                 </FormSectionCard>
 
@@ -212,6 +238,11 @@ export function OfferRideForm({
                                 today={today}
                                 disablePastDates
                             />
+                            {dateError && (
+                                <p className="offer-ride-form__field-error">
+                                    {dateError}
+                                </p>
+                            )}
                         </div>
                         <div className="offer-ride-form__field">
                             <FieldLabel
@@ -252,6 +283,11 @@ export function OfferRideForm({
                                     </Select.Content>
                                 </Select.Portal>
                             </Select.Root>
+                            {timeError && (
+                                <p className="offer-ride-form__field-error">
+                                    {timeError}
+                                </p>
+                            )}
                         </div>
                     </div>
                 </FormSectionCard>
@@ -280,6 +316,11 @@ export function OfferRideForm({
                                     labels?.seatsPlaceholder ?? "e.g., 3"
                                 }
                             />
+                            {seatsError && (
+                                <p className="offer-ride-form__field-error">
+                                    {seatsError}
+                                </p>
+                            )}
                         </div>
                         <div className="offer-ride-form__field">
                             <FieldLabel
@@ -296,6 +337,11 @@ export function OfferRideForm({
                                     labels?.pricePlaceholder ?? "e.g., 12"
                                 }
                             />
+                            {priceError && (
+                                <p className="offer-ride-form__field-error">
+                                    {priceError}
+                                </p>
+                            )}
                         </div>
                     </div>
                 </FormSectionCard>
@@ -464,6 +510,11 @@ export function OfferRideForm({
                                             }
                                         />
                                     )}
+                                    {manualBrandError && (
+                                        <p className="offer-ride-form__field-error">
+                                            {manualBrandError}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="offer-ride-form__field">
                                     <FieldLabel
@@ -532,6 +583,11 @@ export function OfferRideForm({
                                                 "e.g., Fabia"
                                             }
                                         />
+                                    )}
+                                    {manualModelError && (
+                                        <p className="offer-ride-form__field-error">
+                                            {manualModelError}
+                                        </p>
                                     )}
                                 </div>
                                 <div className="offer-ride-form__field offer-ride-form__field--full">
