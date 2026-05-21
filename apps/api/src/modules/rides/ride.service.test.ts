@@ -558,6 +558,7 @@ describe("RideService.completeRide", () => {
             pickupStopId,
             dropoffStopId
         );
+        const beforeEnd = new Date();
 
         const returnedId = await RideService.completeRide(rideId, driver.id);
         expect(returnedId).toBe(rideId);
@@ -566,6 +567,13 @@ describe("RideService.completeRide", () => {
             where: eq(rides.id, rideId),
         });
         expect(completed!.rideStatus).toBe("COMPLETED");
+        expect(completed!.endedAt!.getTime()).toBeGreaterThanOrEqual(
+            beforeEnd.getTime()
+        );
+        expect(completed!.endedByUserId).toBe(driver.id);
+        expect(completed!.endSource).toBe("DRIVER");
+        expect(completed!.endReason).toBe("Ride ended by driver");
+        expect(completed!.autoEndProcessedAt).toBeNull();
 
         const updatedBooking = await db.query.bookings.findFirst({
             where: eq(bookings.id, booking.id),
@@ -606,15 +614,77 @@ describe("RideService.completeRide", () => {
         ).rejects.toMatchObject({ code: RideErrorCodes.RideNotDeparted });
     });
 
-    it("throws RideAlreadyCompleted on the second complete", async () => {
+    it("is idempotent on the second end and does not duplicate history", async () => {
         const driver = await insertTestUser();
         const car = await insertCarFor(driver.id);
         const { rideId } = await createDepartedRide(driver.id, car.id);
-        await RideService.completeRide(rideId, driver.id);
+        const firstReturnedId = await RideService.endRide({
+            rideId,
+            actorUserId: driver.id,
+            source: "DRIVER",
+        });
+        const firstEndedRide = await db.query.rides.findFirst({
+            where: eq(rides.id, rideId),
+        });
 
-        await expect(
-            RideService.completeRide(rideId, driver.id)
-        ).rejects.toMatchObject({ code: RideErrorCodes.RideAlreadyCompleted });
+        const secondReturnedId = await RideService.endRide({
+            rideId,
+            actorUserId: driver.id,
+            source: "DRIVER",
+        });
+
+        expect(firstReturnedId).toBe(rideId);
+        expect(secondReturnedId).toBe(rideId);
+
+        const endedRide = await db.query.rides.findFirst({
+            where: eq(rides.id, rideId),
+        });
+        expect(endedRide!.endedAt!.getTime()).toBe(
+            firstEndedRide!.endedAt!.getTime()
+        );
+
+        const rideHistory = await db
+            .select()
+            .from(rideStatusHistory)
+            .where(eq(rideStatusHistory.rideId, rideId));
+        expect(
+            rideHistory.filter((h) => h.newStatus === "COMPLETED")
+        ).toHaveLength(1);
+    });
+
+    it("allows the system to end a departed ride without a user actor", async () => {
+        const driver = await insertTestUser();
+        const car = await insertCarFor(driver.id);
+        const { rideId } = await createDepartedRide(driver.id, car.id);
+        const endedAt = new Date();
+
+        const returnedId = await RideService.endRide({
+            rideId,
+            source: "AUTO",
+            endedAt,
+        });
+
+        expect(returnedId).toBe(rideId);
+
+        const endedRide = await db.query.rides.findFirst({
+            where: eq(rides.id, rideId),
+        });
+        expect(endedRide!.rideStatus).toBe("COMPLETED");
+        expect(endedRide!.endedAt!.getTime()).toBe(endedAt.getTime());
+        expect(endedRide!.endedByUserId).toBeNull();
+        expect(endedRide!.endSource).toBe("AUTO");
+        expect(endedRide!.autoEndProcessedAt!.getTime()).toBe(
+            endedAt.getTime()
+        );
+
+        const rideHistory = await db
+            .select()
+            .from(rideStatusHistory)
+            .where(eq(rideStatusHistory.rideId, rideId));
+        const completeRow = rideHistory.find(
+            (h) => h.newStatus === "COMPLETED"
+        );
+        expect(completeRow!.changedByUserId).toBeNull();
     });
 
     it("throws RideNotCompletable for a cancelled ride", async () => {

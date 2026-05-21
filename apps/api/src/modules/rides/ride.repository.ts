@@ -30,6 +30,7 @@ import type {
     RideSearchResultItem,
     AvailableRideItem,
     BookingStatus,
+    RideStatus,
 } from "./ride.types";
 
 const rideNotSoftDeleted = isNull(ridesTable.deletedAt);
@@ -602,41 +603,63 @@ const findActiveBookingsByRideId = async (
     });
 };
 
-const findRideForComplete = async (
+const findRideForEnd = async (
     executor: Executor,
     rideId: string,
-    driverId: string
+    driverId?: string
 ): Promise<{
-    rideStatus: RideListItem["rideStatus"];
+    id: string;
+    rideStatus: RideStatus;
     departureAt: Date;
+    endedAt: Date | null;
 } | null> => {
+    const filters = [eq(ridesTable.id, rideId), rideNotSoftDeleted];
+    if (driverId) filters.push(eq(ridesTable.driverId, driverId));
+
     const ride = await executor.query.rides.findFirst({
-        where: and(
-            eq(ridesTable.id, rideId),
-            eq(ridesTable.driverId, driverId),
-            rideNotSoftDeleted
-        ),
-        columns: { rideStatus: true, departureAt: true },
+        where: and(...filters),
+        columns: {
+            id: true,
+            rideStatus: true,
+            departureAt: true,
+            endedAt: true,
+        },
     });
 
     return ride ?? null;
 };
 
-const updateRideStatusToCompleted = async (
+const updateRideToEnded = async (
     executor: Executor,
-    rideId: string,
-    driverId: string
+    values: {
+        rideId: string;
+        driverId?: string;
+        endedAt: Date;
+        endedByUserId: string | null;
+        endSource: NonNullable<(typeof ridesTable.$inferInsert)["endSource"]>;
+        endReason: string;
+        autoEndProcessedAt: Date | null;
+    }
 ): Promise<{ id: string } | null> => {
+    const filters = [
+        eq(ridesTable.id, values.rideId),
+        inArray(ridesTable.rideStatus, ["PLANNED", "IN_PROGRESS"]),
+        rideNotSoftDeleted,
+    ];
+    if (values.driverId) filters.push(eq(ridesTable.driverId, values.driverId));
+
     const [updatedRide] = await executor
         .update(ridesTable)
-        .set({ rideStatus: "COMPLETED" })
-        .where(
-            and(
-                eq(ridesTable.id, rideId),
-                eq(ridesTable.driverId, driverId),
-                rideNotSoftDeleted
-            )
-        )
+        .set({
+            rideStatus: "COMPLETED",
+            endedAt: values.endedAt,
+            endedByUserId: values.endedByUserId,
+            endSource: values.endSource,
+            endReason: values.endReason,
+            autoEndProcessedAt: values.autoEndProcessedAt,
+            updatedAt: values.endedAt,
+        })
+        .where(and(...filters))
         .returning({ id: ridesTable.id });
 
     return updatedRide ?? null;
@@ -704,8 +727,8 @@ export const RideRepository = {
     findRideForCancel,
     updateRideStatusToCancelled,
     findActiveBookingsByRideId,
-    findRideForComplete,
-    updateRideStatusToCompleted,
+    findRideForEnd,
+    updateRideToEnded,
     findConfirmedBookingsByRideId,
     bulkCompleteBookings,
     bulkCancelBookings,

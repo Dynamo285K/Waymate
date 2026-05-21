@@ -29,6 +29,8 @@ import type {
     CompleteRideResponse,
     CreateRideBody,
     CreateRideResponse,
+    EndRideBody,
+    EndRideResponse,
     ErrorResponse,
     GetRidesMeParams,
     GetRidesSearchParams,
@@ -887,6 +889,94 @@ export const usePatchRidesByIdCancel = <
     TContext
 > => {
     const mutationOptions = getPatchRidesByIdCancelMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+/**
+ * Ends the driver's ride idempotently and records ride end metadata
+ */
+export const getPatchRidesByIdEndUrl = (id: RideId) => {
+    return `/rides/${id}/end`;
+};
+
+export const patchRidesByIdEnd = async (
+    id: RideId,
+    endRideBody: EndRideBody,
+    options?: RequestInit
+): Promise<EndRideResponse> => {
+    return apiFetcher<EndRideResponse>(getPatchRidesByIdEndUrl(id), {
+        ...options,
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", ...options?.headers },
+        body: JSON.stringify(endRideBody),
+    });
+};
+
+export const getPatchRidesByIdEndMutationOptions = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof patchRidesByIdEnd>>,
+        TError,
+        { id: RideId; data: EndRideBody },
+        TContext
+    >;
+    request?: SecondParameter<typeof apiFetcher>;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof patchRidesByIdEnd>>,
+    TError,
+    { id: RideId; data: EndRideBody },
+    TContext
+> => {
+    const mutationKey = ["patchRidesByIdEnd"];
+    const { mutation: mutationOptions, request: requestOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey }, request: undefined };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof patchRidesByIdEnd>>,
+        { id: RideId; data: EndRideBody }
+    > = (props) => {
+        const { id, data } = props ?? {};
+
+        return patchRidesByIdEnd(id, data, requestOptions);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type PatchRidesByIdEndMutationResult = NonNullable<
+    Awaited<ReturnType<typeof patchRidesByIdEnd>>
+>;
+export type PatchRidesByIdEndMutationBody = EndRideBody;
+export type PatchRidesByIdEndMutationError = ErrorResponse;
+
+export const usePatchRidesByIdEnd = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof patchRidesByIdEnd>>,
+            TError,
+            { id: RideId; data: EndRideBody },
+            TContext
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseMutationResult<
+    Awaited<ReturnType<typeof patchRidesByIdEnd>>,
+    TError,
+    { id: RideId; data: EndRideBody },
+    TContext
+> => {
+    const mutationOptions = getPatchRidesByIdEndMutationOptions(options);
 
     return useMutation(mutationOptions, queryClient);
 };
