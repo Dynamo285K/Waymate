@@ -6,6 +6,7 @@ export const AuthErrorCodes = {
     Unauthorized: "UNAUTHORIZED",
     Forbidden: "FORBIDDEN",
     OnboardingRequired: "ONBOARDING_REQUIRED",
+    UserBanned: "USER_BANNED",
 } as const;
 
 export type AuthErrorCode =
@@ -25,6 +26,7 @@ export function authErrorToHttpStatus(code: AuthErrorCode): number {
             return 401;
         case AuthErrorCodes.Forbidden:
         case AuthErrorCodes.OnboardingRequired:
+        case AuthErrorCodes.UserBanned:
             return 403;
         default:
             return assertNever(code);
