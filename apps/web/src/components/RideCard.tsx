@@ -26,6 +26,7 @@ type RideCardBaseProps = {
     to: string;
     datetime: string;
     price: number;
+    duration?: string;
     labels?: RideCardLabels;
 };
 
@@ -64,7 +65,7 @@ export type RideCardProps =
     | PassengerPastProps;
 
 export function RideCard(props: RideCardProps) {
-    const { from, to, datetime, price, labels } = props;
+    const { from, to, datetime, price, duration, labels } = props;
 
     function seatsText(count: number) {
         return labels?.seatsLeft
@@ -89,6 +90,11 @@ export function RideCard(props: RideCardProps) {
                 <div className="ride-card__meta">
                     <ClockIcon />
                     <span className="ride-card__meta-text">{datetime}</span>
+                    {duration && (
+                        <span className="ride-card__meta-text">
+                            · {duration}
+                        </span>
+                    )}
                     {props.variant === "driver-upcoming" && (
                         <>
                             <UserIcon />

@@ -10,7 +10,10 @@ import { useCancelRide } from "../hooks/useCancelRide";
 import { useDeleteCar } from "../hooks/useDeleteCar";
 import { CancelRideDialog } from "../components/CancelRideDialog";
 import { useGetRidesMe } from "../api-client/rides/rides";
-import { formatRideDate as formatDate } from "../lib/date-format";
+import {
+    formatRideDate as formatDate,
+    formatDuration,
+} from "../lib/date-format";
 import { useGetCarsMe } from "../api-client/cars/cars";
 import { useGetReviewsUsersByUserId } from "../api-client/reviews/reviews";
 import { getErrorI18nKey } from "../lib/api-errors";
@@ -94,6 +97,10 @@ export function DriverProfilePage({
                 price: ride.prices[0]?.amount ?? 0,
                 seatsLeft:
                     remainingSeats > 0 ? remainingSeats : ("full" as const),
+                duration: formatDuration(
+                    ride.departureAt,
+                    ride.arrivalEstimateAt
+                ),
             };
         }) ?? [];
 
@@ -206,6 +213,7 @@ export function DriverProfilePage({
                                         )}
                                         price={ride.price}
                                         seatsLeft={ride.seatsLeft}
+                                        duration={ride.duration}
                                         onViewPassengers={() =>
                                             navigate(
                                                 "/driver/rides/passengers",

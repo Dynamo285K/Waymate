@@ -10,7 +10,7 @@ import {
 import type { SearchBoxCityOption } from "@waymate/ui";
 import type { Language } from "./controls/LanguageSwitcher";
 import { AvailableRideCard } from "./AvailableRideCard";
-import { formatRideDate } from "../lib/date-format";
+import { formatRideDate, formatDuration } from "../lib/date-format";
 import { toUiLanguage } from "../lib/language";
 import { useGetRidesAvailable } from "../api-client/rides/rides";
 import { getCities } from "../api-client/cities/cities";
@@ -23,6 +23,7 @@ type AvailableRide = {
     from: string;
     to: string;
     date: Date;
+    duration?: string;
     seatsLeft: number;
     driverName: string;
     driverRating: number;
@@ -217,6 +218,10 @@ export function HomeContent({
                       ride.pickupStop.plannedDepartureAt ?? ride.departureAt
                   ),
                   seatsLeft: ride.seatsLeft,
+                  duration: formatDuration(
+                      ride.departureAt,
+                      ride.arrivalEstimateAt
+                  ),
                   driverName: driverName || t("roles.driver"),
                   driverRating: ride.driver.averageRating ?? 0,
                   price: ride.priceAmount ?? 0,
@@ -366,6 +371,7 @@ export function HomeContent({
                                     ride.date,
                                     t("home.at")
                                 )}
+                                duration={ride.duration}
                                 seatsLeft={ride.seatsLeft}
                                 driverName={ride.driverName}
                                 driverRating={ride.driverRating}

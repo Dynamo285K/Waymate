@@ -192,6 +192,7 @@ const findBookingsByPassengerId = async (
             ride: {
                 id: ridesTable.id,
                 departureAt: ridesTable.departureAt,
+                arrivalEstimateAt: ridesTable.arrivalEstimateAt,
                 rideStatus: ridesTable.rideStatus,
             },
             driver: {

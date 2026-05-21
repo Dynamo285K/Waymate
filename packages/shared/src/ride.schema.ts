@@ -155,6 +155,7 @@ export const SearchRidesQuerySchema = z.object({
 export const RideSearchResultItemSchema = z.object({
     rideId: RideIdSchema,
     departureAt: z.date(),
+    arrivalEstimateAt: z.date().nullable(),
     rideStatus: RideStatusSchema,
     offeredSeats: z.number(),
     seatsLeft: z.number().int(),
@@ -176,6 +177,7 @@ export const RideSearchResultItemSchema = z.object({
 export const AvailableRideItemSchema = z.object({
     rideId: RideIdSchema,
     departureAt: z.date(),
+    arrivalEstimateAt: z.date().nullable(),
     rideStatus: RideStatusSchema,
     offeredSeats: z.number().int(),
     seatsLeft: z.number().int(),

@@ -8,7 +8,7 @@ import { useCreateBooking } from "../hooks/useCreateBooking";
 import { useGetRidesAvailable } from "../api-client/rides/rides";
 import { useRideSearch } from "../hooks/useRideSearch";
 import { getErrorI18nKey } from "../lib/api-errors";
-import { formatRideDate } from "../lib/date-format";
+import { formatRideDate, formatDuration } from "../lib/date-format";
 import { BookingErrorModal } from "../components/BookingErrorModal";
 
 type PassengerRidesPageProps = {
@@ -79,6 +79,10 @@ export function PassengerRidesPage({
                   from: ride.pickupStop.city,
                   to: ride.dropoffStop.city,
                   date: departure,
+                  duration: formatDuration(
+                      ride.departureAt,
+                      ride.arrivalEstimateAt
+                  ),
                   seatsLeft: ride.seatsLeft,
                   driverName: driverName || t("roles.driver"),
                   driverRating: ride.driver.averageRating ?? 0,
@@ -183,6 +187,7 @@ export function PassengerRidesPage({
                                         ride.date,
                                         t("home.at")
                                     )}
+                                    duration={ride.duration}
                                     seatsLeft={ride.seatsLeft}
                                     driverName={ride.driverName}
                                     driverRating={ride.driverRating}

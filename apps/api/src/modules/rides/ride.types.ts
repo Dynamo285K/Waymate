@@ -79,6 +79,7 @@ export type RidePassengersView = {
 export type RideSearchResultItem = {
     rideId: string;
     departureAt: Date;
+    arrivalEstimateAt: Date | null;
     rideStatus: RideStatus;
     offeredSeats: number;
     seatsLeft: number;

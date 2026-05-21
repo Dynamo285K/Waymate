@@ -44,7 +44,7 @@ export type PassengerBookingListItem = {
     priceAmount: number;
     currency: string;
     seatsLeft: number;
-    ride: Pick<Ride, "id" | "departureAt" | "rideStatus">;
+    ride: Pick<Ride, "id" | "departureAt" | "arrivalEstimateAt" | "rideStatus">;
     driver: Pick<User, "id" | "firstName" | "lastName" | "profilePhotoUrl"> & {
         averageRating: number | null;
         reviewCount: number;

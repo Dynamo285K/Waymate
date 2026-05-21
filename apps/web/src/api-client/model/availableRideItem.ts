@@ -15,6 +15,8 @@ import type { Currency } from "./currency";
 export interface AvailableRideItem {
     rideId: RideId;
     departureAt: string;
+    /** @nullable */
+    arrivalEstimateAt: string | null;
     rideStatus: RideStatus;
     /**
      * @minimum -9007199254740991

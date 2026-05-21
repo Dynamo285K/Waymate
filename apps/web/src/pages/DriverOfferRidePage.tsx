@@ -258,6 +258,9 @@ export function DriverOfferRidePage({
     const [publishedMessage, setPublishedMessage] = useState("");
     const [publishError, setPublishError] = useState("");
     const [hasUserSelectedCarMode, setHasUserSelectedCarMode] = useState(false);
+    const [durationHours, setDurationHours] = useState("");
+    const [durationMinutes, setDurationMinutes] = useState("");
+    const [durationError, setDurationError] = useState("");
 
     const formKey = `${pickupCity?.id ?? ""}|${dropoffCity?.id ?? ""}|${rideDate?.toISOString() ?? ""}|${rideTime}|${seats}|${price}|${carMode}|${selectedCarId}|${manualBrand}|${manualModel}|${manualPlate}`;
     const [prevFormKey, setPrevFormKey] = useState(formKey);
@@ -424,10 +427,20 @@ export function DriverOfferRidePage({
             return null;
         }
 
+        const durationTotalMinutes =
+            (Number.parseInt(durationHours, 10) || 0) * 60 +
+            (Number.parseInt(durationMinutes, 10) || 0);
+        const arrivalEstimateAt =
+            durationTotalMinutes > 0
+                ? new Date(
+                      departureAt.getTime() + durationTotalMinutes * 60_000
+                  ).toISOString()
+                : null;
+
         return {
             carId,
             departureAt: departureAt.toISOString(),
-            arrivalEstimateAt: null,
+            arrivalEstimateAt,
             offeredSeats,
             currency: "EUR",
             description: null,
@@ -548,6 +561,15 @@ export function DriverOfferRidePage({
     const onSubmit: SubmitHandler<OfferRideFormValues> = async (values) => {
         setPublishedMessage("");
 
+        const totalDurationMins =
+            (Number.parseInt(durationHours, 10) || 0) * 60 +
+            (Number.parseInt(durationMinutes, 10) || 0);
+        if (totalDurationMins <= 0) {
+            setDurationError("offerRide.requiredField");
+            return;
+        }
+        setDurationError("");
+
         if (carMode === "manual") {
             const brand = values.manualBrand.trim();
             const model = values.manualModel.trim();
@@ -638,6 +660,7 @@ export function DriverOfferRidePage({
                         dateTimeSection: t("offerRide.dateTime"),
                         date: t("offerRide.date"),
                         time: t("offerRide.time"),
+                        duration: t("offerRide.duration"),
                         seatsPriceSection: t("offerRide.seatsPrice"),
                         availableSeats: t("offerRide.availableSeats"),
                         seatsPlaceholder: t("offerRide.seatsPlaceholder"),
@@ -690,6 +713,17 @@ export function DriverOfferRidePage({
                         })
                     }
                     timeError={fieldError(errors.rideTime?.message)}
+                    durationHours={durationHours}
+                    onDurationHoursChange={(v) => {
+                        setDurationHours(v);
+                        setDurationError("");
+                    }}
+                    durationMinutes={durationMinutes}
+                    onDurationMinutesChange={(v) => {
+                        setDurationMinutes(v);
+                        setDurationError("");
+                    }}
+                    durationError={durationError ? t(durationError) : undefined}
                     seats={seats}
                     onSeatsChange={handleSeatsChange}
                     seatsError={fieldError(errors.seats?.message)}
@@ -725,7 +759,15 @@ export function DriverOfferRidePage({
                     publishedMessage={
                         publishedMessage ? t(publishedMessage) : ""
                     }
-                    onPublishClick={handleSubmit(onSubmit)}
+                    onPublishClick={() => {
+                        const totalMins =
+                            (Number.parseInt(durationHours, 10) || 0) * 60 +
+                            (Number.parseInt(durationMinutes, 10) || 0);
+                        if (totalMins <= 0) {
+                            setDurationError("offerRide.requiredField");
+                        }
+                        handleSubmit(onSubmit)();
+                    }}
                 />
                 {publishError && (
                     <p className="mt-4 w-full rounded-xl border border-(--color-danger-border) bg-(--color-danger-bg) px-4 py-3 text-sm font-semibold text-(--color-danger-text)">

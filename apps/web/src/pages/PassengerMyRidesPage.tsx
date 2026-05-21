@@ -8,7 +8,7 @@ import { RideCard } from "../components/RideCard";
 import { ReportUserModal } from "../components/ReportUserModal";
 import { useGetBookingsMe } from "../api-client/bookings/bookings";
 import { getErrorI18nKey } from "../lib/api-errors";
-import { formatRideDate } from "../lib/date-format";
+import { formatRideDate, formatDuration } from "../lib/date-format";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 import { CancelRideDialog } from "../components/CancelRideDialog";
 import { useCancelBooking } from "../hooks/useCancelBooking";
@@ -29,6 +29,7 @@ type UpcomingRide = {
     to: string;
     date: Date | string;
     price: number;
+    duration?: string;
     driverName: string;
     driverRating: number;
     seatsLeft: number;
@@ -109,6 +110,10 @@ export function PassengerMyRidesPage({
             to: booking.dropoffCity,
             date: booking.ride.departureAt,
             price: booking.priceAmount,
+            duration: formatDuration(
+                booking.ride.departureAt,
+                booking.ride.arrivalEstimateAt
+            ),
             driverName:
                 `${booking.driver.firstName ?? ""} ${booking.driver.lastName ?? ""}`.trim(),
             driverRating: 0,
@@ -211,6 +216,7 @@ export function PassengerMyRidesPage({
                                     t("home.at")
                                 )}
                                 price={ride.price}
+                                duration={ride.duration}
                                 driverName={ride.driverName}
                                 driverRating={ride.driverRating}
                                 seatsLeft={ride.seatsLeft}
@@ -243,6 +249,7 @@ export function PassengerMyRidesPage({
                                     t("home.at")
                                 )}
                                 price={ride.price}
+                                duration={ride.duration}
                                 driverName={ride.driverName}
                                 driverRating={ride.driverRating}
                                 onRateDriver={() => {
