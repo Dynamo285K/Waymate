@@ -387,6 +387,7 @@ async function main() {
                     input.rideStatus === "COMPLETED"
                         ? arrivalEstimateAt
                         : createdAt;
+                const isCompleted = input.rideStatus === "COMPLETED";
 
                 await tx.insert(rides).values({
                     id: rideId,
@@ -394,6 +395,11 @@ async function main() {
                     carId: input.carId,
                     departureAt: input.departureAt,
                     arrivalEstimateAt,
+                    autoEndAt: arrivalEstimateAt,
+                    endedAt: isCompleted ? arrivalEstimateAt : null,
+                    endedByUserId: isCompleted ? input.driverId : null,
+                    endSource: isCompleted ? "DRIVER" : null,
+                    endReason: isCompleted ? "Fixture ride completed" : null,
                     rideStatus: input.rideStatus,
                     offeredSeats: input.offeredSeats,
                     currency: "EUR",

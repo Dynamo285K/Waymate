@@ -95,6 +95,7 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
         driverId,
         rideStatus: "PLANNED",
     };
+    const autoEndAt = computeAutoEndAt(input);
 
     // Verify every requested cityId exists before opening the
     // transaction. Catches bogus ids with RIDE_UNKNOWN_CITY (400)
@@ -130,6 +131,7 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
             carId: input.carId,
             departureAt: input.departureAt,
             arrivalEstimateAt: input.arrivalEstimateAt,
+            autoEndAt,
             rideStatus: input.rideStatus || "PLANNED",
             offeredSeats: input.offeredSeats,
             currency: input.currency,
@@ -188,6 +190,15 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
 
         return newRide.id;
     });
+};
+
+const computeAutoEndAt = (
+    input: Pick<CreateRideInput, "arrivalEstimateAt" | "stops">
+) => {
+    if (input.arrivalEstimateAt) return input.arrivalEstimateAt;
+
+    const lastStop = input.stops.at(-1);
+    return lastStop?.plannedArrivalAt ?? lastStop?.plannedDepartureAt ?? null;
 };
 
 const cancelRide = async (

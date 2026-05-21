@@ -15,6 +15,8 @@ export const rideStatusValues = [
     "CANCELLED",
 ] as const;
 
+export const rideEndSourceValues = ["DRIVER", "AUTO", "ADMIN"] as const;
+
 export const bookingStatusValues = [
     "PENDING",
     "CONFIRMED",

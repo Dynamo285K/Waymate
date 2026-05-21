@@ -74,8 +74,9 @@ function buildCreateRideBody(
         carId,
         departureAt,
         arrivalEstimateAt:
-            overrides.arrivalEstimateAt ??
-            new Date(departureAt.getTime() + 60 * 60 * 1000),
+            "arrivalEstimateAt" in overrides
+                ? overrides.arrivalEstimateAt
+                : new Date(departureAt.getTime() + 60 * 60 * 1000),
         offeredSeats: overrides.offeredSeats ?? 3,
         currency: overrides.currency ?? "EUR",
         description: overrides.description ?? null,
@@ -107,13 +108,11 @@ describe("RideService.createRide", () => {
     it("creates a ride with stops, prices, and a status-history row in one transaction", async () => {
         const driver = await insertTestUser();
         const car = await insertCarFor(driver.id);
+        const body = buildCreateRideBody(car.id, {
+            prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }],
+        });
 
-        const rideId = await RideService.createRide(
-            driver.id,
-            buildCreateRideBody(car.id, {
-                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }],
-            })
-        );
+        const rideId = await RideService.createRide(driver.id, body);
 
         expect(rideId).toBeTruthy();
 
@@ -124,6 +123,9 @@ describe("RideService.createRide", () => {
         expect(insertedRide!.driverId).toBe(driver.id);
         expect(insertedRide!.carId).toBe(car.id);
         expect(insertedRide!.rideStatus).toBe("PLANNED");
+        expect(insertedRide!.autoEndAt?.getTime()).toBe(
+            body.arrivalEstimateAt!.getTime()
+        );
 
         const stops = await db
             .select()
@@ -147,6 +149,50 @@ describe("RideService.createRide", () => {
         expect(history[0]!.newStatus).toBe("PLANNED");
         expect(history[0]!.oldStatus).toBeNull();
         expect(history[0]!.changedByUserId).toBe(driver.id);
+    });
+
+    it("computes autoEndAt from the last stop when arrivalEstimateAt is omitted", async () => {
+        const driver = await insertTestUser();
+        const car = await insertCarFor(driver.id);
+        const departureAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        const plannedArrivalAt = new Date(
+            departureAt.getTime() + 2 * 60 * 60 * 1000
+        );
+
+        const rideId = await RideService.createRide(
+            driver.id,
+            buildCreateRideBody(car.id, {
+                departureAt,
+                arrivalEstimateAt: null,
+                stops: [
+                    {
+                        address: "Hlavná 1",
+                        cityId: TEST_CITY_IDS.bratislava,
+                        lat: 48.148,
+                        lng: 17.107,
+                        plannedArrivalAt: null,
+                        plannedDepartureAt: departureAt,
+                    },
+                    {
+                        address: "Námestie SNP 1",
+                        cityId: TEST_CITY_IDS.banskaBystrica,
+                        lat: 48.736,
+                        lng: 19.146,
+                        plannedArrivalAt,
+                        plannedDepartureAt: null,
+                    },
+                ],
+            })
+        );
+
+        const insertedRide = await db.query.rides.findFirst({
+            where: eq(rides.id, rideId),
+        });
+
+        expect(insertedRide!.arrivalEstimateAt).toBeNull();
+        expect(insertedRide!.autoEndAt?.getTime()).toBe(
+            plannedArrivalAt.getTime()
+        );
     });
 
     it("works without a prices array (prices are optional)", async () => {

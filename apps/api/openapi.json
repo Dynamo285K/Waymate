@@ -4278,6 +4278,42 @@
                         "type": "string",
                         "format": "date-time"
                     },
+                    "autoEndAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "endedAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "endedByUserId": {
+                        "nullable": true,
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/UserId"
+                            }
+                        ]
+                    },
+                    "endSource": {
+                        "nullable": true,
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/RideEndSource"
+                            }
+                        ]
+                    },
+                    "endReason": {
+                        "nullable": true,
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "autoEndProcessedAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
+                    },
                     "offeredSeats": {
                         "type": "integer",
                         "minimum": 1,
@@ -4312,6 +4348,12 @@
                     "rideStatus",
                     "departureAt",
                     "arrivalEstimateAt",
+                    "autoEndAt",
+                    "endedAt",
+                    "endedByUserId",
+                    "endSource",
+                    "endReason",
+                    "autoEndProcessedAt",
                     "offeredSeats",
                     "currency",
                     "description",
@@ -5569,6 +5611,42 @@
                         "type": "string",
                         "format": "date-time"
                     },
+                    "autoEndAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "endedAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "endedByUserId": {
+                        "nullable": true,
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/UserId"
+                            }
+                        ]
+                    },
+                    "endSource": {
+                        "nullable": true,
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/RideEndSource"
+                            }
+                        ]
+                    },
+                    "endReason": {
+                        "nullable": true,
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "autoEndProcessedAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
+                    },
                     "offeredSeats": {
                         "type": "integer",
                         "minimum": -9007199254740991,
@@ -5772,6 +5850,12 @@
                     "rideStatus",
                     "departureAt",
                     "arrivalEstimateAt",
+                    "autoEndAt",
+                    "endedAt",
+                    "endedByUserId",
+                    "endSource",
+                    "endReason",
+                    "autoEndProcessedAt",
                     "offeredSeats",
                     "currency",
                     "description",
@@ -6856,6 +6940,10 @@
                 "maximum": 9007199254740991,
                 "minimum": 0
             },
+            "RideEndSource": {
+                "type": "string",
+                "enum": ["DRIVER", "AUTO", "ADMIN"]
+            },
             "Currency": {
                 "type": "string",
                 "minLength": 3,
@@ -6881,6 +6969,42 @@
                         "format": "date-time"
                     },
                     "arrivalEstimateAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "autoEndAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "endedAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "endedByUserId": {
+                        "nullable": true,
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/UserId"
+                            }
+                        ]
+                    },
+                    "endSource": {
+                        "nullable": true,
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/RideEndSource"
+                            }
+                        ]
+                    },
+                    "endReason": {
+                        "nullable": true,
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "autoEndProcessedAt": {
                         "nullable": true,
                         "type": "string",
                         "format": "date-time"
@@ -6986,6 +7110,12 @@
                     "rideStatus",
                     "departureAt",
                     "arrivalEstimateAt",
+                    "autoEndAt",
+                    "endedAt",
+                    "endedByUserId",
+                    "endSource",
+                    "endReason",
+                    "autoEndProcessedAt",
                     "offeredSeats",
                     "currency",
                     "description",

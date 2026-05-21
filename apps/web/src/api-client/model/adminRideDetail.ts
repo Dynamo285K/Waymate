@@ -7,6 +7,8 @@
  */
 import type { RideId } from "./rideId";
 import type { RideStatus } from "./rideStatus";
+import type { AdminRideDetailEndedByUserId } from "./adminRideDetailEndedByUserId";
+import type { AdminRideDetailEndSource } from "./adminRideDetailEndSource";
 import type { Currency } from "./currency";
 import type { AdminRideDetailDriver } from "./adminRideDetailDriver";
 import type { AdminRideDetailCar } from "./adminRideDetailCar";
@@ -20,6 +22,21 @@ export interface AdminRideDetail {
     departureAt: string;
     /** @nullable */
     arrivalEstimateAt: string | null;
+    /** @nullable */
+    autoEndAt: string | null;
+    /** @nullable */
+    endedAt: string | null;
+    /** @nullable */
+    endedByUserId: AdminRideDetailEndedByUserId;
+    /** @nullable */
+    endSource: AdminRideDetailEndSource;
+    /**
+     * @maxLength 500
+     * @nullable
+     */
+    endReason: string | null;
+    /** @nullable */
+    autoEndProcessedAt: string | null;
     /**
      * @minimum -9007199254740991
      * @maximum 9007199254740991

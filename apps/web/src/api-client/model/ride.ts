@@ -9,6 +9,8 @@ import type { RideId } from "./rideId";
 import type { UserId } from "./userId";
 import type { CarId } from "./carId";
 import type { RideStatus } from "./rideStatus";
+import type { RideEndedByUserId } from "./rideEndedByUserId";
+import type { RideEndSourceProperty } from "./rideEndSourceProperty";
 import type { Currency } from "./currency";
 
 export interface Ride {
@@ -19,6 +21,21 @@ export interface Ride {
     departureAt: string;
     /** @nullable */
     arrivalEstimateAt: string | null;
+    /** @nullable */
+    autoEndAt: string | null;
+    /** @nullable */
+    endedAt: string | null;
+    /** @nullable */
+    endedByUserId: RideEndedByUserId;
+    /** @nullable */
+    endSource: RideEndSourceProperty;
+    /**
+     * @maxLength 500
+     * @nullable
+     */
+    endReason: string | null;
+    /** @nullable */
+    autoEndProcessedAt: string | null;
     /**
      * @minimum 1
      * @maximum 9007199254740991
