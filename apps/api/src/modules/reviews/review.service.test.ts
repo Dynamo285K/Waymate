@@ -102,9 +102,11 @@ type CompletedRideSetup = {
 // ride to COMPLETED via direct SQL — there's no service path for that
 // transition yet. The departureAt is yesterday so the rating window is
 // still open (REVIEW_WINDOW_DAYS=14).
-async function setupCompletedRideWithPassenger(opts: {
-    departureAt?: Date;
-} = {}): Promise<CompletedRideSetup> {
+async function setupCompletedRideWithPassenger(
+    opts: {
+        departureAt?: Date;
+    } = {}
+): Promise<CompletedRideSetup> {
     const driver = await insertTestUser();
     const passenger = await insertTestUser();
     const car = await insertCarFor(driver.id);

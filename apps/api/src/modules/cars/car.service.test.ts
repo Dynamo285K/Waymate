@@ -34,7 +34,9 @@ async function createCarFor(
     const modelId = overrides.modelId ?? (await getAnyCarModelId());
     return CarService.createCar(userId, {
         modelId,
-        spz: overrides.spz ?? `T${crypto.randomUUID().slice(0, 6).toUpperCase()}`,
+        spz:
+            overrides.spz ??
+            `T${crypto.randomUUID().slice(0, 6).toUpperCase()}`,
         countryCode: overrides.countryCode ?? "SK",
         color: overrides.color ?? "BLUE",
         seatsTotal: overrides.seatsTotal ?? 4,

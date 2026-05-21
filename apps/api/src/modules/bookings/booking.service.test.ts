@@ -104,7 +104,11 @@ type RideSetup = {
 // Creates a driver, car, and PLANNED ride with a price for the 0→1 segment.
 // Returns the IDs a booking test needs.
 async function setupRide(
-    overrides: { offeredSeats?: number; priceAmount?: number; withPrice?: boolean } = {}
+    overrides: {
+        offeredSeats?: number;
+        priceAmount?: number;
+        withPrice?: boolean;
+    } = {}
 ): Promise<RideSetup> {
     const driver = await insertTestUser();
     const car = await insertCarFor(driver.id);

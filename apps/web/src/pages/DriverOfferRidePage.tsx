@@ -624,9 +624,7 @@ export function DriverOfferRidePage({
                         publishLabel: t("offerRide.publish"),
                     }}
                     pickupCity={pickupCity}
-                    onPickupCityChange={(city) =>
-                        setValue("pickupCity", city)
-                    }
+                    onPickupCityChange={(city) => setValue("pickupCity", city)}
                     dropoffCity={dropoffCity}
                     onDropoffCityChange={(city) =>
                         setValue("dropoffCity", city)

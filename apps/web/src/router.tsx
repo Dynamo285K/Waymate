@@ -10,7 +10,12 @@ import { LayoutProvider } from "./lib/layout-context";
 import type { useLayout } from "./lib/use-layout";
 import { HomeRoute } from "./lib/route-components";
 import { makeAudienceComponent } from "./lib/make-audience-component";
-import { CURRENT_USER_QUERY_KEY, getCurrentUserOrNull } from "./lib/auth";
+import {
+    CURRENT_USER_QUERY_KEY,
+    getCurrentUserOrNull,
+    hasCompletedOnboarding,
+} from "./lib/auth";
+import type { User } from "./api-client/model/user";
 import type { UserRole } from "./api-client/model/userRole";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
@@ -56,15 +61,12 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
 // (not `ensureQueryData`) bypasses any stale cached data — e.g. a pre-login
 // 401 — and the result is written under `CURRENT_USER_QUERY_KEY` so
 // `LayoutProvider` reuses it without an extra round trip.
-async function fetchUserRole(
-    queryClient: QueryClient
-): Promise<UserRole | null> {
-    const user = await queryClient.fetchQuery({
+async function fetchUser(queryClient: QueryClient): Promise<User | null> {
+    return queryClient.fetchQuery({
         queryKey: CURRENT_USER_QUERY_KEY,
         queryFn: getCurrentUserOrNull,
         staleTime: 0,
     });
-    return user?.userRole ?? null;
 }
 
 // The app has exactly three audiences. Every route declares which of them may
@@ -87,14 +89,32 @@ const HOME_BY_AUDIENCE: Record<Audience, string> = {
 
 const requireAudience =
     (allowed: ReadonlyArray<Audience>) =>
-    async ({ context }: { context: RouterContext }): Promise<void> => {
-        const role = await fetchUserRole(context.queryClient);
-        const current = audienceFromRole(role);
+    async ({
+        context,
+        location,
+    }: {
+        context: RouterContext;
+        location: { pathname: string };
+    }): Promise<void> => {
+        const user = await fetchUser(context.queryClient);
+        const current = audienceFromRole(user?.userRole ?? null);
         if (!allowed.includes(current)) {
             throw redirect({
                 to: HOME_BY_AUDIENCE[current] as never,
                 replace: true,
             });
+        }
+        if (current === "user" && user) {
+            const onboarded = hasCompletedOnboarding(user);
+            if (!onboarded && location.pathname !== "/onboarding") {
+                throw redirect({ to: "/onboarding" as never, replace: true });
+            }
+            if (onboarded && location.pathname === "/onboarding") {
+                throw redirect({
+                    to: HOME_BY_AUDIENCE.user as never,
+                    replace: true,
+                });
+            }
         }
     };
 
