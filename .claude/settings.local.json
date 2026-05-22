@@ -84,7 +84,8 @@
       "Bash(grep -n DatePicker __TRACKED_VAR__/dist/index.js)",
       "Bash(sed -n 36,90p __TRACKED_VAR__/dist/index.js)",
       "Bash(sed -n 8416,8490p __TRACKED_VAR__/dist/index.js)",
-      "Bash(node -e \"const e=require\\('./apps/web/src/i18n/locales/en.json'\\); const o=e.offerRide; console.log\\('myCars:',o.myCars\\); console.log\\('manualCar:',o.manualCar\\); console.log\\('selectCarBrand:',o.selectCarBrand\\); console.log\\('carBrandPlaceholder:',o.carBrandPlaceholder\\); console.log\\('selectCarModel:',o.selectCarModel\\); console.log\\('carModelPlaceholder:',o.carModelPlaceholder\\); console.log\\('platePlaceholder:',o.platePlaceholder\\); console.log\\('publish:',o.publish\\); console.log\\('requiredField:',o.requiredField\\);\")"
+      "Bash(node -e \"const e=require\\('./apps/web/src/i18n/locales/en.json'\\); const o=e.offerRide; console.log\\('myCars:',o.myCars\\); console.log\\('manualCar:',o.manualCar\\); console.log\\('selectCarBrand:',o.selectCarBrand\\); console.log\\('carBrandPlaceholder:',o.carBrandPlaceholder\\); console.log\\('selectCarModel:',o.selectCarModel\\); console.log\\('carModelPlaceholder:',o.carModelPlaceholder\\); console.log\\('platePlaceholder:',o.platePlaceholder\\); console.log\\('publish:',o.publish\\); console.log\\('requiredField:',o.requiredField\\);\")",
+      "Bash(echo \"exit:$?\")"
     ]
   }
 }

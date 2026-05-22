@@ -139,6 +139,14 @@ export const app = new Elysia()
             credentials: true,
             methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
             allowedHeaders: ["Content-Type", "Authorization"],
+            // Let the browser read the request id we mint in `.onRequest`,
+            // otherwise it strips the header from the JS-visible response and
+            // the id is only useful in server-side logs.
+            exposeHeaders: ["x-request-id"],
+            // Cache preflights for 10 min. Without this Chrome re-preflights
+            // every ~5s, so an SPA doing many credentialed PATCH/DELETE calls
+            // pays an extra OPTIONS roundtrip before almost every request.
+            maxAge: 600,
         })
     )
     .onRequest(async ({ request, set }) => {
@@ -163,6 +171,12 @@ export const app = new Elysia()
                 }
             }
         }
+
+        // CORS preflights are browser-generated, bodyless, and side-effect
+        // free — rate-limiting them lets normal SPA usage burn the per-IP
+        // quota on OPTIONS, and a 429 thrown here would also race ahead of the
+        // CORS headers, surfacing to the browser as a bogus "CORS error".
+        if (request.method === "OPTIONS") return;
 
         const url = new URL(request.url);
         if (shouldSkipRateLimit(url.pathname)) return;
