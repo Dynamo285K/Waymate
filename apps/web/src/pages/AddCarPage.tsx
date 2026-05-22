@@ -20,7 +20,6 @@ import {
 } from "../api-client/cars/cars";
 import { getErrorI18nKey } from "../lib/api-errors";
 import { PLATE_MAX_LENGTH, PLATE_MIN_LENGTH } from "@repo/shared/validation";
-import { carCatalog } from "@repo/shared/car-catalog";
 
 type AddCarPageProps = {
     language: Language;
@@ -30,30 +29,6 @@ type AddCarPageProps = {
     userName?: string;
     userEmail?: string;
 };
-
-type CarModelRow = {
-    id: number;
-    brand: string;
-    modelName: string;
-};
-
-const FALLBACK_CAR_MAKES = [
-    "Skoda",
-    "Volkswagen",
-    "BMW",
-    "Audi",
-    "Toyota",
-    "Ford",
-    "Hyundai",
-    "Kia",
-    "Renault",
-    "Peugeot",
-    "Seat",
-    "Honda",
-    "Volvo",
-    "Mercedes-Benz",
-    "Opel",
-];
 
 const COLORS = [
     { value: "WHITE", label: "White", hex: "#f8fafc", border: "#cbd5e1" },
@@ -166,16 +141,12 @@ export function AddCarPage({
         },
     });
 
-    const apiCarMakes =
+    // Brand/model come straight from the API (`car_models` is seeded
+    // reference data — a plain DB read). No offline fallback: a fabricated
+    // catalog has no real model id and so produces an un-submittable form.
+    const carMakes =
         brandsQuery.data?.map((row) => row.brand).filter(Boolean) ?? [];
-    const carMakes = apiCarMakes.length > 0 ? apiCarMakes : FALLBACK_CAR_MAKES;
-    const fallbackModels = (carCatalog as CarModelRow[])
-        .filter((row) => row.brand === make)
-        .sort((a, b) => a.modelName.localeCompare(b.modelName));
-    const carModels =
-        modelsQuery.data && modelsQuery.data.length > 0
-            ? modelsQuery.data
-            : fallbackModels;
+    const carModels = modelsQuery.data ?? [];
 
     const driverNavbarProps = useDriverNavbarProps({
         language,

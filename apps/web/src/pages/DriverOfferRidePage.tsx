@@ -9,20 +9,30 @@ import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { OfferRideForm } from "../components/OfferRideForm";
 import type { OfferRideCar } from "../components/OfferRideForm";
+import type { CityListItem } from "../components/CitySelect";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
+import { useDriverCars } from "../hooks/useDriverCars";
 import { getErrorI18nKey } from "../lib/api-errors";
 import { toUiLanguage } from "../lib/language";
 import { useNavigate } from "../lib/router-compat";
+import {
+    buildCreateRideBody,
+    combineDateAndTime,
+    isIntegerInput,
+    normalizePlate,
+    parseDurationMinutes,
+    parsePositiveInteger,
+} from "../lib/offer-ride";
 import {
     getCarsBrandsByBrandModels,
     getCarsMe,
     useGetCarsBrands,
     useGetCarsBrandsByBrandModels,
-    useGetCarsMe,
     usePostCarsMe,
     getGetCarsMeQueryKey,
 } from "../api-client/cars/cars";
 import { usePostRides, getGetRidesMeQueryKey } from "../api-client/rides/rides";
+import type { CreateCarBody as ApiCreateCarBody } from "../api-client/model/createCarBody";
 import { PLATE_MAX_LENGTH, PLATE_MIN_LENGTH } from "@repo/shared/validation";
 import { carCatalog } from "@repo/shared/car-catalog";
 
@@ -41,17 +51,7 @@ const LOCALES = {
     cs,
 } as const;
 
-type UserCarRow = {
-    id: string;
-    brand: string;
-    modelName: string;
-    spz: string;
-};
-
-import type { CreateRideBody } from "../api-client/model/createRideBody";
-import type { CreateCarBody as ApiCreateCarBody } from "../api-client/model/createCarBody";
-import type { CityListItem } from "../components/CitySelect";
-
+// The manual-car form only ever creates Slovak cars; colour is left unset.
 type CreateCarBody = ApiCreateCarBody & {
     countryCode: "SK";
     color: "OTHER";
@@ -61,61 +61,9 @@ type CreatedCarRow = {
     id: string;
 };
 
-const CAR_DATA = carCatalog;
-
 const FALLBACK_CAR_BRANDS = Array.from(
-    new Set(CAR_DATA.map((row) => row.brand))
+    new Set(carCatalog.map((row) => row.brand))
 ).sort((a, b) => a.localeCompare(b));
-
-function normalizePlate(plate: string) {
-    return plate
-        .trim()
-        .toUpperCase()
-        .replace(/[^A-Z0-9]/g, "");
-}
-
-function toOfferRideCar(car: UserCarRow): OfferRideCar {
-    return {
-        id: car.id,
-        brand: car.brand,
-        model: car.modelName,
-        plate: car.spz,
-    };
-}
-
-function combineDateAndTime(date: Date | undefined, time: string) {
-    if (!date || !time) return null;
-
-    const [hours, minutes] = time.split(":").map(Number);
-    if (
-        !Number.isInteger(hours) ||
-        !Number.isInteger(minutes) ||
-        hours < 0 ||
-        hours > 23 ||
-        minutes < 0 ||
-        minutes > 59
-    ) {
-        return null;
-    }
-
-    const result = new Date(date);
-    result.setHours(hours, minutes, 0, 0);
-    return result;
-}
-
-function parsePositiveInteger(value: string) {
-    const parsed = Number.parseInt(value, 10);
-
-    if (!Number.isInteger(parsed) || parsed <= 0) {
-        return null;
-    }
-
-    return parsed;
-}
-
-function isIntegerInput(value: string) {
-    return /^\d*$/.test(value);
-}
 
 // Ride-detail fields (pickup, dropoff, date, time, seats, price) are always
 // required and validated by this schema via the RHF resolver. The manual-car
@@ -249,19 +197,25 @@ export function DriverOfferRidePage({
         manualPlate,
     } = watch();
 
-    // Car selection reacts to the async saved-cars list, so it stays in local
-    // state and is synced during render (the prev-key pattern below) rather
-    // than through an effect.
-    const [localSavedCars, setLocalSavedCars] = useState<OfferRideCar[]>([]);
-    const [carMode, setCarMode] = useState<"saved" | "manual">("manual");
-    const [selectedCarId, setSelectedCarId] = useState("");
+    // Car picker state (saved cars, mode, selection) and its render-time
+    // syncs live in the hook.
+    const {
+        driverCars,
+        carMode,
+        setCarMode,
+        selectCarMode,
+        selectedCarId,
+        setSelectedCarId,
+        addLocalCar,
+    } = useDriverCars({ manualBrand, manualModel, manualPlate });
+
     const [publishedMessage, setPublishedMessage] = useState("");
     const [publishError, setPublishError] = useState("");
-    const [hasUserSelectedCarMode, setHasUserSelectedCarMode] = useState(false);
     const [durationHours, setDurationHours] = useState("");
     const [durationMinutes, setDurationMinutes] = useState("");
     const [durationError, setDurationError] = useState("");
 
+    // Clear a stale publish error as soon as any field of the form changes.
     const formKey = `${pickupCity?.id ?? ""}|${dropoffCity?.id ?? ""}|${rideDate?.toISOString() ?? ""}|${rideTime}|${seats}|${price}|${carMode}|${selectedCarId}|${manualBrand}|${manualModel}|${manualPlate}`;
     const [prevFormKey, setPrevFormKey] = useState(formKey);
     if (formKey !== prevFormKey) {
@@ -269,16 +223,6 @@ export function DriverOfferRidePage({
         if (publishError) setPublishError("");
     }
 
-    const userCarsQuery = useGetCarsMe();
-
-    const apiSavedCars = useMemo(
-        () => userCarsQuery.data?.map((car) => toOfferRideCar(car)) ?? [],
-        [userCarsQuery.data]
-    );
-    const driverCars = useMemo(
-        () => [...apiSavedCars, ...localSavedCars],
-        [apiSavedCars, localSavedCars]
-    );
     const offerRideToday = useMemo(() => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -286,38 +230,8 @@ export function DriverOfferRidePage({
     }, []);
 
     function handleCarModeChange(mode: "saved" | "manual") {
-        setHasUserSelectedCarMode(true);
-        setCarMode(mode);
+        selectCarMode(mode);
         clearErrors(["manualBrand", "manualModel", "manualPlate"]);
-    }
-
-    const driverCarsKey = driverCars.map((car) => car.id).join("|");
-    const [prevDriverCarsKey, setPrevDriverCarsKey] = useState(driverCarsKey);
-    if (driverCarsKey !== prevDriverCarsKey) {
-        setPrevDriverCarsKey(driverCarsKey);
-        if (driverCars.length === 0) {
-            if (carMode === "saved") setCarMode("manual");
-            if (selectedCarId) setSelectedCarId("");
-        } else if (!driverCars.some((car) => car.id === selectedCarId)) {
-            setSelectedCarId(driverCars[0].id);
-        }
-    }
-
-    const manualEntryKey = `${carMode}|${manualBrand}|${manualModel}|${manualPlate}`;
-    const [prevManualEntryKey, setPrevManualEntryKey] =
-        useState(manualEntryKey);
-    if (manualEntryKey !== prevManualEntryKey) {
-        setPrevManualEntryKey(manualEntryKey);
-        if (
-            !hasUserSelectedCarMode &&
-            driverCars.length > 0 &&
-            carMode === "manual" &&
-            !manualBrand &&
-            !manualModel &&
-            !manualPlate
-        ) {
-            setCarMode("saved");
-        }
     }
 
     const brandsQuery = useGetCarsBrands();
@@ -356,9 +270,8 @@ export function DriverOfferRidePage({
 
     const apiCarBrandOptions =
         brandsQuery.data?.map((row) => row.brand).filter(Boolean) ?? [];
-    const fallbackCarModelOptions = CAR_DATA.filter(
-        (row) => row.brand === manualBrand
-    )
+    const fallbackCarModelOptions = carCatalog
+        .filter((row) => row.brand === manualBrand)
         .map((row) => row.modelName)
         .sort((a, b) => a.localeCompare(b));
     const apiCarModelOptions =
@@ -409,68 +322,6 @@ export function DriverOfferRidePage({
         if (isIntegerInput(value)) {
             setValue("price", value, { shouldValidate: isSubmitted });
         }
-    }
-
-    function buildCreateRideBody(carId: string): CreateRideBody | null {
-        const departureAt = combineDateAndTime(rideDate, rideTime);
-        const offeredSeats = parsePositiveInteger(seats);
-        const priceAmount = parsePositiveInteger(price);
-
-        if (
-            !carId ||
-            !departureAt ||
-            !pickupCity ||
-            !dropoffCity ||
-            !offeredSeats ||
-            !priceAmount
-        ) {
-            return null;
-        }
-
-        const durationTotalMinutes =
-            (Number.parseInt(durationHours, 10) || 0) * 60 +
-            (Number.parseInt(durationMinutes, 10) || 0);
-        const arrivalEstimateAt =
-            durationTotalMinutes > 0
-                ? new Date(
-                      departureAt.getTime() + durationTotalMinutes * 60_000
-                  ).toISOString()
-                : null;
-
-        return {
-            carId,
-            departureAt: departureAt.toISOString(),
-            arrivalEstimateAt,
-            offeredSeats,
-            currency: "EUR",
-            description: null,
-            stops: [
-                {
-                    cityId: pickupCity.id,
-                    address: pickupCity.name,
-                    lat: pickupCity.lat,
-                    lng: pickupCity.lng,
-                    plannedArrivalAt: null,
-                    plannedDepartureAt: departureAt.toISOString(),
-                },
-                {
-                    cityId: dropoffCity.id,
-                    address: dropoffCity.name,
-                    lat: dropoffCity.lat,
-                    lng: dropoffCity.lng,
-                    plannedArrivalAt: null,
-                    plannedDepartureAt: null,
-                },
-            ],
-            prices: [
-                {
-                    startStopOrder: 0,
-                    endStopOrder: 1,
-                    amount: priceAmount,
-                    currency: "EUR",
-                },
-            ],
-        };
     }
 
     async function getManualModelId() {
@@ -537,7 +388,7 @@ export function DriverOfferRidePage({
             plate: normalizedPlate,
         };
 
-        setLocalSavedCars((cars) => [...cars, savedCar]);
+        addLocalCar(savedCar);
         setSelectedCarId(createdCar.id);
         setCarMode("saved");
 
@@ -547,7 +398,19 @@ export function DriverOfferRidePage({
     async function publishRide(carId: string) {
         setPublishedMessage("");
 
-        const body = buildCreateRideBody(carId);
+        const body = buildCreateRideBody({
+            carId,
+            rideDate,
+            rideTime,
+            seats,
+            price,
+            pickupCity,
+            dropoffCity,
+            durationMinutes: parseDurationMinutes(
+                durationHours,
+                durationMinutes
+            ),
+        });
 
         if (!body) {
             setPublishError("offerRide.missingFieldsError");
@@ -561,10 +424,7 @@ export function DriverOfferRidePage({
     const onSubmit: SubmitHandler<OfferRideFormValues> = async (values) => {
         setPublishedMessage("");
 
-        const totalDurationMins =
-            (Number.parseInt(durationHours, 10) || 0) * 60 +
-            (Number.parseInt(durationMinutes, 10) || 0);
-        if (totalDurationMins <= 0) {
+        if (parseDurationMinutes(durationHours, durationMinutes) <= 0) {
             setDurationError("offerRide.requiredField");
             return;
         }
@@ -760,10 +620,12 @@ export function DriverOfferRidePage({
                         publishedMessage ? t(publishedMessage) : ""
                     }
                     onPublishClick={() => {
-                        const totalMins =
-                            (Number.parseInt(durationHours, 10) || 0) * 60 +
-                            (Number.parseInt(durationMinutes, 10) || 0);
-                        if (totalMins <= 0) {
+                        if (
+                            parseDurationMinutes(
+                                durationHours,
+                                durationMinutes
+                            ) <= 0
+                        ) {
                             setDurationError("offerRide.requiredField");
                         }
                         handleSubmit(onSubmit)();
