@@ -24,12 +24,7 @@ describe("UserRepository.touchLastActiveAt", () => {
         const user = await insertUser(null);
         const now = new Date();
 
-        await UserRepository.touchLastActiveAt(
-            db,
-            user.id,
-            now,
-            THROTTLE_MS
-        );
+        await UserRepository.touchLastActiveAt(db, user.id, now, THROTTLE_MS);
 
         const updated = await db.query.users.findFirst({
             where: eq(users.id, user.id),
@@ -43,12 +38,7 @@ describe("UserRepository.touchLastActiveAt", () => {
         const user = await insertUser(recent);
         const now = new Date();
 
-        await UserRepository.touchLastActiveAt(
-            db,
-            user.id,
-            now,
-            THROTTLE_MS
-        );
+        await UserRepository.touchLastActiveAt(db, user.id, now, THROTTLE_MS);
 
         const updated = await db.query.users.findFirst({
             where: eq(users.id, user.id),
@@ -63,12 +53,7 @@ describe("UserRepository.touchLastActiveAt", () => {
         const user = await insertUser(stale);
         const now = new Date();
 
-        await UserRepository.touchLastActiveAt(
-            db,
-            user.id,
-            now,
-            THROTTLE_MS
-        );
+        await UserRepository.touchLastActiveAt(db, user.id, now, THROTTLE_MS);
 
         const updated = await db.query.users.findFirst({
             where: eq(users.id, user.id),

@@ -38,7 +38,7 @@ type DriverUpcomingProps = RideCardBaseProps & {
     variant: "driver-upcoming";
     seatsLeft: number | "full";
     onViewPassengers: () => void;
-    onCancelRide: () => void;
+    onCancelRide?: () => void;
     onCompleteRide?: () => void;
 };
 type PassengerUpcomingProps = RideCardBaseProps & {
@@ -161,12 +161,14 @@ export function RideCard(props: RideCardProps) {
                                             "Complete ride"}
                                     </Button>
                                 )}
-                                <Button
-                                    variant="red"
-                                    onClick={props.onCancelRide}
-                                >
-                                    {labels?.cancelRide ?? "Cancel ride"}
-                                </Button>
+                                {props.onCancelRide && (
+                                    <Button
+                                        variant="red"
+                                        onClick={props.onCancelRide}
+                                    >
+                                        {labels?.cancelRide ?? "Cancel ride"}
+                                    </Button>
+                                )}
                             </div>
                             <span className="ride-card__seats-bottom">
                                 {props.seatsLeft === "full"

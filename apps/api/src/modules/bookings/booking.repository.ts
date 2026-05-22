@@ -7,6 +7,7 @@ import {
     aliasedTable,
     gte,
     lt,
+    ne,
     sql,
     asc,
 } from "drizzle-orm";
@@ -167,6 +168,7 @@ const findBookingsByPassengerId = async (
 
     if (timeframe === "UPCOMING") {
         filters.push(gte(ridesTable.departureAt, now));
+        filters.push(ne(ridesTable.rideStatus, "COMPLETED"));
         filters.push(
             inArray(bookingsTable.bookingStatus, ["PENDING", "CONFIRMED"])
         );
