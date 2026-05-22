@@ -95,6 +95,7 @@ export function DriverMyRidesPage({
                 date: ride.departureAt,
                 price,
                 seatsLeft,
+                rideStatus: ride.rideStatus,
                 duration: formatDuration(
                     ride.departureAt,
                     ride.arrivalEstimateAt
@@ -200,6 +201,10 @@ export function DriverMyRidesPage({
                                 completeRide.isPending &&
                                 rideToComplete === null;
 
+                            const isActive = ride.rideStatus !== "COMPLETED";
+                            const hasDeparted =
+                                new Date(ride.date) <= new Date();
+
                             return tab === "upcoming" ? (
                                 <RideCard
                                     key={ride.id}
@@ -218,11 +223,15 @@ export function DriverMyRidesPage({
                                             state: { ride },
                                         })
                                     }
-                                    onCompleteRide={() =>
-                                        setRideToComplete(ride.id)
+                                    onCompleteRide={
+                                        isActive && hasDeparted
+                                            ? () => setRideToComplete(ride.id)
+                                            : undefined
                                     }
-                                    onCancelRide={() =>
-                                        setRideToCancel(ride.id)
+                                    onCancelRide={
+                                        isActive
+                                            ? () => setRideToCancel(ride.id)
+                                            : undefined
                                     }
                                     labels={{
                                         seatsLeft: (count) =>

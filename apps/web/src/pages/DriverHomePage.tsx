@@ -217,6 +217,7 @@ export function DriverHomePage({
                 price: ride.prices[0]?.amount ?? 0,
                 seatsLeft:
                     remainingSeats > 0 ? remainingSeats : ("full" as const),
+                rideStatus: ride.rideStatus,
                 duration: formatDuration(
                     ride.departureAt,
                     ride.arrivalEstimateAt
@@ -344,11 +345,16 @@ export function DriverHomePage({
                                             state: { ride },
                                         })
                                     }
-                                    onCompleteRide={() =>
-                                        setRideToComplete(ride.id)
+                                    onCompleteRide={
+                                        ride.rideStatus !== "COMPLETED" &&
+                                        ride.date <= new Date()
+                                            ? () => setRideToComplete(ride.id)
+                                            : undefined
                                     }
-                                    onCancelRide={() =>
-                                        setRideToCancel(ride.id)
+                                    onCancelRide={
+                                        ride.rideStatus !== "COMPLETED"
+                                            ? () => setRideToCancel(ride.id)
+                                            : undefined
                                     }
                                     labels={rideLabels}
                                 />

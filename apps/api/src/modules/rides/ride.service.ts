@@ -211,13 +211,19 @@ const resolveArrivalEstimateAt = (data: CreateRideBody): Date | null => {
     return null;
 };
 
+const AUTO_END_BUFFER_MS = 60 * 60 * 1000; // 1 hour after expected arrival
+
 const computeAutoEndAt = (
     input: Pick<CreateRideInput, "arrivalEstimateAt" | "stops">
 ) => {
-    if (input.arrivalEstimateAt) return input.arrivalEstimateAt;
+    const base =
+        input.arrivalEstimateAt ??
+        input.stops.at(-1)?.plannedArrivalAt ??
+        input.stops.at(-1)?.plannedDepartureAt ??
+        null;
 
-    const lastStop = input.stops.at(-1);
-    return lastStop?.plannedArrivalAt ?? lastStop?.plannedDepartureAt ?? null;
+    if (!base) return null;
+    return new Date(base.getTime() + AUTO_END_BUFFER_MS);
 };
 
 const cancelRide = async (

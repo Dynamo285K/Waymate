@@ -77,9 +77,9 @@ const findRidesByDriverId = async (
     ];
 
     if (timeframe === "UPCOMING") {
-        filters.push(gte(ridesTable.departureAt, now));
+        filters.push(ne(ridesTable.rideStatus, "COMPLETED"));
     } else if (timeframe === "PAST") {
-        filters.push(lt(ridesTable.departureAt, now));
+        filters.push(eq(ridesTable.rideStatus, "COMPLETED"));
     }
 
     const result = await executor.query.rides.findMany({
