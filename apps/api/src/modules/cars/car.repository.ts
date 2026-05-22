@@ -1,7 +1,8 @@
-import { eq, and, isNull } from "drizzle-orm";
+import { eq, and, isNull, inArray, count } from "drizzle-orm";
 import type { Executor } from "../../db";
 import { cars as carsTable } from "../../db/schema/car";
 import { carModels as carModelsTable } from "../../db/schema/car_model";
+import { rides as ridesTable } from "../../db/schema/ride";
 import type { Car, CarModel, CarListItem } from "./car.types";
 import type { CreateCarBody } from "@repo/shared";
 
@@ -119,11 +120,33 @@ const deleteCar = async (
     return deletedCar ?? null;
 };
 
+// Counts rides that still depend on this car — non-soft-deleted and in a
+// non-terminal state (PLANNED / IN_PROGRESS). A car with any such ride must
+// not be deleted out from under it.
+const countActiveRidesForCar = async (
+    executor: Executor,
+    carId: string
+): Promise<number> => {
+    const [row] = await executor
+        .select({ value: count() })
+        .from(ridesTable)
+        .where(
+            and(
+                eq(ridesTable.carId, carId),
+                isNull(ridesTable.deletedAt),
+                inArray(ridesTable.rideStatus, ["PLANNED", "IN_PROGRESS"])
+            )
+        );
+
+    return row?.value ?? 0;
+};
+
 export const CarRepository = {
     findAllCarBrandNames,
     findCarModelsByBrand,
     findCarsByUserId,
     insertCar,
     deleteCar,
+    countActiveRidesForCar,
     updateCarStatus,
 };

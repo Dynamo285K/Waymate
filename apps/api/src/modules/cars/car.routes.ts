@@ -137,10 +137,12 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
                     response: {
                         200: "Car",
                         404: "ErrorResponse",
+                        409: "ErrorResponse",
                         429: "ErrorResponse",
                     },
                     detail: {
-                        description: "Soft-deletes the current user's car",
+                        description:
+                            "Soft-deletes the current user's car. Rejects with CAR_IN_USE if the car has an active (PLANNED/IN_PROGRESS) ride.",
                     },
                 }
             )

@@ -1,15 +1,18 @@
 import { useMemo, useState } from "react";
-import { useForm, type SubmitHandler } from "react-hook-form";
+import { FormProvider, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { cs, enUS, sk as skLocale } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
-import { OfferRideForm } from "../components/OfferRideForm";
-import type { OfferRideCar } from "../components/OfferRideForm";
-import type { CityListItem } from "../components/CitySelect";
+import { OfferRideForm } from "../components/offer-ride/OfferRideForm";
+import type { OfferRideCar } from "../components/offer-ride/OfferRideForm";
+import {
+    offerRideSchema,
+    type OfferRideFormInput,
+    type OfferRideFormValues,
+} from "../components/offer-ride/schema";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { useDriverCars } from "../hooks/useDriverCars";
 import { getErrorI18nKey } from "../lib/api-errors";
@@ -17,8 +20,6 @@ import { toUiLanguage } from "../lib/language";
 import { useNavigate } from "../lib/router-compat";
 import {
     buildCreateRideBody,
-    combineDateAndTime,
-    isIntegerInput,
     normalizePlate,
     parseDurationMinutes,
     parsePositiveInteger,
@@ -65,83 +66,6 @@ const FALLBACK_CAR_BRANDS = Array.from(
     new Set(carCatalog.map((row) => row.brand))
 ).sort((a, b) => a.localeCompare(b));
 
-// Ride-detail fields (pickup, dropoff, date, time, seats, price) are always
-// required and validated by this schema via the RHF resolver. The manual-car
-// fields are kept unconstrained here because they only apply in "manual" car
-// mode — that branch is validated imperatively in onSubmit, where the active
-// carMode is known.
-const offerRideSchema = z
-    .object({
-        pickupCity: z
-            .custom<CityListItem | null>()
-            .refine(
-                (value): value is CityListItem => value !== null,
-                "offerRide.requiredField"
-            ),
-        dropoffCity: z
-            .custom<CityListItem | null>()
-            .refine(
-                (value): value is CityListItem => value !== null,
-                "offerRide.requiredField"
-            ),
-        rideDate: z
-            .date()
-            .optional()
-            .refine(
-                (value): value is Date => value instanceof Date,
-                "offerRide.requiredField"
-            ),
-        rideTime: z.string().min(1, "offerRide.requiredField"),
-        seats: z.string().superRefine((value, ctx) => {
-            if (value.trim() === "") {
-                ctx.addIssue({
-                    code: "custom",
-                    message: "offerRide.requiredField",
-                });
-            } else if (parsePositiveInteger(value) === null) {
-                ctx.addIssue({
-                    code: "custom",
-                    message: "offerRide.invalidSeatsError",
-                });
-            }
-        }),
-        price: z.string().superRefine((value, ctx) => {
-            if (value.trim() === "") {
-                ctx.addIssue({
-                    code: "custom",
-                    message: "offerRide.requiredField",
-                });
-            } else if (parsePositiveInteger(value) === null) {
-                ctx.addIssue({
-                    code: "custom",
-                    message: "offerRide.invalidPriceError",
-                });
-            }
-        }),
-        manualBrand: z.string(),
-        manualModel: z.string(),
-        manualPlate: z.string(),
-    })
-    .refine(
-        (values) => {
-            // `disablePastDates` on the picker blocks past calendar days; this
-            // additionally rejects a today + earlier-time combination, which the
-            // API would otherwise reject with a generic 400.
-            if (!(values.rideDate instanceof Date) || !values.rideTime) {
-                return true;
-            }
-            const departureAt = combineDateAndTime(
-                values.rideDate,
-                values.rideTime
-            );
-            return departureAt !== null && departureAt.getTime() > Date.now();
-        },
-        { message: "offerRide.pastDeparture", path: ["rideTime"] }
-    );
-
-type OfferRideFormInput = z.input<typeof offerRideSchema>;
-type OfferRideFormValues = z.output<typeof offerRideSchema>;
-
 export function DriverOfferRidePage({
     language,
     theme,
@@ -150,7 +74,6 @@ export function DriverOfferRidePage({
     userName,
     userEmail,
 }: Props) {
-    const { t } = useTranslation();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const navbarProps = useDriverNavbarProps({
@@ -163,14 +86,7 @@ export function DriverOfferRidePage({
         userEmail,
     });
 
-    const {
-        watch,
-        setValue,
-        handleSubmit,
-        setError,
-        clearErrors,
-        formState: { errors, isSubmitted },
-    } = useForm<OfferRideFormInput, unknown, OfferRideFormValues>({
+    const methods = useForm<OfferRideFormInput, unknown, OfferRideFormValues>({
         resolver: zodResolver(offerRideSchema),
         defaultValues: {
             pickupCity: null,
@@ -179,11 +95,14 @@ export function DriverOfferRidePage({
             rideTime: "",
             seats: "",
             price: "",
+            durationHours: "",
+            durationMinutes: "",
             manualBrand: "",
             manualModel: "",
             manualPlate: "",
         },
     });
+    const { watch, handleSubmit, setError, clearErrors } = methods;
 
     const {
         pickupCity,
@@ -192,6 +111,8 @@ export function DriverOfferRidePage({
         rideTime,
         seats,
         price,
+        durationHours,
+        durationMinutes,
         manualBrand,
         manualModel,
         manualPlate,
@@ -209,14 +130,12 @@ export function DriverOfferRidePage({
         addLocalCar,
     } = useDriverCars({ manualBrand, manualModel, manualPlate });
 
+    // Submission/server state — not form fields, so they stay in useState.
     const [publishedMessage, setPublishedMessage] = useState("");
     const [publishError, setPublishError] = useState("");
-    const [durationHours, setDurationHours] = useState("");
-    const [durationMinutes, setDurationMinutes] = useState("");
-    const [durationError, setDurationError] = useState("");
 
     // Clear a stale publish error as soon as any field of the form changes.
-    const formKey = `${pickupCity?.id ?? ""}|${dropoffCity?.id ?? ""}|${rideDate?.toISOString() ?? ""}|${rideTime}|${seats}|${price}|${carMode}|${selectedCarId}|${manualBrand}|${manualModel}|${manualPlate}`;
+    const formKey = `${pickupCity?.id ?? ""}|${dropoffCity?.id ?? ""}|${rideDate?.toISOString() ?? ""}|${rideTime}|${seats}|${price}|${durationHours}|${durationMinutes}|${carMode}|${selectedCarId}|${manualBrand}|${manualModel}|${manualPlate}`;
     const [prevFormKey, setPrevFormKey] = useState(formKey);
     if (formKey !== prevFormKey) {
         setPrevFormKey(formKey);
@@ -295,34 +214,6 @@ export function DriverOfferRidePage({
         LOCALES[language as keyof typeof LOCALES] ??
         LOCALES[toUiLanguage(language) as keyof typeof LOCALES] ??
         enUS;
-
-    function handleManualBrandChange(value: string) {
-        setValue("manualBrand", value, { shouldValidate: isSubmitted });
-        setValue("manualModel", "", { shouldValidate: isSubmitted });
-        clearErrors(["manualBrand", "manualModel"]);
-    }
-
-    function handleManualModelChange(value: string) {
-        setValue("manualModel", value, { shouldValidate: isSubmitted });
-        clearErrors("manualModel");
-    }
-
-    function handleManualPlateChange(value: string) {
-        setValue("manualPlate", value, { shouldValidate: isSubmitted });
-        clearErrors("manualPlate");
-    }
-
-    function handleSeatsChange(value: string) {
-        if (isIntegerInput(value)) {
-            setValue("seats", value, { shouldValidate: isSubmitted });
-        }
-    }
-
-    function handlePriceChange(value: string) {
-        if (isIntegerInput(value)) {
-            setValue("price", value, { shouldValidate: isSubmitted });
-        }
-    }
 
     async function getManualModelId() {
         const brand = manualBrand.trim();
@@ -422,13 +313,9 @@ export function DriverOfferRidePage({
     }
 
     const onSubmit: SubmitHandler<OfferRideFormValues> = async (values) => {
+        // Duration is validated by the schema resolver — reaching here means
+        // it is already > 0.
         setPublishedMessage("");
-
-        if (parseDurationMinutes(durationHours, durationMinutes) <= 0) {
-            setDurationError("offerRide.requiredField");
-            return;
-        }
-        setDurationError("");
 
         if (carMode === "manual") {
             const brand = values.manualBrand.trim();
@@ -498,7 +385,7 @@ export function DriverOfferRidePage({
         }
     };
 
-    const fieldError = (key?: string) => (key ? t(key) : undefined);
+    const { t } = useTranslation();
 
     return (
         <div
@@ -508,129 +395,27 @@ export function DriverOfferRidePage({
             <DriverNavbar {...navbarProps} />
 
             <div className="w-full px-4 sm:max-w-3xl sm:mx-auto sm:px-8 py-8 sm:py-12">
-                <OfferRideForm
-                    labels={{
-                        title: t("offerRide.title"),
-                        subtitle: t("offerRide.subtitle"),
-                        routeSection: t("offerRide.route"),
-                        pickup: t("offerRide.pickup"),
-                        pickupPlaceholder: t("offerRide.pickupPlaceholder"),
-                        dropoff: t("offerRide.dropoff"),
-                        dropoffPlaceholder: t("offerRide.dropoffPlaceholder"),
-                        dateTimeSection: t("offerRide.dateTime"),
-                        date: t("offerRide.date"),
-                        time: t("offerRide.time"),
-                        duration: t("offerRide.duration"),
-                        seatsPriceSection: t("offerRide.seatsPrice"),
-                        availableSeats: t("offerRide.availableSeats"),
-                        seatsPlaceholder: t("offerRide.seatsPlaceholder"),
-                        pricePerSeat: t("offerRide.pricePerSeat"),
-                        pricePlaceholder: t("offerRide.pricePlaceholder"),
-                        carSection: t("offerRide.carDetails"),
-                        myCars: t("offerRide.myCars"),
-                        manualCar: t("offerRide.manualCar"),
-                        chooseCar: t("offerRide.chooseCar"),
-                        carBrand: t("offerRide.carBrand"),
-                        carBrandPlaceholder: t("offerRide.carBrandPlaceholder"),
-                        carModel: t("offerRide.carModel"),
-                        carModelPlaceholder: t("offerRide.carModelPlaceholder"),
-                        selectCarBrand: t("offerRide.selectCarBrand"),
-                        selectCarModel: t("offerRide.selectCarModel"),
-                        loadingCarBrands: t("offerRide.loadingCarBrands"),
-                        loadingCarModels: t("offerRide.loadingCarModels"),
-                        licensePlate: t("offerRide.licensePlate"),
-                        platePlaceholder: t("offerRide.platePlaceholder"),
-                        noCars: t("offerRide.noCars"),
-                        publishLabel: t("offerRide.publish"),
-                    }}
-                    pickupCity={pickupCity}
-                    onPickupCityChange={(city) =>
-                        setValue("pickupCity", city, {
-                            shouldValidate: isSubmitted,
-                        })
-                    }
-                    pickupError={fieldError(errors.pickupCity?.message)}
-                    dropoffCity={dropoffCity}
-                    onDropoffCityChange={(city) =>
-                        setValue("dropoffCity", city, {
-                            shouldValidate: isSubmitted,
-                        })
-                    }
-                    dropoffError={fieldError(errors.dropoffCity?.message)}
-                    date={rideDate}
-                    onDateChange={(date) =>
-                        setValue("rideDate", date, {
-                            shouldValidate: isSubmitted,
-                        })
-                    }
-                    dateLocale={datePickerLocale}
-                    today={offerRideToday}
-                    dateError={fieldError(errors.rideDate?.message)}
-                    time={rideTime}
-                    onTimeChange={(time) =>
-                        setValue("rideTime", time, {
-                            shouldValidate: isSubmitted,
-                        })
-                    }
-                    timeError={fieldError(errors.rideTime?.message)}
-                    durationHours={durationHours}
-                    onDurationHoursChange={(v) => {
-                        setDurationHours(v);
-                        setDurationError("");
-                    }}
-                    durationMinutes={durationMinutes}
-                    onDurationMinutesChange={(v) => {
-                        setDurationMinutes(v);
-                        setDurationError("");
-                    }}
-                    durationError={durationError ? t(durationError) : undefined}
-                    seats={seats}
-                    onSeatsChange={handleSeatsChange}
-                    seatsError={fieldError(errors.seats?.message)}
-                    price={price}
-                    onPriceChange={handlePriceChange}
-                    priceError={fieldError(errors.price?.message)}
-                    savedCars={driverCars}
-                    carMode={carMode}
-                    onCarModeChange={handleCarModeChange}
-                    selectedCarId={selectedCarId}
-                    onSelectedCarChange={setSelectedCarId}
-                    manualBrand={manualBrand}
-                    onManualBrandChange={handleManualBrandChange}
-                    manualBrandOptions={carBrandOptions}
-                    manualBrandLoading={isLoadingCarBrands}
-                    manualBrandError={fieldError(errors.manualBrand?.message)}
-                    manualModel={manualModel}
-                    onManualModelChange={handleManualModelChange}
-                    manualModelOptions={carModelOptions}
-                    manualModelLoading={isLoadingCarModels}
-                    manualModelDisabled={!manualBrand}
-                    manualModelError={fieldError(errors.manualModel?.message)}
-                    manualPlate={manualPlate}
-                    onManualPlateChange={handleManualPlateChange}
-                    manualPlateError={
-                        errors.manualPlate?.message
-                            ? t(errors.manualPlate.message, {
-                                  min: PLATE_MIN_LENGTH,
-                                  max: PLATE_MAX_LENGTH,
-                              })
-                            : undefined
-                    }
-                    publishedMessage={
-                        publishedMessage ? t(publishedMessage) : ""
-                    }
-                    onPublishClick={() => {
-                        if (
-                            parseDurationMinutes(
-                                durationHours,
-                                durationMinutes
-                            ) <= 0
-                        ) {
-                            setDurationError("offerRide.requiredField");
+                <FormProvider {...methods}>
+                    <OfferRideForm
+                        dateLocale={datePickerLocale}
+                        today={offerRideToday}
+                        car={{
+                            savedCars: driverCars,
+                            carMode,
+                            onCarModeChange: handleCarModeChange,
+                            selectedCarId,
+                            onSelectedCarChange: setSelectedCarId,
+                            brandOptions: carBrandOptions,
+                            brandLoading: isLoadingCarBrands,
+                            modelOptions: carModelOptions,
+                            modelLoading: isLoadingCarModels,
+                        }}
+                        publishedMessage={
+                            publishedMessage ? t(publishedMessage) : ""
                         }
-                        handleSubmit(onSubmit)();
-                    }}
-                />
+                        onPublishClick={handleSubmit(onSubmit)}
+                    />
+                </FormProvider>
                 {publishError && (
                     <p className="mt-4 w-full rounded-xl border border-(--color-danger-border) bg-(--color-danger-bg) px-4 py-3 text-sm font-semibold text-(--color-danger-text)">
                         {t(publishError)}

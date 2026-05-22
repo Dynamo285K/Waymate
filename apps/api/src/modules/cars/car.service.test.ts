@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { db } from "../../db";
-import { carModels, users } from "../../db/schema";
+import { carModels, rides, users } from "../../db/schema";
 import { CarService } from "./car.service";
 import { CarError, CarErrorCodes } from "./car.errors";
 import type { CreateCarBody } from "@repo/shared";
@@ -142,6 +142,29 @@ describe("CarService.deleteCar", () => {
         await expect(
             CarService.deleteCar(crypto.randomUUID(), user.id)
         ).rejects.toMatchObject({ code: CarErrorCodes.CarNotFound });
+    });
+
+    it("throws CarInUse and keeps the car when it has an active ride", async () => {
+        const user = await insertTestUser();
+        const car = await createCarFor(user.id);
+
+        // A non-terminal ride still depends on the car.
+        await db.insert(rides).values({
+            driverId: user.id,
+            carId: car.id,
+            departureAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            rideStatus: "PLANNED",
+            offeredSeats: 3,
+            currency: "EUR",
+        });
+
+        await expect(
+            CarService.deleteCar(car.id, user.id)
+        ).rejects.toMatchObject({ code: CarErrorCodes.CarInUse });
+
+        // The soft-delete must have rolled back — the car is still listed.
+        const cars = await CarService.getCarsByUserId(user.id);
+        expect(cars.map((c) => c.id)).toContain(car.id);
     });
 });
 
