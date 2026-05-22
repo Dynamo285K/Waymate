@@ -78,7 +78,12 @@
       "Bash(python3 -c 'import json; d=json.load\\(open\\('\\\\''apps/web/src/i18n/locales/__TRACKED_VAR__.json'\\\\''\\)\\); print\\(json.dumps\\(d.get\\('\\\\''editProfile'\\\\'',{}\\), ensure_ascii=False, indent=2\\)\\)')",
       "Bash(sed -n '50,66p' apps/web/src/i18n/locales/en.json)",
       "Bash(sed -n '50,66p' apps/web/src/i18n/locales/sk.json)",
-      "Bash(sed -n '50,66p' apps/web/src/i18n/locales/cs.json)"
+      "Bash(sed -n '50,66p' apps/web/src/i18n/locales/cs.json)",
+      "Bash(grep -noE 'DayPicker|react-day-picker|disablePastDates|date-picker[a-z-]*|datepicker[a-z-]*' __TRACKED_VAR__/dist/index.js)",
+      "Bash(grep -n 'DatePicker\\\\|SegmentedControl' __TRACKED_VAR__/dist/index.js)",
+      "Bash(grep -n DatePicker __TRACKED_VAR__/dist/index.js)",
+      "Bash(sed -n 36,90p __TRACKED_VAR__/dist/index.js)",
+      "Bash(sed -n 8416,8490p __TRACKED_VAR__/dist/index.js)"
     ]
   }
 }
