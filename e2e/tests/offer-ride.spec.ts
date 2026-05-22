@@ -23,55 +23,87 @@ async function pickCity(
     await page.getByRole("option", { name: city }).first().click();
 }
 
-test.describe("offer a ride", () => {
-    test.beforeEach(async ({ context }) => {
-        await context.clearCookies();
-    });
+// Fills everything on the offer-ride form except the car section: route,
+// date (the 15th of next month — always future, never disabled), time,
+// duration, seats and price.
+async function fillRideDetails(page: Page) {
+    await pickCity(page, "offer-pickup", "Bratislava", "Bratislava");
+    await pickCity(page, "offer-dropoff", "Nitra", "Nitra");
 
-    test("driver publishes a ride with a saved car", async ({ page }) => {
+    await page.locator(".datepicker__input").click();
+    await page.locator(".datepicker__popup nav button").last().click();
+    await page
+        .locator(".datepicker__popup")
+        .getByRole("button", { name: "15" })
+        .first()
+        .click();
+
+    await page.locator(".offer-ride-form__time-trigger").click();
+    await page.getByRole("option", { name: "09:00" }).click();
+
+    const duration = page.getByTestId("offer-duration").locator("input");
+    await duration.first().fill("1");
+    await duration.nth(1).fill("30");
+
+    await page.getByTestId("offer-seats").locator("input").fill("2");
+    await page.getByTestId("offer-price").locator("input").fill("10");
+}
+
+test.describe("offer a ride", () => {
+    test.beforeEach(async ({ page, context }) => {
+        await context.clearCookies();
         await login(page, DRIVER_EMAIL, DRIVER_PASSWORD);
-        // The driver-seeded account has a completed profile → lands on the
+        // Driver-seeded account has a completed profile → lands on the
         // passenger home; wait for it so the session is fully established.
         await expect(page).toHaveURL(/\/passenger$/);
-
         await page.goto("/driver/offer");
         await expect(
             page.getByRole("heading", { name: "Offer a ride" })
         ).toBeVisible();
+    });
 
-        // Route
-        await pickCity(page, "offer-pickup", "Bratislava", "Bratislava");
-        await pickCity(page, "offer-dropoff", "Nitra", "Nitra");
+    test("driver publishes a ride with a saved car", async ({ page }) => {
+        await fillRideDetails(page);
 
-        // Date — open the picker, jump to next month, pick the 15th: always
-        // in the future, always exists, never disabled by disablePastDates.
-        await page.locator(".datepicker__input").click();
-        await page.locator(".datepicker__popup nav button").last().click();
-        await page
-            .locator(".datepicker__popup")
-            .getByRole("button", { name: "15" })
-            .first()
-            .click();
-
-        // Time
-        await page.locator(".offer-ride-form__time-trigger").click();
-        await page.getByRole("option", { name: "09:00" }).click();
-
-        // Duration — 1 h 30 min
-        const duration = page.getByTestId("offer-duration").locator("input");
-        await duration.first().fill("1");
-        await duration.nth(1).fill("30");
-
-        // Seats & price
-        await page.getByTestId("offer-seats").locator("input").fill("2");
-        await page.getByTestId("offer-price").locator("input").fill("10");
-
-        // Use a saved car (the segmented control appears once cars load)
+        // Use a saved car (the segmented control appears once cars load).
         await page.getByRole("button", { name: "My cars" }).click();
 
         // Publishing routes the driver to their rides list on success.
         await page.getByRole("button", { name: "Publish ride" }).click();
-
         await expect(page).toHaveURL(/\/driver\/rides$/);
+    });
+
+    test("driver publishes a ride entering a car manually", async ({
+        page,
+    }) => {
+        await fillRideDetails(page);
+
+        // Switch to manual car entry, then pick a brand + model the seed
+        // guarantees exist in car_models so the model id resolves.
+        await page.getByRole("button", { name: "Enter manually" }).click();
+
+        await page.getByRole("combobox").filter({ hasText: /brand/i }).click();
+        await page.getByRole("option", { name: "Škoda" }).first().click();
+
+        await page.getByRole("combobox").filter({ hasText: /model/i }).click();
+        await page.getByRole("option", { name: "Octavia" }).first().click();
+
+        await page.getByPlaceholder("e.g., ABC 1234").fill("BA999XX");
+
+        await page.getByRole("button", { name: "Publish ride" }).click();
+        await expect(page).toHaveURL(/\/driver\/rides$/);
+    });
+
+    test("publishing an empty form shows validation errors and stays put", async ({
+        page,
+    }) => {
+        // Submit with nothing filled — the RHF resolver must block the
+        // submission, keep the driver on the form, and surface field errors.
+        await page.getByRole("button", { name: "Publish ride" }).click();
+
+        await expect(page).toHaveURL(/\/driver\/offer$/);
+        await expect(
+            page.getByText("This field is required.").first()
+        ).toBeVisible();
     });
 });

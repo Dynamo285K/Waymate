@@ -1,3 +1,4 @@
+import { lazy, Suspense, type ComponentType } from "react";
 import {
     createRootRouteWithContext,
     createRoute,
@@ -18,33 +19,135 @@ import {
 } from "./lib/auth";
 import type { User } from "./api-client/model/user";
 import type { UserRole } from "./api-client/model/userRole";
-import { LoginPage } from "./pages/LoginPage";
-import { RegisterPage } from "./pages/RegisterPage";
-import { OnboardingPage } from "./pages/OnboardingPage";
-import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
-import { RidesPage } from "./pages/RidesPage";
-import { PassengerHomePage } from "./pages/PassengerHomePage";
-import { PassengerChatPage } from "./pages/PassengerChatPage";
-import { PassengerRidesPage } from "./pages/PassengerRidesPage";
-import { PassengerMyRidesPage } from "./pages/PassengerMyRidesPage";
-import { PassengerProfilePage } from "./pages/PassengerProfilePage";
-import { PassengerRatingsPage } from "./pages/PassengerRatingsPage";
-import { DriverHomePage } from "./pages/DriverHomePage";
-import { DriverChatPage } from "./pages/DriverChatPage";
-import { DriverMyRidesPage } from "./pages/DriverMyRidesPage";
-import { DriverPassengersPage } from "./pages/DriverPassengersPage";
-import { DriverRatePassengersPage } from "./pages/DriverRatePassengersPage";
-import { DriverOfferRidePage } from "./pages/DriverOfferRidePage";
-import { DriverRideRequestsPage } from "./pages/DriverRideRequestsPage";
-import { DriverProfilePage } from "./pages/DriverProfilePage";
-import { DriverRatingsPage } from "./pages/DriverRatingsPage";
-import { EditProfilePage } from "./pages/EditProfilePage";
-import { AddCarPage } from "./pages/AddCarPage";
-import { AdminDashboardPage } from "./pages/AdminDashboardPage";
-import { AdminRidesPage } from "./pages/AdminRides";
-import { AdminUsersPage } from "./pages/AdminUsersPage";
-import { AdminReviewsPage } from "./pages/AdminReviews";
-import { AdminReportsPage } from "./pages/AdminReports";
+
+// Layout props every audience page receives (injected by makeAudienceComponent).
+type AudiencePageProps = {
+    language: ReturnType<typeof useLayout>["language"];
+    theme: ReturnType<typeof useLayout>["theme"];
+    onLanguageChange: ReturnType<typeof useLayout>["onLanguageChange"];
+    onThemeToggle: ReturnType<typeof useLayout>["onThemeToggle"];
+    userId?: ReturnType<typeof useLayout>["userId"];
+    userName?: ReturnType<typeof useLayout>["userName"];
+    userEmail?: ReturnType<typeof useLayout>["userEmail"];
+    userPhone?: ReturnType<typeof useLayout>["userPhone"];
+    userBio?: ReturnType<typeof useLayout>["userBio"];
+    userCreatedAt?: ReturnType<typeof useLayout>["userCreatedAt"];
+};
+
+// Code-splits each page into its own chunk. The `import("./pages/X")` literal
+// stays inside the thunk so the bundler can statically split it; the named
+// export is rewrapped as `default` for React.lazy. Result: a guest on /login
+// no longer downloads the admin/driver pages.
+function lazyPage(
+    loader: () => Promise<Record<string, unknown>>,
+    name: string
+) {
+    return lazy(() =>
+        loader().then((m) => ({
+            default: m[name] as ComponentType<AudiencePageProps>,
+        }))
+    );
+}
+
+const LoginPage = lazyPage(() => import("./pages/LoginPage"), "LoginPage");
+const RegisterPage = lazyPage(
+    () => import("./pages/RegisterPage"),
+    "RegisterPage"
+);
+const OnboardingPage = lazyPage(
+    () => import("./pages/OnboardingPage"),
+    "OnboardingPage"
+);
+const ForgotPasswordPage = lazyPage(
+    () => import("./pages/ForgotPasswordPage"),
+    "ForgotPasswordPage"
+);
+const RidesPage = lazyPage(() => import("./pages/RidesPage"), "RidesPage");
+const PassengerHomePage = lazyPage(
+    () => import("./pages/PassengerHomePage"),
+    "PassengerHomePage"
+);
+const PassengerChatPage = lazyPage(
+    () => import("./pages/PassengerChatPage"),
+    "PassengerChatPage"
+);
+const PassengerRidesPage = lazyPage(
+    () => import("./pages/PassengerRidesPage"),
+    "PassengerRidesPage"
+);
+const PassengerMyRidesPage = lazyPage(
+    () => import("./pages/PassengerMyRidesPage"),
+    "PassengerMyRidesPage"
+);
+const PassengerProfilePage = lazyPage(
+    () => import("./pages/PassengerProfilePage"),
+    "PassengerProfilePage"
+);
+const PassengerRatingsPage = lazyPage(
+    () => import("./pages/PassengerRatingsPage"),
+    "PassengerRatingsPage"
+);
+const DriverHomePage = lazyPage(
+    () => import("./pages/DriverHomePage"),
+    "DriverHomePage"
+);
+const DriverChatPage = lazyPage(
+    () => import("./pages/DriverChatPage"),
+    "DriverChatPage"
+);
+const DriverMyRidesPage = lazyPage(
+    () => import("./pages/DriverMyRidesPage"),
+    "DriverMyRidesPage"
+);
+const DriverPassengersPage = lazyPage(
+    () => import("./pages/DriverPassengersPage"),
+    "DriverPassengersPage"
+);
+const DriverRatePassengersPage = lazyPage(
+    () => import("./pages/DriverRatePassengersPage"),
+    "DriverRatePassengersPage"
+);
+const DriverOfferRidePage = lazyPage(
+    () => import("./pages/DriverOfferRidePage"),
+    "DriverOfferRidePage"
+);
+const DriverRideRequestsPage = lazyPage(
+    () => import("./pages/DriverRideRequestsPage"),
+    "DriverRideRequestsPage"
+);
+const DriverProfilePage = lazyPage(
+    () => import("./pages/DriverProfilePage"),
+    "DriverProfilePage"
+);
+const DriverRatingsPage = lazyPage(
+    () => import("./pages/DriverRatingsPage"),
+    "DriverRatingsPage"
+);
+const EditProfilePage = lazyPage(
+    () => import("./pages/EditProfilePage"),
+    "EditProfilePage"
+);
+const AddCarPage = lazyPage(() => import("./pages/AddCarPage"), "AddCarPage");
+const AdminDashboardPage = lazyPage(
+    () => import("./pages/AdminDashboardPage"),
+    "AdminDashboardPage"
+);
+const AdminRidesPage = lazyPage(
+    () => import("./pages/AdminRides"),
+    "AdminRidesPage"
+);
+const AdminUsersPage = lazyPage(
+    () => import("./pages/AdminUsersPage"),
+    "AdminUsersPage"
+);
+const AdminReviewsPage = lazyPage(
+    () => import("./pages/AdminReviews"),
+    "AdminReviewsPage"
+);
+const AdminReportsPage = lazyPage(
+    () => import("./pages/AdminReports"),
+    "AdminReportsPage"
+);
 
 interface RouterContext {
     queryClient: QueryClient;
@@ -53,7 +156,12 @@ interface RouterContext {
 const rootRoute = createRootRouteWithContext<RouterContext>()({
     component: () => (
         <LayoutProvider>
-            <Outlet />
+            {/* Suspense boundary for the lazily-loaded page chunks below. */}
+            <Suspense
+                fallback={<div className="min-h-screen bg-(--color-bg)" />}
+            >
+                <Outlet />
+            </Suspense>
         </LayoutProvider>
     ),
 });
@@ -122,18 +230,7 @@ const requireAudience =
 
 type AudienceRoute = {
     path: string;
-    Component: React.ComponentType<{
-        language: ReturnType<typeof useLayout>["language"];
-        theme: ReturnType<typeof useLayout>["theme"];
-        onLanguageChange: ReturnType<typeof useLayout>["onLanguageChange"];
-        onThemeToggle: ReturnType<typeof useLayout>["onThemeToggle"];
-        userId?: ReturnType<typeof useLayout>["userId"];
-        userName?: ReturnType<typeof useLayout>["userName"];
-        userEmail?: ReturnType<typeof useLayout>["userEmail"];
-        userPhone?: ReturnType<typeof useLayout>["userPhone"];
-        userBio?: ReturnType<typeof useLayout>["userBio"];
-        userCreatedAt?: ReturnType<typeof useLayout>["userCreatedAt"];
-    }>;
+    Component: ComponentType<AudiencePageProps>;
     audience: ReadonlyArray<Audience>;
 };
 

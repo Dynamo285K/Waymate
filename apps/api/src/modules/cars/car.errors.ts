@@ -4,6 +4,7 @@ export const CarErrorCodes = {
     ModelNotFound: "CAR_MODEL_NOT_FOUND",
     DuplicatePlate: "CAR_DUPLICATE_PLATE",
     CarNotFound: "CAR_NOT_FOUND",
+    CarInUse: "CAR_IN_USE",
 } as const;
 
 export type CarErrorCode = (typeof CarErrorCodes)[keyof typeof CarErrorCodes];
@@ -21,6 +22,7 @@ export function carErrorToHttpStatus(code: CarErrorCode): number {
         case CarErrorCodes.CarNotFound:
             return 404;
         case CarErrorCodes.DuplicatePlate:
+        case CarErrorCodes.CarInUse:
             return 409;
         case CarErrorCodes.ModelNotFound:
             return 400;

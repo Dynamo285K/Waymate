@@ -1,6 +1,12 @@
+import { lazy } from "react";
 import { useLayout } from "./use-layout";
 import { useNavigate } from "./router-compat";
-import { HomePage } from "../pages/HomePage";
+
+// Code-split the landing page like the audience pages (see router.tsx). The
+// root route's Suspense boundary covers this lazy load.
+const HomePage = lazy(() =>
+    import("../pages/HomePage").then((m) => ({ default: m.HomePage }))
+);
 
 export function HomeRoute() {
     const layout = useLayout();

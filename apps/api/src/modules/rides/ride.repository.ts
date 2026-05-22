@@ -68,8 +68,6 @@ const findRidesByDriverId = async (
     driverId: string,
     timeframe: RideTimeframe = "UPCOMING"
 ): Promise<RideListItem[]> => {
-    const now = new Date();
-
     const filters = [
         eq(ridesTable.driverId, driverId),
         rideNotSoftDeleted,

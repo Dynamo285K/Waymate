@@ -28,11 +28,25 @@ const createCar = async (userId: string, data: CreateCarBody) => {
 };
 
 const deleteCar = async (carId: string, userId: string) => {
-    const deleted = await CarRepository.deleteCar(db, carId, userId);
-    if (!deleted) {
-        throw new CarError(CarErrorCodes.CarNotFound);
-    }
-    return deleted;
+    return await db.transaction(async (tx) => {
+        // Soft-delete first (scoped to the owner) so a non-owner / unknown id
+        // gets CAR_NOT_FOUND rather than leaking whether someone else's car is
+        // in use. The active-ride check then rolls the delete back if needed.
+        const deleted = await CarRepository.deleteCar(tx, carId, userId);
+        if (!deleted) {
+            throw new CarError(CarErrorCodes.CarNotFound);
+        }
+
+        const activeRides = await CarRepository.countActiveRidesForCar(
+            tx,
+            carId
+        );
+        if (activeRides > 0) {
+            throw new CarError(CarErrorCodes.CarInUse);
+        }
+
+        return deleted;
+    });
 };
 
 const updateCarStatus = async (

@@ -105,6 +105,10 @@ function buildCreateRideBody(
     };
 }
 
+// Mirrors AUTO_END_BUFFER_MS in ride.service.ts: a ride auto-ends one hour
+// after its expected arrival, so autoEndAt = arrival + 1h.
+const AUTO_END_BUFFER_MS = 60 * 60 * 1000;
+
 describe("RideService.createRide", () => {
     it("creates a ride with stops, prices, and a status-history row in one transaction", async () => {
         const driver = await insertTestUser();
@@ -125,7 +129,7 @@ describe("RideService.createRide", () => {
         expect(insertedRide!.carId).toBe(car.id);
         expect(insertedRide!.rideStatus).toBe("PLANNED");
         expect(insertedRide!.autoEndAt?.getTime()).toBe(
-            body.arrivalEstimateAt!.getTime()
+            body.arrivalEstimateAt!.getTime() + AUTO_END_BUFFER_MS
         );
 
         const stops = await db
@@ -192,7 +196,7 @@ describe("RideService.createRide", () => {
 
         expect(insertedRide!.arrivalEstimateAt).toBeNull();
         expect(insertedRide!.autoEndAt?.getTime()).toBe(
-            plannedArrivalAt.getTime()
+            plannedArrivalAt.getTime() + AUTO_END_BUFFER_MS
         );
     });
 
@@ -356,8 +360,10 @@ describe("RideService.createRide — arrival from duration", () => {
         expect(ride!.arrivalEstimateAt?.getTime()).toBe(
             expectedArrival.getTime()
         );
-        // autoEndAt is derived from the resolved arrival, so it matches too.
-        expect(ride!.autoEndAt?.getTime()).toBe(expectedArrival.getTime());
+        // autoEndAt is the resolved arrival plus the 1-hour buffer.
+        expect(ride!.autoEndAt?.getTime()).toBe(
+            expectedArrival.getTime() + AUTO_END_BUFFER_MS
+        );
     });
 });
 
@@ -508,28 +514,31 @@ describe("RideService.getDriverRides", () => {
         expect(result.map((r) => r.id)).toEqual([ownRideId]);
     });
 
-    it("splits UPCOMING vs PAST correctly and ALL returns both", async () => {
+    it("splits UPCOMING vs PAST by status and ALL returns both", async () => {
         const driver = await insertTestUser();
         const car = await insertCarFor(driver.id);
 
+        // The list splits on ride status, not departure time: a COMPLETED ride
+        // is PAST, anything not-yet-completed (PLANNED/IN_PROGRESS) is UPCOMING.
         const past = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
         const future = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-        const pastRideId = await createRideAt(driver.id, car.id, past);
-        const futureRideId = await createRideAt(driver.id, car.id, future);
+        const completedRideId = await createRideAt(driver.id, car.id, past);
+        await RideService.completeRide(completedRideId, driver.id);
+        const plannedRideId = await createRideAt(driver.id, car.id, future);
 
         const upcoming = await RideService.getDriverRides(
             driver.id,
             "UPCOMING"
         );
-        expect(upcoming.map((r) => r.id)).toEqual([futureRideId]);
+        expect(upcoming.map((r) => r.id)).toEqual([plannedRideId]);
 
         const pastRides = await RideService.getDriverRides(driver.id, "PAST");
-        expect(pastRides.map((r) => r.id)).toEqual([pastRideId]);
+        expect(pastRides.map((r) => r.id)).toEqual([completedRideId]);
 
         const all = await RideService.getDriverRides(driver.id, "ALL");
         expect(all.map((r) => r.id).sort()).toEqual(
-            [pastRideId, futureRideId].sort()
+            [completedRideId, plannedRideId].sort()
         );
     });
 
