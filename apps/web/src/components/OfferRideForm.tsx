@@ -201,7 +201,10 @@ export function OfferRideForm({
 
             <div className="offer-ride-form__sections">
                 <FormSectionCard title={labels?.routeSection ?? "Route"}>
-                    <div className="offer-ride-form__field">
+                    <div
+                        className="offer-ride-form__field"
+                        data-testid="offer-pickup"
+                    >
                         <FieldLabel
                             label={labels?.pickup ?? "Pickup location"}
                             icon={<CircleIcon />}
@@ -220,7 +223,10 @@ export function OfferRideForm({
                             </p>
                         )}
                     </div>
-                    <div className="offer-ride-form__field">
+                    <div
+                        className="offer-ride-form__field"
+                        data-testid="offer-dropoff"
+                    >
                         <FieldLabel
                             label={labels?.dropoff ?? "Dropoff location"}
                             icon={<MapPinIcon />}
@@ -308,7 +314,10 @@ export function OfferRideForm({
                                 </p>
                             )}
                         </div>
-                        <div className="offer-ride-form__field">
+                        <div
+                            className="offer-ride-form__field"
+                            data-testid="offer-duration"
+                        >
                             <FieldLabel
                                 label={labels?.duration ?? "Duration"}
                                 icon={<ClockIcon />}
@@ -383,7 +392,10 @@ export function OfferRideForm({
                     }
                 >
                     <div className="offer-ride-form__grid offer-ride-form__grid--two-columns">
-                        <div className="offer-ride-form__field">
+                        <div
+                            className="offer-ride-form__field"
+                            data-testid="offer-seats"
+                        >
                             <FieldLabel
                                 label={
                                     labels?.availableSeats ?? "Available seats"
@@ -406,7 +418,10 @@ export function OfferRideForm({
                                 </p>
                             )}
                         </div>
-                        <div className="offer-ride-form__field">
+                        <div
+                            className="offer-ride-form__field"
+                            data-testid="offer-price"
+                        >
                             <FieldLabel
                                 label={labels?.pricePerSeat ?? "Price per seat"}
                                 icon={<CoinsIcon />}

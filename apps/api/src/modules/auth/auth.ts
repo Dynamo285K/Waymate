@@ -87,7 +87,10 @@ export const auth = betterAuth({
     },
 
     rateLimit: {
-        enabled: true,
+        // Off under NODE_ENV=test: the e2e and API suites fire many auth
+        // calls from a single IP and must not be throttled into flaky
+        // failures. Production and development keep it enabled.
+        enabled: env.NODE_ENV !== "test",
         storage: "database",
         window: 60,
         max: 100,

@@ -29,6 +29,8 @@ const ADMIN_EMAIL = "admin@example.com";
 const ADMIN_PASSWORD = "admin1234";
 const DRIVER_EMAIL = "driver.albert@example.com";
 const DRIVER_PASSWORD = "driver1234";
+const PASSENGER_EMAIL = "passenger.cyril@example.com";
+const PASSENGER_PASSWORD = "passenger1234";
 const MINUTE_MS = 60 * 1000;
 
 const dateAtOffset = (daysFromToday: number, hours: number, minutes = 0) => {
@@ -65,6 +67,7 @@ async function main() {
         // (admin + driver passwords) can reference them.
         const adminId = randomUUID();
         const userAId = randomUUID(); // driver A — has password (see DRIVER_EMAIL)
+        const userCId = randomUUID(); // passenger C — has password (see PASSENGER_EMAIL)
 
         // ride_stops now references cities(id), so every fixture stop has
         // to know which city row to point at. Look them all up by their
@@ -125,7 +128,6 @@ async function main() {
         await db.transaction(async (tx) => {
             // Users
             const userBId = randomUUID(); // driver B
-            const userCId = randomUUID(); // passenger
 
             // Bulk USER fixtures so the admin tooling has something to
             // page/search through. First+last names rotate across two pools
@@ -239,7 +241,7 @@ async function main() {
                 {
                     id: userCId,
                     name: "Cyril Horak",
-                    email: "passenger.cyril@example.com",
+                    email: PASSENGER_EMAIL,
                     emailVerified: true,
                     firstName: "Cyril",
                     lastName: "Horak",
@@ -1241,10 +1243,12 @@ async function main() {
 
         await setPassword(adminId, ADMIN_PASSWORD);
         await setPassword(userAId, DRIVER_PASSWORD);
+        await setPassword(userCId, PASSENGER_PASSWORD);
 
         console.log("Seeding finished. Dev logins:");
-        console.log(`  admin:  ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`);
-        console.log(`  driver: ${DRIVER_EMAIL} / ${DRIVER_PASSWORD}`);
+        console.log(`  admin:     ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`);
+        console.log(`  driver:    ${DRIVER_EMAIL} / ${DRIVER_PASSWORD}`);
+        console.log(`  passenger: ${PASSENGER_EMAIL} / ${PASSENGER_PASSWORD}`);
     } catch (error) {
         console.error("Error during seeding:", error);
         exitCode = 1;
