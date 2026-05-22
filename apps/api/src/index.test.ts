@@ -60,4 +60,20 @@ describe("Request hardening", () => {
             error: "RATE_LIMITED",
         });
     });
+
+    it("never rate-limits CORS preflights, even past the global cap", async () => {
+        // Browser-generated OPTIONS preflights bypass the limiter entirely
+        // (see the `.onRequest` skip). Flood well past the global 60/min cap
+        // on an isolated IP and assert none are rejected — otherwise normal
+        // SPA usage could burn its quota on preflights.
+        const headers = { "x-forwarded-for": "203.0.113.8" };
+
+        for (let i = 0; i < 70; i++) {
+            const response = await apiRequest("/rides", {
+                method: "OPTIONS",
+                headers,
+            });
+            expect(response.status).not.toBe(429);
+        }
+    });
 });
