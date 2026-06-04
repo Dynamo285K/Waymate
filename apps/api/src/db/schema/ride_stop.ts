@@ -21,12 +21,12 @@ export const rideStops = pgTable(
             .notNull()
             .references(() => rides.id),
         address: text("address").notNull(),
-        // Reference to the controlled vocabulary in `cities`. Display
-        // name and country code are read from cities via JOIN, not
-        // duplicated here.
         cityId: uuid("city_id")
-            .notNull()
             .references(() => cities.id),
+        city: text("city").default("").notNull(),
+        countryCode: text("country_code").default("").notNull(),
+        h3Res7: text("h3_res7").default("").notNull(),
+        h3Res8: text("h3_res8").default("").notNull(),
         lat: doublePrecision("lat").notNull(),
         lng: doublePrecision("lng").notNull(),
         stopOrder: integer("stop_order").notNull(),
@@ -43,6 +43,8 @@ export const rideStops = pgTable(
         index("ride_stops_city_id_idx").on(table.cityId),
         index("ride_stops_lat_idx").on(table.lat),
         index("ride_stops_lng_idx").on(table.lng),
+        index("ride_stops_h3_res7_idx").on(table.h3Res7),
+        index("ride_stops_h3_res8_idx").on(table.h3Res8),
 
         check("ride_stops_stop_order_chk", sql`${table.stopOrder} >= 0`),
         check("ride_stops_lat_chk", sql`${table.lat} BETWEEN -90 AND 90`),
