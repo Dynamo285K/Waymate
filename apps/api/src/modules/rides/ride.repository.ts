@@ -23,7 +23,7 @@ import { reviews as reviewsTable } from "../../db/schema/review";
 import { rideStatusHistory as rideStatusHistoryTable } from "../../db/schema/ride_status_history";
 import { bookingStatusHistory as bookingStatusHistoryTable } from "../../db/schema";
 import { cars as carsTable } from "../../db/schema/car";
-import { cities as citiesTable } from "../../db/schema/city";
+import * as h3 from "h3-js";
 import { dayBoundsInTimeZone } from "../../shared/time";
 import type {
     RideListItem,
@@ -84,8 +84,7 @@ const findRidesByDriverId = async (
         where: and(...filters),
         with: {
             rideStops: {
-                columns: { stopOrder: true },
-                with: { city: { columns: { name: true } } },
+                columns: { stopOrder: true, city: true },
                 orderBy: [asc(rideStopsTable.stopOrder)],
             },
             bookings: {
@@ -114,15 +113,7 @@ const findRidesByDriverId = async (
         ],
     });
 
-    // Flatten the joined city object back into a plain `city` string so
-    // the API response shape stays identical to the pre-FK contract.
-    return result.map((r) => ({
-        ...r,
-        rideStops: r.rideStops.map((rs) => ({
-            city: rs.city.name,
-            stopOrder: rs.stopOrder,
-        })),
-    })) as RideListItem[];
+    return result as RideListItem[];
 };
 
 const findRidePassengersBundle = async (
@@ -145,8 +136,7 @@ const findRidePassengersBundle = async (
         },
         with: {
             rideStops: {
-                columns: { id: true, stopOrder: true },
-                with: { city: { columns: { name: true } } },
+                columns: { id: true, stopOrder: true, city: true },
                 orderBy: [asc(rideStopsTable.stopOrder)],
             },
             bookings: {
@@ -169,12 +159,10 @@ const findRidePassengersBundle = async (
                         },
                     },
                     pickupStop: {
-                        columns: { id: true, stopOrder: true },
-                        with: { city: { columns: { name: true } } },
+                        columns: { id: true, stopOrder: true, city: true },
                     },
                     dropoffStop: {
-                        columns: { id: true, stopOrder: true },
-                        with: { city: { columns: { name: true } } },
+                        columns: { id: true, stopOrder: true, city: true },
                     },
                 },
             },
@@ -183,33 +171,7 @@ const findRidePassengersBundle = async (
 
     if (!result) return null;
 
-    // Flatten joined city objects back to `city: string` so callers see
-    // the same shape they did before the cityId FK was introduced.
-    return {
-        ...result,
-        rideStops: result.rideStops.map((rs) => ({
-            id: rs.id,
-            city: rs.city.name,
-            stopOrder: rs.stopOrder,
-        })),
-        bookings: result.bookings.map((b) => ({
-            ...b,
-            pickupStop: b.pickupStop
-                ? {
-                      id: b.pickupStop.id,
-                      city: b.pickupStop.city.name,
-                      stopOrder: b.pickupStop.stopOrder,
-                  }
-                : null,
-            dropoffStop: b.dropoffStop
-                ? {
-                      id: b.dropoffStop.id,
-                      city: b.dropoffStop.city.name,
-                      stopOrder: b.dropoffStop.stopOrder,
-                  }
-                : null,
-        })),
-    };
+    return result;
 };
 
 const findReviewsByAuthorForSubjects = async (
@@ -239,8 +201,6 @@ const findReviewsByAuthorForSubjects = async (
 
 const pickupStops = aliasedTable(rideStopsTable, "pickup_stops");
 const dropoffStops = aliasedTable(rideStopsTable, "dropoff_stops");
-const pickupCities = aliasedTable(citiesTable, "pickup_cities");
-const dropoffCities = aliasedTable(citiesTable, "dropoff_cities");
 
 const findAvailableRides = async (
     executor: Executor
@@ -319,12 +279,12 @@ const findAvailableRides = async (
             },
             pickupStop: {
                 pickupStopId: pickupStops.id,
-                city: pickupCities.name,
+                city: pickupStops.city,
                 plannedDepartureAt: pickupStops.plannedDepartureAt,
             },
             dropoffStop: {
                 dropoffStopId: dropoffStops.id,
-                city: dropoffCities.name,
+                city: dropoffStops.city,
                 plannedArrivalAt: dropoffStops.plannedArrivalAt,
             },
             priceAmount: pricesTable.amount,
@@ -340,7 +300,6 @@ const findAvailableRides = async (
                 eq(pickupStops.stopOrder, 0)
             )
         )
-        .innerJoin(pickupCities, eq(pickupCities.id, pickupStops.cityId))
         .innerJoin(lastStopOrders, eq(lastStopOrders.rideId, ridesTable.id))
         .innerJoin(
             dropoffStops,
@@ -349,7 +308,6 @@ const findAvailableRides = async (
                 eq(dropoffStops.stopOrder, lastStopOrders.stopOrder)
             )
         )
-        .innerJoin(dropoffCities, eq(dropoffCities.id, dropoffStops.cityId))
         .leftJoin(
             pricesTable,
             and(
@@ -373,10 +331,16 @@ const findAvailableRides = async (
 
 const searchRides = async (
     executor: Executor,
-    startCityId: string,
-    destinationCityId: string,
+    startLat: number,
+    startLng: number,
+    destLat: number,
+    destLng: number,
     travelDate: Date
 ): Promise<RideSearchResultItem[]> => {
+    const startCell = h3.latLngToCell(startLat, startLng, 7);
+    const destCell = h3.latLngToCell(destLat, destLng, 7);
+    const startH3s = h3.gridDisk(startCell, 1);
+    const destH3s = h3.gridDisk(destCell, 1);
     // Bound the day in the business time zone, not the server's local time —
     // on a UTC host setHours(0..) would shift the window 1–2h off the user's
     // calendar day and drop early/late rides. See shared/time.ts.
@@ -444,12 +408,12 @@ const searchRides = async (
             },
             pickupStop: {
                 pickupStopId: pickupStops.id,
-                city: pickupCities.name,
+                city: pickupStops.city,
                 plannedDepartureAt: pickupStops.plannedDepartureAt,
             },
             dropoffStop: {
                 dropoffStopId: dropoffStops.id,
-                city: dropoffCities.name,
+                city: dropoffStops.city,
                 plannedArrivalAt: dropoffStops.plannedArrivalAt,
             },
             priceAmount: pricesTable.amount,
@@ -461,18 +425,16 @@ const searchRides = async (
             pickupStops,
             and(
                 eq(ridesTable.id, pickupStops.rideId),
-                eq(pickupStops.cityId, startCityId)
+                inArray(pickupStops.h3Res7, startH3s)
             )
         )
-        .innerJoin(pickupCities, eq(pickupCities.id, pickupStops.cityId))
         .innerJoin(
             dropoffStops,
             and(
                 eq(ridesTable.id, dropoffStops.rideId),
-                eq(dropoffStops.cityId, destinationCityId)
+                inArray(dropoffStops.h3Res7, destH3s)
             )
         )
-        .innerJoin(dropoffCities, eq(dropoffCities.id, dropoffStops.cityId))
         .leftJoin(
             pricesTable,
             and(

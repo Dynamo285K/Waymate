@@ -94,10 +94,7 @@ export const rideStopsRelations = relations(rideStops, ({ one, many }) => ({
         fields: [rideStops.rideId],
         references: [rides.id],
     }),
-    city: one(cities, {
-        fields: [rideStops.cityId],
-        references: [cities.id],
-    }),
+
     pricesAsStartStop: many(prices, { relationName: "price_start_stop" }),
     pricesAsEndStop: many(prices, { relationName: "price_end_stop" }),
     bookingsAsPickupStop: many(bookings, {
@@ -108,9 +105,7 @@ export const rideStopsRelations = relations(rideStops, ({ one, many }) => ({
     }),
 }));
 
-export const citiesRelations = relations(cities, ({ many }) => ({
-    rideStops: many(rideStops),
-}));
+
 
 export const pricesRelations = relations(prices, ({ one }) => ({
     ride: one(rides, {

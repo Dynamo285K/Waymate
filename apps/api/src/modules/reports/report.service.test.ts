@@ -73,7 +73,7 @@ function buildRideBody(carId: string, departureAt: Date): CreateRideBody {
         stops: [
             {
                 address: "Hlavná 1",
-                cityId: TEST_CITY_IDS.bratislava,
+                city: "Bratislava", countryCode: "SK",
                 lat: 48.148,
                 lng: 17.107,
                 plannedArrivalAt: null,
@@ -81,7 +81,7 @@ function buildRideBody(carId: string, departureAt: Date): CreateRideBody {
             },
             {
                 address: "Námestie SNP 1",
-                cityId: TEST_CITY_IDS.banskaBystrica,
+                city: "Banská Bystrica", countryCode: "SK",
                 lat: 48.736,
                 lng: 19.146,
                 plannedArrivalAt: new Date(

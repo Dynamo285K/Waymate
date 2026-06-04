@@ -12,7 +12,6 @@ import {
     bookings,
     bookingStatusHistory,
     accounts,
-    cities,
     reviews,
     reviewStatusHistory,
     rideStatusHistory,
@@ -20,8 +19,8 @@ import {
 import { randomUUID } from "crypto";
 import { carCatalog } from "@repo/shared/car-catalog";
 import { auth } from "../modules/auth/auth";
-import { normalizeForSearch } from "../shared/text-normalize";
 import type { CountryCode } from "@repo/shared";
+import * as h3 from "h3-js";
 
 // Dev-only credentials. Documented here on purpose so anyone running
 // `db:seed` knows how to log in without re-deriving them.
@@ -69,61 +68,6 @@ async function main() {
         const userAId = randomUUID(); // driver A — has password (see DRIVER_EMAIL)
         const userCId = randomUUID(); // passenger C — has password (see PASSENGER_EMAIL)
 
-        // ride_stops now references cities(id), so every fixture stop has
-        // to know which city row to point at. Look them all up by their
-        // normalized name + country and fail loudly if `seed:cities` was
-        // not run first — far friendlier than a Postgres FK violation.
-        const FIXTURE_CITIES: { name: string; country: CountryCode }[] = [
-            { name: "Bratislava", country: "SK" },
-            { name: "Trnava", country: "SK" },
-            { name: "Nitra", country: "SK" },
-            { name: "Košice", country: "SK" },
-            { name: "Prešov", country: "SK" },
-            { name: "Trenčín", country: "SK" },
-            { name: "Žilina", country: "SK" },
-            { name: "Banská Bystrica", country: "SK" },
-            { name: "Poprad", country: "SK" },
-        ];
-        const normalizedFixtures = FIXTURE_CITIES.map((c) => ({
-            ...c,
-            normalized: normalizeForSearch(c.name),
-        }));
-        const cityRows = await db
-            .select({
-                id: cities.id,
-                nameNormalized: cities.nameNormalized,
-                countryCode: cities.countryCode,
-            })
-            .from(cities)
-            .where(
-                and(
-                    inArray(
-                        cities.nameNormalized,
-                        normalizedFixtures.map((c) => c.normalized)
-                    ),
-                    inArray(
-                        cities.countryCode,
-                        Array.from(
-                            new Set(normalizedFixtures.map((c) => c.country))
-                        )
-                    )
-                )
-            );
-        const cityIdByKey = new Map(
-            cityRows.map((r) => [`${r.nameNormalized}|${r.countryCode}`, r.id])
-        );
-        const cityIdFor = (name: string, country: CountryCode): string => {
-            const id = cityIdByKey.get(
-                `${normalizeForSearch(name)}|${country}`
-            );
-            if (!id) {
-                throw new Error(
-                    `Fixture city not found in DB: "${name}" (${country}). ` +
-                        `Run \`bun run --cwd apps/api seed:cities\` before \`seed\`.`
-                );
-            }
-            return id;
-        };
 
         await db.transaction(async (tx) => {
             // Users
@@ -414,7 +358,10 @@ async function main() {
                     id: randomUUID(),
                     rideId,
                     address: stop.address,
-                    cityId: cityIdFor(stop.city, "SK"),
+                    city: stop.city,
+                    countryCode: "SK",
+                    h3Res7: h3.latLngToCell(stop.lat, stop.lng, 7),
+                    h3Res8: h3.latLngToCell(stop.lat, stop.lng, 8),
                     lat: stop.lat,
                     lng: stop.lng,
                     stopOrder,

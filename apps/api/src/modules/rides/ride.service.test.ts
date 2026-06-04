@@ -83,7 +83,7 @@ function buildCreateRideBody(
         stops: overrides.stops ?? [
             {
                 address: "Hlavná 1",
-                cityId: TEST_CITY_IDS.bratislava,
+                city: "Bratislava", countryCode: "SK",
                 lat: 48.148,
                 lng: 17.107,
                 plannedArrivalAt: null,
@@ -91,7 +91,7 @@ function buildCreateRideBody(
             },
             {
                 address: "Námestie SNP 1",
-                cityId: TEST_CITY_IDS.banskaBystrica,
+                city: "Banská Bystrica", countryCode: "SK",
                 lat: 48.736,
                 lng: 19.146,
                 plannedArrivalAt: new Date(
@@ -172,7 +172,7 @@ describe("RideService.createRide", () => {
                 stops: [
                     {
                         address: "Hlavná 1",
-                        cityId: TEST_CITY_IDS.bratislava,
+                        city: "Bratislava", countryCode: "SK",
                         lat: 48.148,
                         lng: 17.107,
                         plannedArrivalAt: null,
@@ -180,7 +180,7 @@ describe("RideService.createRide", () => {
                     },
                     {
                         address: "Námestie SNP 1",
-                        cityId: TEST_CITY_IDS.banskaBystrica,
+                        city: "Banská Bystrica", countryCode: "SK",
                         lat: 48.736,
                         lng: 19.146,
                         plannedArrivalAt,
@@ -297,42 +297,7 @@ describe("RideService.createRide", () => {
         expect(leftover).toEqual([]);
     });
 
-    it("throws UnknownCity when a stop references a city outside the catalog", async () => {
-        const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
-        const departureAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-        await expect(
-            RideService.createRide(
-                driver.id,
-                buildCreateRideBody(car.id, {
-                    departureAt,
-                    stops: [
-                        {
-                            address: "Hlavná 1",
-                            cityId: crypto.randomUUID(),
-                            lat: 48.148,
-                            lng: 17.107,
-                            plannedArrivalAt: null,
-                            plannedDepartureAt: departureAt,
-                        },
-                        {
-                            address: "Námestie SNP 1",
-                            cityId: TEST_CITY_IDS.banskaBystrica,
-                            lat: 48.736,
-                            lng: 19.146,
-                            plannedArrivalAt: new Date(
-                                departureAt.getTime() + 2 * 60 * 60 * 1000
-                            ),
-                            plannedDepartureAt: null,
-                        },
-                    ],
-                })
-            )
-        ).rejects.toMatchObject({
-            code: RideErrorCodes.UnknownCity,
-        });
-    });
 });
 
 describe("RideService.createRide — arrival from duration", () => {
@@ -375,13 +340,13 @@ describe("CreateRideBodySchema — arrival input", () => {
         currency: "EUR",
         stops: [
             {
-                cityId: TEST_CITY_IDS.bratislava,
+                city: "Bratislava", countryCode: "SK",
                 address: "Hlavná 1",
                 lat: 48.148,
                 lng: 17.107,
             },
             {
-                cityId: TEST_CITY_IDS.banskaBystrica,
+                city: "Banská Bystrica", countryCode: "SK",
                 address: "Námestie SNP 1",
                 lat: 48.736,
                 lng: 19.146,

@@ -35,6 +35,7 @@
         "dotenv": "^17.4.2",
         "drizzle-orm": "^0.45.2",
         "elysia": "^1.0.0",
+        "h3-js": "^4.4.0",
         "pino": "^10.3.1",
       },
       "devDependencies": {
@@ -106,6 +107,7 @@
     "packages/shared": {
       "name": "@repo/shared",
       "dependencies": {
+        "h3-js": "^4.4.0",
         "zod": "^4.3.6",
       },
       "devDependencies": {
@@ -1069,6 +1071,8 @@
     "gopd": ["gopd@1.2.0", "", {}, "sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg=="],
 
     "graceful-fs": ["graceful-fs@4.2.11", "", {}, "sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ=="],
+
+    "h3-js": ["h3-js@4.4.0", "", {}, "sha512-DvJh07MhGgY2KcC4OeZc8SSyA+ZXpdvoh6uCzGpoKvWtZxJB+g6VXXC1+eWYkaMIsLz7J/ErhOalHCpcs1KYog=="],
 
     "has-bigints": ["has-bigints@1.1.0", "", {}, "sha512-R3pbpkcIqv2Pm3dUwgjclDRVmWpTJW2DcMzcIhEXEx1oh/CEMObMm3KLmRJOdvhM7o4uQBnwr8pzRK2sJWIqfg=="],
 

@@ -61,7 +61,7 @@ function buildCreateRideBody(
         stops: overrides.stops ?? [
             {
                 address: "Hlavná 1",
-                cityId: TEST_CITY_IDS.bratislava,
+                city: "Bratislava", countryCode: "SK",
                 lat: 48.148,
                 lng: 17.107,
                 plannedArrivalAt: null,
@@ -69,7 +69,7 @@ function buildCreateRideBody(
             },
             {
                 address: "Námestie SNP 1",
-                cityId: TEST_CITY_IDS.banskaBystrica,
+                city: "Banská Bystrica", countryCode: "SK",
                 lat: 48.736,
                 lng: 19.146,
                 plannedArrivalAt: new Date(
@@ -111,7 +111,7 @@ describe("RideRoutes public endpoints", () => {
             .toISOString()
             .slice(0, 10);
         const response = await apiRequest(
-            `/rides/search?startCityId=${TEST_CITY_IDS.bratislava}&destinationCityId=${TEST_CITY_IDS.banskaBystrica}&travelDate=${travelDate}`
+            `/rides/search?startLat=48.148&startLng=17.107&destLat=48.736&destLng=19.146&travelDate=${travelDate}`
         );
 
         expect(response.status).toBe(200);
@@ -120,7 +120,7 @@ describe("RideRoutes public endpoints", () => {
 
     it("returns VALIDATION for GET /rides/search with invalid city ids", async () => {
         const response = await apiRequest(
-            "/rides/search?startCityId=not-a-uuid&destinationCityId=also-not-a-uuid&travelDate=2026-01-01"
+            "/rides/search?startLat=not-a-number&startLng=not-a-number&destLat=also-not-a-number&destLng=also-not-a-number&travelDate=2026-01-01"
         );
 
         expect(response.status).toBe(400);

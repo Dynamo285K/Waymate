@@ -117,7 +117,8 @@ export type CreateRideInput = Pick<
     | "description"
 > & {
     stops: Array<{
-        cityId: string;
+        city: string;
+        countryCode: string;
         address: string;
         lat: number;
         lng: number;
