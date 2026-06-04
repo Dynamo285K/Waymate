@@ -359,7 +359,7 @@ async function main() {
                     rideId,
                     address: stop.address,
                     city: stop.city,
-                    countryCode: "SK",
+                    countryCode: "SK" as CountryCode,
                     h3Res7: h3.latLngToCell(stop.lat, stop.lng, 7),
                     h3Res8: h3.latLngToCell(stop.lat, stop.lng, 8),
                     lat: stop.lat,

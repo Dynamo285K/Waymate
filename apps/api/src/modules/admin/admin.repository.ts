@@ -33,6 +33,7 @@ import type {
     ReviewStatus,
     RideStatus,
     UserStatus,
+    CountryCode,
 } from "@repo/shared";
 import type { Executor } from "../../db";
 import { users as usersTable } from "../../db/schema/user";

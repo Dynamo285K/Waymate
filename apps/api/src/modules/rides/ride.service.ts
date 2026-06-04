@@ -3,7 +3,7 @@ import { RideRepository } from "./ride.repository";
 import { RideError, RideErrorCodes } from "./ride.errors";
 import { REVIEW_WINDOW_DAYS } from "../reviews/review.service";
 import * as h3 from "h3-js";
-import type { CreateRideBody, SearchRidesQuery } from "@repo/shared";
+import type { CreateRideBody, SearchRidesQuery, CountryCode } from "@repo/shared";
 import type {
     CreateRideInput,
     EndRideInput,
@@ -135,7 +135,7 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
             stopOrder: index,
             address: stop.address,
             city: stop.city,
-            countryCode: stop.countryCode,
+            countryCode: stop.countryCode as CountryCode,
             h3Res7: h3.latLngToCell(stop.lat, stop.lng, 7),
             h3Res8: h3.latLngToCell(stop.lat, stop.lng, 8),
             lat: stop.lat,

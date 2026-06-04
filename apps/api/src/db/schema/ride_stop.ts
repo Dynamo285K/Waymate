@@ -12,6 +12,7 @@ import { sql } from "drizzle-orm";
 import { rides } from "./ride";
 import { cities } from "./city";
 import { timestamptz } from "./timestamps";
+import type { CountryCode } from "@repo/shared";
 
 export const rideStops = pgTable(
     "ride_stops",
@@ -22,7 +23,7 @@ export const rideStops = pgTable(
             .references(() => rides.id),
         address: text("address").notNull(),
         city: text("city").notNull(),
-        countryCode: text("country_code").notNull(),
+        countryCode: text("country_code").$type<CountryCode>().notNull(),
         h3Res7: text("h3_res7").notNull(),
         h3Res8: text("h3_res8").notNull(),
         lat: doublePrecision("lat").notNull(),
