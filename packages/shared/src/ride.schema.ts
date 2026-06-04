@@ -85,11 +85,9 @@ export const CreateRideBodySchema = z
         stops: z
             .array(
                 z.object({
-                    // Reference to a row in the cities catalog. API responses
-                    // resolve cityId to display fields through joins; the client
-                    // no longer chooses city/country text directly.
-                    cityId: CityIdSchema,
                     address: z.string().min(1).max(255),
+                    city: z.string().min(1).max(100),
+                    countryCode: CountryCodeSchema,
                     lat: z.number().min(-90).max(90),
                     lng: z.number().min(-180).max(180),
                     plannedArrivalAt: z.coerce.date().nullable().optional(),
@@ -147,8 +145,10 @@ export const CreateRideBodySchema = z
     );
 
 export const SearchRidesQuerySchema = z.object({
-    startCityId: CityIdSchema,
-    destinationCityId: CityIdSchema,
+    startLat: z.coerce.number().min(-90).max(90),
+    startLng: z.coerce.number().min(-180).max(180),
+    destLat: z.coerce.number().min(-90).max(90),
+    destLng: z.coerce.number().min(-180).max(180),
     travelDate: z.coerce.date(),
 });
 

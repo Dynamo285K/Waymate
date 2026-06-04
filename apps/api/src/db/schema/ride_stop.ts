@@ -21,12 +21,10 @@ export const rideStops = pgTable(
             .notNull()
             .references(() => rides.id),
         address: text("address").notNull(),
-        cityId: uuid("city_id")
-            .references(() => cities.id),
-        city: text("city").default("").notNull(),
-        countryCode: text("country_code").default("").notNull(),
-        h3Res7: text("h3_res7").default("").notNull(),
-        h3Res8: text("h3_res8").default("").notNull(),
+        city: text("city").notNull(),
+        countryCode: text("country_code").notNull(),
+        h3Res7: text("h3_res7").notNull(),
+        h3Res8: text("h3_res8").notNull(),
         lat: doublePrecision("lat").notNull(),
         lng: doublePrecision("lng").notNull(),
         stopOrder: integer("stop_order").notNull(),
@@ -40,7 +38,6 @@ export const rideStops = pgTable(
             table.rideId,
             table.stopOrder
         ),
-        index("ride_stops_city_id_idx").on(table.cityId),
         index("ride_stops_lat_idx").on(table.lat),
         index("ride_stops_lng_idx").on(table.lng),
         index("ride_stops_h3_res7_idx").on(table.h3Res7),

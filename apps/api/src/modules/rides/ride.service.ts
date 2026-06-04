@@ -2,7 +2,7 @@ import { db } from "../../db";
 import { RideRepository } from "./ride.repository";
 import { RideError, RideErrorCodes } from "./ride.errors";
 import { REVIEW_WINDOW_DAYS } from "../reviews/review.service";
-import { CityService } from "../cities/city.service";
+import * as h3 from "h3-js";
 import type { CreateRideBody, SearchRidesQuery } from "@repo/shared";
 import type {
     CreateRideInput,
@@ -78,14 +78,12 @@ const getRidePassengers = async (
 };
 
 const searchRides = async (query: SearchRidesQuery) => {
-    // No pre-validation of cityIds — if either is bogus, the repository
-    // JOIN returns no rows and the caller sees an empty list. That is the
-    // same UX as "valid ids but no rides scheduled today", and saves a
-    // round-trip on the happy path.
     return await RideRepository.searchRides(
         db,
-        query.startCityId,
-        query.destinationCityId,
+        query.startLat,
+        query.startLng,
+        query.destLat,
+        query.destLng,
         query.travelDate
     );
 };
@@ -101,17 +99,6 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
         rideStatus: "PLANNED",
     };
     const autoEndAt = computeAutoEndAt(input);
-
-    // Verify every requested cityId exists before opening the
-    // transaction. Catches bogus ids with RIDE_UNKNOWN_CITY (400)
-    // instead of letting Postgres raise an FK violation mid-insert.
-    const requestedCityIds = Array.from(
-        new Set(input.stops.map((s) => s.cityId))
-    );
-    const cityRows = await CityService.getCitiesByIds(requestedCityIds);
-    if (cityRows.length !== requestedCityIds.length) {
-        throw new RideError(RideErrorCodes.UnknownCity);
-    }
 
     return await db.transaction(async (tx) => {
         const car = await RideRepository.findActiveCarForDriver(
@@ -147,9 +134,10 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
             rideId: newRide.id,
             stopOrder: index,
             address: stop.address,
-            // FK to the cities catalog; city name + country are read via
-            // JOIN at query time, not duplicated onto ride_stops.
-            cityId: stop.cityId,
+            city: stop.city,
+            countryCode: stop.countryCode,
+            h3Res7: h3.latLngToCell(stop.lat, stop.lng, 7),
+            h3Res8: h3.latLngToCell(stop.lat, stop.lng, 8),
             lat: stop.lat,
             lng: stop.lng,
             plannedArrivalAt: stop.plannedArrivalAt,
