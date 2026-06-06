@@ -164,11 +164,13 @@ export const RideSearchResultItemSchema = z.object({
         pickupStopId: RideStopIdSchema,
         city: z.string(),
         plannedDepartureAt: z.date().nullable(),
+        distanceKm: z.number().optional(),
     }),
     dropoffStop: z.object({
         dropoffStopId: RideStopIdSchema,
         city: z.string(),
         plannedArrivalAt: z.date().nullable(),
+        distanceKm: z.number().optional(),
     }),
     priceAmount: z.number().nullable(),
     currency: CurrencySchema,

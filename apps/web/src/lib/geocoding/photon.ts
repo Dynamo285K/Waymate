@@ -106,7 +106,7 @@ export async function fetchPhotonLocations(
         const hasDigits = /\d/.test(query);
 
         features = features.filter(f => {
-            const { osm_key, osm_value, name, street, housenumber, type } = f.properties;
+            const { osm_key, osm_value, name, street, housenumber } = f.properties;
 
             // 1. Block "invisible" objects
             if (!name && !street) return false;
@@ -144,7 +144,10 @@ export async function fetchPhotonLocations(
             if (!f.properties.countrycode && !f.properties.city && !f.properties.state) continue;
 
             const countryCode = (f.properties.countrycode?.toUpperCase() || "SK") as CountryCode;
-            const city = f.properties.city || f.properties.town || f.properties.village || f.properties.state || f.properties.name || "";
+            const isCityNode = f.properties.osm_key === "place" && ["city", "town", "village", "suburb"].includes(f.properties.osm_value || "");
+            const city = isCityNode 
+                ? (f.properties.name || "") 
+                : (f.properties.city || f.properties.town || f.properties.village || f.properties.state || f.properties.name || "");
 
             let address = f.properties.name || city;
             if (f.properties.street) {

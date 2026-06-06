@@ -339,13 +339,39 @@ const searchRides = async (
 ): Promise<RideSearchResultItem[]> => {
     const startCell = h3.latLngToCell(startLat, startLng, 7);
     const destCell = h3.latLngToCell(destLat, destLng, 7);
-    const startH3s = h3.gridDisk(startCell, 1);
-    const destH3s = h3.gridDisk(destCell, 1);
+    const startH3s = h3.gridDisk(startCell, 20); // Approx. 25-30 km radius
+    const destH3s = h3.gridDisk(destCell, 20);
     // Bound the day in the business time zone, not the server's local time —
     // on a UTC host setHours(0..) would shift the window 1–2h off the user's
     // calendar day and drop early/late rides. See shared/time.ts.
     const { start: startOfDay, end: endOfDay } =
         dayBoundsInTimeZone(travelDate);
+
+    // Haversine formula (6371 = Earth radius in km). least(1.0) prevents NaN on rounding errors.
+    const pickupDistanceSql = sql<number>`(
+        6371 * acos(
+            least(1.0, cos(radians(${startLat})) * cos(radians(${pickupStops.lat})) * cos(radians(${pickupStops.lng}) - radians(${startLng})) +
+            sin(radians(${startLat})) * sin(radians(${pickupStops.lat})))
+        )
+    )::numeric`;
+
+    const dropoffDistanceSql = sql<number>`(
+        6371 * acos(
+            least(1.0, cos(radians(${destLat})) * cos(radians(${dropoffStops.lat})) * cos(radians(${dropoffStops.lng}) - radians(${destLng})) +
+            sin(radians(${destLat})) * sin(radians(${dropoffStops.lat})))
+        )
+    )::numeric`;
+
+    // We take the larger distance (pickup vs dropoff) to determine the sorting zone
+    const maxDistanceSql = sql<number>`GREATEST(${pickupDistanceSql}, ${dropoffDistanceSql})`;
+    const distanceZoneSql = sql<number>`
+        CASE 
+            WHEN ${maxDistanceSql} <= 5 THEN 1
+            WHEN ${maxDistanceSql} <= 15 THEN 2
+            WHEN ${maxDistanceSql} <= 30 THEN 3
+            ELSE 4
+        END
+    `;
 
     const driverRatings = executor
         .select({
@@ -410,11 +436,13 @@ const searchRides = async (
                 pickupStopId: pickupStops.id,
                 city: pickupStops.city,
                 plannedDepartureAt: pickupStops.plannedDepartureAt,
+                distanceKm: sql<number>`ROUND(${pickupDistanceSql}, 1)::float`,
             },
             dropoffStop: {
                 dropoffStopId: dropoffStops.id,
                 city: dropoffStops.city,
                 plannedArrivalAt: dropoffStops.plannedArrivalAt,
+                distanceKm: sql<number>`ROUND(${dropoffDistanceSql}, 1)::float`,
             },
             priceAmount: pricesTable.amount,
         })
@@ -455,7 +483,7 @@ const searchRides = async (
                 lt(ridesTable.departureAt, endOfDay)
             )
         )
-        .orderBy(asc(ridesTable.departureAt));
+        .orderBy(asc(distanceZoneSql), asc(ridesTable.departureAt));
 
     return result as RideSearchResultItem[];
 };
