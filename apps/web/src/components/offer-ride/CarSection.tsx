@@ -31,9 +31,20 @@ export type CarSectionProps = {
     modelLoading: boolean;
 };
 
-// Car picker. The saved-car list + mode + selection are session state owned by
-// the page (useDriverCars); the manual brand/model/plate are RHF fields read
-// from form context, including the "changing brand clears the model" rule.
+const selectTrigger =
+    "w-full flex items-center justify-between gap-2 py-3 px-4 rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) text-sm font-medium cursor-pointer transition-[border-color] duration-150 outline-none hover:border-(--color-primary) focus-visible:border-(--color-primary) data-[disabled]:cursor-not-allowed data-[disabled]:opacity-60 [&[data-placeholder]>span:first-child]:text-(--color-text-secondary)";
+
+const selectContent =
+    "w-(--radix-select-trigger-width) overflow-hidden rounded-xl border border-(--color-border) bg-(--color-card) p-1 shadow-[0_8px_24px_rgba(0,0,0,0.12)] z-[1000]";
+
+const selectViewport =
+    "max-h-[min(320px,var(--radix-select-content-available-height))] overflow-y-auto overscroll-contain";
+
+const selectItem =
+    "w-full py-2 px-3 rounded-lg bg-transparent text-(--color-text-primary) text-sm font-medium cursor-pointer transition-[background] duration-100 outline-none select-none flex items-center hover:bg-(--color-bg) data-[highlighted]:bg-(--color-bg) data-[highlighted]:outline-none data-[state=checked]:bg-[color-mix(in_srgb,var(--color-primary)_10%,transparent)] data-[state=checked]:text-(--color-primary)";
+
+const selectIcon = "text-(--color-text-secondary) inline-flex items-center shrink-0";
+
 export function CarSection({
     savedCars,
     carMode,
@@ -59,7 +70,6 @@ export function CarSection({
 
     const handleBrandChange = (value: string) => {
         setValue("manualBrand", value, { shouldValidate: isSubmitted });
-        // A new brand invalidates the previously chosen model.
         setValue("manualModel", "", { shouldValidate: isSubmitted });
         clearErrors(["manualBrand", "manualModel"]);
     };
@@ -97,8 +107,8 @@ export function CarSection({
             }
         >
             {hasSavedCars && carMode === "saved" ? (
-                <div className="offer-ride-form__car-saved">
-                    <div className="offer-ride-form__field">
+                <div className="flex flex-col gap-5">
+                    <div className="flex flex-col gap-2.5">
                         <FieldLabel
                             label={t("offerRide.chooseCar")}
                             icon={<CarIcon />}
@@ -107,26 +117,26 @@ export function CarSection({
                             value={selectedCarId || undefined}
                             onValueChange={onSelectedCarChange}
                         >
-                            <Select.Trigger className="offer-ride-form__select-trigger">
+                            <Select.Trigger className={selectTrigger}>
                                 <Select.Value
                                     placeholder={t("offerRide.chooseCar")}
                                 />
-                                <Select.Icon className="offer-ride-form__select-icon">
+                                <Select.Icon className={selectIcon}>
                                     <ChevronDownIcon />
                                 </Select.Icon>
                             </Select.Trigger>
                             <Select.Portal>
                                 <Select.Content
-                                    className="offer-ride-form__select-content"
+                                    className={selectContent}
                                     position="popper"
                                     sideOffset={8}
                                 >
-                                    <Select.Viewport>
+                                    <Select.Viewport className={selectViewport}>
                                         {savedCars.map((car) => (
                                             <Select.Item
                                                 key={car.id}
                                                 value={car.id}
-                                                className="offer-ride-form__select-item"
+                                                className={selectItem}
                                             >
                                                 <Select.ItemText>
                                                     {car.brand} {car.model} –{" "}
@@ -139,42 +149,42 @@ export function CarSection({
                             </Select.Portal>
                         </Select.Root>
                     </div>
-                    <div className="offer-ride-form__grid offer-ride-form__grid--two-columns">
-                        <div className="offer-ride-form__car-info">
-                            <p className="offer-ride-form__car-info-label">
+                    <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
+                        <div className="py-3 px-4 rounded-xl border border-(--color-border) bg-(--color-bg)">
+                            <p className="m-0 text-[11px] font-bold uppercase tracking-[0.06em] text-(--color-text-secondary)">
                                 {t("offerRide.carBrand")}
                             </p>
-                            <p className="offer-ride-form__car-info-value">
+                            <p className="mt-1 text-sm font-semibold text-(--color-text-primary)">
                                 {selectedCar?.brand ?? "—"}
                             </p>
                         </div>
-                        <div className="offer-ride-form__car-info">
-                            <p className="offer-ride-form__car-info-label">
+                        <div className="py-3 px-4 rounded-xl border border-(--color-border) bg-(--color-bg)">
+                            <p className="m-0 text-[11px] font-bold uppercase tracking-[0.06em] text-(--color-text-secondary)">
                                 {t("offerRide.carModel")}
                             </p>
-                            <p className="offer-ride-form__car-info-value">
+                            <p className="mt-1 text-sm font-semibold text-(--color-text-primary)">
                                 {selectedCar?.model ?? "—"}
                             </p>
                         </div>
-                        <div className="offer-ride-form__car-info offer-ride-form__car-info--full">
-                            <p className="offer-ride-form__car-info-label">
+                        <div className="col-span-full py-3 px-4 rounded-xl border border-(--color-border) bg-(--color-bg) max-md:col-span-1">
+                            <p className="m-0 text-[11px] font-bold uppercase tracking-[0.06em] text-(--color-text-secondary)">
                                 {t("offerRide.licensePlate")}
                             </p>
-                            <p className="offer-ride-form__car-info-value">
+                            <p className="mt-1 text-sm font-semibold text-(--color-text-primary)">
                                 {selectedCar?.plate ?? "—"}
                             </p>
                         </div>
                     </div>
                 </div>
             ) : (
-                <div className="offer-ride-form__car-manual">
+                <div className="flex flex-col gap-5">
                     {!hasSavedCars && (
-                        <p className="offer-ride-form__no-cars">
+                        <p className="m-0 py-3 px-4 rounded-xl border border-(--color-warning-border) bg-(--color-warning-bg) text-sm text-(--color-warning-text)">
                             {t("offerRide.noCars")}
                         </p>
                     )}
-                    <div className="offer-ride-form__grid offer-ride-form__grid--two-columns">
-                        <div className="offer-ride-form__field">
+                    <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
+                        <div className="flex flex-col gap-2.5">
                             <FieldLabel
                                 label={t("offerRide.carBrand")}
                                 icon={<CarIcon />}
@@ -184,7 +194,7 @@ export function CarSection({
                                 onValueChange={handleBrandChange}
                                 disabled={brandLoading}
                             >
-                                <Select.Trigger className="offer-ride-form__select-trigger">
+                                <Select.Trigger className={selectTrigger}>
                                     <Select.Value
                                         placeholder={
                                             brandLoading
@@ -194,22 +204,22 @@ export function CarSection({
                                                 : t("offerRide.selectCarBrand")
                                         }
                                     />
-                                    <Select.Icon className="offer-ride-form__select-icon">
+                                    <Select.Icon className={selectIcon}>
                                         <ChevronDownIcon />
                                     </Select.Icon>
                                 </Select.Trigger>
                                 <Select.Portal>
                                     <Select.Content
-                                        className="offer-ride-form__select-content"
+                                        className={selectContent}
                                         position="popper"
                                         sideOffset={8}
                                     >
-                                        <Select.Viewport className="offer-ride-form__select-viewport">
+                                        <Select.Viewport className={selectViewport}>
                                             {brandOptions.map((brand) => (
                                                 <Select.Item
                                                     key={brand}
                                                     value={brand}
-                                                    className="offer-ride-form__select-item"
+                                                    className={selectItem}
                                                 >
                                                     <Select.ItemText>
                                                         {brand}
@@ -221,19 +231,19 @@ export function CarSection({
                                 </Select.Portal>
                             </Select.Root>
                             {errors.manualBrand?.message && (
-                                <p className="offer-ride-form__field-error">
+                                <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
                                     {t(errors.manualBrand.message)}
                                 </p>
                             )}
                         </div>
-                        <div className="offer-ride-form__field">
+                        <div className="flex flex-col gap-2.5">
                             <FieldLabel label={t("offerRide.carModel")} />
                             <Select.Root
                                 value={manualModel || undefined}
                                 onValueChange={handleModelChange}
                                 disabled={modelLoading || !manualBrand}
                             >
-                                <Select.Trigger className="offer-ride-form__select-trigger">
+                                <Select.Trigger className={selectTrigger}>
                                     <Select.Value
                                         placeholder={
                                             modelLoading
@@ -243,22 +253,22 @@ export function CarSection({
                                                 : t("offerRide.selectCarModel")
                                         }
                                     />
-                                    <Select.Icon className="offer-ride-form__select-icon">
+                                    <Select.Icon className={selectIcon}>
                                         <ChevronDownIcon />
                                     </Select.Icon>
                                 </Select.Trigger>
-                                <Select.Portal>
+<Select.Portal>
                                     <Select.Content
-                                        className="offer-ride-form__select-content"
+                                        className={selectContent}
                                         position="popper"
                                         sideOffset={8}
                                     >
-                                        <Select.Viewport className="offer-ride-form__select-viewport">
+                                        <Select.Viewport className={selectViewport}>
                                             {modelOptions.map((model) => (
                                                 <Select.Item
                                                     key={model}
                                                     value={model}
-                                                    className="offer-ride-form__select-item"
+                                                    className={selectItem}
                                                 >
                                                     <Select.ItemText>
                                                         {model}
@@ -270,12 +280,12 @@ export function CarSection({
                                 </Select.Portal>
                             </Select.Root>
                             {errors.manualModel?.message && (
-                                <p className="offer-ride-form__field-error">
+                                <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
                                     {t(errors.manualModel.message)}
                                 </p>
                             )}
                         </div>
-                        <div className="offer-ride-form__field offer-ride-form__field--full">
+                        <div className="col-span-full flex flex-col gap-2.5 max-md:col-span-1">
                             <FieldLabel label={t("offerRide.licensePlate")} />
                             <Input
                                 value={manualPlate}
@@ -285,7 +295,7 @@ export function CarSection({
                                 placeholder={t("offerRide.platePlaceholder")}
                             />
                             {errors.manualPlate?.message && (
-                                <p className="offer-ride-form__field-error">
+                                <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
                                     {t(errors.manualPlate.message, {
                                         min: PLATE_MIN_LENGTH,
                                         max: PLATE_MAX_LENGTH,

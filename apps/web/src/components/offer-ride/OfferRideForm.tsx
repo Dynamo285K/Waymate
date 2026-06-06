@@ -5,14 +5,10 @@ import { RouteSection } from "./RouteSection";
 import { ScheduleSection } from "./ScheduleSection";
 import { SeatsPriceSection } from "./SeatsPriceSection";
 import { CarSection, type CarSectionProps } from "./CarSection";
-import "../OfferRideForm.css";
 
 export type { OfferRideCar } from "./CarSection";
 
 type OfferRideFormProps = {
-    // Car-picker state lives in the page (useDriverCars); the rest of the form
-    // reads/writes RHF state through context, so this component must be
-    // rendered inside a FormProvider.
     car: CarSectionProps;
     dateLocale?: Locale;
     today?: Date;
@@ -30,17 +26,17 @@ export function OfferRideForm({
     const { t } = useTranslation();
 
     return (
-        <div className="offer-ride-form">
-            <div className="offer-ride-form__header">
-                <h1 className="offer-ride-form__title">
+        <div className="w-full max-w-[740px] mx-auto flex flex-col gap-8">
+            <div className="flex flex-col items-center gap-3 text-center">
+                <h1 className="m-0 text-[32px] font-bold text-(--color-text-primary) leading-10">
                     {t("offerRide.title")}
                 </h1>
-                <p className="offer-ride-form__subtitle">
+                <p className="m-0 text-base text-(--color-text-secondary) leading-6">
                     {t("offerRide.subtitle")}
                 </p>
             </div>
 
-            <div className="offer-ride-form__sections">
+            <div className="flex flex-col gap-6">
                 <RouteSection />
                 <ScheduleSection
                     dateLocale={dateLocale}
@@ -51,12 +47,15 @@ export function OfferRideForm({
             </div>
 
             {publishedMessage && (
-                <p className="offer-ride-form__published">{publishedMessage}</p>
+                <p className="m-0 py-3 px-4 rounded-xl border border-(--color-success-border) bg-(--color-success-bg) text-sm font-semibold text-(--color-success-text)">
+                    {publishedMessage}
+                </p>
             )}
 
-            <div className="offer-ride-form__actions">
+            <div className="w-full">
                 <Button
                     fullWidth
+                    className="min-h-16 text-lg! font-bold! rounded-xl!"
                     onClick={onPublishClick}
                 >
                     {t("offerRide.publish")}

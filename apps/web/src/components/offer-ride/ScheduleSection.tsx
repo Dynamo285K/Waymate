@@ -27,14 +27,11 @@ function clampDurationInput(value: string, max: number): string {
 }
 
 type ScheduleSectionProps = {
-    // Presentational config the form can't derive from RHF state.
     dateLocale?: Locale;
     today?: Date;
     timeOptions?: string[];
 };
 
-// Date, time and trip duration. All three are RHF fields; only the date
-// picker's locale/today and the time option list are passed as config.
 export function ScheduleSection({
     dateLocale,
     today,
@@ -48,8 +45,8 @@ export function ScheduleSection({
 
     return (
         <FormSectionCard title={t("offerRide.dateTime")}>
-            <div className="offer-ride-form__grid offer-ride-form__grid--three-columns">
-                <div className="offer-ride-form__field">
+            <div className="grid grid-cols-3 gap-5 max-md:grid-cols-1">
+                <div className="flex flex-col gap-2.5">
                     <FieldLabel
                         label={t("offerRide.date")}
                         icon={<CalendarIcon />}
@@ -66,12 +63,12 @@ export function ScheduleSection({
                         disablePastDates
                     />
                     {errors.rideDate?.message && (
-                        <p className="offer-ride-form__field-error">
+                        <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
                             {t(errors.rideDate.message)}
                         </p>
                     )}
                 </div>
-                <div className="offer-ride-form__field">
+                <div className="flex flex-col gap-2.5">
                     <FieldLabel
                         label={t("offerRide.time")}
                         icon={<ClockIcon />}
@@ -85,16 +82,16 @@ export function ScheduleSection({
                         }
                     >
                         <Select.Trigger
-                            className={`offer-ride-form__time-trigger${!time ? " offer-ride-form__time-trigger--placeholder" : ""}`}
+                            className={`w-full flex items-center justify-between gap-2 py-3 px-4 rounded-xl border border-(--color-border) bg-(--color-input-bg) text-sm font-medium cursor-pointer transition-[border-color] duration-150 outline-none hover:border-(--color-primary) focus-visible:border-(--color-primary) [&_svg]:text-(--color-text-secondary) [&_svg]:shrink-0 ${!time ? "text-(--color-text-secondary)" : "text-(--color-text-primary)"}`}
                         >
                             <Select.Value placeholder="--:--" />
-                            <Select.Icon className="offer-ride-form__select-icon">
+                            <Select.Icon className="inline-flex items-center">
                                 <ClockIcon />
                             </Select.Icon>
                         </Select.Trigger>
                         <Select.Portal>
                             <Select.Content
-                                className="offer-ride-form__time-dropdown"
+                                className="w-(--radix-select-trigger-width) max-h-64 overflow-y-auto rounded-xl border border-(--color-border) bg-(--color-card) p-1 shadow-[0_8px_24px_rgba(0,0,0,0.12)] z-[200]"
                                 position="popper"
                                 sideOffset={8}
                             >
@@ -103,7 +100,7 @@ export function ScheduleSection({
                                         <Select.Item
                                             key={option}
                                             value={option}
-                                            className={`offer-ride-form__time-option${time === option ? " offer-ride-form__time-option--active" : ""}`}
+                                            className="w-full py-2 px-3 rounded-lg border-0 bg-transparent text-(--color-text-primary) text-sm font-semibold text-left cursor-pointer transition-[background] duration-100 outline-none select-none flex items-center hover:bg-(--color-bg) data-[highlighted]:bg-(--color-bg) data-[highlighted]:outline-none data-[state=checked]:bg-[color-mix(in_srgb,var(--color-primary)_10%,transparent)] data-[state=checked]:text-(--color-primary)"
                                         >
                                             <Select.ItemText>
                                                 {option}
@@ -115,26 +112,20 @@ export function ScheduleSection({
                         </Select.Portal>
                     </Select.Root>
                     {errors.rideTime?.message && (
-                        <p className="offer-ride-form__field-error">
+                        <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
                             {t(errors.rideTime.message)}
                         </p>
                     )}
                 </div>
                 <div
-                    className="offer-ride-form__field"
+                    className="flex flex-col gap-2.5"
                     data-testid="offer-duration"
                 >
                     <FieldLabel
                         label={t("offerRide.duration")}
                         icon={<ClockIcon />}
                     />
-                    <div
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 8,
-                        }}
-                    >
+                    <div className="flex items-center gap-2">
                         <Input
                             type="number"
                             value={watch("durationHours")}
@@ -148,13 +139,7 @@ export function ScheduleSection({
                             placeholder=""
                             style={{ width: "100%" }}
                         />
-                        <span
-                            style={{
-                                whiteSpace: "nowrap",
-                                color: "var(--color-text-secondary)",
-                                fontSize: 14,
-                            }}
-                        >
+                        <span className="whitespace-nowrap text-(--color-text-secondary) text-sm">
                             h
                         </span>
                         <Input
@@ -170,18 +155,12 @@ export function ScheduleSection({
                             placeholder=""
                             style={{ width: "100%" }}
                         />
-                        <span
-                            style={{
-                                whiteSpace: "nowrap",
-                                color: "var(--color-text-secondary)",
-                                fontSize: 14,
-                            }}
-                        >
+                        <span className="whitespace-nowrap text-(--color-text-secondary) text-sm">
                             min
                         </span>
                     </div>
                     {errors.durationHours?.message && (
-                        <p className="offer-ride-form__field-error">
+                        <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
                             {t(errors.durationHours.message)}
                         </p>
                     )}

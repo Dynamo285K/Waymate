@@ -10,13 +10,11 @@ import {
 import { isIntegerInput } from "../../lib/offer-ride";
 import type { OfferRideFormInput } from "./schema";
 
-// Available seats + price per seat. Both are digit-only RHF string fields.
 export function SeatsPriceSection() {
     const { t } = useTranslation();
     const { watch, setValue, formState } = useFormContext<OfferRideFormInput>();
     const { errors, isSubmitted } = formState;
 
-    // Mirror the previous guard: ignore keystrokes that aren't all digits.
     const setDigits = (field: "seats" | "price", value: string) => {
         if (isIntegerInput(value)) {
             setValue(field, value, { shouldValidate: isSubmitted });
@@ -25,9 +23,9 @@ export function SeatsPriceSection() {
 
     return (
         <FormSectionCard title={t("offerRide.seatsPrice")}>
-            <div className="offer-ride-form__grid offer-ride-form__grid--two-columns">
+            <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
                 <div
-                    className="offer-ride-form__field"
+                    className="flex flex-col gap-2.5"
                     data-testid="offer-seats"
                 >
                     <FieldLabel
@@ -41,13 +39,13 @@ export function SeatsPriceSection() {
                         placeholder={t("offerRide.seatsPlaceholder")}
                     />
                     {errors.seats?.message && (
-                        <p className="offer-ride-form__field-error">
+                        <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
                             {t(errors.seats.message)}
                         </p>
                     )}
                 </div>
                 <div
-                    className="offer-ride-form__field"
+                    className="flex flex-col gap-2.5"
                     data-testid="offer-price"
                 >
                     <FieldLabel
@@ -61,7 +59,7 @@ export function SeatsPriceSection() {
                         placeholder={t("offerRide.pricePlaceholder")}
                     />
                     {errors.price?.message && (
-                        <p className="offer-ride-form__field-error">
+                        <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
                             {t(errors.price.message)}
                         </p>
                     )}
