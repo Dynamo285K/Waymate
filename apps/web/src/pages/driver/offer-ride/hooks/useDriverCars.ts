@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
-import { useGetCarsMe } from "../api-client/cars/cars";
-import type { OfferRideCar } from "../components/offer-ride/OfferRideForm";
+import { useGetCarsMe } from "../../../../api-client/cars/cars";
+import type { OfferRideCar } from "../components/OfferRideForm";
 
 export type CarMode = "saved" | "manual";
 

@@ -1,10 +1,10 @@
 import { useTranslation } from "react-i18next";
-import type { Language } from "../components/controls/LanguageSwitcher";
-import { DriverNavbar } from "../components/navigation/DriverNavbar";
+import type { Language } from "../../../components/controls/LanguageSwitcher";
+import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
 import { RideRequestCard } from "../components/RideRequestCard";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
-import { getErrorI18nKey } from "../lib/api-errors";
-import { formatRideDate as formatDate } from "../lib/date-format";
+import { getErrorI18nKey } from "../../../lib/api-errors";
+import { formatRideDate as formatDate } from "../../../lib/date-format";
 import {
     useAcceptRideRequest,
     useDeclineRideRequest,

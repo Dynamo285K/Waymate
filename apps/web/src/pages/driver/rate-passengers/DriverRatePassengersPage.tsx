@@ -1,12 +1,12 @@
 import { useTranslation } from "react-i18next";
-import { useNavigate, useLocation } from "../lib/router-compat";
+import { useNavigate, useLocation } from "../../../lib/router-compat";
 import { RatePassengerCard, StatCard, TextLink } from "@waymate/ui";
-import type { Language } from "../components/controls/LanguageSwitcher";
-import { DriverNavbar } from "../components/navigation/DriverNavbar";
+import type { Language } from "../../../components/controls/LanguageSwitcher";
+import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
-import { useGetRidesByIdPassengers } from "../api-client/rides/rides";
-import { useSubmitReview } from "../hooks/useSubmitReview";
-import { getErrorI18nKey } from "../lib/api-errors";
+import { useGetRidesByIdPassengers } from "../../../api-client/rides/rides";
+import { useSubmitReview } from "../../../hooks/useSubmitReview";
+import { getErrorI18nKey } from "../../../lib/api-errors";
 
 type DriverRatePassengersPageProps = {
     language: Language;

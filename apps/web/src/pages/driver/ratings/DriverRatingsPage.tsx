@@ -1,14 +1,14 @@
 import { useTranslation } from "react-i18next";
-import { useNavigate, useSearchParams } from "../lib/router-compat";
+import { useNavigate, useSearchParams } from "../../../lib/router-compat";
 import { RatingSummaryCard, RatingCard, TextLink } from "@waymate/ui";
-import type { Language } from "../components/controls/LanguageSwitcher";
-import { DriverNavbar } from "../components/navigation/DriverNavbar";
+import type { Language } from "../../../components/controls/LanguageSwitcher";
+import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import {
     useGetReviewsMeAuthored,
     useGetReviewsUsersByUserId,
-} from "../api-client/reviews/reviews";
-import { getErrorI18nKey } from "../lib/api-errors";
+} from "../../../api-client/reviews/reviews";
+import { getErrorI18nKey } from "../../../lib/api-errors";
 
 type DriverRatingsPageProps = {
     language: Language;

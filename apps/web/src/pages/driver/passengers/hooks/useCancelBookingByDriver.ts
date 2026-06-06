@@ -2,12 +2,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
     usePatchBookingsByIdDriverCancel,
     getGetBookingsRequestsQueryKey,
-} from "../api-client/bookings/bookings";
+} from "../../../../api-client/bookings/bookings";
 import {
     getGetRidesByIdPassengersQueryKey,
     getGetRidesMeQueryKey,
-} from "../api-client/rides/rides";
-import type { ApiMutationError } from "../lib/api-fetcher";
+} from "../../../../api-client/rides/rides";
+import type { ApiMutationError } from "../../../../lib/api-fetcher";
 
 type CancelBookingByDriverInput = {
     bookingId: string;

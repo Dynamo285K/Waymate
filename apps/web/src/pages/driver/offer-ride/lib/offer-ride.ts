@@ -1,5 +1,5 @@
-import type { CreateRideBody } from "../api-client/model/createRideBody";
-import type { CityListItem } from "../api-client/model/cityListItem";
+import type { CreateRideBody } from "../../../../api-client/model/createRideBody";
+import type { CityListItem } from "../../../../api-client/model/cityListItem";
 
 // Pure helpers behind the offer-ride form. Kept out of the page component so
 // they can be unit-tested and reused without dragging React in.

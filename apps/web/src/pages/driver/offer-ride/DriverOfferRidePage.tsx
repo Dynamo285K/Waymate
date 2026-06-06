@@ -4,26 +4,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { cs, enUS, sk as skLocale } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import type { Language } from "../components/controls/LanguageSwitcher";
-import { DriverNavbar } from "../components/navigation/DriverNavbar";
-import { OfferRideForm } from "../components/offer-ride/OfferRideForm";
-import type { OfferRideCar } from "../components/offer-ride/OfferRideForm";
+import type { Language } from "../../../components/controls/LanguageSwitcher";
+import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
+import { OfferRideForm } from "./components/OfferRideForm";
+import type { OfferRideCar } from "./components/OfferRideForm";
 import {
     offerRideSchema,
     type OfferRideFormInput,
     type OfferRideFormValues,
-} from "../components/offer-ride/schema";
+} from "./components/schema";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
-import { useDriverCars } from "../hooks/useDriverCars";
-import { getErrorI18nKey } from "../lib/api-errors";
-import { toUiLanguage } from "../lib/language";
-import { useNavigate } from "../lib/router-compat";
+import { useDriverCars } from "./hooks/useDriverCars";
+import { getErrorI18nKey } from "../../../lib/api-errors";
+import { toUiLanguage } from "../../../lib/language";
+import { useNavigate } from "../../../lib/router-compat";
 import {
     buildCreateRideBody,
     normalizePlate,
     parseDurationMinutes,
     parsePositiveInteger,
-} from "../lib/offer-ride";
+} from "./lib/offer-ride";
 import {
     getCarsBrandsByBrandModels,
     getCarsMe,
@@ -31,9 +31,9 @@ import {
     useGetCarsBrandsByBrandModels,
     usePostCarsMe,
     getGetCarsMeQueryKey,
-} from "../api-client/cars/cars";
-import { usePostRides, getGetRidesMeQueryKey } from "../api-client/rides/rides";
-import type { CreateCarBody as ApiCreateCarBody } from "../api-client/model/createCarBody";
+} from "../../../api-client/cars/cars";
+import { usePostRides, getGetRidesMeQueryKey } from "../../../api-client/rides/rides";
+import type { CreateCarBody as ApiCreateCarBody } from "../../../api-client/model/createCarBody";
 import { PLATE_MAX_LENGTH, PLATE_MIN_LENGTH } from "@repo/shared/validation";
 import { carCatalog } from "@repo/shared/car-catalog";
 

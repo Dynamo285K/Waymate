@@ -1,27 +1,27 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "../lib/router-compat";
+import { useNavigate } from "../../../lib/router-compat";
 import { Button, FeatureCard, PlusIcon } from "@waymate/ui";
-import { CancelRideDialog } from "../components/CancelRideDialog";
+import { CancelRideDialog } from "../../../components/CancelRideDialog";
 import { CompleteRideDialog } from "../components/CompleteRideDialog";
-import type { Language } from "../components/controls/LanguageSwitcher";
-import { DriverNavbar } from "../components/navigation/DriverNavbar";
-import { RideCard } from "../components/RideCard";
+import type { Language } from "../../../components/controls/LanguageSwitcher";
+import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
+import { RideCard } from "../../../components/RideCard";
 import { RideRequestCard } from "../components/RideRequestCard";
 import {
     formatRideDate as formatDate,
     formatDuration,
-} from "../lib/date-format";
+} from "../../../lib/date-format";
 import {
     useGetRidesMe,
     usePatchRidesByIdComplete,
     getGetRidesMeQueryKey,
-} from "../api-client/rides/rides";
+} from "../../../api-client/rides/rides";
 import { useCancelRide } from "../hooks/useCancelRide";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
-import { getErrorI18nKey } from "../lib/api-errors";
-import type { ApiMutationError } from "../lib/api-fetcher";
+import { getErrorI18nKey } from "../../../lib/api-errors";
+import type { ApiMutationError } from "../../../lib/api-fetcher";
 import {
     useAcceptRideRequest,
     useDeclineRideRequest,

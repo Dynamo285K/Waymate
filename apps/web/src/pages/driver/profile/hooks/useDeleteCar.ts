@@ -2,8 +2,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
     useDeleteCarsById,
     getGetCarsMeQueryKey,
-} from "../api-client/cars/cars";
-import type { ApiMutationError } from "../lib/api-fetcher";
+} from "../../../../api-client/cars/cars";
+import type { ApiMutationError } from "../../../../lib/api-fetcher";
 
 export function useDeleteCar() {
     const queryClient = useQueryClient();

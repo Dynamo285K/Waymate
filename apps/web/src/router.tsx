@@ -88,39 +88,39 @@ const PassengerRatingsPage = lazyPage(
     "PassengerRatingsPage"
 );
 const DriverHomePage = lazyPage(
-    () => import("./pages/DriverHomePage"),
+    () => import("./pages/driver/home/DriverHomePage"),
     "DriverHomePage"
 );
 const DriverChatPage = lazyPage(
-    () => import("./pages/DriverChatPage"),
+    () => import("./pages/driver/chat/DriverChatPage"),
     "DriverChatPage"
 );
 const DriverMyRidesPage = lazyPage(
-    () => import("./pages/DriverMyRidesPage"),
+    () => import("./pages/driver/my-rides/DriverMyRidesPage"),
     "DriverMyRidesPage"
 );
 const DriverPassengersPage = lazyPage(
-    () => import("./pages/DriverPassengersPage"),
+    () => import("./pages/driver/passengers/DriverPassengersPage"),
     "DriverPassengersPage"
 );
 const DriverRatePassengersPage = lazyPage(
-    () => import("./pages/DriverRatePassengersPage"),
+    () => import("./pages/driver/rate-passengers/DriverRatePassengersPage"),
     "DriverRatePassengersPage"
 );
 const DriverOfferRidePage = lazyPage(
-    () => import("./pages/DriverOfferRidePage"),
+    () => import("./pages/driver/offer-ride/DriverOfferRidePage"),
     "DriverOfferRidePage"
 );
 const DriverRideRequestsPage = lazyPage(
-    () => import("./pages/DriverRideRequestsPage"),
+    () => import("./pages/driver/ride-requests/DriverRideRequestsPage"),
     "DriverRideRequestsPage"
 );
 const DriverProfilePage = lazyPage(
-    () => import("./pages/DriverProfilePage"),
+    () => import("./pages/driver/profile/DriverProfilePage"),
     "DriverProfilePage"
 );
 const DriverRatingsPage = lazyPage(
-    () => import("./pages/DriverRatingsPage"),
+    () => import("./pages/driver/ratings/DriverRatingsPage"),
     "DriverRatingsPage"
 );
 const EditProfilePage = lazyPage(

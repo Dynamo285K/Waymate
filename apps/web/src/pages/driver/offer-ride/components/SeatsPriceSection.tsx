@@ -7,7 +7,7 @@ import {
     CoinsIcon,
     UserIcon,
 } from "@waymate/ui";
-import { isIntegerInput } from "../../lib/offer-ride";
+import { isIntegerInput } from "../lib/offer-ride";
 import type { OfferRideFormInput } from "./schema";
 
 export function SeatsPriceSection() {

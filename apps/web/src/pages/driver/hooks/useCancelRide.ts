@@ -3,9 +3,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
     usePatchRidesByIdCancel,
     getGetRidesMeQueryKey,
-} from "../api-client/rides/rides";
-import type { CancelRideResponse } from "../api-client/model/cancelRideResponse";
-import type { ApiMutationError } from "../lib/api-fetcher";
+} from "../../../api-client/rides/rides";
+import type { CancelRideResponse } from "../../../api-client/model/cancelRideResponse";
+import type { ApiMutationError } from "../../../lib/api-fetcher";
 
 type CancelRideInput = {
     rideId: string;

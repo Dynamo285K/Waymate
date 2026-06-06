@@ -1,10 +1,10 @@
 import { z } from "zod";
-import type { CityListItem } from "../CitySelect";
+import type { CityListItem } from "../../../../components/CitySelect";
 import {
     combineDateAndTime,
     parseDurationMinutes,
     parsePositiveInteger,
-} from "../../lib/offer-ride";
+} from "../lib/offer-ride";
 
 // Single source of truth for the offer-ride form shape. Lives next to the
 // section components so each can type `useFormContext<OfferRideFormInput>()`

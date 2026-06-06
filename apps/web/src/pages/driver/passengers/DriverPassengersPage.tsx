@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useLocation } from "../lib/router-compat";
+import { useNavigate, useLocation } from "../../../lib/router-compat";
 import { StatCard, TextLink } from "@waymate/ui";
-import type { Language } from "../components/controls/LanguageSwitcher";
-import { DriverNavbar } from "../components/navigation/DriverNavbar";
+import type { Language } from "../../../components/controls/LanguageSwitcher";
+import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
 import { PassengerCard } from "../components/PassengerCard";
-import { CancelRideDialog } from "../components/CancelRideDialog";
-import { ReportUserModal } from "../components/ReportUserModal";
-import { useGetRidesByIdPassengers } from "../api-client/rides/rides";
+import { CancelRideDialog } from "../../../components/CancelRideDialog";
+import { ReportUserModal } from "../../../components/ReportUserModal";
+import { useGetRidesByIdPassengers } from "../../../api-client/rides/rides";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
-import { useCancelBookingByDriver } from "../hooks/useCancelBookingByDriver";
-import { getErrorI18nKey } from "../lib/api-errors";
+import { useCancelBookingByDriver } from "./hooks/useCancelBookingByDriver";
+import { getErrorI18nKey } from "../../../lib/api-errors";
 
 type DriverPassengersPageProps = {
     language: Language;

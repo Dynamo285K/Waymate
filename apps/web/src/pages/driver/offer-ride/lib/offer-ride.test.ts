@@ -7,7 +7,7 @@ import {
     parseDurationMinutes,
     parsePositiveInteger,
 } from "./offer-ride";
-import type { CityListItem } from "../api-client/model/cityListItem";
+import type { CityListItem } from "../../../../api-client/model/cityListItem";
 
 const bratislava: CityListItem = {
     id: "11111111-1111-1111-1111-111111111111",

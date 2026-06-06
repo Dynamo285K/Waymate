@@ -7,8 +7,8 @@ import {
     MessageBubble,
     MessageComposer,
 } from "@waymate/ui";
-import type { Language } from "../components/controls/LanguageSwitcher";
-import { DriverNavbar } from "../components/navigation/DriverNavbar";
+import type { Language } from "../../../components/controls/LanguageSwitcher";
+import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 
 type Message = {

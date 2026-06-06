@@ -4,10 +4,10 @@ import {
     usePatchBookingsByIdConfirm,
     usePatchBookingsByIdReject,
     getGetBookingsRequestsQueryKey,
-} from "../api-client/bookings/bookings";
-import { getGetRidesMeQueryKey } from "../api-client/rides/rides";
-import type { DriverRideRequestItem } from "../api-client/model/driverRideRequestItem";
-import type { ApiMutationError } from "../lib/api-fetcher";
+} from "../../../api-client/bookings/bookings";
+import { getGetRidesMeQueryKey } from "../../../api-client/rides/rides";
+import type { DriverRideRequestItem } from "../../../api-client/model/driverRideRequestItem";
+import type { ApiMutationError } from "../../../lib/api-fetcher";
 
 export type DriverRideRequest = DriverRideRequestItem;
 
