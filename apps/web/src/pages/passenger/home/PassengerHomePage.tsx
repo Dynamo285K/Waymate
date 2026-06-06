@@ -89,8 +89,24 @@ export function PassengerHomePage({
                 }}
                 onSearch={(from, to, date) => {
                     const params = new URLSearchParams();
-                    if (from) params.set("fromId", from.id);
-                    if (to) params.set("toId", to.id);
+                    if (from) {
+                        try {
+                            const parsed = JSON.parse(from.id);
+                            if (parsed.lat) params.set("startLat", parsed.lat);
+                            if (parsed.lng) params.set("startLng", parsed.lng);
+                        } catch {
+                            params.set("fromId", from.id);
+                        }
+                    }
+                    if (to) {
+                        try {
+                            const parsed = JSON.parse(to.id);
+                            if (parsed.lat) params.set("destLat", parsed.lat);
+                            if (parsed.lng) params.set("destLng", parsed.lng);
+                        } catch {
+                            params.set("toId", to.id);
+                        }
+                    }
                     if (date) params.set("date", date.toISOString());
                     navigate(`/passenger/rides/search?${params.toString()}`);
                 }}

@@ -5,7 +5,7 @@ import {
     PublicUserPreviewWithRatingSchema,
 } from "./user.schema";
 import { CarIdSchema } from "./car.schema";
-import { CityIdSchema } from "./city.schema";
+
 import { CountryCodeSchema } from "./country-code.schema";
 import { CurrencySchema } from "./currency.schema";
 import {

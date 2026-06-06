@@ -43,10 +43,13 @@ export function RidesPage({
     const [searchParams] = useSearchParams();
     const [showGuestModal, setShowGuestModal] = useState(false);
 
-    const fromId = searchParams.get("fromId");
-    const toId = searchParams.get("toId");
+    const startLat = searchParams.has("startLat") ? parseFloat(searchParams.get("startLat")!) : null;
+    const startLng = searchParams.has("startLng") ? parseFloat(searchParams.get("startLng")!) : null;
+    const destLat = searchParams.has("destLat") ? parseFloat(searchParams.get("destLat")!) : null;
+    const destLng = searchParams.has("destLng") ? parseFloat(searchParams.get("destLng")!) : null;
     const dateStr = searchParams.get("date");
-    const hasSearchParams = !!fromId || !!toId || !!dateStr;
+    
+    const hasSearchParams = (startLat !== null && startLng !== null) || (destLat !== null && destLng !== null) || !!dateStr;
     const showAllRides = !hasSearchParams;
     const {
         data: availableRideRows,
@@ -61,7 +64,7 @@ export function RidesPage({
         isError,
         error: searchError,
         canSearch,
-    } = useRideSearch({ fromId, toId, date: dateStr });
+    } = useRideSearch({ startLat, startLng, destLat, destLng, date: dateStr });
 
     const availableRides = Array.isArray(availableRideRows)
         ? availableRideRows.map((ride) => {

@@ -838,7 +838,7 @@ export const usePatchCarsByIdStatus = <
     return useMutation(mutationOptions, queryClient);
 };
 /**
- * Soft-deletes the current user's car
+ * Soft-deletes the current user's car. Rejects with CAR_IN_USE if the car has an active (PLANNED/IN_PROGRESS) ride.
  */
 export const getDeleteCarsByIdUrl = (id: CarId) => {
     return `/cars/${id}`;
