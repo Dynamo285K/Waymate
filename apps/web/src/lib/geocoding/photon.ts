@@ -9,6 +9,9 @@ export type LocationSuggestion = {
     lng: number;
     extent?: [number, number, number, number] | null;
     type?: string;
+    osm_key?: string;
+    osm_value?: string;
+    score: number;
 };
 
 type PhotonFeature = {
@@ -39,47 +42,59 @@ function getDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number) {
     return Math.sqrt(dLat * dLat + dLon * dLon) * 111;
 }
 
+function calculateScore(f: PhotonFeature, distanceKm: number | null, query: string): number {
+    let score = 0;
+    const { osm_key, osm_value } = f.properties;
+
+    // Boost score for exact city match
+    const normalizedQuery = query.toLowerCase();
+    const city = (f.properties.city || f.properties.town || f.properties.village || "").toLowerCase();
+    if (city && normalizedQuery.includes(city)) {
+        score += 50;
+    }
+
+    if (osm_key === "place" && ["city", "town", "village"].includes(osm_value || "")) {
+        score += 200;
+    } else if (osm_key === "aeroway" && osm_value === "aerodrome") {
+        score += 100;
+    } else if (osm_key === "railway" && osm_value === "station") {
+        score += 100;
+    } else if (osm_key === "amenity" && osm_value === "bus_station") {
+        score += 100;
+    } else if (osm_key === "amenity" && ["hospital", "clinic", "university"].includes(osm_value || "")) {
+        score += 90;
+    } else if (osm_key === "shop" && ["mall", "supermarket"].includes(osm_value || "")) {
+        score += 90;
+    } else if (osm_key === "amenity" && ["fuel", "parking"].includes(osm_value || "")) {
+        score += 80;
+    } else if (osm_key === "railway" && ["stop", "platform"].includes(osm_value || "")) {
+        score += 60;
+    } else if (osm_key === "highway" && osm_value === "bus_stop") {
+        score += 60;
+    } else if (osm_key === "place" && osm_value === "suburb") {
+        score += 50;
+    } else if (osm_key === "highway" && !f.properties.housenumber) {
+        score += 40;
+    } else if (f.properties.housenumber || f.properties.type === "house") {
+        score += 10;
+    }
+
+    if (distanceKm !== null) {
+        score -= distanceKm * 0.5; // Slight distance penalty
+    }
+
+    return score;
+}
+
 export async function fetchPhotonLocations(
     query: string,
-    bias?: { lat: number; lng: number } | null,
-    searchType: "city" | "address" = "address",
-    parentCity?: LocationSuggestion | null
+    bias?: { lat: number; lng: number } | null
 ): Promise<LocationSuggestion[]> {
     if (!query || query.length < 2) return [];
     try {
-        let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=15`;
-
-        if (searchType === "city") {
-            // Prísny filter: vráti len entity, ktoré majú place tag pre mesto, mestečko alebo dedinu.
-            url += `&osm_tag=place:city&osm_tag=place:town&osm_tag=place:village`;
-        } else if (searchType === "address") {
-            if (parentCity?.extent) {
-                // extent from photon is [minLon, maxLat, maxLon, minLat]
-                // bbox for photon needs minLon,minLat,maxLon,maxLat
-                url += `&bbox=${parentCity.extent[0]},${parentCity.extent[3]},${parentCity.extent[2]},${parentCity.extent[1]}`;
-            } else if (parentCity) {
-                // Fallback na 15km okruh ak mesto nemá extent
-                const latDelta = 15 / 111;
-                const lonDelta = 15 / (111 * Math.cos((parentCity.lat * Math.PI) / 180));
-                const minLon = parentCity.lng - lonDelta;
-                const maxLon = parentCity.lng + lonDelta;
-                const minLat = parentCity.lat - latDelta;
-                const maxLat = parentCity.lat + latDelta;
-                url += `&bbox=${minLon},${minLat},${maxLon},${maxLat}`;
-            } else if (bias) {
-                // Fallback na 15km okruh ak mesto nemá extent
-                const latDelta = 15 / 111;
-                const lonDelta = 15 / (111 * Math.cos((bias.lat * Math.PI) / 180));
-                const minLon = bias.lng - lonDelta;
-                const maxLon = bias.lng + lonDelta;
-                const minLat = bias.lat - latDelta;
-                const maxLat = bias.lat + latDelta;
-                url += `&bbox=${minLon},${minLat},${maxLon},${maxLat}`;
-            }
-        }
+        let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=100`;
 
         if (bias) {
-            // Photon uses 'lon' instead of 'lng' for longitude
             url += `&lat=${bias.lat}&lon=${bias.lng}`;
         }
 
@@ -88,80 +103,48 @@ export async function fetchPhotonLocations(
         const data = await res.json() as { features: PhotonFeature[] };
 
         let features = data.features;
+        const hasDigits = /\d/.test(query);
 
-        // Odfiltrovanie nežiaducich miest a šumu (úrady, reštaurácie, cyklotrasy) pre spolujazdu
         features = features.filter(f => {
-            const { osm_key, osm_value } = f.properties;
+            const { osm_key, osm_value, name, street, housenumber, type } = f.properties;
 
-            // 1. Zákaz cyklotrás a chodníkov (aj keď je to highway)
-            const invalidRoadTypes = ["cycleway", "footway", "path", "steps", "pedestrian", "via_ferrata", "track"];
-            if (osm_value && invalidRoadTypes.includes(osm_value)) return false;
+            // 1. Block "invisible" objects
+            if (!name && !street) return false;
 
-            // 2. Zákaz úradov a administratívy
-            if (osm_key === "office" || osm_key === "information" || osm_key === "historic") return false;
-            const invalidBuildings = ["government", "public", "civic", "commercial", "retail"];
-            if (osm_value && invalidBuildings.includes(osm_value)) return false;
+            let isAllowed = false;
 
-            // 3. Zákaz územných celkov. Ak hľadáme adresu, zakážeme aj samotné mestá.
-            if (osm_key === "place") {
-                let invalidPlaces = ["district", "county", "state", "region", "country", "municipality"];
-                if (searchType === "address") {
-                    // Ak hľadáme adresu, vyhodíme aj mestá a dediny (môžu ostať len štvrte a ulice)
-                    invalidPlaces = [...invalidPlaces, "city", "town", "village", "hamlet"];
+            // 2. Strategic POIs are always allowed
+            if (osm_key === "place" && ["city", "town", "village", "suburb"].includes(osm_value || "")) isAllowed = true;
+            if (osm_key === "amenity" && ["fuel", "bus_station", "parking", "hospital", "clinic", "university"].includes(osm_value || "")) isAllowed = true;
+            if (osm_key === "shop" && ["mall", "supermarket"].includes(osm_value || "")) isAllowed = true;
+            if (osm_key === "railway" && ["station", "stop", "platform"].includes(osm_value || "")) isAllowed = true;
+            if (osm_key === "public_transport" && osm_value === "station") isAllowed = true;
+            if (osm_key === "park_ride" && osm_value === "yes") isAllowed = true;
+            if (osm_key === "aeroway" && osm_value === "aerodrome") isAllowed = true;
+
+            // 3. Streets are always allowed
+            if (osm_key === "highway") {
+                const invalidRoadTypes = ["cycleway", "footway", "path", "steps", "pedestrian", "via_ferrata", "track"];
+                if (!invalidRoadTypes.includes(osm_value || "")) {
+                    isAllowed = true;
                 }
-                if (osm_value && invalidPlaces.includes(osm_value)) return false;
             }
 
-            // 4. Ak je to špecifický POI, povolíme len strategické miesta na vyzdvihnutie
-            let isAllowedPoi = false;
-            if (osm_key === "amenity" && ["fuel", "bus_station", "parking"].includes(osm_value || "")) isAllowedPoi = true;
-            if (osm_key === "railway" && osm_value === "station") isAllowedPoi = true;
-            if (osm_key === "highway" && osm_value === "bus_stop") isAllowedPoi = true;
-            if (osm_key === "aeroway" && osm_value === "aerodrome") isAllowedPoi = true;
-            if (osm_key === "shop" && ["mall", "supermarket"].includes(osm_value || "")) isAllowedPoi = true;
-            if (osm_key === "tourism" && osm_value === "hotel") isAllowedPoi = true;
-
-            // PURE WHITELIST: Pustíme len bezpečné kľúče (cesty, miesta, budovy) alebo povolené POI
-            const safeKeys = ["highway", "place", "building"];
-
-            if (isAllowedPoi) {
-                return true; // Povolené strategické miesta vždy prejdú
-            } else if (osm_key && safeKeys.includes(osm_key)) {
-                return true; // Bežné ulice a domy prejdú
-            } else {
-                return false; // Všetko ostatné (man_made, natural, waterway, nezmysly) nemilosrdne zablokujeme
+            // 4. Specific addresses are only allowed if the query contains digits
+            if (hasDigits && housenumber) {
+                isAllowed = true;
             }
+
+            return isAllowed;
         });
 
         const dedupMap = new Map<string, LocationSuggestion>();
-        const seenCityKeys = new Map<string, LocationSuggestion>();
 
         for (const f of features) {
-            // Ak nemáme krajinu ani mesto, zrejme ide o neplatný údaj
-            if (!f.properties.countrycode && !f.properties.city) continue;
-
-            // Ignorovanie samotných štátov a krajov, ak nehľadáme vyslovene mesto
-            if (f.properties.osm_key === "boundary" && searchType === "address") {
-                continue;
-            }
+            if (!f.properties.countrycode && !f.properties.city && !f.properties.state) continue;
 
             const countryCode = (f.properties.countrycode?.toUpperCase() || "SK") as CountryCode;
-
-            // Ochrana proti iným mestám vo vnútri rovnakého obdĺžnika (napr. Vrútky vnútri Martina)
-            if (searchType === "address" && parentCity) {
-                const explicitCity = f.properties.city || f.properties.town || f.properties.village;
-                const pCity = parentCity.city;
-                const pAddress = parentCity.address;
-
-                // Ak výsledok patrí do úplne iného mesta, zahodíme ho
-                if (explicitCity && explicitCity !== pCity && explicitCity !== pAddress &&
-                    !explicitCity.includes(pCity) && !pCity.includes(explicitCity) &&
-                    !explicitCity.includes(pAddress) && !pAddress.includes(explicitCity)) {
-                    continue;
-                }
-            }
-
-            const city = f.properties.city || f.properties.state || f.properties.name || "";
+            const city = f.properties.city || f.properties.town || f.properties.village || f.properties.state || f.properties.name || "";
 
             let address = f.properties.name || city;
             if (f.properties.street) {
@@ -173,18 +156,34 @@ export async function fetchPhotonLocations(
                     ? `${f.properties.name}, ${streetAndNumber}`
                     : streetAndNumber;
             } else if (f.properties.name && (f.properties.district || f.properties.locality)) {
-                // Ak nemáme presnú ulicu, ale máme aspoň štvrť alebo oblasť, pripojíme to,
-                // aby sme odlíšili napr. tri pumpy Slovnaft v tom istom meste.
                 const area = f.properties.district || f.properties.locality;
                 address = `${f.properties.name}, ${area}`;
             }
 
-            const featureExtent = f.properties.extent as [number, number, number, number] | undefined;
-            const lng = f.geometry.coordinates[0];
-            const lat = f.geometry.coordinates[1];
+            // Clean up redundant brackets and duplicate cities
+            if (address.includes(`(${city})`)) {
+                address = address.replace(`(${city})`, "").trim();
+            }
+            if (address.endsWith(`, ${city}`)) {
+                address = address.slice(0, -(city.length + 2));
+            }
+
+            // If searching for a city, use only the city name
+            if (f.properties.osm_key === "place" && ["city", "town", "village"].includes(f.properties.osm_value || "")) {
+                address = f.properties.name || city;
+            }
+
+            const [lng, lat] = f.geometry.coordinates;
+            let featureExtent = f.properties.extent || null;
+            if (featureExtent && featureExtent.length === 4) {
+                featureExtent = [featureExtent[0], featureExtent[1], featureExtent[2], featureExtent[3]];
+            }
+
+            const distanceKm = bias ? getDistanceKm(lat, lng, bias.lat, bias.lng) : null;
+            const score = calculateScore(f, distanceKm, query);
 
             const suggestion: LocationSuggestion = {
-                id: `${f.properties.osm_type}-${f.properties.osm_id}`,
+                id: f.properties.osm_id.toString(),
                 address,
                 city,
                 countryCode,
@@ -192,54 +191,56 @@ export async function fetchPhotonLocations(
                 lng,
                 extent: featureExtent,
                 type: f.properties.type,
+                osm_key: f.properties.osm_key,
+                osm_value: f.properties.osm_value,
+                score
             };
 
-            if (searchType === "city") {
-                const key = `${f.properties.name || ""}-${countryCode}`;
-                const existing = seenCityKeys.get(key);
+            let dedupKey = `${address}|${city}`;
 
-                if (!existing) {
-                    seenCityKeys.set(key, suggestion);
-                } else if (!existing.extent && suggestion.extent) {
-                    seenCityKeys.set(key, suggestion);
-                }
-            } else {
-                // Chytrá deduplikácia pre adresy a POI
-                let dedupKey = address;
-                if (f.properties.name) {
-                    dedupKey = `${f.properties.name}|${f.properties.street || ''}|${city}`;
-                }
+            let isDuplicate = false;
 
-                const existing = dedupMap.get(dedupKey);
-                if (existing) {
-                    // Ak už máme záznam, chceme si nechať ten s popisným číslom
-                    const hasNumberOld = /\\d/.test(existing.address);
-                    const hasNumberNew = !!f.properties.housenumber;
-                    if (hasNumberNew && !hasNumberOld) {
-                        dedupMap.set(dedupKey, suggestion);
+            // 1. Deduplicate by exact key
+            const existingExact = dedupMap.get(dedupKey);
+            if (existingExact) {
+                isDuplicate = true;
+                const hasNumberOld = /\d/.test(existingExact.address);
+                const hasNumberNew = !!f.properties.housenumber;
+                if (hasNumberNew && !hasNumberOld) {
+                    dedupMap.set(dedupKey, suggestion);
+                } else if (!existingExact.extent && suggestion.extent) {
+                    dedupMap.set(dedupKey, suggestion);
+                }
+            }
+
+            // 2. Spatial deduplication for nearby POIs (within 50 meters)
+            if (!isDuplicate) {
+                const isPoiNew = !!f.properties.name;
+                for (const [existingKey, existing] of dedupMap.entries()) {
+                    const isPoiOld = existingKey.includes("|");
+                    const dist = getDistanceKm(suggestion.lat, suggestion.lng, existing.lat, existing.lng);
+                    
+                    if (dist < 0.05 && isPoiNew && isPoiOld) {
+                        isDuplicate = true;
+                        // Keep the record with the higher score or longer address
+                        if (suggestion.score > existing.score || (suggestion.score === existing.score && suggestion.address.length > existing.address.length)) {
+                            dedupMap.delete(existingKey);
+                            dedupMap.set(dedupKey, suggestion);
+                        }
+                        break;
                     }
-                    continue;
                 }
+            }
 
+            if (!isDuplicate) {
                 dedupMap.set(dedupKey, suggestion);
             }
         }
 
-        let suggestions: LocationSuggestion[] = [];
-        if (searchType === "city") {
-            suggestions = Array.from(seenCityKeys.values());
-        } else {
-            suggestions = Array.from(dedupMap.values());
-        }
+        let suggestions = Array.from(dedupMap.values());
 
-        if (bias) {
-            // Prísne lokálne zoradenie podľa vzdialenosti k bias polohe
-            suggestions.sort((a, b) => {
-                const distA = getDistanceKm(a.lat, a.lng, bias.lat, bias.lng);
-                const distB = getDistanceKm(b.lat, b.lng, bias.lat, bias.lng);
-                return distA - distB;
-            });
-        }
+        // Sort by custom ranking system
+        suggestions.sort((a, b) => b.score - a.score);
 
         return suggestions.slice(0, 8);
     } catch {
