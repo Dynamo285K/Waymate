@@ -245,7 +245,7 @@ export function HomeContent({
                 <div className="mt-8 w-full max-w-2xl">
                     <SearchBox
                         onSearchCities={async (q) => {
-                            const results = await fetchPhotonLocations(q, userLocation, "city");
+                            const results = await fetchPhotonLocations(q, userLocation);
                             return results.map((c) => ({
                                 // HACK: @waymate/ui SearchBox only accepts {id, name}. 
                                 // We stringify the coordinates into the 'id' so we can parse them on submission.

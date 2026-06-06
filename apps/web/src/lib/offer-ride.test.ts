@@ -16,6 +16,7 @@ const bratislava: LocationSuggestion = {
     countryCode: "SK",
     lat: 48.1486,
     lng: 17.1077,
+    score: 0,
 };
 
 const kosice: LocationSuggestion = {
@@ -25,6 +26,7 @@ const kosice: LocationSuggestion = {
     countryCode: "SK",
     lat: 48.7164,
     lng: 21.2611,
+    score: 0,
 };
 
 describe("normalizePlate", () => {

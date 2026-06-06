@@ -1,29 +1,21 @@
 import { useState, useRef, useEffect } from "react";
 import { Input, MapPinIcon } from "@waymate/ui";
 import { useUserLocation } from "../hooks/useUserLocation";
-
+import { fetchPhotonLocations } from "../lib/geocoding/photon";
+import type { LocationSuggestion } from "../lib/geocoding/photon";
 
 const DEBOUNCE_MS = 500;
 const MIN_QUERY_LENGTH = 2;
 
-import { fetchPhotonLocations } from "../lib/geocoding/photon";
-import type { LocationSuggestion } from "../lib/geocoding/photon";
-
 export type { LocationSuggestion };
 
-function getDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number) {
-    const dLat = lat1 - lat2;
-    const dLon = (lon1 - lon2) * Math.cos((lat1 + lat2) * Math.PI / 360);
-    return Math.sqrt(dLat * dLat + dLon * dLon) * 111;
-}
+
 
 type LocationAutocompleteProps = {
     value: LocationSuggestion | null;
     onChange: (location: LocationSuggestion | null) => void;
     placeholder?: string;
     label?: string;
-    searchType?: "city" | "address";
-    parentCity?: LocationSuggestion | null;
 };
 
 function SpinnerIcon() {
@@ -48,8 +40,6 @@ export function LocationAutocomplete({
     onChange,
     placeholder = "Search location…",
     label,
-    searchType = "address",
-    parentCity = null,
 }: LocationAutocompleteProps) {
     const [inputValue, setInputValue] = useState(value?.address ?? "");
     const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
@@ -93,33 +83,11 @@ export function LocationAutocomplete({
         const timer = setTimeout(async () => {
             setIsLoading(true);
             try {
-                // Ak máme zadané rodičovské mesto, zameriame dopyt vyslovene naň.
-                const finalQuery = parentCity ? `${inputValue}, ${parentCity.city}` : inputValue;
-                
-                // Prioritne hľadáme v okolí vybratého mesta, ak ho nemáme, použijeme polohu užívateľa.
-                const bias = parentCity ? { lat: parentCity.lat, lng: parentCity.lng } : userLocation;
-                
-                const results = await fetchPhotonLocations(finalQuery, bias, searchType, parentCity);
-                
-                let finalResults = results;
-                
-                // Ak je zadané mesto, natvrdo vymažeme všetko mimo jeho hraníc
-                if (parentCity && searchType === "address") {
-                    finalResults = results.filter(r => {
-                        // Ochrana: Geografická klietka (Musí byť fyzicky v obdĺžniku)
-                        if (parentCity.extent) {
-                            const [minLon, maxLat, maxLon, minLat] = parentCity.extent;
-                            return r.lng >= minLon && r.lng <= maxLon && r.lat >= minLat && r.lat <= maxLat;
-                        } else {
-                            const dist = getDistanceKm(r.lat, r.lng, parentCity.lat, parentCity.lng);
-                            return dist <= 15;
-                        }
-                    });
-                }
+                const results = await fetchPhotonLocations(inputValue, userLocation);
 
                 if (id !== requestIdRef.current) return;
-                setSuggestions(finalResults);
-                setOpen(finalResults.length > 0);
+                setSuggestions(results);
+                setOpen(results.length > 0);
                 setActiveIndex(-1);
             } catch {
                 if (id !== requestIdRef.current) return;
@@ -198,11 +166,10 @@ export function LocationAutocomplete({
                             key={loc.id}
                             role="option"
                             aria-selected={idx === activeIndex}
-                            className={`flex items-center gap-2 px-4 py-3 text-sm cursor-pointer transition-colors ${
-                                idx === activeIndex
-                                    ? "bg-(--color-bg)"
-                                    : "hover:bg-(--color-bg)"
-                            } text-(--color-text-primary)`}
+                            className={`flex items-center gap-2 px-4 py-3 text-sm cursor-pointer transition-colors ${idx === activeIndex
+                                ? "bg-(--color-bg)"
+                                : "hover:bg-(--color-bg)"
+                                } text-(--color-text-primary)`}
                             onMouseDown={() => handleSelect(loc)}
                             onMouseEnter={() => setActiveIndex(idx)}
                         >
