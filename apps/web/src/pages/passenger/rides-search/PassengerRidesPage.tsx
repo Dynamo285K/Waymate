@@ -1,14 +1,14 @@
 import { useTranslation } from "react-i18next";
-import { useNavigate, useSearchParams } from "../lib/router-compat";
-import type { Language } from "../components/controls/LanguageSwitcher";
-import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
-import { AvailableRideCard } from "../components/AvailableRideCard";
-import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
+import { useNavigate, useSearchParams } from "../../../lib/router-compat";
+import type { Language } from "../../../components/controls/LanguageSwitcher";
+import { PassengerNavbar } from "../../../components/navigation/PassengerNavbar";
+import { AvailableRideCard } from "../../../components/AvailableRideCard";
+import { usePassengerNavbarProps } from "../../../hooks/usePassengerNavbarProps";
 import { useCreateBooking } from "../hooks/useCreateBooking";
-import { useGetRidesAvailable } from "../api-client/rides/rides";
-import { useRideSearch } from "../hooks/useRideSearch";
-import { getErrorI18nKey } from "../lib/api-errors";
-import { formatRideDate, formatDuration } from "../lib/date-format";
+import { useGetRidesAvailable } from "../../../api-client/rides/rides";
+import { useRideSearch } from "../../../hooks/useRideSearch";
+import { getErrorI18nKey } from "../../../lib/api-errors";
+import { formatRideDate, formatDuration } from "../../../lib/date-format";
 import { BookingErrorModal } from "../components/BookingErrorModal";
 
 type PassengerRidesPageProps = {

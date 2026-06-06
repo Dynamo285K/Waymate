@@ -10,7 +10,7 @@ import { FieldError } from "../components/FieldError";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../components/navigation/DriverNavbar";
 import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
-import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
+import { useDriverNavbarProps } from "./driver/hooks/useDriverNavbarProps";
 import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
 import {
     useGetCarsBrands,

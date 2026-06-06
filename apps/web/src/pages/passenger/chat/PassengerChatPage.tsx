@@ -7,9 +7,9 @@ import {
     MessageBubble,
     MessageComposer,
 } from "@waymate/ui";
-import type { Language } from "../components/controls/LanguageSwitcher";
-import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
-import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
+import type { Language } from "../../../components/controls/LanguageSwitcher";
+import { PassengerNavbar } from "../../../components/navigation/PassengerNavbar";
+import { usePassengerNavbarProps } from "../../../hooks/usePassengerNavbarProps";
 
 type Message = {
     id: number;

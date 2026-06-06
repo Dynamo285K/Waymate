@@ -3,9 +3,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
     usePatchBookingsByIdCancel,
     getGetBookingsMeQueryKey,
-} from "../api-client/bookings/bookings";
-import type { PatchBookingsByIdCancelMutationResult } from "../api-client/bookings/bookings";
-import type { ApiMutationError } from "../lib/api-fetcher";
+} from "../../../api-client/bookings/bookings";
+import type { PatchBookingsByIdCancelMutationResult } from "../../../api-client/bookings/bookings";
+import type { ApiMutationError } from "../../../lib/api-fetcher";
 
 type Vars = { id: string; data: { reason?: string } };
 

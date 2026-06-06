@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Button, Modal } from "@waymate/ui";
-import { useLayout } from "../lib/use-layout";
-import { getErrorI18nKey } from "../lib/api-errors";
+import { useLayout } from "../../../lib/use-layout";
+import { getErrorI18nKey } from "../../../lib/api-errors";
 
 type BookingErrorModalProps = {
     isError: boolean;

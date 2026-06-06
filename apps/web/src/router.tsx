@@ -64,27 +64,27 @@ const ForgotPasswordPage = lazyPage(
 );
 const RidesPage = lazyPage(() => import("./pages/RidesPage"), "RidesPage");
 const PassengerHomePage = lazyPage(
-    () => import("./pages/PassengerHomePage"),
+    () => import("./pages/passenger/home/PassengerHomePage"),
     "PassengerHomePage"
 );
 const PassengerChatPage = lazyPage(
-    () => import("./pages/PassengerChatPage"),
+    () => import("./pages/passenger/chat/PassengerChatPage"),
     "PassengerChatPage"
 );
 const PassengerRidesPage = lazyPage(
-    () => import("./pages/PassengerRidesPage"),
+    () => import("./pages/passenger/rides-search/PassengerRidesPage"),
     "PassengerRidesPage"
 );
 const PassengerMyRidesPage = lazyPage(
-    () => import("./pages/PassengerMyRidesPage"),
+    () => import("./pages/passenger/my-rides/PassengerMyRidesPage"),
     "PassengerMyRidesPage"
 );
 const PassengerProfilePage = lazyPage(
-    () => import("./pages/PassengerProfilePage"),
+    () => import("./pages/passenger/profile/PassengerProfilePage"),
     "PassengerProfilePage"
 );
 const PassengerRatingsPage = lazyPage(
-    () => import("./pages/PassengerRatingsPage"),
+    () => import("./pages/passenger/ratings/PassengerRatingsPage"),
     "PassengerRatingsPage"
 );
 const DriverHomePage = lazyPage(

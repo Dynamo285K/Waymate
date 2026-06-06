@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation } from "../lib/router-compat";
+import { useLocation } from "../../../lib/router-compat";
 import { Button, RateDriverModal } from "@waymate/ui";
-import type { Language } from "../components/controls/LanguageSwitcher";
-import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
-import { RideCard } from "../components/RideCard";
-import { ReportUserModal } from "../components/ReportUserModal";
-import { useGetBookingsMe } from "../api-client/bookings/bookings";
-import { getErrorI18nKey } from "../lib/api-errors";
-import { formatRideDate, formatDuration } from "../lib/date-format";
-import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
-import { CancelRideDialog } from "../components/CancelRideDialog";
+import type { Language } from "../../../components/controls/LanguageSwitcher";
+import { PassengerNavbar } from "../../../components/navigation/PassengerNavbar";
+import { RideCard } from "../../../components/RideCard";
+import { ReportUserModal } from "../../../components/ReportUserModal";
+import { useGetBookingsMe } from "../../../api-client/bookings/bookings";
+import { getErrorI18nKey } from "../../../lib/api-errors";
+import { formatRideDate, formatDuration } from "../../../lib/date-format";
+import { usePassengerNavbarProps } from "../../../hooks/usePassengerNavbarProps";
+import { CancelRideDialog } from "../../../components/CancelRideDialog";
 import { useCancelBooking } from "../hooks/useCancelBooking";
-import { useSubmitReview } from "../hooks/useSubmitReview";
+import { useSubmitReview } from "../../../hooks/useSubmitReview";
 
 type PassengerMyRidesPageProps = {
     language: Language;
