@@ -4,20 +4,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useSearchParams } from "../lib/router-compat";
+import { useNavigate, useSearchParams } from "../../../lib/router-compat";
 import { AuthNavbar, LoginBox } from "@waymate/ui";
-import type { Language } from "../components/controls/LanguageSwitcher";
-import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
+import type { Language } from "../../../components/controls/LanguageSwitcher";
+import { useAuthNavbarProps } from "../../../hooks/useAuthNavbarProps";
 import {
     CURRENT_USER_QUERY_KEY,
     getPostAuthPath,
     signInWithEmail,
     signInWithGoogle,
-} from "../lib/auth";
+} from "../../../lib/auth";
 import {
     getEmailAuthErrorI18nKey,
     getGoogleAuthErrorI18nKey,
-} from "../lib/auth-errors";
+} from "../../../lib/auth-errors";
 
 type LoginPageProps = {
     language: Language;

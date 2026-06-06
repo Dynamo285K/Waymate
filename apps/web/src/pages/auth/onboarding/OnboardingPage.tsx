@@ -4,18 +4,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "../lib/router-compat";
+import { useNavigate } from "../../../lib/router-compat";
 import { AuthNavbar, Button, Input } from "@waymate/ui";
-import { FieldError } from "../components/FieldError";
-import type { Language } from "../components/controls/LanguageSwitcher";
-import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
+import { FieldError } from "../../../components/FieldError";
+import type { Language } from "../../../components/controls/LanguageSwitcher";
+import { useAuthNavbarProps } from "../../../hooks/useAuthNavbarProps";
 import {
     useGetUsersMe,
     usePatchUsersMeOnboarding,
-} from "../api-client/users/users";
-import type { ApiMutationError } from "../lib/api-fetcher";
-import { getErrorI18nKey } from "../lib/api-errors";
-import { CURRENT_USER_QUERY_KEY, getPostAuthPath, signOut } from "../lib/auth";
+} from "../../../api-client/users/users";
+import type { ApiMutationError } from "../../../lib/api-fetcher";
+import { getErrorI18nKey } from "../../../lib/api-errors";
+import { CURRENT_USER_QUERY_KEY, getPostAuthPath, signOut } from "../../../lib/auth";
 import {
     NAME_MAX_LENGTH,
     NO_WHITESPACE_REGEX,

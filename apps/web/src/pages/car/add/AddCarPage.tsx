@@ -3,22 +3,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useLocation } from "../lib/router-compat";
+import { useNavigate, useLocation } from "../../../lib/router-compat";
 import * as Select from "@radix-ui/react-select";
 import { Button, ChevronDownIcon, Input, TextLink } from "@waymate/ui";
-import { FieldError } from "../components/FieldError";
-import type { Language } from "../components/controls/LanguageSwitcher";
-import { DriverNavbar } from "../components/navigation/DriverNavbar";
-import { PassengerNavbar } from "../components/navigation/PassengerNavbar";
-import { useDriverNavbarProps } from "./driver/hooks/useDriverNavbarProps";
-import { usePassengerNavbarProps } from "../hooks/usePassengerNavbarProps";
+import { FieldError } from "../../../components/FieldError";
+import type { Language } from "../../../components/controls/LanguageSwitcher";
+import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
+import { PassengerNavbar } from "../../../components/navigation/PassengerNavbar";
+import { useDriverNavbarProps } from "../../driver/hooks/useDriverNavbarProps";
+import { usePassengerNavbarProps } from "../../../hooks/usePassengerNavbarProps";
 import {
     useGetCarsBrands,
     useGetCarsBrandsByBrandModels,
     usePostCarsMe,
     getGetCarsMeQueryKey,
-} from "../api-client/cars/cars";
-import { getErrorI18nKey } from "../lib/api-errors";
+} from "../../../api-client/cars/cars";
+import { getErrorI18nKey } from "../../../lib/api-errors";
 import { PLATE_MAX_LENGTH, PLATE_MIN_LENGTH } from "@repo/shared/validation";
 
 type AddCarPageProps = {

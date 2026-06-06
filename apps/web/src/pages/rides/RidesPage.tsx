@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useSearchParams } from "../lib/router-compat";
+import { useNavigate, useSearchParams } from "../../lib/router-compat";
 import { AuthNavbar, Button, Modal } from "@waymate/ui";
-import type { Language } from "../components/controls/LanguageSwitcher";
-import { AvailableRideCard } from "../components/AvailableRideCard";
-import { useRideSearch } from "../hooks/useRideSearch";
-import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
-import { useGetRidesAvailable } from "../api-client/rides/rides";
-import { getErrorI18nKey } from "../lib/api-errors";
-import { formatRideDate, formatDuration } from "../lib/date-format";
+import type { Language } from "../../components/controls/LanguageSwitcher";
+import { AvailableRideCard } from "../../components/AvailableRideCard";
+import { useRideSearch } from "../../hooks/useRideSearch";
+import { useAuthNavbarProps } from "../../hooks/useAuthNavbarProps";
+import { useGetRidesAvailable } from "../../api-client/rides/rides";
+import { getErrorI18nKey } from "../../lib/api-errors";
+import { formatRideDate, formatDuration } from "../../lib/date-format";
 
 type RidesPageProps = {
     language: Language;

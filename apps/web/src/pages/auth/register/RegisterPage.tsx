@@ -3,19 +3,19 @@ import { useForm, useWatch, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "../lib/router-compat";
+import { useNavigate } from "../../../lib/router-compat";
 import { AuthNavbar, Button, RegisterBox } from "@waymate/ui";
-import type { Language } from "../components/controls/LanguageSwitcher";
-import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
+import type { Language } from "../../../components/controls/LanguageSwitcher";
+import { useAuthNavbarProps } from "../../../hooks/useAuthNavbarProps";
 import {
     getPostAuthPath,
     signInWithGoogle,
     signUpWithEmail,
-} from "../lib/auth";
+} from "../../../lib/auth";
 import {
     getEmailAuthErrorI18nKey,
     getGoogleAuthErrorI18nKey,
-} from "../lib/auth-errors";
+} from "../../../lib/auth-errors";
 
 type RegisterPageProps = {
     language: Language;

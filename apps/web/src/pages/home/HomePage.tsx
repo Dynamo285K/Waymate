@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AuthNavbar, Button, Modal } from "@waymate/ui";
 import type { SearchBoxCityOption } from "@waymate/ui";
-import type { Language } from "../components/controls/LanguageSwitcher";
-import { HomeContent } from "../components/HomeContent";
-import { useAuthNavbarProps } from "../hooks/useAuthNavbarProps";
+import type { Language } from "../../components/controls/LanguageSwitcher";
+import { HomeContent } from "../../components/HomeContent";
+import { useAuthNavbarProps } from "../../hooks/useAuthNavbarProps";
 
 type HomePageProps = {
     language: Language;

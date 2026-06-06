@@ -49,20 +49,20 @@ function lazyPage(
     );
 }
 
-const LoginPage = lazyPage(() => import("./pages/LoginPage"), "LoginPage");
+const LoginPage = lazyPage(() => import("./pages/auth/login/LoginPage"), "LoginPage");
 const RegisterPage = lazyPage(
-    () => import("./pages/RegisterPage"),
+    () => import("./pages/auth/register/RegisterPage"),
     "RegisterPage"
 );
 const OnboardingPage = lazyPage(
-    () => import("./pages/OnboardingPage"),
+    () => import("./pages/auth/onboarding/OnboardingPage"),
     "OnboardingPage"
 );
 const ForgotPasswordPage = lazyPage(
-    () => import("./pages/ForgotPasswordPage"),
+    () => import("./pages/auth/forgot-password/ForgotPasswordPage"),
     "ForgotPasswordPage"
 );
-const RidesPage = lazyPage(() => import("./pages/RidesPage"), "RidesPage");
+const RidesPage = lazyPage(() => import("./pages/rides/RidesPage"), "RidesPage");
 const PassengerHomePage = lazyPage(
     () => import("./pages/passenger/home/PassengerHomePage"),
     "PassengerHomePage"
@@ -124,10 +124,10 @@ const DriverRatingsPage = lazyPage(
     "DriverRatingsPage"
 );
 const EditProfilePage = lazyPage(
-    () => import("./pages/EditProfilePage"),
+    () => import("./pages/profile/edit/EditProfilePage"),
     "EditProfilePage"
 );
-const AddCarPage = lazyPage(() => import("./pages/AddCarPage"), "AddCarPage");
+const AddCarPage = lazyPage(() => import("./pages/car/add/AddCarPage"), "AddCarPage");
 const AdminDashboardPage = lazyPage(
     () => import("./pages/admin/dashboard/AdminDashboardPage"),
     "AdminDashboardPage"
