@@ -4,6 +4,7 @@ import { carModels } from "./car_model";
 import { cars } from "./car";
 import { rides } from "./ride";
 import { rideStops } from "./ride_stop";
+import { rideRouteCells } from "./ride_route_cell";
 import { prices } from "./price";
 import { bookings } from "./booking";
 import { reviews } from "./review";
@@ -81,6 +82,7 @@ export const ridesRelations = relations(rides, ({ one, many }) => ({
         references: [cars.id],
     }),
     rideStops: many(rideStops),
+    rideRouteCells: many(rideRouteCells),
     prices: many(prices),
     bookings: many(bookings),
     reviews: many(reviews),
@@ -102,6 +104,13 @@ export const rideStopsRelations = relations(rideStops, ({ one, many }) => ({
     }),
     bookingsAsDropoffStop: many(bookings, {
         relationName: "booking_dropoff_stop",
+    }),
+}));
+
+export const rideRouteCellsRelations = relations(rideRouteCells, ({ one }) => ({
+    ride: one(rides, {
+        fields: [rideRouteCells.rideId],
+        references: [rides.id],
     }),
 }));
 

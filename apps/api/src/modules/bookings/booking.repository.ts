@@ -47,6 +47,9 @@ export type RideForBookingContext = {
 
 export type BookingRow = typeof bookingsTable.$inferSelect;
 
+import * as h3 from "h3-js";
+import { rideRouteCells as rideRouteCellsTable } from "../../db/schema/ride_route_cell";
+
 const findPendingRequestsForDriver = async (
     executor: Executor,
     driverId: string
@@ -286,6 +289,60 @@ const findRideStops = async (
         );
 };
 
+const insertDynamicStop = async (
+    executor: Executor,
+    rideId: string,
+    lat: number,
+    lng: number,
+    city: string
+): Promise<string> => {
+    const [newStop] = await executor.insert(rideStopsTable).values({
+        rideId,
+        lat,
+        lng,
+        city,
+        address: city,
+        countryCode: "SK", // default for now
+        h3Res7: h3.latLngToCell(lat, lng, 7),
+        h3Res8: h3.latLngToCell(lat, lng, 8),
+        stopOrder: 999999, // temporary, will be reordered below
+        isDynamic: true,
+    }).returning({ id: rideStopsTable.id });
+
+    // Fetch all stops, find their closest point order, and sort them
+    const allStops = await executor.select().from(rideStopsTable).where(eq(rideStopsTable.rideId, rideId));
+    
+    const stopsWithOrder = await Promise.all(allStops.map(async (stop) => {
+        const pRes = await executor.execute(sql`
+            SELECT point_order as "pointOrder"
+            FROM ${rideRouteCellsTable}
+            WHERE ride_id = ${rideId}
+            ORDER BY (
+                6371 * acos(
+                    least(1.0, cos(radians(${stop.lat})) * cos(radians(lat)) * cos(radians(lng) - radians(${stop.lng})) +
+                    sin(radians(${stop.lat})) * sin(radians(lat)))
+                )
+            ) ASC
+            LIMIT 1
+        `);
+        return {
+            id: stop.id,
+            pointOrder: (pRes[0] as any)?.pointOrder || stop.stopOrder,
+        };
+    }));
+
+    stopsWithOrder.sort((a, b) => a.pointOrder - b.pointOrder);
+
+    // Update stopOrder for all stops
+    for (let i = 0; i < stopsWithOrder.length; i++) {
+        await executor.update(rideStopsTable)
+            .set({ stopOrder: i })
+            .where(eq(rideStopsTable.id, stopsWithOrder[i].id));
+    }
+
+    return newStop.id;
+};
+
 const findSegmentPrice = async (
     executor: Executor,
     rideId: string,
@@ -420,4 +477,5 @@ export const BookingRepository = {
     insertBooking,
     updateBookingFields,
     insertBookingStatusHistory,
+    insertDynamicStop,
 };

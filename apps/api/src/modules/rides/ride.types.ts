@@ -90,11 +90,19 @@ export type RideSearchResultItem = {
         pickupStopId: string;
         city: string;
         plannedDepartureAt: Date | null;
+        isDynamic?: boolean;
+        lat?: number;
+        lng?: number;
+        distanceKm?: number;
     };
     dropoffStop: {
         dropoffStopId: string;
         city: string;
         plannedArrivalAt: Date | null;
+        isDynamic?: boolean;
+        lat?: number;
+        lng?: number;
+        distanceKm?: number;
     };
 
     priceAmount: number | null;

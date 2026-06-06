@@ -94,6 +94,8 @@ export function PassengerHomePage({
                             const parsed = JSON.parse(from.id);
                             if (parsed.lat) params.set("startLat", parsed.lat);
                             if (parsed.lng) params.set("startLng", parsed.lng);
+                            const city = parsed.city || parsed.address;
+                            if (city) params.set("startCity", city);
                         } catch {
                             params.set("fromId", from.id);
                         }
@@ -103,6 +105,8 @@ export function PassengerHomePage({
                             const parsed = JSON.parse(to.id);
                             if (parsed.lat) params.set("destLat", parsed.lat);
                             if (parsed.lng) params.set("destLng", parsed.lng);
+                            const city = parsed.city || parsed.address;
+                            if (city) params.set("destCity", city);
                         } catch {
                             params.set("toId", to.id);
                         }

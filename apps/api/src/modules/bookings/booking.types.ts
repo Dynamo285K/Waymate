@@ -35,7 +35,11 @@ export type BookingTimeframe = "UPCOMING" | "PAST" | "ALL";
 export type CreateBookingInput = Pick<
     BookingInsert,
     "rideId" | "passengerId" | "pickupStopId" | "dropoffStopId" | "seatCount"
->;
+> & {
+    dynamicPickup?: { lat: number; lng: number; city: string };
+    dynamicDropoff?: { lat: number; lng: number; city: string };
+    priceAmount?: number;
+};
 
 // Defines how a single booking appears in the passenger's "My rides" list.
 export type PassengerBookingListItem = {

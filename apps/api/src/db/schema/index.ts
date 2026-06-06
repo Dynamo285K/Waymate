@@ -23,3 +23,4 @@ export * from "./report_status_history";
 export * from "./blocklist";
 export * from "./rate_limit";
 export * from "./city";
+export * from "./ride_route_cell";

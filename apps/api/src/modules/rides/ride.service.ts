@@ -1,5 +1,6 @@
 import { db } from "../../db";
 import { RideRepository } from "./ride.repository";
+import { fetchOsrmRouteCells } from "./osrm.service";
 import { RideError, RideErrorCodes } from "./ride.errors";
 import { REVIEW_WINDOW_DAYS } from "../reviews/review.service";
 import * as h3 from "h3-js";
@@ -84,7 +85,9 @@ const searchRides = async (query: SearchRidesQuery) => {
         query.startLng,
         query.destLat,
         query.destLng,
-        query.travelDate
+        query.travelDate,
+        query.startCity || "Dynamic Location",
+        query.destCity || "Dynamic Location"
     );
 };
 
@@ -173,6 +176,20 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
 
             await RideRepository.insertRidePrices(tx, pricesToInsert);
         }
+
+        // --- OSRM Integration: Generate cells for the route ---
+        const osrmCells = await fetchOsrmRouteCells(input.stops);
+        if (osrmCells.length > 0) {
+            const routeCellsToInsert = osrmCells.map((cell) => ({
+                rideId: newRide.id,
+                h3Res7: cell.h3Res7,
+                lat: cell.lat,
+                lng: cell.lng,
+                pointOrder: cell.pointOrder,
+            }));
+            await RideRepository.insertRideRouteCells(tx, routeCellsToInsert);
+        }
+        // -----------------------------------------------------
 
         await RideRepository.insertRideStatusHistory(tx, {
             rideId: newRide.id,

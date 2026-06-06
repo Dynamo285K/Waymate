@@ -6,15 +6,19 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { RideId } from "./rideId";
-import type { RideStopId } from "./rideStopId";
+import type { CreateBookingBodyDynamicPickup } from "./createBookingBodyDynamicPickup";
+import type { CreateBookingBodyDynamicDropoff } from "./createBookingBodyDynamicDropoff";
 
 export interface CreateBookingBody {
     rideId: RideId;
-    pickupStopId: RideStopId;
-    dropoffStopId: RideStopId;
+    pickupStopId: string;
+    dropoffStopId: string;
     /**
      * @minimum 1
      * @maximum 9007199254740991
      */
     seatCount: number;
+    dynamicPickup?: CreateBookingBodyDynamicPickup;
+    dynamicDropoff?: CreateBookingBodyDynamicDropoff;
+    priceAmount?: number;
 }

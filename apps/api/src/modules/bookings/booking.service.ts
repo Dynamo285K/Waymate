@@ -52,32 +52,68 @@ const createBookingRequest = async (
             throw new BookingError(BookingErrorCodes.SelfBookingNotAllowed);
         }
 
+        let finalPickupStopId = payload.pickupStopId;
+        let finalDropoffStopId = payload.dropoffStopId;
+        let finalAmount = 0;
+        let currency = "EUR";
+
+        if (payload.pickupStopId === "dynamic" && payload.dynamicPickup) {
+            finalPickupStopId = await BookingRepository.insertDynamicStop(
+                tx,
+                payload.rideId,
+                payload.dynamicPickup.lat,
+                payload.dynamicPickup.lng,
+                payload.dynamicPickup.city
+            );
+        }
+
+        if (payload.dropoffStopId === "dynamic" && payload.dynamicDropoff) {
+            finalDropoffStopId = await BookingRepository.insertDynamicStop(
+                tx,
+                payload.rideId,
+                payload.dynamicDropoff.lat,
+                payload.dynamicDropoff.lng,
+                payload.dynamicDropoff.city
+            );
+        }
+
         const stops = await BookingRepository.findRideStops(
             tx,
             payload.rideId,
-            [payload.pickupStopId, payload.dropoffStopId]
+            [finalPickupStopId, finalDropoffStopId]
         );
 
         if (stops.length !== 2) {
             throw new BookingError(BookingErrorCodes.InvalidStops);
         }
 
-        const pickup = stops.find((s) => s.id === payload.pickupStopId);
-        const dropoff = stops.find((s) => s.id === payload.dropoffStopId);
+        const pickup = stops.find((s) => s.id === finalPickupStopId);
+        const dropoff = stops.find((s) => s.id === finalDropoffStopId);
 
         if (!pickup || !dropoff || pickup.stopOrder >= dropoff.stopOrder) {
             throw new BookingError(BookingErrorCodes.InvalidStops);
         }
 
-        const priceRecord = await BookingRepository.findSegmentPrice(
-            tx,
-            payload.rideId,
-            payload.pickupStopId,
-            payload.dropoffStopId
-        );
+        if (payload.pickupStopId === "dynamic" || payload.dropoffStopId === "dynamic") {
+            finalAmount = (payload.priceAmount || 0) * payload.seatCount;
+            // Fallback currency
+            const firstPrice = await tx.query.prices.findFirst({
+                where: (prices, { eq }) => eq(prices.rideId, payload.rideId)
+            });
+            currency = firstPrice?.currency || "EUR";
+        } else {
+            const priceRecord = await BookingRepository.findSegmentPrice(
+                tx,
+                payload.rideId,
+                finalPickupStopId,
+                finalDropoffStopId
+            );
 
-        if (!priceRecord) {
-            throw new BookingError(BookingErrorCodes.PriceNotFound);
+            if (!priceRecord) {
+                throw new BookingError(BookingErrorCodes.PriceNotFound);
+            }
+            finalAmount = priceRecord.amount * payload.seatCount;
+            currency = priceRecord.currency;
         }
 
         const heldSeats = await BookingRepository.sumSeatsForRide(
@@ -101,16 +137,14 @@ const createBookingRequest = async (
             throw new BookingError(BookingErrorCodes.AlreadyBooked);
         }
 
-        const totalAmount = priceRecord.amount * payload.seatCount;
-
         const newBooking = await BookingRepository.insertBooking(tx, {
             passengerId: payload.passengerId,
             rideId: payload.rideId,
-            pickupStopId: payload.pickupStopId,
-            dropoffStopId: payload.dropoffStopId,
+            pickupStopId: finalPickupStopId,
+            dropoffStopId: finalDropoffStopId,
             seatCount: payload.seatCount,
-            priceAmount: totalAmount,
-            currency: priceRecord.currency,
+            priceAmount: finalAmount,
+            currency: currency,
         });
 
         await BookingRepository.insertBookingStatusHistory(tx, {

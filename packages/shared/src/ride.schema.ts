@@ -147,8 +147,10 @@ export const CreateRideBodySchema = z
 export const SearchRidesQuerySchema = z.object({
     startLat: z.coerce.number().min(-90).max(90),
     startLng: z.coerce.number().min(-180).max(180),
+    startCity: z.string().optional(),
     destLat: z.coerce.number().min(-90).max(90),
     destLng: z.coerce.number().min(-180).max(180),
+    destCity: z.string().optional(),
     travelDate: z.coerce.date(),
 });
 
@@ -161,13 +163,19 @@ export const RideSearchResultItemSchema = z.object({
     seatsLeft: z.number().int(),
     driver: PublicUserPreviewWithRatingSchema,
     pickupStop: z.object({
-        pickupStopId: RideStopIdSchema,
+        pickupStopId: z.string(),
+        isDynamic: z.boolean().optional(),
+        lat: z.number().optional(),
+        lng: z.number().optional(),
         city: z.string(),
         plannedDepartureAt: z.date().nullable(),
         distanceKm: z.number().optional(),
     }),
     dropoffStop: z.object({
-        dropoffStopId: RideStopIdSchema,
+        dropoffStopId: z.string(),
+        isDynamic: z.boolean().optional(),
+        lat: z.number().optional(),
+        lng: z.number().optional(),
         city: z.string(),
         plannedArrivalAt: z.date().nullable(),
         distanceKm: z.number().optional(),
