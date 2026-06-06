@@ -1,6 +1,11 @@
 @import "@waymate/ui/dist/index.css";
 @import "tailwindcss";
 
+@theme {
+    --breakpoint-600: 37.5rem;   /* max-600: → @media (width < 600px) */
+    --breakpoint-900: 56.25rem;  /* max-900: → @media (width < 900px) */
+}
+
 /* Prevent Radix Select from locking page scroll — dropdowns are not modals */
 body[data-scroll-locked] {
     overflow: unset !important;

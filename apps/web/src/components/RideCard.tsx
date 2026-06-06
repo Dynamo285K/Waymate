@@ -6,7 +6,6 @@ import {
     ClockIcon,
     UserIcon,
 } from "@waymate/ui";
-import "./RideCard.css";
 
 export type RideCardLabels = {
     seatsLeft?: (count: number) => string;
@@ -67,6 +66,10 @@ export type RideCardProps =
 export function RideCard(props: RideCardProps) {
     const { from, to, datetime, price, duration, labels } = props;
 
+    const hasDriver =
+        props.variant === "passenger-upcoming" ||
+        props.variant === "passenger-past";
+
     function seatsText(count: number) {
         return labels?.seatsLeft
             ? labels.seatsLeft(count)
@@ -74,31 +77,37 @@ export function RideCard(props: RideCardProps) {
     }
 
     return (
-        <div className="ride-card">
-            <div className="ride-card__left">
-                <div className="ride-card__route">
-                    <div className="ride-card__route-origin">
-                        <span className="ride-card__route-dot" />
-                        <span className="ride-card__route-label">{from}</span>
+        <div className="flex justify-between items-center gap-4 py-5 px-6 bg-(--color-card) border border-(--color-border) rounded-2xl max-600:flex-col max-600:items-stretch max-600:gap-3 max-600:p-4">
+            <div className="flex flex-col gap-3">
+                <div className="flex flex-col">
+                    <div className="flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-full border-2 border-(--color-text-primary) shrink-0" />
+                        <span className="text-[17px] font-semibold text-(--color-text-primary)">
+                            {from}
+                        </span>
                     </div>
-                    <div className="ride-card__route-line" />
-                    <div className="ride-card__route-destination">
+                    <div className="w-0.5 h-5 bg-(--color-text-secondary) ml-1.25" />
+                    <div className="flex items-center gap-2 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-(--color-text-primary) [&_svg]:shrink-0">
                         <MapPinIcon />
-                        <span className="ride-card__route-label">{to}</span>
+                        <span className="text-[17px] font-semibold text-(--color-text-primary)">
+                            {to}
+                        </span>
                     </div>
                 </div>
-                <div className="ride-card__meta">
+                <div className="flex items-center gap-1.5 max-600:flex-wrap [&_svg]:w-4 [&_svg]:h-4 [&_svg]:text-(--color-text-secondary) [&_svg]:shrink-0">
                     <ClockIcon />
-                    <span className="ride-card__meta-text">{datetime}</span>
+                    <span className="text-sm text-(--color-text-secondary) max-600:whitespace-nowrap">
+                        {datetime}
+                    </span>
                     {duration && (
-                        <span className="ride-card__meta-text">
+                        <span className="text-sm text-(--color-text-secondary) max-600:whitespace-nowrap">
                             · {duration}
                         </span>
                     )}
                     {props.variant === "driver-upcoming" && (
                         <>
-                            <UserIcon />
-                            <span className="ride-card__meta-text">
+                            <UserIcon className="ml-3" />
+                            <span className="text-sm text-(--color-text-secondary)">
                                 {props.seatsLeft === "full"
                                     ? (labels?.full ?? "Full")
                                     : seatsText(props.seatsLeft)}
@@ -108,40 +117,45 @@ export function RideCard(props: RideCardProps) {
                     {props.variant === "passenger-upcoming" &&
                         props.seatsLeft !== undefined && (
                             <>
-                                <UserIcon />
-                                <span className="ride-card__meta-text">
+                                <UserIcon className="ml-3" />
+                                <span className="text-sm text-(--color-text-secondary)">
                                     {seatsText(props.seatsLeft)}
                                 </span>
                             </>
                         )}
                 </div>
             </div>
-            <div className="ride-card__right">
-                {(props.variant === "passenger-upcoming" ||
-                    props.variant === "passenger-past") && (
-                    <div className="ride-card__driver">
+            <div
+                className={`flex flex-col items-end gap-2 shrink-0 max-600:flex-row max-600:items-center max-600:shrink ${hasDriver ? "max-600:justify-between" : "max-600:justify-end"}`}
+            >
+                {hasDriver && (
+                    <div className="flex items-center gap-3 self-end max-600:self-auto">
                         <Avatar
-                            name={props.driverName}
+                            name={(props as PassengerUpcomingProps).driverName}
                             size="md"
                         />
-                        <div className="ride-card__driver-info">
-                            <span className="ride-card__driver-name">
-                                {props.driverName}
+                        <div className="flex flex-col gap-0.5">
+                            <span className="text-[15px] font-semibold text-(--color-text-primary) whitespace-nowrap">
+                                {(props as PassengerUpcomingProps).driverName}
                             </span>
-                            <div className="ride-card__driver-rating">
+                            <div className="flex items-center gap-1 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-(--color-dark-yellow) [&_svg]:fill-(--color-dark-yellow) [&_svg]:shrink-0">
                                 <StarIcon />
-                                <span className="ride-card__driver-rating-value">
-                                    {props.driverRating.toFixed(1)}
+                                <span className="text-[13px] text-(--color-text-secondary)">
+                                    {(
+                                        props as PassengerUpcomingProps
+                                    ).driverRating.toFixed(1)}
                                 </span>
                             </div>
                         </div>
                     </div>
                 )}
-                <div className="ride-card__price-actions">
-                    <span className="ride-card__price">{price}€</span>
+                <div className="flex flex-col items-end gap-2 max-600:items-end">
+                    <span className="text-[22px] font-bold text-(--color-text-primary)">
+                        {price}€
+                    </span>
                     {props.variant === "driver-upcoming" && (
                         <>
-                            <div className="ride-card__actions">
+                            <div className="flex gap-2">
                                 {labels?.viewPassengers !== "" && (
                                     <Button
                                         variant="secondary"
@@ -170,7 +184,7 @@ export function RideCard(props: RideCardProps) {
                                     </Button>
                                 )}
                             </div>
-                            <span className="ride-card__seats-bottom">
+                            <span className="text-[13px] text-(--color-text-secondary) text-right">
                                 {props.seatsLeft === "full"
                                     ? (labels?.full ?? "Full")
                                     : seatsText(props.seatsLeft)}
@@ -186,7 +200,7 @@ export function RideCard(props: RideCardProps) {
                         </Button>
                     )}
                     {props.variant === "passenger-upcoming" && (
-                        <div className="ride-card__actions">
+                        <div className="flex gap-2">
                             {props.status === "pending" ? (
                                 <Button variant="secondary">
                                     {labels?.pendingConfirmation ??
@@ -211,7 +225,7 @@ export function RideCard(props: RideCardProps) {
                         </div>
                     )}
                     {props.variant === "passenger-past" && (
-                        <div className="ride-card__actions">
+                        <div className="flex gap-2">
                             <Button
                                 variant="black"
                                 onClick={props.onRateDriver}
