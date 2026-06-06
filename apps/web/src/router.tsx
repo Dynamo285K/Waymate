@@ -129,23 +129,23 @@ const EditProfilePage = lazyPage(
 );
 const AddCarPage = lazyPage(() => import("./pages/AddCarPage"), "AddCarPage");
 const AdminDashboardPage = lazyPage(
-    () => import("./pages/AdminDashboardPage"),
+    () => import("./pages/admin/dashboard/AdminDashboardPage"),
     "AdminDashboardPage"
 );
 const AdminRidesPage = lazyPage(
-    () => import("./pages/AdminRides"),
+    () => import("./pages/admin/rides/AdminRidesPage"),
     "AdminRidesPage"
 );
 const AdminUsersPage = lazyPage(
-    () => import("./pages/AdminUsersPage"),
+    () => import("./pages/admin/users/AdminUsersPage"),
     "AdminUsersPage"
 );
 const AdminReviewsPage = lazyPage(
-    () => import("./pages/AdminReviews"),
+    () => import("./pages/admin/reviews/AdminReviewsPage"),
     "AdminReviewsPage"
 );
 const AdminReportsPage = lazyPage(
-    () => import("./pages/AdminReports"),
+    () => import("./pages/admin/reports/AdminReportsPage"),
     "AdminReportsPage"
 );
 
