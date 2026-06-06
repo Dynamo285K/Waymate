@@ -1,5 +1,5 @@
 import type { CreateRideBody } from "../api-client/model/createRideBody";
-import type { CityListItem } from "../api-client/model/cityListItem";
+import type { LocationSuggestion } from "../components/LocationAutocomplete";
 
 // Pure helpers behind the offer-ride form. Kept out of the page component so
 // they can be unit-tested and reused without dragging React in.
@@ -67,8 +67,8 @@ export type BuildRideBodyParams = {
     rideTime: string;
     seats: string;
     price: string;
-    pickupCity: CityListItem | null;
-    dropoffCity: CityListItem | null;
+    pickupCity: LocationSuggestion | null;
+    dropoffCity: LocationSuggestion | null;
     durationMinutes: number;
 };
 
@@ -111,16 +111,18 @@ export function buildCreateRideBody(
         description: null,
         stops: [
             {
-                cityId: params.pickupCity.id,
-                address: params.pickupCity.name,
+                address: params.pickupCity.address,
+                city: params.pickupCity.city,
+                countryCode: params.pickupCity.countryCode,
                 lat: params.pickupCity.lat,
                 lng: params.pickupCity.lng,
                 plannedArrivalAt: null,
                 plannedDepartureAt: departureAt.toISOString(),
             },
             {
-                cityId: params.dropoffCity.id,
-                address: params.dropoffCity.name,
+                address: params.dropoffCity.address,
+                city: params.dropoffCity.city,
+                countryCode: params.dropoffCity.countryCode,
                 lat: params.dropoffCity.lat,
                 lng: params.dropoffCity.lng,
                 plannedArrivalAt: null,

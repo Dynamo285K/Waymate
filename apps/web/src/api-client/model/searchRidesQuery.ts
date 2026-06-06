@@ -5,10 +5,27 @@
  * Carpooling backend powering the Waymate web app.
  * OpenAPI spec version: 0.1.0
  */
-import type { CityId } from "./cityId";
 
 export interface SearchRidesQuery {
-    startCityId: CityId;
-    destinationCityId: CityId;
+    /**
+     * @minimum -90
+     * @maximum 90
+     */
+    startLat: number;
+    /**
+     * @minimum -180
+     * @maximum 180
+     */
+    startLng: number;
+    /**
+     * @minimum -90
+     * @maximum 90
+     */
+    destLat: number;
+    /**
+     * @minimum -180
+     * @maximum 180
+     */
+    destLng: number;
     travelDate: string;
 }

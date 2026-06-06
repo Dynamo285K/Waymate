@@ -13,7 +13,8 @@ import { AvailableRideCard } from "./AvailableRideCard";
 import { formatRideDate, formatDuration } from "../lib/date-format";
 import { toUiLanguage } from "../lib/language";
 import { useGetRidesAvailable } from "../api-client/rides/rides";
-import { getCities } from "../api-client/cities/cities";
+import { fetchPhotonLocations } from "../lib/geocoding/photon";
+import { useUserLocation } from "../hooks/useUserLocation";
 
 type AvailableRide = {
     id: string | number;
@@ -195,6 +196,7 @@ export function HomeContent({
     onBook,
 }: HomeContentProps) {
     const { t } = useTranslation();
+    const userLocation = useUserLocation();
     const {
         data: availableRideRows,
         isLoading: areAvailableRidesLoading,
@@ -243,10 +245,12 @@ export function HomeContent({
                 <div className="mt-8 w-full max-w-2xl">
                     <SearchBox
                         onSearchCities={async (q) => {
-                            const results = await getCities({ q, limit: 8 });
+                            const results = await fetchPhotonLocations(q, userLocation, "city");
                             return results.map((c) => ({
-                                id: c.id,
-                                name: c.name,
+                                // HACK: @waymate/ui SearchBox only accepts {id, name}. 
+                                // We stringify the coordinates into the 'id' so we can parse them on submission.
+                                id: JSON.stringify({ lat: c.lat, lng: c.lng, countryCode: c.countryCode, city: c.city, address: c.address }),
+                                name: `${c.address}${c.city && c.city !== c.address ? `, ${c.city}` : ""} (${c.countryCode})`,
                             }));
                         }}
                         onSearch={(from, to, date) =>

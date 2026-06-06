@@ -17,7 +17,7 @@ import { bookingStatusHistory } from "./booking_status_history";
 import { reviewStatusHistory } from "./review_status_history";
 import { reportStatusHistory } from "./report_status_history";
 import { blocklist } from "./blocklist";
-import { cities } from "./city";
+
 
 export const usersRelations = relations(users, ({ many }) => ({
     cars: many(cars),

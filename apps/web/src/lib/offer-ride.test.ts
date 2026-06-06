@@ -7,24 +7,24 @@ import {
     parseDurationMinutes,
     parsePositiveInteger,
 } from "./offer-ride";
-import type { CityListItem } from "../api-client/model/cityListItem";
+import type { LocationSuggestion } from "../components/LocationAutocomplete";
 
-const bratislava: CityListItem = {
+const bratislava: LocationSuggestion = {
     id: "11111111-1111-1111-1111-111111111111",
-    name: "Bratislava",
+    address: "Bratislava",
+    city: "Bratislava",
     countryCode: "SK",
     lat: 48.1486,
     lng: 17.1077,
-    population: 440000,
 };
 
-const kosice: CityListItem = {
+const kosice: LocationSuggestion = {
     id: "22222222-2222-2222-2222-222222222222",
-    name: "Košice",
+    address: "Košice",
+    city: "Košice",
     countryCode: "SK",
     lat: 48.7164,
     lng: 21.2611,
-    population: 230000,
 };
 
 describe("normalizePlate", () => {
@@ -127,8 +127,10 @@ describe("buildCreateRideBody", () => {
         expect(body.offeredSeats).toBe(3);
         expect(body.currency).toBe("EUR");
         expect(body.stops).toHaveLength(2);
-        expect(body.stops[0].cityId).toBe(bratislava.id);
-        expect(body.stops[1].cityId).toBe(kosice.id);
+        expect(body.stops[0].city).toBe(bratislava.city);
+        expect(body.stops[0].lat).toBe(bratislava.lat);
+        expect(body.stops[1].city).toBe(kosice.city);
+        expect(body.stops[1].lat).toBe(kosice.lat);
         expect(body.prices?.[0]?.amount).toBe(12);
     });
 
