@@ -10,7 +10,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { LayoutProvider } from "./lib/layout-context";
 import type { useLayout } from "./lib/use-layout";
 import { HomeRoute } from "./lib/route-components";
-import { RouteErrorBoundary } from "./components/RouteErrorBoundary";
+import { RouteErrorBoundary } from "./components/shared/RouteErrorBoundary";
 import { makeAudienceComponent } from "./lib/make-audience-component";
 import {
     CURRENT_USER_QUERY_KEY,
@@ -49,103 +49,112 @@ function lazyPage(
     );
 }
 
-const LoginPage = lazyPage(() => import("./pages/LoginPage"), "LoginPage");
+const LoginPage = lazyPage(
+    () => import("./pages/auth/login/LoginPage"),
+    "LoginPage"
+);
 const RegisterPage = lazyPage(
-    () => import("./pages/RegisterPage"),
+    () => import("./pages/auth/register/RegisterPage"),
     "RegisterPage"
 );
 const OnboardingPage = lazyPage(
-    () => import("./pages/OnboardingPage"),
+    () => import("./pages/auth/onboarding/OnboardingPage"),
     "OnboardingPage"
 );
 const ForgotPasswordPage = lazyPage(
-    () => import("./pages/ForgotPasswordPage"),
+    () => import("./pages/auth/forgot-password/ForgotPasswordPage"),
     "ForgotPasswordPage"
 );
-const RidesPage = lazyPage(() => import("./pages/RidesPage"), "RidesPage");
+const RidesPage = lazyPage(
+    () => import("./pages/rides/RidesPage"),
+    "RidesPage"
+);
 const PassengerHomePage = lazyPage(
-    () => import("./pages/PassengerHomePage"),
+    () => import("./pages/passenger/home/PassengerHomePage"),
     "PassengerHomePage"
 );
 const PassengerChatPage = lazyPage(
-    () => import("./pages/PassengerChatPage"),
+    () => import("./pages/passenger/chat/PassengerChatPage"),
     "PassengerChatPage"
 );
 const PassengerRidesPage = lazyPage(
-    () => import("./pages/PassengerRidesPage"),
+    () => import("./pages/passenger/rides-search/PassengerRidesPage"),
     "PassengerRidesPage"
 );
 const PassengerMyRidesPage = lazyPage(
-    () => import("./pages/PassengerMyRidesPage"),
+    () => import("./pages/passenger/my-rides/PassengerMyRidesPage"),
     "PassengerMyRidesPage"
 );
 const PassengerProfilePage = lazyPage(
-    () => import("./pages/PassengerProfilePage"),
+    () => import("./pages/passenger/profile/PassengerProfilePage"),
     "PassengerProfilePage"
 );
 const PassengerRatingsPage = lazyPage(
-    () => import("./pages/PassengerRatingsPage"),
+    () => import("./pages/passenger/ratings/PassengerRatingsPage"),
     "PassengerRatingsPage"
 );
 const DriverHomePage = lazyPage(
-    () => import("./pages/DriverHomePage"),
+    () => import("./pages/driver/home/DriverHomePage"),
     "DriverHomePage"
 );
 const DriverChatPage = lazyPage(
-    () => import("./pages/DriverChatPage"),
+    () => import("./pages/driver/chat/DriverChatPage"),
     "DriverChatPage"
 );
 const DriverMyRidesPage = lazyPage(
-    () => import("./pages/DriverMyRidesPage"),
+    () => import("./pages/driver/my-rides/DriverMyRidesPage"),
     "DriverMyRidesPage"
 );
 const DriverPassengersPage = lazyPage(
-    () => import("./pages/DriverPassengersPage"),
+    () => import("./pages/driver/passengers/DriverPassengersPage"),
     "DriverPassengersPage"
 );
 const DriverRatePassengersPage = lazyPage(
-    () => import("./pages/DriverRatePassengersPage"),
+    () => import("./pages/driver/rate-passengers/DriverRatePassengersPage"),
     "DriverRatePassengersPage"
 );
 const DriverOfferRidePage = lazyPage(
-    () => import("./pages/DriverOfferRidePage"),
+    () => import("./pages/driver/offer-ride/DriverOfferRidePage"),
     "DriverOfferRidePage"
 );
 const DriverRideRequestsPage = lazyPage(
-    () => import("./pages/DriverRideRequestsPage"),
+    () => import("./pages/driver/ride-requests/DriverRideRequestsPage"),
     "DriverRideRequestsPage"
 );
 const DriverProfilePage = lazyPage(
-    () => import("./pages/DriverProfilePage"),
+    () => import("./pages/driver/profile/DriverProfilePage"),
     "DriverProfilePage"
 );
 const DriverRatingsPage = lazyPage(
-    () => import("./pages/DriverRatingsPage"),
+    () => import("./pages/driver/ratings/DriverRatingsPage"),
     "DriverRatingsPage"
 );
 const EditProfilePage = lazyPage(
-    () => import("./pages/EditProfilePage"),
+    () => import("./pages/profile/edit/EditProfilePage"),
     "EditProfilePage"
 );
-const AddCarPage = lazyPage(() => import("./pages/AddCarPage"), "AddCarPage");
+const AddCarPage = lazyPage(
+    () => import("./pages/car/add/AddCarPage"),
+    "AddCarPage"
+);
 const AdminDashboardPage = lazyPage(
-    () => import("./pages/AdminDashboardPage"),
+    () => import("./pages/admin/dashboard/AdminDashboardPage"),
     "AdminDashboardPage"
 );
 const AdminRidesPage = lazyPage(
-    () => import("./pages/AdminRides"),
+    () => import("./pages/admin/rides/AdminRidesPage"),
     "AdminRidesPage"
 );
 const AdminUsersPage = lazyPage(
-    () => import("./pages/AdminUsersPage"),
+    () => import("./pages/admin/users/AdminUsersPage"),
     "AdminUsersPage"
 );
 const AdminReviewsPage = lazyPage(
-    () => import("./pages/AdminReviews"),
+    () => import("./pages/admin/reviews/AdminReviewsPage"),
     "AdminReviewsPage"
 );
 const AdminReportsPage = lazyPage(
-    () => import("./pages/AdminReports"),
+    () => import("./pages/admin/reports/AdminReportsPage"),
     "AdminReportsPage"
 );
 
