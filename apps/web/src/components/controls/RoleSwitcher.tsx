@@ -19,7 +19,12 @@ const itemBase =
 const itemActive =
     "bg-(--color-primary) text-(--color-secondary) shadow-[0_2px_8px_rgba(17,173,50,0.25)] relative z-[1]";
 
-export function RoleSwitcher({ value, onChange, labels, className }: RoleSwitcherProps) {
+export function RoleSwitcher({
+    value,
+    onChange,
+    labels,
+    className,
+}: RoleSwitcherProps) {
     return (
         <div
             className={`inline-flex items-center p-1 rounded-full bg-(--color-card) border border-(--color-border) shadow-[0_2px_6px_rgba(0,0,0,0.12)]${className ? ` ${className}` : ""}`}

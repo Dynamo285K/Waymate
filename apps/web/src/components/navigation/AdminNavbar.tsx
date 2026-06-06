@@ -68,10 +68,30 @@ function DashboardIcon() {
             strokeLinecap="round"
             strokeLinejoin="round"
         >
-            <rect x="3" y="3" width="7" height="7" />
-            <rect x="14" y="3" width="7" height="7" />
-            <rect x="14" y="14" width="7" height="7" />
-            <rect x="3" y="14" width="7" height="7" />
+            <rect
+                x="3"
+                y="3"
+                width="7"
+                height="7"
+            />
+            <rect
+                x="14"
+                y="3"
+                width="7"
+                height="7"
+            />
+            <rect
+                x="14"
+                y="14"
+                width="7"
+                height="7"
+            />
+            <rect
+                x="3"
+                y="14"
+                width="7"
+                height="7"
+            />
         </svg>
     );
 }
@@ -89,8 +109,18 @@ function AlertIcon() {
             strokeLinejoin="round"
         >
             <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-            <line x1="12" y1="9" x2="12" y2="13" />
-            <line x1="12" y1="17" x2="12.01" y2="17" />
+            <line
+                x1="12"
+                y1="9"
+                x2="12"
+                y2="13"
+            />
+            <line
+                x1="12"
+                y1="17"
+                x2="12.01"
+                y2="17"
+            />
         </svg>
     );
 }
@@ -184,7 +214,10 @@ export function AdminNavbar({
                 className="inline-flex items-center gap-2 border-0 bg-transparent p-0 cursor-pointer group"
                 aria-label="Open profile menu"
             >
-                <Avatar name={userName} size="sm" />
+                <Avatar
+                    name={userName}
+                    size="sm"
+                />
                 <span className="w-8 h-8 rounded-full bg-(--color-card) text-(--color-text-secondary) shadow-[0_2px_6px_rgba(0,0,0,0.12)] inline-flex items-center justify-center group-hover:bg-(--color-border) [&_svg]:w-4 [&_svg]:h-4">
                     <ChevronDownIcon />
                 </span>
@@ -257,7 +290,10 @@ export function AdminNavbar({
     const secondaryControls = (
         <>
             {adminBadge}
-            <LanguageSwitcher value={language} onChange={onLanguageChange} />
+            <LanguageSwitcher
+                value={language}
+                onChange={onLanguageChange}
+            />
             <IconButton
                 ariaLabel={themeLabel}
                 icon={themeIcon}

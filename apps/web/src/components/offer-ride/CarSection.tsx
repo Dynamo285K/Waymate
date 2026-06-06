@@ -43,7 +43,8 @@ const selectViewport =
 const selectItem =
     "w-full py-2 px-3 rounded-lg bg-transparent text-(--color-text-primary) text-sm font-medium cursor-pointer transition-[background] duration-100 outline-none select-none flex items-center hover:bg-(--color-bg) data-[highlighted]:bg-(--color-bg) data-[highlighted]:outline-none data-[state=checked]:bg-[color-mix(in_srgb,var(--color-primary)_10%,transparent)] data-[state=checked]:text-(--color-primary)";
 
-const selectIcon = "text-(--color-text-secondary) inline-flex items-center shrink-0";
+const selectIcon =
+    "text-(--color-text-secondary) inline-flex items-center shrink-0";
 
 export function CarSection({
     savedCars,
@@ -214,7 +215,9 @@ export function CarSection({
                                         position="popper"
                                         sideOffset={8}
                                     >
-                                        <Select.Viewport className={selectViewport}>
+                                        <Select.Viewport
+                                            className={selectViewport}
+                                        >
                                             {brandOptions.map((brand) => (
                                                 <Select.Item
                                                     key={brand}
@@ -257,13 +260,15 @@ export function CarSection({
                                         <ChevronDownIcon />
                                     </Select.Icon>
                                 </Select.Trigger>
-<Select.Portal>
+                                <Select.Portal>
                                     <Select.Content
                                         className={selectContent}
                                         position="popper"
                                         sideOffset={8}
                                     >
-                                        <Select.Viewport className={selectViewport}>
+                                        <Select.Viewport
+                                            className={selectViewport}
+                                        >
                                             {modelOptions.map((model) => (
                                                 <Select.Item
                                                     key={model}
