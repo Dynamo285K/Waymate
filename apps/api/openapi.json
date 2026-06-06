@@ -781,6 +781,14 @@
             }
           },
           {
+            "name": "startCity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "destLat",
             "in": "query",
             "required": true,
@@ -798,6 +806,14 @@
               "type": "number",
               "minimum": -180,
               "maximum": 180
+            }
+          },
+          {
+            "name": "destCity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -4774,6 +4790,9 @@
             "minimum": -180,
             "maximum": 180
           },
+          "startCity": {
+            "type": "string"
+          },
           "destLat": {
             "type": "number",
             "minimum": -90,
@@ -4783,6 +4802,9 @@
             "type": "number",
             "minimum": -180,
             "maximum": 180
+          },
+          "destCity": {
+            "type": "string"
           },
           "travelDate": {
             "type": "string",
@@ -5152,15 +5174,58 @@
             "$ref": "#/components/schemas/RideId"
           },
           "pickupStopId": {
-            "$ref": "#/components/schemas/RideStopId"
+            "type": "string"
           },
           "dropoffStopId": {
-            "$ref": "#/components/schemas/RideStopId"
+            "type": "string"
           },
           "seatCount": {
             "type": "integer",
             "minimum": 1,
             "maximum": 9007199254740991
+          },
+          "dynamicPickup": {
+            "type": "object",
+            "properties": {
+              "lat": {
+                "type": "number"
+              },
+              "lng": {
+                "type": "number"
+              },
+              "city": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "lat",
+              "lng",
+              "city"
+            ],
+            "additionalProperties": false
+          },
+          "dynamicDropoff": {
+            "type": "object",
+            "properties": {
+              "lat": {
+                "type": "number"
+              },
+              "lng": {
+                "type": "number"
+              },
+              "city": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "lat",
+              "lng",
+              "city"
+            ],
+            "additionalProperties": false
+          },
+          "priceAmount": {
+            "type": "number"
           }
         },
         "required": [
@@ -7741,7 +7806,16 @@
             "type": "object",
             "properties": {
               "pickupStopId": {
-                "$ref": "#/components/schemas/RideStopId"
+                "type": "string"
+              },
+              "isDynamic": {
+                "type": "boolean"
+              },
+              "lat": {
+                "type": "number"
+              },
+              "lng": {
+                "type": "number"
               },
               "city": {
                 "type": "string"
@@ -7750,6 +7824,9 @@
                 "nullable": true,
                 "type": "string",
                 "format": "date-time"
+              },
+              "distanceKm": {
+                "type": "number"
               }
             },
             "required": [
@@ -7763,7 +7840,16 @@
             "type": "object",
             "properties": {
               "dropoffStopId": {
-                "$ref": "#/components/schemas/RideStopId"
+                "type": "string"
+              },
+              "isDynamic": {
+                "type": "boolean"
+              },
+              "lat": {
+                "type": "number"
+              },
+              "lng": {
+                "type": "number"
               },
               "city": {
                 "type": "string"
@@ -7772,6 +7858,9 @@
                 "nullable": true,
                 "type": "string",
                 "format": "date-time"
+              },
+              "distanceKm": {
+                "type": "number"
               }
             },
             "required": [

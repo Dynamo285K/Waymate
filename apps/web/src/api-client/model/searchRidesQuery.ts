@@ -17,6 +17,7 @@ export interface SearchRidesQuery {
      * @maximum 180
      */
     startLng: number;
+    startCity?: string;
     /**
      * @minimum -90
      * @maximum 90
@@ -27,5 +28,6 @@ export interface SearchRidesQuery {
      * @maximum 180
      */
     destLng: number;
+    destCity?: string;
     travelDate: string;
 }

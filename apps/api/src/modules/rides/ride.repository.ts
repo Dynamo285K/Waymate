@@ -20,6 +20,7 @@ import { prices as pricesTable } from "../../db/schema/price";
 import { bookings as bookingsTable } from "../../db/schema/booking";
 import { users as usersTable } from "../../db/schema/user";
 import { reviews as reviewsTable } from "../../db/schema/review";
+import { rideRouteCells as rideRouteCellsTable } from "../../db/schema/ride_route_cell";
 import { rideStatusHistory as rideStatusHistoryTable } from "../../db/schema/ride_status_history";
 import { bookingStatusHistory as bookingStatusHistoryTable } from "../../db/schema";
 import { cars as carsTable } from "../../db/schema/car";
@@ -335,34 +336,33 @@ const searchRides = async (
     startLng: number,
     destLat: number,
     destLng: number,
-    travelDate: Date
+    travelDate: Date,
+    startCity: string,
+    destCity: string
 ): Promise<RideSearchResultItem[]> => {
     const startCell = h3.latLngToCell(startLat, startLng, 7);
     const destCell = h3.latLngToCell(destLat, destLng, 7);
     const startH3s = h3.gridDisk(startCell, 20); // Approx. 25-30 km radius
     const destH3s = h3.gridDisk(destCell, 20);
-    // Bound the day in the business time zone, not the server's local time —
-    // on a UTC host setHours(0..) would shift the window 1–2h off the user's
-    // calendar day and drop early/late rides. See shared/time.ts.
-    const { start: startOfDay, end: endOfDay } =
-        dayBoundsInTimeZone(travelDate);
+    const { start: startOfDay, end: endOfDay } = dayBoundsInTimeZone(travelDate);
 
-    // Haversine formula (6371 = Earth radius in km). least(1.0) prevents NaN on rounding errors.
+    const pickupCells = aliasedTable(rideRouteCellsTable, "pickup_cells");
+    const dropoffCells = aliasedTable(rideRouteCellsTable, "dropoff_cells");
+
     const pickupDistanceSql = sql<number>`(
         6371 * acos(
-            least(1.0, cos(radians(${startLat})) * cos(radians(${pickupStops.lat})) * cos(radians(${pickupStops.lng}) - radians(${startLng})) +
-            sin(radians(${startLat})) * sin(radians(${pickupStops.lat})))
+            least(1.0, cos(radians(${startLat})) * cos(radians(${pickupCells.lat})) * cos(radians(${pickupCells.lng}) - radians(${startLng})) +
+            sin(radians(${startLat})) * sin(radians(${pickupCells.lat})))
         )
     )::numeric`;
 
     const dropoffDistanceSql = sql<number>`(
         6371 * acos(
-            least(1.0, cos(radians(${destLat})) * cos(radians(${dropoffStops.lat})) * cos(radians(${dropoffStops.lng}) - radians(${destLng})) +
-            sin(radians(${destLat})) * sin(radians(${dropoffStops.lat})))
+            least(1.0, cos(radians(${destLat})) * cos(radians(${dropoffCells.lat})) * cos(radians(${dropoffCells.lng}) - radians(${destLng})) +
+            sin(radians(${destLat})) * sin(radians(${dropoffCells.lat})))
         )
     )::numeric`;
 
-    // We take the larger distance (pickup vs dropoff) to determine the sorting zone
     const maxDistanceSql = sql<number>`GREATEST(${pickupDistanceSql}, ${dropoffDistanceSql})`;
     const distanceZoneSql = sql<number>`
         CASE 
@@ -376,12 +376,8 @@ const searchRides = async (
     const driverRatings = executor
         .select({
             subjectId: reviewsTable.subjectId,
-            averageRating: sql<number>`AVG(${reviewsTable.rating})::float`.as(
-                "averageRating"
-            ),
-            reviewCount: sql<number>`COUNT(${reviewsTable.id})::int`.as(
-                "reviewCount"
-            ),
+            averageRating: sql<number>`AVG(${reviewsTable.rating})::float`.as("averageRating"),
+            reviewCount: sql<number>`COUNT(${reviewsTable.id})::int`.as("reviewCount"),
         })
         .from(reviewsTable)
         .where(
@@ -396,24 +392,43 @@ const searchRides = async (
     const capacityByRide = executor
         .select({
             rideId: bookingsTable.rideId,
-            occupiedSeats:
-                sql<number>`COALESCE(SUM(${bookingsTable.seatCount}), 0)::int`.as(
-                    "occupiedSeats"
-                ),
+            occupiedSeats: sql<number>`COALESCE(SUM(${bookingsTable.seatCount}), 0)::int`.as("occupiedSeats"),
         })
         .from(bookingsTable)
         .where(
             and(
-                inArray(bookingsTable.bookingStatus, [
-                    "PENDING",
-                    "CONFIRMED",
-                    "COMPLETED",
-                ]),
+                inArray(bookingsTable.bookingStatus, ["PENDING", "CONFIRMED", "COMPLETED"]),
                 bookingNotSoftDeleted
             )
         )
         .groupBy(bookingsTable.rideId)
         .as("search_capacity_by_ride");
+
+    const maxPriceByRide = executor
+        .select({
+            rideId: pricesTable.rideId,
+            totalPrice: sql<number>`MAX(${pricesTable.amount})::float`.as("totalPrice"),
+        })
+        .from(pricesTable)
+        .groupBy(pricesTable.rideId)
+        .as("max_price_by_ride");
+
+    const maxPointsByRide = executor
+        .select({
+            rideId: rideRouteCellsTable.rideId,
+            totalPoints: sql<number>`MAX(${rideRouteCellsTable.pointOrder})::float`.as("totalPoints"),
+        })
+        .from(rideRouteCellsTable)
+        .groupBy(rideRouteCellsTable.rideId)
+        .as("max_points_by_ride");
+
+    const calculatedPriceAmount = sql<number>`GREATEST(
+        1.0,
+        ROUND(
+            ((${maxPriceByRide.totalPrice} * (${dropoffCells.pointOrder} - ${pickupCells.pointOrder})) / 
+            GREATEST(1.0, ${maxPointsByRide.totalPoints}))::numeric, 
+        0)::float
+    )`;
 
     const result = await executor
         .select({
@@ -433,44 +448,44 @@ const searchRides = async (
                 reviewCount: sql<number>`COALESCE(${driverRatings.reviewCount}, 0)::int`,
             },
             pickupStop: {
-                pickupStopId: pickupStops.id,
-                city: pickupStops.city,
-                plannedDepartureAt: pickupStops.plannedDepartureAt,
+                pickupStopId: sql<string>`'dynamic'`,
+                isDynamic: sql<boolean>`true`,
+                lat: pickupCells.lat,
+                lng: pickupCells.lng,
+                city: sql<string>`${startCity}`,
+                plannedDepartureAt: ridesTable.departureAt,
                 distanceKm: sql<number>`ROUND(${pickupDistanceSql}, 1)::float`,
             },
             dropoffStop: {
-                dropoffStopId: dropoffStops.id,
-                city: dropoffStops.city,
-                plannedArrivalAt: dropoffStops.plannedArrivalAt,
+                dropoffStopId: sql<string>`'dynamic'`,
+                isDynamic: sql<boolean>`true`,
+                lat: dropoffCells.lat,
+                lng: dropoffCells.lng,
+                city: sql<string>`${destCity}`,
+                plannedArrivalAt: ridesTable.arrivalEstimateAt,
                 distanceKm: sql<number>`ROUND(${dropoffDistanceSql}, 1)::float`,
             },
-            priceAmount: pricesTable.amount,
+            priceAmount: calculatedPriceAmount,
         })
         .from(ridesTable)
         .innerJoin(usersTable, eq(ridesTable.driverId, usersTable.id))
         .leftJoin(driverRatings, eq(driverRatings.subjectId, usersTable.id))
         .innerJoin(
-            pickupStops,
+            pickupCells,
             and(
-                eq(ridesTable.id, pickupStops.rideId),
-                inArray(pickupStops.h3Res7, startH3s)
+                eq(ridesTable.id, pickupCells.rideId),
+                inArray(pickupCells.h3Res7, startH3s)
             )
         )
         .innerJoin(
-            dropoffStops,
+            dropoffCells,
             and(
-                eq(ridesTable.id, dropoffStops.rideId),
-                inArray(dropoffStops.h3Res7, destH3s)
+                eq(ridesTable.id, dropoffCells.rideId),
+                inArray(dropoffCells.h3Res7, destH3s)
             )
         )
-        .leftJoin(
-            pricesTable,
-            and(
-                eq(pricesTable.rideId, ridesTable.id),
-                eq(pricesTable.startStopId, pickupStops.id),
-                eq(pricesTable.endStopId, dropoffStops.id)
-            )
-        )
+        .leftJoin(maxPriceByRide, eq(maxPriceByRide.rideId, ridesTable.id))
+        .leftJoin(maxPointsByRide, eq(maxPointsByRide.rideId, ridesTable.id))
         .leftJoin(capacityByRide, eq(capacityByRide.rideId, ridesTable.id))
         .where(
             and(
@@ -478,14 +493,106 @@ const searchRides = async (
                 eq(ridesTable.rideStatus, "PLANNED"),
                 isNotNull(usersTable.firstName),
                 isNotNull(usersTable.lastName),
-                lt(pickupStops.stopOrder, dropoffStops.stopOrder),
+                lt(pickupCells.pointOrder, dropoffCells.pointOrder),
                 gte(ridesTable.departureAt, startOfDay),
                 lt(ridesTable.departureAt, endOfDay)
             )
         )
         .orderBy(asc(distanceZoneSql), asc(ridesTable.departureAt));
 
-    return result as RideSearchResultItem[];
+    // Deduplicate in JS: keep only the combination with the shortest total distance to passenger
+    const uniqueRides = new Map<string, RideSearchResultItem & { _totalDist: number }>();
+
+    for (const row of (result as RideSearchResultItem[])) {
+        const totalDist = (row.pickupStop.distanceKm || 0) + (row.dropoffStop.distanceKm || 0);
+        const existing = uniqueRides.get(row.rideId);
+
+        if (!existing || totalDist < existing._totalDist) {
+            uniqueRides.set(row.rideId, { ...row, _totalDist: totalDist });
+        }
+    }
+
+    const finalRides = Array.from(uniqueRides.values()).map(r => {
+        const { _totalDist, ...cleanRide } = r;
+        return cleanRide;
+    });
+
+    if (finalRides.length === 0) return [];
+
+    // Fetch actual stops and prices to map back to original if within 25km
+    const rideIds = finalRides.map(r => r.rideId);
+    
+    const allStops = await executor
+        .select()
+        .from(rideStopsTable)
+        .where(inArray(rideStopsTable.rideId, rideIds));
+        
+    const allPrices = await executor
+        .select()
+        .from(pricesTable)
+        .where(inArray(pricesTable.rideId, rideIds));
+
+    // Haversine formula in JS
+    const distanceKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+        const R = 6371; 
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+          Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+        return R * c;
+    };
+
+    for (const ride of finalRides) {
+        const stopsForRide = allStops.filter(s => s.rideId === ride.rideId);
+        
+        let actualPickupStop = null;
+        let actualDropoffStop = null;
+
+        for (const stop of stopsForRide) {
+            if (distanceKm(startLat, startLng, stop.lat, stop.lng) <= 25) {
+                actualPickupStop = stop;
+                break;
+            }
+        }
+
+        for (const stop of stopsForRide) {
+            if (distanceKm(destLat, destLng, stop.lat, stop.lng) <= 25) {
+                actualDropoffStop = stop;
+                break;
+            }
+        }
+
+        if (actualPickupStop) {
+            ride.pickupStop.pickupStopId = actualPickupStop.id;
+            ride.pickupStop.isDynamic = false;
+            ride.pickupStop.city = actualPickupStop.city;
+            ride.pickupStop.lat = actualPickupStop.lat;
+            ride.pickupStop.lng = actualPickupStop.lng;
+            ride.pickupStop.plannedDepartureAt = actualPickupStop.plannedDepartureAt;
+            ride.pickupStop.distanceKm = Number(distanceKm(startLat, startLng, actualPickupStop.lat, actualPickupStop.lng).toFixed(1));
+        }
+
+        if (actualDropoffStop) {
+            ride.dropoffStop.dropoffStopId = actualDropoffStop.id;
+            ride.dropoffStop.isDynamic = false;
+            ride.dropoffStop.city = actualDropoffStop.city;
+            ride.dropoffStop.lat = actualDropoffStop.lat;
+            ride.dropoffStop.lng = actualDropoffStop.lng;
+            ride.dropoffStop.plannedArrivalAt = actualDropoffStop.plannedArrivalAt;
+            ride.dropoffStop.distanceKm = Number(distanceKm(destLat, destLng, actualDropoffStop.lat, actualDropoffStop.lng).toFixed(1));
+        }
+
+        if (actualPickupStop && actualDropoffStop) {
+            const exactPrice = allPrices.find(p => p.rideId === ride.rideId && p.startStopId === actualPickupStop.id && p.endStopId === actualDropoffStop.id);
+            if (exactPrice) {
+                ride.priceAmount = exactPrice.amount;
+            }
+        }
+    }
+
+    return finalRides as RideSearchResultItem[];
 };
 
 const findActiveCarForDriver = async (
@@ -527,6 +634,14 @@ const insertRideStops = async (
         id: rideStopsTable.id,
         stopOrder: rideStopsTable.stopOrder,
     });
+};
+
+const insertRideRouteCells = async (
+    executor: Executor,
+    values: (typeof rideRouteCellsTable.$inferInsert)[]
+): Promise<void> => {
+    if (values.length === 0) return;
+    await executor.insert(rideRouteCellsTable).values(values);
 };
 
 const insertRidePrices = async (
@@ -734,6 +849,7 @@ export const RideRepository = {
     findActiveCarForDriver,
     insertRide,
     insertRideStops,
+    insertRideRouteCells,
     insertRidePrices,
     insertRideStatusHistory,
     findRideForCancel,

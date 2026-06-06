@@ -1,4 +1,5 @@
 import {
+    boolean,
     check,
     doublePrecision,
     index,
@@ -28,6 +29,7 @@ export const rideStops = pgTable(
         lat: doublePrecision("lat").notNull(),
         lng: doublePrecision("lng").notNull(),
         stopOrder: integer("stop_order").notNull(),
+        isDynamic: boolean("is_dynamic").default(false).notNull(),
         plannedArrivalAt: timestamptz("planned_arrival_at"),
         plannedDepartureAt: timestamptz("planned_departure_at"),
         createdAt: timestamptz("created_at").defaultNow().notNull(),

@@ -123,6 +123,8 @@ export * from "./completeRideResponseStatus";
 export * from "./countryCode";
 export * from "./countryCodeResponseList";
 export * from "./createBookingBody";
+export * from "./createBookingBodyDynamicDropoff";
+export * from "./createBookingBodyDynamicPickup";
 export * from "./createCarBody";
 export * from "./createCarBodyColor";
 export * from "./createReportBody";
