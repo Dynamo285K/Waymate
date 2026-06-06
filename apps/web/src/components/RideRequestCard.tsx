@@ -1,5 +1,4 @@
 import { Avatar, Button, StarIcon, MapPinIcon, ClockIcon } from "@waymate/ui";
-import "./RideRequestCard.css";
 
 export type RideRequestCardLabels = {
     seatsRequired?: (count: number) => string;
@@ -31,47 +30,51 @@ export function RideRequestCard({
     labels,
 }: RideRequestCardProps) {
     return (
-        <div className="ride-request-card">
-            <div className="ride-request-card__passenger">
+        <div className="flex items-center justify-between gap-6 py-5 px-6 bg-(--color-card) border border-(--color-border) rounded-2xl max-sm:flex-wrap max-sm:gap-3 max-sm:p-4">
+            <div className="flex items-center gap-4 shrink-0 max-sm:flex-1 max-sm:min-w-0">
                 <Avatar
                     name={name}
                     size="lg"
                 />
-                <div className="ride-request-card__passenger-info">
-                    <span className="ride-request-card__name">{name}</span>
-                    <div className="ride-request-card__rating">
+                <div className="flex flex-col gap-0.75">
+                    <span className="text-base font-semibold text-(--color-text-primary) whitespace-nowrap">
+                        {name}
+                    </span>
+                    <div className="flex items-center gap-1 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-(--color-dark-yellow) [&_svg]:fill-(--color-dark-yellow) [&_svg]:shrink-0">
                         <StarIcon />
-                        <span className="ride-request-card__rating-value">
+                        <span className="text-sm text-(--color-text-secondary)">
                             {rating}
                         </span>
                     </div>
-                    <span className="ride-request-card__seats">
+                    <span className="text-sm text-(--color-text-secondary) whitespace-nowrap">
                         {labels?.seatsRequired
                             ? labels.seatsRequired(seatsRequired)
                             : `${seatsRequired} seat(s) required`}
                     </span>
                 </div>
             </div>
-            <div className="ride-request-card__route">
-                <div className="ride-request-card__route-origin">
-                    <span className="ride-request-card__route-dot" />
-                    <span className="ride-request-card__route-label">
+            <div className="flex flex-col flex-1 max-sm:w-full max-sm:flex-none">
+                <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full border-2 border-(--color-text-primary) shrink-0" />
+                    <span className="text-[15px] font-medium text-(--color-text-primary)">
                         {from}
                     </span>
                 </div>
-                <div className="ride-request-card__route-line" />
-                <div className="ride-request-card__route-destination">
+                <div className="w-0.5 h-5 bg-(--color-text-secondary) ml-1.25" />
+                <div className="flex items-center gap-2 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-(--color-text-primary) [&_svg]:shrink-0">
                     <MapPinIcon />
-                    <span className="ride-request-card__route-label">{to}</span>
+                    <span className="text-[15px] font-medium text-(--color-text-primary)">
+                        {to}
+                    </span>
                 </div>
-                <div className="ride-request-card__meta">
+                <div className="flex items-center gap-1.5 mt-2 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-(--color-text-secondary) [&_svg]:shrink-0">
                     <ClockIcon />
-                    <span className="ride-request-card__meta-text">
+                    <span className="text-[13px] text-(--color-text-secondary) max-sm:whitespace-nowrap">
                         {datetime}
                     </span>
                 </div>
             </div>
-            <div className="ride-request-card__actions">
+            <div className="flex gap-2 shrink-0 max-sm:w-full max-sm:justify-end">
                 <Button
                     variant="black"
                     onClick={onAccept}

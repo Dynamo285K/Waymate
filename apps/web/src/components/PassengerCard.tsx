@@ -1,5 +1,4 @@
 import { Avatar, Button, StarIcon } from "@waymate/ui";
-import "./PassengerCard.css";
 
 export type PassengerCardLabels = {
     seatsReserved?: (count: number) => string;
@@ -28,28 +27,30 @@ export function PassengerCard({
     labels,
 }: PassengerCardProps) {
     return (
-        <div className="passenger-card">
-            <div className="passenger-card__left">
+        <div className="flex justify-between items-center py-5 px-6 bg-(--color-card) border border-(--color-border) rounded-2xl max-600:flex-wrap max-600:gap-3 max-600:p-4">
+            <div className="flex items-center gap-4 max-600:flex-1 max-600:min-w-0">
                 <Avatar
                     name={name}
                     size="lg"
                 />
-                <div className="passenger-card__info">
-                    <span className="passenger-card__name">{name}</span>
-                    <div className="passenger-card__rating">
+                <div className="flex flex-col gap-0.75">
+                    <span className="text-base font-semibold text-(--color-text-primary)">
+                        {name}
+                    </span>
+                    <div className="flex items-center gap-1 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-(--color-dark-yellow) [&_svg]:fill-(--color-dark-yellow) [&_svg]:shrink-0">
                         <StarIcon />
-                        <span className="passenger-card__rating-value">
+                        <span className="text-sm text-(--color-text-secondary)">
                             {rating}
                         </span>
                     </div>
-                    <span className="passenger-card__seats">
+                    <span className="text-sm text-(--color-text-secondary)">
                         {labels?.seatsReserved
                             ? labels.seatsReserved(seatsReserved)
                             : `${seatsReserved} seat(s) reserved`}
                     </span>
                 </div>
             </div>
-            <div className="passenger-card__actions">
+            <div className="flex gap-2 shrink-0 max-600:w-full max-600:justify-end">
                 <Button
                     variant="black"
                     onClick={onSendMessage}
