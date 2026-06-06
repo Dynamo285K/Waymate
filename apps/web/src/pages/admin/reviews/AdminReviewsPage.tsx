@@ -21,7 +21,7 @@ import { ReviewDetailModal } from "./components/ReviewDetailModal";
 import { SetReviewStatusModal } from "./components/SetReviewStatusModal";
 import { DeleteReviewModal } from "./components/DeleteReviewModal";
 import { useAdminReviewsList } from "./hooks/useAdminReviewsList";
-import { useDebounced } from "../../../hooks/useDebounced";
+import { useDebounced } from "../../../hooks/shared/useDebounced";
 import {
     ADMIN_REVIEW_NOT_FOUND_CODE,
     adminReviewsErrorMap,

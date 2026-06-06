@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "../../../lib/router-compat";
 import { AuthNavbar, LoginBox } from "@waymate/ui";
 import type { Language } from "../../../components/controls/LanguageSwitcher";
-import { useAuthNavbarProps } from "../../../hooks/useAuthNavbarProps";
+import { useAuthNavbarProps } from "../../../hooks/shared/useAuthNavbarProps";
 import {
     CURRENT_USER_QUERY_KEY,
     getPostAuthPath,

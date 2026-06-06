@@ -15,7 +15,7 @@ import { AdminRidesTable } from "./components/AdminRidesTable";
 import { CancelRideModal } from "./components/CancelRideModal";
 import { RideDetailModal } from "./components/RideDetailModal";
 import { useAdminRidesList } from "./hooks/useAdminRidesList";
-import { useDebounced } from "../../../hooks/useDebounced";
+import { useDebounced } from "../../../hooks/shared/useDebounced";
 import {
     ADMIN_RIDE_NOT_FOUND_CODE,
     adminRidesErrorMap,

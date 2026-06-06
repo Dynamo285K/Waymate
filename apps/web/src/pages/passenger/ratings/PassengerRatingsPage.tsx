@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "../../../lib/router-compat";
 import { RatingSummaryCard, RatingCard, TextLink } from "@waymate/ui";
 import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { PassengerNavbar } from "../../../components/navigation/PassengerNavbar";
-import { usePassengerNavbarProps } from "../../../hooks/usePassengerNavbarProps";
+import { usePassengerNavbarProps } from "../../../hooks/shared/usePassengerNavbarProps";
 import {
     useGetReviewsMeAuthored,
     useGetReviewsUsersByUserId,

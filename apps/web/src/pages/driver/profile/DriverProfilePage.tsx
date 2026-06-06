@@ -4,11 +4,11 @@ import { useNavigate } from "../../../lib/router-compat";
 import { ProfileHeroCard, CarCard, Button, Modal } from "@waymate/ui";
 import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
-import { RideCard } from "../../../components/RideCard";
+import { RideCard } from "../../../components/shared/RideCard";
 import { useDriverNavbarProps } from "../hooks/useDriverNavbarProps";
 import { useCancelRide } from "../hooks/useCancelRide";
 import { useDeleteCar } from "./hooks/useDeleteCar";
-import { CancelRideDialog } from "../../../components/CancelRideDialog";
+import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { useGetRidesMe } from "../../../api-client/rides/rides";
 import {
     formatRideDate as formatDate,

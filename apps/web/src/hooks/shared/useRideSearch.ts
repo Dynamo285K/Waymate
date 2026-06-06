@@ -1,4 +1,4 @@
-import { useGetRidesSearch } from "../api-client/rides/rides";
+import { useGetRidesSearch } from "../../api-client/rides/rides";
 
 type UseRideSearchParams = {
     fromId: string | null;

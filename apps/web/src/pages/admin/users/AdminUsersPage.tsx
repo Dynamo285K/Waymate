@@ -14,7 +14,7 @@ import { AdminUsersTable } from "./components/AdminUsersTable";
 import { BanUserModal } from "./components/BanUserModal";
 import { UserDetailModal } from "./components/UserDetailModal";
 import { useAdminUsersList } from "./hooks/useAdminUsersList";
-import { useDebounced } from "../../../hooks/useDebounced";
+import { useDebounced } from "../../../hooks/shared/useDebounced";
 import {
     ADMIN_USER_NOT_FOUND_CODE,
     adminUsersErrorMap,

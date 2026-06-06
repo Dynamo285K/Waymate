@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "../lib/router-compat";
-import type { Language } from "../components/controls/LanguageSwitcher";
-import { toUiLanguage } from "../lib/language";
+import { useNavigate } from "../../lib/router-compat";
+import type { Language } from "../../components/controls/LanguageSwitcher";
+import { toUiLanguage } from "../../lib/language";
 
 export function useAuthNavbarProps(params: {
     language: Language;

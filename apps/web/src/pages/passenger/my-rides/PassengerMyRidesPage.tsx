@@ -4,15 +4,15 @@ import { useLocation } from "../../../lib/router-compat";
 import { Button, RateDriverModal } from "@waymate/ui";
 import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { PassengerNavbar } from "../../../components/navigation/PassengerNavbar";
-import { RideCard } from "../../../components/RideCard";
-import { ReportUserModal } from "../../../components/ReportUserModal";
+import { RideCard } from "../../../components/shared/RideCard";
+import { ReportUserModal } from "../../../components/shared/ReportUserModal";
 import { useGetBookingsMe } from "../../../api-client/bookings/bookings";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { formatRideDate, formatDuration } from "../../../lib/date-format";
-import { usePassengerNavbarProps } from "../../../hooks/usePassengerNavbarProps";
-import { CancelRideDialog } from "../../../components/CancelRideDialog";
+import { usePassengerNavbarProps } from "../../../hooks/shared/usePassengerNavbarProps";
+import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { useCancelBooking } from "../hooks/useCancelBooking";
-import { useSubmitReview } from "../../../hooks/useSubmitReview";
+import { useSubmitReview } from "../../../hooks/shared/useSubmitReview";
 
 type PassengerMyRidesPageProps = {
     language: Language;

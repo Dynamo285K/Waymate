@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "../../../lib/router-compat";
 import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { toUiLanguage } from "../../../lib/language";
-import { useLogout } from "../../../hooks/useLogout";
+import { useLogout } from "../../../hooks/shared/useLogout";
 
 export function useDriverNavbarProps(params: {
     activeTab?: "offer-ride" | "my-rides" | "ride-requests" | "chat";

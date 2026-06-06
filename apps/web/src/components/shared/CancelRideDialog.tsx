@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Modal, Button, Textarea } from "@waymate/ui";
-import { useLayout } from "../lib/use-layout";
+import { useLayout } from "../../lib/use-layout";
 
 export type CancelRideDialogProps = {
     open: boolean;

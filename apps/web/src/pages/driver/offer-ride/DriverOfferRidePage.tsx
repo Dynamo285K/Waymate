@@ -32,7 +32,10 @@ import {
     usePostCarsMe,
     getGetCarsMeQueryKey,
 } from "../../../api-client/cars/cars";
-import { usePostRides, getGetRidesMeQueryKey } from "../../../api-client/rides/rides";
+import {
+    usePostRides,
+    getGetRidesMeQueryKey,
+} from "../../../api-client/rides/rides";
 import type { CreateCarBody as ApiCreateCarBody } from "../../../api-client/model/createCarBody";
 import { PLATE_MAX_LENGTH, PLATE_MIN_LENGTH } from "@repo/shared/validation";
 import { carCatalog } from "@repo/shared/car-catalog";

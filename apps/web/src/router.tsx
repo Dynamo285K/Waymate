@@ -10,7 +10,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { LayoutProvider } from "./lib/layout-context";
 import type { useLayout } from "./lib/use-layout";
 import { HomeRoute } from "./lib/route-components";
-import { RouteErrorBoundary } from "./components/RouteErrorBoundary";
+import { RouteErrorBoundary } from "./components/shared/RouteErrorBoundary";
 import { makeAudienceComponent } from "./lib/make-audience-component";
 import {
     CURRENT_USER_QUERY_KEY,
@@ -49,7 +49,10 @@ function lazyPage(
     );
 }
 
-const LoginPage = lazyPage(() => import("./pages/auth/login/LoginPage"), "LoginPage");
+const LoginPage = lazyPage(
+    () => import("./pages/auth/login/LoginPage"),
+    "LoginPage"
+);
 const RegisterPage = lazyPage(
     () => import("./pages/auth/register/RegisterPage"),
     "RegisterPage"
@@ -62,7 +65,10 @@ const ForgotPasswordPage = lazyPage(
     () => import("./pages/auth/forgot-password/ForgotPasswordPage"),
     "ForgotPasswordPage"
 );
-const RidesPage = lazyPage(() => import("./pages/rides/RidesPage"), "RidesPage");
+const RidesPage = lazyPage(
+    () => import("./pages/rides/RidesPage"),
+    "RidesPage"
+);
 const PassengerHomePage = lazyPage(
     () => import("./pages/passenger/home/PassengerHomePage"),
     "PassengerHomePage"
@@ -127,7 +133,10 @@ const EditProfilePage = lazyPage(
     () => import("./pages/profile/edit/EditProfilePage"),
     "EditProfilePage"
 );
-const AddCarPage = lazyPage(() => import("./pages/car/add/AddCarPage"), "AddCarPage");
+const AddCarPage = lazyPage(
+    () => import("./pages/car/add/AddCarPage"),
+    "AddCarPage"
+);
 const AdminDashboardPage = lazyPage(
     () => import("./pages/admin/dashboard/AdminDashboardPage"),
     "AdminDashboardPage"

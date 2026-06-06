@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Input, MapPinIcon } from "@waymate/ui";
-import { getCities } from "../api-client/cities/cities";
-import type { CityListItem } from "../api-client/model/cityListItem";
+import { getCities } from "../../api-client/cities/cities";
+import type { CityListItem } from "../../api-client/model/cityListItem";
 
 const DEBOUNCE_MS = 500;
 const MIN_QUERY_LENGTH = 2;

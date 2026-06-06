@@ -15,7 +15,7 @@ import { AdminReportsTable } from "./components/AdminReportsTable";
 import { ReportDetailModal } from "./components/ReportDetailModal";
 import { SetReportStatusModal } from "./components/SetReportStatusModal";
 import { useAdminReportsList } from "./hooks/useAdminReportsList";
-import { useDebounced } from "../../../hooks/useDebounced";
+import { useDebounced } from "../../../hooks/shared/useDebounced";
 import {
     ADMIN_REPORT_NOT_FOUND_CODE,
     adminReportsErrorMap,

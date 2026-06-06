@@ -5,7 +5,7 @@ import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../../../lib/router-compat";
 import { Button, Input, TextLink, IconButton } from "@waymate/ui";
-import { FieldError } from "../../../components/FieldError";
+import { FieldError } from "../../../components/shared/FieldError";
 import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { requestPasswordReset, resetPassword } from "../../../lib/auth";
 

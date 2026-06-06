@@ -2,16 +2,16 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "../../../lib/router-compat";
 import { ProfileHeroCard } from "@waymate/ui";
-import { CancelRideDialog } from "../../../components/CancelRideDialog";
+import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { useCancelBooking } from "../hooks/useCancelBooking";
 import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { PassengerNavbar } from "../../../components/navigation/PassengerNavbar";
-import { RideCard } from "../../../components/RideCard";
+import { RideCard } from "../../../components/shared/RideCard";
 import { useGetBookingsMe } from "../../../api-client/bookings/bookings";
 import { useGetReviewsUsersByUserId } from "../../../api-client/reviews/reviews";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { formatRideDate, formatDuration } from "../../../lib/date-format";
-import { usePassengerNavbarProps } from "../../../hooks/usePassengerNavbarProps";
+import { usePassengerNavbarProps } from "../../../hooks/shared/usePassengerNavbarProps";
 
 type PassengerProfilePageProps = {
     language: Language;

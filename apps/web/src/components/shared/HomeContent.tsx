@@ -8,12 +8,12 @@ import {
     Button,
 } from "@waymate/ui";
 import type { SearchBoxCityOption } from "@waymate/ui";
-import type { Language } from "./controls/LanguageSwitcher";
+import type { Language } from "../controls/LanguageSwitcher";
 import { AvailableRideCard } from "./AvailableRideCard";
-import { formatRideDate, formatDuration } from "../lib/date-format";
-import { toUiLanguage } from "../lib/language";
-import { useGetRidesAvailable } from "../api-client/rides/rides";
-import { getCities } from "../api-client/cities/cities";
+import { formatRideDate, formatDuration } from "../../lib/date-format";
+import { toUiLanguage } from "../../lib/language";
+import { useGetRidesAvailable } from "../../api-client/rides/rides";
+import { getCities } from "../../api-client/cities/cities";
 
 type AvailableRide = {
     id: string | number;

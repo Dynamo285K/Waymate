@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "../../../lib/router-compat";
 import { Button } from "@waymate/ui";
-import { CancelRideDialog } from "../../../components/CancelRideDialog";
+import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { CompleteRideDialog } from "../components/CompleteRideDialog";
 import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
-import { RideCard } from "../../../components/RideCard";
+import { RideCard } from "../../../components/shared/RideCard";
 import {
     useGetRidesMe,
     usePatchRidesByIdComplete,

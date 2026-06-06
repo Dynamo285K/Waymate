@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button, IconButton, Modal, Textarea } from "@waymate/ui";
-import { usePostReports } from "../api-client/reports/reports";
-import { getGetAdminReportsQueryKey } from "../api-client/admin/admin";
-import { ReportType } from "../api-client/model/reportType";
-import type { CreateReportBody } from "../api-client/model/createReportBody";
+import { usePostReports } from "../../api-client/reports/reports";
+import { getGetAdminReportsQueryKey } from "../../api-client/admin/admin";
+import { ReportType } from "../../api-client/model/reportType";
+import type { CreateReportBody } from "../../api-client/model/createReportBody";
 import { useQueryClient } from "@tanstack/react-query";
-import { getErrorI18nKey } from "../lib/api-errors";
-import { reportUserErrorMap } from "../lib/report-errors";
-import { useLayout } from "../lib/use-layout";
+import { getErrorI18nKey } from "../../lib/api-errors";
+import { reportUserErrorMap } from "../../lib/report-errors";
+import { useLayout } from "../../lib/use-layout";
 
 const REPORT_TYPE_OPTIONS: ReadonlyArray<{
     value: ReportType;

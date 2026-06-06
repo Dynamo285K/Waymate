@@ -6,12 +6,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "../../../lib/router-compat";
 import * as Select from "@radix-ui/react-select";
 import { Button, ChevronDownIcon, Input, TextLink } from "@waymate/ui";
-import { FieldError } from "../../../components/FieldError";
+import { FieldError } from "../../../components/shared/FieldError";
 import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
 import { PassengerNavbar } from "../../../components/navigation/PassengerNavbar";
 import { useDriverNavbarProps } from "../../driver/hooks/useDriverNavbarProps";
-import { usePassengerNavbarProps } from "../../../hooks/usePassengerNavbarProps";
+import { usePassengerNavbarProps } from "../../../hooks/shared/usePassengerNavbarProps";
 import {
     useGetCarsBrands,
     useGetCarsBrandsByBrandModels,

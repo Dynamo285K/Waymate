@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { CityListItem } from "../../../../components/CitySelect";
+import type { CityListItem } from "../../../../components/shared/CitySelect";
 import {
     combineDateAndTime,
     parseDurationMinutes,

@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { CURRENT_USER_QUERY_KEY, signOut } from "../lib/auth";
+import { CURRENT_USER_QUERY_KEY, signOut } from "../../lib/auth";
 
 // Full-page redirect (not SPA navigate) so every React Query cache entry,
 // in-memory user state, and TanStack Router preload is wiped — the next

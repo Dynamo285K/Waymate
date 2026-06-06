@@ -3,10 +3,10 @@ import {
     usePostReviews,
     getGetReviewsMeAuthoredQueryKey,
     getGetReviewsUsersByUserIdQueryKey,
-} from "../api-client/reviews/reviews";
-import { getGetRidesByIdPassengersQueryKey } from "../api-client/rides/rides";
-import { getGetBookingsMeQueryKey } from "../api-client/bookings/bookings";
-import type { ApiMutationError } from "../lib/api-fetcher";
+} from "../../api-client/reviews/reviews";
+import { getGetRidesByIdPassengersQueryKey } from "../../api-client/rides/rides";
+import { getGetBookingsMeQueryKey } from "../../api-client/bookings/bookings";
+import type { ApiMutationError } from "../../lib/api-fetcher";
 
 export function useSubmitReview() {
     const queryClient = useQueryClient();

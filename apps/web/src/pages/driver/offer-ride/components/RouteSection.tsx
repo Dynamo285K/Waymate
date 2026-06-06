@@ -6,7 +6,7 @@ import {
     CircleIcon,
     MapPinIcon,
 } from "@waymate/ui";
-import { CitySelect } from "../../../../components/CitySelect";
+import { CitySelect } from "../../../../components/shared/CitySelect";
 import type { OfferRideFormInput } from "./schema";
 
 export function RouteSection() {

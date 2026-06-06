@@ -5,14 +5,17 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "../../../lib/router-compat";
 import { Input, Button, Textarea } from "@waymate/ui";
-import { FieldError } from "../../../components/FieldError";
+import { FieldError } from "../../../components/shared/FieldError";
 import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
 import { PassengerNavbar } from "../../../components/navigation/PassengerNavbar";
 import { useDriverNavbarProps } from "../../driver/hooks/useDriverNavbarProps";
-import { usePassengerNavbarProps } from "../../../hooks/usePassengerNavbarProps";
+import { usePassengerNavbarProps } from "../../../hooks/shared/usePassengerNavbarProps";
 import { useGetUsersMe } from "../../../api-client/users/users";
-import { CURRENT_USER_QUERY_KEY, updateCurrentUserProfile } from "../../../lib/auth";
+import {
+    CURRENT_USER_QUERY_KEY,
+    updateCurrentUserProfile,
+} from "../../../lib/auth";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import {
     BIO_MAX_LENGTH,
