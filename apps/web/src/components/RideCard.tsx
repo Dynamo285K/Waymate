@@ -105,23 +105,23 @@ export function RideCard(props: RideCardProps) {
                         </span>
                     )}
                     {props.variant === "driver-upcoming" && (
-                        <>
-                            <UserIcon className="ml-3" />
+                        <span className="ml-3 inline-flex items-center gap-1.5">
+                            <UserIcon />
                             <span className="text-sm text-(--color-text-secondary)">
                                 {props.seatsLeft === "full"
                                     ? (labels?.full ?? "Full")
                                     : seatsText(props.seatsLeft)}
                             </span>
-                        </>
+                        </span>
                     )}
                     {props.variant === "passenger-upcoming" &&
                         props.seatsLeft !== undefined && (
-                            <>
-                                <UserIcon className="ml-3" />
+                            <span className="ml-3 inline-flex items-center gap-1.5">
+                                <UserIcon />
                                 <span className="text-sm text-(--color-text-secondary)">
                                     {seatsText(props.seatsLeft)}
                                 </span>
-                            </>
+                            </span>
                         )}
                 </div>
             </div>
