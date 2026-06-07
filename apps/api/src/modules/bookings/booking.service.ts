@@ -94,11 +94,14 @@ const createBookingRequest = async (
             throw new BookingError(BookingErrorCodes.InvalidStops);
         }
 
-        if (payload.pickupStopId === "dynamic" || payload.dropoffStopId === "dynamic") {
+        if (
+            payload.pickupStopId === "dynamic" ||
+            payload.dropoffStopId === "dynamic"
+        ) {
             finalAmount = (payload.priceAmount || 0) * payload.seatCount;
             // Fallback currency
             const firstPrice = await tx.query.prices.findFirst({
-                where: (prices, { eq }) => eq(prices.rideId, payload.rideId)
+                where: (prices, { eq }) => eq(prices.rideId, payload.rideId),
             });
             currency = firstPrice?.currency || "EUR";
         } else {

@@ -68,7 +68,6 @@ async function main() {
         const userAId = randomUUID(); // driver A — has password (see DRIVER_EMAIL)
         const userCId = randomUUID(); // passenger C — has password (see PASSENGER_EMAIL)
 
-
         await db.transaction(async (tx) => {
             // Users
             const userBId = randomUUID(); // driver B

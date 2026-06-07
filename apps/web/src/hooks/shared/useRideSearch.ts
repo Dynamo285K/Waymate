@@ -16,9 +16,22 @@ function parseTravelDate(date: string | null): Date | null {
     return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
-export function useRideSearch({ startLat, startLng, startCity, destLat, destLng, destCity, date }: UseRideSearchParams) {
+export function useRideSearch({
+    startLat,
+    startLng,
+    startCity,
+    destLat,
+    destLng,
+    destCity,
+    date,
+}: UseRideSearchParams) {
     const travelDate = parseTravelDate(date);
-    const canSearch = startLat !== null && startLng !== null && destLat !== null && destLng !== null && !!travelDate;
+    const canSearch =
+        startLat !== null &&
+        startLng !== null &&
+        destLat !== null &&
+        destLng !== null &&
+        !!travelDate;
 
     const query = useGetRidesSearch(
         {

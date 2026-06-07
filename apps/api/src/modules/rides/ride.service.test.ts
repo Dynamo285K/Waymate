@@ -83,7 +83,8 @@ function buildCreateRideBody(
         stops: overrides.stops ?? [
             {
                 address: "Hlavná 1",
-                city: "Bratislava", countryCode: "SK",
+                city: "Bratislava",
+                countryCode: "SK",
                 lat: 48.148,
                 lng: 17.107,
                 plannedArrivalAt: null,
@@ -91,7 +92,8 @@ function buildCreateRideBody(
             },
             {
                 address: "Námestie SNP 1",
-                city: "Banská Bystrica", countryCode: "SK",
+                city: "Banská Bystrica",
+                countryCode: "SK",
                 lat: 48.736,
                 lng: 19.146,
                 plannedArrivalAt: new Date(
@@ -172,7 +174,8 @@ describe("RideService.createRide", () => {
                 stops: [
                     {
                         address: "Hlavná 1",
-                        city: "Bratislava", countryCode: "SK",
+                        city: "Bratislava",
+                        countryCode: "SK",
                         lat: 48.148,
                         lng: 17.107,
                         plannedArrivalAt: null,
@@ -180,7 +183,8 @@ describe("RideService.createRide", () => {
                     },
                     {
                         address: "Námestie SNP 1",
-                        city: "Banská Bystrica", countryCode: "SK",
+                        city: "Banská Bystrica",
+                        countryCode: "SK",
                         lat: 48.736,
                         lng: 19.146,
                         plannedArrivalAt,
@@ -296,8 +300,6 @@ describe("RideService.createRide", () => {
             .where(eq(rides.driverId, driver.id));
         expect(leftover).toEqual([]);
     });
-
-
 });
 
 describe("RideService.createRide — arrival from duration", () => {
@@ -340,13 +342,15 @@ describe("CreateRideBodySchema — arrival input", () => {
         currency: "EUR",
         stops: [
             {
-                city: "Bratislava", countryCode: "SK",
+                city: "Bratislava",
+                countryCode: "SK",
                 address: "Hlavná 1",
                 lat: 48.148,
                 lng: 17.107,
             },
             {
-                city: "Banská Bystrica", countryCode: "SK",
+                city: "Banská Bystrica",
+                countryCode: "SK",
                 address: "Námestie SNP 1",
                 lat: 48.736,
                 lng: 19.146,
