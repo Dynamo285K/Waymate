@@ -1,13 +1,19 @@
 import { useState, useEffect } from "react";
 
 export function useUserLocation() {
-    const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+    const [location, setLocation] = useState<{
+        lat: number;
+        lng: number;
+    } | null>(null);
 
     useEffect(() => {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
-                    setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+                    setLocation({
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude,
+                    });
                 },
                 () => {
                     // Silently ignore if the user denies location permission

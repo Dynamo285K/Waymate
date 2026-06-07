@@ -3,11 +3,13 @@ import * as h3 from "h3-js";
 
 export const fetchOsrmRouteCells = async (
     stops: { lat: number; lng: number }[]
-): Promise<{ h3Res7: string; lat: number; lng: number; pointOrder: number }[]> => {
+): Promise<
+    { h3Res7: string; lat: number; lng: number; pointOrder: number }[]
+> => {
     if (stops.length < 2) return [];
 
     // OSRM expects: longitude,latitude separated by semicolon
-    const coordinates = stops.map(s => `${s.lng},${s.lat}`).join(";");
+    const coordinates = stops.map((s) => `${s.lng},${s.lat}`).join(";");
     const url = `http://router.project-osrm.org/route/v1/driving/${coordinates}?overview=full&geometries=polyline`;
 
     try {
@@ -26,7 +28,12 @@ export const fetchOsrmRouteCells = async (
         const decodedPoints = polyline.decode(encodedGeometry); // returns [[lat, lng]]
 
         const uniqueCells = new Set<string>();
-        const cells: { h3Res7: string; lat: number; lng: number; pointOrder: number }[] = [];
+        const cells: {
+            h3Res7: string;
+            lat: number;
+            lng: number;
+            pointOrder: number;
+        }[] = [];
         let order = 0;
 
         for (const [lat, lng] of decodedPoints) {
