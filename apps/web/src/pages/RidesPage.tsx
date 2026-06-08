@@ -97,6 +97,8 @@ export function RidesPage({
                   id: ride.rideId,
                   from: ride.pickupStop.city,
                   to: ride.dropoffStop.city,
+                  originalStartCity: ride.originalStartCity,
+                  originalEndCity: ride.originalEndCity,
                   date: new Date(
                       ride.pickupStop.plannedDepartureAt ?? ride.departureAt
                   ),
@@ -198,6 +200,8 @@ export function RidesPage({
                                     key={ride.id}
                                     from={ride.from}
                                     to={ride.to}
+                                    originalStartCity={ride.originalStartCity}
+                                    originalEndCity={ride.originalEndCity}
                                     datetime={formatRideDate(
                                         ride.date,
                                         t("home.at")
@@ -227,6 +231,8 @@ export function RidesPage({
                                 key={ride.rideId}
                                 from={ride.pickupStop.city}
                                 to={ride.dropoffStop.city}
+                                originalStartCity={ride.originalStartCity}
+                                originalEndCity={ride.originalEndCity}
                                 datetime={formatRideDate(
                                     new Date(
                                         ride.pickupStop.plannedDepartureAt ??

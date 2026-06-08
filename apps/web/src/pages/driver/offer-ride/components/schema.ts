@@ -1,9 +1,5 @@
 import { z } from "zod";
-<<<<<<< HEAD:apps/web/src/components/offer-ride/schema.ts
-import type { LocationSuggestion } from "../LocationAutocomplete";
-=======
 import type { LocationSuggestion } from "../../../../components/shared/LocationAutocomplete";
->>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/pages/driver/offer-ride/components/schema.ts
 import {
     combineDateAndTime,
     parseDurationMinutes,

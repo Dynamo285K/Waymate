@@ -1,10 +1,5 @@
-<<<<<<< HEAD:apps/web/src/lib/offer-ride.ts
-import type { CreateRideBody } from "../api-client/model/createRideBody";
-import type { LocationSuggestion } from "../components/LocationAutocomplete";
-=======
 import type { CreateRideBody } from "../../../../api-client/model/createRideBody";
 import type { LocationSuggestion } from "../../../../components/shared/LocationAutocomplete";
->>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/pages/driver/offer-ride/lib/offer-ride.ts
 
 // Pure helpers behind the offer-ride form. Kept out of the page component so
 // they can be unit-tested and reused without dragging React in.

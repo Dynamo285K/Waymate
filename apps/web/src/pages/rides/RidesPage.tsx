@@ -43,17 +43,6 @@ export function RidesPage({
     const [searchParams] = useSearchParams();
     const [showGuestModal, setShowGuestModal] = useState(false);
 
-<<<<<<< HEAD:apps/web/src/pages/RidesPage.tsx
-    const startLat = searchParams.has("startLat") ? parseFloat(searchParams.get("startLat")!) : null;
-    const startLng = searchParams.has("startLng") ? parseFloat(searchParams.get("startLng")!) : null;
-    const startCity = searchParams.get("startCity");
-    const destLat = searchParams.has("destLat") ? parseFloat(searchParams.get("destLat")!) : null;
-    const destLng = searchParams.has("destLng") ? parseFloat(searchParams.get("destLng")!) : null;
-    const destCity = searchParams.get("destCity");
-    const dateStr = searchParams.get("date");
-    
-    const hasSearchParams = (startLat !== null && startLng !== null) || (destLat !== null && destLng !== null) || !!dateStr;
-=======
     const startLat = searchParams.has("startLat")
         ? parseFloat(searchParams.get("startLat")!)
         : null;
@@ -74,7 +63,6 @@ export function RidesPage({
         (startLat !== null && startLng !== null) ||
         (destLat !== null && destLng !== null) ||
         !!dateStr;
->>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/pages/rides/RidesPage.tsx
     const showAllRides = !hasSearchParams;
     const {
         data: availableRideRows,
@@ -89,9 +77,6 @@ export function RidesPage({
         isError,
         error: searchError,
         canSearch,
-<<<<<<< HEAD:apps/web/src/pages/RidesPage.tsx
-    } = useRideSearch({ startLat, startLng, startCity, destLat, destLng, destCity, date: dateStr });
-=======
     } = useRideSearch({
         startLat,
         startLng,
@@ -101,7 +86,6 @@ export function RidesPage({
         destCity,
         date: dateStr,
     });
->>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/pages/rides/RidesPage.tsx
 
     const availableRides = Array.isArray(availableRideRows)
         ? availableRideRows.map((ride) => {

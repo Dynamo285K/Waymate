@@ -90,28 +90,6 @@ export function PassengerHomePage({
                 onSearch={(from, to, date) => {
                     const params = new URLSearchParams();
                     if (from) {
-<<<<<<< HEAD:apps/web/src/pages/PassengerHomePage.tsx
-                        try {
-                            const parsed = JSON.parse(from.id);
-                            if (parsed.lat) params.set("startLat", parsed.lat);
-                            if (parsed.lng) params.set("startLng", parsed.lng);
-                            const city = parsed.city || parsed.address;
-                            if (city) params.set("startCity", city);
-                        } catch {
-                            params.set("fromId", from.id);
-                        }
-                    }
-                    if (to) {
-                        try {
-                            const parsed = JSON.parse(to.id);
-                            if (parsed.lat) params.set("destLat", parsed.lat);
-                            if (parsed.lng) params.set("destLng", parsed.lng);
-                            const city = parsed.city || parsed.address;
-                            if (city) params.set("destCity", city);
-                        } catch {
-                            params.set("toId", to.id);
-                        }
-=======
                         params.set("startLat", String(from.lat));
                         params.set("startLng", String(from.lng));
                         const city = from.city || from.address;
@@ -122,7 +100,6 @@ export function PassengerHomePage({
                         params.set("destLng", String(to.lng));
                         const city = to.city || to.address;
                         if (city) params.set("destCity", city);
->>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/pages/passenger/home/PassengerHomePage.tsx
                     }
                     if (date) params.set("date", date.toISOString());
                     navigate(`/passenger/rides/search?${params.toString()}`);

@@ -254,16 +254,13 @@ export function HomeContent({
                                 userLocation
                             );
                             return results.map((c) => ({
-                                // HACK: @waymate/ui SearchBox only accepts {id, name}.
-                                // We stringify the coordinates into the 'id' so we can parse them on submission.
-                                id: JSON.stringify({
-                                    lat: c.lat,
-                                    lng: c.lng,
-                                    countryCode: c.countryCode,
-                                    city: c.city,
-                                    address: c.address,
-                                }),
+                                id: c.id,
                                 name: `${c.address}${c.city && c.city !== c.address ? `, ${c.city}` : ""} (${c.countryCode})`,
+                                lat: c.lat,
+                                lng: c.lng,
+                                city: c.city,
+                                address: c.address,
+                                countryCode: c.countryCode,
                             }));
                         }}
                         onSearch={(from, to, date) =>

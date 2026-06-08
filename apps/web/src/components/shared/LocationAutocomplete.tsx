@@ -1,25 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import { Input, MapPinIcon } from "@waymate/ui";
-<<<<<<<< HEAD:apps/web/src/components/LocationAutocomplete.tsx
-import { useUserLocation } from "../hooks/useUserLocation";
-import { fetchPhotonLocations } from "../lib/geocoding/photon";
-import type { LocationSuggestion } from "../lib/geocoding/photon";
-========
-import { useUserLocation } from "../../hooks/shared/useUserLocation";
+import { useUserLocation } from "../../hooks/useUserLocation";
 import { fetchPhotonLocations } from "../../lib/geocoding/photon";
 import type { LocationSuggestion } from "../../lib/geocoding/photon";
->>>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/components/shared/LocationAutocomplete.tsx
 
 const DEBOUNCE_MS = 500;
 const MIN_QUERY_LENGTH = 2;
 
 export type { LocationSuggestion };
 
-<<<<<<<< HEAD:apps/web/src/components/LocationAutocomplete.tsx
-
-
-========
->>>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/components/shared/LocationAutocomplete.tsx
 type LocationAutocompleteProps = {
     value: LocationSuggestion | null;
     onChange: (location: LocationSuggestion | null) => void;
@@ -92,14 +81,10 @@ export function LocationAutocomplete({
         const timer = setTimeout(async () => {
             setIsLoading(true);
             try {
-<<<<<<<< HEAD:apps/web/src/components/LocationAutocomplete.tsx
-                const results = await fetchPhotonLocations(inputValue, userLocation);
-========
                 const results = await fetchPhotonLocations(
                     inputValue,
                     userLocation
                 );
->>>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/components/shared/LocationAutocomplete.tsx
 
                 if (id !== requestIdRef.current) return;
                 setSuggestions(results);
@@ -182,18 +167,11 @@ export function LocationAutocomplete({
                             key={loc.id}
                             role="option"
                             aria-selected={idx === activeIndex}
-<<<<<<<< HEAD:apps/web/src/components/LocationAutocomplete.tsx
-                            className={`flex items-center gap-2 px-4 py-3 text-sm cursor-pointer transition-colors ${idx === activeIndex
-                                ? "bg-(--color-bg)"
-                                : "hover:bg-(--color-bg)"
-                                } text-(--color-text-primary)`}
-========
                             className={`flex items-center gap-2 px-4 py-3 text-sm cursor-pointer transition-colors ${
                                 idx === activeIndex
                                     ? "bg-(--color-bg)"
                                     : "hover:bg-(--color-bg)"
                             } text-(--color-text-primary)`}
->>>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/components/shared/LocationAutocomplete.tsx
                             onMouseDown={() => handleSelect(loc)}
                             onMouseEnter={() => setActiveIndex(idx)}
                         >

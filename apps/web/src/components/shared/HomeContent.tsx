@@ -10,19 +10,11 @@ import {
 import type { SearchBoxCityOption } from "@waymate/ui";
 import type { Language } from "../controls/LanguageSwitcher";
 import { AvailableRideCard } from "./AvailableRideCard";
-<<<<<<< HEAD:apps/web/src/components/HomeContent.tsx
-import { formatRideDate, formatDuration } from "../lib/date-format";
-import { toUiLanguage } from "../lib/language";
-import { useGetRidesAvailable } from "../api-client/rides/rides";
-import { fetchPhotonLocations } from "../lib/geocoding/photon";
-import { useUserLocation } from "../hooks/useUserLocation";
-=======
 import { formatRideDate, formatDuration } from "../../lib/date-format";
 import { toUiLanguage } from "../../lib/language";
 import { useGetRidesAvailable } from "../../api-client/rides/rides";
 import { fetchPhotonLocations } from "../../lib/geocoding/photon";
-import { useUserLocation } from "../../hooks/shared/useUserLocation";
->>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/components/shared/HomeContent.tsx
+import { useUserLocation } from "../../hooks/useUserLocation";
 
 type AvailableRide = {
     id: string | number;
@@ -253,14 +245,6 @@ export function HomeContent({
                 <div className="mt-8 w-full max-w-2xl">
                     <SearchBox
                         onSearchCities={async (q) => {
-<<<<<<< HEAD:apps/web/src/components/HomeContent.tsx
-                            const results = await fetchPhotonLocations(q, userLocation);
-                            return results.map((c) => ({
-                                // HACK: @waymate/ui SearchBox only accepts {id, name}. 
-                                // We stringify the coordinates into the 'id' so we can parse them on submission.
-                                id: JSON.stringify({ lat: c.lat, lng: c.lng, countryCode: c.countryCode, city: c.city, address: c.address }),
-                                name: `${c.address}${c.city && c.city !== c.address ? `, ${c.city}` : ""} (${c.countryCode})`,
-=======
                             const results = await fetchPhotonLocations(
                                 q,
                                 userLocation
@@ -273,7 +257,6 @@ export function HomeContent({
                                 city: c.city,
                                 address: c.address,
                                 countryCode: c.countryCode,
->>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/components/shared/HomeContent.tsx
                             }));
                         }}
                         onSearch={(from, to, date) =>

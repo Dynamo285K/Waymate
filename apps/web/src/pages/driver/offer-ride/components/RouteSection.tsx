@@ -6,11 +6,7 @@ import {
     CircleIcon,
     MapPinIcon,
 } from "@waymate/ui";
-<<<<<<< HEAD:apps/web/src/components/offer-ride/RouteSection.tsx
-import { LocationAutocomplete } from "../LocationAutocomplete";
-=======
 import { LocationAutocomplete } from "../../../../components/shared/LocationAutocomplete";
->>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/pages/driver/offer-ride/components/RouteSection.tsx
 import type { OfferRideFormInput } from "./schema";
 
 export function RouteSection() {
@@ -24,24 +20,13 @@ export function RouteSection() {
     return (
         <FormSectionCard title={t("offerRide.route")}>
             <div
-<<<<<<< HEAD:apps/web/src/components/offer-ride/RouteSection.tsx
-                className="offer-ride-form__field flex flex-col gap-4"
-=======
                 className="flex flex-col gap-2.5"
->>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/pages/driver/offer-ride/components/RouteSection.tsx
                 data-testid="offer-pickup"
             >
                 <FieldLabel
                     label={t("offerRide.pickup")}
                     icon={<CircleIcon />}
                 />
-<<<<<<< HEAD:apps/web/src/components/offer-ride/RouteSection.tsx
-                
-                <LocationAutocomplete
-                    value={pickupCityValue ?? null}
-                    onChange={(location) => {
-                        setValue("pickupCity", location, { shouldValidate: isSubmitted });
-=======
 
                 <LocationAutocomplete
                     value={pickupCityValue ?? null}
@@ -49,7 +34,6 @@ export function RouteSection() {
                         setValue("pickupCity", location, {
                             shouldValidate: isSubmitted,
                         });
->>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/pages/driver/offer-ride/components/RouteSection.tsx
                     }}
                     placeholder={t("offerRide.pickupPlaceholder")}
                 />
@@ -62,11 +46,7 @@ export function RouteSection() {
             </div>
 
             <div
-<<<<<<< HEAD:apps/web/src/components/offer-ride/RouteSection.tsx
-                className="offer-ride-form__field flex flex-col gap-4 mt-6"
-=======
                 className="flex flex-col gap-2.5"
->>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/pages/driver/offer-ride/components/RouteSection.tsx
                 data-testid="offer-dropoff"
             >
                 <FieldLabel
@@ -77,13 +57,9 @@ export function RouteSection() {
                 <LocationAutocomplete
                     value={dropoffCityValue ?? null}
                     onChange={(location) => {
-<<<<<<< HEAD:apps/web/src/components/offer-ride/RouteSection.tsx
-                        setValue("dropoffCity", location, { shouldValidate: isSubmitted });
-=======
                         setValue("dropoffCity", location, {
                             shouldValidate: isSubmitted,
                         });
->>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/pages/driver/offer-ride/components/RouteSection.tsx
                     }}
                     placeholder={t("offerRide.dropoffPlaceholder")}
                 />
