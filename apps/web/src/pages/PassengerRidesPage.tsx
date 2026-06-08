@@ -49,7 +49,7 @@ export function PassengerRidesPage({
     const destLng = searchParams.has("destLng") ? parseFloat(searchParams.get("destLng")!) : null;
     const destCity = searchParams.get("destCity");
     const dateStr = searchParams.get("date");
-    
+
     const hasSearchParams = (startLat !== null && startLng !== null) || (destLat !== null && destLng !== null) || !!dateStr;
     const showAllRides = !hasSearchParams;
 
@@ -70,31 +70,31 @@ export function PassengerRidesPage({
 
     const availableRides = Array.isArray(availableRideRows)
         ? availableRideRows.map((ride) => {
-              const departure = new Date(
-                  ride.pickupStop.plannedDepartureAt ?? ride.departureAt
-              );
-              const driverName = [ride.driver.firstName, ride.driver.lastName]
-                  .filter(Boolean)
-                  .join(" ");
+            const departure = new Date(
+                ride.pickupStop.plannedDepartureAt ?? ride.departureAt
+            );
+            const driverName = [ride.driver.firstName, ride.driver.lastName]
+                .filter(Boolean)
+                .join(" ");
 
-              return {
-                  id: ride.rideId,
-                  rideId: ride.rideId,
-                  pickupStopId: ride.pickupStop.pickupStopId,
-                  dropoffStopId: ride.dropoffStop.dropoffStopId,
-                  from: ride.pickupStop.city,
-                  to: ride.dropoffStop.city,
-                  date: departure,
-                  duration: formatDuration(
-                      ride.departureAt,
-                      ride.arrivalEstimateAt
-                  ),
-                  seatsLeft: ride.seatsLeft,
-                  driverName: driverName || t("roles.driver"),
-                  driverRating: ride.driver.averageRating ?? 0,
-                  price: ride.priceAmount ?? 0,
-              };
-          })
+            return {
+                id: ride.rideId,
+                rideId: ride.rideId,
+                pickupStopId: ride.pickupStop.pickupStopId,
+                dropoffStopId: ride.dropoffStop.dropoffStopId,
+                from: ride.pickupStop.city,
+                to: ride.dropoffStop.city,
+                date: departure,
+                duration: formatDuration(
+                    ride.departureAt,
+                    ride.arrivalEstimateAt
+                ),
+                seatsLeft: ride.seatsLeft,
+                driverName: driverName || t("roles.driver"),
+                driverRating: ride.driver.averageRating ?? 0,
+                price: ride.priceAmount ?? 0,
+            };
+        })
         : [];
 
     const count = showAllRides ? availableRides.length : (rides?.length ?? 0);
@@ -255,7 +255,7 @@ export function PassengerRidesPage({
                         {rides.map((ride) => {
                             const departure = new Date(
                                 ride.pickupStop.plannedDepartureAt ??
-                                    ride.departureAt
+                                ride.departureAt
                             );
                             const driverName =
                                 `${ride.driver.firstName} ${ride.driver.lastName}`.trim();

@@ -99,6 +99,8 @@ export const DriverRideRequestItemSchema = z.object({
     }),
     pickupCity: z.string(),
     dropoffCity: z.string(),
+    originalStartCity: z.string(),
+    originalEndCity: z.string(),
     departureAt: z.date(),
 });
 

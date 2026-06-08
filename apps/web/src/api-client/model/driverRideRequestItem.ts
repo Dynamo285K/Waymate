@@ -20,5 +20,7 @@ export interface DriverRideRequestItem {
     passenger: DriverRideRequestItemPassenger;
     pickupCity: string;
     dropoffCity: string;
+    originalStartCity?: string;
+    originalEndCity?: string;
     departureAt: string;
 }

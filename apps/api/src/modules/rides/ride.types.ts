@@ -107,6 +107,8 @@ export type RideSearchResultItem = {
 
     priceAmount: number | null;
     currency: string;
+    originalStartCity: string;
+    originalEndCity: string;
 };
 
 export type AvailableRideItem = RideSearchResultItem & {

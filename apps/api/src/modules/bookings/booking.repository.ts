@@ -85,6 +85,28 @@ const findPendingRequestsForDriver = async (
             },
             pickupCity: pickupStops.city,
             dropoffCity: dropoffStops.city,
+            originalStartCity: sql<string>`(${executor
+                .select({ city: rideStopsTable.city })
+                .from(rideStopsTable)
+                .where(
+                    and(
+                        eq(rideStopsTable.rideId, ridesTable.id),
+                        eq(rideStopsTable.isDynamic, false)
+                    )
+                )
+                .orderBy(asc(rideStopsTable.stopOrder))
+                .limit(1)})`,
+            originalEndCity: sql<string>`(${executor
+                .select({ city: rideStopsTable.city })
+                .from(rideStopsTable)
+                .where(
+                    and(
+                        eq(rideStopsTable.rideId, ridesTable.id),
+                        eq(rideStopsTable.isDynamic, false)
+                    )
+                )
+                .orderBy(desc(rideStopsTable.stopOrder))
+                .limit(1)})`,
             departureAt: ridesTable.departureAt,
         })
         .from(bookingsTable)
@@ -311,7 +333,7 @@ const insertDynamicStop = async (
 
     // Fetch all stops, find their closest point order, and sort them
     const allStops = await executor.select().from(rideStopsTable).where(eq(rideStopsTable.rideId, rideId));
-    
+
     const stopsWithOrder = await Promise.all(allStops.map(async (stop) => {
         const pRes = await executor.execute(sql`
             SELECT point_order as "pointOrder"

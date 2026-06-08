@@ -347,7 +347,7 @@ export function DriverHomePage({
                                     }
                                     onCompleteRide={
                                         ride.rideStatus !== "COMPLETED" &&
-                                        ride.date <= new Date()
+                                            ride.date <= new Date()
                                             ? () => setRideToComplete(ride.id)
                                             : undefined
                                     }
@@ -413,7 +413,7 @@ export function DriverHomePage({
                                 {t(
                                     getErrorI18nKey(
                                         acceptRequest.error ??
-                                            declineRequest.error,
+                                        declineRequest.error,
                                         {},
                                         "rideRequests.actionError"
                                     )

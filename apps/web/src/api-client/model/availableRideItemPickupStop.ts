@@ -10,6 +10,9 @@ import type { RideStopId } from "./rideStopId";
 export type AvailableRideItemPickupStop = {
     pickupStopId: RideStopId;
     city: string;
+    isDynamic?: boolean;
+    lat?: number;
+    lng?: number;
     /** @nullable */
     plannedDepartureAt: string | null;
 };
