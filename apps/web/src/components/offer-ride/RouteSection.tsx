@@ -29,11 +29,13 @@ export function RouteSection() {
                     label={t("offerRide.pickup")}
                     icon={<CircleIcon />}
                 />
-                
+
                 <LocationAutocomplete
                     value={pickupCityValue ?? null}
                     onChange={(location) => {
-                        setValue("pickupCity", location, { shouldValidate: isSubmitted });
+                        setValue("pickupCity", location, {
+                            shouldValidate: isSubmitted,
+                        });
                     }}
                     placeholder={t("offerRide.pickupPlaceholder")}
                 />
@@ -57,7 +59,9 @@ export function RouteSection() {
                 <LocationAutocomplete
                     value={dropoffCityValue ?? null}
                     onChange={(location) => {
-                        setValue("dropoffCity", location, { shouldValidate: isSubmitted });
+                        setValue("dropoffCity", location, {
+                            shouldValidate: isSubmitted,
+                        });
                     }}
                     placeholder={t("offerRide.dropoffPlaceholder")}
                 />

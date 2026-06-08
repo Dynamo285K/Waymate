@@ -4,7 +4,11 @@ import { fetchOsrmRouteCells } from "./osrm.service";
 import { RideError, RideErrorCodes } from "./ride.errors";
 import { REVIEW_WINDOW_DAYS } from "../reviews/review.service";
 import * as h3 from "h3-js";
-import type { CreateRideBody, SearchRidesQuery, CountryCode } from "@repo/shared";
+import type {
+    CreateRideBody,
+    SearchRidesQuery,
+    CountryCode,
+} from "@repo/shared";
 import type {
     CreateRideInput,
     EndRideInput,

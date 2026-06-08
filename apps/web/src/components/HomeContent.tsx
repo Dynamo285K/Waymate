@@ -23,6 +23,8 @@ type AvailableRide = {
     dropoffStopId?: string;
     from: string;
     to: string;
+    originalStartCity: string;
+    originalEndCity: string;
     date: Date;
     duration?: string;
     seatsLeft: number;
@@ -205,30 +207,32 @@ export function HomeContent({
 
     const availableRides: AvailableRide[] = Array.isArray(availableRideRows)
         ? availableRideRows.map((ride) => {
-            const driverName = [ride.driver.firstName, ride.driver.lastName]
-                .filter(Boolean)
-                .join(" ");
+              const driverName = [ride.driver.firstName, ride.driver.lastName]
+                  .filter(Boolean)
+                  .join(" ");
 
-            return {
-                id: ride.rideId,
-                rideId: ride.rideId,
-                pickupStopId: ride.pickupStop.pickupStopId,
-                dropoffStopId: ride.dropoffStop.dropoffStopId,
-                from: ride.pickupStop.city,
-                to: ride.dropoffStop.city,
-                date: new Date(
-                    ride.pickupStop.plannedDepartureAt ?? ride.departureAt
-                ),
-                seatsLeft: ride.seatsLeft,
-                duration: formatDuration(
-                    ride.departureAt,
-                    ride.arrivalEstimateAt
-                ),
-                driverName: driverName || t("roles.driver"),
-                driverRating: ride.driver.averageRating ?? 0,
-                price: ride.priceAmount ?? 0,
-            };
-        })
+              return {
+                  id: ride.rideId,
+                  rideId: ride.rideId,
+                  pickupStopId: ride.pickupStop.pickupStopId,
+                  dropoffStopId: ride.dropoffStop.dropoffStopId,
+                  from: ride.pickupStop.city,
+                  to: ride.dropoffStop.city,
+                  originalStartCity: ride.originalStartCity,
+                  originalEndCity: ride.originalEndCity,
+                  date: new Date(
+                      ride.pickupStop.plannedDepartureAt ?? ride.departureAt
+                  ),
+                  seatsLeft: ride.seatsLeft,
+                  duration: formatDuration(
+                      ride.departureAt,
+                      ride.arrivalEstimateAt
+                  ),
+                  driverName: driverName || t("roles.driver"),
+                  driverRating: ride.driver.averageRating ?? 0,
+                  price: ride.priceAmount ?? 0,
+              };
+          })
         : [];
     const visibleAvailableRides = availableRides.slice(0, 5);
 
@@ -245,11 +249,20 @@ export function HomeContent({
                 <div className="mt-8 w-full max-w-2xl">
                     <SearchBox
                         onSearchCities={async (q) => {
-                            const results = await fetchPhotonLocations(q, userLocation);
+                            const results = await fetchPhotonLocations(
+                                q,
+                                userLocation
+                            );
                             return results.map((c) => ({
-                                // HACK: @waymate/ui SearchBox only accepts {id, name}. 
+                                // HACK: @waymate/ui SearchBox only accepts {id, name}.
                                 // We stringify the coordinates into the 'id' so we can parse them on submission.
-                                id: JSON.stringify({ lat: c.lat, lng: c.lng, countryCode: c.countryCode, city: c.city, address: c.address }),
+                                id: JSON.stringify({
+                                    lat: c.lat,
+                                    lng: c.lng,
+                                    countryCode: c.countryCode,
+                                    city: c.city,
+                                    address: c.address,
+                                }),
                                 name: `${c.address}${c.city && c.city !== c.address ? `, ${c.city}` : ""} (${c.countryCode})`,
                             }));
                         }}
@@ -258,12 +271,12 @@ export function HomeContent({
                         }
                         locale={
                             DATE_FNS_LOCALE_MAP[
-                            toUiLanguage(
-                                language
-                            ) as keyof typeof DATE_FNS_LOCALE_MAP
+                                toUiLanguage(
+                                    language
+                                ) as keyof typeof DATE_FNS_LOCALE_MAP
                             ] ??
                             DATE_FNS_LOCALE_MAP[
-                            language as keyof typeof DATE_FNS_LOCALE_MAP
+                                language as keyof typeof DATE_FNS_LOCALE_MAP
                             ] ??
                             enUS
                         }
@@ -371,6 +384,8 @@ export function HomeContent({
                                 key={ride.id}
                                 from={ride.from}
                                 to={ride.to}
+                                originalStartCity={ride.originalStartCity}
+                                originalEndCity={ride.originalEndCity}
                                 datetime={formatRideDate(
                                     ride.date,
                                     t("home.at")

@@ -241,6 +241,8 @@ export function DriverHomePage({
                 seatsRequired: request.seatCount,
                 from: request.pickupCity,
                 to: request.dropoffCity,
+                originalStartCity: request.originalStartCity,
+                originalEndCity: request.originalEndCity,
                 date: new Date(request.departureAt),
             };
         }) ?? [];
@@ -347,7 +349,7 @@ export function DriverHomePage({
                                     }
                                     onCompleteRide={
                                         ride.rideStatus !== "COMPLETED" &&
-                                            ride.date <= new Date()
+                                        ride.date <= new Date()
                                             ? () => setRideToComplete(ride.id)
                                             : undefined
                                     }
@@ -413,7 +415,7 @@ export function DriverHomePage({
                                 {t(
                                     getErrorI18nKey(
                                         acceptRequest.error ??
-                                        declineRequest.error,
+                                            declineRequest.error,
                                         {},
                                         "rideRequests.actionError"
                                     )
@@ -437,6 +439,10 @@ export function DriverHomePage({
                                     seatsRequired={request.seatsRequired}
                                     from={request.from}
                                     to={request.to}
+                                    originalStartCity={
+                                        request.originalStartCity
+                                    }
+                                    originalEndCity={request.originalEndCity}
                                     datetime={formatDate(
                                         request.date,
                                         t("home.at")

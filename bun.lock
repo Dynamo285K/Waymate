@@ -62,7 +62,7 @@
         "@tanstack/react-query": "^5.66.0",
         "@tanstack/react-query-devtools": "^5.66.0",
         "@tanstack/react-router": "^1.99.0",
-        "@waymate/ui": "0.1.37",
+        "@waymate/ui": "0.1.43",
         "date-fns": "^4.1.0",
         "i18next": "^26.0.7",
         "react": "^19.2.0",
@@ -1859,6 +1859,8 @@
     "@reduxjs/toolkit/immer": ["immer@11.1.4", "", {}, "sha512-XREFCPo6ksxVzP4E0ekD5aMdf8WMwmdNaz6vuvxgI40UaEiu6q3p8X52aU6GdyvLY3XXX/8R7JOTXStz/nBbRw=="],
 
     "@repo/web/@types/node": ["@types/node@24.12.2", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-A1sre26ke7HDIuY/M23nd9gfB+nrmhtYyMINbjI1zHJxYteKR6qSMX56FsmjMcDb3SMcjJg5BiRRgOCC/yBD0g=="],
+
+    "@repo/web/@waymate/ui": ["@waymate/ui@0.1.43", "https://gitlab.fi.muni.cz/api/v4/projects/48090/packages/npm/@waymate/ui/-/@waymate/ui-0.1.43.tgz", { "dependencies": { "@radix-ui/react-dialog": "^1.1.15", "@radix-ui/react-dropdown-menu": "^2.1.16", "@radix-ui/react-popover": "^1.1.15", "@radix-ui/react-select": "^2.2.6", "date-fns": "^4.1.0", "fs-extra": "^11.3.4", "lucide-react": "^1.8.0", "react-day-picker": "^9.14.0" }, "peerDependencies": { "react": "^19.0.0", "react-dom": "^19.0.0" } }, "sha1-iKPvgLeeFXDuKYXBIj55EQL9c/o="],
 
     "@stoplight/better-ajv-errors/ajv": ["ajv@8.20.0", "", { "dependencies": { "fast-deep-equal": "^3.1.3", "fast-uri": "^3.0.1", "json-schema-traverse": "^1.0.0", "require-from-string": "^2.0.2" } }, "sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA=="],
 

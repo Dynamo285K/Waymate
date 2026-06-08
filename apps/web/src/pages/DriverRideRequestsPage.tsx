@@ -70,6 +70,8 @@ export function DriverRideRequestsPage({
                 seatsRequired: request.seatCount,
                 from: request.pickupCity,
                 to: request.dropoffCity,
+                originalStartCity: request.originalStartCity,
+                originalEndCity: request.originalEndCity,
                 date: new Date(request.departureAt),
             };
         }) ?? [];
@@ -138,6 +140,8 @@ export function DriverRideRequestsPage({
                                 seatsRequired={request.seatsRequired}
                                 from={request.from}
                                 to={request.to}
+                                originalStartCity={request.originalStartCity}
+                                originalEndCity={request.originalEndCity}
                                 datetime={formatDate(
                                     request.date,
                                     t("home.at")

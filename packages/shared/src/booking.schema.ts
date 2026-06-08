@@ -1,8 +1,5 @@
 import { z } from "zod";
-import {
-    RideIdSchema,
-    RideStatusSchema,
-} from "./ride.schema";
+import { RideIdSchema, RideStatusSchema } from "./ride.schema";
 import { bookingStatusValues } from "./status-values";
 import { CurrencySchema } from "./currency.schema";
 import {
@@ -26,16 +23,20 @@ export const CreateBookingBodySchema = z
         pickupStopId: z.string(),
         dropoffStopId: z.string(),
         seatCount: z.number().int().min(1, "You must book at least 1 seat"),
-        dynamicPickup: z.object({
-            lat: z.number(),
-            lng: z.number(),
-            city: z.string(),
-        }).optional(),
-        dynamicDropoff: z.object({
-            lat: z.number(),
-            lng: z.number(),
-            city: z.string(),
-        }).optional(),
+        dynamicPickup: z
+            .object({
+                lat: z.number(),
+                lng: z.number(),
+                city: z.string(),
+            })
+            .optional(),
+        dynamicDropoff: z
+            .object({
+                lat: z.number(),
+                lng: z.number(),
+                city: z.string(),
+            })
+            .optional(),
         priceAmount: z.number().optional(),
     })
     .refine((data) => data.pickupStopId !== data.dropoffStopId, {

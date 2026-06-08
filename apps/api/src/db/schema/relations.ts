@@ -19,7 +19,6 @@ import { reviewStatusHistory } from "./review_status_history";
 import { reportStatusHistory } from "./report_status_history";
 import { blocklist } from "./blocklist";
 
-
 export const usersRelations = relations(users, ({ many }) => ({
     cars: many(cars),
     drivenRides: many(rides),
@@ -113,8 +112,6 @@ export const rideRouteCellsRelations = relations(rideRouteCells, ({ one }) => ({
         references: [rides.id],
     }),
 }));
-
-
 
 export const pricesRelations = relations(prices, ({ one }) => ({
     ride: one(rides, {

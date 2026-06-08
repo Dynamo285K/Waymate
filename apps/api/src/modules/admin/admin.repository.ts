@@ -33,7 +33,6 @@ import type {
     ReviewStatus,
     RideStatus,
     UserStatus,
-
 } from "@repo/shared";
 import type { Executor } from "../../db";
 import { users as usersTable } from "../../db/schema/user";
@@ -308,7 +307,7 @@ const findRideList = async (
 
     const originStops = aliasedTable(rideStopsTable, "admin_origin_stops");
     const destStops = aliasedTable(rideStopsTable, "admin_dest_stops");
-    
+
     // Subquery to find the last stop_order per ride so the destination join
     // can match without scanning every stop in the row group.
     const lastStopOrders = executor
@@ -470,7 +469,7 @@ const findRideDetailById = async (
                 plannedDepartureAt: rideStopsTable.plannedDepartureAt,
             })
             .from(rideStopsTable)
-                        .where(eq(rideStopsTable.rideId, id))
+            .where(eq(rideStopsTable.rideId, id))
             .orderBy(asc(rideStopsTable.stopOrder)),
         executor
             .select({
@@ -651,7 +650,7 @@ const findReviewList = async (
     const subject = aliasedTable(usersTable, "admin_review_subject");
     const originStops = aliasedTable(rideStopsTable, "admin_rl_origin_stops");
     const destStops = aliasedTable(rideStopsTable, "admin_rl_dest_stops");
-    
+
     const lastStopOrders = executor
         .select({
             rideId: rideStopsTable.rideId,
@@ -828,7 +827,7 @@ const findReviewDetailById = async (
         "admin_review_detail_origin"
     );
     const destStops = aliasedTable(rideStopsTable, "admin_review_detail_dest");
-    
+
     const lastStopOrders = executor
         .select({
             rideId: rideStopsTable.rideId,
@@ -1149,7 +1148,7 @@ const findReportDetailById = async (
         "admin_report_detail_origin"
     );
     const destStops = aliasedTable(rideStopsTable, "admin_report_detail_dest");
-    
+
     const lastStopOrders = executor
         .select({
             rideId: rideStopsTable.rideId,
@@ -1196,7 +1195,7 @@ const findReportDetailById = async (
                 eq(originStops.stopOrder, 0)
             )
         )
-        
+
         .leftJoin(lastStopOrders, eq(lastStopOrders.rideId, ridesTable.id))
         .leftJoin(
             destStops,
@@ -1205,7 +1204,7 @@ const findReportDetailById = async (
                 eq(destStops.stopOrder, lastStopOrders.stopOrder)
             )
         )
-        
+
         .where(and(eq(reportsTable.id, id), isNull(reportsTable.deletedAt)))
         .limit(1);
 
@@ -1335,7 +1334,7 @@ const getDashboardMetrics = async (
 
     const originStops = aliasedTable(rideStopsTable, "dash_origin_stops");
     const destStops = aliasedTable(rideStopsTable, "dash_dest_stops");
-    
+
     const lastStopOrders = executor
         .select({
             rideId: rideStopsTable.rideId,
@@ -1388,7 +1387,7 @@ const getDashboardMetrics = async (
             executor
                 .select({
                     originCity: originStops.city,
-            destinationCity: destStops.city,
+                    destinationCity: destStops.city,
                     count: sql<number>`COUNT(${ridesTable.id})::int`,
                 })
                 .from(ridesTable)
@@ -1411,7 +1410,7 @@ const getDashboardMetrics = async (
                         eq(destStops.stopOrder, lastStopOrders.stopOrder)
                     )
                 )
-                
+
                 .where(isNull(ridesTable.deletedAt))
                 .groupBy(originStops.city, destStops.city)
                 .orderBy(desc(sql`COUNT(${ridesTable.id})`))
