@@ -9,8 +9,6 @@ const MIN_QUERY_LENGTH = 2;
 
 export type { LocationSuggestion };
 
-
-
 type LocationAutocompleteProps = {
     value: LocationSuggestion | null;
     onChange: (location: LocationSuggestion | null) => void;
@@ -83,7 +81,10 @@ export function LocationAutocomplete({
         const timer = setTimeout(async () => {
             setIsLoading(true);
             try {
-                const results = await fetchPhotonLocations(inputValue, userLocation);
+                const results = await fetchPhotonLocations(
+                    inputValue,
+                    userLocation
+                );
 
                 if (id !== requestIdRef.current) return;
                 setSuggestions(results);
@@ -166,10 +167,11 @@ export function LocationAutocomplete({
                             key={loc.id}
                             role="option"
                             aria-selected={idx === activeIndex}
-                            className={`flex items-center gap-2 px-4 py-3 text-sm cursor-pointer transition-colors ${idx === activeIndex
-                                ? "bg-(--color-bg)"
-                                : "hover:bg-(--color-bg)"
-                                } text-(--color-text-primary)`}
+                            className={`flex items-center gap-2 px-4 py-3 text-sm cursor-pointer transition-colors ${
+                                idx === activeIndex
+                                    ? "bg-(--color-bg)"
+                                    : "hover:bg-(--color-bg)"
+                            } text-(--color-text-primary)`}
                             onMouseDown={() => handleSelect(loc)}
                             onMouseEnter={() => setActiveIndex(idx)}
                         >

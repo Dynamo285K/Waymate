@@ -61,7 +61,8 @@ function buildCreateRideBody(
         stops: overrides.stops ?? [
             {
                 address: "Hlavná 1",
-                city: "Bratislava", countryCode: "SK",
+                city: "Bratislava",
+                countryCode: "SK",
                 lat: 48.148,
                 lng: 17.107,
                 plannedArrivalAt: null,
@@ -69,7 +70,8 @@ function buildCreateRideBody(
             },
             {
                 address: "Námestie SNP 1",
-                city: "Banská Bystrica", countryCode: "SK",
+                city: "Banská Bystrica",
+                countryCode: "SK",
                 lat: 48.736,
                 lng: 19.146,
                 plannedArrivalAt: new Date(

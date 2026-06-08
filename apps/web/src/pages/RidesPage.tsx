@@ -43,15 +43,26 @@ export function RidesPage({
     const [searchParams] = useSearchParams();
     const [showGuestModal, setShowGuestModal] = useState(false);
 
-    const startLat = searchParams.has("startLat") ? parseFloat(searchParams.get("startLat")!) : null;
-    const startLng = searchParams.has("startLng") ? parseFloat(searchParams.get("startLng")!) : null;
+    const startLat = searchParams.has("startLat")
+        ? parseFloat(searchParams.get("startLat")!)
+        : null;
+    const startLng = searchParams.has("startLng")
+        ? parseFloat(searchParams.get("startLng")!)
+        : null;
     const startCity = searchParams.get("startCity");
-    const destLat = searchParams.has("destLat") ? parseFloat(searchParams.get("destLat")!) : null;
-    const destLng = searchParams.has("destLng") ? parseFloat(searchParams.get("destLng")!) : null;
+    const destLat = searchParams.has("destLat")
+        ? parseFloat(searchParams.get("destLat")!)
+        : null;
+    const destLng = searchParams.has("destLng")
+        ? parseFloat(searchParams.get("destLng")!)
+        : null;
     const destCity = searchParams.get("destCity");
     const dateStr = searchParams.get("date");
-    
-    const hasSearchParams = (startLat !== null && startLng !== null) || (destLat !== null && destLng !== null) || !!dateStr;
+
+    const hasSearchParams =
+        (startLat !== null && startLng !== null) ||
+        (destLat !== null && destLng !== null) ||
+        !!dateStr;
     const showAllRides = !hasSearchParams;
     const {
         data: availableRideRows,
@@ -66,7 +77,15 @@ export function RidesPage({
         isError,
         error: searchError,
         canSearch,
-    } = useRideSearch({ startLat, startLng, startCity, destLat, destLng, destCity, date: dateStr });
+    } = useRideSearch({
+        startLat,
+        startLng,
+        startCity,
+        destLat,
+        destLng,
+        destCity,
+        date: dateStr,
+    });
 
     const availableRides = Array.isArray(availableRideRows)
         ? availableRideRows.map((ride) => {
@@ -78,6 +97,8 @@ export function RidesPage({
                   id: ride.rideId,
                   from: ride.pickupStop.city,
                   to: ride.dropoffStop.city,
+                  originalStartCity: ride.originalStartCity,
+                  originalEndCity: ride.originalEndCity,
                   date: new Date(
                       ride.pickupStop.plannedDepartureAt ?? ride.departureAt
                   ),
@@ -179,6 +200,8 @@ export function RidesPage({
                                     key={ride.id}
                                     from={ride.from}
                                     to={ride.to}
+                                    originalStartCity={ride.originalStartCity}
+                                    originalEndCity={ride.originalEndCity}
                                     datetime={formatRideDate(
                                         ride.date,
                                         t("home.at")
@@ -208,6 +231,8 @@ export function RidesPage({
                                 key={ride.rideId}
                                 from={ride.pickupStop.city}
                                 to={ride.dropoffStop.city}
+                                originalStartCity={ride.originalStartCity}
+                                originalEndCity={ride.originalEndCity}
                                 datetime={formatRideDate(
                                     new Date(
                                         ride.pickupStop.plannedDepartureAt ??

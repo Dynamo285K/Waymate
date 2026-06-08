@@ -42,15 +42,26 @@ export function PassengerRidesPage({
     const [searchParams] = useSearchParams();
     const createBooking = useCreateBooking();
 
-    const startLat = searchParams.has("startLat") ? parseFloat(searchParams.get("startLat")!) : null;
-    const startLng = searchParams.has("startLng") ? parseFloat(searchParams.get("startLng")!) : null;
+    const startLat = searchParams.has("startLat")
+        ? parseFloat(searchParams.get("startLat")!)
+        : null;
+    const startLng = searchParams.has("startLng")
+        ? parseFloat(searchParams.get("startLng")!)
+        : null;
     const startCity = searchParams.get("startCity");
-    const destLat = searchParams.has("destLat") ? parseFloat(searchParams.get("destLat")!) : null;
-    const destLng = searchParams.has("destLng") ? parseFloat(searchParams.get("destLng")!) : null;
+    const destLat = searchParams.has("destLat")
+        ? parseFloat(searchParams.get("destLat")!)
+        : null;
+    const destLng = searchParams.has("destLng")
+        ? parseFloat(searchParams.get("destLng")!)
+        : null;
     const destCity = searchParams.get("destCity");
     const dateStr = searchParams.get("date");
 
-    const hasSearchParams = (startLat !== null && startLng !== null) || (destLat !== null && destLng !== null) || !!dateStr;
+    const hasSearchParams =
+        (startLat !== null && startLng !== null) ||
+        (destLat !== null && destLng !== null) ||
+        !!dateStr;
     const showAllRides = !hasSearchParams;
 
     const {
@@ -66,35 +77,45 @@ export function PassengerRidesPage({
         isError,
         error: searchError,
         canSearch,
-    } = useRideSearch({ startLat, startLng, startCity, destLat, destLng, destCity, date: dateStr });
+    } = useRideSearch({
+        startLat,
+        startLng,
+        startCity,
+        destLat,
+        destLng,
+        destCity,
+        date: dateStr,
+    });
 
     const availableRides = Array.isArray(availableRideRows)
         ? availableRideRows.map((ride) => {
-            const departure = new Date(
-                ride.pickupStop.plannedDepartureAt ?? ride.departureAt
-            );
-            const driverName = [ride.driver.firstName, ride.driver.lastName]
-                .filter(Boolean)
-                .join(" ");
+              const departure = new Date(
+                  ride.pickupStop.plannedDepartureAt ?? ride.departureAt
+              );
+              const driverName = [ride.driver.firstName, ride.driver.lastName]
+                  .filter(Boolean)
+                  .join(" ");
 
-            return {
-                id: ride.rideId,
-                rideId: ride.rideId,
-                pickupStopId: ride.pickupStop.pickupStopId,
-                dropoffStopId: ride.dropoffStop.dropoffStopId,
-                from: ride.pickupStop.city,
-                to: ride.dropoffStop.city,
-                date: departure,
-                duration: formatDuration(
-                    ride.departureAt,
-                    ride.arrivalEstimateAt
-                ),
-                seatsLeft: ride.seatsLeft,
-                driverName: driverName || t("roles.driver"),
-                driverRating: ride.driver.averageRating ?? 0,
-                price: ride.priceAmount ?? 0,
-            };
-        })
+              return {
+                  id: ride.rideId,
+                  rideId: ride.rideId,
+                  pickupStopId: ride.pickupStop.pickupStopId,
+                  dropoffStopId: ride.dropoffStop.dropoffStopId,
+                  from: ride.pickupStop.city,
+                  to: ride.dropoffStop.city,
+                  originalStartCity: ride.originalStartCity,
+                  originalEndCity: ride.originalEndCity,
+                  date: departure,
+                  duration: formatDuration(
+                      ride.departureAt,
+                      ride.arrivalEstimateAt
+                  ),
+                  seatsLeft: ride.seatsLeft,
+                  driverName: driverName || t("roles.driver"),
+                  driverRating: ride.driver.averageRating ?? 0,
+                  price: ride.priceAmount ?? 0,
+              };
+          })
         : [];
 
     const count = showAllRides ? availableRides.length : (rides?.length ?? 0);
@@ -189,6 +210,8 @@ export function PassengerRidesPage({
                                     key={ride.id}
                                     from={ride.from}
                                     to={ride.to}
+                                    originalStartCity={ride.originalStartCity}
+                                    originalEndCity={ride.originalEndCity}
                                     datetime={formatRideDate(
                                         ride.date,
                                         t("home.at")
@@ -255,7 +278,7 @@ export function PassengerRidesPage({
                         {rides.map((ride) => {
                             const departure = new Date(
                                 ride.pickupStop.plannedDepartureAt ??
-                                ride.departureAt
+                                    ride.departureAt
                             );
                             const driverName =
                                 `${ride.driver.firstName} ${ride.driver.lastName}`.trim();
@@ -265,6 +288,8 @@ export function PassengerRidesPage({
                                     key={ride.rideId}
                                     from={ride.pickupStop.city}
                                     to={ride.dropoffStop.city}
+                                    originalStartCity={ride.originalStartCity}
+                                    originalEndCity={ride.originalEndCity}
                                     datetime={formatRideDate(
                                         departure,
                                         t("home.at")

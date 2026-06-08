@@ -7,11 +7,7 @@ import {
     parseDurationMinutes,
     parsePositiveInteger,
 } from "./offer-ride";
-<<<<<<< HEAD:apps/web/src/lib/offer-ride.test.ts
-import type { LocationSuggestion } from "../components/LocationAutocomplete";
-=======
 import type { LocationSuggestion } from "../../../../components/shared/LocationAutocomplete";
->>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/pages/driver/offer-ride/lib/offer-ride.test.ts
 
 const bratislava: LocationSuggestion = {
     id: "11111111-1111-1111-1111-111111111111",

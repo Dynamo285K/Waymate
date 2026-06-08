@@ -42,17 +42,6 @@ export function PassengerRidesPage({
     const [searchParams] = useSearchParams();
     const createBooking = useCreateBooking();
 
-<<<<<<< HEAD:apps/web/src/pages/PassengerRidesPage.tsx
-    const startLat = searchParams.has("startLat") ? parseFloat(searchParams.get("startLat")!) : null;
-    const startLng = searchParams.has("startLng") ? parseFloat(searchParams.get("startLng")!) : null;
-    const startCity = searchParams.get("startCity");
-    const destLat = searchParams.has("destLat") ? parseFloat(searchParams.get("destLat")!) : null;
-    const destLng = searchParams.has("destLng") ? parseFloat(searchParams.get("destLng")!) : null;
-    const destCity = searchParams.get("destCity");
-    const dateStr = searchParams.get("date");
-    
-    const hasSearchParams = (startLat !== null && startLng !== null) || (destLat !== null && destLng !== null) || !!dateStr;
-=======
     const startLat = searchParams.has("startLat")
         ? parseFloat(searchParams.get("startLat")!)
         : null;
@@ -73,7 +62,6 @@ export function PassengerRidesPage({
         (startLat !== null && startLng !== null) ||
         (destLat !== null && destLng !== null) ||
         !!dateStr;
->>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/pages/passenger/rides-search/PassengerRidesPage.tsx
     const showAllRides = !hasSearchParams;
 
     const {
@@ -89,9 +77,6 @@ export function PassengerRidesPage({
         isError,
         error: searchError,
         canSearch,
-<<<<<<< HEAD:apps/web/src/pages/PassengerRidesPage.tsx
-    } = useRideSearch({ startLat, startLng, startCity, destLat, destLng, destCity, date: dateStr });
-=======
     } = useRideSearch({
         startLat,
         startLng,
@@ -101,7 +86,6 @@ export function PassengerRidesPage({
         destCity,
         date: dateStr,
     });
->>>>>>> 9c783bd3a0891412d3473c404a72c112c03dda0d:apps/web/src/pages/passenger/rides-search/PassengerRidesPage.tsx
 
     const availableRides = Array.isArray(availableRideRows)
         ? availableRideRows.map((ride) => {

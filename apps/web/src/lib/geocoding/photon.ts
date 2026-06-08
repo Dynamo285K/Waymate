@@ -38,22 +38,34 @@ type PhotonFeature = {
 
 function getDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number) {
     const dLat = lat1 - lat2;
-    const dLon = (lon1 - lon2) * Math.cos((lat1 + lat2) * Math.PI / 360);
+    const dLon = (lon1 - lon2) * Math.cos(((lat1 + lat2) * Math.PI) / 360);
     return Math.sqrt(dLat * dLat + dLon * dLon) * 111;
 }
 
-function calculateScore(f: PhotonFeature, distanceKm: number | null, query: string): number {
+function calculateScore(
+    f: PhotonFeature,
+    distanceKm: number | null,
+    query: string
+): number {
     let score = 0;
     const { osm_key, osm_value } = f.properties;
 
     // Boost score for exact city match
     const normalizedQuery = query.toLowerCase();
-    const city = (f.properties.city || f.properties.town || f.properties.village || "").toLowerCase();
+    const city = (
+        f.properties.city ||
+        f.properties.town ||
+        f.properties.village ||
+        ""
+    ).toLowerCase();
     if (city && normalizedQuery.includes(city)) {
         score += 50;
     }
 
-    if (osm_key === "place" && ["city", "town", "village"].includes(osm_value || "")) {
+    if (
+        osm_key === "place" &&
+        ["city", "town", "village"].includes(osm_value || "")
+    ) {
         score += 200;
     } else if (osm_key === "aeroway" && osm_value === "aerodrome") {
         score += 100;
@@ -61,13 +73,25 @@ function calculateScore(f: PhotonFeature, distanceKm: number | null, query: stri
         score += 100;
     } else if (osm_key === "amenity" && osm_value === "bus_station") {
         score += 100;
-    } else if (osm_key === "amenity" && ["hospital", "clinic", "university"].includes(osm_value || "")) {
+    } else if (
+        osm_key === "amenity" &&
+        ["hospital", "clinic", "university"].includes(osm_value || "")
+    ) {
         score += 90;
-    } else if (osm_key === "shop" && ["mall", "supermarket"].includes(osm_value || "")) {
+    } else if (
+        osm_key === "shop" &&
+        ["mall", "supermarket"].includes(osm_value || "")
+    ) {
         score += 90;
-    } else if (osm_key === "amenity" && ["fuel", "parking"].includes(osm_value || "")) {
+    } else if (
+        osm_key === "amenity" &&
+        ["fuel", "parking"].includes(osm_value || "")
+    ) {
         score += 80;
-    } else if (osm_key === "railway" && ["stop", "platform"].includes(osm_value || "")) {
+    } else if (
+        osm_key === "railway" &&
+        ["stop", "platform"].includes(osm_value || "")
+    ) {
         score += 60;
     } else if (osm_key === "highway" && osm_value === "bus_stop") {
         score += 60;
@@ -100,13 +124,14 @@ export async function fetchPhotonLocations(
 
         const res = await fetch(url);
         if (!res.ok) return [];
-        const data = await res.json() as { features: PhotonFeature[] };
+        const data = (await res.json()) as { features: PhotonFeature[] };
 
         let features = data.features;
         const hasDigits = /\d/.test(query);
 
-        features = features.filter(f => {
-            const { osm_key, osm_value, name, street, housenumber } = f.properties;
+        features = features.filter((f) => {
+            const { osm_key, osm_value, name, street, housenumber } =
+                f.properties;
 
             // 1. Block "invisible" objects
             if (!name && !street) return false;
@@ -114,17 +139,51 @@ export async function fetchPhotonLocations(
             let isAllowed = false;
 
             // 2. Strategic POIs are always allowed
-            if (osm_key === "place" && ["city", "town", "village", "suburb"].includes(osm_value || "")) isAllowed = true;
-            if (osm_key === "amenity" && ["fuel", "bus_station", "parking", "hospital", "clinic", "university"].includes(osm_value || "")) isAllowed = true;
-            if (osm_key === "shop" && ["mall", "supermarket"].includes(osm_value || "")) isAllowed = true;
-            if (osm_key === "railway" && ["station", "stop", "platform"].includes(osm_value || "")) isAllowed = true;
-            if (osm_key === "public_transport" && osm_value === "station") isAllowed = true;
-            if (osm_key === "park_ride" && osm_value === "yes") isAllowed = true;
-            if (osm_key === "aeroway" && osm_value === "aerodrome") isAllowed = true;
+            if (
+                osm_key === "place" &&
+                ["city", "town", "village", "suburb"].includes(osm_value || "")
+            )
+                isAllowed = true;
+            if (
+                osm_key === "amenity" &&
+                [
+                    "fuel",
+                    "bus_station",
+                    "parking",
+                    "hospital",
+                    "clinic",
+                    "university",
+                ].includes(osm_value || "")
+            )
+                isAllowed = true;
+            if (
+                osm_key === "shop" &&
+                ["mall", "supermarket"].includes(osm_value || "")
+            )
+                isAllowed = true;
+            if (
+                osm_key === "railway" &&
+                ["station", "stop", "platform"].includes(osm_value || "")
+            )
+                isAllowed = true;
+            if (osm_key === "public_transport" && osm_value === "station")
+                isAllowed = true;
+            if (osm_key === "park_ride" && osm_value === "yes")
+                isAllowed = true;
+            if (osm_key === "aeroway" && osm_value === "aerodrome")
+                isAllowed = true;
 
             // 3. Streets are always allowed
             if (osm_key === "highway") {
-                const invalidRoadTypes = ["cycleway", "footway", "path", "steps", "pedestrian", "via_ferrata", "track"];
+                const invalidRoadTypes = [
+                    "cycleway",
+                    "footway",
+                    "path",
+                    "steps",
+                    "pedestrian",
+                    "via_ferrata",
+                    "track",
+                ];
                 if (!invalidRoadTypes.includes(osm_value || "")) {
                     isAllowed = true;
                 }
@@ -141,13 +200,28 @@ export async function fetchPhotonLocations(
         const dedupMap = new Map<string, LocationSuggestion>();
 
         for (const f of features) {
-            if (!f.properties.countrycode && !f.properties.city && !f.properties.state) continue;
+            if (
+                !f.properties.countrycode &&
+                !f.properties.city &&
+                !f.properties.state
+            )
+                continue;
 
-            const countryCode = (f.properties.countrycode?.toUpperCase() || "SK") as CountryCode;
-            const isCityNode = f.properties.osm_key === "place" && ["city", "town", "village", "suburb"].includes(f.properties.osm_value || "");
-            const city = isCityNode 
-                ? (f.properties.name || "") 
-                : (f.properties.city || f.properties.town || f.properties.village || f.properties.state || f.properties.name || "");
+            const countryCode = (f.properties.countrycode?.toUpperCase() ||
+                "SK") as CountryCode;
+            const isCityNode =
+                f.properties.osm_key === "place" &&
+                ["city", "town", "village", "suburb"].includes(
+                    f.properties.osm_value || ""
+                );
+            const city = isCityNode
+                ? f.properties.name || ""
+                : f.properties.city ||
+                  f.properties.town ||
+                  f.properties.village ||
+                  f.properties.state ||
+                  f.properties.name ||
+                  "";
 
             let address = f.properties.name || city;
             if (f.properties.street) {
@@ -155,10 +229,15 @@ export async function fetchPhotonLocations(
                     ? `${f.properties.street} ${f.properties.housenumber}`
                     : f.properties.street;
 
-                address = f.properties.name && f.properties.name !== f.properties.street
-                    ? `${f.properties.name}, ${streetAndNumber}`
-                    : streetAndNumber;
-            } else if (f.properties.name && (f.properties.district || f.properties.locality)) {
+                address =
+                    f.properties.name &&
+                    f.properties.name !== f.properties.street
+                        ? `${f.properties.name}, ${streetAndNumber}`
+                        : streetAndNumber;
+            } else if (
+                f.properties.name &&
+                (f.properties.district || f.properties.locality)
+            ) {
                 const area = f.properties.district || f.properties.locality;
                 address = `${f.properties.name}, ${area}`;
             }
@@ -172,17 +251,29 @@ export async function fetchPhotonLocations(
             }
 
             // If searching for a city, use only the city name
-            if (f.properties.osm_key === "place" && ["city", "town", "village"].includes(f.properties.osm_value || "")) {
+            if (
+                f.properties.osm_key === "place" &&
+                ["city", "town", "village"].includes(
+                    f.properties.osm_value || ""
+                )
+            ) {
                 address = f.properties.name || city;
             }
 
             const [lng, lat] = f.geometry.coordinates;
             let featureExtent = f.properties.extent || null;
             if (featureExtent && featureExtent.length === 4) {
-                featureExtent = [featureExtent[0], featureExtent[1], featureExtent[2], featureExtent[3]];
+                featureExtent = [
+                    featureExtent[0],
+                    featureExtent[1],
+                    featureExtent[2],
+                    featureExtent[3],
+                ];
             }
 
-            const distanceKm = bias ? getDistanceKm(lat, lng, bias.lat, bias.lng) : null;
+            const distanceKm = bias
+                ? getDistanceKm(lat, lng, bias.lat, bias.lng)
+                : null;
             const score = calculateScore(f, distanceKm, query);
 
             const suggestion: LocationSuggestion = {
@@ -196,7 +287,7 @@ export async function fetchPhotonLocations(
                 type: f.properties.type,
                 osm_key: f.properties.osm_key,
                 osm_value: f.properties.osm_value,
-                score
+                score,
             };
 
             let dedupKey = `${address}|${city}`;
@@ -221,12 +312,22 @@ export async function fetchPhotonLocations(
                 const isPoiNew = !!f.properties.name;
                 for (const [existingKey, existing] of dedupMap.entries()) {
                     const isPoiOld = existingKey.includes("|");
-                    const dist = getDistanceKm(suggestion.lat, suggestion.lng, existing.lat, existing.lng);
-                    
+                    const dist = getDistanceKm(
+                        suggestion.lat,
+                        suggestion.lng,
+                        existing.lat,
+                        existing.lng
+                    );
+
                     if (dist < 0.05 && isPoiNew && isPoiOld) {
                         isDuplicate = true;
                         // Keep the record with the higher score or longer address
-                        if (suggestion.score > existing.score || (suggestion.score === existing.score && suggestion.address.length > existing.address.length)) {
+                        if (
+                            suggestion.score > existing.score ||
+                            (suggestion.score === existing.score &&
+                                suggestion.address.length >
+                                    existing.address.length)
+                        ) {
                             dedupMap.delete(existingKey);
                             dedupMap.set(dedupKey, suggestion);
                         }

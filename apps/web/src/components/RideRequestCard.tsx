@@ -13,6 +13,8 @@ export type RideRequestCardProps = {
     seatsRequired: number;
     from: string;
     to: string;
+    originalStartCity: string;
+    originalEndCity: string;
     datetime: string;
     onAccept: () => void;
     onDecline: () => void;
@@ -25,6 +27,8 @@ export function RideRequestCard({
     seatsRequired,
     from,
     to,
+    originalStartCity,
+    originalEndCity,
     datetime,
     onAccept,
     onDecline,
@@ -64,6 +68,9 @@ export function RideRequestCard({
                     <MapPinIcon />
                     <span className="ride-request-card__route-label">{to}</span>
                 </div>
+                <span className="text-sm text-gray-500 mt-1 block">
+                    {originalStartCity} → {originalEndCity}
+                </span>
                 <div className="ride-request-card__meta">
                     <ClockIcon />
                     <span className="ride-request-card__meta-text">

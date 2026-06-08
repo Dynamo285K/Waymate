@@ -9,7 +9,7 @@ async function main() {
             destCity: "Brno",
             destLat: 49.2,
             destLng: 16.6,
-            travelDate: new Date("2026-06-07T08:00:00Z")
+            travelDate: new Date("2026-06-07T08:00:00Z"),
         });
         console.log("Success:", result);
     } catch (err) {

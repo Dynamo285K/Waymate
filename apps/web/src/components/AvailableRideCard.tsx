@@ -9,6 +9,8 @@ export type AvailableRideCardLabels = {
 export type AvailableRideCardProps = {
     from: string;
     to: string;
+    originalStartCity: string;
+    originalEndCity: string;
     datetime: string;
     duration?: string;
     seatsLeft: number;
@@ -22,6 +24,8 @@ export type AvailableRideCardProps = {
 export function AvailableRideCard({
     from,
     to,
+    originalStartCity,
+    originalEndCity,
     datetime,
     duration,
     seatsLeft,
@@ -36,6 +40,9 @@ export function AvailableRideCard({
             <div className="available-ride-card__left">
                 <span className="available-ride-card__route">
                     {from} → {to}
+                </span>
+                <span className="text-sm text-gray-500 mt-1 block">
+                    {originalStartCity} → {originalEndCity}
                 </span>
                 <div className="available-ride-card__meta">
                     <ClockIcon />

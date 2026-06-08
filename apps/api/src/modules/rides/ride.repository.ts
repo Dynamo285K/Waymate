@@ -366,7 +366,8 @@ const searchRides = async (
     const destCell = h3.latLngToCell(destLat, destLng, 7);
     const startH3s = h3.gridDisk(startCell, 20); // Approx. 25-30 km radius
     const destH3s = h3.gridDisk(destCell, 20);
-    const { start: startOfDay, end: endOfDay } = dayBoundsInTimeZone(travelDate);
+    const { start: startOfDay, end: endOfDay } =
+        dayBoundsInTimeZone(travelDate);
 
     const pickupCells = aliasedTable(rideRouteCellsTable, "pickup_cells");
     const dropoffCells = aliasedTable(rideRouteCellsTable, "dropoff_cells");
@@ -398,8 +399,12 @@ const searchRides = async (
     const driverRatings = executor
         .select({
             subjectId: reviewsTable.subjectId,
-            averageRating: sql<number>`AVG(${reviewsTable.rating})::float`.as("averageRating"),
-            reviewCount: sql<number>`COUNT(${reviewsTable.id})::int`.as("reviewCount"),
+            averageRating: sql<number>`AVG(${reviewsTable.rating})::float`.as(
+                "averageRating"
+            ),
+            reviewCount: sql<number>`COUNT(${reviewsTable.id})::int`.as(
+                "reviewCount"
+            ),
         })
         .from(reviewsTable)
         .where(
@@ -414,12 +419,19 @@ const searchRides = async (
     const capacityByRide = executor
         .select({
             rideId: bookingsTable.rideId,
-            occupiedSeats: sql<number>`COALESCE(SUM(${bookingsTable.seatCount}), 0)::int`.as("occupiedSeats"),
+            occupiedSeats:
+                sql<number>`COALESCE(SUM(${bookingsTable.seatCount}), 0)::int`.as(
+                    "occupiedSeats"
+                ),
         })
         .from(bookingsTable)
         .where(
             and(
-                inArray(bookingsTable.bookingStatus, ["PENDING", "CONFIRMED", "COMPLETED"]),
+                inArray(bookingsTable.bookingStatus, [
+                    "PENDING",
+                    "CONFIRMED",
+                    "COMPLETED",
+                ]),
                 bookingNotSoftDeleted
             )
         )
@@ -429,7 +441,9 @@ const searchRides = async (
     const maxPriceByRide = executor
         .select({
             rideId: pricesTable.rideId,
-            totalPrice: sql<number>`MAX(${pricesTable.amount})::float`.as("totalPrice"),
+            totalPrice: sql<number>`MAX(${pricesTable.amount})::float`.as(
+                "totalPrice"
+            ),
         })
         .from(pricesTable)
         .groupBy(pricesTable.rideId)
@@ -438,7 +452,10 @@ const searchRides = async (
     const maxPointsByRide = executor
         .select({
             rideId: rideRouteCellsTable.rideId,
-            totalPoints: sql<number>`MAX(${rideRouteCellsTable.pointOrder})::float`.as("totalPoints"),
+            totalPoints:
+                sql<number>`MAX(${rideRouteCellsTable.pointOrder})::float`.as(
+                    "totalPoints"
+                ),
         })
         .from(rideRouteCellsTable)
         .groupBy(rideRouteCellsTable.rideId)
@@ -545,10 +562,15 @@ const searchRides = async (
         .orderBy(asc(distanceZoneSql), asc(ridesTable.departureAt));
 
     // Deduplicate in JS: keep only the combination with the shortest total distance to passenger
-    const uniqueRides = new Map<string, RideSearchResultItem & { _totalDist: number }>();
+    const uniqueRides = new Map<
+        string,
+        RideSearchResultItem & { _totalDist: number }
+    >();
 
-    for (const row of (result as RideSearchResultItem[])) {
-        const totalDist = (row.pickupStop.distanceKm || 0) + (row.dropoffStop.distanceKm || 0);
+    for (const row of result as RideSearchResultItem[]) {
+        const totalDist =
+            (row.pickupStop.distanceKm || 0) +
+            (row.dropoffStop.distanceKm || 0);
         const existing = uniqueRides.get(row.rideId);
 
         if (!existing || totalDist < existing._totalDist) {
@@ -556,7 +578,7 @@ const searchRides = async (
         }
     }
 
-    const finalRides = Array.from(uniqueRides.values()).map(r => {
+    const finalRides = Array.from(uniqueRides.values()).map((r) => {
         const { _totalDist, ...cleanRide } = r;
         return cleanRide;
     });
@@ -564,7 +586,7 @@ const searchRides = async (
     if (finalRides.length === 0) return [];
 
     // Fetch actual stops and prices to map back to original if within 25km
-    const rideIds = finalRides.map(r => r.rideId);
+    const rideIds = finalRides.map((r) => r.rideId);
 
     const allStops = await executor
         .select()
@@ -577,19 +599,27 @@ const searchRides = async (
         .where(inArray(pricesTable.rideId, rideIds));
 
     // Haversine formula in JS
-    const distanceKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const distanceKm = (
+        lat1: number,
+        lon1: number,
+        lat2: number,
+        lon2: number
+    ) => {
         const R = 6371;
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const dLat = ((lat2 - lat1) * Math.PI) / 180;
+        const dLon = ((lon2 - lon1) * Math.PI) / 180;
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos((lat1 * Math.PI) / 180) *
+                Math.cos((lat2 * Math.PI) / 180) *
+                Math.sin(dLon / 2) *
+                Math.sin(dLon / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     };
 
     for (const ride of finalRides) {
-        const stopsForRide = allStops.filter(s => s.rideId === ride.rideId);
+        const stopsForRide = allStops.filter((s) => s.rideId === ride.rideId);
 
         let actualPickupStop = null;
         let actualDropoffStop = null;
@@ -614,8 +644,16 @@ const searchRides = async (
             ride.pickupStop.city = actualPickupStop.city;
             ride.pickupStop.lat = actualPickupStop.lat;
             ride.pickupStop.lng = actualPickupStop.lng;
-            ride.pickupStop.plannedDepartureAt = actualPickupStop.plannedDepartureAt;
-            ride.pickupStop.distanceKm = Number(distanceKm(startLat, startLng, actualPickupStop.lat, actualPickupStop.lng).toFixed(1));
+            ride.pickupStop.plannedDepartureAt =
+                actualPickupStop.plannedDepartureAt;
+            ride.pickupStop.distanceKm = Number(
+                distanceKm(
+                    startLat,
+                    startLng,
+                    actualPickupStop.lat,
+                    actualPickupStop.lng
+                ).toFixed(1)
+            );
         }
 
         if (actualDropoffStop) {
@@ -624,12 +662,25 @@ const searchRides = async (
             ride.dropoffStop.city = actualDropoffStop.city;
             ride.dropoffStop.lat = actualDropoffStop.lat;
             ride.dropoffStop.lng = actualDropoffStop.lng;
-            ride.dropoffStop.plannedArrivalAt = actualDropoffStop.plannedArrivalAt;
-            ride.dropoffStop.distanceKm = Number(distanceKm(destLat, destLng, actualDropoffStop.lat, actualDropoffStop.lng).toFixed(1));
+            ride.dropoffStop.plannedArrivalAt =
+                actualDropoffStop.plannedArrivalAt;
+            ride.dropoffStop.distanceKm = Number(
+                distanceKm(
+                    destLat,
+                    destLng,
+                    actualDropoffStop.lat,
+                    actualDropoffStop.lng
+                ).toFixed(1)
+            );
         }
 
         if (actualPickupStop && actualDropoffStop) {
-            const exactPrice = allPrices.find(p => p.rideId === ride.rideId && p.startStopId === actualPickupStop.id && p.endStopId === actualDropoffStop.id);
+            const exactPrice = allPrices.find(
+                (p) =>
+                    p.rideId === ride.rideId &&
+                    p.startStopId === actualPickupStop.id &&
+                    p.endStopId === actualDropoffStop.id
+            );
             if (exactPrice) {
                 ride.priceAmount = exactPrice.amount;
             }
