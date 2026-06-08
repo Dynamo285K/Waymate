@@ -8,7 +8,6 @@ export * from "./error-response.schema";
 export * from "./health.schema";
 export * from "./user.schema";
 export * from "./car.schema";
-export * from "./city.schema";
 export * from "./ride.schema";
 export * from "./booking.schema";
 export * from "./review.schema";
