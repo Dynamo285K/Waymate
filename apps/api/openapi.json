@@ -7876,6 +7876,12 @@
           },
           "currency": {
             "$ref": "#/components/schemas/Currency"
+          },
+          "originalStartCity": {
+            "type": "string"
+          },
+          "originalEndCity": {
+            "type": "string"
           }
         },
         "required": [
@@ -7889,7 +7895,9 @@
           "pickupStop",
           "dropoffStop",
           "priceAmount",
-          "currency"
+          "currency",
+          "originalStartCity",
+          "originalEndCity"
         ],
         "additionalProperties": false
       },
@@ -7974,6 +7982,12 @@
           },
           "currency": {
             "$ref": "#/components/schemas/Currency"
+          },
+          "originalStartCity": {
+            "type": "string"
+          },
+          "originalEndCity": {
+            "type": "string"
           }
         },
         "required": [
@@ -7987,7 +8001,9 @@
           "pickupStop",
           "dropoffStop",
           "priceAmount",
-          "currency"
+          "currency",
+          "originalStartCity",
+          "originalEndCity"
         ],
         "additionalProperties": false
       },
@@ -8085,6 +8101,12 @@
           "dropoffCity": {
             "type": "string"
           },
+          "originalStartCity": {
+            "type": "string"
+          },
+          "originalEndCity": {
+            "type": "string"
+          },
           "departureAt": {
             "type": "string",
             "format": "date-time"
@@ -8097,6 +8119,8 @@
           "passenger",
           "pickupCity",
           "dropoffCity",
+          "originalStartCity",
+          "originalEndCity",
           "departureAt"
         ],
         "additionalProperties": false

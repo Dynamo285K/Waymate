@@ -27,9 +27,9 @@ const getPassengerBookings = async (
             myReviewOfDriver:
                 myReviewOfDriverId !== null && myReviewOfDriverRating !== null
                     ? {
-                          id: myReviewOfDriverId,
-                          rating: myReviewOfDriverRating,
-                      }
+                        id: myReviewOfDriverId,
+                        rating: myReviewOfDriverRating,
+                    }
                     : null,
         })
     );

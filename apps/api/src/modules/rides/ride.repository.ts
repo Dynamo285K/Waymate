@@ -288,6 +288,28 @@ const findAvailableRides = async (
                 city: dropoffStops.city,
                 plannedArrivalAt: dropoffStops.plannedArrivalAt,
             },
+            originalStartCity: sql<string>`(${executor
+                .select({ city: rideStopsTable.city })
+                .from(rideStopsTable)
+                .where(
+                    and(
+                        eq(rideStopsTable.rideId, ridesTable.id),
+                        eq(rideStopsTable.isDynamic, false)
+                    )
+                )
+                .orderBy(asc(rideStopsTable.stopOrder))
+                .limit(1)})`,
+            originalEndCity: sql<string>`(${executor
+                .select({ city: rideStopsTable.city })
+                .from(rideStopsTable)
+                .where(
+                    and(
+                        eq(rideStopsTable.rideId, ridesTable.id),
+                        eq(rideStopsTable.isDynamic, false)
+                    )
+                )
+                .orderBy(desc(rideStopsTable.stopOrder))
+                .limit(1)})`,
             priceAmount: pricesTable.amount,
         })
         .from(ridesTable)
@@ -465,6 +487,28 @@ const searchRides = async (
                 plannedArrivalAt: ridesTable.arrivalEstimateAt,
                 distanceKm: sql<number>`ROUND(${dropoffDistanceSql}, 1)::float`,
             },
+            originalStartCity: sql<string>`(${executor
+                .select({ city: rideStopsTable.city })
+                .from(rideStopsTable)
+                .where(
+                    and(
+                        eq(rideStopsTable.rideId, ridesTable.id),
+                        eq(rideStopsTable.isDynamic, false)
+                    )
+                )
+                .orderBy(asc(rideStopsTable.stopOrder))
+                .limit(1)})`,
+            originalEndCity: sql<string>`(${executor
+                .select({ city: rideStopsTable.city })
+                .from(rideStopsTable)
+                .where(
+                    and(
+                        eq(rideStopsTable.rideId, ridesTable.id),
+                        eq(rideStopsTable.isDynamic, false)
+                    )
+                )
+                .orderBy(desc(rideStopsTable.stopOrder))
+                .limit(1)})`,
             priceAmount: calculatedPriceAmount,
         })
         .from(ridesTable)
@@ -521,12 +565,12 @@ const searchRides = async (
 
     // Fetch actual stops and prices to map back to original if within 25km
     const rideIds = finalRides.map(r => r.rideId);
-    
+
     const allStops = await executor
         .select()
         .from(rideStopsTable)
         .where(inArray(rideStopsTable.rideId, rideIds));
-        
+
     const allPrices = await executor
         .select()
         .from(pricesTable)
@@ -534,19 +578,19 @@ const searchRides = async (
 
     // Haversine formula in JS
     const distanceKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-        const R = 6371; 
+        const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-          Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     };
 
     for (const ride of finalRides) {
         const stopsForRide = allStops.filter(s => s.rideId === ride.rideId);
-        
+
         let actualPickupStop = null;
         let actualDropoffStop = null;
 

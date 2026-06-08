@@ -79,5 +79,7 @@ export type DriverRideRequestItem = {
     };
     pickupCity: string;
     dropoffCity: string;
+    originalStartCity: string;
+    originalEndCity: string;
     departureAt: Date;
 };

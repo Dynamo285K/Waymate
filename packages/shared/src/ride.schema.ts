@@ -182,6 +182,8 @@ export const RideSearchResultItemSchema = z.object({
     }),
     priceAmount: z.number().nullable(),
     currency: CurrencySchema,
+    originalStartCity: z.string(),
+    originalEndCity: z.string(),
 });
 
 export const AvailableRideItemSchema = z.object({
@@ -204,6 +206,8 @@ export const AvailableRideItemSchema = z.object({
     }),
     priceAmount: z.number().nullable(),
     currency: CurrencySchema,
+    originalStartCity: z.string(),
+    originalEndCity: z.string(),
 });
 
 export const RideStopSchema = z.object({

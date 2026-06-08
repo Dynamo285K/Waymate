@@ -205,30 +205,30 @@ export function HomeContent({
 
     const availableRides: AvailableRide[] = Array.isArray(availableRideRows)
         ? availableRideRows.map((ride) => {
-              const driverName = [ride.driver.firstName, ride.driver.lastName]
-                  .filter(Boolean)
-                  .join(" ");
+            const driverName = [ride.driver.firstName, ride.driver.lastName]
+                .filter(Boolean)
+                .join(" ");
 
-              return {
-                  id: ride.rideId,
-                  rideId: ride.rideId,
-                  pickupStopId: ride.pickupStop.pickupStopId,
-                  dropoffStopId: ride.dropoffStop.dropoffStopId,
-                  from: ride.pickupStop.city,
-                  to: ride.dropoffStop.city,
-                  date: new Date(
-                      ride.pickupStop.plannedDepartureAt ?? ride.departureAt
-                  ),
-                  seatsLeft: ride.seatsLeft,
-                  duration: formatDuration(
-                      ride.departureAt,
-                      ride.arrivalEstimateAt
-                  ),
-                  driverName: driverName || t("roles.driver"),
-                  driverRating: ride.driver.averageRating ?? 0,
-                  price: ride.priceAmount ?? 0,
-              };
-          })
+            return {
+                id: ride.rideId,
+                rideId: ride.rideId,
+                pickupStopId: ride.pickupStop.pickupStopId,
+                dropoffStopId: ride.dropoffStop.dropoffStopId,
+                from: ride.pickupStop.city,
+                to: ride.dropoffStop.city,
+                date: new Date(
+                    ride.pickupStop.plannedDepartureAt ?? ride.departureAt
+                ),
+                seatsLeft: ride.seatsLeft,
+                duration: formatDuration(
+                    ride.departureAt,
+                    ride.arrivalEstimateAt
+                ),
+                driverName: driverName || t("roles.driver"),
+                driverRating: ride.driver.averageRating ?? 0,
+                price: ride.priceAmount ?? 0,
+            };
+        })
         : [];
     const visibleAvailableRides = availableRides.slice(0, 5);
 
@@ -258,12 +258,12 @@ export function HomeContent({
                         }
                         locale={
                             DATE_FNS_LOCALE_MAP[
-                                toUiLanguage(
-                                    language
-                                ) as keyof typeof DATE_FNS_LOCALE_MAP
+                            toUiLanguage(
+                                language
+                            ) as keyof typeof DATE_FNS_LOCALE_MAP
                             ] ??
                             DATE_FNS_LOCALE_MAP[
-                                language as keyof typeof DATE_FNS_LOCALE_MAP
+                            language as keyof typeof DATE_FNS_LOCALE_MAP
                             ] ??
                             enUS
                         }
