@@ -1,5 +1,4 @@
 import { Button } from "@waymate/ui";
-import "./RoleSwitcher.css";
 
 export type Role = "passenger" | "driver";
 
@@ -12,12 +11,23 @@ export type RoleSwitcherProps = {
     value: Role;
     onChange: (value: Role) => void;
     labels?: RoleSwitcherLabels;
+    className?: string;
 };
 
-export function RoleSwitcher({ value, onChange, labels }: RoleSwitcherProps) {
+const itemBase =
+    "min-w-[120px] py-[10px] px-[18px] rounded-full bg-transparent text-(--color-text-secondary) text-sm font-medium leading-none cursor-pointer transition-all duration-200 border-0 -ml-1.5 first:ml-0";
+const itemActive =
+    "bg-(--color-primary) text-(--color-secondary) shadow-[0_2px_8px_rgba(17,173,50,0.25)] relative z-[1]";
+
+export function RoleSwitcher({
+    value,
+    onChange,
+    labels,
+    className,
+}: RoleSwitcherProps) {
     return (
         <div
-            className="role-switcher"
+            className={`inline-flex items-center p-1 rounded-full bg-(--color-card) border border-(--color-border) shadow-[0_2px_6px_rgba(0,0,0,0.12)]${className ? ` ${className}` : ""}`}
             role="tablist"
             aria-label="Role switcher"
         >
@@ -25,21 +35,16 @@ export function RoleSwitcher({ value, onChange, labels }: RoleSwitcherProps) {
                 variant="unstyled"
                 role="tab"
                 aria-selected={value === "passenger"}
-                className={`role-switcher__item ${
-                    value === "passenger" ? "role-switcher__item--active" : ""
-                }`}
+                className={`${itemBase} ${value === "passenger" ? itemActive : ""}`}
                 onClick={() => onChange("passenger")}
             >
                 {labels?.passenger ?? "Passenger"}
             </Button>
-
             <Button
                 variant="unstyled"
                 role="tab"
                 aria-selected={value === "driver"}
-                className={`role-switcher__item ${
-                    value === "driver" ? "role-switcher__item--active" : ""
-                }`}
+                className={`${itemBase} ${value === "driver" ? itemActive : ""}`}
                 onClick={() => onChange("driver")}
             >
                 {labels?.driver ?? "Driver"}

@@ -7572,6 +7572,14 @@
                         "minimum": -9007199254740991,
                         "maximum": 9007199254740991
                     },
+                    "priceAmount": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency"
+                    },
                     "passenger": {
                         "type": "object",
                         "properties": {
@@ -7634,6 +7642,8 @@
                     "id",
                     "rideId",
                     "seatCount",
+                    "priceAmount",
+                    "currency",
                     "passenger",
                     "pickupCity",
                     "dropoffCity",

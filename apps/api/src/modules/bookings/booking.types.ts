@@ -77,6 +77,8 @@ export type DriverRideRequestItem = {
     id: string; // Booking ID used for confirm/reject operations
     rideId: string;
     seatCount: number;
+    priceAmount: number;
+    currency: string;
     passenger: Pick<
         User,
         "id" | "firstName" | "lastName" | "profilePhotoUrl"

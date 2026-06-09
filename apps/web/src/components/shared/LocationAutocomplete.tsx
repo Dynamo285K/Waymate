@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Input, MapPinIcon } from "@waymate/ui";
-import { useUserLocation } from "../../hooks/useUserLocation";
+import { useUserLocation } from "../../hooks/shared/useUserLocation";
 import { fetchPhotonLocations } from "../../lib/geocoding/photon";
 import type { LocationSuggestion } from "../../lib/geocoding/photon";
 

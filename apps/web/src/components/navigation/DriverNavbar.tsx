@@ -17,7 +17,6 @@ import { LanguageSwitcher, type Language } from "../controls/LanguageSwitcher";
 import { RoleSwitcher, type Role } from "../controls/RoleSwitcher";
 import logoLight from "../../assets/logo_light_mode.png";
 import logoDark from "../../assets/logo_dark_mode.png";
-import "./DriverNavbar.css";
 
 export type DriverNavbarTab =
     | "offer-ride"
@@ -137,29 +136,43 @@ export function DriverNavbar({
         <img
             src={logoSrc}
             alt="WayMate logo"
-            className="driver-navbar__logo"
+            className="w-24 h-auto object-contain block shrink-0"
             onClick={onLogoClick}
             style={{ cursor: onLogoClick ? "pointer" : "default" }}
         />
     );
 
+    const hamburger = (
+        <Button
+            variant="unstyled"
+            className="bg-(--color-card) border border-(--color-border) rounded-[10px] w-10 h-10 cursor-pointer flex flex-col items-center justify-center gap-1.25 p-0 shadow-[0_1px_4px_rgba(0,0,0,0.1)] [&_span]:block [&_span]:w-4.5 [&_span]:h-0.5 [&_span]:bg-(--color-text-primary) [&_span]:rounded-sm"
+            onClick={() => setIsMobileMenuOpen((c) => !c)}
+            aria-label="Open menu"
+            aria-expanded={isMobileMenuOpen}
+        >
+            <span />
+            <span />
+            <span />
+        </Button>
+    );
+
     const profileMenu = (
         <DropdownMenu.Root>
             <DropdownMenu.Trigger
-                className="driver-navbar__profile-trigger-btn"
+                className="inline-flex items-center gap-2 border-0 bg-transparent p-0 cursor-pointer group"
                 aria-label="Open profile menu"
             >
                 <Avatar
                     name={userName}
                     size="sm"
                 />
-                <span className="driver-navbar__profile-chevron">
+                <span className="w-8 h-8 rounded-full bg-(--color-card) text-(--color-text-secondary) shadow-[0_2px_6px_rgba(0,0,0,0.12)] inline-flex items-center justify-center group-hover:bg-(--color-border) [&_svg]:w-4 [&_svg]:h-4">
                     <ChevronDownIcon />
                 </span>
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
                 <DropdownMenu.Content
-                    className="driver-navbar__dropdown"
+                    className="z-200"
                     sideOffset={12}
                     align="end"
                     data-theme={theme}
@@ -239,55 +252,48 @@ export function DriverNavbar({
 
     return (
         <header
-            className="driver-navbar"
+            className="w-full bg-(--color-bg) border-b border-(--color-border) shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
             ref={navbarRef}
         >
             {isDesktop && (
-                <div className="driver-navbar__desktop">
-                    <div className="driver-navbar__left">
+                <div className="min-h-18 px-6 flex items-center justify-between gap-6">
+                    <div className="flex items-center gap-8 min-w-0">
                         {logoImg}
                         <nav
-                            className="driver-navbar__nav"
+                            className="flex items-center gap-5 flex-wrap"
                             aria-label="Primary navigation"
                         >
                             {navButtons}
                         </nav>
                     </div>
-                    <div className="driver-navbar__right">{roleLang}</div>
+                    <div className="flex items-center gap-6 shrink-0">
+                        {roleLang}
+                    </div>
                 </div>
             )}
             {isTablet && (
-                <div className="driver-navbar__tablet">
+                <div className="min-h-18 px-4 flex items-center justify-between gap-3">
                     {logoImg}
                     <nav
-                        className="driver-navbar__nav"
+                        className="flex items-center gap-5 flex-wrap"
                         aria-label="Primary navigation"
                     >
                         {navButtons}
                     </nav>
-                    <div className="driver-navbar__tablet-right">
-                        <Button
-                            variant="unstyled"
-                            className="driver-navbar__hamburger"
-                            onClick={() => setIsMobileMenuOpen((c) => !c)}
-                            aria-label="Open menu"
-                            aria-expanded={isMobileMenuOpen}
-                        >
-                            <span />
-                            <span />
-                            <span />
-                        </Button>
+                    <div className="relative shrink-0">
+                        {hamburger}
                         {isMobileMenuOpen && (
-                            <div className="driver-navbar__mobile-panel driver-navbar__tablet-panel">
+                            <div className="absolute top-[calc(100%+8px)] right-0 min-w-70 rounded-2xl border border-(--color-border) shadow-[0_8px_24px_rgba(0,0,0,0.12)] z-30 py-3 px-4 flex flex-col gap-3 bg-(--color-bg)">
                                 <RoleSwitcher
                                     value={role}
                                     onChange={onRoleChange}
+                                    className="self-start shrink-0"
                                     labels={{
                                         passenger: labels?.passenger,
                                         driver: labels?.driver,
                                     }}
                                 />
-                                <div className="driver-navbar__mobile-row">
+                                <div className="flex items-center gap-2.5">
                                     <IconButton
                                         ariaLabel={themeLabel}
                                         icon={themeIcon}
@@ -298,7 +304,7 @@ export function DriverNavbar({
                                         value={language}
                                         onChange={onLanguageChange}
                                     />
-                                    {profileMenu}
+                                    <div className="ml-auto">{profileMenu}</div>
                                 </div>
                             </div>
                         )}
@@ -306,32 +312,23 @@ export function DriverNavbar({
                 </div>
             )}
             {isMobile && (
-                <div className="driver-navbar__mobile">
-                    <div className="driver-navbar__mobile-top">
+                <div className="flex flex-col">
+                    <div className="flex items-center justify-between py-2.5 px-4">
                         {logoImg}
-                        <Button
-                            variant="unstyled"
-                            className="driver-navbar__hamburger"
-                            onClick={() => setIsMobileMenuOpen((c) => !c)}
-                            aria-label="Open menu"
-                            aria-expanded={isMobileMenuOpen}
-                        >
-                            <span />
-                            <span />
-                            <span />
-                        </Button>
+                        {hamburger}
                     </div>
                     {isMobileMenuOpen && (
-                        <div className="driver-navbar__mobile-panel">
+                        <div className="border-t border-(--color-border) py-3 px-4 flex flex-col gap-3 bg-(--color-bg)">
                             <RoleSwitcher
                                 value={role}
                                 onChange={onRoleChange}
+                                className="self-start shrink-0"
                                 labels={{
                                     passenger: labels?.passenger,
                                     driver: labels?.driver,
                                 }}
                             />
-                            <div className="driver-navbar__mobile-row">
+                            <div className="flex items-center gap-2.5">
                                 <IconButton
                                     ariaLabel={themeLabel}
                                     icon={themeIcon}
@@ -342,12 +339,12 @@ export function DriverNavbar({
                                     value={language}
                                     onChange={onLanguageChange}
                                 />
-                                {profileMenu}
+                                <div className="ml-auto">{profileMenu}</div>
                             </div>
                         </div>
                     )}
                     <nav
-                        className="driver-navbar__mobile-nav"
+                        className="grid grid-cols-2 gap-1.5 px-4 pt-2 pb-2.5 border-t border-(--color-border) [&_.nav-button]:py-2 [&_.nav-button]:px-2.5 [&_.nav-button]:text-[13px] [&_.nav-button]:gap-1.5 [&_.nav-button]:justify-center [&_.nav-button]:w-full"
                         aria-label="Primary navigation"
                     >
                         {navButtons}

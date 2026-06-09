@@ -76,6 +76,8 @@ const findPendingRequestsForDriver = async (
             id: bookingsTable.id,
             rideId: bookingsTable.rideId,
             seatCount: bookingsTable.seatCount,
+            priceAmount: bookingsTable.priceAmount,
+            currency: bookingsTable.currency,
             passenger: {
                 id: usersTable.id,
                 firstName: usersTable.firstName,

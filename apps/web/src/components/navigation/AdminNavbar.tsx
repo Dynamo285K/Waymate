@@ -16,7 +16,6 @@ import {
 import { LanguageSwitcher, type Language } from "../controls/LanguageSwitcher";
 import logoLight from "../../assets/logo_light_mode.png";
 import logoDark from "../../assets/logo_dark_mode.png";
-import "./AdminNavbar.css";
 
 export type AdminNavbarTab =
     | "dashboard"
@@ -191,10 +190,55 @@ export function AdminNavbar({
         <img
             src={logoSrc}
             alt="WayMate logo"
-            className="admin-navbar__logo"
+            className="w-24 h-auto object-contain block shrink-0"
             onClick={onLogoClick}
             style={{ cursor: onLogoClick ? "pointer" : "default" }}
         />
+    );
+
+    const hamburger = (
+        <Button
+            variant="unstyled"
+            className="bg-(--color-card) border border-(--color-border) rounded-[10px] w-10 h-10 cursor-pointer flex flex-col items-center justify-center gap-1.25 p-0 shadow-[0_1px_4px_rgba(0,0,0,0.1)] [&_span]:block [&_span]:w-4.5 [&_span]:h-0.5 [&_span]:bg-(--color-text-primary) [&_span]:rounded-sm"
+            onClick={() => setIsMobileMenuOpen((c) => !c)}
+        >
+            <span />
+            <span />
+            <span />
+        </Button>
+    );
+
+    const profileMenu = (
+        <DropdownMenu.Root>
+            <DropdownMenu.Trigger
+                className="inline-flex items-center gap-2 border-0 bg-transparent p-0 cursor-pointer group"
+                aria-label="Open profile menu"
+            >
+                <Avatar
+                    name={userName}
+                    size="sm"
+                />
+                <span className="w-8 h-8 rounded-full bg-(--color-card) text-(--color-text-secondary) shadow-[0_2px_6px_rgba(0,0,0,0.12)] inline-flex items-center justify-center group-hover:bg-(--color-border) [&_svg]:w-4 [&_svg]:h-4">
+                    <ChevronDownIcon />
+                </span>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+                <DropdownMenu.Content
+                    className="z-200"
+                    sideOffset={12}
+                    align="end"
+                    data-theme={theme}
+                >
+                    <AdminProfileDropdown
+                        name={userName}
+                        email={userEmail}
+                        onSettingsClick={onSettingsClick}
+                        onLogoutClick={onLogoutClick}
+                        labels={dropdownLabels}
+                    />
+                </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+        </DropdownMenu.Root>
     );
 
     const navTabs = (
@@ -237,44 +281,15 @@ export function AdminNavbar({
         </>
     );
 
-    const profileMenu = (
-        <DropdownMenu.Root>
-            <DropdownMenu.Trigger
-                className="admin-navbar__profile-trigger-btn"
-                aria-label="Open profile menu"
-            >
-                <Avatar
-                    name={userName}
-                    size="sm"
-                />
-                <span className="admin-navbar__profile-chevron">
-                    <ChevronDownIcon />
-                </span>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Portal>
-                <DropdownMenu.Content
-                    className="admin-navbar__dropdown"
-                    sideOffset={12}
-                    align="end"
-                    data-theme={theme}
-                >
-                    <AdminProfileDropdown
-                        name={userName}
-                        email={userEmail}
-                        onSettingsClick={onSettingsClick}
-                        onLogoutClick={onLogoutClick}
-                        labels={dropdownLabels}
-                    />
-                </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-        </DropdownMenu.Root>
+    const adminBadge = (
+        <span className="bg-(--color-primary) text-white rounded-full py-2 px-5 text-sm font-semibold border-0 cursor-default self-start shrink-0">
+            {labels?.adminRole ?? "Admin"}
+        </span>
     );
 
     const secondaryControls = (
         <>
-            <span className="admin-navbar__role">
-                {labels?.adminRole ?? "Admin"}
-            </span>
+            {adminBadge}
             <LanguageSwitcher
                 value={language}
                 onChange={onLanguageChange}
@@ -291,43 +306,32 @@ export function AdminNavbar({
 
     return (
         <header
-            className="admin-navbar"
+            className="w-full bg-(--color-bg) border-b border-(--color-border) shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
             ref={navbarRef}
         >
             {isDesktop && (
-                <div className="admin-navbar__desktop">
-                    <div className="admin-navbar__left">
+                <div className="min-h-18 px-6 flex items-center justify-between gap-6">
+                    <div className="flex items-center gap-8 min-w-0">
                         {logoImg}
-                        <nav className="admin-navbar__nav">{navTabs}</nav>
+                        <nav className="flex items-center gap-5 flex-wrap">
+                            {navTabs}
+                        </nav>
                     </div>
-                    <div className="admin-navbar__right">
+                    <div className="flex items-center gap-5 shrink-0">
                         {secondaryControls}
                     </div>
                 </div>
             )}
             {isTablet && (
-                <div className="admin-navbar__tablet">
-                    <div className="admin-navbar__tablet-top">
+                <div className="flex flex-col">
+                    <div className="flex items-center justify-between py-2.5 px-4 min-h-15">
                         {logoImg}
-                        <Button
-                            variant="unstyled"
-                            className="admin-navbar__hamburger"
-                            onClick={() => setIsMobileMenuOpen((c) => !c)}
-                        >
-                            <span />
-                            <span />
-                            <span />
-                        </Button>
+                        {hamburger}
                     </div>
                     {isMobileMenuOpen && (
-                        <div className="admin-navbar__mobile-panel">
-                            <span
-                                className="admin-navbar__role"
-                                style={{ alignSelf: "flex-start" }}
-                            >
-                                {labels?.adminRole ?? "Admin"}
-                            </span>
-                            <div className="admin-navbar__mobile-row">
+                        <div className="border-t border-(--color-border) py-3 px-4 flex flex-col gap-3 bg-(--color-bg)">
+                            {adminBadge}
+                            <div className="flex items-center gap-2.5">
                                 <IconButton
                                     ariaLabel={themeLabel}
                                     icon={themeIcon}
@@ -338,39 +342,25 @@ export function AdminNavbar({
                                     value={language}
                                     onChange={onLanguageChange}
                                 />
-                                {profileMenu}
+                                <div className="ml-auto">{profileMenu}</div>
                             </div>
                         </div>
                     )}
-                    <nav className="admin-navbar__tablet-nav">{navTabs}</nav>
+                    <nav className="flex items-center gap-1 px-4 pt-1.5 pb-2 border-t border-(--color-border) overflow-x-auto scrollbar-none [&_.nav-button]:shrink-0 [&_.nav-button]:text-[13px] [&_.nav-button]:py-1.5 [&_.nav-button]:px-3 [&_.nav-button]:gap-1.5">
+                        {navTabs}
+                    </nav>
                 </div>
             )}
             {isMobile && (
-                <div
-                    className="admin-navbar__mobile"
-                    style={{ display: "flex", flexDirection: "column" }}
-                >
-                    <div className="admin-navbar__mobile-top">
+                <div className="flex flex-col">
+                    <div className="flex items-center justify-between py-2.5 px-4">
                         {logoImg}
-                        <Button
-                            variant="unstyled"
-                            className="admin-navbar__hamburger"
-                            onClick={() => setIsMobileMenuOpen((c) => !c)}
-                        >
-                            <span />
-                            <span />
-                            <span />
-                        </Button>
+                        {hamburger}
                     </div>
                     {isMobileMenuOpen && (
-                        <div className="admin-navbar__mobile-panel">
-                            <span
-                                className="admin-navbar__role"
-                                style={{ alignSelf: "flex-start" }}
-                            >
-                                {labels?.adminRole ?? "Admin"}
-                            </span>
-                            <div className="admin-navbar__mobile-row">
+                        <div className="border-t border-(--color-border) py-3 px-4 flex flex-col gap-3 bg-(--color-bg)">
+                            {adminBadge}
+                            <div className="flex items-center gap-2.5">
                                 <IconButton
                                     ariaLabel={themeLabel}
                                     icon={themeIcon}
@@ -381,11 +371,13 @@ export function AdminNavbar({
                                     value={language}
                                     onChange={onLanguageChange}
                                 />
-                                {profileMenu}
+                                <div className="ml-auto">{profileMenu}</div>
                             </div>
                         </div>
                     )}
-                    <nav className="admin-navbar__mobile-nav">{navTabs}</nav>
+                    <nav className="grid grid-cols-2 gap-1.5 px-4 pt-2 pb-2.5 border-t border-(--color-border) [&_.nav-button]:py-2 [&_.nav-button]:px-2.5 [&_.nav-button]:text-[13px] [&_.nav-button]:gap-1.5 [&_.nav-button]:justify-center [&_.nav-button]:w-full">
+                        {navTabs}
+                    </nav>
                 </div>
             )}
         </header>

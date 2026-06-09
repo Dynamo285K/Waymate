@@ -116,7 +116,7 @@ export function PassengerMyRidesPage({
             ),
             driverName:
                 `${booking.driver.firstName ?? ""} ${booking.driver.lastName ?? ""}`.trim(),
-            driverRating: 0,
+            driverRating: booking.driver.averageRating ?? 0,
             seatsLeft: booking.seatsLeft,
             status:
                 booking.bookingStatus === "CONFIRMED"

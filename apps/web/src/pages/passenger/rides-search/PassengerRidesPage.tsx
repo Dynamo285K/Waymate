@@ -103,6 +103,8 @@ export function PassengerRidesPage({
                   dropoffStopId: ride.dropoffStop.dropoffStopId,
                   from: ride.pickupStop.city,
                   to: ride.dropoffStop.city,
+                  originalStartCity: ride.originalStartCity,
+                  originalEndCity: ride.originalEndCity,
                   date: departure,
                   duration: formatDuration(
                       ride.departureAt,
@@ -208,6 +210,8 @@ export function PassengerRidesPage({
                                     key={ride.id}
                                     from={ride.from}
                                     to={ride.to}
+                                    originalStartCity={ride.originalStartCity}
+                                    originalEndCity={ride.originalEndCity}
                                     datetime={formatRideDate(
                                         ride.date,
                                         t("home.at")
@@ -282,8 +286,10 @@ export function PassengerRidesPage({
                             return (
                                 <AvailableRideCard
                                     key={ride.rideId}
-                                    from={ride.pickupStop.city}
-                                    to={ride.dropoffStop.city}
+                                    from={startCity ?? ride.pickupStop.city}
+                                    to={destCity ?? ride.dropoffStop.city}
+                                    originalStartCity={ride.originalStartCity}
+                                    originalEndCity={ride.originalEndCity}
                                     datetime={formatRideDate(
                                         departure,
                                         t("home.at")
@@ -302,6 +308,48 @@ export function PassengerRidesPage({
                                                 dropoffStopId:
                                                     ride.dropoffStop
                                                         .dropoffStopId,
+                                                dynamicPickup:
+                                                    ride.pickupStop.isDynamic &&
+                                                    ride.pickupStop.lat !=
+                                                        null &&
+                                                    ride.pickupStop.lng != null
+                                                        ? {
+                                                              lat: ride
+                                                                  .pickupStop
+                                                                  .lat,
+                                                              lng: ride
+                                                                  .pickupStop
+                                                                  .lng,
+                                                              city: ride
+                                                                  .pickupStop
+                                                                  .city,
+                                                          }
+                                                        : undefined,
+                                                dynamicDropoff:
+                                                    ride.dropoffStop
+                                                        .isDynamic &&
+                                                    ride.dropoffStop.lat !=
+                                                        null &&
+                                                    ride.dropoffStop.lng != null
+                                                        ? {
+                                                              lat: ride
+                                                                  .dropoffStop
+                                                                  .lat,
+                                                              lng: ride
+                                                                  .dropoffStop
+                                                                  .lng,
+                                                              city: ride
+                                                                  .dropoffStop
+                                                                  .city,
+                                                          }
+                                                        : undefined,
+                                                priceAmount:
+                                                    ride.priceAmount ??
+                                                    undefined,
+                                                requestedPickupCity:
+                                                    startCity ?? undefined,
+                                                requestedDropoffCity:
+                                                    destCity ?? undefined,
                                             },
                                             {
                                                 onSuccess: (booking) => {
@@ -320,12 +368,16 @@ export function PassengerRidesPage({
                                                                         ride
                                                                             .dropoffStop
                                                                             .dropoffStopId,
-                                                                    from: ride
-                                                                        .pickupStop
-                                                                        .city,
-                                                                    to: ride
-                                                                        .dropoffStop
-                                                                        .city,
+                                                                    from:
+                                                                        startCity ??
+                                                                        ride
+                                                                            .pickupStop
+                                                                            .city,
+                                                                    to:
+                                                                        destCity ??
+                                                                        ride
+                                                                            .dropoffStop
+                                                                            .city,
                                                                     date: departure.toISOString(),
                                                                     price:
                                                                         ride.priceAmount ??

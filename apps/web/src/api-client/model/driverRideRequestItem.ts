@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { RideId } from "./rideId";
+import type { Currency } from "./currency";
 import type { DriverRideRequestItemPassenger } from "./driverRideRequestItemPassenger";
 
 export interface DriverRideRequestItem {
@@ -17,6 +18,12 @@ export interface DriverRideRequestItem {
      * @maximum 9007199254740991
      */
     seatCount: number;
+    /**
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
+    priceAmount: number;
+    currency: Currency;
     passenger: DriverRideRequestItemPassenger;
     pickupCity: string;
     dropoffCity: string;

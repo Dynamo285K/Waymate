@@ -101,6 +101,8 @@ export const DriverRideRequestItemSchema = z.object({
     id: z.uuid(),
     rideId: RideIdSchema,
     seatCount: z.number().int(),
+    priceAmount: z.number().int(),
+    currency: CurrencySchema,
     passenger: PublicUserPreviewSchema.extend({
         averageRating: z.number().nullable(),
     }),

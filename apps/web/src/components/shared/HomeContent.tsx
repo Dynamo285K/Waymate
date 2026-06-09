@@ -14,7 +14,7 @@ import { formatRideDate, formatDuration } from "../../lib/date-format";
 import { toUiLanguage } from "../../lib/language";
 import { useGetRidesAvailable } from "../../api-client/rides/rides";
 import { fetchPhotonLocations } from "../../lib/geocoding/photon";
-import { useUserLocation } from "../../hooks/useUserLocation";
+import { useUserLocation } from "../../hooks/shared/useUserLocation";
 
 type AvailableRide = {
     id: string | number;
