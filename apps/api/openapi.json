@@ -548,7 +548,7 @@
         "/cars/{id}": {
             "delete": {
                 "tags": ["Cars"],
-                "description": "Soft-deletes the current user's car",
+                "description": "Soft-deletes the current user's car. Rejects with CAR_IN_USE if the car has an active (PLANNED/IN_PROGRESS) ride.",
                 "parameters": [
                     {
                         "name": "id",
@@ -580,6 +580,16 @@
                             }
                         }
                     },
+                    "409": {
+                        "description": "Response for status 409",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
                     "429": {
                         "description": "Response for status 429",
                         "content": {
@@ -592,90 +602,6 @@
                     }
                 },
                 "operationId": "deleteCarsById"
-            }
-        },
-        "/cities/": {
-            "get": {
-                "tags": ["Cities"],
-                "description": "Returns cities matching the query prefix, ranked by population. Used by the ride creation and search forms to restrict stop selection to known cities.",
-                "parameters": [
-                    {
-                        "name": "q",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 100
-                        }
-                    },
-                    {
-                        "name": "country",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/components/schemas/CountryCode"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "name": "limit",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "default": 10,
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 20
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Response for status 200",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/CityListItemList"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Response for status 400",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        }
-                    },
-                    "429": {
-                        "description": "Response for status 429",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Response for status 500",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "operationId": "getCities"
             }
         },
         "/rides/available": {
@@ -723,19 +649,59 @@
                 "description": "Search rides between two cities on a specific date",
                 "parameters": [
                     {
-                        "name": "startCityId",
+                        "name": "startLat",
                         "in": "query",
                         "required": true,
                         "schema": {
-                            "$ref": "#/components/schemas/CityId"
+                            "type": "number",
+                            "minimum": -90,
+                            "maximum": 90
                         }
                     },
                     {
-                        "name": "destinationCityId",
+                        "name": "startLng",
                         "in": "query",
                         "required": true,
                         "schema": {
-                            "$ref": "#/components/schemas/CityId"
+                            "type": "number",
+                            "minimum": -180,
+                            "maximum": 180
+                        }
+                    },
+                    {
+                        "name": "startCity",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "destLat",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "minimum": -90,
+                            "maximum": 90
+                        }
+                    },
+                    {
+                        "name": "destLng",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "minimum": -180,
+                            "maximum": 180
+                        }
+                    },
+                    {
+                        "name": "destCity",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     {
@@ -4282,77 +4248,6 @@
                 "required": ["brand"],
                 "additionalProperties": false
             },
-            "CityListItem": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "$ref": "#/components/schemas/CityId"
-                    },
-                    "name": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 200
-                    },
-                    "countryCode": {
-                        "$ref": "#/components/schemas/CountryCode"
-                    },
-                    "lat": {
-                        "type": "number",
-                        "minimum": -90,
-                        "maximum": 90
-                    },
-                    "lng": {
-                        "type": "number",
-                        "minimum": -180,
-                        "maximum": 180
-                    },
-                    "population": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 9007199254740991
-                    }
-                },
-                "required": [
-                    "id",
-                    "name",
-                    "countryCode",
-                    "lat",
-                    "lng",
-                    "population"
-                ],
-                "additionalProperties": false
-            },
-            "CityListItemList": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/components/schemas/CityListItem"
-                }
-            },
-            "SearchCitiesQuery": {
-                "type": "object",
-                "properties": {
-                    "q": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 100
-                    },
-                    "country": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/CountryCode"
-                            }
-                        ]
-                    },
-                    "limit": {
-                        "default": 10,
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 20
-                    }
-                },
-                "required": ["q", "limit"],
-                "additionalProperties": false
-            },
             "Ride": {
                 "type": "object",
                 "properties": {
@@ -4503,13 +4398,18 @@
                         "items": {
                             "type": "object",
                             "properties": {
-                                "cityId": {
-                                    "$ref": "#/components/schemas/CityId"
-                                },
                                 "address": {
                                     "type": "string",
                                     "minLength": 1,
                                     "maxLength": 255
+                                },
+                                "city": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                },
+                                "countryCode": {
+                                    "$ref": "#/components/schemas/CountryCode"
                                 },
                                 "lat": {
                                     "type": "number",
@@ -4532,7 +4432,13 @@
                                     "format": "date-time"
                                 }
                             },
-                            "required": ["cityId", "address", "lat", "lng"],
+                            "required": [
+                                "address",
+                                "city",
+                                "countryCode",
+                                "lat",
+                                "lng"
+                            ],
                             "additionalProperties": false
                         }
                     },
@@ -4586,18 +4492,44 @@
             "SearchRidesQuery": {
                 "type": "object",
                 "properties": {
-                    "startCityId": {
-                        "$ref": "#/components/schemas/CityId"
+                    "startLat": {
+                        "type": "number",
+                        "minimum": -90,
+                        "maximum": 90
                     },
-                    "destinationCityId": {
-                        "$ref": "#/components/schemas/CityId"
+                    "startLng": {
+                        "type": "number",
+                        "minimum": -180,
+                        "maximum": 180
+                    },
+                    "startCity": {
+                        "type": "string"
+                    },
+                    "destLat": {
+                        "type": "number",
+                        "minimum": -90,
+                        "maximum": 90
+                    },
+                    "destLng": {
+                        "type": "number",
+                        "minimum": -180,
+                        "maximum": 180
+                    },
+                    "destCity": {
+                        "type": "string"
                     },
                     "travelDate": {
                         "type": "string",
                         "format": "date-time"
                     }
                 },
-                "required": ["startCityId", "destinationCityId", "travelDate"],
+                "required": [
+                    "startLat",
+                    "startLng",
+                    "destLat",
+                    "destLng",
+                    "travelDate"
+                ],
                 "additionalProperties": false
             },
             "CancelRideBody": {
@@ -4740,7 +4672,15 @@
                                     "maximum": 9007199254740991
                                 },
                                 "passenger": {
-                                    "$ref": "#/components/schemas/PublicUserPreview"
+                                    "$ref": "#/components/schemas/PublicUserPreviewWithRating"
+                                },
+                                "requestedPickupCity": {
+                                    "nullable": true,
+                                    "type": "string"
+                                },
+                                "requestedDropoffCity": {
+                                    "nullable": true,
+                                    "type": "string"
                                 },
                                 "pickupStop": {
                                     "nullable": true,
@@ -4804,6 +4744,8 @@
                                 "bookingStatus",
                                 "seatCount",
                                 "passenger",
+                                "requestedPickupCity",
+                                "requestedDropoffCity",
                                 "pickupStop",
                                 "dropoffStop",
                                 "myReviewOfPassenger"
@@ -4908,15 +4850,56 @@
                         "$ref": "#/components/schemas/RideId"
                     },
                     "pickupStopId": {
-                        "$ref": "#/components/schemas/RideStopId"
+                        "type": "string"
                     },
                     "dropoffStopId": {
-                        "$ref": "#/components/schemas/RideStopId"
+                        "type": "string"
                     },
                     "seatCount": {
                         "type": "integer",
                         "minimum": 1,
                         "maximum": 9007199254740991
+                    },
+                    "dynamicPickup": {
+                        "type": "object",
+                        "properties": {
+                            "lat": {
+                                "type": "number"
+                            },
+                            "lng": {
+                                "type": "number"
+                            },
+                            "city": {
+                                "type": "string"
+                            }
+                        },
+                        "required": ["lat", "lng", "city"],
+                        "additionalProperties": false
+                    },
+                    "dynamicDropoff": {
+                        "type": "object",
+                        "properties": {
+                            "lat": {
+                                "type": "number"
+                            },
+                            "lng": {
+                                "type": "number"
+                            },
+                            "city": {
+                                "type": "string"
+                            }
+                        },
+                        "required": ["lat", "lng", "city"],
+                        "additionalProperties": false
+                    },
+                    "priceAmount": {
+                        "type": "number"
+                    },
+                    "requestedPickupCity": {
+                        "type": "string"
+                    },
+                    "requestedDropoffCity": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -5050,6 +5033,20 @@
                     "dropoffCity": {
                         "type": "string"
                     },
+                    "requestedPickupCity": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "requestedDropoffCity": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "originalStartCity": {
+                        "type": "string"
+                    },
+                    "originalEndCity": {
+                        "type": "string"
+                    },
                     "myReviewOfDriver": {
                         "nullable": true,
                         "type": "object",
@@ -5079,6 +5076,10 @@
                     "driver",
                     "pickupCity",
                     "dropoffCity",
+                    "requestedPickupCity",
+                    "requestedDropoffCity",
+                    "originalStartCity",
+                    "originalEndCity",
                     "myReviewOfDriver"
                 ],
                 "additionalProperties": false
@@ -6983,47 +6984,6 @@
                 "format": "uuid",
                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             },
-            "CountryCode": {
-                "type": "string",
-                "enum": [
-                    "AT",
-                    "BE",
-                    "BG",
-                    "HR",
-                    "CY",
-                    "CZ",
-                    "DK",
-                    "EE",
-                    "FI",
-                    "FR",
-                    "DE",
-                    "GR",
-                    "HU",
-                    "IE",
-                    "IT",
-                    "LV",
-                    "LT",
-                    "LU",
-                    "MT",
-                    "NL",
-                    "PL",
-                    "PT",
-                    "RO",
-                    "SK",
-                    "SI",
-                    "ES",
-                    "SE",
-                    "IS",
-                    "LI",
-                    "NO",
-                    "CH"
-                ]
-            },
-            "CityId": {
-                "type": "string",
-                "format": "uuid",
-                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-            },
             "RideId": {
                 "type": "string",
                 "format": "uuid",
@@ -7080,6 +7040,42 @@
                 "exclusiveMinimum": true,
                 "maximum": 9007199254740991,
                 "minimum": 0
+            },
+            "CountryCode": {
+                "type": "string",
+                "enum": [
+                    "AT",
+                    "BE",
+                    "BG",
+                    "HR",
+                    "CY",
+                    "CZ",
+                    "DK",
+                    "EE",
+                    "FI",
+                    "FR",
+                    "DE",
+                    "GR",
+                    "HU",
+                    "IE",
+                    "IT",
+                    "LV",
+                    "LT",
+                    "LU",
+                    "MT",
+                    "NL",
+                    "PL",
+                    "PT",
+                    "RO",
+                    "SK",
+                    "SI",
+                    "ES",
+                    "SE",
+                    "IS",
+                    "LI",
+                    "NO",
+                    "CH"
+                ]
             },
             "RideEndSource": {
                 "type": "string",
@@ -7274,7 +7270,7 @@
                 "format": "uuid",
                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             },
-            "PublicUserPreview": {
+            "PublicUserPreviewWithRating": {
                 "type": "object",
                 "properties": {
                     "id": {
@@ -7292,9 +7288,25 @@
                         "nullable": true,
                         "type": "string",
                         "format": "uri"
+                    },
+                    "averageRating": {
+                        "nullable": true,
+                        "type": "number"
+                    },
+                    "reviewCount": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
                     }
                 },
-                "required": ["id", "firstName", "lastName", "profilePhotoUrl"],
+                "required": [
+                    "id",
+                    "firstName",
+                    "lastName",
+                    "profilePhotoUrl",
+                    "averageRating",
+                    "reviewCount"
+                ],
                 "additionalProperties": false
             },
             "RideSearchResultItem": {
@@ -7330,7 +7342,16 @@
                         "type": "object",
                         "properties": {
                             "pickupStopId": {
-                                "$ref": "#/components/schemas/RideStopId"
+                                "type": "string"
+                            },
+                            "isDynamic": {
+                                "type": "boolean"
+                            },
+                            "lat": {
+                                "type": "number"
+                            },
+                            "lng": {
+                                "type": "number"
                             },
                             "city": {
                                 "type": "string"
@@ -7339,6 +7360,9 @@
                                 "nullable": true,
                                 "type": "string",
                                 "format": "date-time"
+                            },
+                            "distanceKm": {
+                                "type": "number"
                             }
                         },
                         "required": [
@@ -7352,7 +7376,16 @@
                         "type": "object",
                         "properties": {
                             "dropoffStopId": {
-                                "$ref": "#/components/schemas/RideStopId"
+                                "type": "string"
+                            },
+                            "isDynamic": {
+                                "type": "boolean"
+                            },
+                            "lat": {
+                                "type": "number"
+                            },
+                            "lng": {
+                                "type": "number"
                             },
                             "city": {
                                 "type": "string"
@@ -7361,6 +7394,9 @@
                                 "nullable": true,
                                 "type": "string",
                                 "format": "date-time"
+                            },
+                            "distanceKm": {
+                                "type": "number"
                             }
                         },
                         "required": [
@@ -7376,6 +7412,12 @@
                     },
                     "currency": {
                         "$ref": "#/components/schemas/Currency"
+                    },
+                    "originalStartCity": {
+                        "type": "string"
+                    },
+                    "originalEndCity": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -7389,7 +7431,9 @@
                     "pickupStop",
                     "dropoffStop",
                     "priceAmount",
-                    "currency"
+                    "currency",
+                    "originalStartCity",
+                    "originalEndCity"
                 ],
                 "additionalProperties": false
             },
@@ -7474,6 +7518,12 @@
                     },
                     "currency": {
                         "$ref": "#/components/schemas/Currency"
+                    },
+                    "originalStartCity": {
+                        "type": "string"
+                    },
+                    "originalEndCity": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -7487,46 +7537,9 @@
                     "pickupStop",
                     "dropoffStop",
                     "priceAmount",
-                    "currency"
-                ],
-                "additionalProperties": false
-            },
-            "PublicUserPreviewWithRating": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "$ref": "#/components/schemas/UserId"
-                    },
-                    "firstName": {
-                        "nullable": true,
-                        "type": "string"
-                    },
-                    "lastName": {
-                        "nullable": true,
-                        "type": "string"
-                    },
-                    "profilePhotoUrl": {
-                        "nullable": true,
-                        "type": "string",
-                        "format": "uri"
-                    },
-                    "averageRating": {
-                        "nullable": true,
-                        "type": "number"
-                    },
-                    "reviewCount": {
-                        "type": "integer",
-                        "minimum": -9007199254740991,
-                        "maximum": 9007199254740991
-                    }
-                },
-                "required": [
-                    "id",
-                    "firstName",
-                    "lastName",
-                    "profilePhotoUrl",
-                    "averageRating",
-                    "reviewCount"
+                    "currency",
+                    "originalStartCity",
+                    "originalEndCity"
                 ],
                 "additionalProperties": false
             },
@@ -7545,6 +7558,14 @@
                         "type": "integer",
                         "minimum": -9007199254740991,
                         "maximum": 9007199254740991
+                    },
+                    "priceAmount": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency"
                     },
                     "passenger": {
                         "type": "object",
@@ -7585,6 +7606,20 @@
                     "dropoffCity": {
                         "type": "string"
                     },
+                    "requestedPickupCity": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "requestedDropoffCity": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "originalStartCity": {
+                        "type": "string"
+                    },
+                    "originalEndCity": {
+                        "type": "string"
+                    },
                     "departureAt": {
                         "type": "string",
                         "format": "date-time"
@@ -7594,9 +7629,15 @@
                     "id",
                     "rideId",
                     "seatCount",
+                    "priceAmount",
+                    "currency",
                     "passenger",
                     "pickupCity",
                     "dropoffCity",
+                    "requestedPickupCity",
+                    "requestedDropoffCity",
+                    "originalStartCity",
+                    "originalEndCity",
                     "departureAt"
                 ],
                 "additionalProperties": false
@@ -7757,6 +7798,29 @@
             "AdminSettableUserStatus": {
                 "type": "string",
                 "enum": ["ACTIVE", "SUSPENDED", "BANNED"]
+            },
+            "PublicUserPreview": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "$ref": "#/components/schemas/UserId"
+                    },
+                    "firstName": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "profilePhotoUrl": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "uri"
+                    }
+                },
+                "required": ["id", "firstName", "lastName", "profilePhotoUrl"],
+                "additionalProperties": false
             },
             "ReviewListItem": {
                 "type": "object",

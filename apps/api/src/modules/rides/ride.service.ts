@@ -1,9 +1,14 @@
 import { db } from "../../db";
 import { RideRepository } from "./ride.repository";
+import { fetchOsrmRouteCells } from "./osrm.service";
 import { RideError, RideErrorCodes } from "./ride.errors";
 import { REVIEW_WINDOW_DAYS } from "../reviews/review.service";
-import { CityService } from "../cities/city.service";
-import type { CreateRideBody, SearchRidesQuery } from "@repo/shared";
+import * as h3 from "h3-js";
+import type {
+    CreateRideBody,
+    SearchRidesQuery,
+    CountryCode,
+} from "@repo/shared";
 import type {
     CreateRideInput,
     EndRideInput,
@@ -35,14 +40,20 @@ const getRidePassengers = async (
     // surface "already reviewed" state in the UI. Empty subjectIds short-
     // circuits inside the repo function.
     const passengerIds = bundle.bookings.map((b) => b.passenger.id);
-    const driverReviews = await RideRepository.findReviewsByAuthorForSubjects(
-        db,
-        rideId,
-        driverId,
-        passengerIds
-    );
+    const [driverReviews, passengerRatings] = await Promise.all([
+        RideRepository.findReviewsByAuthorForSubjects(
+            db,
+            rideId,
+            driverId,
+            passengerIds
+        ),
+        RideRepository.findAverageRatingsByUserIds(db, passengerIds),
+    ]);
     const reviewBySubject = new Map(
         driverReviews.map((r) => [r.subjectId, { id: r.id, rating: r.rating }])
+    );
+    const ratingByPassenger = new Map(
+        passengerRatings.map((r) => [r.subjectId, r.averageRating])
     );
 
     const windowClosesAt = new Date(
@@ -69,7 +80,13 @@ const getRidePassengers = async (
             bookingId: b.id,
             bookingStatus: b.bookingStatus,
             seatCount: b.seatCount,
-            passenger: b.passenger,
+            requestedPickupCity: b.requestedPickupCity,
+            requestedDropoffCity: b.requestedDropoffCity,
+            passenger: {
+                ...b.passenger,
+                averageRating: ratingByPassenger.get(b.passenger.id) ?? null,
+                reviewCount: 0,
+            },
             pickupStop: b.pickupStop,
             dropoffStop: b.dropoffStop,
             myReviewOfPassenger: reviewBySubject.get(b.passenger.id) ?? null,
@@ -78,15 +95,15 @@ const getRidePassengers = async (
 };
 
 const searchRides = async (query: SearchRidesQuery) => {
-    // No pre-validation of cityIds — if either is bogus, the repository
-    // JOIN returns no rows and the caller sees an empty list. That is the
-    // same UX as "valid ids but no rides scheduled today", and saves a
-    // round-trip on the happy path.
     return await RideRepository.searchRides(
         db,
-        query.startCityId,
-        query.destinationCityId,
-        query.travelDate
+        query.startLat,
+        query.startLng,
+        query.destLat,
+        query.destLng,
+        query.travelDate,
+        query.startCity || "Dynamic Location",
+        query.destCity || "Dynamic Location"
     );
 };
 
@@ -101,17 +118,6 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
         rideStatus: "PLANNED",
     };
     const autoEndAt = computeAutoEndAt(input);
-
-    // Verify every requested cityId exists before opening the
-    // transaction. Catches bogus ids with RIDE_UNKNOWN_CITY (400)
-    // instead of letting Postgres raise an FK violation mid-insert.
-    const requestedCityIds = Array.from(
-        new Set(input.stops.map((s) => s.cityId))
-    );
-    const cityRows = await CityService.getCitiesByIds(requestedCityIds);
-    if (cityRows.length !== requestedCityIds.length) {
-        throw new RideError(RideErrorCodes.UnknownCity);
-    }
 
     return await db.transaction(async (tx) => {
         const car = await RideRepository.findActiveCarForDriver(
@@ -147,9 +153,10 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
             rideId: newRide.id,
             stopOrder: index,
             address: stop.address,
-            // FK to the cities catalog; city name + country are read via
-            // JOIN at query time, not duplicated onto ride_stops.
-            cityId: stop.cityId,
+            city: stop.city,
+            countryCode: stop.countryCode as CountryCode,
+            h3Res7: h3.latLngToCell(stop.lat, stop.lng, 7),
+            h3Res8: h3.latLngToCell(stop.lat, stop.lng, 8),
             lat: stop.lat,
             lng: stop.lng,
             plannedArrivalAt: stop.plannedArrivalAt,
@@ -185,6 +192,20 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
 
             await RideRepository.insertRidePrices(tx, pricesToInsert);
         }
+
+        // --- OSRM Integration: Generate cells for the route ---
+        const osrmCells = await fetchOsrmRouteCells(input.stops);
+        if (osrmCells.length > 0) {
+            const routeCellsToInsert = osrmCells.map((cell) => ({
+                rideId: newRide.id,
+                h3Res7: cell.h3Res7,
+                lat: cell.lat,
+                lng: cell.lng,
+                pointOrder: cell.pointOrder,
+            }));
+            await RideRepository.insertRideRouteCells(tx, routeCellsToInsert);
+        }
+        // -----------------------------------------------------
 
         await RideRepository.insertRideStatusHistory(tx, {
             rideId: newRide.id,

@@ -35,7 +35,13 @@ export type BookingTimeframe = "UPCOMING" | "PAST" | "ALL";
 export type CreateBookingInput = Pick<
     BookingInsert,
     "rideId" | "passengerId" | "pickupStopId" | "dropoffStopId" | "seatCount"
->;
+> & {
+    dynamicPickup?: { lat: number; lng: number; city: string };
+    dynamicDropoff?: { lat: number; lng: number; city: string };
+    priceAmount?: number;
+    requestedPickupCity?: string;
+    requestedDropoffCity?: string;
+};
 
 // Defines how a single booking appears in the passenger's "My rides" list.
 export type PassengerBookingListItem = {
@@ -51,6 +57,10 @@ export type PassengerBookingListItem = {
     };
     pickupCity: string;
     dropoffCity: string;
+    requestedPickupCity: string | null;
+    requestedDropoffCity: string | null;
+    originalStartCity: string;
+    originalEndCity: string;
     myReviewOfDriver: { id: string; rating: number } | null;
 };
 
@@ -67,6 +77,8 @@ export type DriverRideRequestItem = {
     id: string; // Booking ID used for confirm/reject operations
     rideId: string;
     seatCount: number;
+    priceAmount: number;
+    currency: string;
     passenger: Pick<
         User,
         "id" | "firstName" | "lastName" | "profilePhotoUrl"
@@ -75,5 +87,9 @@ export type DriverRideRequestItem = {
     };
     pickupCity: string;
     dropoffCity: string;
+    requestedPickupCity: string | null;
+    requestedDropoffCity: string | null;
+    originalStartCity: string;
+    originalEndCity: string;
     departureAt: Date;
 };

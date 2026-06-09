@@ -18,7 +18,7 @@ import { rideStops as rideStopsTable } from "../../db/schema/ride_stop";
 import { prices as pricesTable } from "../../db/schema/price";
 import { users as usersTable } from "../../db/schema/user";
 import { reviews as reviewsTable } from "../../db/schema/review";
-import { cities as citiesTable } from "../../db/schema/city";
+
 import { bookingStatusHistory as bookingStatusHistoryTable } from "../../db/schema";
 import type {
     DriverRideRequestItem,
@@ -32,8 +32,7 @@ const rideNotSoftDeleted = isNull(ridesTable.deletedAt);
 
 const pickupStops = aliasedTable(rideStopsTable, "booking_pickup_stops");
 const dropoffStops = aliasedTable(rideStopsTable, "booking_dropoff_stops");
-const pickupCities = aliasedTable(citiesTable, "booking_pickup_cities");
-const dropoffCities = aliasedTable(citiesTable, "booking_dropoff_cities");
+
 const myReviewOfDriverTable = aliasedTable(
     reviewsTable,
     "booking_my_review_of_driver"
@@ -47,6 +46,9 @@ export type RideForBookingContext = {
 };
 
 export type BookingRow = typeof bookingsTable.$inferSelect;
+
+import * as h3 from "h3-js";
+import { rideRouteCells as rideRouteCellsTable } from "../../db/schema/ride_route_cell";
 
 const findPendingRequestsForDriver = async (
     executor: Executor,
@@ -74,6 +76,8 @@ const findPendingRequestsForDriver = async (
             id: bookingsTable.id,
             rideId: bookingsTable.rideId,
             seatCount: bookingsTable.seatCount,
+            priceAmount: bookingsTable.priceAmount,
+            currency: bookingsTable.currency,
             passenger: {
                 id: usersTable.id,
                 firstName: usersTable.firstName,
@@ -81,8 +85,32 @@ const findPendingRequestsForDriver = async (
                 profilePhotoUrl: usersTable.profilePhotoUrl,
                 averageRating: passengerRatings.averageRating,
             },
-            pickupCity: pickupCities.name,
-            dropoffCity: dropoffCities.name,
+            pickupCity: pickupStops.city,
+            dropoffCity: dropoffStops.city,
+            requestedPickupCity: bookingsTable.requestedPickupCity,
+            requestedDropoffCity: bookingsTable.requestedDropoffCity,
+            originalStartCity: sql<string>`(${executor
+                .select({ city: rideStopsTable.city })
+                .from(rideStopsTable)
+                .where(
+                    and(
+                        eq(rideStopsTable.rideId, ridesTable.id),
+                        eq(rideStopsTable.isDynamic, false)
+                    )
+                )
+                .orderBy(asc(rideStopsTable.stopOrder))
+                .limit(1)})`,
+            originalEndCity: sql<string>`(${executor
+                .select({ city: rideStopsTable.city })
+                .from(rideStopsTable)
+                .where(
+                    and(
+                        eq(rideStopsTable.rideId, ridesTable.id),
+                        eq(rideStopsTable.isDynamic, false)
+                    )
+                )
+                .orderBy(desc(rideStopsTable.stopOrder))
+                .limit(1)})`,
             departureAt: ridesTable.departureAt,
         })
         .from(bookingsTable)
@@ -93,12 +121,10 @@ const findPendingRequestsForDriver = async (
             eq(passengerRatings.subjectId, usersTable.id)
         )
         .innerJoin(pickupStops, eq(bookingsTable.pickupStopId, pickupStops.id))
-        .innerJoin(pickupCities, eq(pickupCities.id, pickupStops.cityId))
         .innerJoin(
             dropoffStops,
             eq(bookingsTable.dropoffStopId, dropoffStops.id)
         )
-        .innerJoin(dropoffCities, eq(dropoffCities.id, dropoffStops.cityId))
         .where(
             and(
                 eq(ridesTable.driverId, driverId),
@@ -205,8 +231,32 @@ const findBookingsByPassengerId = async (
                 averageRating: driverRatings.averageRating,
                 reviewCount: sql<number>`COALESCE(${driverRatings.reviewCount}, 0)::int`,
             },
-            pickupCity: pickupCities.name,
-            dropoffCity: dropoffCities.name,
+            pickupCity: pickupStops.city,
+            dropoffCity: dropoffStops.city,
+            requestedPickupCity: bookingsTable.requestedPickupCity,
+            requestedDropoffCity: bookingsTable.requestedDropoffCity,
+            originalStartCity: sql<string>`(${executor
+                .select({ city: rideStopsTable.city })
+                .from(rideStopsTable)
+                .where(
+                    and(
+                        eq(rideStopsTable.rideId, ridesTable.id),
+                        eq(rideStopsTable.isDynamic, false)
+                    )
+                )
+                .orderBy(asc(rideStopsTable.stopOrder))
+                .limit(1)})`,
+            originalEndCity: sql<string>`(${executor
+                .select({ city: rideStopsTable.city })
+                .from(rideStopsTable)
+                .where(
+                    and(
+                        eq(rideStopsTable.rideId, ridesTable.id),
+                        eq(rideStopsTable.isDynamic, false)
+                    )
+                )
+                .orderBy(desc(rideStopsTable.stopOrder))
+                .limit(1)})`,
             seatsLeft: sql<number>`GREATEST(0, ${ridesTable.offeredSeats} - COALESCE(${capacityByRide.occupiedSeats}, 0))::int`,
             myReviewOfDriverId: myReviewOfDriverTable.id,
             myReviewOfDriverRating: myReviewOfDriverTable.rating,
@@ -220,12 +270,10 @@ const findBookingsByPassengerId = async (
             eq(driverRatings.subjectId, ridesTable.driverId)
         )
         .innerJoin(pickupStops, eq(bookingsTable.pickupStopId, pickupStops.id))
-        .innerJoin(pickupCities, eq(pickupCities.id, pickupStops.cityId))
         .innerJoin(
             dropoffStops,
             eq(bookingsTable.dropoffStopId, dropoffStops.id)
         )
-        .innerJoin(dropoffCities, eq(dropoffCities.id, dropoffStops.cityId))
         .leftJoin(
             myReviewOfDriverTable,
             and(
@@ -289,6 +337,76 @@ const findRideStops = async (
                 inArray(rideStopsTable.id, stopIds)
             )
         );
+};
+
+const insertDynamicStop = async (
+    executor: Executor,
+    rideId: string,
+    lat: number,
+    lng: number,
+    city: string
+): Promise<string> => {
+    const [newStop] = await executor
+        .insert(rideStopsTable)
+        .values({
+            rideId,
+            lat,
+            lng,
+            city,
+            address: city,
+            countryCode: "SK", // default for now
+            h3Res7: h3.latLngToCell(lat, lng, 7),
+            h3Res8: h3.latLngToCell(lat, lng, 8),
+            stopOrder: 999999, // temporary, will be reordered below
+            isDynamic: true,
+        })
+        .returning({ id: rideStopsTable.id });
+
+    // Fetch all stops, find their closest point order, and sort them
+    const allStops = await executor
+        .select()
+        .from(rideStopsTable)
+        .where(eq(rideStopsTable.rideId, rideId));
+
+    const stopsWithOrder = await Promise.all(
+        allStops.map(async (stop) => {
+            const pRes = await executor.execute(sql`
+            SELECT point_order as "pointOrder"
+            FROM ${rideRouteCellsTable}
+            WHERE ride_id = ${rideId}
+            ORDER BY (
+                6371 * acos(
+                    least(1.0, cos(radians(${stop.lat})) * cos(radians(lat)) * cos(radians(lng) - radians(${stop.lng})) +
+                    sin(radians(${stop.lat})) * sin(radians(lat)))
+                )
+            ) ASC
+            LIMIT 1
+        `);
+            return {
+                id: stop.id,
+                pointOrder: (pRes[0] as any)?.pointOrder || stop.stopOrder,
+            };
+        })
+    );
+
+    stopsWithOrder.sort((a, b) => a.pointOrder - b.pointOrder);
+
+    // Two-pass update to avoid unique constraint conflicts on stop_order:
+    // first shift all to high temporary values, then set the real ones.
+    for (let i = 0; i < stopsWithOrder.length; i++) {
+        await executor
+            .update(rideStopsTable)
+            .set({ stopOrder: 100000 + i })
+            .where(eq(rideStopsTable.id, stopsWithOrder[i].id));
+    }
+    for (let i = 0; i < stopsWithOrder.length; i++) {
+        await executor
+            .update(rideStopsTable)
+            .set({ stopOrder: i })
+            .where(eq(rideStopsTable.id, stopsWithOrder[i].id));
+    }
+
+    return newStop.id;
 };
 
 const findSegmentPrice = async (
@@ -355,6 +473,8 @@ const insertBooking = async (
         rideId: string;
         pickupStopId: string;
         dropoffStopId: string;
+        requestedPickupCity?: string | null;
+        requestedDropoffCity?: string | null;
         seatCount: number;
         priceAmount: number;
         currency: string;
@@ -425,4 +545,5 @@ export const BookingRepository = {
     insertBooking,
     updateBookingFields,
     insertBookingStatusHistory,
+    insertDynamicStop,
 };

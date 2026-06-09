@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { CityListItem } from "../../../../components/shared/CitySelect";
+import type { LocationSuggestion } from "../../../../components/shared/LocationAutocomplete";
 import {
     combineDateAndTime,
     parseDurationMinutes,
@@ -13,15 +13,15 @@ import {
 export const offerRideSchema = z
     .object({
         pickupCity: z
-            .custom<CityListItem | null>()
+            .custom<LocationSuggestion | null>()
             .refine(
-                (value): value is CityListItem => value !== null,
+                (value): value is LocationSuggestion => value !== null,
                 "offerRide.requiredField"
             ),
         dropoffCity: z
-            .custom<CityListItem | null>()
+            .custom<LocationSuggestion | null>()
             .refine(
-                (value): value is CityListItem => value !== null,
+                (value): value is LocationSuggestion => value !== null,
                 "offerRide.requiredField"
             ),
         rideDate: z

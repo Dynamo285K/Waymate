@@ -1,4 +1,5 @@
 import {
+    boolean,
     check,
     doublePrecision,
     index,
@@ -10,8 +11,8 @@ import {
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { rides } from "./ride";
-import { cities } from "./city";
 import { timestamptz } from "./timestamps";
+import { countryCodeEnum } from "./enums";
 
 export const rideStops = pgTable(
     "ride_stops",
@@ -21,15 +22,14 @@ export const rideStops = pgTable(
             .notNull()
             .references(() => rides.id),
         address: text("address").notNull(),
-        // Reference to the controlled vocabulary in `cities`. Display
-        // name and country code are read from cities via JOIN, not
-        // duplicated here.
-        cityId: uuid("city_id")
-            .notNull()
-            .references(() => cities.id),
+        city: text("city").notNull(),
+        countryCode: countryCodeEnum("country_code").notNull(),
+        h3Res7: text("h3_res7").notNull(),
+        h3Res8: text("h3_res8").notNull(),
         lat: doublePrecision("lat").notNull(),
         lng: doublePrecision("lng").notNull(),
         stopOrder: integer("stop_order").notNull(),
+        isDynamic: boolean("is_dynamic").default(false).notNull(),
         plannedArrivalAt: timestamptz("planned_arrival_at"),
         plannedDepartureAt: timestamptz("planned_departure_at"),
         createdAt: timestamptz("created_at").defaultNow().notNull(),
@@ -40,9 +40,10 @@ export const rideStops = pgTable(
             table.rideId,
             table.stopOrder
         ),
-        index("ride_stops_city_id_idx").on(table.cityId),
         index("ride_stops_lat_idx").on(table.lat),
         index("ride_stops_lng_idx").on(table.lng),
+        index("ride_stops_h3_res7_idx").on(table.h3Res7),
+        index("ride_stops_h3_res8_idx").on(table.h3Res8),
 
         check("ride_stops_stop_order_chk", sql`${table.stopOrder} >= 0`),
         check("ride_stops_lat_chk", sql`${table.lat} BETWEEN -90 AND 90`),

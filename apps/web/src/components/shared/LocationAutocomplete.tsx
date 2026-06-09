@@ -1,16 +1,17 @@
 import { useState, useRef, useEffect } from "react";
 import { Input, MapPinIcon } from "@waymate/ui";
-import { getCities } from "../../api-client/cities/cities";
-import type { CityListItem } from "../../api-client/model/cityListItem";
+import { useUserLocation } from "../../hooks/shared/useUserLocation";
+import { fetchPhotonLocations } from "../../lib/geocoding/photon";
+import type { LocationSuggestion } from "../../lib/geocoding/photon";
 
 const DEBOUNCE_MS = 500;
 const MIN_QUERY_LENGTH = 2;
 
-export type { CityListItem };
+export type { LocationSuggestion };
 
-type CitySelectProps = {
-    value: CityListItem | null;
-    onChange: (city: CityListItem | null) => void;
+type LocationAutocompleteProps = {
+    value: LocationSuggestion | null;
+    onChange: (location: LocationSuggestion | null) => void;
     placeholder?: string;
     label?: string;
 };
@@ -32,27 +33,25 @@ function SpinnerIcon() {
     );
 }
 
-export function CitySelect({
+export function LocationAutocomplete({
     value,
     onChange,
-    placeholder = "Search city…",
+    placeholder = "Search location…",
     label,
-}: CitySelectProps) {
-    const [inputValue, setInputValue] = useState(value?.name ?? "");
-    const [suggestions, setSuggestions] = useState<CityListItem[]>([]);
+}: LocationAutocompleteProps) {
+    const [inputValue, setInputValue] = useState(value?.address ?? "");
+    const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
     const [open, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const userLocation = useUserLocation();
     const [activeIndex, setActiveIndex] = useState(-1);
     const containerRef = useRef<HTMLDivElement>(null);
     const requestIdRef = useRef(0);
 
-    // Sync the displayed text when the selected city changes externally.
-    // Adjusting during render (tracking the previous id) avoids a
-    // setState-in-effect cascade.
     const [prevValueId, setPrevValueId] = useState(value?.id);
     if (value?.id !== prevValueId) {
         setPrevValueId(value?.id);
-        setInputValue(value?.name ?? "");
+        setInputValue(value?.address ?? "");
         setSuggestions([]);
         setOpen(false);
         setActiveIndex(-1);
@@ -65,27 +64,28 @@ export function CitySelect({
                 !containerRef.current.contains(e.target as Node)
             ) {
                 setOpen(false);
-                setInputValue(value?.name ?? "");
+                setInputValue(value?.address ?? "");
             }
         }
         document.addEventListener("mousedown", handleClickOutside);
         return () =>
             document.removeEventListener("mousedown", handleClickOutside);
-    }, [value?.name]);
+    }, [value?.address]);
 
     useEffect(() => {
-        // Short queries are cleared synchronously in `handleChange`; nothing
-        // to fetch here. Bailing out keeps all setState calls inside the async
-        // timer callback (never synchronous in the effect body).
         if (inputValue.length < MIN_QUERY_LENGTH) return;
-        if (value && inputValue === value.name) return;
+        if (value && inputValue === value.address) return;
 
         const id = ++requestIdRef.current;
 
         const timer = setTimeout(async () => {
             setIsLoading(true);
             try {
-                const results = await getCities({ q: inputValue, limit: 8 });
+                const results = await fetchPhotonLocations(
+                    inputValue,
+                    userLocation
+                );
+
                 if (id !== requestIdRef.current) return;
                 setSuggestions(results);
                 setOpen(results.length > 0);
@@ -100,11 +100,11 @@ export function CitySelect({
         }, DEBOUNCE_MS);
 
         return () => clearTimeout(timer);
-    }, [inputValue, value?.name]);
+    }, [inputValue, value?.address]);
 
-    function handleSelect(city: CityListItem) {
-        onChange(city);
-        setInputValue(city.name);
+    function handleSelect(location: LocationSuggestion) {
+        onChange(location);
+        setInputValue(location.address);
         setSuggestions([]);
         setOpen(false);
         setActiveIndex(-1);
@@ -131,11 +131,11 @@ export function CitySelect({
             setActiveIndex((i) => Math.max(i - 1, 0));
         } else if (e.key === "Enter") {
             e.preventDefault();
-            const city = suggestions[activeIndex];
-            if (city) handleSelect(city);
+            const loc = suggestions[activeIndex];
+            if (loc) handleSelect(loc);
         } else if (e.key === "Escape") {
             setOpen(false);
-            setInputValue(value?.name ?? "");
+            setInputValue(value?.address ?? "");
         }
     }
 
@@ -162,9 +162,9 @@ export function CitySelect({
                     role="listbox"
                     className="absolute z-50 top-full left-0 right-0 mt-1 bg-(--color-card) border border-(--color-border) rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto"
                 >
-                    {suggestions.map((city, idx) => (
+                    {suggestions.map((loc, idx) => (
                         <li
-                            key={city.id}
+                            key={loc.id}
                             role="option"
                             aria-selected={idx === activeIndex}
                             className={`flex items-center gap-2 px-4 py-3 text-sm cursor-pointer transition-colors ${
@@ -172,15 +172,22 @@ export function CitySelect({
                                     ? "bg-(--color-bg)"
                                     : "hover:bg-(--color-bg)"
                             } text-(--color-text-primary)`}
-                            onMouseDown={() => handleSelect(city)}
+                            onMouseDown={() => handleSelect(loc)}
                             onMouseEnter={() => setActiveIndex(idx)}
                         >
                             <span className="text-(--color-text-secondary) flex-shrink-0">
                                 <MapPinIcon />
                             </span>
-                            <span>{city.name}</span>
-                            <span className="ml-auto text-xs text-(--color-text-secondary)">
-                                {city.countryCode}
+                            <div className="flex flex-col">
+                                <span>{loc.address}</span>
+                                {loc.city !== loc.address && (
+                                    <span className="text-xs text-(--color-text-secondary)">
+                                        {loc.city}
+                                    </span>
+                                )}
+                            </div>
+                            <span className="ml-auto text-xs font-medium text-(--color-text-secondary) bg-(--color-bg) px-2 py-1 rounded-md">
+                                {loc.countryCode}
                             </span>
                         </li>
                     ))}

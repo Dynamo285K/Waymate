@@ -1,9 +1,8 @@
 import postgres from "postgres";
 import { env } from "../src/config/env";
 import { db } from "../src/db";
-import { carModels, cities } from "../src/db/schema";
+import { carModels } from "../src/db/schema";
 import { carCatalog } from "@repo/shared/car-catalog";
-import { TEST_CITIES } from "./reference-data";
 
 let client: postgres.Sql | null = null;
 let cachedTables: string[] | null = null;
@@ -47,7 +46,7 @@ export async function resetDatabase(): Promise<void> {
     // Re-seed reference data via drizzle so the camelCase → snake_case
     // column mapping (modelName → model_name, nameNormalized →
     // name_normalized) is handled by the schema.
-    await db.insert(cities).values(TEST_CITIES);
+
     await db.insert(carModels).values(carCatalog);
 }
 

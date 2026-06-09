@@ -5,6 +5,9 @@
  * Carpooling backend powering the Waymate web app.
  * OpenAPI spec version: 0.1.0
  */
-import type { CityListItem } from "./cityListItem";
 
-export type CityListItemList = CityListItem[];
+export type CreateBookingBodyDynamicPickup = {
+    lat: number;
+    lng: number;
+    city: string;
+};

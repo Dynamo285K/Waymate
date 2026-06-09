@@ -106,8 +106,8 @@ export function PassengerMyRidesPage({
     const bookingRides: DisplayedRide[] | undefined = bookings?.map(
         (booking) => ({
             id: booking.id,
-            from: booking.pickupCity,
-            to: booking.dropoffCity,
+            from: booking.requestedPickupCity ?? booking.pickupCity,
+            to: booking.requestedDropoffCity ?? booking.dropoffCity,
             date: booking.ride.departureAt,
             price: booking.priceAmount,
             duration: formatDuration(
@@ -116,7 +116,7 @@ export function PassengerMyRidesPage({
             ),
             driverName:
                 `${booking.driver.firstName ?? ""} ${booking.driver.lastName ?? ""}`.trim(),
-            driverRating: 0,
+            driverRating: booking.driver.averageRating ?? 0,
             seatsLeft: booking.seatsLeft,
             status:
                 booking.bookingStatus === "CONFIRMED"

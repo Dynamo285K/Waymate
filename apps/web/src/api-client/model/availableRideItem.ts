@@ -34,4 +34,6 @@ export interface AvailableRideItem {
     /** @nullable */
     priceAmount: number | null;
     currency: Currency;
+    originalStartCity: string;
+    originalEndCity: string;
 }

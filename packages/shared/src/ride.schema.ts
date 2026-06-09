@@ -1,11 +1,7 @@
 import { z } from "zod";
-import {
-    UserIdSchema,
-    PublicUserPreviewSchema,
-    PublicUserPreviewWithRatingSchema,
-} from "./user.schema";
+import { UserIdSchema, PublicUserPreviewWithRatingSchema } from "./user.schema";
 import { CarIdSchema } from "./car.schema";
-import { CityIdSchema } from "./city.schema";
+
 import { CountryCodeSchema } from "./country-code.schema";
 import { CurrencySchema } from "./currency.schema";
 import {
@@ -85,11 +81,9 @@ export const CreateRideBodySchema = z
         stops: z
             .array(
                 z.object({
-                    // Reference to a row in the cities catalog. API responses
-                    // resolve cityId to display fields through joins; the client
-                    // no longer chooses city/country text directly.
-                    cityId: CityIdSchema,
                     address: z.string().min(1).max(255),
+                    city: z.string().min(1).max(100),
+                    countryCode: CountryCodeSchema,
                     lat: z.number().min(-90).max(90),
                     lng: z.number().min(-180).max(180),
                     plannedArrivalAt: z.coerce.date().nullable().optional(),
@@ -147,8 +141,12 @@ export const CreateRideBodySchema = z
     );
 
 export const SearchRidesQuerySchema = z.object({
-    startCityId: CityIdSchema,
-    destinationCityId: CityIdSchema,
+    startLat: z.coerce.number().min(-90).max(90),
+    startLng: z.coerce.number().min(-180).max(180),
+    startCity: z.string().optional(),
+    destLat: z.coerce.number().min(-90).max(90),
+    destLng: z.coerce.number().min(-180).max(180),
+    destCity: z.string().optional(),
     travelDate: z.coerce.date(),
 });
 
@@ -161,17 +159,27 @@ export const RideSearchResultItemSchema = z.object({
     seatsLeft: z.number().int(),
     driver: PublicUserPreviewWithRatingSchema,
     pickupStop: z.object({
-        pickupStopId: RideStopIdSchema,
+        pickupStopId: z.string(),
+        isDynamic: z.boolean().optional(),
+        lat: z.number().optional(),
+        lng: z.number().optional(),
         city: z.string(),
         plannedDepartureAt: z.date().nullable(),
+        distanceKm: z.number().optional(),
     }),
     dropoffStop: z.object({
-        dropoffStopId: RideStopIdSchema,
+        dropoffStopId: z.string(),
+        isDynamic: z.boolean().optional(),
+        lat: z.number().optional(),
+        lng: z.number().optional(),
         city: z.string(),
         plannedArrivalAt: z.date().nullable(),
+        distanceKm: z.number().optional(),
     }),
     priceAmount: z.number().nullable(),
     currency: CurrencySchema,
+    originalStartCity: z.string(),
+    originalEndCity: z.string(),
 });
 
 export const AvailableRideItemSchema = z.object({
@@ -194,6 +202,8 @@ export const AvailableRideItemSchema = z.object({
     }),
     priceAmount: z.number().nullable(),
     currency: CurrencySchema,
+    originalStartCity: z.string(),
+    originalEndCity: z.string(),
 });
 
 export const RideStopSchema = z.object({
@@ -339,7 +349,9 @@ export const RidePassengersViewSchema = z.object({
             bookingId: z.uuid(),
             bookingStatus: z.enum(bookingStatusValues),
             seatCount: z.number().int(),
-            passenger: PublicUserPreviewSchema,
+            passenger: PublicUserPreviewWithRatingSchema,
+            requestedPickupCity: z.string().nullable(),
+            requestedDropoffCity: z.string().nullable(),
             pickupStop: z
                 .object({
                     id: RideStopIdSchema,

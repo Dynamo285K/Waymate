@@ -64,7 +64,9 @@ export type RidePassengerItem = {
     bookingId: string;
     bookingStatus: BookingStatus;
     seatCount: number;
-    passenger: PublicUserPreview;
+    requestedPickupCity: string | null;
+    requestedDropoffCity: string | null;
+    passenger: PublicUserPreviewWithRating;
     pickupStop: { id: string; city: string; stopOrder: number } | null;
     dropoffStop: { id: string; city: string; stopOrder: number } | null;
     myReviewOfPassenger: { id: string; rating: number } | null;
@@ -90,15 +92,25 @@ export type RideSearchResultItem = {
         pickupStopId: string;
         city: string;
         plannedDepartureAt: Date | null;
+        isDynamic?: boolean;
+        lat?: number;
+        lng?: number;
+        distanceKm?: number;
     };
     dropoffStop: {
         dropoffStopId: string;
         city: string;
         plannedArrivalAt: Date | null;
+        isDynamic?: boolean;
+        lat?: number;
+        lng?: number;
+        distanceKm?: number;
     };
 
     priceAmount: number | null;
     currency: string;
+    originalStartCity: string;
+    originalEndCity: string;
 };
 
 export type AvailableRideItem = RideSearchResultItem & {
@@ -117,7 +129,8 @@ export type CreateRideInput = Pick<
     | "description"
 > & {
     stops: Array<{
-        cityId: string;
+        city: string;
+        countryCode: string;
         address: string;
         lat: number;
         lng: number;

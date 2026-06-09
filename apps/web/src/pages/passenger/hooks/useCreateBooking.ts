@@ -12,11 +12,18 @@ import type { BookingActionResponse } from "../../../api-client/model/bookingAct
 import type { CreateBookingBody } from "../../../api-client/model/createBookingBody";
 import type { ApiMutationError } from "../../../lib/api-fetcher";
 
+type DynamicStop = { lat: number; lng: number; city: string };
+
 type CreateBookingInput = {
     rideId: string;
     pickupStopId: string;
     dropoffStopId: string;
     seatCount?: number;
+    dynamicPickup?: DynamicStop;
+    dynamicDropoff?: DynamicStop;
+    priceAmount?: number;
+    requestedPickupCity?: string;
+    requestedDropoffCity?: string;
 };
 
 type MutationVars = { data: CreateBookingBody };
@@ -46,6 +53,11 @@ export function useCreateBooking() {
             pickupStopId: input.pickupStopId,
             dropoffStopId: input.dropoffStopId,
             seatCount: input.seatCount ?? 1,
+            dynamicPickup: input.dynamicPickup,
+            dynamicDropoff: input.dynamicDropoff,
+            priceAmount: input.priceAmount,
+            requestedPickupCity: input.requestedPickupCity,
+            requestedDropoffCity: input.requestedDropoffCity,
         },
     });
 

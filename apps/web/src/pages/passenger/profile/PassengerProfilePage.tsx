@@ -81,7 +81,7 @@ export function PassengerProfilePage({
                 `${booking.driver.firstName ?? ""} ${
                     booking.driver.lastName ?? ""
                 }`.trim() || t("roles.driver"),
-            driverRating: 0,
+            driverRating: booking.driver.averageRating ?? 0,
             seatsLeft: booking.seatsLeft,
             status:
                 booking.bookingStatus === "CONFIRMED"

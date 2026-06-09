@@ -68,8 +68,10 @@ export function DriverRideRequestsPage({
                 name: fullName || t("rideRequests.passenger"),
                 rating: request.passenger.averageRating ?? 0,
                 seatsRequired: request.seatCount,
-                from: request.pickupCity,
-                to: request.dropoffCity,
+                price: request.priceAmount,
+                currency: request.currency,
+                from: request.requestedPickupCity ?? request.pickupCity,
+                to: request.requestedDropoffCity ?? request.dropoffCity,
                 date: new Date(request.departureAt),
             };
         }) ?? [];
@@ -136,6 +138,8 @@ export function DriverRideRequestsPage({
                                 name={request.name}
                                 rating={request.rating}
                                 seatsRequired={request.seatsRequired}
+                                price={request.price}
+                                currency={request.currency}
                                 from={request.from}
                                 to={request.to}
                                 datetime={formatDate(

@@ -1,9 +1,5 @@
 import { z } from "zod";
-import {
-    RideIdSchema,
-    RideStopIdSchema,
-    RideStatusSchema,
-} from "./ride.schema";
+import { RideIdSchema, RideStatusSchema } from "./ride.schema";
 import { bookingStatusValues } from "./status-values";
 import { CurrencySchema } from "./currency.schema";
 import {
@@ -24,9 +20,26 @@ export const BookingIdParamsSchema = z.object({
 export const CreateBookingBodySchema = z
     .object({
         rideId: RideIdSchema,
-        pickupStopId: RideStopIdSchema,
-        dropoffStopId: RideStopIdSchema,
+        pickupStopId: z.string(),
+        dropoffStopId: z.string(),
         seatCount: z.number().int().min(1, "You must book at least 1 seat"),
+        dynamicPickup: z
+            .object({
+                lat: z.number(),
+                lng: z.number(),
+                city: z.string(),
+            })
+            .optional(),
+        dynamicDropoff: z
+            .object({
+                lat: z.number(),
+                lng: z.number(),
+                city: z.string(),
+            })
+            .optional(),
+        priceAmount: z.number().optional(),
+        requestedPickupCity: z.string().optional(),
+        requestedDropoffCity: z.string().optional(),
     })
     .refine((data) => data.pickupStopId !== data.dropoffStopId, {
         message: "Pickup and dropoff stops must be different",
@@ -69,6 +82,10 @@ export const PassengerBookingListItemSchema = z.object({
     driver: PublicUserPreviewWithRatingSchema,
     pickupCity: z.string(),
     dropoffCity: z.string(),
+    requestedPickupCity: z.string().nullable(),
+    requestedDropoffCity: z.string().nullable(),
+    originalStartCity: z.string(),
+    originalEndCity: z.string(),
     myReviewOfDriver: z
         .object({
             id: z.uuid(),
@@ -84,11 +101,17 @@ export const DriverRideRequestItemSchema = z.object({
     id: z.uuid(),
     rideId: RideIdSchema,
     seatCount: z.number().int(),
+    priceAmount: z.number().int(),
+    currency: CurrencySchema,
     passenger: PublicUserPreviewSchema.extend({
         averageRating: z.number().nullable(),
     }),
     pickupCity: z.string(),
     dropoffCity: z.string(),
+    requestedPickupCity: z.string().nullable(),
+    requestedDropoffCity: z.string().nullable(),
+    originalStartCity: z.string(),
+    originalEndCity: z.string(),
     departureAt: z.date(),
 });
 

@@ -6,13 +6,16 @@ import {
     CircleIcon,
     MapPinIcon,
 } from "@waymate/ui";
-import { CitySelect } from "../../../../components/shared/CitySelect";
+import { LocationAutocomplete } from "../../../../components/shared/LocationAutocomplete";
 import type { OfferRideFormInput } from "./schema";
 
 export function RouteSection() {
     const { t } = useTranslation();
     const { watch, setValue, formState } = useFormContext<OfferRideFormInput>();
     const { errors, isSubmitted } = formState;
+
+    const pickupCityValue = watch("pickupCity");
+    const dropoffCityValue = watch("dropoffCity");
 
     return (
         <FormSectionCard title={t("offerRide.route")}>
@@ -24,21 +27,24 @@ export function RouteSection() {
                     label={t("offerRide.pickup")}
                     icon={<CircleIcon />}
                 />
-                <CitySelect
-                    value={watch("pickupCity") ?? null}
-                    onChange={(city) =>
-                        setValue("pickupCity", city, {
+
+                <LocationAutocomplete
+                    value={pickupCityValue ?? null}
+                    onChange={(location) => {
+                        setValue("pickupCity", location, {
                             shouldValidate: isSubmitted,
-                        })
-                    }
+                        });
+                    }}
                     placeholder={t("offerRide.pickupPlaceholder")}
                 />
+
                 {errors.pickupCity?.message && (
                     <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
                         {t(errors.pickupCity.message)}
                     </p>
                 )}
             </div>
+
             <div
                 className="flex flex-col gap-2.5"
                 data-testid="offer-dropoff"
@@ -47,15 +53,17 @@ export function RouteSection() {
                     label={t("offerRide.dropoff")}
                     icon={<MapPinIcon />}
                 />
-                <CitySelect
-                    value={watch("dropoffCity") ?? null}
-                    onChange={(city) =>
-                        setValue("dropoffCity", city, {
+
+                <LocationAutocomplete
+                    value={dropoffCityValue ?? null}
+                    onChange={(location) => {
+                        setValue("dropoffCity", location, {
                             shouldValidate: isSubmitted,
-                        })
-                    }
+                        });
+                    }}
                     placeholder={t("offerRide.dropoffPlaceholder")}
                 />
+
                 {errors.dropoffCity?.message && (
                     <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
                         {t(errors.dropoffCity.message)}

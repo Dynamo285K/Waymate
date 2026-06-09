@@ -10,6 +10,8 @@ export type RideRequestCardProps = {
     name: string;
     rating: number;
     seatsRequired: number;
+    price: number;
+    currency: string;
     from: string;
     to: string;
     datetime: string;
@@ -22,6 +24,8 @@ export function RideRequestCard({
     name,
     rating,
     seatsRequired,
+    price,
+    currency,
     from,
     to,
     datetime,
@@ -43,7 +47,7 @@ export function RideRequestCard({
                     <div className="flex items-center gap-1 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-(--color-dark-yellow) [&_svg]:fill-(--color-dark-yellow) [&_svg]:shrink-0">
                         <StarIcon />
                         <span className="text-sm text-(--color-text-secondary)">
-                            {rating}
+                            {rating.toFixed(1)}
                         </span>
                     </div>
                     <span className="text-sm text-(--color-text-secondary) whitespace-nowrap">
@@ -74,19 +78,25 @@ export function RideRequestCard({
                     </span>
                 </div>
             </div>
-            <div className="flex gap-2 shrink-0 max-sm:w-full max-sm:justify-end">
-                <Button
-                    variant="black"
-                    onClick={onAccept}
-                >
-                    ✓ {labels?.accept ?? "Accept"}
-                </Button>
-                <Button
-                    variant="red"
-                    onClick={onDecline}
-                >
-                    ✕ {labels?.decline ?? "Decline"}
-                </Button>
+            <div className="flex flex-col items-end gap-3 shrink-0 max-sm:w-full">
+                <span className="text-xl font-bold text-(--color-text-primary)">
+                    {price}
+                    {currency === "EUR" ? "€" : currency}
+                </span>
+                <div className="flex gap-2 max-sm:w-full max-sm:justify-end">
+                    <Button
+                        variant="black"
+                        onClick={onAccept}
+                    >
+                        ✓ {labels?.accept ?? "Accept"}
+                    </Button>
+                    <Button
+                        variant="red"
+                        onClick={onDecline}
+                    >
+                        ✕ {labels?.decline ?? "Decline"}
+                    </Button>
+                </div>
             </div>
         </div>
     );

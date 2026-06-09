@@ -31,5 +31,11 @@ export interface PassengerBookingListItem {
     pickupCity: string;
     dropoffCity: string;
     /** @nullable */
+    requestedPickupCity: string | null;
+    /** @nullable */
+    requestedDropoffCity: string | null;
+    originalStartCity: string;
+    originalEndCity: string;
+    /** @nullable */
     myReviewOfDriver: PassengerBookingListItemMyReviewOfDriver;
 }

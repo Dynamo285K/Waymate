@@ -11,6 +11,8 @@ export type PassengerCardProps = {
     name: string;
     rating: number;
     seatsReserved: number;
+    from?: string;
+    to?: string;
     onSendMessage: () => void;
     onCancelBooking: () => void;
     onReport?: () => void;
@@ -21,6 +23,8 @@ export function PassengerCard({
     name,
     rating,
     seatsReserved,
+    from,
+    to,
     onSendMessage,
     onCancelBooking,
     onReport,
@@ -40,9 +44,14 @@ export function PassengerCard({
                     <div className="flex items-center gap-1 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-(--color-dark-yellow) [&_svg]:fill-(--color-dark-yellow) [&_svg]:shrink-0">
                         <StarIcon />
                         <span className="text-sm text-(--color-text-secondary)">
-                            {rating}
+                            {rating.toFixed(1)}
                         </span>
                     </div>
+                    {from && to && (
+                        <span className="text-sm text-(--color-text-secondary)">
+                            {from} → {to}
+                        </span>
+                    )}
                     <span className="text-sm text-(--color-text-secondary)">
                         {labels?.seatsReserved
                             ? labels.seatsReserved(seatsReserved)

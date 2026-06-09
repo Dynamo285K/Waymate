@@ -152,24 +152,15 @@ production web origin different from the dev one), set `CORS_ORIGINS` in
 ### 5. Apply migrations and seed development data
 
 The database container is empty after step 4 — schema and fixtures are
-applied separately. For a fresh local database run all three commands in
-the order shown (it matters now):
+applied separately. For a fresh local database run these two commands in
+the order shown:
 
 ```bash
 bun run --cwd apps/api db:migrate    # creates the tables
-bun run --cwd apps/api seed:cities   # fills the cities reference table (SK + CZ)
 bun run --cwd apps/api seed          # fills users, cars, rides, bookings
 ```
 
-`seed:cities` **must run before `seed`** — fixture ride stops now
-reference `cities(id)` via FK, so `seed` looks each city up by name at
-insert time and aborts with a clear message if the row is missing.
-
-Both seeds truncate their own tables before inserting, so re-running is
-safe. `seed:cities` also truncates `rides` (and CASCADEs through
-`ride_stops`, `prices`, `bookings`, and their status history) so the
-ride graph stays consistent — always follow `seed:cities` with `seed`
-to repopulate the ride fixtures.
+The `seed` script truncates its own tables before inserting, so re-running is safe.
 
 `seed` prints the dev logins on the last lines:
 
@@ -186,20 +177,15 @@ It also seeds 100 regular users (`user.1@example.com` … `user.100@example.com`
 no password — they exist as fixtures for paginating/searching the admin user
 list).
 
-`seed:cities` downloads GeoNames country dumps for SK and CZ on first run
-(cached in `apps/api/.geonames-cache/`, gitignored) and inserts ~16 k
-populated places. City data © GeoNames (CC BY 4.0).
+#### Resetting and wiping the database
 
-#### Resetting after a manual schema wipe
+If you ever want to completely wipe and reset the local database (e.g., to clear a broken migration state, remove stale tables, or apply drastic structural changes), you can use the built-in reset command:
 
-If you ever drop the `public` schema (e.g. `DROP SCHEMA public CASCADE` to
-clear a broken state), the three commands above are the full recipe to get
-back to a working app — `db:migrate` rebuilds the schema, then `seed:cities`
-fills the city catalog, then `seed` fills the rest. Running them out of
-order or skipping one causes predictable failures: skipping `seed:cities`
-makes `seed` abort with "Fixture city not found in DB"; skipping `seed`
-means you cannot log in (the `admin@example.com` / `driver.albert`
-accounts no longer exist).
+```bash
+bun run --cwd apps/api db:reset
+```
+
+This script will safely drop the `public` schema and the `drizzle` migration history schema, effectively returning your database to an empty slate. It will then automatically run `db:migrate` and `seed` to reconstruct the entire state from scratch based on your current SQL migrations.
 
 ### 6. Run backend tests
 
