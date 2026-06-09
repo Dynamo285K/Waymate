@@ -46,7 +46,7 @@ export function RideRequestCard({
                     <div className="ride-request-card__rating">
                         <StarIcon />
                         <span className="ride-request-card__rating-value">
-                            {rating}
+                            {rating.toFixed(1)}
                         </span>
                     </div>
                     <span className="ride-request-card__seats">

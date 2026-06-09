@@ -39,7 +39,7 @@ export function PassengerCard({
                     <div className="passenger-card__rating">
                         <StarIcon />
                         <span className="passenger-card__rating-value">
-                            {rating}
+                            {rating.toFixed(1)}
                         </span>
                     </div>
                     <span className="passenger-card__seats">

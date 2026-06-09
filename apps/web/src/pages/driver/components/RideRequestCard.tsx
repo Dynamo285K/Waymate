@@ -43,7 +43,7 @@ export function RideRequestCard({
                     <div className="flex items-center gap-1 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-(--color-dark-yellow) [&_svg]:fill-(--color-dark-yellow) [&_svg]:shrink-0">
                         <StarIcon />
                         <span className="text-sm text-(--color-text-secondary)">
-                            {rating}
+                            {rating.toFixed(1)}
                         </span>
                     </div>
                     <span className="text-sm text-(--color-text-secondary) whitespace-nowrap">
