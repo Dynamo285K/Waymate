@@ -57,6 +57,10 @@ export type PassengerBookingListItem = {
     };
     pickupCity: string;
     dropoffCity: string;
+    requestedPickupCity: string | null;
+    requestedDropoffCity: string | null;
+    originalStartCity: string;
+    originalEndCity: string;
     myReviewOfDriver: { id: string; rating: number } | null;
 };
 

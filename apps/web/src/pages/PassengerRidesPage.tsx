@@ -368,12 +368,16 @@ export function PassengerRidesPage({
                                                                         ride
                                                                             .dropoffStop
                                                                             .dropoffStopId,
-                                                                    from: ride
-                                                                        .pickupStop
-                                                                        .city,
-                                                                    to: ride
-                                                                        .dropoffStop
-                                                                        .city,
+                                                                    from:
+                                                                        startCity ??
+                                                                        ride
+                                                                            .pickupStop
+                                                                            .city,
+                                                                    to:
+                                                                        destCity ??
+                                                                        ride
+                                                                            .dropoffStop
+                                                                            .city,
                                                                     date: departure.toISOString(),
                                                                     price:
                                                                         ride.priceAmount ??

@@ -5023,6 +5023,20 @@
                     "dropoffCity": {
                         "type": "string"
                     },
+                    "requestedPickupCity": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "requestedDropoffCity": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "originalStartCity": {
+                        "type": "string"
+                    },
+                    "originalEndCity": {
+                        "type": "string"
+                    },
                     "myReviewOfDriver": {
                         "nullable": true,
                         "type": "object",
@@ -5052,6 +5066,10 @@
                     "driver",
                     "pickupCity",
                     "dropoffCity",
+                    "requestedPickupCity",
+                    "requestedDropoffCity",
+                    "originalStartCity",
+                    "originalEndCity",
                     "myReviewOfDriver"
                 ],
                 "additionalProperties": false

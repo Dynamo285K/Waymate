@@ -231,6 +231,30 @@ const findBookingsByPassengerId = async (
             },
             pickupCity: pickupStops.city,
             dropoffCity: dropoffStops.city,
+            requestedPickupCity: bookingsTable.requestedPickupCity,
+            requestedDropoffCity: bookingsTable.requestedDropoffCity,
+            originalStartCity: sql<string>`(${executor
+                .select({ city: rideStopsTable.city })
+                .from(rideStopsTable)
+                .where(
+                    and(
+                        eq(rideStopsTable.rideId, ridesTable.id),
+                        eq(rideStopsTable.isDynamic, false)
+                    )
+                )
+                .orderBy(asc(rideStopsTable.stopOrder))
+                .limit(1)})`,
+            originalEndCity: sql<string>`(${executor
+                .select({ city: rideStopsTable.city })
+                .from(rideStopsTable)
+                .where(
+                    and(
+                        eq(rideStopsTable.rideId, ridesTable.id),
+                        eq(rideStopsTable.isDynamic, false)
+                    )
+                )
+                .orderBy(desc(rideStopsTable.stopOrder))
+                .limit(1)})`,
             seatsLeft: sql<number>`GREATEST(0, ${ridesTable.offeredSeats} - COALESCE(${capacityByRide.occupiedSeats}, 0))::int`,
             myReviewOfDriverId: myReviewOfDriverTable.id,
             myReviewOfDriverRating: myReviewOfDriverTable.rating,

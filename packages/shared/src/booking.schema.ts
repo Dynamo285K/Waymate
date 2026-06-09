@@ -82,6 +82,10 @@ export const PassengerBookingListItemSchema = z.object({
     driver: PublicUserPreviewWithRatingSchema,
     pickupCity: z.string(),
     dropoffCity: z.string(),
+    requestedPickupCity: z.string().nullable(),
+    requestedDropoffCity: z.string().nullable(),
+    originalStartCity: z.string(),
+    originalEndCity: z.string(),
     myReviewOfDriver: z
         .object({
             id: z.uuid(),

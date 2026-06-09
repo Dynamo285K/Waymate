@@ -106,8 +106,8 @@ export function PassengerMyRidesPage({
     const bookingRides: DisplayedRide[] | undefined = bookings?.map(
         (booking) => ({
             id: booking.id,
-            from: booking.pickupCity,
-            to: booking.dropoffCity,
+            from: booking.requestedPickupCity ?? booking.pickupCity,
+            to: booking.requestedDropoffCity ?? booking.dropoffCity,
             date: booking.ride.departureAt,
             price: booking.priceAmount,
             duration: formatDuration(
