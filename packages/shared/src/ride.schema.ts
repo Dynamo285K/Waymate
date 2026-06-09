@@ -1,9 +1,5 @@
 import { z } from "zod";
-import {
-    UserIdSchema,
-    PublicUserPreviewSchema,
-    PublicUserPreviewWithRatingSchema,
-} from "./user.schema";
+import { UserIdSchema, PublicUserPreviewWithRatingSchema } from "./user.schema";
 import { CarIdSchema } from "./car.schema";
 
 import { CountryCodeSchema } from "./country-code.schema";
@@ -353,7 +349,9 @@ export const RidePassengersViewSchema = z.object({
             bookingId: z.uuid(),
             bookingStatus: z.enum(bookingStatusValues),
             seatCount: z.number().int(),
-            passenger: PublicUserPreviewSchema,
+            passenger: PublicUserPreviewWithRatingSchema,
+            requestedPickupCity: z.string().nullable(),
+            requestedDropoffCity: z.string().nullable(),
             pickupStop: z
                 .object({
                     id: RideStopIdSchema,

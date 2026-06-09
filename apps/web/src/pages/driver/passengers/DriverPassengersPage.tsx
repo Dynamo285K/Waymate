@@ -201,8 +201,20 @@ export function DriverPassengersPage({
                                 <PassengerCard
                                     key={booking.bookingId}
                                     name={passengerName}
-                                    rating={0}
+                                    rating={
+                                        booking.passenger.averageRating ?? 0
+                                    }
                                     seatsReserved={booking.seatCount}
+                                    from={
+                                        booking.requestedPickupCity ??
+                                        booking.pickupStop?.city ??
+                                        undefined
+                                    }
+                                    to={
+                                        booking.requestedDropoffCity ??
+                                        booking.dropoffStop?.city ??
+                                        undefined
+                                    }
                                     onSendMessage={() =>
                                         navigate("/driver/chat")
                                     }

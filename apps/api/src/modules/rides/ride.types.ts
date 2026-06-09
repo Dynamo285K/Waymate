@@ -64,7 +64,9 @@ export type RidePassengerItem = {
     bookingId: string;
     bookingStatus: BookingStatus;
     seatCount: number;
-    passenger: PublicUserPreview;
+    requestedPickupCity: string | null;
+    requestedDropoffCity: string | null;
+    passenger: PublicUserPreviewWithRating;
     pickupStop: { id: string; city: string; stopOrder: number } | null;
     dropoffStop: { id: string; city: string; stopOrder: number } | null;
     myReviewOfPassenger: { id: string; rating: number } | null;

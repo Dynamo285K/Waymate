@@ -296,7 +296,9 @@ export function PassengerRidesPage({
                                     )}
                                     seatsLeft={ride.seatsLeft}
                                     driverName={driverName}
-                                    driverRating={0}
+                                    driverRating={
+                                        ride.driver.averageRating ?? 0
+                                    }
                                     price={ride.priceAmount ?? 0}
                                     onBook={() =>
                                         createBooking.mutate(
@@ -383,7 +385,11 @@ export function PassengerRidesPage({
                                                                         ride.priceAmount ??
                                                                         0,
                                                                     driverName,
-                                                                    driverRating: 0,
+                                                                    driverRating:
+                                                                        ride
+                                                                            .driver
+                                                                            .averageRating ??
+                                                                        0,
                                                                     seatsLeft:
                                                                         ride.seatsLeft,
                                                                     status: "pending",

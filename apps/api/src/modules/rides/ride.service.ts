@@ -40,14 +40,20 @@ const getRidePassengers = async (
     // surface "already reviewed" state in the UI. Empty subjectIds short-
     // circuits inside the repo function.
     const passengerIds = bundle.bookings.map((b) => b.passenger.id);
-    const driverReviews = await RideRepository.findReviewsByAuthorForSubjects(
-        db,
-        rideId,
-        driverId,
-        passengerIds
-    );
+    const [driverReviews, passengerRatings] = await Promise.all([
+        RideRepository.findReviewsByAuthorForSubjects(
+            db,
+            rideId,
+            driverId,
+            passengerIds
+        ),
+        RideRepository.findAverageRatingsByUserIds(db, passengerIds),
+    ]);
     const reviewBySubject = new Map(
         driverReviews.map((r) => [r.subjectId, { id: r.id, rating: r.rating }])
+    );
+    const ratingByPassenger = new Map(
+        passengerRatings.map((r) => [r.subjectId, r.averageRating])
     );
 
     const windowClosesAt = new Date(
@@ -74,7 +80,13 @@ const getRidePassengers = async (
             bookingId: b.id,
             bookingStatus: b.bookingStatus,
             seatCount: b.seatCount,
-            passenger: b.passenger,
+            requestedPickupCity: b.requestedPickupCity,
+            requestedDropoffCity: b.requestedDropoffCity,
+            passenger: {
+                ...b.passenger,
+                averageRating: ratingByPassenger.get(b.passenger.id) ?? null,
+                reviewCount: 0,
+            },
             pickupStop: b.pickupStop,
             dropoffStop: b.dropoffStop,
             myReviewOfPassenger: reviewBySubject.get(b.passenger.id) ?? null,

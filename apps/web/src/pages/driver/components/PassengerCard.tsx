@@ -11,6 +11,8 @@ export type PassengerCardProps = {
     name: string;
     rating: number;
     seatsReserved: number;
+    from?: string;
+    to?: string;
     onSendMessage: () => void;
     onCancelBooking: () => void;
     onReport?: () => void;
@@ -21,6 +23,8 @@ export function PassengerCard({
     name,
     rating,
     seatsReserved,
+    from,
+    to,
     onSendMessage,
     onCancelBooking,
     onReport,
@@ -43,6 +47,11 @@ export function PassengerCard({
                             {rating.toFixed(1)}
                         </span>
                     </div>
+                    {from && to && (
+                        <span className="text-sm text-(--color-text-secondary)">
+                            {from} → {to}
+                        </span>
+                    )}
                     <span className="text-sm text-(--color-text-secondary)">
                         {labels?.seatsReserved
                             ? labels.seatsReserved(seatsReserved)

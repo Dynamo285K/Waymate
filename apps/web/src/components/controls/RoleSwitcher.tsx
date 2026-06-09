@@ -15,9 +15,10 @@ export type RoleSwitcherProps = {
 };
 
 const itemBase =
-    "min-w-[120px] py-[10px] px-[18px] rounded-full bg-transparent text-(--color-text-secondary) text-sm font-medium leading-none cursor-pointer transition-all duration-200 border-0 -ml-1.5 first:ml-0";
+    "min-w-[120px] py-[10px] px-[18px] rounded-full text-sm font-medium leading-none cursor-pointer transition-all duration-200 border-0 -ml-1.5 first:ml-0";
+const itemInactive = "bg-transparent text-(--color-text-secondary)";
 const itemActive =
-    "bg-(--color-primary) text-(--color-secondary) shadow-[0_2px_8px_rgba(17,173,50,0.25)] relative z-[1]";
+    "bg-(--color-primary) text-white shadow-[0_2px_8px_rgba(17,173,50,0.25)] relative z-[1]";
 
 export function RoleSwitcher({
     value,
@@ -35,7 +36,7 @@ export function RoleSwitcher({
                 variant="unstyled"
                 role="tab"
                 aria-selected={value === "passenger"}
-                className={`${itemBase} ${value === "passenger" ? itemActive : ""}`}
+                className={`${itemBase} ${value === "passenger" ? itemActive : itemInactive}`}
                 onClick={() => onChange("passenger")}
             >
                 {labels?.passenger ?? "Passenger"}
@@ -44,7 +45,7 @@ export function RoleSwitcher({
                 variant="unstyled"
                 role="tab"
                 aria-selected={value === "driver"}
-                className={`${itemBase} ${value === "driver" ? itemActive : ""}`}
+                className={`${itemBase} ${value === "driver" ? itemActive : itemInactive}`}
                 onClick={() => onChange("driver")}
             >
                 {labels?.driver ?? "Driver"}

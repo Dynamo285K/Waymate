@@ -53,6 +53,8 @@ export type RidePassengersBundle = {
         id: string;
         bookingStatus: BookingStatus;
         seatCount: number;
+        requestedPickupCity: string | null;
+        requestedDropoffCity: string | null;
         passenger: {
             id: string;
             firstName: string | null;
@@ -149,6 +151,8 @@ const findRidePassengersBundle = async (
                     id: true,
                     bookingStatus: true,
                     seatCount: true,
+                    requestedPickupCity: true,
+                    requestedDropoffCity: true,
                 },
                 with: {
                     passenger: {
@@ -172,7 +176,7 @@ const findRidePassengersBundle = async (
 
     if (!result) return null;
 
-    return result;
+    return result as unknown as RidePassengersBundle;
 };
 
 const findReviewsByAuthorForSubjects = async (
@@ -198,6 +202,30 @@ const findReviewsByAuthorForSubjects = async (
                 eq(reviewsTable.reviewStatus, "VISIBLE")
             )
         );
+};
+
+const findAverageRatingsByUserIds = async (
+    executor: Executor,
+    userIds: string[]
+): Promise<{ subjectId: string; averageRating: number | null }[]> => {
+    if (userIds.length === 0) return [];
+
+    return await executor
+        .select({
+            subjectId: reviewsTable.subjectId,
+            averageRating: sql<
+                number | null
+            >`AVG(${reviewsTable.rating})::float`.as("averageRating"),
+        })
+        .from(reviewsTable)
+        .where(
+            and(
+                inArray(reviewsTable.subjectId, userIds),
+                eq(reviewsTable.reviewStatus, "VISIBLE"),
+                isNull(reviewsTable.deletedAt)
+            )
+        )
+        .groupBy(reviewsTable.subjectId);
 };
 
 const pickupStops = aliasedTable(rideStopsTable, "pickup_stops");
@@ -945,6 +973,7 @@ export const RideRepository = {
     findRidesByDriverId,
     findRidePassengersBundle,
     findReviewsByAuthorForSubjects,
+    findAverageRatingsByUserIds,
     findAvailableRides,
     searchRides,
     findActiveCarForDriver,
