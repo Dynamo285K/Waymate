@@ -286,8 +286,8 @@ export function PassengerRidesPage({
                             return (
                                 <AvailableRideCard
                                     key={ride.rideId}
-                                    from={ride.pickupStop.city}
-                                    to={ride.dropoffStop.city}
+                                    from={startCity ?? ride.pickupStop.city}
+                                    to={destCity ?? ride.dropoffStop.city}
                                     originalStartCity={ride.originalStartCity}
                                     originalEndCity={ride.originalEndCity}
                                     datetime={formatRideDate(
@@ -308,6 +308,48 @@ export function PassengerRidesPage({
                                                 dropoffStopId:
                                                     ride.dropoffStop
                                                         .dropoffStopId,
+                                                dynamicPickup:
+                                                    ride.pickupStop.isDynamic &&
+                                                    ride.pickupStop.lat !=
+                                                        null &&
+                                                    ride.pickupStop.lng != null
+                                                        ? {
+                                                              lat: ride
+                                                                  .pickupStop
+                                                                  .lat,
+                                                              lng: ride
+                                                                  .pickupStop
+                                                                  .lng,
+                                                              city: ride
+                                                                  .pickupStop
+                                                                  .city,
+                                                          }
+                                                        : undefined,
+                                                dynamicDropoff:
+                                                    ride.dropoffStop
+                                                        .isDynamic &&
+                                                    ride.dropoffStop.lat !=
+                                                        null &&
+                                                    ride.dropoffStop.lng != null
+                                                        ? {
+                                                              lat: ride
+                                                                  .dropoffStop
+                                                                  .lat,
+                                                              lng: ride
+                                                                  .dropoffStop
+                                                                  .lng,
+                                                              city: ride
+                                                                  .dropoffStop
+                                                                  .city,
+                                                          }
+                                                        : undefined,
+                                                priceAmount:
+                                                    ride.priceAmount ??
+                                                    undefined,
+                                                requestedPickupCity:
+                                                    startCity ?? undefined,
+                                                requestedDropoffCity:
+                                                    destCity ?? undefined,
                                             },
                                             {
                                                 onSuccess: (booking) => {

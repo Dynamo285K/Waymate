@@ -93,6 +93,8 @@ export const BookingRoutes = new Elysia({
                             dynamicPickup: body.dynamicPickup,
                             dynamicDropoff: body.dynamicDropoff,
                             priceAmount: body.priceAmount,
+                            requestedPickupCity: body.requestedPickupCity,
+                            requestedDropoffCity: body.requestedDropoffCity,
                         }
                     );
                     return status(201, {

@@ -29,6 +29,8 @@ export const bookings = pgTable(
         dropoffStopId: uuid("dropoff_stop_id")
             .notNull()
             .references(() => rideStops.id),
+        requestedPickupCity: text("requested_pickup_city"),
+        requestedDropoffCity: text("requested_dropoff_city"),
         seatCount: integer("seat_count").notNull(),
         bookingStatus: bookingStatusEnum("booking_status")
             .notNull()

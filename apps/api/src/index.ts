@@ -11,6 +11,10 @@ import { UserRoutes } from "./modules/users/user.routes";
 import { CarRoutes } from "./modules/cars/car.routes";
 import { RideRoutes } from "./modules/rides/ride.routes";
 import { RideError, rideErrorToHttpStatus } from "./modules/rides/ride.errors";
+import {
+    BookingError,
+    bookingErrorToHttpStatus,
+} from "./modules/bookings/booking.errors";
 import { startRideAutoEndWorker } from "./modules/rides/ride.auto-end";
 import { BookingRoutes } from "./modules/bookings/booking.routes";
 import { ReviewRoutes } from "./modules/reviews/review.routes";
@@ -213,6 +217,11 @@ export const app = new Elysia()
         }
         if (error instanceof RideError) {
             return status(rideErrorToHttpStatus(error.code), {
+                error: error.code,
+            });
+        }
+        if (error instanceof BookingError) {
+            return status(bookingErrorToHttpStatus(error.code), {
                 error: error.code,
             });
         }

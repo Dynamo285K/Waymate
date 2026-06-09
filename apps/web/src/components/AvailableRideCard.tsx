@@ -41,9 +41,11 @@ export function AvailableRideCard({
                 <span className="available-ride-card__route">
                     {from} → {to}
                 </span>
-                <span className="text-sm text-gray-500 mt-1 block">
-                    {originalStartCity} → {originalEndCity}
-                </span>
+                {(originalStartCity !== from || originalEndCity !== to) && (
+                    <span className="text-sm text-gray-500 mt-1 block">
+                        {originalStartCity} → {originalEndCity}
+                    </span>
+                )}
                 <div className="available-ride-card__meta">
                     <ClockIcon />
                     <span className="available-ride-card__meta-text">

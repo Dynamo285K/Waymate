@@ -4884,6 +4884,12 @@
                     },
                     "priceAmount": {
                         "type": "number"
+                    },
+                    "requestedPickupCity": {
+                        "type": "string"
+                    },
+                    "requestedDropoffCity": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -7587,6 +7593,14 @@
                     "dropoffCity": {
                         "type": "string"
                     },
+                    "requestedPickupCity": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "requestedDropoffCity": {
+                        "nullable": true,
+                        "type": "string"
+                    },
                     "originalStartCity": {
                         "type": "string"
                     },
@@ -7605,6 +7619,8 @@
                     "passenger",
                     "pickupCity",
                     "dropoffCity",
+                    "requestedPickupCity",
+                    "requestedDropoffCity",
                     "originalStartCity",
                     "originalEndCity",
                     "departureAt"

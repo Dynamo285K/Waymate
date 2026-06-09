@@ -229,8 +229,8 @@ export function RidesPage({
                         {rides.map((ride) => (
                             <AvailableRideCard
                                 key={ride.rideId}
-                                from={ride.pickupStop.city}
-                                to={ride.dropoffStop.city}
+                                from={startCity ?? ride.pickupStop.city}
+                                to={destCity ?? ride.dropoffStop.city}
                                 originalStartCity={ride.originalStartCity}
                                 originalEndCity={ride.originalEndCity}
                                 datetime={formatRideDate(

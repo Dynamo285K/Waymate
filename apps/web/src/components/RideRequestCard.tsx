@@ -68,9 +68,11 @@ export function RideRequestCard({
                     <MapPinIcon />
                     <span className="ride-request-card__route-label">{to}</span>
                 </div>
-                <span className="text-sm text-gray-500 mt-1 block">
-                    {originalStartCity} → {originalEndCity}
-                </span>
+                {(originalStartCity !== from || originalEndCity !== to) && (
+                    <span className="text-sm text-gray-500 mt-1 block">
+                        {originalStartCity} → {originalEndCity}
+                    </span>
+                )}
                 <div className="ride-request-card__meta">
                     <ClockIcon />
                     <span className="ride-request-card__meta-text">

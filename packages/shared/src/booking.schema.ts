@@ -38,6 +38,8 @@ export const CreateBookingBodySchema = z
             })
             .optional(),
         priceAmount: z.number().optional(),
+        requestedPickupCity: z.string().optional(),
+        requestedDropoffCity: z.string().optional(),
     })
     .refine((data) => data.pickupStopId !== data.dropoffStopId, {
         message: "Pickup and dropoff stops must be different",
@@ -100,6 +102,8 @@ export const DriverRideRequestItemSchema = z.object({
     }),
     pickupCity: z.string(),
     dropoffCity: z.string(),
+    requestedPickupCity: z.string().nullable(),
+    requestedDropoffCity: z.string().nullable(),
     originalStartCity: z.string(),
     originalEndCity: z.string(),
     departureAt: z.date(),

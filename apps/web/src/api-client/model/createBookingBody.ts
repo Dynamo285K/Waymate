@@ -21,4 +21,6 @@ export interface CreateBookingBody {
     dynamicPickup?: CreateBookingBodyDynamicPickup;
     dynamicDropoff?: CreateBookingBodyDynamicDropoff;
     priceAmount?: number;
+    requestedPickupCity?: string;
+    requestedDropoffCity?: string;
 }

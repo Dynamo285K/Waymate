@@ -85,6 +85,8 @@ const findPendingRequestsForDriver = async (
             },
             pickupCity: pickupStops.city,
             dropoffCity: dropoffStops.city,
+            requestedPickupCity: bookingsTable.requestedPickupCity,
+            requestedDropoffCity: bookingsTable.requestedDropoffCity,
             originalStartCity: sql<string>`(${executor
                 .select({ city: rideStopsTable.city })
                 .from(rideStopsTable)
@@ -363,7 +365,14 @@ const insertDynamicStop = async (
 
     stopsWithOrder.sort((a, b) => a.pointOrder - b.pointOrder);
 
-    // Update stopOrder for all stops
+    // Two-pass update to avoid unique constraint conflicts on stop_order:
+    // first shift all to high temporary values, then set the real ones.
+    for (let i = 0; i < stopsWithOrder.length; i++) {
+        await executor
+            .update(rideStopsTable)
+            .set({ stopOrder: 100000 + i })
+            .where(eq(rideStopsTable.id, stopsWithOrder[i].id));
+    }
     for (let i = 0; i < stopsWithOrder.length; i++) {
         await executor
             .update(rideStopsTable)
@@ -438,6 +447,8 @@ const insertBooking = async (
         rideId: string;
         pickupStopId: string;
         dropoffStopId: string;
+        requestedPickupCity?: string | null;
+        requestedDropoffCity?: string | null;
         seatCount: number;
         priceAmount: number;
         currency: string;

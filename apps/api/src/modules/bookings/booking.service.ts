@@ -145,6 +145,8 @@ const createBookingRequest = async (
             rideId: payload.rideId,
             pickupStopId: finalPickupStopId,
             dropoffStopId: finalDropoffStopId,
+            requestedPickupCity: payload.requestedPickupCity ?? null,
+            requestedDropoffCity: payload.requestedDropoffCity ?? null,
             seatCount: payload.seatCount,
             priceAmount: finalAmount,
             currency: currency,

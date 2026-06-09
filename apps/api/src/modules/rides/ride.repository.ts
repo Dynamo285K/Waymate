@@ -258,6 +258,7 @@ const findAvailableRides = async (
             ),
         })
         .from(rideStopsTable)
+        .where(eq(rideStopsTable.isDynamic, false))
         .groupBy(rideStopsTable.rideId)
         .as("available_last_stop_orders");
 
@@ -591,7 +592,12 @@ const searchRides = async (
     const allStops = await executor
         .select()
         .from(rideStopsTable)
-        .where(inArray(rideStopsTable.rideId, rideIds));
+        .where(
+            and(
+                inArray(rideStopsTable.rideId, rideIds),
+                eq(rideStopsTable.isDynamic, false)
+            )
+        );
 
     const allPrices = await executor
         .select()
