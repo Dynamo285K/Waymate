@@ -3,10 +3,11 @@ import * as h3 from "h3-js";
 
 export const fetchOsrmRouteCells = async (
     stops: { lat: number; lng: number }[]
-): Promise<
-    { h3Res7: string; lat: number; lng: number; pointOrder: number }[]
-> => {
-    if (stops.length < 2) return [];
+): Promise<{
+    cells: { h3Res7: string; lat: number; lng: number; pointOrder: number }[];
+    durations: number[];
+}> => {
+    if (stops.length < 2) return { cells: [], durations: [] };
 
     // OSRM expects: longitude,latitude separated by semicolon
     const coordinates = stops.map((s) => `${s.lng},${s.lat}`).join(";");
@@ -16,13 +17,15 @@ export const fetchOsrmRouteCells = async (
         const response = await fetch(url);
         if (!response.ok) {
             console.error("OSRM fetch failed:", await response.text());
-            return [];
+            return { cells: [], durations: [] };
         }
 
         const data = await response.json();
         if (data.code !== "Ok" || !data.routes || data.routes.length === 0) {
-            return [];
+            return { cells: [], durations: [] };
         }
+
+        const durations = data.routes[0].legs.map((leg: any) => leg.duration);
 
         const encodedGeometry = data.routes[0].geometry;
         const decodedPoints = polyline.decode(encodedGeometry); // returns [[lat, lng]]
@@ -49,9 +52,9 @@ export const fetchOsrmRouteCells = async (
             }
         }
 
-        return cells;
+        return { cells, durations };
     } catch (e) {
         console.error("OSRM parse error:", e);
-        return [];
+        return { cells: [], durations: [] };
     }
 };

@@ -397,3 +397,17 @@ export const EndRideResponseSchema = z.object({
     id: RideIdSchema,
     status: z.literal("COMPLETED"),
 });
+
+export const EstimateEtaBodySchema = z.object({
+    departureAt: z.coerce.date(),
+    stops: z
+        .array(
+            z.object({
+                lat: z.number().min(-90).max(90),
+                lng: z.number().min(-180).max(180),
+            })
+        )
+        .min(2, "Must provide at least 2 stops for ETA calculation"),
+});
+
+export type EstimateEtaBody = z.infer<typeof EstimateEtaBodySchema>;
