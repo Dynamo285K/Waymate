@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), "");
@@ -11,7 +12,11 @@ export default defineConfig(({ mode }) => {
     ).replace(/\/$/, "");
 
     return {
-        plugins: [react(), tailwindcss()],
+        plugins: [
+            tanstackRouter({ target: "react", autoCodeSplitting: true }),
+            react(),
+            tailwindcss(),
+        ],
         server: {
             // Pinned: the API's Better Auth `trustedOrigins` is built from
             // WEB_ORIGIN (http://localhost:5173). If Vite silently fell back
