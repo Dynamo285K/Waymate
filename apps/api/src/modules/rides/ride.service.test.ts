@@ -16,6 +16,13 @@ import { RideService } from "./ride.service";
 import { RideError, RideErrorCodes } from "./ride.errors";
 import { TEST_CITY_IDS } from "../../../test/reference-data";
 import { CreateRideBodySchema, type CreateRideBody } from "@repo/shared";
+import { vi } from "vitest";
+
+vi.mock("./osrm.service", () => ({
+    fetchOsrmRouteCells: vi
+        .fn()
+        .mockResolvedValue({ cells: [], durations: [3600] }),
+}));
 
 async function insertTestUser() {
     const [user] = await db

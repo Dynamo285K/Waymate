@@ -21,6 +21,7 @@ import {
     CancelRideResponseSchema,
     CompleteRideResponseSchema,
     EndRideResponseSchema,
+    EstimateEtaBodySchema,
 } from "@repo/shared";
 
 export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
@@ -42,6 +43,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
         CompleteRideBody: CompleteRideBodySchema,
         CompleteRideResponse: CompleteRideResponseSchema,
         EndRideResponse: EndRideResponseSchema,
+        EstimateEtaBody: EstimateEtaBodySchema,
     })
     .onError(createErrorHandler(RideError, rideErrorToHttpStatus))
     .get(
@@ -124,6 +126,23 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                     },
                     detail: {
                         description: "Creates a new ride as a driver",
+                    },
+                }
+            )
+
+            .post(
+                "/estimate-eta",
+                async ({ body }) => {
+                    return await RideService.estimateEtasForStops(
+                        body.departureAt,
+                        body.stops
+                    );
+                },
+                {
+                    body: "EstimateEtaBody",
+                    detail: {
+                        description:
+                            "Calculates estimated arrival times for a given route using OSRM",
                     },
                 }
             )

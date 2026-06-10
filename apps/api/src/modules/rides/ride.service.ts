@@ -107,6 +107,28 @@ const searchRides = async (query: SearchRidesQuery) => {
     );
 };
 
+export const estimateEtasForStops = async (
+    departureAt: Date,
+    stops: { lat: number; lng: number }[]
+) => {
+    const { durations } = await fetchOsrmRouteCells(stops);
+    let currentMs = departureAt.getTime();
+
+    return stops.map((stop, index) => {
+        if (index > 0) {
+            currentMs += (durations[index - 1] || 0) * 1000;
+        }
+
+        // Zaokrúhlenie na najbližšiu celú minútu (60000 ms)
+        const roundedMs = Math.round(currentMs / 60000) * 60000;
+
+        return {
+            ...stop,
+            plannedArrivalAt: new Date(roundedMs),
+        };
+    });
+};
+
 const createRide = async (driverId: string, data: CreateRideBody) => {
     const input: CreateRideInput = {
         ...data,
@@ -194,7 +216,7 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
         }
 
         // --- OSRM Integration: Generate cells for the route ---
-        const osrmCells = await fetchOsrmRouteCells(input.stops);
+        const { cells: osrmCells } = await fetchOsrmRouteCells(input.stops);
         if (osrmCells.length > 0) {
             const routeCellsToInsert = osrmCells.map((cell) => ({
                 rideId: newRide.id,
@@ -507,4 +529,5 @@ export const RideService = {
     endRide,
     completeRide,
     autoEndExpiredRides,
+    estimateEtasForStops,
 };
