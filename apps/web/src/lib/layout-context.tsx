@@ -1,47 +1,36 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { useQuery } from "@tanstack/react-query";
 import i18n from "../i18n";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { toI18nLanguage } from "./language";
-import { CURRENT_USER_QUERY_KEY, getCurrentUserOrNull } from "./auth";
 import {
     LayoutContext,
     type LayoutContextValue,
     type Theme,
 } from "./use-layout";
 
+const THEME_STORAGE_KEY = "waymate-theme";
+
+function getInitialTheme(): Theme {
+    const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+    if (stored === "light" || stored === "dark") return stored;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+}
+
 export function LayoutProvider({ children }: { children: ReactNode }) {
     const [language, setLanguage] = useState<Language>("en");
-    const [theme, setTheme] = useState<Theme>("light");
-    const { data: currentUser } = useQuery({
-        queryKey: CURRENT_USER_QUERY_KEY,
-        queryFn: getCurrentUserOrNull,
-        retry: false,
-    });
+    const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
-    const userName = useMemo(() => {
-        if (!currentUser) return undefined;
-
-        const fullName = [currentUser.firstName, currentUser.lastName]
-            .filter(Boolean)
-            .join(" ")
-            .trim();
-
-        return fullName || currentUser.name || currentUser.email;
-    }, [currentUser]);
+    useEffect(() => {
+        window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+    }, [theme]);
 
     const value = useMemo<LayoutContextValue>(
         () => ({
             language,
             theme,
-            userId: currentUser?.id,
-            userName,
-            userEmail: currentUser?.email,
-            userPhone: currentUser?.phone ?? undefined,
-            userBio: currentUser?.bio ?? undefined,
-            userCreatedAt: currentUser?.createdAt,
-            userRole: currentUser?.userRole,
             onLanguageChange: (lang) => {
                 const i18nLanguage = toI18nLanguage(lang);
                 setLanguage(i18nLanguage as Language);
@@ -50,17 +39,7 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
             onThemeToggle: () =>
                 setTheme((current) => (current === "light" ? "dark" : "light")),
         }),
-        [
-            currentUser?.bio,
-            currentUser?.createdAt,
-            currentUser?.email,
-            currentUser?.id,
-            currentUser?.phone,
-            currentUser?.userRole,
-            language,
-            theme,
-            userName,
-        ]
+        [language, theme]
     );
 
     return (

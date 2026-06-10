@@ -1,28 +1,9 @@
 import { redirect } from "@tanstack/react-router";
 import type { QueryClient } from "@tanstack/react-query";
-import {
-    CURRENT_USER_QUERY_KEY,
-    getCurrentUserOrNull,
-    hasCompletedOnboarding,
-} from "./auth";
-import type { User } from "../api-client/model/user";
-import type { UserRole } from "../api-client/model/userRole";
+import { authClient } from "./auth-client";
 
 export interface RouterContext {
     queryClient: QueryClient;
-}
-
-// Resolve the current user for the route guard. `fetchQuery` reuses the
-// `CURRENT_USER_QUERY_KEY` cache while it is fresh (the QueryClient default
-// staleTime), so a burst of navigations no longer fans out into one
-// `/users/me` request per route change. Auth transitions explicitly drop the
-// entry — `LoginPage` invalidates it, `useLogout` removes it — so the next
-// guard run re-fetches. `LayoutProvider` shares the same cache entry.
-async function fetchUser(queryClient: QueryClient): Promise<User | null> {
-    return queryClient.fetchQuery({
-        queryKey: CURRENT_USER_QUERY_KEY,
-        queryFn: getCurrentUserOrNull,
-    });
 }
 
 // The app has exactly three audiences. Every route declares which of them may
@@ -31,29 +12,35 @@ async function fetchUser(queryClient: QueryClient): Promise<User | null> {
 // is the whole point — the role is `guest | user | admin`, nothing else.
 export type Audience = "guest" | "user" | "admin";
 
-function audienceFromRole(role: UserRole | null): Audience {
-    if (role === null) return "guest";
+function audienceFromRole(role: string | null | undefined): Audience {
+    if (!role) return "guest";
     if (role === "ADMIN") return "admin";
     return "user";
 }
 
-const HOME_BY_AUDIENCE: Record<Audience, string> = {
+const HOME_BY_AUDIENCE: Record<Audience, "/login" | "/passenger" | "/admin"> = {
     guest: "/login",
     user: "/passenger",
     admin: "/admin",
 };
 
+export function hasCompletedOnboarding(user: {
+    firstName?: string | null;
+    lastName?: string | null;
+    phone?: string | null;
+}): boolean {
+    return Boolean(
+        user.firstName?.trim() && user.lastName?.trim() && user.phone?.trim()
+    );
+}
+
 export const requireAudience =
     (allowed: ReadonlyArray<Audience>) =>
-    async ({
-        context,
-        location,
-    }: {
-        context: RouterContext;
-        location: { pathname: string };
-    }): Promise<void> => {
-        const user = await fetchUser(context.queryClient);
-        const current = audienceFromRole(user?.userRole ?? null);
+    async ({ location }: { location: { pathname: string } }): Promise<void> => {
+        const { data: session } = await authClient.getSession();
+        const user = session?.user;
+        const current = audienceFromRole(user?.role);
+
         if (!allowed.includes(current)) {
             throw redirect({
                 to: HOME_BY_AUDIENCE[current] as never,

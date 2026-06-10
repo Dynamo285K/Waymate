@@ -1,6 +1,5 @@
 import { createContext, useContext } from "react";
 import type { Language } from "../components/controls/LanguageSwitcher";
-import type { UserRole } from "../api-client/model/userRole";
 
 export type Theme = "light" | "dark";
 
@@ -9,13 +8,6 @@ export type LayoutContextValue = {
     theme: Theme;
     onLanguageChange: (lang: Language) => void;
     onThemeToggle: () => void;
-    userId?: string;
-    userName?: string;
-    userEmail?: string;
-    userPhone?: string;
-    userBio?: string;
-    userCreatedAt?: string | Date;
-    userRole?: UserRole;
 };
 
 export const LayoutContext = createContext<LayoutContextValue | null>(null);

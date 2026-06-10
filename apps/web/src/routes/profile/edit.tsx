@@ -1,7 +1,7 @@
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
     createFileRoute,
@@ -15,11 +15,8 @@ import { DriverNavbar } from "../../components/navigation/DriverNavbar";
 import { PassengerNavbar } from "../../components/navigation/PassengerNavbar";
 import { useDriverNavbarProps } from "../../features/driver/hooks/useDriverNavbarProps";
 import { usePassengerNavbarProps } from "../../hooks/shared/usePassengerNavbarProps";
-import { useGetUsersMe } from "../../api-client/users/users";
-import {
-    CURRENT_USER_QUERY_KEY,
-    updateCurrentUserProfile,
-} from "../../lib/auth";
+import { updateCurrentUserProfile } from "../../lib/auth";
+import { authClient } from "../../lib/auth-client";
 import { getErrorI18nKey } from "../../lib/api-errors";
 import {
     BIO_MAX_LENGTH,
@@ -65,13 +62,13 @@ export function EditProfilePage({
 }: EditProfilePageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const queryClient = useQueryClient();
     const location = useLocation();
     const role = location.state.role ?? "passenger";
     const backPath =
         role === "driver" ? "/driver/profile" : "/passenger/profile";
 
-    const { data: currentUser } = useGetUsersMe({ query: { retry: false } });
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
 
     const {
         register,
@@ -80,22 +77,20 @@ export function EditProfilePage({
         formState: { errors, isSubmitting },
     } = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
-        // `values` keeps the form in sync with the async profile query without
-        // a reset()-in-effect — RHF re-applies these whenever `currentUser` resolves.
+        // `values` keeps the form in sync with the session without a
+        // reset()-in-effect — RHF re-applies these whenever `user` resolves.
         values: {
-            firstName: currentUser?.firstName ?? "",
-            lastName: currentUser?.lastName ?? "",
-            phone: currentUser?.phone ?? "",
-            about: currentUser?.bio ?? "",
+            firstName: user?.firstName ?? "",
+            lastName: user?.lastName ?? "",
+            phone: user?.phone ?? "",
+            about: user?.bio ?? "",
         },
     });
 
     const updateProfile = useMutation({
         mutationFn: updateCurrentUserProfile,
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({
-                queryKey: CURRENT_USER_QUERY_KEY,
-            });
+        onSuccess: () => {
+            authClient.$store.notify("$sessionSignal");
             navigate({ to: backPath });
         },
     });

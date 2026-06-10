@@ -2,20 +2,17 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AuthNavbar, Button, Input } from "@waymate/ui";
 import { FieldError } from "../components/shared/FieldError";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
-import {
-    useGetUsersMe,
-    usePatchUsersMeOnboarding,
-} from "../api-client/users/users";
+import { usePatchUsersMeOnboarding } from "../api-client/users/users";
 import type { ApiMutationError } from "../lib/api-fetcher";
 import { getErrorI18nKey } from "../lib/api-errors";
-import { CURRENT_USER_QUERY_KEY, getPostAuthPath, signOut } from "../lib/auth";
+import { getPostAuthPath, signOut } from "../lib/auth";
+import { authClient } from "../lib/auth-client";
 import {
     NAME_MAX_LENGTH,
     NO_WHITESPACE_REGEX,
@@ -103,7 +100,6 @@ export function OnboardingPage({
         onLogin: () => handleSwitchAccount("/login"),
         onRegister: () => handleSwitchAccount("/register"),
     });
-    const queryClient = useQueryClient();
 
     const {
         register,
@@ -117,10 +113,11 @@ export function OnboardingPage({
     });
 
     const {
-        data: user,
+        data: session,
         isPending: isLoadingProfile,
         error: loadError,
-    } = useGetUsersMe({ query: { retry: false } });
+    } = authClient.useSession();
+    const user = session?.user;
 
     useEffect(() => {
         if (loadError) {
@@ -139,8 +136,8 @@ export function OnboardingPage({
 
     const onboardMutation = usePatchUsersMeOnboarding<ApiMutationError>({
         mutation: {
-            onSuccess: (updatedUser) => {
-                queryClient.setQueryData(CURRENT_USER_QUERY_KEY, updatedUser);
+            onSuccess: () => {
+                authClient.$store.notify("$sessionSignal");
             },
         },
     });
