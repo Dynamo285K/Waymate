@@ -529,4 +529,5 @@ export const RideService = {
     endRide,
     completeRide,
     autoEndExpiredRides,
+    estimateEtasForStops,
 };
