@@ -10,3 +10,4 @@ bun.lock
 ui-design
 .claude/settings.local.json
 apps/api/drizzle
+apps/web/src/routeTree.gen.ts

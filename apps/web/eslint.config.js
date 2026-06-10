@@ -39,7 +39,7 @@ const pageFormElementRules = [
 ];
 
 export default defineConfig([
-    globalIgnores(["dist", "src/api-client/**"]),
+    globalIgnores(["dist", "src/api-client/**", "src/routeTree.gen.ts"]),
     {
         files: ["**/*.{ts,tsx}"],
         extends: [
@@ -57,7 +57,7 @@ export default defineConfig([
         },
     },
     {
-        files: ["src/pages/**/*.{ts,tsx}"],
+        files: ["src/routes/**/*.{ts,tsx}", "src/features/**/*.{ts,tsx}"],
         rules: {
             "no-restricted-syntax": [
                 "error",
