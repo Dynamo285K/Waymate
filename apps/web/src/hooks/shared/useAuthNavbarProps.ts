@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "../../lib/router-compat";
+import { useNavigate } from "@tanstack/react-router";
 import type { Language } from "../../components/controls/LanguageSwitcher";
 import { toUiLanguage } from "../../lib/language";
 
@@ -18,9 +18,9 @@ export function useAuthNavbarProps(params: {
     return {
         ...params,
         language: toUiLanguage(params.language),
-        onLogin: params.onLogin ?? (() => navigate("/login")),
-        onRegister: params.onRegister ?? (() => navigate("/register")),
-        onLogoClick: params.onLogoClick ?? (() => navigate("/")),
+        onLogin: params.onLogin ?? (() => navigate({ to: "/login" })),
+        onRegister: params.onRegister ?? (() => navigate({ to: "/register" })),
+        onLogoClick: params.onLogoClick ?? (() => navigate({ to: "/" })),
         labels: {
             login: t("home.navbar.login"),
             register: t("home.navbar.register"),

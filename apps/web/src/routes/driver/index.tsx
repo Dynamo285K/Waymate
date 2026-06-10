@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate } from "../../lib/router-compat";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button, FeatureCard, PlusIcon } from "@waymate/ui";
 import { CancelRideDialog } from "../../components/shared/CancelRideDialog";
 import { CompleteRideDialog } from "../../features/driver/components/CompleteRideDialog";
@@ -298,7 +297,7 @@ export function DriverHomePage({
                 <Button
                     variant="outlineSuccess"
                     rightIcon={<PlusIcon />}
-                    onClick={() => navigate("/driver/offer")}
+                    onClick={() => navigate({ to: "/driver/offer" })}
                     className="mt-8"
                 >
                     {t("driver.home.createRide")}
@@ -351,7 +350,8 @@ export function DriverHomePage({
                                     seatsLeft={ride.seatsLeft}
                                     duration={ride.duration}
                                     onViewPassengers={() =>
-                                        navigate("/driver/rides/passengers", {
+                                        navigate({
+                                            to: "/driver/rides/passengers",
                                             state: { ride },
                                         })
                                     }
@@ -384,7 +384,7 @@ export function DriverHomePage({
                     <div className="flex justify-center mt-6">
                         <Button
                             variant="outlineSuccess"
-                            onClick={() => navigate("/driver/rides")}
+                            onClick={() => navigate({ to: "/driver/rides" })}
                         >
                             {t("driver.home.viewAllRides")}
                         </Button>
@@ -466,7 +466,7 @@ export function DriverHomePage({
                     <div className="flex justify-center mt-6">
                         <Button
                             variant="outlineSuccess"
-                            onClick={() => navigate("/driver/requests")}
+                            onClick={() => navigate({ to: "/driver/requests" })}
                         >
                             {t("driver.home.viewAllRequests")}
                         </Button>

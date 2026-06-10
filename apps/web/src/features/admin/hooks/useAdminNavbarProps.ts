@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "../../../lib/router-compat";
+import { useNavigate } from "@tanstack/react-router";
 import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { toUiLanguage } from "../../../lib/language";
 import { useLogout } from "../../../hooks/shared/useLogout";
@@ -20,12 +20,12 @@ export function useAdminNavbarProps(params: {
     return {
         ...params,
         language: toUiLanguage(params.language),
-        onLogoClick: () => navigate("/admin"),
-        onDashboardClick: () => navigate("/admin"),
-        onRidesClick: () => navigate("/admin/rides"),
-        onUsersClick: () => navigate("/admin/users"),
-        onReviewsClick: () => navigate("/admin/reviews"),
-        onReportsClick: () => navigate("/admin/reports"),
+        onLogoClick: () => navigate({ to: "/admin" }),
+        onDashboardClick: () => navigate({ to: "/admin" }),
+        onRidesClick: () => navigate({ to: "/admin/rides" }),
+        onUsersClick: () => navigate({ to: "/admin/users" }),
+        onReviewsClick: () => navigate({ to: "/admin/reviews" }),
+        onReportsClick: () => navigate({ to: "/admin/reports" }),
         onLogoutClick: logout,
         labels: {
             adminRole: t("admin.adminRole"),

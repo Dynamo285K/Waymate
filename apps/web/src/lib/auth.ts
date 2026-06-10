@@ -97,7 +97,9 @@ export function updateCurrentUserProfile(params: {
     return patchUsersMeProfile(params);
 }
 
-export async function getPostAuthPath() {
+export async function getPostAuthPath(): Promise<
+    "/onboarding" | "/admin" | "/passenger"
+> {
     const user = await getCurrentUser();
 
     if (!hasCompletedOnboarding(user)) {

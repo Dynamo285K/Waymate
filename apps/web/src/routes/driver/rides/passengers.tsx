@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate, useLocation } from "../../../lib/router-compat";
+import {
+    createFileRoute,
+    useNavigate,
+    useLocation,
+} from "@tanstack/react-router";
 import { StatCard, TextLink } from "@waymate/ui";
 import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
@@ -89,11 +92,7 @@ export function DriverPassengersPage({
         userEmail,
     });
     const location = useLocation();
-    const ride = (
-        location.state as {
-            ride?: { id: string; from: string; to: string; datetime?: string };
-        } | null
-    )?.ride;
+    const ride = location.state.ride;
     const {
         data: passengersView,
         isLoading,
@@ -121,7 +120,7 @@ export function DriverPassengersPage({
                 <div className="text-sm mb-4">
                     <TextLink
                         variant="muted"
-                        onClick={() => navigate("/driver/rides")}
+                        onClick={() => navigate({ to: "/driver/rides" })}
                     >
                         {t("driverRides.backToMyRides")}
                     </TextLink>
@@ -224,7 +223,7 @@ export function DriverPassengersPage({
                                         undefined
                                     }
                                     onSendMessage={() =>
-                                        navigate("/driver/chat")
+                                        navigate({ to: "/driver/chat" })
                                     }
                                     onCancelBooking={() =>
                                         setBookingToCancel(booking.bookingId)

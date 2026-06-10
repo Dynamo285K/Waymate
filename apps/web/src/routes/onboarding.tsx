@@ -4,8 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate } from "../lib/router-compat";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AuthNavbar, Button, Input } from "@waymate/ui";
 import { FieldError } from "../components/shared/FieldError";
 import type { Language } from "../components/controls/LanguageSwitcher";
@@ -93,7 +92,7 @@ export function OnboardingPage({
     const navigate = useNavigate();
     async function handleSwitchAccount(to: "/login" | "/register") {
         await signOut().catch(() => {});
-        navigate(to);
+        navigate({ to });
     }
 
     const authNavbarProps = useAuthNavbarProps({
@@ -155,7 +154,7 @@ export function OnboardingPage({
                     phone: normalizePhone(values.phone),
                 },
             });
-            navigate(await getPostAuthPath());
+            navigate({ to: await getPostAuthPath() });
         } catch (error) {
             console.error("Onboarding submit failed", error);
             setError("root", {

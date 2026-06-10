@@ -3,8 +3,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate } from "../lib/router-compat";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button, Input, TextLink, IconButton } from "@waymate/ui";
 import { FieldError } from "../components/shared/FieldError";
 import type { Language } from "../components/controls/LanguageSwitcher";
@@ -152,7 +151,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
             return;
         }
 
-        navigate("/login");
+        navigate({ to: "/login" });
     }
 
     return (
@@ -229,7 +228,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
                         <div className="mt-4 text-sm">
                             <TextLink
                                 variant="muted"
-                                onClick={() => navigate("/login")}
+                                onClick={() => navigate({ to: "/login" })}
                             >
                                 {t("forgotPassword.backToLogin")}
                             </TextLink>
@@ -275,7 +274,7 @@ export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
 
                         <Button
                             fullWidth
-                            onClick={() => navigate("/login")}
+                            onClick={() => navigate({ to: "/login" })}
                         >
                             {t("forgotPassword.backToLogin")}
                         </Button>

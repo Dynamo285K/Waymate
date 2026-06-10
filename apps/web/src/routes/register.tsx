@@ -3,8 +3,7 @@ import { useForm, useWatch, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate } from "../lib/router-compat";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AuthNavbar, Button, RegisterBox } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
@@ -124,7 +123,7 @@ export function RegisterPage({
                 return;
             }
 
-            navigate(await getPostAuthPath());
+            navigate({ to: await getPostAuthPath() });
         } finally {
             setIsGoogleLoading(false);
         }
@@ -152,7 +151,7 @@ export function RegisterPage({
                             })}
                         </p>
                         <div className="mt-6">
-                            <Button onClick={() => navigate("/login")}>
+                            <Button onClick={() => navigate({ to: "/login" })}>
                                 {t("register.backToLogin")}
                             </Button>
                         </div>
@@ -200,7 +199,7 @@ export function RegisterPage({
                         }
                         onSubmit={handleSubmit(onSubmit)}
                         onGoogleRegisterClick={handleGoogleRegister}
-                        onLoginClick={() => navigate("/login")}
+                        onLoginClick={() => navigate({ to: "/login" })}
                         labels={{
                             title: t("register.title"),
                             email: t("register.email"),

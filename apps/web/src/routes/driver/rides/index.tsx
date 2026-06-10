@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate } from "../../../lib/router-compat";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@waymate/ui";
 import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { CompleteRideDialog } from "../../../features/driver/components/CompleteRideDialog";
@@ -227,7 +226,8 @@ export function DriverMyRidesPage({
                                     seatsLeft={ride.seatsLeft}
                                     duration={ride.duration}
                                     onViewPassengers={() =>
-                                        navigate("/driver/rides/passengers", {
+                                        navigate({
+                                            to: "/driver/rides/passengers",
                                             state: { ride },
                                         })
                                     }
@@ -271,7 +271,8 @@ export function DriverMyRidesPage({
                                     price={ride.price}
                                     duration={ride.duration}
                                     onRatePassengers={() =>
-                                        navigate("/driver/rides/rate", {
+                                        navigate({
+                                            to: "/driver/rides/rate",
                                             state: { ride },
                                         })
                                     }

@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { cs, enUS, sk as skLocale } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import type { Language } from "../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../components/navigation/DriverNavbar";
 import { OfferRideForm } from "./-offer/components/OfferRideForm";
@@ -18,7 +18,6 @@ import { useDriverNavbarProps } from "../../features/driver/hooks/useDriverNavba
 import { useDriverCars } from "./-offer/hooks/useDriverCars";
 import { getErrorI18nKey } from "../../lib/api-errors";
 import { toUiLanguage } from "../../lib/language";
-import { useNavigate } from "../../lib/router-compat";
 import {
     buildCreateRideBody,
     normalizePlate,
@@ -177,7 +176,7 @@ export function DriverOfferRidePage({
                 await queryClient.invalidateQueries({
                     queryKey: getGetRidesMeQueryKey(),
                 });
-                navigate("/driver/rides");
+                navigate({ to: "/driver/rides" });
             },
             onError: (error) => {
                 console.error("Publish ride failed", error);

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate } from "../../lib/router-compat";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ProfileHeroCard, CarCard, Button, Modal } from "@waymate/ui";
 import type { Language } from "../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../components/navigation/DriverNavbar";
@@ -136,10 +135,16 @@ export function DriverProfilePage({
                     rating={profileRating}
                     memberSince={memberSince}
                     onViewRatingsClick={() =>
-                        navigate("/driver/ratings?view=received")
+                        navigate({
+                            to: "/driver/ratings",
+                            search: { view: "received" },
+                        })
                     }
                     onEditProfileClick={() =>
-                        navigate("/profile/edit", { state: { role: "driver" } })
+                        navigate({
+                            to: "/profile/edit",
+                            state: { role: "driver" },
+                        })
                     }
                     labels={{
                         viewAllRatings: t("profile.viewAllRatings"),
@@ -223,12 +228,10 @@ export function DriverProfilePage({
                                         seatsLeft={ride.seatsLeft}
                                         duration={ride.duration}
                                         onViewPassengers={() =>
-                                            navigate(
-                                                "/driver/rides/passengers",
-                                                {
-                                                    state: { ride },
-                                                }
-                                            )
+                                            navigate({
+                                                to: "/driver/rides/passengers",
+                                                state: { ride },
+                                            })
                                         }
                                         onCancelRide={() =>
                                             setRideToCancel(ride.id)
@@ -258,7 +261,8 @@ export function DriverProfilePage({
                             </h2>
                             <Button
                                 onClick={() =>
-                                    navigate("/car/add", {
+                                    navigate({
+                                        to: "/car/add",
                                         state: { role: "driver" },
                                     })
                                 }

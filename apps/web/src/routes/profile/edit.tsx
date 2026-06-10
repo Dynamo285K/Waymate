@@ -3,8 +3,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate, useLocation } from "../../lib/router-compat";
+import {
+    createFileRoute,
+    useNavigate,
+    useLocation,
+} from "@tanstack/react-router";
 import { Input, Button, Textarea } from "@waymate/ui";
 import { FieldError } from "../../components/shared/FieldError";
 import type { Language } from "../../components/controls/LanguageSwitcher";
@@ -64,9 +67,7 @@ export function EditProfilePage({
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const location = useLocation();
-    const role =
-        (location.state as { role?: "passenger" | "driver" } | null)?.role ??
-        "passenger";
+    const role = location.state.role ?? "passenger";
     const backPath =
         role === "driver" ? "/driver/profile" : "/passenger/profile";
 
@@ -95,7 +96,7 @@ export function EditProfilePage({
             await queryClient.invalidateQueries({
                 queryKey: CURRENT_USER_QUERY_KEY,
             });
-            navigate(backPath);
+            navigate({ to: backPath });
         },
     });
 
@@ -214,7 +215,7 @@ export function EditProfilePage({
                         <Button
                             type="button"
                             variant="secondary"
-                            onClick={() => navigate(backPath)}
+                            onClick={() => navigate({ to: backPath })}
                         >
                             {t("editProfile.cancel")}
                         </Button>
