@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { createFileRoute } from "@tanstack/react-router";
-import { useLocation } from "../../../lib/router-compat";
+import { createFileRoute, useLocation } from "@tanstack/react-router";
 import { Button, RateDriverModal } from "@waymate/ui";
 import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { PassengerNavbar } from "../../../components/navigation/PassengerNavbar";
@@ -14,6 +13,7 @@ import { usePassengerNavbarProps } from "../../../hooks/shared/usePassengerNavba
 import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { useCancelBooking } from "../../../features/passenger/hooks/useCancelBooking";
 import { useSubmitReview } from "../../../hooks/shared/useSubmitReview";
+import type { UpcomingRide } from "../../../features/passenger/types";
 import { requireAudience } from "../../../lib/route-guards";
 import { makeAudienceComponent } from "../../../lib/make-audience-component";
 
@@ -29,19 +29,6 @@ type PassengerMyRidesPageProps = {
     onThemeToggle: () => void;
     userName?: string;
     userEmail?: string;
-};
-
-type UpcomingRide = {
-    id: number | string;
-    from: string;
-    to: string;
-    date: Date | string;
-    price: number;
-    duration?: string;
-    driverName: string;
-    driverRating: number;
-    seatsLeft: number;
-    status: "pending" | "confirmed";
 };
 
 export function PassengerMyRidesPage({
@@ -87,9 +74,7 @@ export function PassengerMyRidesPage({
         error,
     } = useGetBookingsMe({ timeframe });
 
-    const incomingBooked = (
-        location.state as { bookedRide?: UpcomingRide } | null
-    )?.bookedRide;
+    const incomingBooked = location.state.bookedRide;
     const [prevLocationState, setPrevLocationState] = useState(location.state);
     if (location.state !== prevLocationState) {
         setPrevLocationState(location.state);

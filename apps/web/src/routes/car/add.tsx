@@ -3,8 +3,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate, useLocation } from "../../lib/router-compat";
+import {
+    createFileRoute,
+    useNavigate,
+    useLocation,
+} from "@tanstack/react-router";
 import * as Select from "@radix-ui/react-select";
 import { Button, ChevronDownIcon, Input, TextLink } from "@waymate/ui";
 import { FieldError } from "../../components/shared/FieldError";
@@ -97,9 +100,7 @@ export function AddCarPage({
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const location = useLocation();
-    const role =
-        (location.state as { role?: "passenger" | "driver" } | null)?.role ??
-        "driver";
+    const role = location.state.role ?? "driver";
     const backPath =
         role === "driver" ? "/driver/profile" : "/passenger/profile";
 
@@ -134,7 +135,7 @@ export function AddCarPage({
                 await queryClient.invalidateQueries({
                     queryKey: getGetCarsMeQueryKey(),
                 });
-                navigate(backPath);
+                navigate({ to: backPath });
             },
             onError: (error) => {
                 setError("root", {
@@ -211,7 +212,7 @@ export function AddCarPage({
                 <div className="text-sm mb-6">
                     <TextLink
                         variant="muted"
-                        onClick={() => navigate(backPath)}
+                        onClick={() => navigate({ to: backPath })}
                     >
                         {t("profile.backToProfile", "<- Back to My Profile")}
                     </TextLink>

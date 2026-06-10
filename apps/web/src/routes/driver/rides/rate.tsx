@@ -1,6 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate, useLocation } from "../../../lib/router-compat";
+import {
+    createFileRoute,
+    useNavigate,
+    useLocation,
+} from "@tanstack/react-router";
 import { RatePassengerCard, StatCard, TextLink } from "@waymate/ui";
 import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
@@ -130,11 +133,7 @@ export function DriverRatePassengersPage({
         userEmail,
     });
     const location = useLocation();
-    const ride = (
-        location.state as {
-            ride?: { id: string; from: string; to: string; price?: number };
-        } | null
-    )?.ride;
+    const ride = location.state.ride;
 
     const passengersQuery = useGetRidesByIdPassengers(ride?.id ?? "", {
         query: { enabled: Boolean(ride?.id) },
@@ -156,7 +155,7 @@ export function DriverRatePassengersPage({
                 <div className="text-sm mb-4">
                     <TextLink
                         variant="muted"
-                        onClick={() => navigate("/driver/rides")}
+                        onClick={() => navigate({ to: "/driver/rides" })}
                     >
                         {t("driverRides.backToMyRides")}
                     </TextLink>

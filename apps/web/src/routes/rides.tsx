@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate, useSearchParams } from "../lib/router-compat";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AuthNavbar, Button, Modal } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { AvailableRideCard } from "../components/shared/AvailableRideCard";
@@ -10,11 +9,13 @@ import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
 import { useGetRidesAvailable } from "../api-client/rides/rides";
 import { getErrorI18nKey } from "../lib/api-errors";
 import { formatRideDate, formatDuration } from "../lib/date-format";
+import { rideSearchSchema } from "../lib/ride-search-schema";
 import { requireAudience } from "../lib/route-guards";
 import { makeAudienceComponent } from "../lib/make-audience-component";
 
 export const Route = createFileRoute("/rides")({
     beforeLoad: requireAudience(["guest", "user"]),
+    validateSearch: rideSearchSchema,
     component: makeAudienceComponent(RidesPage),
 });
 
@@ -48,24 +49,16 @@ export function RidesPage({
         onRegister,
         onLogoClick,
     });
-    const [searchParams] = useSearchParams();
+    const search = Route.useSearch();
     const [showGuestModal, setShowGuestModal] = useState(false);
 
-    const startLat = searchParams.has("startLat")
-        ? parseFloat(searchParams.get("startLat")!)
-        : null;
-    const startLng = searchParams.has("startLng")
-        ? parseFloat(searchParams.get("startLng")!)
-        : null;
-    const startCity = searchParams.get("startCity");
-    const destLat = searchParams.has("destLat")
-        ? parseFloat(searchParams.get("destLat")!)
-        : null;
-    const destLng = searchParams.has("destLng")
-        ? parseFloat(searchParams.get("destLng")!)
-        : null;
-    const destCity = searchParams.get("destCity");
-    const dateStr = searchParams.get("date");
+    const startLat = search.startLat ?? null;
+    const startLng = search.startLng ?? null;
+    const startCity = search.startCity ?? null;
+    const destLat = search.destLat ?? null;
+    const destLng = search.destLng ?? null;
+    const destCity = search.destCity ?? null;
+    const dateStr = search.date ?? null;
 
     const hasSearchParams =
         (startLat !== null && startLng !== null) ||
@@ -285,7 +278,7 @@ export function RidesPage({
                                 if (onLogin) {
                                     onLogin();
                                 } else {
-                                    navigate("/login");
+                                    navigate({ to: "/login" });
                                 }
                             }}
                         >
@@ -298,7 +291,7 @@ export function RidesPage({
                                 if (onRegister) {
                                     onRegister();
                                 } else {
-                                    navigate("/register");
+                                    navigate({ to: "/register" });
                                 }
                             }}
                         >

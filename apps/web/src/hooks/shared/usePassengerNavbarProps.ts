@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "../../lib/router-compat";
+import { useNavigate } from "@tanstack/react-router";
 import type { Language } from "../../components/controls/LanguageSwitcher";
 import { toUiLanguage } from "../../lib/language";
 import { useLogout } from "./useLogout";
@@ -22,14 +22,14 @@ export function usePassengerNavbarProps(params: {
         language: toUiLanguage(params.language),
         role: "passenger" as const,
         onRoleChange: (r: "passenger" | "driver") =>
-            r === "driver" && navigate("/driver"),
-        onLogoClick: () => navigate("/passenger"),
-        onFindRideClick: () => navigate("/passenger"),
-        onMyRidesClick: () => navigate("/passenger/rides"),
-        onChatClick: () => navigate("/passenger/chat"),
-        onMessagesClick: () => navigate("/passenger/chat"),
-        onProfileClick: () => navigate("/passenger/profile"),
-        onRatingsClick: () => navigate("/passenger/ratings"),
+            r === "driver" && navigate({ to: "/driver" }),
+        onLogoClick: () => navigate({ to: "/passenger" }),
+        onFindRideClick: () => navigate({ to: "/passenger" }),
+        onMyRidesClick: () => navigate({ to: "/passenger/rides" }),
+        onChatClick: () => navigate({ to: "/passenger/chat" }),
+        onMessagesClick: () => navigate({ to: "/passenger/chat" }),
+        onProfileClick: () => navigate({ to: "/passenger/profile" }),
+        onRatingsClick: () => navigate({ to: "/passenger/ratings" }),
         onLogoutClick: logout,
         labels: {
             passenger: t("roles.passenger"),

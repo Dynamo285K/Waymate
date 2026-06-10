@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate, useSearchParams } from "../../lib/router-compat";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { RatingSummaryCard, RatingCard, TextLink } from "@waymate/ui";
 import type { Language } from "../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../components/navigation/DriverNavbar";
@@ -10,11 +9,13 @@ import {
     useGetReviewsUsersByUserId,
 } from "../../api-client/reviews/reviews";
 import { getErrorI18nKey } from "../../lib/api-errors";
+import { ratingsSearchSchema } from "../../lib/ratings-search-schema";
 import { requireAudience } from "../../lib/route-guards";
 import { makeAudienceComponent } from "../../lib/make-audience-component";
 
 export const Route = createFileRoute("/driver/ratings")({
     beforeLoad: requireAudience(["user"]),
+    validateSearch: ratingsSearchSchema,
     component: makeAudienceComponent(DriverRatingsPage),
 });
 
@@ -39,7 +40,6 @@ export function DriverRatingsPage({
 }: DriverRatingsPageProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
     const navbarProps = useDriverNavbarProps({
         language,
         onLanguageChange,
@@ -48,8 +48,8 @@ export function DriverRatingsPage({
         userName,
         userEmail,
     });
-    const view =
-        searchParams.get("view") === "authored" ? "authored" : "received";
+    const search = Route.useSearch();
+    const view = search.view === "authored" ? "authored" : "received";
     const receivedReviews = useGetReviewsUsersByUserId(userId ?? "", {
         query: { enabled: Boolean(userId) },
     });
@@ -99,7 +99,7 @@ export function DriverRatingsPage({
                 <div className="text-sm mb-4">
                     <TextLink
                         variant="muted"
-                        onClick={() => navigate("/driver/profile")}
+                        onClick={() => navigate({ to: "/driver/profile" })}
                     >
                         {t("profile.backToProfile")}
                     </TextLink>

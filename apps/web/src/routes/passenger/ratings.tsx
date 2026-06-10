@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate, useSearchParams } from "../../lib/router-compat";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { RatingSummaryCard, RatingCard, TextLink } from "@waymate/ui";
 import type { Language } from "../../components/controls/LanguageSwitcher";
 import { PassengerNavbar } from "../../components/navigation/PassengerNavbar";
@@ -10,11 +9,13 @@ import {
     useGetReviewsUsersByUserId,
 } from "../../api-client/reviews/reviews";
 import { getErrorI18nKey } from "../../lib/api-errors";
+import { ratingsSearchSchema } from "../../lib/ratings-search-schema";
 import { requireAudience } from "../../lib/route-guards";
 import { makeAudienceComponent } from "../../lib/make-audience-component";
 
 export const Route = createFileRoute("/passenger/ratings")({
     beforeLoad: requireAudience(["user"]),
+    validateSearch: ratingsSearchSchema,
     component: makeAudienceComponent(PassengerRatingsPage),
 });
 
@@ -48,9 +49,8 @@ export function PassengerRatingsPage({
         userName,
         userEmail,
     });
-    const [searchParams] = useSearchParams();
-    const view =
-        searchParams.get("view") === "authored" ? "authored" : "received";
+    const search = Route.useSearch();
+    const view = search.view === "authored" ? "authored" : "received";
     const receivedReviews = useGetReviewsUsersByUserId(userId ?? "", {
         query: { enabled: Boolean(userId) },
     });
@@ -100,7 +100,7 @@ export function PassengerRatingsPage({
                 <div className="text-sm mb-4">
                     <TextLink
                         variant="muted"
-                        onClick={() => navigate("/passenger/profile")}
+                        onClick={() => navigate({ to: "/passenger/profile" })}
                     >
                         {t("profile.backToProfile")}
                     </TextLink>

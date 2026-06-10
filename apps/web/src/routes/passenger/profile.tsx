@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate } from "../../lib/router-compat";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ProfileHeroCard } from "@waymate/ui";
 import { CancelRideDialog } from "../../components/shared/CancelRideDialog";
 import { useCancelBooking } from "../../features/passenger/hooks/useCancelBooking";
@@ -111,10 +110,14 @@ export function PassengerProfilePage({
                     rating={profileRating}
                     memberSince={memberSince}
                     onViewRatingsClick={() =>
-                        navigate("/passenger/ratings?view=received")
+                        navigate({
+                            to: "/passenger/ratings",
+                            search: { view: "received" },
+                        })
                     }
                     onEditProfileClick={() =>
-                        navigate("/profile/edit", {
+                        navigate({
+                            to: "/profile/edit",
                             state: { role: "passenger" },
                         })
                     }

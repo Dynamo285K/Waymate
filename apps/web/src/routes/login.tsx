@@ -4,8 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate, useSearchParams } from "../lib/router-compat";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AuthNavbar, LoginBox } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
@@ -24,6 +23,9 @@ import { makeAudienceComponent } from "../lib/make-audience-component";
 
 export const Route = createFileRoute("/login")({
     beforeLoad: requireAudience(["guest"]),
+    validateSearch: z.object({
+        error: z.string().optional(),
+    }),
     component: makeAudienceComponent(LoginPage),
 });
 
@@ -55,7 +57,7 @@ export function LoginPage({
     const { t } = useTranslation();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const [searchParams] = useSearchParams();
+    const search = Route.useSearch();
     const authNavbarProps = useAuthNavbarProps({
         language,
         onLanguageChange,
@@ -68,7 +70,7 @@ export function LoginPage({
         await queryClient.invalidateQueries({
             queryKey: CURRENT_USER_QUERY_KEY,
         });
-        navigate(await getPostAuthPath());
+        navigate({ to: await getPostAuthPath() });
     }
 
     const {
@@ -87,13 +89,13 @@ export function LoginPage({
     const password = useWatch({ control, name: "password" });
 
     useEffect(() => {
-        const urlError = searchParams.get("error");
+        const urlError = search.error;
         if (urlError === "banned") {
             setError("root", { message: "login.banned" });
         } else if (urlError) {
             setError("root", { message: "login.error" });
         }
-    }, [searchParams, setError]);
+    }, [search.error, setError]);
 
     const onSubmit: SubmitHandler<LoginFormValues> = async (values) => {
         const { error } = await signInWithEmail({
@@ -177,8 +179,10 @@ export function LoginPage({
                     }
                     onSubmit={handleSubmit(onSubmit)}
                     onGoogleLoginClick={handleGoogleLogin}
-                    onForgotPasswordClick={() => navigate("/forgot-password")}
-                    onCreateAccountClick={() => navigate("/register")}
+                    onForgotPasswordClick={() =>
+                        navigate({ to: "/forgot-password" })
+                    }
+                    onCreateAccountClick={() => navigate({ to: "/register" })}
                     labels={{
                         title: t("login.title"),
                         emailLabel: t("login.emailLabel"),

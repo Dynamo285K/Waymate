@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AuthNavbar, Button, Modal } from "@waymate/ui";
 import type { SearchBoxCityOption } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { HomeContent } from "../components/shared/HomeContent";
 import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
 import { useLayout } from "../lib/use-layout";
-import { useNavigate } from "../lib/router-compat";
 import { requireAudience } from "../lib/route-guards";
 
 type HomePageProps = {
@@ -107,17 +106,24 @@ function IndexRoute() {
     return (
         <HomePage
             {...layout}
-            onLogin={() => navigate("/login")}
-            onRegister={() => navigate("/register")}
-            onLogoClick={() => navigate("/")}
+            onLogin={() => navigate({ to: "/login" })}
+            onRegister={() => navigate({ to: "/register" })}
+            onLogoClick={() => navigate({ to: "/" })}
             onSearch={(from, to, date) => {
-                const params = new URLSearchParams();
-                if (from) params.set("fromId", from.id);
-                if (to) params.set("toId", to.id);
-                if (date) params.set("date", date.toISOString());
-                navigate(`/rides?${params.toString()}`);
+                navigate({
+                    to: "/rides",
+                    search: {
+                        startLat: from?.lat,
+                        startLng: from?.lng,
+                        startCity: from?.name,
+                        destLat: to?.lat,
+                        destLng: to?.lng,
+                        destCity: to?.name,
+                        date: date?.toISOString(),
+                    },
+                });
             }}
-            onViewAllRides={() => navigate("/rides")}
+            onViewAllRides={() => navigate({ to: "/rides" })}
         />
     );
 }

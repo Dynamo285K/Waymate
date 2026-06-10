@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate, useSearchParams } from "../../../lib/router-compat";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { PassengerNavbar } from "../../../components/navigation/PassengerNavbar";
 import { AvailableRideCard } from "../../../components/shared/AvailableRideCard";
@@ -11,11 +10,13 @@ import { useRideSearch } from "../../../hooks/shared/useRideSearch";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { formatRideDate, formatDuration } from "../../../lib/date-format";
 import { BookingErrorModal } from "../../../features/passenger/components/BookingErrorModal";
+import { rideSearchSchema } from "../../../lib/ride-search-schema";
 import { requireAudience } from "../../../lib/route-guards";
 import { makeAudienceComponent } from "../../../lib/make-audience-component";
 
 export const Route = createFileRoute("/passenger/rides/search")({
     beforeLoad: requireAudience(["user"]),
+    validateSearch: rideSearchSchema,
     component: makeAudienceComponent(PassengerRidesPage),
 });
 
@@ -47,24 +48,16 @@ export function PassengerRidesPage({
         userName,
         userEmail,
     });
-    const [searchParams] = useSearchParams();
+    const search = Route.useSearch();
     const createBooking = useCreateBooking();
 
-    const startLat = searchParams.has("startLat")
-        ? parseFloat(searchParams.get("startLat")!)
-        : null;
-    const startLng = searchParams.has("startLng")
-        ? parseFloat(searchParams.get("startLng")!)
-        : null;
-    const startCity = searchParams.get("startCity");
-    const destLat = searchParams.has("destLat")
-        ? parseFloat(searchParams.get("destLat")!)
-        : null;
-    const destLng = searchParams.has("destLng")
-        ? parseFloat(searchParams.get("destLng")!)
-        : null;
-    const destCity = searchParams.get("destCity");
-    const dateStr = searchParams.get("date");
+    const startLat = search.startLat ?? null;
+    const startLng = search.startLng ?? null;
+    const startCity = search.startCity ?? null;
+    const destLat = search.destLat ?? null;
+    const destLng = search.destLng ?? null;
+    const destCity = search.destCity ?? null;
+    const dateStr = search.date ?? null;
 
     const hasSearchParams =
         (startLat !== null && startLng !== null) ||
@@ -239,32 +232,30 @@ export function PassengerRidesPage({
                                             },
                                             {
                                                 onSuccess: (booking) => {
-                                                    navigate(
-                                                        "/passenger/rides",
-                                                        {
-                                                            state: {
-                                                                bookedRide: {
-                                                                    id: booking.id,
-                                                                    rideId: ride.rideId,
-                                                                    pickupStopId:
-                                                                        ride.pickupStopId,
-                                                                    dropoffStopId:
-                                                                        ride.dropoffStopId,
-                                                                    from: ride.from,
-                                                                    to: ride.to,
-                                                                    date: ride.date.toISOString(),
-                                                                    price: ride.price,
-                                                                    driverName:
-                                                                        ride.driverName,
-                                                                    driverRating:
-                                                                        ride.driverRating,
-                                                                    seatsLeft:
-                                                                        ride.seatsLeft,
-                                                                    status: "pending",
-                                                                },
+                                                    navigate({
+                                                        to: "/passenger/rides",
+                                                        state: {
+                                                            bookedRide: {
+                                                                id: booking.id,
+                                                                rideId: ride.rideId,
+                                                                pickupStopId:
+                                                                    ride.pickupStopId,
+                                                                dropoffStopId:
+                                                                    ride.dropoffStopId,
+                                                                from: ride.from,
+                                                                to: ride.to,
+                                                                date: ride.date.toISOString(),
+                                                                price: ride.price,
+                                                                driverName:
+                                                                    ride.driverName,
+                                                                driverRating:
+                                                                    ride.driverRating,
+                                                                seatsLeft:
+                                                                    ride.seatsLeft,
+                                                                status: "pending",
                                                             },
-                                                        }
-                                                    );
+                                                        },
+                                                    });
                                                 },
                                             }
                                         )
@@ -363,48 +354,45 @@ export function PassengerRidesPage({
                                             },
                                             {
                                                 onSuccess: (booking) => {
-                                                    navigate(
-                                                        "/passenger/rides",
-                                                        {
-                                                            state: {
-                                                                bookedRide: {
-                                                                    id: booking.id,
-                                                                    rideId: ride.rideId,
-                                                                    pickupStopId:
-                                                                        ride
-                                                                            .pickupStop
-                                                                            .pickupStopId,
-                                                                    dropoffStopId:
-                                                                        ride
-                                                                            .dropoffStop
-                                                                            .dropoffStopId,
-                                                                    from:
-                                                                        startCity ??
-                                                                        ride
-                                                                            .pickupStop
-                                                                            .city,
-                                                                    to:
-                                                                        destCity ??
-                                                                        ride
-                                                                            .dropoffStop
-                                                                            .city,
-                                                                    date: departure.toISOString(),
-                                                                    price:
-                                                                        ride.priceAmount ??
-                                                                        0,
-                                                                    driverName,
-                                                                    driverRating:
-                                                                        ride
-                                                                            .driver
-                                                                            .averageRating ??
-                                                                        0,
-                                                                    seatsLeft:
-                                                                        ride.seatsLeft,
-                                                                    status: "pending",
-                                                                },
+                                                    navigate({
+                                                        to: "/passenger/rides",
+                                                        state: {
+                                                            bookedRide: {
+                                                                id: booking.id,
+                                                                rideId: ride.rideId,
+                                                                pickupStopId:
+                                                                    ride
+                                                                        .pickupStop
+                                                                        .pickupStopId,
+                                                                dropoffStopId:
+                                                                    ride
+                                                                        .dropoffStop
+                                                                        .dropoffStopId,
+                                                                from:
+                                                                    startCity ??
+                                                                    ride
+                                                                        .pickupStop
+                                                                        .city,
+                                                                to:
+                                                                    destCity ??
+                                                                    ride
+                                                                        .dropoffStop
+                                                                        .city,
+                                                                date: departure.toISOString(),
+                                                                price:
+                                                                    ride.priceAmount ??
+                                                                    0,
+                                                                driverName,
+                                                                driverRating:
+                                                                    ride.driver
+                                                                        .averageRating ??
+                                                                    0,
+                                                                seatsLeft:
+                                                                    ride.seatsLeft,
+                                                                status: "pending",
                                                             },
-                                                        }
-                                                    );
+                                                        },
+                                                    });
                                                 },
                                             }
                                         )

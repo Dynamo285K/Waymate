@@ -1,5 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate } from "../../lib/router-compat";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import type { Language } from "../../components/controls/LanguageSwitcher";
 import { PassengerNavbar } from "../../components/navigation/PassengerNavbar";
 import { HomeContent } from "../../components/shared/HomeContent";
@@ -73,7 +72,8 @@ export function PassengerHomePage({
                         },
                         {
                             onSuccess: (booking) => {
-                                navigate("/passenger/rides", {
+                                navigate({
+                                    to: "/passenger/rides",
                                     state: {
                                         bookedRide: {
                                             id: booking.id,
@@ -96,23 +96,22 @@ export function PassengerHomePage({
                     );
                 }}
                 onSearch={(from, to, date) => {
-                    const params = new URLSearchParams();
-                    if (from) {
-                        params.set("startLat", String(from.lat));
-                        params.set("startLng", String(from.lng));
-                        const city = from.city || from.address;
-                        if (city) params.set("startCity", city);
-                    }
-                    if (to) {
-                        params.set("destLat", String(to.lat));
-                        params.set("destLng", String(to.lng));
-                        const city = to.city || to.address;
-                        if (city) params.set("destCity", city);
-                    }
-                    if (date) params.set("date", date.toISOString());
-                    navigate(`/passenger/rides/search?${params.toString()}`);
+                    navigate({
+                        to: "/passenger/rides/search",
+                        search: {
+                            startLat: from?.lat,
+                            startLng: from?.lng,
+                            startCity: from?.city || from?.address,
+                            destLat: to?.lat,
+                            destLng: to?.lng,
+                            destCity: to?.city || to?.address,
+                            date: date?.toISOString(),
+                        },
+                    });
                 }}
-                onViewAllRides={() => navigate("/passenger/rides/search")}
+                onViewAllRides={() =>
+                    navigate({ to: "/passenger/rides/search" })
+                }
             />
         </div>
     );
