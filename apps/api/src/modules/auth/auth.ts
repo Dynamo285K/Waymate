@@ -111,6 +111,7 @@ export const auth = betterAuth({
             displayName: { type: "string", required: false },
             phone: { type: "string", required: false },
             profilePhotoUrl: { type: "string", required: false },
+            bio: { type: "string", required: false },
         },
     },
 
