@@ -21,6 +21,7 @@ const apiServerEnv: Record<string, string> = {
     WEB_ORIGIN: BASE_URL,
     RESEND_API_KEY: "re_e2e",
     LOG_LEVEL: "silent",
+    RATE_LIMIT_ENABLED: "false",
     RIDE_AUTO_END_ENABLED: "false",
 };
 

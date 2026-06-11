@@ -121,6 +121,7 @@ function getClientIp(request: Request): string {
 }
 
 function shouldSkipRateLimit(path: string): boolean {
+    if (!env.RATE_LIMIT_ENABLED) return true;
     if (path === "/health") return true;
     if (path === "/api/auth" || path.startsWith("/api/auth/")) return true;
     if (path === "/openapi" || path.startsWith("/openapi/")) return true;

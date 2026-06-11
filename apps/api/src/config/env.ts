@@ -72,6 +72,7 @@ const EnvSchema = z.object({
     LOG_LEVEL: z
         .enum(["trace", "debug", "info", "warn", "error", "fatal", "silent"])
         .default("info"),
+    RATE_LIMIT_ENABLED: BooleanEnvSchema,
     RIDE_AUTO_END_ENABLED: BooleanEnvSchema,
     RIDE_AUTO_END_INTERVAL_MS: z.coerce
         .number()

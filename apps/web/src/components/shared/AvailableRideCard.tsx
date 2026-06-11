@@ -44,7 +44,7 @@ export function AvailableRideCard({
         (originalStartCity !== from || originalEndCity !== to);
 
     return (
-        <div className="flex justify-between items-center gap-6 px-6 py-4 bg-(--color-card) border border-(--color-border) rounded-2xl max-600:flex-wrap max-600:gap-3 max-600:py-3.5 max-600:px-4">
+        <div className="available-ride-card flex justify-between items-center gap-6 px-6 py-4 bg-(--color-card) border border-(--color-border) rounded-2xl max-600:flex-wrap max-600:gap-3 max-600:py-3.5 max-600:px-4">
             <div className="flex flex-col justify-center gap-1.5 flex-1 self-center max-600:w-full">
                 <span className="text-base font-bold text-(--color-text-primary)">
                     {from} → {to}

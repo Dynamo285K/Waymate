@@ -52,7 +52,7 @@ export function OfferRideForm({
                 </p>
             )}
 
-            <div className="w-full">
+            <div className="w-full" data-testid="publish-ride-wrapper">
                 <Button
                     fullWidth
                     className="min-h-16 text-lg! font-bold! rounded-xl!"
