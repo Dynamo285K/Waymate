@@ -51,17 +51,19 @@ export function ScheduleSection({
                         label={t("offerRide.date")}
                         icon={<CalendarIcon />}
                     />
-                    <DatePicker
-                        value={watch("rideDate")}
-                        onChange={(date) =>
-                            setValue("rideDate", date, {
-                                shouldValidate: isSubmitted,
-                            })
-                        }
-                        locale={dateLocale}
-                        today={today}
-                        disablePastDates
-                    />
+                    <div data-testid="offer-date">
+                        <DatePicker
+                            value={watch("rideDate")}
+                            onChange={(date) =>
+                                setValue("rideDate", date, {
+                                    shouldValidate: isSubmitted,
+                                })
+                            }
+                            locale={dateLocale}
+                            today={today}
+                            disablePastDates
+                        />
+                    </div>
                     {errors.rideDate?.message && (
                         <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
                             {t(errors.rideDate.message)}
@@ -73,44 +75,46 @@ export function ScheduleSection({
                         label={t("offerRide.time")}
                         icon={<ClockIcon />}
                     />
-                    <Select.Root
-                        value={time || undefined}
-                        onValueChange={(value) =>
-                            setValue("rideTime", value, {
-                                shouldValidate: isSubmitted,
-                            })
-                        }
-                    >
-                        <Select.Trigger
-                            className={`w-full flex items-center justify-between gap-2 py-3 px-4 rounded-xl border border-(--color-border) bg-(--color-input-bg) text-sm font-medium cursor-pointer transition-[border-color] duration-150 outline-none hover:border-(--color-primary) focus-visible:border-(--color-primary) [&_svg]:text-(--color-text-secondary) [&_svg]:shrink-0 ${!time ? "text-(--color-text-secondary)" : "text-(--color-text-primary)"}`}
+                    <div data-testid="offer-time">
+                        <Select.Root
+                            value={time || undefined}
+                            onValueChange={(value) =>
+                                setValue("rideTime", value, {
+                                    shouldValidate: isSubmitted,
+                                })
+                            }
                         >
-                            <Select.Value placeholder="--:--" />
-                            <Select.Icon className="inline-flex items-center">
-                                <ClockIcon />
-                            </Select.Icon>
-                        </Select.Trigger>
-                        <Select.Portal>
-                            <Select.Content
-                                className="w-(--radix-select-trigger-width) max-h-64 overflow-y-auto rounded-xl border border-(--color-border) bg-(--color-card) p-1 shadow-[0_8px_24px_rgba(0,0,0,0.12)] z-[200]"
-                                position="popper"
-                                sideOffset={8}
+                            <Select.Trigger
+                                className={`w-full flex items-center justify-between gap-2 py-3 px-4 rounded-xl border border-(--color-border) bg-(--color-input-bg) text-sm font-medium cursor-pointer transition-[border-color] duration-150 outline-none hover:border-(--color-primary) focus-visible:border-(--color-primary) [&_svg]:text-(--color-text-secondary) [&_svg]:shrink-0 ${!time ? "text-(--color-text-secondary)" : "text-(--color-text-primary)"}`}
                             >
-                                <Select.Viewport>
-                                    {timeOptions.map((option) => (
-                                        <Select.Item
-                                            key={option}
-                                            value={option}
-                                            className="w-full py-2 px-3 rounded-lg border-0 bg-transparent text-(--color-text-primary) text-sm font-semibold text-left cursor-pointer transition-[background] duration-100 outline-none select-none flex items-center hover:bg-(--color-bg) data-[highlighted]:bg-(--color-bg) data-[highlighted]:outline-none data-[state=checked]:bg-[color-mix(in_srgb,var(--color-primary)_10%,transparent)] data-[state=checked]:text-(--color-primary)"
-                                        >
-                                            <Select.ItemText>
-                                                {option}
-                                            </Select.ItemText>
-                                        </Select.Item>
-                                    ))}
-                                </Select.Viewport>
-                            </Select.Content>
-                        </Select.Portal>
-                    </Select.Root>
+                                <Select.Value placeholder="--:--" />
+                                <Select.Icon className="inline-flex items-center">
+                                    <ClockIcon />
+                                </Select.Icon>
+                            </Select.Trigger>
+                            <Select.Portal>
+                                <Select.Content
+                                    className="w-(--radix-select-trigger-width) max-h-64 overflow-y-auto rounded-xl border border-(--color-border) bg-(--color-card) p-1 shadow-[0_8px_24px_rgba(0,0,0,0.12)] z-[200]"
+                                    position="popper"
+                                    sideOffset={8}
+                                >
+                                    <Select.Viewport>
+                                        {timeOptions.map((option) => (
+                                            <Select.Item
+                                                key={option}
+                                                value={option}
+                                                className="w-full py-2 px-3 rounded-lg border-0 bg-transparent text-(--color-text-primary) text-sm font-semibold text-left cursor-pointer transition-[background] duration-100 outline-none select-none flex items-center hover:bg-(--color-bg) data-[highlighted]:bg-(--color-bg) data-[highlighted]:outline-none data-[state=checked]:bg-[color-mix(in_srgb,var(--color-primary)_10%,transparent)] data-[state=checked]:text-(--color-primary)"
+                                            >
+                                                <Select.ItemText>
+                                                    {option}
+                                                </Select.ItemText>
+                                            </Select.Item>
+                                        ))}
+                                    </Select.Viewport>
+                                </Select.Content>
+                            </Select.Portal>
+                        </Select.Root>
+                    </div>
                     {errors.rideTime?.message && (
                         <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
                             {t(errors.rideTime.message)}

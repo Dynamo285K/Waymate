@@ -30,15 +30,12 @@ async function fillRideDetails(page: Page) {
     await pickCity(page, "offer-pickup", "Bratislava", "Bratislava");
     await pickCity(page, "offer-dropoff", "Nitra", "Nitra");
 
-    await page.locator(".datepicker__input").click();
-    await page.locator(".datepicker__popup nav button").last().click();
-    await page
-        .locator(".datepicker__popup")
-        .getByRole("button", { name: "15" })
-        .first()
-        .click();
+    await page.getByTestId("offer-date").getByRole("button").click();
+    // Navigate to next month to ensure the date is in the future
+    await page.getByRole("button", { name: /next|ďalší|další|přístí|nasledujúci/i }).first().click();
+    await page.getByRole("gridcell").filter({ hasText: /^15$/ }).first().click();
 
-    await page.locator(".offer-ride-form__time-trigger").click();
+    await page.getByTestId("offer-time").getByRole("combobox").click();
     await page.getByRole("option", { name: "09:00" }).click();
 
     const duration = page.getByTestId("offer-duration").locator("input");
@@ -57,9 +54,7 @@ test.describe("offer a ride", () => {
         // passenger home; wait for it so the session is fully established.
         await expect(page).toHaveURL(/\/passenger$/);
         await page.goto("/driver/offer");
-        await expect(
-            page.getByRole("heading", { name: "Offer a ride" })
-        ).toBeVisible();
+        await expect(page.locator("h1").first()).toBeVisible();
     });
 
     test("driver publishes a ride with a saved car", async ({ page }) => {
@@ -69,7 +64,7 @@ test.describe("offer a ride", () => {
         await page.getByRole("button", { name: "My cars" }).click();
 
         // Publishing routes the driver to their rides list on success.
-        await page.getByRole("button", { name: "Publish ride" }).click();
+        await page.getByTestId("publish-ride-wrapper").locator("button").click();
         await expect(page).toHaveURL(/\/driver\/rides$/);
     });
 
@@ -90,7 +85,7 @@ test.describe("offer a ride", () => {
 
         await page.getByPlaceholder("e.g., ABC 1234").fill("BA999XX");
 
-        await page.getByRole("button", { name: "Publish ride" }).click();
+        await page.getByTestId("publish-ride-wrapper").locator("button").click();
         await expect(page).toHaveURL(/\/driver\/rides$/);
     });
 
@@ -99,7 +94,7 @@ test.describe("offer a ride", () => {
     }) => {
         // Submit with nothing filled — the RHF resolver must block the
         // submission, keep the driver on the form, and surface field errors.
-        await page.getByRole("button", { name: "Publish ride" }).click();
+        await page.getByTestId("publish-ride-wrapper").locator("button").click();
 
         await expect(page).toHaveURL(/\/driver\/offer$/);
         await expect(

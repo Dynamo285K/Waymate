@@ -38,7 +38,7 @@ async function recreateDatabase(): Promise<void> {
 }
 
 async function runApiScript(
-    script: "db:migrate" | "seed:cities" | "seed"
+    script: "db:reset"
 ): Promise<void> {
     if (typeof Bun === "undefined") {
         throw new Error("E2E API setup must be run with Bun");
@@ -67,9 +67,7 @@ async function runApiScript(
 
 export default async function globalSetup(): Promise<void> {
     await recreateDatabase();
-    await runApiScript("db:migrate");
-    await runApiScript("seed:cities");
-    await runApiScript("seed");
+    await runApiScript("db:reset");
 }
 
 if (import.meta.main) {
