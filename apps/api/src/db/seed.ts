@@ -15,12 +15,14 @@ import {
     reviews,
     reviewStatusHistory,
     rideStatusHistory,
+    rideRouteCells,
 } from "./schema";
 import { randomUUID } from "crypto";
 import { carCatalog } from "@repo/shared/car-catalog";
 import { auth } from "../modules/auth/auth";
 import type { CountryCode } from "@repo/shared";
 import * as h3 from "h3-js";
+import { fetchOsrmRouteCells } from "../modules/rides/osrm.service";
 
 // Dev-only credentials. Documented here on purpose so anyone running
 // `db:seed` knows how to log in without re-deriving them.
@@ -445,6 +447,21 @@ async function main() {
                               },
                           ]
                 );
+
+                // Populate ride_route_cells using OSRM so search works
+                const osrmResult = await fetchOsrmRouteCells(input.stops);
+                if (osrmResult.cells.length > 0) {
+                    await tx.insert(rideRouteCells).values(
+                        osrmResult.cells.map((cell) => ({
+                            id: randomUUID(),
+                            rideId,
+                            h3Res7: cell.h3Res7,
+                            lat: cell.lat,
+                            lng: cell.lng,
+                            pointOrder: cell.pointOrder,
+                        }))
+                    );
+                }
 
                 return {
                     id: rideId,
