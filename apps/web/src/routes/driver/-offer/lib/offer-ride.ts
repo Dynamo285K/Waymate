@@ -53,14 +53,6 @@ export function isIntegerInput(value: string): boolean {
     return /^\d*$/.test(value);
 }
 
-/** Total trip-duration minutes from the free-text hour + minute inputs. */
-export function parseDurationMinutes(hours: string, minutes: string): number {
-    return (
-        (Number.parseInt(hours, 10) || 0) * 60 +
-        (Number.parseInt(minutes, 10) || 0)
-    );
-}
-
 export type BuildRideBodyParams = {
     carId: string;
     rideDate: Date | undefined;
@@ -69,13 +61,13 @@ export type BuildRideBodyParams = {
     price: string;
     pickupCity: LocationSuggestion | null;
     dropoffCity: LocationSuggestion | null;
-    durationMinutes: number;
+    arrivalEstimateAt: Date | null;
 };
 
 /**
  * Builds the `POST /rides` request body from the offer-ride form values, or
- * returns null when a required field is missing/invalid. Arrival is sent as an
- * absolute timestamp derived from the trip duration.
+ * returns null when a required field is missing/invalid. Arrival is sent as
+ * the OSRM-based estimate previewed for the selected route and departure time.
  */
 export function buildCreateRideBody(
     params: BuildRideBodyParams
@@ -95,12 +87,9 @@ export function buildCreateRideBody(
         return null;
     }
 
-    const arrivalEstimateAt =
-        params.durationMinutes > 0
-            ? new Date(
-                  departureAt.getTime() + params.durationMinutes * 60_000
-              ).toISOString()
-            : null;
+    const arrivalEstimateAt = params.arrivalEstimateAt
+        ? params.arrivalEstimateAt.toISOString()
+        : null;
 
     return {
         carId: params.carId,

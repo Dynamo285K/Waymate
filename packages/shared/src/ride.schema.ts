@@ -411,3 +411,13 @@ export const EstimateEtaBodySchema = z.object({
 });
 
 export type EstimateEtaBody = z.infer<typeof EstimateEtaBodySchema>;
+
+export const EstimateEtaResponseSchema = z.array(
+    z.object({
+        lat: z.number(),
+        lng: z.number(),
+        plannedArrivalAt: z.date(),
+    })
+);
+
+export type EstimateEtaResponse = z.infer<typeof EstimateEtaResponseSchema>;

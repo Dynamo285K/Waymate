@@ -1,10 +1,6 @@
 import { z } from "zod";
 import type { LocationSuggestion } from "../../../../components/shared/LocationAutocomplete";
-import {
-    combineDateAndTime,
-    parseDurationMinutes,
-    parsePositiveInteger,
-} from "../lib/offer-ride";
+import { combineDateAndTime, parsePositiveInteger } from "../lib/offer-ride";
 
 // Single source of truth for the offer-ride form shape. Lives next to the
 // section components so each can type `useFormContext<OfferRideFormInput>()`
@@ -58,12 +54,9 @@ export const offerRideSchema = z
                 });
             }
         }),
-        // Duration is two free-text inputs (hours + minutes); the combined
-        // total must be > 0 (cross-field refine below). Manual-car fields are
-        // unconstrained here — they only apply in "manual" mode and are
-        // validated imperatively on submit, where the active mode is known.
-        durationHours: z.string(),
-        durationMinutes: z.string(),
+        // Manual-car fields are unconstrained here — they only apply in
+        // "manual" mode and are validated imperatively on submit, where the
+        // active mode is known.
         manualBrand: z.string(),
         manualModel: z.string(),
         manualPlate: z.string(),
@@ -82,12 +75,6 @@ export const offerRideSchema = z
             return departureAt !== null && departureAt.getTime() > Date.now();
         },
         { message: "offerRide.pastDeparture", path: ["rideTime"] }
-    )
-    .refine(
-        (values) =>
-            parseDurationMinutes(values.durationHours, values.durationMinutes) >
-            0,
-        { message: "offerRide.requiredField", path: ["durationHours"] }
     );
 
 export type OfferRideFormInput = z.input<typeof offerRideSchema>;

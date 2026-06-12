@@ -32,8 +32,15 @@ async function fillRideDetails(page: Page) {
 
     await page.getByTestId("offer-date").getByRole("button").click();
     // Navigate to next month to ensure the date is in the future
-    await page.getByRole("button", { name: /next|ďalší|další|přístí|nasledujúci/i }).first().click();
-    await page.getByRole("gridcell").filter({ hasText: /^15$/ }).first().click();
+    await page
+        .getByRole("button", { name: /next|ďalší|další|přístí|nasledujúci/i })
+        .first()
+        .click();
+    await page
+        .getByRole("gridcell")
+        .filter({ hasText: /^15$/ })
+        .first()
+        .click();
 
     await page.getByTestId("offer-time").getByRole("combobox").click();
     await page.getByRole("option", { name: "09:00" }).click();
@@ -64,7 +71,10 @@ test.describe("offer a ride", () => {
         await page.getByRole("button", { name: "My cars" }).click();
 
         // Publishing routes the driver to their rides list on success.
-        await page.getByTestId("publish-ride-wrapper").locator("button").click();
+        await page
+            .getByTestId("publish-ride-wrapper")
+            .locator("button")
+            .click();
         await expect(page).toHaveURL(/\/driver\/rides$/);
     });
 
@@ -85,7 +95,10 @@ test.describe("offer a ride", () => {
 
         await page.getByPlaceholder("e.g., ABC 1234").fill("BA999XX");
 
-        await page.getByTestId("publish-ride-wrapper").locator("button").click();
+        await page
+            .getByTestId("publish-ride-wrapper")
+            .locator("button")
+            .click();
         await expect(page).toHaveURL(/\/driver\/rides$/);
     });
 
@@ -94,7 +107,10 @@ test.describe("offer a ride", () => {
     }) => {
         // Submit with nothing filled — the RHF resolver must block the
         // submission, keep the driver on the form, and surface field errors.
-        await page.getByTestId("publish-ride-wrapper").locator("button").click();
+        await page
+            .getByTestId("publish-ride-wrapper")
+            .locator("button")
+            .click();
 
         await expect(page).toHaveURL(/\/driver\/offer$/);
         await expect(

@@ -909,6 +909,75 @@
                 "operationId": "postRides"
             }
         },
+        "/rides/estimate-eta": {
+            "post": {
+                "tags": ["Rides"],
+                "description": "Calculates estimated arrival times for a given route using OSRM",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EstimateEtaBody"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EstimateEtaBody"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EstimateEtaBody"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EstimateEtaResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Response for status 400",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Response for status 429",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "postRidesEstimate-eta"
+            }
+        },
         "/rides/{id}/passengers": {
             "get": {
                 "tags": ["Rides"],
@@ -4830,6 +4899,58 @@
                 },
                 "required": ["id", "status"],
                 "additionalProperties": false
+            },
+            "EstimateEtaBody": {
+                "type": "object",
+                "properties": {
+                    "departureAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "stops": {
+                        "minItems": 2,
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "lat": {
+                                    "type": "number",
+                                    "minimum": -90,
+                                    "maximum": 90
+                                },
+                                "lng": {
+                                    "type": "number",
+                                    "minimum": -180,
+                                    "maximum": 180
+                                }
+                            },
+                            "required": ["lat", "lng"],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": ["departureAt", "stops"],
+                "additionalProperties": false
+            },
+            "EstimateEtaResponse": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "lat": {
+                            "type": "number"
+                        },
+                        "lng": {
+                            "type": "number"
+                        },
+                        "plannedArrivalAt": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    "required": ["lat", "lng", "plannedArrivalAt"],
+                    "additionalProperties": false
+                }
             },
             "BookingIdParams": {
                 "type": "object",

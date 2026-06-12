@@ -1,6 +1,7 @@
 import type { Locale } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { Button } from "@waymate/ui";
+import type { EtaPreview } from "../hooks/useEtaPreview";
 import { RouteSection } from "./RouteSection";
 import { ScheduleSection } from "./ScheduleSection";
 import { SeatsPriceSection } from "./SeatsPriceSection";
@@ -12,6 +13,7 @@ type OfferRideFormProps = {
     car: CarSectionProps;
     dateLocale?: Locale;
     today?: Date;
+    etaPreview: EtaPreview;
     publishedMessage?: string;
     onPublishClick?: () => void;
 };
@@ -20,6 +22,7 @@ export function OfferRideForm({
     car,
     dateLocale,
     today,
+    etaPreview,
     publishedMessage,
     onPublishClick,
 }: OfferRideFormProps) {
@@ -41,6 +44,7 @@ export function OfferRideForm({
                 <ScheduleSection
                     dateLocale={dateLocale}
                     today={today}
+                    etaPreview={etaPreview}
                 />
                 <SeatsPriceSection />
                 <CarSection {...car} />
@@ -52,7 +56,10 @@ export function OfferRideForm({
                 </p>
             )}
 
-            <div className="w-full" data-testid="publish-ride-wrapper">
+            <div
+                className="w-full"
+                data-testid="publish-ride-wrapper"
+            >
                 <Button
                     fullWidth
                     className="min-h-16 text-lg! font-bold! rounded-xl!"
