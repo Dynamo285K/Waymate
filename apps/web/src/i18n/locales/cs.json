@@ -359,7 +359,8 @@
         "pastDeparture": "Vyberte čas odjezdu v budoucnosti.",
         "plateLength": "SPZ musí mít {{min}}-{{max}} znaků.",
         "carCreateError": "Nepodařilo se uložit auto. Zkontrolujte detaily auta.",
-        "duration": "Délka jízdy"
+        "estimatedArrival": "Předpokládaný čas příjezdu: {{time}}",
+        "estimatedArrivalLoading": "Počítá se předpokládaný čas příjezdu..."
     },
     "rideRequests": {
         "title": "Žádosti o jízdu",

@@ -37,9 +37,7 @@ async function recreateDatabase(): Promise<void> {
     }
 }
 
-async function runApiScript(
-    script: "db:reset"
-): Promise<void> {
+async function runApiScript(script: "db:reset"): Promise<void> {
     if (typeof Bun === "undefined") {
         throw new Error("E2E API setup must be run with Bun");
     }

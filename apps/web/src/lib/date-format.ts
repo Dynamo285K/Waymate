@@ -22,6 +22,15 @@ const LOCALE_MAP: Record<string, string> = {
     cs: "cs-CZ",
 };
 
+export function formatTime(date: Date): string {
+    const locale = LOCALE_MAP[i18n.language] ?? "en-US";
+    return new Intl.DateTimeFormat(locale, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    }).format(date);
+}
+
 export function formatRideDate(date: Date, atLabel: string): string {
     const locale = LOCALE_MAP[i18n.language] ?? "en-US";
     const datePart = new Intl.DateTimeFormat(locale, {

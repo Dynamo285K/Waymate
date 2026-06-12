@@ -32,6 +32,8 @@ import type {
     EndRideBody,
     EndRideResponse,
     ErrorResponse,
+    EstimateEtaBody,
+    EstimateEtaResponse,
     GetRidesMeParams,
     GetRidesSearchParams,
     RideId,
@@ -633,6 +635,93 @@ export const usePostRides = <TError = ErrorResponse, TContext = unknown>(
     TContext
 > => {
     const mutationOptions = getPostRidesMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+/**
+ * Calculates estimated arrival times for a given route using OSRM
+ */
+export const getPostRidesEstimateEtaUrl = () => {
+    return `/rides/estimate-eta`;
+};
+
+export const postRidesEstimateEta = async (
+    estimateEtaBody: EstimateEtaBody,
+    options?: RequestInit
+): Promise<EstimateEtaResponse> => {
+    return apiFetcher<EstimateEtaResponse>(getPostRidesEstimateEtaUrl(), {
+        ...options,
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...options?.headers },
+        body: JSON.stringify(estimateEtaBody),
+    });
+};
+
+export const getPostRidesEstimateEtaMutationOptions = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof postRidesEstimateEta>>,
+        TError,
+        { data: EstimateEtaBody },
+        TContext
+    >;
+    request?: SecondParameter<typeof apiFetcher>;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof postRidesEstimateEta>>,
+    TError,
+    { data: EstimateEtaBody },
+    TContext
+> => {
+    const mutationKey = ["postRidesEstimateEta"];
+    const { mutation: mutationOptions, request: requestOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey }, request: undefined };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof postRidesEstimateEta>>,
+        { data: EstimateEtaBody }
+    > = (props) => {
+        const { data } = props ?? {};
+
+        return postRidesEstimateEta(data, requestOptions);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type PostRidesEstimateEtaMutationResult = NonNullable<
+    Awaited<ReturnType<typeof postRidesEstimateEta>>
+>;
+export type PostRidesEstimateEtaMutationBody = EstimateEtaBody;
+export type PostRidesEstimateEtaMutationError = ErrorResponse;
+
+export const usePostRidesEstimateEta = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof postRidesEstimateEta>>,
+            TError,
+            { data: EstimateEtaBody },
+            TContext
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseMutationResult<
+    Awaited<ReturnType<typeof postRidesEstimateEta>>,
+    TError,
+    { data: EstimateEtaBody },
+    TContext
+> => {
+    const mutationOptions = getPostRidesEstimateEtaMutationOptions(options);
 
     return useMutation(mutationOptions, queryClient);
 };

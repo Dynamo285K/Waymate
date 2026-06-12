@@ -6,10 +6,11 @@ import {
     DatePicker,
     FieldLabel,
     FormSectionCard,
-    Input,
     CalendarIcon,
     ClockIcon,
 } from "@waymate/ui";
+import { formatTime } from "../../../../lib/date-format";
+import type { EtaPreview } from "../hooks/useEtaPreview";
 import type { OfferRideFormInput } from "./schema";
 
 const DEFAULT_TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
@@ -18,24 +19,18 @@ const DEFAULT_TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
     return `${String(h).padStart(2, "0")}:${m}`;
 });
 
-function clampDurationInput(value: string, max: number): string {
-    if (value === "") return "";
-    const n = Number.parseInt(value, 10);
-    if (Number.isNaN(n) || n < 0) return "0";
-    if (n > max) return String(max);
-    return String(n);
-}
-
 type ScheduleSectionProps = {
     dateLocale?: Locale;
     today?: Date;
     timeOptions?: string[];
+    etaPreview: EtaPreview;
 };
 
 export function ScheduleSection({
     dateLocale,
     today,
     timeOptions = DEFAULT_TIME_OPTIONS,
+    etaPreview,
 }: ScheduleSectionProps) {
     const { t } = useTranslation();
     const { watch, setValue, formState } = useFormContext<OfferRideFormInput>();
@@ -45,7 +40,7 @@ export function ScheduleSection({
 
     return (
         <FormSectionCard title={t("offerRide.dateTime")}>
-            <div className="grid grid-cols-3 gap-5 max-md:grid-cols-1">
+            <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
                 <div className="flex flex-col gap-2.5">
                     <FieldLabel
                         label={t("offerRide.date")}
@@ -121,55 +116,25 @@ export function ScheduleSection({
                         </p>
                     )}
                 </div>
-                <div
-                    className="flex flex-col gap-2.5"
-                    data-testid="offer-duration"
-                >
-                    <FieldLabel
-                        label={t("offerRide.duration")}
-                        icon={<ClockIcon />}
-                    />
-                    <div className="flex items-center gap-2">
-                        <Input
-                            type="number"
-                            value={watch("durationHours")}
-                            onChange={(e) =>
-                                setValue(
-                                    "durationHours",
-                                    clampDurationInput(e.target.value, 23),
-                                    { shouldValidate: isSubmitted }
-                                )
-                            }
-                            placeholder=""
-                            style={{ width: "100%" }}
-                        />
-                        <span className="whitespace-nowrap text-(--color-text-secondary) text-sm">
-                            h
-                        </span>
-                        <Input
-                            type="number"
-                            value={watch("durationMinutes")}
-                            onChange={(e) =>
-                                setValue(
-                                    "durationMinutes",
-                                    clampDurationInput(e.target.value, 59),
-                                    { shouldValidate: isSubmitted }
-                                )
-                            }
-                            placeholder=""
-                            style={{ width: "100%" }}
-                        />
-                        <span className="whitespace-nowrap text-(--color-text-secondary) text-sm">
-                            min
-                        </span>
-                    </div>
-                    {errors.durationHours?.message && (
-                        <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
-                            {t(errors.durationHours.message)}
-                        </p>
-                    )}
-                </div>
             </div>
+            {etaPreview.isLoading && (
+                <p
+                    className="mt-3 text-sm text-(--color-text-secondary)"
+                    data-testid="eta-preview-loading"
+                >
+                    {t("offerRide.estimatedArrivalLoading")}
+                </p>
+            )}
+            {!etaPreview.isLoading && etaPreview.arrivalEstimateAt && (
+                <p
+                    className="mt-3 text-sm font-semibold text-(--color-text-primary)"
+                    data-testid="eta-preview"
+                >
+                    {t("offerRide.estimatedArrival", {
+                        time: formatTime(etaPreview.arrivalEstimateAt),
+                    })}
+                </p>
+            )}
         </FormSectionCard>
     );
 }

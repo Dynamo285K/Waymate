@@ -17,6 +17,7 @@ import { RideError, RideErrorCodes } from "./ride.errors";
 import { TEST_CITY_IDS } from "../../../test/reference-data";
 import { CreateRideBodySchema, type CreateRideBody } from "@repo/shared";
 import { vi } from "vitest";
+import { fetchOsrmRouteCells } from "./osrm.service";
 
 vi.mock("./osrm.service", () => ({
     fetchOsrmRouteCells: vi
@@ -165,7 +166,62 @@ describe("RideService.createRide", () => {
         expect(history[0]!.changedByUserId).toBe(driver.id);
     });
 
-    it("computes autoEndAt from the last stop when arrivalEstimateAt is omitted", async () => {
+    it("resolves arrivalEstimateAt from OSRM durations when neither arrivalEstimateAt nor durationMinutes is supplied", async () => {
+        const driver = await insertTestUser();
+        const car = await insertCarFor(driver.id);
+        const departureAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+        const rideId = await RideService.createRide(
+            driver.id,
+            buildCreateRideBody(car.id, {
+                departureAt,
+                arrivalEstimateAt: null,
+                stops: [
+                    {
+                        address: "Hlavná 1",
+                        city: "Bratislava",
+                        countryCode: "SK",
+                        lat: 48.148,
+                        lng: 17.107,
+                        plannedArrivalAt: null,
+                        plannedDepartureAt: departureAt,
+                    },
+                    {
+                        address: "Námestie SNP 1",
+                        city: "Banská Bystrica",
+                        countryCode: "SK",
+                        lat: 48.736,
+                        lng: 19.146,
+                        plannedArrivalAt: null,
+                        plannedDepartureAt: null,
+                    },
+                ],
+            })
+        );
+
+        const insertedRide = await db.query.rides.findFirst({
+            where: eq(rides.id, rideId),
+        });
+
+        // Mocked OSRM returns a single 3600s leg duration → +1h from
+        // departure, rounded to the nearest minute (see resolveArrivalEstimateAt).
+        const expectedArrival = new Date(
+            Math.round((departureAt.getTime() + 3600 * 1000) / 60_000) * 60_000
+        );
+        expect(insertedRide!.arrivalEstimateAt?.getTime()).toBe(
+            expectedArrival.getTime()
+        );
+        expect(insertedRide!.autoEndAt?.getTime()).toBe(
+            expectedArrival.getTime() + AUTO_END_BUFFER_MS
+        );
+    });
+
+    it("falls back to the last stop's plannedArrivalAt for autoEndAt when OSRM returns no durations", async () => {
+        vi.mocked(fetchOsrmRouteCells).mockResolvedValueOnce({
+            cells: [],
+            durations: [],
+        });
+
         const driver = await insertTestUser();
         const car = await insertCarFor(driver.id);
         const departureAt = new Date(Date.now() + 24 * 60 * 60 * 1000);

@@ -16,12 +16,12 @@ import {
 } from "./-offer/components/schema";
 import { useDriverNavbarProps } from "../../features/driver/hooks/useDriverNavbarProps";
 import { useDriverCars } from "./-offer/hooks/useDriverCars";
+import { useEtaPreview } from "./-offer/hooks/useEtaPreview";
 import { getErrorI18nKey } from "../../lib/api-errors";
 import { toUiLanguage } from "../../lib/language";
 import {
     buildCreateRideBody,
     normalizePlate,
-    parseDurationMinutes,
     parsePositiveInteger,
 } from "./-offer/lib/offer-ride";
 import {
@@ -105,8 +105,6 @@ export function DriverOfferRidePage({
             rideTime: "",
             seats: "",
             price: "",
-            durationHours: "",
-            durationMinutes: "",
             manualBrand: "",
             manualModel: "",
             manualPlate: "",
@@ -121,8 +119,6 @@ export function DriverOfferRidePage({
         rideTime,
         seats,
         price,
-        durationHours,
-        durationMinutes,
         manualBrand,
         manualModel,
         manualPlate,
@@ -140,12 +136,19 @@ export function DriverOfferRidePage({
         addLocalCar,
     } = useDriverCars({ manualBrand, manualModel, manualPlate });
 
+    const etaPreview = useEtaPreview({
+        pickupCity,
+        dropoffCity,
+        rideDate,
+        rideTime,
+    });
+
     // Submission/server state — not form fields, so they stay in useState.
     const [publishedMessage, setPublishedMessage] = useState("");
     const [publishError, setPublishError] = useState("");
 
     // Clear a stale publish error as soon as any field of the form changes.
-    const formKey = `${pickupCity?.id ?? ""}|${dropoffCity?.id ?? ""}|${rideDate?.toISOString() ?? ""}|${rideTime}|${seats}|${price}|${durationHours}|${durationMinutes}|${carMode}|${selectedCarId}|${manualBrand}|${manualModel}|${manualPlate}`;
+    const formKey = `${pickupCity?.id ?? ""}|${dropoffCity?.id ?? ""}|${rideDate?.toISOString() ?? ""}|${rideTime}|${seats}|${price}|${carMode}|${selectedCarId}|${manualBrand}|${manualModel}|${manualPlate}`;
     const [prevFormKey, setPrevFormKey] = useState(formKey);
     if (formKey !== prevFormKey) {
         setPrevFormKey(formKey);
@@ -307,10 +310,7 @@ export function DriverOfferRidePage({
             price,
             pickupCity,
             dropoffCity,
-            durationMinutes: parseDurationMinutes(
-                durationHours,
-                durationMinutes
-            ),
+            arrivalEstimateAt: etaPreview.arrivalEstimateAt,
         });
 
         if (!body) {
@@ -409,6 +409,7 @@ export function DriverOfferRidePage({
                     <OfferRideForm
                         dateLocale={datePickerLocale}
                         today={offerRideToday}
+                        etaPreview={etaPreview}
                         car={{
                             savedCars: driverCars,
                             carMode,

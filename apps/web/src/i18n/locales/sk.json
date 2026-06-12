@@ -359,7 +359,8 @@
         "pastDeparture": "Vyberte čas odchodu v budúcnosti.",
         "plateLength": "ŠPZ musí mať {{min}}-{{max}} znakov.",
         "carCreateError": "Nepodarilo sa uložiť auto. Skontrolujte detaily auta.",
-        "duration": "Dĺžka jazdy"
+        "estimatedArrival": "Predpokladaný čas príchodu: {{time}}",
+        "estimatedArrivalLoading": "Počíta sa predpokladaný čas príchodu..."
     },
     "rideRequests": {
         "title": "Žiadosti o jazdu",

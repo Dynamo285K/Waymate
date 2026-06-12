@@ -4,7 +4,6 @@ import {
     combineDateAndTime,
     isIntegerInput,
     normalizePlate,
-    parseDurationMinutes,
     parsePositiveInteger,
 } from "./offer-ride";
 import type { LocationSuggestion } from "../../../../components/shared/LocationAutocomplete";
@@ -93,22 +92,6 @@ describe("isIntegerInput", () => {
     });
 });
 
-describe("parseDurationMinutes", () => {
-    it("combines hours and minutes", () => {
-        expect(parseDurationMinutes("1", "30")).toBe(90);
-    });
-
-    it("treats blank parts as zero", () => {
-        expect(parseDurationMinutes("", "")).toBe(0);
-        expect(parseDurationMinutes("2", "")).toBe(120);
-        expect(parseDurationMinutes("", "45")).toBe(45);
-    });
-
-    it("treats non-numeric parts as zero", () => {
-        expect(parseDurationMinutes("x", "y")).toBe(0);
-    });
-});
-
 describe("buildCreateRideBody", () => {
     const base = {
         carId: "car-1",
@@ -118,7 +101,7 @@ describe("buildCreateRideBody", () => {
         price: "12",
         pickupCity: bratislava,
         dropoffCity: kosice,
-        durationMinutes: 240,
+        arrivalEstimateAt: new Date(2030, 5, 1, 13, 0),
     };
 
     it("builds a request body from valid input", () => {
@@ -136,20 +119,15 @@ describe("buildCreateRideBody", () => {
         expect(body.prices?.[0]?.amount).toBe(12);
     });
 
-    it("derives arrivalEstimateAt as departure + duration", () => {
+    it("passes through arrivalEstimateAt as an ISO string", () => {
         const body = buildCreateRideBody(base);
-        if (!body || body.arrivalEstimateAt == null) {
-            throw new Error("expected a body with arrivalEstimateAt");
-        }
-
-        const gap =
-            new Date(body.arrivalEstimateAt).getTime() -
-            new Date(body.departureAt).getTime();
-        expect(gap).toBe(240 * 60_000);
+        expect(body?.arrivalEstimateAt).toBe(
+            base.arrivalEstimateAt.toISOString()
+        );
     });
 
-    it("leaves arrivalEstimateAt null when there is no duration", () => {
-        const body = buildCreateRideBody({ ...base, durationMinutes: 0 });
+    it("leaves arrivalEstimateAt null when not provided", () => {
+        const body = buildCreateRideBody({ ...base, arrivalEstimateAt: null });
         expect(body?.arrivalEstimateAt).toBeNull();
     });
 

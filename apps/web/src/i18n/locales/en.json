@@ -359,7 +359,8 @@
         "pastDeparture": "Pick a departure time in the future.",
         "plateLength": "License plate must be {{min}}-{{max}} characters.",
         "carCreateError": "Could not save this car. Please check the car details.",
-        "duration": "Duration"
+        "estimatedArrival": "Estimated arrival time: {{time}}",
+        "estimatedArrivalLoading": "Calculating estimated arrival time..."
     },
     "rideRequests": {
         "title": "Ride Requests",

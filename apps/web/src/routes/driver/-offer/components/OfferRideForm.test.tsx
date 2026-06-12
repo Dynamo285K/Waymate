@@ -15,8 +15,6 @@ function Harness({ onPublishClick }: { onPublishClick?: () => void }) {
             rideTime: "",
             seats: "",
             price: "",
-            durationHours: "",
-            durationMinutes: "",
             manualBrand: "",
             manualModel: "",
             manualPlate: "",
@@ -36,6 +34,11 @@ function Harness({ onPublishClick }: { onPublishClick?: () => void }) {
                     modelOptions: [],
                     modelLoading: false,
                 }}
+                etaPreview={{
+                    arrivalEstimateAt: null,
+                    isLoading: false,
+                    isError: false,
+                }}
                 onPublishClick={onPublishClick}
             />
         </FormProvider>
@@ -47,7 +50,7 @@ describe("OfferRideForm", () => {
         render(<Harness />);
 
         expect(
-            screen.getByRole("heading", { name: "offerRide.title" })
+            screen.getByRole("heading", { name: "Offer a ride" })
         ).toBeInTheDocument();
     });
 
@@ -56,7 +59,7 @@ describe("OfferRideForm", () => {
         render(<Harness onPublishClick={onPublishClick} />);
 
         await userEvent.click(
-            screen.getByRole("button", { name: "offerRide.publish" })
+            screen.getByRole("button", { name: "Publish ride" })
         );
 
         expect(onPublishClick).toHaveBeenCalledOnce();

@@ -130,12 +130,18 @@ export const estimateEtasForStops = async (
 };
 
 const createRide = async (driverId: string, data: CreateRideBody) => {
+    // Fetched once up front: the H3 route cells (for ride_route_cells) and the
+    // leg durations (fallback for arrivalEstimateAt below) come from the same
+    // OSRM call, and arrivalEstimateAt must be known before insertRide.
+    const { cells: osrmCells, durations: osrmDurations } =
+        await fetchOsrmRouteCells(data.stops);
+
     const input: CreateRideInput = {
         ...data,
         // The ride always stores an absolute arrival timestamp; when the
-        // client expresses arrival as a duration, resolve it here so nothing
-        // downstream has to know a duration was ever involved.
-        arrivalEstimateAt: resolveArrivalEstimateAt(data),
+        // client expresses arrival as a duration, or sends neither, resolve
+        // it here so nothing downstream has to know that.
+        arrivalEstimateAt: resolveArrivalEstimateAt(data, osrmDurations),
         driverId,
         rideStatus: "PLANNED",
     };
@@ -216,7 +222,6 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
         }
 
         // --- OSRM Integration: Generate cells for the route ---
-        const { cells: osrmCells } = await fetchOsrmRouteCells(input.stops);
         if (osrmCells.length > 0) {
             const routeCellsToInsert = osrmCells.map((cell) => ({
                 rideId: newRide.id,
@@ -242,16 +247,27 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
 
 // Arrival is supplied as a durationMinutes offset from departure (or, kept for
 // flexibility, as an absolute arrivalEstimateAt). The schema guarantees at most
-// one is set. Either way a ride stores an absolute timestamp — a duration is
-// never persisted, it has no meaning without the departure anchor.
-const resolveArrivalEstimateAt = (data: CreateRideBody): Date | null => {
+// one is set. When neither is sent, fall back to the OSRM leg durations fetched
+// for the same stops, summed and rounded to the nearest minute the same way
+// estimateEtasForStops derives a stop's plannedArrivalAt. Either way a ride
+// stores an absolute timestamp — a duration is never persisted, it has no
+// meaning without the departure anchor.
+const resolveArrivalEstimateAt = (
+    data: CreateRideBody,
+    osrmDurations: number[]
+): Date | null => {
     if (data.arrivalEstimateAt) return data.arrivalEstimateAt;
     if (data.durationMinutes != null) {
         return new Date(
             data.departureAt.getTime() + data.durationMinutes * 60_000
         );
     }
-    return null;
+    if (osrmDurations.length === 0) return null;
+
+    const totalDurationMs =
+        osrmDurations.reduce((sum, leg) => sum + leg, 0) * 1000;
+    const arrivalMs = data.departureAt.getTime() + totalDurationMs;
+    return new Date(Math.round(arrivalMs / 60_000) * 60_000);
 };
 
 const AUTO_END_BUFFER_MS = 60 * 60 * 1000; // 1 hour after expected arrival
