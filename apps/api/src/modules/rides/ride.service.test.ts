@@ -580,7 +580,7 @@ describe("RideService.getDriverRides", () => {
         const future = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
         const keptId = await createRideAt(driver.id, car.id, future);
-        const cancelledId = await createRideAt(driver.id, car.id, future);
+        const cancelledId = await createRideAt(driver.id, car.id, new Date(future.getTime() + 2 * 60 * 60 * 1000));
         await RideService.cancelRide(cancelledId, driver.id);
 
         const result = await RideService.getDriverRides(driver.id, "UPCOMING");
@@ -593,7 +593,7 @@ describe("RideService.getDriverRides", () => {
         const future = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
         const keptId = await createRideAt(driver.id, car.id, future);
-        const deletedId = await createRideAt(driver.id, car.id, future);
+        const deletedId = await createRideAt(driver.id, car.id, new Date(future.getTime() + 2 * 60 * 60 * 1000));
         await db
             .update(rides)
             .set({ deletedAt: new Date() })
@@ -814,9 +814,11 @@ describe("RideService ride termination", () => {
             car.id,
             new Date(now.getTime() - 2 * HOUR)
         );
+        const driver2 = await insertTestUser();
+        const car2 = await insertCarFor(driver2.id);
         const futureAutoEndRideId = await RideService.createRide(
-            driver.id,
-            buildCreateRideBody(car.id, {
+            driver2.id,
+            buildCreateRideBody(car2.id, {
                 departureAt: new Date(now.getTime() - HOUR),
                 arrivalEstimateAt: new Date(now.getTime() + HOUR),
             })
