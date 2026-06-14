@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { RidePassengersViewPassengersItemBookingStatus } from "./ridePassengersViewPassengersItemBookingStatus";
+import type { Currency } from "./currency";
 import type { PublicUserPreviewWithRating } from "./publicUserPreviewWithRating";
 import type { RidePassengersViewPassengersItemPickupStop } from "./ridePassengersViewPassengersItemPickupStop";
 import type { RidePassengersViewPassengersItemDropoffStop } from "./ridePassengersViewPassengersItemDropoffStop";
@@ -20,6 +21,12 @@ export type RidePassengersViewPassengersItem = {
      * @maximum 9007199254740991
      */
     seatCount: number;
+    /**
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
+    priceAmount: number;
+    currency: Currency;
     passenger: PublicUserPreviewWithRating;
     /** @nullable */
     requestedPickupCity: string | null;

@@ -80,6 +80,8 @@ const getRidePassengers = async (
             bookingId: b.id,
             bookingStatus: b.bookingStatus,
             seatCount: b.seatCount,
+            priceAmount: b.priceAmount,
+            currency: b.currency,
             requestedPickupCity: b.requestedPickupCity,
             requestedDropoffCity: b.requestedDropoffCity,
             passenger: {
@@ -113,7 +115,6 @@ export const calculateEtasFromDurations = (
     durations: number[]
 ) => {
     let currentMs = departureAt.getTime();
-
 
     return stops.map((stop, index) => {
         if (index > 0) {
@@ -203,7 +204,11 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
             description: input.description,
         });
 
-        const estimatedStops = calculateEtasFromDurations(input.departureAt, input.stops, osrmDurations);
+        const estimatedStops = calculateEtasFromDurations(
+            input.departureAt,
+            input.stops,
+            osrmDurations
+        );
 
         const stopsToInsert = input.stops.map((stop, index) => ({
             rideId: newRide.id,

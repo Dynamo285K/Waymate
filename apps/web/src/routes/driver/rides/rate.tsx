@@ -3,6 +3,7 @@ import {
     createFileRoute,
     useNavigate,
     useLocation,
+    useRouter,
 } from "@tanstack/react-router";
 import { RatePassengerCard, StatCard, TextLink } from "@waymate/ui";
 import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
@@ -108,6 +109,7 @@ function IconBox({
 export function DriverRatePassengersPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const router = useRouter();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
     const { data: session } = authClient.useSession();
     const user = session?.user;
@@ -131,8 +133,7 @@ export function DriverRatePassengersPage() {
     const submitReview = useSubmitReview();
 
     const passengers = passengersQuery.data?.passengers ?? [];
-    const totalSeats = passengers.reduce((sum, p) => sum + p.seatCount, 0);
-    const totalEarned = ride?.price != null ? ride.price * totalSeats : null;
+    const totalEarned = passengers.reduce((sum, p) => sum + p.priceAmount, 0);
 
     return (
         <div
@@ -145,7 +146,19 @@ export function DriverRatePassengersPage() {
                 <div className="text-sm mb-4">
                     <TextLink
                         variant="muted"
-                        onClick={() => navigate({ to: "/driver/rides" })}
+                        onClick={() => {
+                            // `state.ride` is only set when arriving from the
+                            // My Rides "past" tab — go back to restore that
+                            // exact page instead of remounting it fresh.
+                            if (ride) {
+                                router.history.back();
+                            } else {
+                                navigate({
+                                    to: "/driver/rides",
+                                    search: { tab: "past" },
+                                });
+                            }
+                        }}
                     >
                         {t("driverRides.backToMyRides")}
                     </TextLink>
@@ -178,24 +191,22 @@ export function DriverRatePassengersPage() {
                                 .trim() || "route"
                         }
                     />
-                    {totalEarned != null && (
-                        <StatCard
-                            icon={
-                                <IconBox
-                                    bg="bg-(--color-danger-bg)"
-                                    color="text-(--color-danger-text)"
-                                >
-                                    <DollarIcon />
-                                </IconBox>
-                            }
-                            value={`${totalEarned}€`}
-                            label={
-                                t("driverRides.earned", { amount: "" })
-                                    .replace("€", "")
-                                    .trim() || "earned"
-                            }
-                        />
-                    )}
+                    <StatCard
+                        icon={
+                            <IconBox
+                                bg="bg-(--color-danger-bg)"
+                                color="text-(--color-danger-text)"
+                            >
+                                <DollarIcon />
+                            </IconBox>
+                        }
+                        value={`${totalEarned}€`}
+                        label={
+                            t("driverRides.earned", { amount: "" })
+                                .replace("€", "")
+                                .trim() || "earned"
+                        }
+                    />
                     <StatCard
                         icon={
                             <IconBox

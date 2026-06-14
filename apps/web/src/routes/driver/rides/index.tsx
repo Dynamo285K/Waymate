@@ -15,6 +15,7 @@ import {
 import { useCancelRide } from "../../../features/driver/hooks/useCancelRide";
 import { useDriverNavbarProps } from "../../../features/driver/hooks/useDriverNavbarProps";
 import { getErrorI18nKey } from "../../../lib/api-errors";
+import { driverRidesSearchSchema } from "../../../lib/driver-rides-search-schema";
 import { formatRideDate, formatDuration } from "../../../lib/date-format";
 import type { ApiMutationError } from "../../../lib/api-fetcher";
 import { authClient } from "../../../lib/auth-client";
@@ -24,6 +25,7 @@ import { useLayout } from "../../../lib/use-layout";
 
 export const Route = createFileRoute("/driver/rides/")({
     beforeLoad: requireAudience(["user"]),
+    validateSearch: driverRidesSearchSchema,
     component: DriverMyRidesPage,
 });
 
@@ -45,7 +47,8 @@ export function DriverMyRidesPage() {
         userName,
         userEmail,
     });
-    const [tab, setTab] = useState("upcoming");
+    const search = Route.useSearch();
+    const [tab, setTab] = useState(search.tab === "past" ? "past" : "upcoming");
     const [cancellingRideId, setCancellingRideId] = useState<string | null>(
         null
     );

@@ -4740,6 +4740,14 @@
                                     "minimum": -9007199254740991,
                                     "maximum": 9007199254740991
                                 },
+                                "priceAmount": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                },
+                                "currency": {
+                                    "$ref": "#/components/schemas/Currency"
+                                },
                                 "passenger": {
                                     "$ref": "#/components/schemas/PublicUserPreviewWithRating"
                                 },
@@ -4812,6 +4820,8 @@
                                 "bookingId",
                                 "bookingStatus",
                                 "seatCount",
+                                "priceAmount",
+                                "currency",
                                 "passenger",
                                 "requestedPickupCity",
                                 "requestedDropoffCity",

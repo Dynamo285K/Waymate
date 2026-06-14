@@ -535,4 +535,58 @@ describe("BookingService.cancelBookingByDriver", () => {
     });
 });
 
+describe("BookingService.getPendingRequestsForDriver", () => {
+    it("includes a PENDING request for an upcoming PLANNED ride", async () => {
+        const { driver, rideId, pickupStopId, dropoffStopId } =
+            await setupRide();
+        const passenger = await insertTestUser();
+        const bookingId = await BookingService.createBookingRequest({
+            rideId,
+            passengerId: passenger.id,
+            pickupStopId,
+            dropoffStopId,
+            seatCount: 1,
+        });
+
+        const requests = await BookingService.getPendingRequestsForDriver(
+            driver.id
+        );
+
+        expect(requests.map((r) => r.id)).toContain(bookingId);
+    });
+
+    it("excludes a PENDING request for a ride whose departure is in the past", async () => {
+        const driver = await insertTestUser();
+        const car = await insertCarFor(driver.id);
+        const departureAt = new Date(Date.now() - 2 * 60 * 60 * 1000);
+        const rideId = await RideService.createRide(
+            driver.id,
+            buildCreateRideBody(car.id, {
+                departureAt,
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }],
+            })
+        );
+        const stops = await db
+            .select({ id: rideStops.id, stopOrder: rideStops.stopOrder })
+            .from(rideStops)
+            .where(eq(rideStops.rideId, rideId))
+            .orderBy(asc(rideStops.stopOrder));
+        const passenger = await insertTestUser();
+
+        const bookingId = await BookingService.createBookingRequest({
+            rideId,
+            passengerId: passenger.id,
+            pickupStopId: stops[0]!.id,
+            dropoffStopId: stops[1]!.id,
+            seatCount: 1,
+        });
+
+        const requests = await BookingService.getPendingRequestsForDriver(
+            driver.id
+        );
+
+        expect(requests.map((r) => r.id)).not.toContain(bookingId);
+    });
+});
+
 void BookingError;

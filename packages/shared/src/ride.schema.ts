@@ -349,6 +349,8 @@ export const RidePassengersViewSchema = z.object({
             bookingId: z.uuid(),
             bookingStatus: z.enum(bookingStatusValues),
             seatCount: z.number().int(),
+            priceAmount: z.number().int(),
+            currency: CurrencySchema,
             passenger: PublicUserPreviewWithRatingSchema,
             requestedPickupCity: z.string().nullable(),
             requestedDropoffCity: z.string().nullable(),

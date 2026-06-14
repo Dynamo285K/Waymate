@@ -580,7 +580,11 @@ describe("RideService.getDriverRides", () => {
         const future = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
         const keptId = await createRideAt(driver.id, car.id, future);
-        const cancelledId = await createRideAt(driver.id, car.id, new Date(future.getTime() + 2 * 60 * 60 * 1000));
+        const cancelledId = await createRideAt(
+            driver.id,
+            car.id,
+            new Date(future.getTime() + 2 * 60 * 60 * 1000)
+        );
         await RideService.cancelRide(cancelledId, driver.id);
 
         const result = await RideService.getDriverRides(driver.id, "UPCOMING");
@@ -593,7 +597,11 @@ describe("RideService.getDriverRides", () => {
         const future = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
         const keptId = await createRideAt(driver.id, car.id, future);
-        const deletedId = await createRideAt(driver.id, car.id, new Date(future.getTime() + 2 * 60 * 60 * 1000));
+        const deletedId = await createRideAt(
+            driver.id,
+            car.id,
+            new Date(future.getTime() + 2 * 60 * 60 * 1000)
+        );
         await db
             .update(rides)
             .set({ deletedAt: new Date() })
@@ -910,6 +918,120 @@ describe("RideService ride termination", () => {
         ).rejects.toMatchObject({
             code: RideErrorCodes.RideNotFoundOrNotOwner,
         });
+    });
+});
+
+describe("RideService.getRidePassengers", () => {
+    it("returns each passenger's own segment price, not the full-route price", async () => {
+        const driver = await insertTestUser();
+        const passengerA = await insertTestUser();
+        const passengerB = await insertTestUser();
+        const car = await insertCarFor(driver.id);
+
+        const departureAt = new Date(Date.now() - 2 * 60 * 60 * 1000);
+        const rideId = await RideService.createRide(
+            driver.id,
+            buildCreateRideBody(car.id, {
+                departureAt,
+                arrivalEstimateAt: new Date(
+                    departureAt.getTime() + 2 * 60 * 60 * 1000
+                ),
+                stops: [
+                    {
+                        address: "Martin",
+                        city: "Martin",
+                        countryCode: "SK",
+                        lat: 49.065,
+                        lng: 18.922,
+                        plannedArrivalAt: null,
+                        plannedDepartureAt: departureAt,
+                    },
+                    {
+                        address: "Trenčín",
+                        city: "Trenčín",
+                        countryCode: "SK",
+                        lat: 48.894,
+                        lng: 18.045,
+                        plannedArrivalAt: new Date(
+                            departureAt.getTime() + 60 * 60 * 1000
+                        ),
+                        plannedDepartureAt: new Date(
+                            departureAt.getTime() + 60 * 60 * 1000
+                        ),
+                    },
+                    {
+                        address: "Žilina",
+                        city: "Žilina",
+                        countryCode: "SK",
+                        lat: 49.223,
+                        lng: 18.739,
+                        plannedArrivalAt: new Date(
+                            departureAt.getTime() + 2 * 60 * 60 * 1000
+                        ),
+                        plannedDepartureAt: null,
+                    },
+                ],
+                prices: [
+                    { startStopOrder: 0, endStopOrder: 1, amount: 800 },
+                    { startStopOrder: 0, endStopOrder: 2, amount: 2000 },
+                ],
+            })
+        );
+
+        const stops = (
+            await db
+                .select({ id: rideStops.id, stopOrder: rideStops.stopOrder })
+                .from(rideStops)
+                .where(eq(rideStops.rideId, rideId))
+        ).sort((a, b) => a.stopOrder - b.stopOrder);
+        const [origin, mid, destination] = stops;
+
+        // Passenger A books the full route; passenger B only the first segment.
+        await db.insert(bookings).values([
+            {
+                passengerId: passengerA.id,
+                rideId,
+                pickupStopId: origin!.id,
+                dropoffStopId: destination!.id,
+                seatCount: 1,
+                bookingStatus: "CONFIRMED",
+                priceAmount: 2000,
+                currency: "EUR",
+                confirmedAt: new Date(),
+            },
+            {
+                passengerId: passengerB.id,
+                rideId,
+                pickupStopId: origin!.id,
+                dropoffStopId: mid!.id,
+                seatCount: 1,
+                bookingStatus: "CONFIRMED",
+                priceAmount: 800,
+                currency: "EUR",
+                confirmedAt: new Date(),
+            },
+        ]);
+
+        const view = await RideService.getRidePassengers(rideId, driver.id);
+
+        const byPassenger = new Map(
+            view.passengers.map((p) => [p.passenger.id, p])
+        );
+        expect(byPassenger.get(passengerA.id)).toMatchObject({
+            priceAmount: 2000,
+            currency: "EUR",
+        });
+        expect(byPassenger.get(passengerB.id)).toMatchObject({
+            priceAmount: 800,
+            currency: "EUR",
+        });
+
+        const totalEarned = view.passengers.reduce(
+            (sum, p) => sum + p.priceAmount,
+            0
+        );
+        // Sum of actual segment prices, not 2 × full-route price (4000).
+        expect(totalEarned).toBe(2800);
     });
 });
 
