@@ -1,6 +1,7 @@
 import {
     eq,
     and,
+    or,
     isNull,
     isNotNull,
     asc,
@@ -393,8 +394,8 @@ const searchRides = async (
 ): Promise<RideSearchResultItem[]> => {
     const startCell = h3.latLngToCell(startLat, startLng, 7);
     const destCell = h3.latLngToCell(destLat, destLng, 7);
-    const startH3s = h3.gridDisk(startCell, 20); // Approx. 25-30 km radius
-    const destH3s = h3.gridDisk(destCell, 20);
+    const startH3s = h3.gridDisk(startCell, 12); // Approx. 20 km radius
+    const destH3s = h3.gridDisk(destCell, 12);
     const { start: startOfDay, end: endOfDay } =
         dayBoundsInTimeZone(travelDate);
 
@@ -521,7 +522,12 @@ const searchRides = async (
                 lat: pickupCells.lat,
                 lng: pickupCells.lng,
                 city: sql<string>`${startCity}`,
-                plannedDepartureAt: ridesTable.departureAt,
+                plannedDepartureAt: sql<Date>`COALESCE(
+                    ${ridesTable.departureAt} + 
+                    (${ridesTable.arrivalEstimateAt} - ${ridesTable.departureAt}) * 
+                    (${pickupCells.pointOrder} / GREATEST(1.0, ${maxPointsByRide.totalPoints})::numeric),
+                    ${ridesTable.departureAt}
+                )`.mapWith(ridesTable.departureAt),
                 distanceKm: sql<number>`ROUND(${pickupDistanceSql}, 1)::float`,
             },
             dropoffStop: {
@@ -530,7 +536,12 @@ const searchRides = async (
                 lat: dropoffCells.lat,
                 lng: dropoffCells.lng,
                 city: sql<string>`${destCity}`,
-                plannedArrivalAt: ridesTable.arrivalEstimateAt,
+                plannedArrivalAt: sql<Date>`COALESCE(
+                    ${ridesTable.departureAt} + 
+                    (${ridesTable.arrivalEstimateAt} - ${ridesTable.departureAt}) * 
+                    (${dropoffCells.pointOrder} / GREATEST(1.0, ${maxPointsByRide.totalPoints})::numeric),
+                    ${ridesTable.arrivalEstimateAt}
+                )`.mapWith(ridesTable.departureAt),
                 distanceKm: sql<number>`ROUND(${dropoffDistanceSql}, 1)::float`,
             },
             originalStartCity: sql<string>`(${executor
@@ -585,7 +596,9 @@ const searchRides = async (
                 isNotNull(usersTable.lastName),
                 lt(pickupCells.pointOrder, dropoffCells.pointOrder),
                 gte(ridesTable.departureAt, startOfDay),
-                lt(ridesTable.departureAt, endOfDay)
+                lt(ridesTable.departureAt, endOfDay),
+                lte(pickupDistanceSql, 15),
+                lte(dropoffDistanceSql, 15)
             )
         )
         .orderBy(asc(distanceZoneSql), asc(ridesTable.departureAt));
@@ -652,6 +665,8 @@ const searchRides = async (
         return R * c;
     };
 
+    const validFinalRides: RideSearchResultItem[] = [];
+
     for (const ride of finalRides) {
         const stopsForRide = allStops.filter((s) => s.rideId === ride.rideId);
 
@@ -679,7 +694,7 @@ const searchRides = async (
             ride.pickupStop.lat = actualPickupStop.lat;
             ride.pickupStop.lng = actualPickupStop.lng;
             ride.pickupStop.plannedDepartureAt =
-                actualPickupStop.plannedDepartureAt;
+                actualPickupStop.plannedDepartureAt || ride.pickupStop.plannedDepartureAt;
             ride.pickupStop.distanceKm = Number(
                 distanceKm(
                     startLat,
@@ -697,7 +712,7 @@ const searchRides = async (
             ride.dropoffStop.lat = actualDropoffStop.lat;
             ride.dropoffStop.lng = actualDropoffStop.lng;
             ride.dropoffStop.plannedArrivalAt =
-                actualDropoffStop.plannedArrivalAt;
+                actualDropoffStop.plannedArrivalAt || ride.dropoffStop.plannedArrivalAt;
             ride.dropoffStop.distanceKm = Number(
                 distanceKm(
                     destLat,
@@ -709,6 +724,10 @@ const searchRides = async (
         }
 
         if (actualPickupStop && actualDropoffStop) {
+            if (actualPickupStop.stopOrder > actualDropoffStop.stopOrder) {
+                continue;
+            }
+
             const exactPrice = allPrices.find(
                 (p) =>
                     p.rideId === ride.rideId &&
@@ -719,9 +738,11 @@ const searchRides = async (
                 ride.priceAmount = exactPrice.amount;
             }
         }
+
+        validFinalRides.push(ride);
     }
 
-    return finalRides as RideSearchResultItem[];
+    return validFinalRides;
 };
 
 const findActiveCarForDriver = async (
@@ -969,6 +990,26 @@ const bulkInsertBookingStatusHistory = async (
     await executor.insert(bookingStatusHistoryTable).values(values);
 };
 
+const findOverlappingRidesForDriver = async (
+    executor: Executor,
+    driverId: string,
+    startAt: Date,
+    endAt: Date
+) => {
+    return await executor.query.rides.findMany({
+        where: and(
+            eq(ridesTable.driverId, driverId),
+            rideNotSoftDeleted,
+            inArray(ridesTable.rideStatus, ["PLANNED", "IN_PROGRESS"]),
+            lt(ridesTable.departureAt, endAt),
+            or(
+                isNull(ridesTable.arrivalEstimateAt),
+                gte(ridesTable.arrivalEstimateAt, startAt)
+            )
+        )
+    });
+};
+
 export const RideRepository = {
     findRidesByDriverId,
     findRidePassengersBundle,
@@ -992,4 +1033,5 @@ export const RideRepository = {
     bulkCompleteBookings,
     bulkCancelBookings,
     bulkInsertBookingStatusHistory,
+    findOverlappingRidesForDriver,
 };

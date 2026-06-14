@@ -175,6 +175,22 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
             throw new RideError(RideErrorCodes.TooManySeats);
         }
 
+        const safeArrivalEstimateAt =
+            input.arrivalEstimateAt ||
+            new Date(input.departureAt.getTime() + 24 * 60 * 60 * 1000);
+
+        const overlappingRides =
+            await RideRepository.findOverlappingRidesForDriver(
+                tx,
+                input.driverId,
+                input.departureAt,
+                safeArrivalEstimateAt
+            );
+
+        if (overlappingRides.length > 0) {
+            throw new RideError(RideErrorCodes.DriverAlreadyHasRideInTimeframe);
+        }
+
         const newRide = await RideRepository.insertRide(tx, {
             driverId: input.driverId,
             carId: input.carId,

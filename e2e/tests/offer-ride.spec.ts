@@ -26,7 +26,7 @@ async function pickCity(
 // Fills everything on the offer-ride form except the car section: route,
 // date (the 15th of next month — always future, never disabled), time,
 // duration, seats and price.
-async function fillRideDetails(page: Page) {
+async function fillRideDetails(page: Page, day: string = "15") {
     await pickCity(page, "offer-pickup", "Bratislava", "Bratislava");
     await pickCity(page, "offer-dropoff", "Nitra", "Nitra");
 
@@ -38,7 +38,7 @@ async function fillRideDetails(page: Page) {
         .click();
     await page
         .getByRole("gridcell")
-        .filter({ hasText: /^15$/ })
+        .filter({ hasText: new RegExp(`^${day}$`) })
         .first()
         .click();
 
@@ -61,7 +61,7 @@ test.describe("offer a ride", () => {
     });
 
     test("driver publishes a ride with a saved car", async ({ page }) => {
-        await fillRideDetails(page);
+        await fillRideDetails(page, "15");
 
         // Use a saved car (the segmented control appears once cars load).
         await page.getByRole("button", { name: "My cars" }).click();
@@ -77,7 +77,7 @@ test.describe("offer a ride", () => {
     test("driver publishes a ride entering a car manually", async ({
         page,
     }) => {
-        await fillRideDetails(page);
+        await fillRideDetails(page, "16");
 
         // Switch to manual car entry, then pick a brand + model the seed
         // guarantees exist in car_models so the model id resolves.
