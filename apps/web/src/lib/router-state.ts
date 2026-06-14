@@ -1,6 +1,6 @@
 import type { UpcomingRide } from "../features/passenger/types";
 
-declare module "@tanstack/history" {
+declare module "@tanstack/react-router" {
     interface HistoryState {
         ride?: {
             id: string;
