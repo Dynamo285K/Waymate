@@ -6,7 +6,6 @@ import {
     useLocation,
 } from "@tanstack/react-router";
 import { StatCard, TextLink } from "@waymate/ui";
-import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
 import { PassengerCard } from "../../../features/driver/components/PassengerCard";
 import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
@@ -15,22 +14,15 @@ import { useGetRidesByIdPassengers } from "../../../api-client/rides/rides";
 import { useDriverNavbarProps } from "../../../features/driver/hooks/useDriverNavbarProps";
 import { useCancelBookingByDriver } from "./-passengers/hooks/useCancelBookingByDriver";
 import { getErrorI18nKey } from "../../../lib/api-errors";
+import { authClient } from "../../../lib/auth-client";
+import { getDisplayName } from "../../../lib/session-user";
 import { requireAudience } from "../../../lib/route-guards";
-import { makeAudienceComponent } from "../../../lib/make-audience-component";
+import { useLayout } from "../../../lib/use-layout";
 
 export const Route = createFileRoute("/driver/rides/passengers")({
     beforeLoad: requireAudience(["user"]),
-    component: makeAudienceComponent(DriverPassengersPage),
+    component: DriverPassengersPage,
 });
-
-type DriverPassengersPageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-    userName?: string;
-    userEmail?: string;
-};
 
 function UsersIcon() {
     return (
@@ -72,16 +64,14 @@ function IconBox({
     );
 }
 
-export function DriverPassengersPage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    userName,
-    userEmail,
-}: DriverPassengersPageProps) {
+export function DriverPassengersPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userName = user ? getDisplayName(user) : undefined;
+    const userEmail = user?.email;
     const navbarProps = useDriverNavbarProps({
         activeTab: "my-rides",
         language,

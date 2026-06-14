@@ -5,7 +5,6 @@ import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AuthNavbar, Button, RegisterBox } from "@waymate/ui";
-import type { Language } from "../components/controls/LanguageSwitcher";
 import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
 import {
     getPostAuthPath,
@@ -16,20 +15,13 @@ import {
     getEmailAuthErrorI18nKey,
     getGoogleAuthErrorI18nKey,
 } from "../lib/auth-errors";
+import { useLayout } from "../lib/use-layout";
 import { requireAudience } from "../lib/route-guards";
-import { makeAudienceComponent } from "../lib/make-audience-component";
 
 export const Route = createFileRoute("/register")({
     beforeLoad: requireAudience(["guest"]),
-    component: makeAudienceComponent(RegisterPage),
+    component: RegisterPage,
 });
-
-type RegisterPageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-};
 
 const registerFormSchema = z
     .object({
@@ -49,14 +41,10 @@ const registerFormSchema = z
 
 type RegisterFormValues = z.infer<typeof registerFormSchema>;
 
-export function RegisterPage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-}: RegisterPageProps) {
+export function RegisterPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
     const authNavbarProps = useAuthNavbarProps({
         language,
         onLanguageChange,

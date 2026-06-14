@@ -10,13 +10,13 @@ import {
 } from "@tanstack/react-router";
 import { Input, Button, Textarea } from "@waymate/ui";
 import { FieldError } from "../../components/shared/FieldError";
-import type { Language } from "../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../components/navigation/DriverNavbar";
 import { PassengerNavbar } from "../../components/navigation/PassengerNavbar";
 import { useDriverNavbarProps } from "../../features/driver/hooks/useDriverNavbarProps";
 import { usePassengerNavbarProps } from "../../hooks/shared/usePassengerNavbarProps";
 import { updateCurrentUserProfile } from "../../lib/auth";
 import { authClient } from "../../lib/auth-client";
+import { getDisplayName } from "../../lib/session-user";
 import { getErrorI18nKey } from "../../lib/api-errors";
 import {
     BIO_MAX_LENGTH,
@@ -24,16 +24,7 @@ import {
     phoneField,
 } from "@repo/shared/validation";
 import { requireAudience } from "../../lib/route-guards";
-import { makeAudienceComponent } from "../../lib/make-audience-component";
-
-type EditProfilePageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-    userName?: string;
-    userEmail?: string;
-};
+import { useLayout } from "../../lib/use-layout";
 
 const profileFormSchema = z.object({
     firstName: z
@@ -52,14 +43,7 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-export function EditProfilePage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    userName,
-    userEmail,
-}: EditProfilePageProps) {
+export function EditProfilePage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const location = useLocation();
@@ -67,8 +51,11 @@ export function EditProfilePage({
     const backPath =
         role === "driver" ? "/driver/profile" : "/passenger/profile";
 
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
     const { data: session } = authClient.useSession();
     const user = session?.user;
+    const userName = user ? getDisplayName(user) : undefined;
+    const userEmail = user?.email;
 
     const {
         register,
@@ -243,5 +230,5 @@ export function EditProfilePage({
 
 export const Route = createFileRoute("/profile/edit")({
     beforeLoad: requireAudience(["user"]),
-    component: makeAudienceComponent(EditProfilePage),
+    component: EditProfilePage,
 });

@@ -8,11 +8,12 @@ import {
     MessageBubble,
     MessageComposer,
 } from "@waymate/ui";
-import type { Language } from "../../components/controls/LanguageSwitcher";
 import { PassengerNavbar } from "../../components/navigation/PassengerNavbar";
 import { usePassengerNavbarProps } from "../../hooks/shared/usePassengerNavbarProps";
+import { authClient } from "../../lib/auth-client";
+import { getDisplayName } from "../../lib/session-user";
 import { requireAudience } from "../../lib/route-guards";
-import { makeAudienceComponent } from "../../lib/make-audience-component";
+import { useLayout } from "../../lib/use-layout";
 
 type Message = {
     id: number;
@@ -96,27 +97,16 @@ const CONVERSATIONS: Conversation[] = [
 
 export const Route = createFileRoute("/passenger/chat")({
     beforeLoad: requireAudience(["user"]),
-    component: makeAudienceComponent(PassengerChatPage),
+    component: PassengerChatPage,
 });
 
-type PassengerChatPageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-    userName?: string;
-    userEmail?: string;
-};
-
-export function PassengerChatPage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    userName,
-    userEmail,
-}: PassengerChatPageProps) {
+export function PassengerChatPage() {
     const { t } = useTranslation();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userName = user ? getDisplayName(user) : undefined;
+    const userEmail = user?.email;
     const navbarProps = usePassengerNavbarProps({
         activeTab: "chat",
         language,

@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { RatingSummaryCard, RatingCard, TextLink } from "@waymate/ui";
-import type { Language } from "../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../components/navigation/DriverNavbar";
 import { useDriverNavbarProps } from "../../features/driver/hooks/useDriverNavbarProps";
 import {
@@ -10,36 +9,26 @@ import {
 } from "../../api-client/reviews/reviews";
 import { getErrorI18nKey } from "../../lib/api-errors";
 import { ratingsSearchSchema } from "../../lib/ratings-search-schema";
+import { authClient } from "../../lib/auth-client";
+import { getDisplayName } from "../../lib/session-user";
 import { requireAudience } from "../../lib/route-guards";
-import { makeAudienceComponent } from "../../lib/make-audience-component";
+import { useLayout } from "../../lib/use-layout";
 
 export const Route = createFileRoute("/driver/ratings")({
     beforeLoad: requireAudience(["user"]),
     validateSearch: ratingsSearchSchema,
-    component: makeAudienceComponent(DriverRatingsPage),
+    component: DriverRatingsPage,
 });
 
-type DriverRatingsPageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-    userId?: string;
-    userName?: string;
-    userEmail?: string;
-};
-
-export function DriverRatingsPage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    userId,
-    userName,
-    userEmail,
-}: DriverRatingsPageProps) {
+export function DriverRatingsPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userId = user?.id;
+    const userName = user ? getDisplayName(user) : undefined;
+    const userEmail = user?.email;
     const navbarProps = useDriverNavbarProps({
         language,
         onLanguageChange,

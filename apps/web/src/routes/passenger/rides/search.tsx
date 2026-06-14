@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { PassengerNavbar } from "../../../components/navigation/PassengerNavbar";
 import { AvailableRideCard } from "../../../components/shared/AvailableRideCard";
 import { usePassengerNavbarProps } from "../../../hooks/shared/usePassengerNavbarProps";
@@ -11,34 +10,25 @@ import { getErrorI18nKey } from "../../../lib/api-errors";
 import { formatRideDate, formatDuration } from "../../../lib/date-format";
 import { BookingErrorModal } from "../../../features/passenger/components/BookingErrorModal";
 import { rideSearchSchema } from "../../../lib/ride-search-schema";
+import { authClient } from "../../../lib/auth-client";
+import { getDisplayName } from "../../../lib/session-user";
 import { requireAudience } from "../../../lib/route-guards";
-import { makeAudienceComponent } from "../../../lib/make-audience-component";
+import { useLayout } from "../../../lib/use-layout";
 
 export const Route = createFileRoute("/passenger/rides/search")({
     beforeLoad: requireAudience(["user"]),
     validateSearch: rideSearchSchema,
-    component: makeAudienceComponent(PassengerRidesPage),
+    component: PassengerRidesPage,
 });
 
-type PassengerRidesPageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-    userName?: string;
-    userEmail?: string;
-};
-
-export function PassengerRidesPage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    userName,
-    userEmail,
-}: PassengerRidesPageProps) {
+export function PassengerRidesPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userName = user ? getDisplayName(user) : undefined;
+    const userEmail = user?.email;
     const navbarProps = usePassengerNavbarProps({
         activeTab: "find-ride",
         language,

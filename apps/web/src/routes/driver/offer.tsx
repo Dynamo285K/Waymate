@@ -5,7 +5,6 @@ import { cs, enUS, sk as skLocale } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import type { Language } from "../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../components/navigation/DriverNavbar";
 import { OfferRideForm } from "./-offer/components/OfferRideForm";
 import type { OfferRideCar } from "./-offer/components/OfferRideForm";
@@ -39,22 +38,15 @@ import {
 import type { CreateCarBody as ApiCreateCarBody } from "../../api-client/model/createCarBody";
 import { PLATE_MAX_LENGTH, PLATE_MIN_LENGTH } from "@repo/shared/validation";
 import { carCatalog } from "@repo/shared/car-catalog";
+import { authClient } from "../../lib/auth-client";
+import { getDisplayName } from "../../lib/session-user";
 import { requireAudience } from "../../lib/route-guards";
-import { makeAudienceComponent } from "../../lib/make-audience-component";
+import { useLayout } from "../../lib/use-layout";
 
 export const Route = createFileRoute("/driver/offer")({
     beforeLoad: requireAudience(["user"]),
-    component: makeAudienceComponent(DriverOfferRidePage),
+    component: DriverOfferRidePage,
 });
-
-type Props = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (l: Language) => void;
-    onThemeToggle: () => void;
-    userName?: string;
-    userEmail?: string;
-};
 
 const LOCALES = {
     en: enUS,
@@ -76,16 +68,14 @@ const FALLBACK_CAR_BRANDS = Array.from(
     new Set(carCatalog.map((row) => row.brand))
 ).sort((a, b) => a.localeCompare(b));
 
-export function DriverOfferRidePage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    userName,
-    userEmail,
-}: Props) {
+export function DriverOfferRidePage() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userName = user ? getDisplayName(user) : undefined;
+    const userEmail = user?.email;
     const navbarProps = useDriverNavbarProps({
         activeTab: "offer-ride",
         language,

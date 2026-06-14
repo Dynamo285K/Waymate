@@ -5,7 +5,6 @@ import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AuthNavbar, LoginBox } from "@waymate/ui";
-import type { Language } from "../components/controls/LanguageSwitcher";
 import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
 import {
     getPostAuthPath,
@@ -16,23 +15,16 @@ import {
     getEmailAuthErrorI18nKey,
     getGoogleAuthErrorI18nKey,
 } from "../lib/auth-errors";
+import { useLayout } from "../lib/use-layout";
 import { requireAudience } from "../lib/route-guards";
-import { makeAudienceComponent } from "../lib/make-audience-component";
 
 export const Route = createFileRoute("/login")({
     beforeLoad: requireAudience(["guest"]),
     validateSearch: z.object({
         error: z.string().optional(),
     }),
-    component: makeAudienceComponent(LoginPage),
+    component: LoginPage,
 });
-
-type LoginPageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-};
 
 const loginFormSchema = z.object({
     email: z
@@ -46,14 +38,10 @@ const loginFormSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginFormSchema>;
 
-export function LoginPage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-}: LoginPageProps) {
+export function LoginPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
     const search = Route.useSearch();
     const authNavbarProps = useAuthNavbarProps({
         language,

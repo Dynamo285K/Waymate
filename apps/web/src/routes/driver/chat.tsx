@@ -8,11 +8,12 @@ import {
     MessageBubble,
     MessageComposer,
 } from "@waymate/ui";
-import type { Language } from "../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../components/navigation/DriverNavbar";
 import { useDriverNavbarProps } from "../../features/driver/hooks/useDriverNavbarProps";
+import { authClient } from "../../lib/auth-client";
+import { getDisplayName } from "../../lib/session-user";
 import { requireAudience } from "../../lib/route-guards";
-import { makeAudienceComponent } from "../../lib/make-audience-component";
+import { useLayout } from "../../lib/use-layout";
 
 type Message = {
     id: number;
@@ -96,27 +97,16 @@ const CONVERSATIONS: Conversation[] = [
 
 export const Route = createFileRoute("/driver/chat")({
     beforeLoad: requireAudience(["user"]),
-    component: makeAudienceComponent(DriverChatPage),
+    component: DriverChatPage,
 });
 
-type DriverChatPageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-    userName?: string;
-    userEmail?: string;
-};
-
-export function DriverChatPage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    userName,
-    userEmail,
-}: DriverChatPageProps) {
+export function DriverChatPage() {
     const { t } = useTranslation();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userName = user ? getDisplayName(user) : undefined;
+    const userEmail = user?.email;
     const navbarProps = useDriverNavbarProps({
         activeTab: "chat",
         language,

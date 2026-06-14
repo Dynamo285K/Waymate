@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@waymate/ui";
-import type { Language } from "../../components/controls/LanguageSwitcher";
 import { AdminNavbar } from "../../components/navigation/AdminNavbar";
 import { useAdminNavbarProps } from "../../features/admin/hooks/useAdminNavbarProps";
 import { useSetUserStatus } from "./-users/hooks/useSetUserStatus";
@@ -21,37 +20,27 @@ import {
     adminUsersErrorMap,
 } from "./-users/lib/admin-errors";
 import { fullName } from "../../features/admin/lib/admin-format";
+import { authClient } from "../../lib/auth-client";
+import { getDisplayName } from "../../lib/session-user";
 import { requireAudience } from "../../lib/route-guards";
-import { makeAudienceComponent } from "../../lib/make-audience-component";
+import { useLayout } from "../../lib/use-layout";
 
 export const Route = createFileRoute("/admin/users")({
     beforeLoad: requireAudience(["admin"]),
-    component: makeAudienceComponent(AdminUsersPage),
+    component: AdminUsersPage,
 });
-
-type AdminUsersPageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-    userId?: string;
-    userName?: string;
-    userEmail?: string;
-};
 
 const SEARCH_DEBOUNCE_MS = 300;
 
-export function AdminUsersPage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    userId,
-    userName,
-    userEmail,
-}: AdminUsersPageProps) {
+export function AdminUsersPage() {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userId = user?.id;
+    const userName = user ? getDisplayName(user) : undefined;
+    const userEmail = user?.email;
     const navbarProps = useAdminNavbarProps({
         activeTab: "users",
         language,
