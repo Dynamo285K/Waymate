@@ -521,7 +521,12 @@ const searchRides = async (
                 lat: pickupCells.lat,
                 lng: pickupCells.lng,
                 city: sql<string>`${startCity}`,
-                plannedDepartureAt: ridesTable.departureAt,
+                plannedDepartureAt: sql<Date>`COALESCE(
+                    ${ridesTable.departureAt} + 
+                    (${ridesTable.arrivalEstimateAt} - ${ridesTable.departureAt}) * 
+                    (${pickupCells.pointOrder} / GREATEST(1.0, ${maxPointsByRide.totalPoints})::numeric),
+                    ${ridesTable.departureAt}
+                )`.mapWith(ridesTable.departureAt),
                 distanceKm: sql<number>`ROUND(${pickupDistanceSql}, 1)::float`,
             },
             dropoffStop: {
@@ -530,7 +535,12 @@ const searchRides = async (
                 lat: dropoffCells.lat,
                 lng: dropoffCells.lng,
                 city: sql<string>`${destCity}`,
-                plannedArrivalAt: ridesTable.arrivalEstimateAt,
+                plannedArrivalAt: sql<Date>`COALESCE(
+                    ${ridesTable.departureAt} + 
+                    (${ridesTable.arrivalEstimateAt} - ${ridesTable.departureAt}) * 
+                    (${dropoffCells.pointOrder} / GREATEST(1.0, ${maxPointsByRide.totalPoints})::numeric),
+                    ${ridesTable.arrivalEstimateAt}
+                )`.mapWith(ridesTable.departureAt),
                 distanceKm: sql<number>`ROUND(${dropoffDistanceSql}, 1)::float`,
             },
             originalStartCity: sql<string>`(${executor
@@ -596,7 +606,14 @@ const searchRides = async (
         RideSearchResultItem & { _totalDist: number }
     >();
 
-    for (const row of result as RideSearchResultItem[]) {
+    for (const row of result as any[]) {
+        if (row.pickupStop.plannedDepartureAt && typeof row.pickupStop.plannedDepartureAt === "string") {
+            row.pickupStop.plannedDepartureAt = new Date(row.pickupStop.plannedDepartureAt);
+        }
+        if (row.dropoffStop.plannedArrivalAt && typeof row.dropoffStop.plannedArrivalAt === "string") {
+            row.dropoffStop.plannedArrivalAt = new Date(row.dropoffStop.plannedArrivalAt);
+        }
+
         const totalDist =
             (row.pickupStop.distanceKm || 0) +
             (row.dropoffStop.distanceKm || 0);

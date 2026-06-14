@@ -107,12 +107,13 @@ const searchRides = async (query: SearchRidesQuery) => {
     );
 };
 
-export const estimateEtasForStops = async (
+export const calculateEtasFromDurations = (
     departureAt: Date,
-    stops: { lat: number; lng: number }[]
+    stops: { lat: number; lng: number }[],
+    durations: number[]
 ) => {
-    const { durations } = await fetchOsrmRouteCells(stops);
     let currentMs = departureAt.getTime();
+
 
     return stops.map((stop, index) => {
         if (index > 0) {
@@ -125,8 +126,17 @@ export const estimateEtasForStops = async (
         return {
             ...stop,
             plannedArrivalAt: new Date(roundedMs),
+            plannedDepartureAt: new Date(roundedMs),
         };
     });
+};
+
+export const estimateEtasForStops = async (
+    departureAt: Date,
+    stops: { lat: number; lng: number }[]
+) => {
+    const { durations } = await fetchOsrmRouteCells(stops);
+    return calculateEtasFromDurations(departureAt, stops, durations);
 };
 
 const createRide = async (driverId: string, data: CreateRideBody) => {
@@ -177,6 +187,8 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
             description: input.description,
         });
 
+        const estimatedStops = calculateEtasFromDurations(input.departureAt, input.stops, osrmDurations);
+
         const stopsToInsert = input.stops.map((stop, index) => ({
             rideId: newRide.id,
             stopOrder: index,
@@ -187,8 +199,8 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
             h3Res8: h3.latLngToCell(stop.lat, stop.lng, 8),
             lat: stop.lat,
             lng: stop.lng,
-            plannedArrivalAt: stop.plannedArrivalAt,
-            plannedDepartureAt: stop.plannedDepartureAt,
+            plannedArrivalAt: estimatedStops[index].plannedArrivalAt,
+            plannedDepartureAt: estimatedStops[index].plannedDepartureAt,
         }));
 
         const insertedStops = await RideRepository.insertRideStops(
@@ -545,5 +557,6 @@ export const RideService = {
     endRide,
     completeRide,
     autoEndExpiredRides,
+    calculateEtasFromDurations,
     estimateEtasForStops,
 };
