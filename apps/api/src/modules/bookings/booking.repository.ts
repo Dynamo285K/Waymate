@@ -71,6 +71,8 @@ const findPendingRequestsForDriver = async (
         .groupBy(reviewsTable.subjectId)
         .as("passenger_ratings");
 
+    const now = new Date();
+
     const rows = await executor
         .select({
             id: bookingsTable.id,
@@ -129,6 +131,8 @@ const findPendingRequestsForDriver = async (
             and(
                 eq(ridesTable.driverId, driverId),
                 eq(bookingsTable.bookingStatus, "PENDING"),
+                gte(ridesTable.departureAt, now),
+                eq(ridesTable.rideStatus, "PLANNED"),
                 bookingNotSoftDeleted,
                 rideNotSoftDeleted
             )

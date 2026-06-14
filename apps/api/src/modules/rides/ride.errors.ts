@@ -10,7 +10,8 @@ export const RideErrorCodes = {
     RideNotDeparted: "RIDE_NOT_DEPARTED",
     TooManySeats: "RIDE_TOO_MANY_SEATS",
     UnknownCity: "RIDE_UNKNOWN_CITY",
-    DriverAlreadyHasRideInTimeframe: "RIDE_DRIVER_ALREADY_HAS_RIDE_IN_TIMEFRAME",
+    DriverAlreadyHasRideInTimeframe:
+        "RIDE_DRIVER_ALREADY_HAS_RIDE_IN_TIMEFRAME",
 } as const;
 
 export type RideErrorCode =

@@ -54,6 +54,8 @@ export type RidePassengersBundle = {
         id: string;
         bookingStatus: BookingStatus;
         seatCount: number;
+        priceAmount: number;
+        currency: string;
         requestedPickupCity: string | null;
         requestedDropoffCity: string | null;
         passenger: {
@@ -152,6 +154,8 @@ const findRidePassengersBundle = async (
                     id: true,
                     bookingStatus: true,
                     seatCount: true,
+                    priceAmount: true,
+                    currency: true,
                     requestedPickupCity: true,
                     requestedDropoffCity: true,
                 },
@@ -658,9 +662,9 @@ const searchRides = async (
         const a =
             Math.sin(dLat / 2) * Math.sin(dLat / 2) +
             Math.cos((lat1 * Math.PI) / 180) *
-            Math.cos((lat2 * Math.PI) / 180) *
-            Math.sin(dLon / 2) *
-            Math.sin(dLon / 2);
+                Math.cos((lat2 * Math.PI) / 180) *
+                Math.sin(dLon / 2) *
+                Math.sin(dLon / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     };
@@ -694,7 +698,8 @@ const searchRides = async (
             ride.pickupStop.lat = actualPickupStop.lat;
             ride.pickupStop.lng = actualPickupStop.lng;
             ride.pickupStop.plannedDepartureAt =
-                actualPickupStop.plannedDepartureAt || ride.pickupStop.plannedDepartureAt;
+                actualPickupStop.plannedDepartureAt ||
+                ride.pickupStop.plannedDepartureAt;
             ride.pickupStop.distanceKm = Number(
                 distanceKm(
                     startLat,
@@ -712,7 +717,8 @@ const searchRides = async (
             ride.dropoffStop.lat = actualDropoffStop.lat;
             ride.dropoffStop.lng = actualDropoffStop.lng;
             ride.dropoffStop.plannedArrivalAt =
-                actualDropoffStop.plannedArrivalAt || ride.dropoffStop.plannedArrivalAt;
+                actualDropoffStop.plannedArrivalAt ||
+                ride.dropoffStop.plannedArrivalAt;
             ride.dropoffStop.distanceKm = Number(
                 distanceKm(
                     destLat,
@@ -1006,7 +1012,7 @@ const findOverlappingRidesForDriver = async (
                 isNull(ridesTable.arrivalEstimateAt),
                 gte(ridesTable.arrivalEstimateAt, startAt)
             )
-        )
+        ),
     });
 };
 
