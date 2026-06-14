@@ -6,32 +6,24 @@ import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AuthNavbar, Button, Input } from "@waymate/ui";
 import { FieldError } from "../components/shared/FieldError";
-import type { Language } from "../components/controls/LanguageSwitcher";
 import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
 import { usePatchUsersMeOnboarding } from "../api-client/users/users";
 import type { ApiMutationError } from "../lib/api-fetcher";
 import { getErrorI18nKey } from "../lib/api-errors";
 import { getPostAuthPath, signOut } from "../lib/auth";
 import { authClient } from "../lib/auth-client";
+import { useLayout } from "../lib/use-layout";
 import {
     NAME_MAX_LENGTH,
     NO_WHITESPACE_REGEX,
     phoneField,
 } from "@repo/shared/validation";
 import { requireAudience } from "../lib/route-guards";
-import { makeAudienceComponent } from "../lib/make-audience-component";
 
 export const Route = createFileRoute("/onboarding")({
     beforeLoad: requireAudience(["user"]),
-    component: makeAudienceComponent(OnboardingPage),
+    component: OnboardingPage,
 });
-
-type OnboardingPageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-};
 
 function formatNamePart(value: string) {
     const trimmed = value.trim();
@@ -79,14 +71,10 @@ const onboardingFormSchema = z.object({
 
 type OnboardingFormValues = z.infer<typeof onboardingFormSchema>;
 
-export function OnboardingPage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-}: OnboardingPageProps) {
+export function OnboardingPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
     async function handleSwitchAccount(to: "/login" | "/register") {
         await signOut().catch(() => {});
         navigate({ to });

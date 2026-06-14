@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@waymate/ui";
-import type { Language } from "../../components/controls/LanguageSwitcher";
 import { AdminNavbar } from "../../components/navigation/AdminNavbar";
 import { useAdminNavbarProps } from "../../features/admin/hooks/useAdminNavbarProps";
 import { useSetReviewStatus } from "./-reviews/hooks/useSetReviewStatus";
@@ -27,37 +26,28 @@ import {
     ADMIN_REVIEW_NOT_FOUND_CODE,
     adminReviewsErrorMap,
 } from "./-reviews/lib/admin-review-errors";
+import { authClient } from "../../lib/auth-client";
+import { getDisplayName } from "../../lib/session-user";
 import { requireAudience } from "../../lib/route-guards";
-import { makeAudienceComponent } from "../../lib/make-audience-component";
+import { useLayout } from "../../lib/use-layout";
 
 export const Route = createFileRoute("/admin/reviews")({
     beforeLoad: requireAudience(["admin"]),
-    component: makeAudienceComponent(AdminReviewsPage),
+    component: AdminReviewsPage,
 });
-
-type AdminReviewsPageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-    userName?: string;
-    userEmail?: string;
-};
 
 type StatusFilter = "ALL" | ReviewStatus;
 
 const SEARCH_DEBOUNCE_MS = 300;
 
-export function AdminReviewsPage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    userName,
-    userEmail,
-}: AdminReviewsPageProps) {
+export function AdminReviewsPage() {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userName = user ? getDisplayName(user) : undefined;
+    const userEmail = user?.email;
     const navbarProps = useAdminNavbarProps({
         activeTab: "reviews",
         language,

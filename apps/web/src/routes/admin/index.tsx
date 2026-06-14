@@ -10,26 +10,18 @@ import {
     ResponsiveContainer,
     CartesianGrid,
 } from "recharts";
-import type { Language } from "../../components/controls/LanguageSwitcher";
 import { AdminNavbar } from "../../components/navigation/AdminNavbar";
 import { useAdminNavbarProps } from "../../features/admin/hooks/useAdminNavbarProps";
 import { useGetAdminDashboard } from "../../api-client/admin/admin";
+import { authClient } from "../../lib/auth-client";
+import { getDisplayName } from "../../lib/session-user";
 import { requireAudience } from "../../lib/route-guards";
-import { makeAudienceComponent } from "../../lib/make-audience-component";
+import { useLayout } from "../../lib/use-layout";
 
 export const Route = createFileRoute("/admin/")({
     beforeLoad: requireAudience(["admin"]),
-    component: makeAudienceComponent(AdminDashboardPage),
+    component: AdminDashboardPage,
 });
-
-type AdminDashboardPageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-    userName?: string;
-    userEmail?: string;
-};
 
 function getLast7Days(): { date: string; dayLabel: string }[] {
     const days = [];
@@ -78,15 +70,13 @@ function Card({
     );
 }
 
-export function AdminDashboardPage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    userName,
-    userEmail,
-}: AdminDashboardPageProps) {
+export function AdminDashboardPage() {
     const { t } = useTranslation();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userName = user ? getDisplayName(user) : undefined;
+    const userEmail = user?.email;
     const navbarProps = useAdminNavbarProps({
         activeTab: "dashboard",
         language,

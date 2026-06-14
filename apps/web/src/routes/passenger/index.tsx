@@ -1,36 +1,26 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import type { Language } from "../../components/controls/LanguageSwitcher";
 import { PassengerNavbar } from "../../components/navigation/PassengerNavbar";
 import { HomeContent } from "../../components/shared/HomeContent";
 import { usePassengerNavbarProps } from "../../hooks/shared/usePassengerNavbarProps";
 import { useCreateBooking } from "../../features/passenger/hooks/useCreateBooking";
 import { BookingErrorModal } from "../../features/passenger/components/BookingErrorModal";
+import { authClient } from "../../lib/auth-client";
+import { getDisplayName } from "../../lib/session-user";
 import { requireAudience } from "../../lib/route-guards";
-import { makeAudienceComponent } from "../../lib/make-audience-component";
+import { useLayout } from "../../lib/use-layout";
 
 export const Route = createFileRoute("/passenger/")({
     beforeLoad: requireAudience(["user"]),
-    component: makeAudienceComponent(PassengerHomePage),
+    component: PassengerHomePage,
 });
 
-type PassengerHomePageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-    userName?: string;
-    userEmail?: string;
-};
-
-export function PassengerHomePage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    userName,
-    userEmail,
-}: PassengerHomePageProps) {
+export function PassengerHomePage() {
     const navigate = useNavigate();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userName = user ? getDisplayName(user) : undefined;
+    const userEmail = user?.email;
     const navbarProps = usePassengerNavbarProps({
         activeTab: "find-ride",
         language,

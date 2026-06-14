@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AuthNavbar, Button, Modal } from "@waymate/ui";
-import type { Language } from "../components/controls/LanguageSwitcher";
 import { AvailableRideCard } from "../components/shared/AvailableRideCard";
 import { useRideSearch } from "../hooks/shared/useRideSearch";
 import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
@@ -11,43 +10,23 @@ import { getErrorI18nKey } from "../lib/api-errors";
 import { formatRideDate, formatDuration } from "../lib/date-format";
 import { rideSearchSchema } from "../lib/ride-search-schema";
 import { requireAudience } from "../lib/route-guards";
-import { makeAudienceComponent } from "../lib/make-audience-component";
+import { useLayout } from "../lib/use-layout";
 
 export const Route = createFileRoute("/rides")({
     beforeLoad: requireAudience(["guest", "user"]),
     validateSearch: rideSearchSchema,
-    component: makeAudienceComponent(RidesPage),
+    component: RidesPage,
 });
 
-type RidesPageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-    onLogin?: () => void;
-    onRegister?: () => void;
-    onLogoClick?: () => void;
-};
-
-export function RidesPage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    onLogin,
-    onRegister,
-    onLogoClick,
-}: RidesPageProps) {
+export function RidesPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
     const authNavbarProps = useAuthNavbarProps({
         language,
         onLanguageChange,
         theme,
         onThemeToggle,
-        onLogin,
-        onRegister,
-        onLogoClick,
     });
     const search = Route.useSearch();
     const [showGuestModal, setShowGuestModal] = useState(false);
@@ -275,11 +254,7 @@ export function RidesPage({
                             fullWidth
                             onClick={() => {
                                 setShowGuestModal(false);
-                                if (onLogin) {
-                                    onLogin();
-                                } else {
-                                    navigate({ to: "/login" });
-                                }
+                                navigate({ to: "/login" });
                             }}
                         >
                             {t("bookGuest.login")}
@@ -288,11 +263,7 @@ export function RidesPage({
                             fullWidth
                             onClick={() => {
                                 setShowGuestModal(false);
-                                if (onRegister) {
-                                    onRegister();
-                                } else {
-                                    navigate({ to: "/register" });
-                                }
+                                navigate({ to: "/register" });
                             }}
                         >
                             {t("bookGuest.register")}

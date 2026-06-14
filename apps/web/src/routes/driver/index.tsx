@@ -5,7 +5,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button, FeatureCard, PlusIcon } from "@waymate/ui";
 import { CancelRideDialog } from "../../components/shared/CancelRideDialog";
 import { CompleteRideDialog } from "../../features/driver/components/CompleteRideDialog";
-import type { Language } from "../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../components/navigation/DriverNavbar";
 import { RideCard } from "../../components/shared/RideCard";
 import { RideRequestCard } from "../../features/driver/components/RideRequestCard";
@@ -27,22 +26,15 @@ import {
     useDeclineRideRequest,
     useDriverRideRequests,
 } from "../../features/driver/hooks/useDriverRideRequests";
+import { authClient } from "../../lib/auth-client";
+import { getDisplayName } from "../../lib/session-user";
 import { requireAudience } from "../../lib/route-guards";
-import { makeAudienceComponent } from "../../lib/make-audience-component";
+import { useLayout } from "../../lib/use-layout";
 
 export const Route = createFileRoute("/driver/")({
     beforeLoad: requireAudience(["user"]),
-    component: makeAudienceComponent(DriverHomePage),
+    component: DriverHomePage,
 });
-
-type DriverHomePageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-    userName?: string;
-    userEmail?: string;
-};
 
 function IconBox({
     bg,
@@ -155,16 +147,14 @@ function StarIcon() {
     );
 }
 
-export function DriverHomePage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    userName,
-    userEmail,
-}: DriverHomePageProps) {
+export function DriverHomePage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userName = user ? getDisplayName(user) : undefined;
+    const userEmail = user?.email;
     const navbarProps = useDriverNavbarProps({
         language,
         onLanguageChange,

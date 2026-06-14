@@ -4,6 +4,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ProfileHeroCard, CarCard, Button, Modal } from "@waymate/ui";
 import type { Language } from "../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../components/navigation/DriverNavbar";
+import { authClient } from "../../lib/auth-client";
+import { getDisplayName } from "../../lib/session-user";
+import { useLayout } from "../../lib/use-layout";
 import { RideCard } from "../../components/shared/RideCard";
 import { useDriverNavbarProps } from "../../features/driver/hooks/useDriverNavbarProps";
 import { useCancelRide } from "../../features/driver/hooks/useCancelRide";
@@ -18,38 +21,23 @@ import { useGetCarsMe } from "../../api-client/cars/cars";
 import { useGetReviewsUsersByUserId } from "../../api-client/reviews/reviews";
 import { getErrorI18nKey } from "../../lib/api-errors";
 import { requireAudience } from "../../lib/route-guards";
-import { makeAudienceComponent } from "../../lib/make-audience-component";
 
 export const Route = createFileRoute("/driver/profile")({
     beforeLoad: requireAudience(["user"]),
-    component: makeAudienceComponent(DriverProfilePage),
+    component: DriverProfilePage,
 });
 
-type Props = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (l: Language) => void;
-    onThemeToggle: () => void;
-    userName?: string;
-    userEmail?: string;
-    userBio?: string;
-    userCreatedAt?: string | Date;
-    userId?: string;
-};
-
-export function DriverProfilePage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    userName,
-    userEmail,
-    userBio,
-    userCreatedAt,
-    userId,
-}: Props) {
+export function DriverProfilePage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userId = user?.id;
+    const userName = user ? getDisplayName(user) : undefined;
+    const userEmail = user?.email;
+    const userBio = user?.bio ?? undefined;
+    const userCreatedAt = user?.createdAt;
     const displayName = userName ?? t("profile.fallbackName");
     const displayEmail = userEmail ?? "";
     const memberSince = formatMemberSince(userCreatedAt, language);

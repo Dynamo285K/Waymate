@@ -11,7 +11,6 @@ import {
 import * as Select from "@radix-ui/react-select";
 import { Button, ChevronDownIcon, Input, TextLink } from "@waymate/ui";
 import { FieldError } from "../../components/shared/FieldError";
-import type { Language } from "../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../components/navigation/DriverNavbar";
 import { PassengerNavbar } from "../../components/navigation/PassengerNavbar";
 import { useDriverNavbarProps } from "../../features/driver/hooks/useDriverNavbarProps";
@@ -22,19 +21,12 @@ import {
     usePostCarsMe,
     getGetCarsMeQueryKey,
 } from "../../api-client/cars/cars";
+import { authClient } from "../../lib/auth-client";
+import { getDisplayName } from "../../lib/session-user";
 import { getErrorI18nKey } from "../../lib/api-errors";
 import { PLATE_MAX_LENGTH, PLATE_MIN_LENGTH } from "@repo/shared/validation";
 import { requireAudience } from "../../lib/route-guards";
-import { makeAudienceComponent } from "../../lib/make-audience-component";
-
-type AddCarPageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-    userName?: string;
-    userEmail?: string;
-};
+import { useLayout } from "../../lib/use-layout";
 
 const COLORS = [
     { value: "WHITE", label: "White", hex: "#f8fafc", border: "#cbd5e1" },
@@ -88,17 +80,15 @@ const carFormSchema = z.object({
 type CarFormInput = z.input<typeof carFormSchema>;
 type CarFormValues = z.output<typeof carFormSchema>;
 
-export function AddCarPage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    userName,
-    userEmail,
-}: AddCarPageProps) {
+export function AddCarPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userName = user ? getDisplayName(user) : undefined;
+    const userEmail = user?.email;
     const location = useLocation();
     const role = location.state.role ?? "driver";
     const backPath =
@@ -510,5 +500,5 @@ export function AddCarPage({
 
 export const Route = createFileRoute("/car/add")({
     beforeLoad: requireAudience(["user"]),
-    component: makeAudienceComponent(AddCarPage),
+    component: AddCarPage,
 });

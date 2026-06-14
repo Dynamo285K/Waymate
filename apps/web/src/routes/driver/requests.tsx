@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
-import type { Language } from "../../components/controls/LanguageSwitcher";
 import { DriverNavbar } from "../../components/navigation/DriverNavbar";
 import { RideRequestCard } from "../../features/driver/components/RideRequestCard";
 import { useDriverNavbarProps } from "../../features/driver/hooks/useDriverNavbarProps";
@@ -11,32 +10,23 @@ import {
     useDeclineRideRequest,
     useDriverRideRequests,
 } from "../../features/driver/hooks/useDriverRideRequests";
+import { authClient } from "../../lib/auth-client";
+import { getDisplayName } from "../../lib/session-user";
 import { requireAudience } from "../../lib/route-guards";
-import { makeAudienceComponent } from "../../lib/make-audience-component";
+import { useLayout } from "../../lib/use-layout";
 
 export const Route = createFileRoute("/driver/requests")({
     beforeLoad: requireAudience(["user"]),
-    component: makeAudienceComponent(DriverRideRequestsPage),
+    component: DriverRideRequestsPage,
 });
 
-type Props = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (l: Language) => void;
-    onThemeToggle: () => void;
-    userName?: string;
-    userEmail?: string;
-};
-
-export function DriverRideRequestsPage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    userName,
-    userEmail,
-}: Props) {
+export function DriverRideRequestsPage() {
     const { t } = useTranslation();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userName = user ? getDisplayName(user) : undefined;
+    const userEmail = user?.email;
     const navbarProps = useDriverNavbarProps({
         activeTab: "ride-requests",
         language,

@@ -12,39 +12,27 @@ import { useGetReviewsUsersByUserId } from "../../api-client/reviews/reviews";
 import { getErrorI18nKey } from "../../lib/api-errors";
 import { formatRideDate, formatDuration } from "../../lib/date-format";
 import { usePassengerNavbarProps } from "../../hooks/shared/usePassengerNavbarProps";
+import { authClient } from "../../lib/auth-client";
+import { getDisplayName } from "../../lib/session-user";
 import { requireAudience } from "../../lib/route-guards";
-import { makeAudienceComponent } from "../../lib/make-audience-component";
+import { useLayout } from "../../lib/use-layout";
 
 export const Route = createFileRoute("/passenger/profile")({
     beforeLoad: requireAudience(["user"]),
-    component: makeAudienceComponent(PassengerProfilePage),
+    component: PassengerProfilePage,
 });
 
-type PassengerProfilePageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-    userName?: string;
-    userEmail?: string;
-    userBio?: string;
-    userCreatedAt?: string | Date;
-    userId?: string;
-};
-
-export function PassengerProfilePage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    userName,
-    userEmail,
-    userBio,
-    userCreatedAt,
-    userId,
-}: PassengerProfilePageProps) {
+export function PassengerProfilePage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userId = user?.id;
+    const userName = user ? getDisplayName(user) : undefined;
+    const userEmail = user?.email;
+    const userBio = user?.bio ?? undefined;
+    const userCreatedAt = user?.createdAt;
     const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
     const cancelBooking = useCancelBooking();
     const navbarProps = usePassengerNavbarProps({

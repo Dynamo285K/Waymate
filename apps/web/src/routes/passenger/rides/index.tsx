@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useLocation } from "@tanstack/react-router";
 import { Button, RateDriverModal } from "@waymate/ui";
-import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { PassengerNavbar } from "../../../components/navigation/PassengerNavbar";
 import { RideCard } from "../../../components/shared/RideCard";
 import { ReportUserModal } from "../../../components/shared/ReportUserModal";
@@ -14,32 +13,23 @@ import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { useCancelBooking } from "../../../features/passenger/hooks/useCancelBooking";
 import { useSubmitReview } from "../../../hooks/shared/useSubmitReview";
 import type { UpcomingRide } from "../../../features/passenger/types";
+import { authClient } from "../../../lib/auth-client";
+import { getDisplayName } from "../../../lib/session-user";
 import { requireAudience } from "../../../lib/route-guards";
-import { makeAudienceComponent } from "../../../lib/make-audience-component";
+import { useLayout } from "../../../lib/use-layout";
 
 export const Route = createFileRoute("/passenger/rides/")({
     beforeLoad: requireAudience(["user"]),
-    component: makeAudienceComponent(PassengerMyRidesPage),
+    component: PassengerMyRidesPage,
 });
 
-type PassengerMyRidesPageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-    userName?: string;
-    userEmail?: string;
-};
-
-export function PassengerMyRidesPage({
-    language,
-    theme,
-    onLanguageChange,
-    onThemeToggle,
-    userName,
-    userEmail,
-}: PassengerMyRidesPageProps) {
+export function PassengerMyRidesPage() {
     const { t } = useTranslation();
+    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+    const userName = user ? getDisplayName(user) : undefined;
+    const userEmail = user?.email;
     const navbarProps = usePassengerNavbarProps({
         activeTab: "my-rides",
         language,

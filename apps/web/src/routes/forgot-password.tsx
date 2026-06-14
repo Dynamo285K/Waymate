@@ -6,22 +6,14 @@ import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button, Input, TextLink, IconButton } from "@waymate/ui";
 import { FieldError } from "../components/shared/FieldError";
-import type { Language } from "../components/controls/LanguageSwitcher";
 import { requestPasswordReset, resetPassword } from "../lib/auth";
+import { useLayout } from "../lib/use-layout";
 import { requireAudience } from "../lib/route-guards";
-import { makeAudienceComponent } from "../lib/make-audience-component";
 
 export const Route = createFileRoute("/forgot-password")({
     beforeLoad: requireAudience(["guest"]),
-    component: makeAudienceComponent(ForgotPasswordPage),
+    component: ForgotPasswordPage,
 });
-
-type ForgotPasswordPageProps = {
-    language: Language;
-    theme: "light" | "dark";
-    onLanguageChange: (lang: Language) => void;
-    onThemeToggle: () => void;
-};
 
 const formSchema = z
     .object({
@@ -62,9 +54,10 @@ function IconCircle({ children }: { children: React.ReactNode }) {
     );
 }
 
-export function ForgotPasswordPage({ theme }: ForgotPasswordPageProps) {
+export function ForgotPasswordPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { theme } = useLayout();
     const initialFromUrl = useMemo(() => {
         const params = new URLSearchParams(window.location.search);
         const token = params.get("token");
