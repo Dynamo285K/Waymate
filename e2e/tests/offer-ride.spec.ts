@@ -45,10 +45,6 @@ async function fillRideDetails(page: Page) {
     await page.getByTestId("offer-time").getByRole("combobox").click();
     await page.getByRole("option", { name: "09:00" }).click();
 
-    const duration = page.getByTestId("offer-duration").locator("input");
-    await duration.first().fill("1");
-    await duration.nth(1).fill("30");
-
     await page.getByTestId("offer-seats").locator("input").fill("2");
     await page.getByTestId("offer-price").locator("input").fill("10");
 }
