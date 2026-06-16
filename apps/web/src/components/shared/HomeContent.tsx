@@ -36,7 +36,8 @@ type HomeContentProps = {
     onSearch?: (
         from: SearchBoxCityOption | null,
         to: SearchBoxCityOption | null,
-        date: Date | undefined
+        date: Date | undefined,
+        seats: number
     ) => void;
     onViewAllRides?: () => void;
     onBook?: (ride: AvailableRide) => void;
@@ -259,8 +260,8 @@ export function HomeContent({
                                 countryCode: c.countryCode,
                             }));
                         }}
-                        onSearch={(from, to, date) =>
-                            onSearch?.(from, to, date)
+                        onSearch={(from, to, date, seats) =>
+                            onSearch?.(from, to, date, seats)
                         }
                         locale={
                             DATE_FNS_LOCALE_MAP[
@@ -278,6 +279,7 @@ export function HomeContent({
                             to: t("home.search.to"),
                             search: t("home.search.button"),
                             datePlaceholder: t("home.search.date"),
+                            seats: t("home.search.seats"),
                         }}
                     />
                 </div>

@@ -480,6 +480,7 @@
         "pendingConfirmation": "Čeká na potvrzení",
         "cancelBooking": "Zrušit rezervaci",
         "rateDriver": "Ohodnotit řidiče",
+        "rated": "Ohodnoceno",
         "reportDriver": "Nahlásit řidiče"
     },
     "bookGuest": {
@@ -558,7 +559,8 @@
             "from": "Místo nástupu",
             "to": "Místo výstupu",
             "button": "Hledat",
-            "date": "dd.mm.rr"
+            "date": "dd.mm.rr",
+            "seats": "Místa"
         },
         "at": "v",
         "popularRoutes": "Oblíbené trasy",

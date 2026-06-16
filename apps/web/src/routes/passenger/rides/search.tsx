@@ -48,6 +48,7 @@ export function PassengerRidesPage() {
     const destLng = search.destLng ?? null;
     const destCity = search.destCity ?? null;
     const dateStr = search.date ?? null;
+    const seats = search.seats ?? 1;
 
     const hasSearchParams =
         (startLat !== null && startLng !== null) ||
@@ -79,37 +80,44 @@ export function PassengerRidesPage() {
     });
 
     const availableRides = Array.isArray(availableRideRows)
-        ? availableRideRows.map((ride) => {
-              const departure = new Date(
-                  ride.pickupStop.plannedDepartureAt ?? ride.departureAt
-              );
-              const driverName = [ride.driver.firstName, ride.driver.lastName]
-                  .filter(Boolean)
-                  .join(" ");
+        ? availableRideRows
+              .map((ride) => {
+                  const departure = new Date(
+                      ride.pickupStop.plannedDepartureAt ?? ride.departureAt
+                  );
+                  const driverName = [
+                      ride.driver.firstName,
+                      ride.driver.lastName,
+                  ]
+                      .filter(Boolean)
+                      .join(" ");
 
-              return {
-                  id: ride.rideId,
-                  rideId: ride.rideId,
-                  pickupStopId: ride.pickupStop.pickupStopId,
-                  dropoffStopId: ride.dropoffStop.dropoffStopId,
-                  from: ride.pickupStop.city,
-                  to: ride.dropoffStop.city,
-                  originalStartCity: ride.originalStartCity,
-                  originalEndCity: ride.originalEndCity,
-                  date: departure,
-                  duration: formatDuration(
-                      ride.departureAt,
-                      ride.arrivalEstimateAt
-                  ),
-                  seatsLeft: ride.seatsLeft,
-                  driverName: driverName || t("roles.driver"),
-                  driverRating: ride.driver.averageRating ?? 0,
-                  price: ride.priceAmount ?? 0,
-              };
-          })
+                  return {
+                      id: ride.rideId,
+                      rideId: ride.rideId,
+                      pickupStopId: ride.pickupStop.pickupStopId,
+                      dropoffStopId: ride.dropoffStop.dropoffStopId,
+                      from: ride.pickupStop.city,
+                      to: ride.dropoffStop.city,
+                      originalStartCity: ride.originalStartCity,
+                      originalEndCity: ride.originalEndCity,
+                      date: departure,
+                      duration: formatDuration(
+                          ride.departureAt,
+                          ride.arrivalEstimateAt
+                      ),
+                      seatsLeft: ride.seatsLeft,
+                      driverName: driverName || t("roles.driver"),
+                      driverRating: ride.driver.averageRating ?? 0,
+                      price: (ride.priceAmount ?? 0) * seats,
+                      pricePerSeat: ride.priceAmount ?? 0,
+                  };
+              })
+              .filter((r) => r.seatsLeft >= seats)
         : [];
 
-    const count = showAllRides ? availableRides.length : (rides?.length ?? 0);
+    const displayedRides = rides?.filter((r) => r.seatsLeft >= seats) ?? [];
+    const count = showAllRides ? availableRides.length : displayedRides.length;
 
     return (
         <div
@@ -177,11 +185,14 @@ export function PassengerRidesPage() {
                     onClose={() => createBooking.reset()}
                 />
 
-                {canSearch && !isLoading && !isError && rides?.length === 0 && (
-                    <p className="text-(--color-text-secondary) mt-4">
-                        {t("rides.noResults")}
-                    </p>
-                )}
+                {canSearch &&
+                    !isLoading &&
+                    !isError &&
+                    displayedRides.length === 0 && (
+                        <p className="text-(--color-text-secondary) mt-4">
+                            {t("rides.noResults")}
+                        </p>
+                    )}
 
                 {showAllRides &&
                     !areAvailableRidesLoading &&
@@ -219,6 +230,7 @@ export function PassengerRidesPage() {
                                                 pickupStopId: ride.pickupStopId,
                                                 dropoffStopId:
                                                     ride.dropoffStopId,
+                                                seatCount: seats,
                                             },
                                             {
                                                 onSuccess: (booking) => {
@@ -262,9 +274,9 @@ export function PassengerRidesPage() {
                         </div>
                     )}
 
-                {!showAllRides && rides && rides.length > 0 && (
+                {!showAllRides && displayedRides.length > 0 && (
                     <div className="flex flex-col gap-3">
-                        {rides.map((ride) => {
+                        {displayedRides.map((ride) => {
                             const departure = new Date(
                                 ride.pickupStop.plannedDepartureAt ??
                                     ride.departureAt
@@ -288,7 +300,7 @@ export function PassengerRidesPage() {
                                     driverRating={
                                         ride.driver.averageRating ?? 0
                                     }
-                                    price={ride.priceAmount ?? 0}
+                                    price={(ride.priceAmount ?? 0) * seats}
                                     onBook={() =>
                                         createBooking.mutate(
                                             {
@@ -299,6 +311,7 @@ export function PassengerRidesPage() {
                                                 dropoffStopId:
                                                     ride.dropoffStop
                                                         .dropoffStopId,
+                                                seatCount: seats,
                                                 dynamicPickup:
                                                     ride.pickupStop.isDynamic &&
                                                     ride.pickupStop.lat !=
@@ -370,8 +383,9 @@ export function PassengerRidesPage() {
                                                                         .city,
                                                                 date: departure.toISOString(),
                                                                 price:
-                                                                    ride.priceAmount ??
-                                                                    0,
+                                                                    (ride.priceAmount ??
+                                                                        0) *
+                                                                    seats,
                                                                 driverName,
                                                                 driverRating:
                                                                     ride.driver

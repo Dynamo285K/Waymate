@@ -136,13 +136,25 @@ export function DriverMyRidesPage() {
                 <div className="flex gap-2 mb-6">
                     <Button
                         variant={tab === "upcoming" ? "black" : "secondary"}
-                        onClick={() => setTab("upcoming")}
+                        onClick={() => {
+                            setTab("upcoming");
+                            void navigate({
+                                to: "/driver/rides",
+                                search: { tab: "upcoming" },
+                            });
+                        }}
                     >
                         {t("driverRides.upcoming")}
                     </Button>
                     <Button
                         variant={tab === "past" ? "black" : "secondary"}
-                        onClick={() => setTab("past")}
+                        onClick={() => {
+                            setTab("past");
+                            void navigate({
+                                to: "/driver/rides",
+                                search: { tab: "past" },
+                            });
+                        }}
                     >
                         {t("driverRides.past")}
                     </Button>

@@ -13,6 +13,7 @@ export type RideCardLabels = {
     pendingConfirmation?: string;
     cancelBooking?: string;
     rateDriver?: string;
+    rated?: string;
     reportDriver?: string;
     viewPassengers?: string;
     cancelRide?: string;
@@ -54,6 +55,7 @@ type PassengerPastProps = RideCardBaseProps & {
     driverName: string;
     driverRating: number;
     onRateDriver: () => void;
+    alreadyReviewed?: boolean;
     onReport?: () => void;
 };
 
@@ -227,10 +229,17 @@ export function RideCard(props: RideCardProps) {
                     {props.variant === "passenger-past" && (
                         <div className="flex gap-2">
                             <Button
-                                variant="black"
+                                variant={
+                                    props.alreadyReviewed
+                                        ? "secondary"
+                                        : "black"
+                                }
                                 onClick={props.onRateDriver}
+                                disabled={props.alreadyReviewed}
                             >
-                                {labels?.rateDriver ?? "Rate driver"}
+                                {props.alreadyReviewed
+                                    ? (labels?.rated ?? "Rated")
+                                    : (labels?.rateDriver ?? "Rate driver")}
                             </Button>
                             {props.onReport && (
                                 <Button

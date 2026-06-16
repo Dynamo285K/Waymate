@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { createFileRoute, useLocation } from "@tanstack/react-router";
+import {
+    createFileRoute,
+    useLocation,
+    useNavigate,
+} from "@tanstack/react-router";
+import { passengerRidesSearchSchema } from "../../../lib/passenger-rides-search-schema";
 import { Button, RateDriverModal } from "@waymate/ui";
 import { PassengerNavbar } from "../../../components/navigation/PassengerNavbar";
 import { RideCard } from "../../../components/shared/RideCard";
@@ -20,11 +25,13 @@ import { useLayout } from "../../../lib/use-layout";
 
 export const Route = createFileRoute("/passenger/rides/")({
     beforeLoad: requireAudience(["user"]),
+    validateSearch: passengerRidesSearchSchema,
     component: PassengerMyRidesPage,
 });
 
 export function PassengerMyRidesPage() {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
     const { data: session } = authClient.useSession();
     const user = session?.user;
@@ -39,8 +46,9 @@ export function PassengerMyRidesPage() {
         userName,
         userEmail,
     });
+    const search = Route.useSearch();
     const location = useLocation();
-    const [tab, setTab] = useState("upcoming");
+    const [tab, setTab] = useState(search.tab === "past" ? "past" : "upcoming");
     const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
     const cancelBooking = useCancelBooking();
     const [ratingModalOpen, setRatingModalOpen] = useState(false);
@@ -125,6 +133,7 @@ export function PassengerMyRidesPage() {
         pendingConfirmation: t("myRides.pendingConfirmation"),
         cancelBooking: t("myRides.cancelBooking"),
         rateDriver: t("myRides.rateDriver"),
+        rated: t("myRides.rated"),
         reportDriver: t("myRides.reportDriver"),
     };
 
@@ -152,13 +161,25 @@ export function PassengerMyRidesPage() {
                 <div className="flex gap-2">
                     <Button
                         variant={tab === "upcoming" ? "black" : "secondary"}
-                        onClick={() => setTab("upcoming")}
+                        onClick={() => {
+                            setTab("upcoming");
+                            void navigate({
+                                to: "/passenger/rides",
+                                search: { tab: "upcoming" },
+                            });
+                        }}
                     >
                         {t("myRides.upcoming")}
                     </Button>
                     <Button
                         variant={tab === "past" ? "black" : "secondary"}
-                        onClick={() => setTab("past")}
+                        onClick={() => {
+                            setTab("past");
+                            void navigate({
+                                to: "/passenger/rides",
+                                search: { tab: "past" },
+                            });
+                        }}
                     >
                         {t("myRides.past")}
                     </Button>
@@ -235,6 +256,7 @@ export function PassengerMyRidesPage() {
                                 duration={ride.duration}
                                 driverName={ride.driverName}
                                 driverRating={ride.driverRating}
+                                alreadyReviewed={ride.alreadyReviewed}
                                 onRateDriver={() => {
                                     if (ride.alreadyReviewed) return;
                                     setRatingDriverName(ride.driverName);
@@ -273,6 +295,7 @@ export function PassengerMyRidesPage() {
                 open={ratingModalOpen}
                 onOpenChange={setRatingModalOpen}
                 driverName={ratingDriverName}
+                theme={theme}
                 title={t("rateDriver.title")}
                 submitLabel={t("rateDriver.submit")}
                 placeholder={t("rateDriver.placeholder")}

@@ -8,4 +8,5 @@ export const rideSearchSchema = z.object({
     destLng: z.coerce.number().optional(),
     destCity: z.string().optional(),
     date: z.string().optional(),
+    seats: z.coerce.number().int().min(1).optional(),
 });
