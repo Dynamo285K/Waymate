@@ -85,7 +85,7 @@ export function PassengerHomePage() {
                         }
                     );
                 }}
-                onSearch={(from, to, date) => {
+                onSearch={(from, to, date, seats) => {
                     navigate({
                         to: "/passenger/rides/search",
                         search: {
@@ -96,6 +96,7 @@ export function PassengerHomePage() {
                             destLng: to?.lng,
                             destCity: to?.city || to?.address,
                             date: date?.toISOString(),
+                            seats,
                         },
                     });
                 }}

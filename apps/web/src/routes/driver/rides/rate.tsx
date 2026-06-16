@@ -3,7 +3,6 @@ import {
     createFileRoute,
     useNavigate,
     useLocation,
-    useRouter,
 } from "@tanstack/react-router";
 import { RatePassengerCard, StatCard, TextLink } from "@waymate/ui";
 import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
@@ -109,7 +108,6 @@ function IconBox({
 export function DriverRatePassengersPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const router = useRouter();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
     const { data: session } = authClient.useSession();
     const user = session?.user;
@@ -147,32 +145,19 @@ export function DriverRatePassengersPage() {
                     <TextLink
                         variant="muted"
                         onClick={() => {
-                            // `state.ride` is only set when arriving from the
-                            // My Rides "past" tab — go back to restore that
-                            // exact page instead of remounting it fresh.
-                            if (ride) {
-                                router.history.back();
-                            } else {
-                                navigate({
-                                    to: "/driver/rides",
-                                    search: { tab: "past" },
-                                });
-                            }
+                            navigate({
+                                to: "/driver/rides",
+                                search: { tab: "past" },
+                            });
                         }}
                     >
                         {t("driverRides.backToMyRides")}
                     </TextLink>
                 </div>
 
-                <h1 className="text-2xl font-bold text-(--color-text-primary) mb-2">
+                <h1 className="text-2xl font-bold text-(--color-text-primary) mb-6">
                     {t("driverRides.ratePassengersTitle")}
                 </h1>
-
-                {ride && (
-                    <p className="text-(--color-text-secondary) text-sm mb-6">
-                        {ride.from} → {ride.to}
-                    </p>
-                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                     <StatCard
@@ -284,8 +269,9 @@ export function DriverRatePassengersPage() {
                                             },
                                         },
                                         {
-                                            onSuccess: () =>
-                                                submitReview.reset(),
+                                            onSuccess: () => {
+                                                submitReview.reset();
+                                            },
                                         }
                                     );
                                 }}

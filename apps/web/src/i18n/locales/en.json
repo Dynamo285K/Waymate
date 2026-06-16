@@ -480,6 +480,7 @@
         "pendingConfirmation": "Pending confirmation",
         "cancelBooking": "Cancel booking",
         "rateDriver": "Rate driver",
+        "rated": "Rated",
         "reportDriver": "Report driver"
     },
     "bookGuest": {
@@ -558,7 +559,8 @@
             "from": "Pickup location",
             "to": "Dropoff location",
             "button": "Search",
-            "date": "dd.mm.yy"
+            "date": "dd.mm.yy",
+            "seats": "Seats"
         },
         "at": "at",
         "popularRoutes": "Popular routes",
