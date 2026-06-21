@@ -25,11 +25,7 @@
         "@supabase/ssr": "^0.10.2",
         "@supabase/supabase-js": "^2.105.3",
         "@tailwindcss/vite": "^4.2.4",
-<<<<<<< HEAD
         "@waymate/ui": "^0.1.52",
-=======
-        "@waymate/ui": "^0.1.50",
->>>>>>> d3b90bb (KAN-235_tomas.olbert)
         "better-auth": "^1.6.8",
         "drizzle-orm": "^0.45.2",
         "h3-js": "^4.4.0",

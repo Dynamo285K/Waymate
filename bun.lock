@@ -8,11 +8,7 @@
         "@supabase/ssr": "^0.10.2",
         "@supabase/supabase-js": "^2.105.3",
         "@tailwindcss/vite": "^4.2.4",
-<<<<<<< HEAD
         "@waymate/ui": "^0.1.52",
-=======
-        "@waymate/ui": "^0.1.50",
->>>>>>> d3b90bb (KAN-235_tomas.olbert)
         "better-auth": "^1.6.8",
         "drizzle-orm": "^0.45.2",
         "h3-js": "^4.4.0",
@@ -753,11 +749,7 @@
 
     "@vitest/utils": ["@vitest/utils@4.1.9", "", { "dependencies": { "@vitest/pretty-format": "4.1.9", "convert-source-map": "^2.0.0", "tinyrainbow": "^3.1.0" } }, "sha512-A51o8ymO5PpqlWNnBP9ZHPXDIpuMtTLlGSjN7la4US+LJzoUMyhwjA5QXlm39JexgwHKW4Xjs8Z2d3dLCXOeuA=="],
 
-<<<<<<< HEAD
     "@waymate/ui": ["@waymate/ui@0.1.52", "https://gitlab.fi.muni.cz/api/v4/projects/48090/packages/npm/@waymate/ui/-/@waymate/ui-0.1.52.tgz", { "dependencies": { "@radix-ui/react-dialog": "^1.1.15", "@radix-ui/react-dropdown-menu": "^2.1.16", "@radix-ui/react-popover": "^1.1.15", "@radix-ui/react-select": "^2.2.6", "date-fns": "^4.1.0", "fs-extra": "^11.3.4", "lucide-react": "^1.8.0", "react-day-picker": "^9.14.0" }, "peerDependencies": { "react": "^19.0.0", "react-dom": "^19.0.0" } }, "sha1-hCU3Fn5cOG9e15h/Ap9BolAk9TA="],
-=======
-    "@waymate/ui": ["@waymate/ui@0.1.50", "https://gitlab.fi.muni.cz/api/v4/projects/48090/packages/npm/@waymate/ui/-/@waymate/ui-0.1.50.tgz", { "dependencies": { "@radix-ui/react-dialog": "^1.1.15", "@radix-ui/react-dropdown-menu": "^2.1.16", "@radix-ui/react-popover": "^1.1.15", "@radix-ui/react-select": "^2.2.6", "date-fns": "^4.1.0", "fs-extra": "^11.3.4", "lucide-react": "^1.8.0", "react-day-picker": "^9.14.0" }, "peerDependencies": { "react": "^19.0.0", "react-dom": "^19.0.0" } }, "sha1-vozs7rGofl8PVGZ1BchcxJQ6phg="],
->>>>>>> d3b90bb (KAN-235_tomas.olbert)
 
     "abort-controller": ["abort-controller@3.0.0", "", { "dependencies": { "event-target-shim": "^5.0.0" } }, "sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg=="],
 
