@@ -1,5 +1,10 @@
 import { useMemo, useState } from "react";
-import { FormProvider, useForm, type SubmitHandler } from "react-hook-form";
+import {
+    FormProvider,
+    useForm,
+    useWatch,
+    type SubmitHandler,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cs, enUS, sk as skLocale } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
@@ -101,9 +106,13 @@ export function DriverOfferRidePage() {
             manualPlate: "",
         },
     });
-    const { watch, handleSubmit, setError, clearErrors } = methods;
+    const { control, handleSubmit, setError, clearErrors } = methods;
 
-    const {
+    // Subscribe to exactly the fields the page reacts to (ETA preview, the car
+    // hook, the publish-error reset key) via useWatch rather than the form-level
+    // watch() — the explicit name list keeps the subscription scoped and matches
+    // the pattern used by the auth forms.
+    const [
         pickupCity,
         dropoffCity,
         rideDate,
@@ -113,7 +122,20 @@ export function DriverOfferRidePage() {
         manualBrand,
         manualModel,
         manualPlate,
-    } = watch();
+    ] = useWatch({
+        control,
+        name: [
+            "pickupCity",
+            "dropoffCity",
+            "rideDate",
+            "rideTime",
+            "seats",
+            "price",
+            "manualBrand",
+            "manualModel",
+            "manualPlate",
+        ],
+    });
 
     // Car picker state (saved cars, mode, selection) and its render-time
     // syncs live in the hook.

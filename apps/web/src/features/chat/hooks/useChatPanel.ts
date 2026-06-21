@@ -48,6 +48,7 @@ export type ChatPanel = {
     activeRideId: string | null;
     isCounterpartBlockedByMe: boolean;
     isThreadBlocked: boolean;
+    isActiveCounterpartBanned: boolean;
     messages: MessageView[];
     isLoadingMessages: boolean;
     isSending: boolean;
@@ -135,6 +136,8 @@ export function useChatPanel(initialConversationId?: string | null): ChatPanel {
         ? blockedIds.has(activeCounterpartId)
         : false;
     const isThreadBlocked = activeConversation?.isBlocked ?? false;
+    const isActiveCounterpartBanned =
+        activeConversation?.counterpartBanned ?? false;
 
     const messages: MessageView[] = (messagesQuery.data ?? []).map((m) => ({
         id: m.id,
@@ -210,6 +213,7 @@ export function useChatPanel(initialConversationId?: string | null): ChatPanel {
         activeRideId,
         isCounterpartBlockedByMe,
         isThreadBlocked,
+        isActiveCounterpartBanned,
         messages,
         isLoadingMessages: Boolean(activeId) && messagesQuery.isLoading,
         isSending: sendMutation.isPending,

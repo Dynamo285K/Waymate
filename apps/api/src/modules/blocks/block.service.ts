@@ -82,9 +82,39 @@ const isBlockedBetween = async (
     );
 };
 
+// Like isBlockedBetween, but from the caller's point of view: did the caller
+// block the other user ("BY_ME", actionable — they can unblock), did the other
+// user block the caller ("BY_OTHER", not actionable), or neither (null)? A block
+// the caller created is reported first so the message points them at the action
+// they can take. Lets callers surface a message that distinguishes the two,
+// because GET /blocks only ever shows the caller's own blocks — without this an
+// unblocked caller still hit by the counterpart's block sees no reason why.
+const getBlockDirection = async (
+    callerId: string,
+    otherId: string,
+    executor: Executor = db
+): Promise<"BY_ME" | "BY_OTHER" | null> => {
+    const byMe = await BlockRepository.findActiveBlockDirected(
+        executor,
+        callerId,
+        otherId
+    );
+    if (byMe) return "BY_ME";
+
+    const byOther = await BlockRepository.findActiveBlockDirected(
+        executor,
+        otherId,
+        callerId
+    );
+    if (byOther) return "BY_OTHER";
+
+    return null;
+};
+
 export const BlockService = {
     blockUser,
     unblockUser,
     listBlocks,
     isBlockedBetween,
+    getBlockDirection,
 };

@@ -6,7 +6,12 @@ import { Button } from "@waymate/ui";
 import { AdminNavbar } from "../../components/navigation/AdminNavbar";
 import { useAdminNavbarProps } from "../../features/admin/hooks/useAdminNavbarProps";
 import { useSetReportStatus } from "./-reports/hooks/useSetReportStatus";
-import { getGetAdminReportsQueryKey } from "../../api-client/admin/admin";
+import { useSetUserStatus } from "./-users/hooks/useSetUserStatus";
+import { BanUserModal } from "./-users/components/BanUserModal";
+import {
+    getGetAdminReportsQueryKey,
+    getGetAdminReportsByIdQueryKey,
+} from "../../api-client/admin/admin";
 import type { ReportStatus } from "../../api-client/model/reportStatus";
 import type { ReportType } from "../../api-client/model/reportType";
 import { getErrorCode, getErrorI18nKey } from "../../lib/api-errors";
@@ -71,8 +76,13 @@ export function AdminReportsPage() {
     const [pendingStatus, setPendingStatus] = useState<ReportStatus | null>(
         null
     );
+    const [banTarget, setBanTarget] = useState<{
+        id: string;
+        name: string;
+    } | null>(null);
 
     const setReportStatus = useSetReportStatus();
+    const setUserStatus = useSetUserStatus();
 
     const rowMutatingId = setReportStatus.isPending
         ? (setReportStatus.variables?.id ?? null)
@@ -122,9 +132,31 @@ export function AdminReportsPage() {
         );
     };
 
+    const handleConfirmBan = (reason: string | undefined) => {
+        if (!banTarget) return;
+        const reportId = selectedReportId;
+        setUserStatus.mutate(
+            { userId: banTarget.id, status: "BANNED", reason },
+            {
+                onSuccess: () => {
+                    setBanTarget(null);
+                    // Refresh the detail so the target shows as banned and the
+                    // ban button is replaced by the "already banned" note.
+                    if (reportId) {
+                        void queryClient.invalidateQueries({
+                            queryKey: getGetAdminReportsByIdQueryKey(reportId),
+                        });
+                    }
+                },
+            }
+        );
+    };
+
     const openDetail = (id: string | null) => {
         setReportStatus.reset();
+        setUserStatus.reset();
         setPendingStatus(null);
+        setBanTarget(null);
         setSelectedReportId(id);
     };
 
@@ -206,6 +238,21 @@ export function AdminReportsPage() {
                     mutationErrorForThisReport={detailErrorForReport}
                     onClose={() => openDetail(null)}
                     onRequestStatus={(target) => setPendingStatus(target)}
+                    onBanTarget={(target) => {
+                        setUserStatus.reset();
+                        setBanTarget(target);
+                    }}
+                />
+            )}
+
+            {banTarget && (
+                <BanUserModal
+                    theme={theme}
+                    userName={banTarget.name}
+                    isPending={setUserStatus.isPending}
+                    error={setUserStatus.isError ? setUserStatus.error : null}
+                    onClose={() => setBanTarget(null)}
+                    onConfirm={handleConfirmBan}
                 />
             )}
 

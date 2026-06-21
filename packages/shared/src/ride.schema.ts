@@ -298,9 +298,7 @@ export type TimeframeQuery = z.infer<typeof TimeframeQuerySchema>;
 export type CreateRideBody = z.infer<typeof CreateRideBodySchema>;
 export type SearchRidesQuery = z.infer<typeof SearchRidesQuerySchema>;
 
-// ==========================================
 // Output schemas (SWAGGER / RESPONSE)
-// ==========================================
 
 export const RideListItemSchema = RideSchema.extend({
     rideStops: z.array(

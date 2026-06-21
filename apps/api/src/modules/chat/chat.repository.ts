@@ -70,6 +70,70 @@ const findBookingContext = async (
     return row ?? null;
 };
 
+// Is the user banned? Checks both the better-auth `banned` flag and the domain
+// `user_status` so either path that revokes an account counts. Used to stop
+// anyone messaging a banned counterpart (the banned user can't read it anyway,
+// and is rejected at the auth layer the moment they try to act).
+const isUserBanned = async (
+    executor: Executor,
+    userId: string
+): Promise<boolean> => {
+    const [row] = await executor
+        .select({
+            banned: usersTable.banned,
+            userStatus: usersTable.userStatus,
+        })
+        .from(usersTable)
+        .where(eq(usersTable.id, userId))
+        .limit(1);
+
+    return row ? row.banned || row.userStatus === "BANNED" : false;
+};
+
+// Serialize get-or-create for one driver↔passenger pair: a transaction-scoped
+// advisory lock so two concurrent "open conversation" requests for the same
+// pair can't both slip past the find-by-pair below and each insert a thread.
+// Auto-released when the surrounding transaction commits or rolls back. hashtext
+// collisions only cause occasional extra serialization, never wrong results.
+const lockConversationPair = async (
+    executor: Executor,
+    driverId: string,
+    passengerId: string
+): Promise<void> => {
+    await executor.execute(
+        sql`SELECT pg_advisory_xact_lock(hashtext(${driverId}), hashtext(${passengerId}))`
+    );
+};
+
+// The single conversation between a given driver and passenger, regardless of
+// which booking first opened it — there is exactly one thread per pair. Returns
+// the oldest match so the choice is stable if duplicates ever exist.
+const findPairConversationId = async (
+    executor: Executor,
+    driverId: string,
+    passengerId: string
+): Promise<string | null> => {
+    const [row] = await executor
+        .select({ id: conversationsTable.id })
+        .from(conversationsTable)
+        .innerJoin(
+            bookingsTable,
+            eq(conversationsTable.bookingId, bookingsTable.id)
+        )
+        .innerJoin(ridesTable, eq(bookingsTable.rideId, ridesTable.id))
+        .where(
+            and(
+                conversationNotSoftDeleted,
+                eq(ridesTable.driverId, driverId),
+                eq(bookingsTable.passengerId, passengerId)
+            )
+        )
+        .orderBy(conversationsTable.createdAt)
+        .limit(1);
+
+    return row?.id ?? null;
+};
+
 // Same resolution as findBookingContext but keyed by the conversation id.
 const findConversationContext = async (
     executor: Executor,
@@ -178,6 +242,11 @@ const findUserConversations = async (executor: Executor, userId: string) => {
                 lastName: passengerUser.lastName,
                 profilePhotoUrl: passengerUser.profilePhotoUrl,
             },
+            // Ban flags for both sides so the service can mark the caller's
+            // counterpart as banned — the UI disables the composer for a banned
+            // recipient (same idea as isUserBanned, kept inline to avoid N+1).
+            driverBanned: sql<boolean>`(${driverUser.banned} OR ${driverUser.userStatus} = 'BANNED')`,
+            passengerBanned: sql<boolean>`(${passengerUser.banned} OR ${passengerUser.userStatus} = 'BANNED')`,
             lastMessageId,
             unreadCount,
             isBlocked,
@@ -281,6 +350,9 @@ const updateLastReadAt = async (
 
 export const ChatRepository = {
     findBookingContext,
+    isUserBanned,
+    lockConversationPair,
+    findPairConversationId,
     findConversationContext,
     insertConversation,
     findUserConversations,

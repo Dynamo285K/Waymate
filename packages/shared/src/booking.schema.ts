@@ -7,16 +7,10 @@ import {
     PublicUserPreviewWithRatingSchema,
 } from "./user.schema";
 
-// ==========================================
-// 1. URL PARAMETERS
-// ==========================================
 export const BookingIdParamsSchema = z.object({
     id: z.uuid("Invalid booking ID"),
 });
 
-// ==========================================
-// 2. REQUEST BODIES (Inputs from frontend)
-// ==========================================
 export const CreateBookingBodySchema = z
     .object({
         rideId: RideIdSchema,
@@ -58,9 +52,6 @@ export const BookingTimeframeQuerySchema = z.object({
     timeframe: z.enum(["UPCOMING", "PAST", "ALL"]).default("UPCOMING"),
 });
 
-// ==========================================
-// 3. RESPONSE SCHEMAS (Outputs for Swagger)
-// ==========================================
 export const BookingActionResponseSchema = z.object({
     id: z.uuid(),
 

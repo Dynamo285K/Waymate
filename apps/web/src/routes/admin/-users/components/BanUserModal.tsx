@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Button, IconButton, Modal, Textarea } from "@waymate/ui";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
@@ -13,6 +13,10 @@ type BanUserModalProps = {
     onConfirm: (reason: string | undefined) => void;
 };
 
+// The ban reason is optional, so the form needs no resolver — just a single
+// RHF-owned field, kept consistent with the other moderation modals.
+type FormValues = { reason: string };
+
 export function BanUserModal({
     theme,
     userName,
@@ -22,9 +26,15 @@ export function BanUserModal({
     onConfirm,
 }: BanUserModalProps) {
     const { t } = useTranslation();
-    const [reason, setReason] = useState("");
 
-    const trimmedReason = reason.trim();
+    const { control, handleSubmit } = useForm<FormValues>({
+        defaultValues: { reason: "" },
+    });
+
+    const onSubmit: SubmitHandler<FormValues> = ({ reason }) => {
+        const trimmed = reason.trim();
+        onConfirm(trimmed.length > 0 ? trimmed : undefined);
+    };
 
     return (
         <Modal
@@ -32,7 +42,10 @@ export function BanUserModal({
             onClose={onClose}
             theme={theme}
         >
-            <div className="w-[calc(100vw-2rem)] max-w-lg p-8">
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="w-[calc(100vw-2rem)] max-w-lg p-8"
+            >
                 <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
                         {t("admin.banUser")} — {userName}
@@ -53,11 +66,17 @@ export function BanUserModal({
                     <label className="text-sm font-semibold text-(--color-text-primary) mb-1.5 block">
                         {t("admin.reasonForBan")}
                     </label>
-                    <Textarea
-                        placeholder={t("admin.reasonPlaceholder")}
-                        maxLength={500}
-                        value={reason}
-                        onChange={(e) => setReason(e.target.value)}
+                    <Controller
+                        control={control}
+                        name="reason"
+                        render={({ field }) => (
+                            <Textarea
+                                placeholder={t("admin.reasonPlaceholder")}
+                                maxLength={500}
+                                value={field.value}
+                                onChange={field.onChange}
+                            />
+                        )}
                     />
                 </div>
 
@@ -69,6 +88,7 @@ export function BanUserModal({
 
                 <div className="flex gap-3 justify-end">
                     <Button
+                        type="button"
                         variant="secondary"
                         onClick={onClose}
                         disabled={isPending}
@@ -76,20 +96,14 @@ export function BanUserModal({
                         {t("admin.cancel")}
                     </Button>
                     <Button
+                        type="submit"
                         variant="red"
-                        onClick={() =>
-                            onConfirm(
-                                trimmedReason.length > 0
-                                    ? trimmedReason
-                                    : undefined
-                            )
-                        }
                         disabled={isPending}
                     >
                         ⊘ {t("admin.confirmBan")}
                     </Button>
                 </div>
-            </div>
+            </form>
         </Modal>
     );
 }

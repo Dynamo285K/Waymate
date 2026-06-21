@@ -14,7 +14,7 @@ import { timestamptz } from "./timestamps";
 export const users = pgTable(
     "users",
     {
-        // --- 1. BETTER-AUTH REQUIRED COLUMNS ---
+        // better-auth required columns
         id: uuid("id").primaryKey().defaultRandom(),
         name: text("name").notNull(),
         email: text("email").notNull(),
@@ -23,7 +23,7 @@ export const users = pgTable(
         createdAt: timestamptz("created_at").defaultNow().notNull(),
         updatedAt: timestamptz("updated_at").defaultNow().notNull(),
 
-        // --- 2. CUSTOM WAYMATE COLUMNS ---
+        // custom Waymate columns
         firstName: text("first_name"),
         lastName: text("last_name"),
         displayName: text("display_name"),
@@ -35,7 +35,7 @@ export const users = pgTable(
         lastActiveAt: timestamptz("last_active_at"),
         userStatus: userStatusEnum("user_status").notNull().default("ACTIVE"),
         userRole: userRoleEnum("user_role").notNull().default("USER"),
-        // --- 3. better-auth admin plugin columns ---
+        // better-auth admin plugin columns
         banned: boolean("banned").notNull().default(false),
         banReason: text("ban_reason"),
         banExpires: timestamptz("ban_expires"),

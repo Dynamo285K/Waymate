@@ -261,7 +261,6 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
             await RideRepository.insertRidePrices(tx, pricesToInsert);
         }
 
-        // --- OSRM Integration: Generate cells for the route ---
         if (osrmCells.length > 0) {
             const routeCellsToInsert = osrmCells.map((cell) => ({
                 rideId: newRide.id,
@@ -272,7 +271,6 @@ const createRide = async (driverId: string, data: CreateRideBody) => {
             }));
             await RideRepository.insertRideRouteCells(tx, routeCellsToInsert);
         }
-        // -----------------------------------------------------
 
         await RideRepository.insertRideStatusHistory(tx, {
             rideId: newRide.id,

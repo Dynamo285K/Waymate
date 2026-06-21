@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useMemo } from "react";
+import { Controller, useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { Button, IconButton, Modal, Textarea } from "@waymate/ui";
 import type { ReportStatus } from "../../../../api-client/model/reportStatus";
@@ -30,12 +33,31 @@ export function SetReportStatusModal({
 }: SetReportStatusModalProps) {
     const { t } = useTranslation();
     const labels = useReportStatusLabels();
-    const [reason, setReason] = useState("");
 
     const reasonRequired = REQUIRES_REASON.includes(targetStatus);
-    const trimmedReason = reason.trim();
-    const canConfirm =
-        (!reasonRequired || trimmedReason.length > 0) && !isPending;
+    const schema = useMemo(
+        () =>
+            z.object({
+                reason: reasonRequired ? z.string().trim().min(1) : z.string(),
+            }),
+        [reasonRequired]
+    );
+    type FormValues = z.infer<typeof schema>;
+
+    const {
+        control,
+        handleSubmit,
+        formState: { isValid },
+    } = useForm<FormValues>({
+        resolver: zodResolver(schema),
+        mode: "onChange",
+        defaultValues: { reason: "" },
+    });
+
+    const onSubmit: SubmitHandler<FormValues> = ({ reason }) => {
+        const trimmed = reason.trim();
+        onConfirm(trimmed.length > 0 ? trimmed : undefined);
+    };
 
     const variant =
         targetStatus === "RESOLVED"
@@ -50,7 +72,10 @@ export function SetReportStatusModal({
             onClose={onClose}
             theme={theme}
         >
-            <div className="w-[calc(100vw-2rem)] max-w-lg p-8">
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="w-[calc(100vw-2rem)] max-w-lg p-8"
+            >
                 <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
                         {t("admin.reports.setStatus", {
@@ -74,11 +99,17 @@ export function SetReportStatusModal({
                             </span>
                         )}
                     </label>
-                    <Textarea
-                        placeholder={t("admin.reasonPlaceholder")}
-                        maxLength={500}
-                        value={reason}
-                        onChange={(e) => setReason(e.target.value)}
+                    <Controller
+                        control={control}
+                        name="reason"
+                        render={({ field }) => (
+                            <Textarea
+                                placeholder={t("admin.reasonPlaceholder")}
+                                maxLength={500}
+                                value={field.value}
+                                onChange={field.onChange}
+                            />
+                        )}
                     />
                 </div>
 
@@ -90,6 +121,7 @@ export function SetReportStatusModal({
 
                 <div className="flex gap-3 justify-end">
                     <Button
+                        type="button"
                         variant="secondary"
                         onClick={onClose}
                         disabled={isPending}
@@ -97,20 +129,14 @@ export function SetReportStatusModal({
                         {t("admin.cancel")}
                     </Button>
                     <Button
+                        type="submit"
                         variant={variant}
-                        onClick={() =>
-                            onConfirm(
-                                trimmedReason.length > 0
-                                    ? trimmedReason
-                                    : undefined
-                            )
-                        }
-                        disabled={!canConfirm}
+                        disabled={!isValid || isPending}
                     >
                         {t("admin.confirm")}
                     </Button>
                 </div>
-            </div>
+            </form>
         </Modal>
     );
 }

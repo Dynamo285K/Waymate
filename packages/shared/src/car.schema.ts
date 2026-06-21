@@ -92,9 +92,7 @@ export const UpdateCarStatusBodySchema = z.object({
     isActive: z.boolean(),
 });
 
-// ==========================================
 // Output API types (REQUEST PAYLOADS)
-// ==========================================
 export type CreateCarBody = z.infer<typeof CreateCarBodySchema>;
 export type CarIdParams = z.infer<typeof CarIdParamsSchema>;
 export type UpdateCarStatusBody = z.infer<typeof UpdateCarStatusBodySchema>;

@@ -114,9 +114,7 @@ export type AdminUserDetailResponse = z.infer<
 >;
 export type UpdateUserStatusBody = z.infer<typeof UpdateUserStatusBodySchema>;
 
-// ==========================================
 // Ride moderation
-// ==========================================
 
 export const AdminRideIdParamsSchema = z.object({
     id: RideIdSchema,
@@ -247,9 +245,7 @@ export type AdminRideDetailResponse = z.infer<
 >;
 export type AdminCancelRideBody = z.infer<typeof AdminCancelRideBodySchema>;
 
-// ==========================================
 // Review moderation
-// ==========================================
 
 export const AdminReviewIdParamsSchema = z.object({
     id: ReviewIdSchema,
@@ -358,9 +354,7 @@ export type UpdateReviewStatusBody = z.infer<
     typeof UpdateReviewStatusBodySchema
 >;
 
-// ==========================================
 // Report moderation
-// ==========================================
 
 export const AdminReportIdParamsSchema = z.object({
     id: ReportIdSchema,
@@ -397,6 +391,12 @@ export const AdminReportListResponseSchema = z.object({
 export const AdminReportDetailSchema = AdminReportListItemSchema.extend({
     updatedAt: z.date(),
     resolutionReason: z.string().nullable(),
+    // The target's account status lets the detail UI offer "Ban user" only when
+    // they aren't already banned/deleted.
+    target: PublicUserPreviewSchema.extend({
+        email: z.string(),
+        userStatus: UserStatusSchema,
+    }),
     ride: z
         .object({
             id: RideIdSchema,
@@ -473,9 +473,7 @@ export type AdminReportConversation = z.infer<
     typeof AdminReportConversationSchema
 >;
 
-// ==========================================
 // Dashboard
-// ==========================================
 
 export const AdminDashboardDayRidesSchema = z.object({
     date: z.string(),

@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { UserId } from "./userId";
+import type { UserStatus } from "./userStatus";
 
 export type AdminReportDetailTarget = {
     id: UserId;
@@ -16,4 +17,5 @@ export type AdminReportDetailTarget = {
     /** @nullable */
     profilePhotoUrl: string | null;
     email: string;
+    userStatus: UserStatus;
 };

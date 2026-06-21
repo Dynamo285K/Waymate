@@ -2,16 +2,10 @@ import { z } from "zod";
 import { blockReasonValues } from "./status-values";
 import { PublicUserPreviewSchema, UserIdSchema } from "./user.schema";
 
-// ==========================================
-// 1. URL PARAMETERS
-// ==========================================
 export const BlockedUserIdParamsSchema = z.object({
     blockedUserId: UserIdSchema,
 });
 
-// ==========================================
-// 2. REQUEST BODIES
-// ==========================================
 export const BlockReasonSchema = z.enum(blockReasonValues);
 
 export const CreateBlockBodySchema = z.object({
@@ -20,9 +14,6 @@ export const CreateBlockBodySchema = z.object({
     reasonText: z.string().trim().max(500).optional(),
 });
 
-// ==========================================
-// 3. RESPONSES
-// ==========================================
 export const BlockActionResponseSchema = z.object({
     id: z.uuid(),
 });

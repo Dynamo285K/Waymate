@@ -32,20 +32,54 @@ const getOrCreateConversation = async (
             throw new ChatError(ChatErrorCodes.BookingNotFound);
         }
 
-        resolveRole(context, userId);
+        const role = resolveRole(context, userId);
 
-        if (
-            await BlockService.isBlockedBetween(
-                context.driverId,
-                context.passengerId,
-                tx
-            )
-        ) {
-            throw new ChatError(ChatErrorCodes.Blocked);
+        // Exactly one conversation per driver↔passenger pair, regardless of how
+        // many bookings they share — reuse any existing thread between the two
+        // instead of opening a booking-specific one. An existing conversation
+        // can always be reopened, even between blocked users, so the thread
+        // stays viewable (the UI shows the blocked banner and disables the
+        // composer, and sendMessage enforces the block on its own). Only the
+        // creation of a brand-new conversation is blocked.
+        //
+        // Lock the pair first so concurrent opens serialize — without it two
+        // requests could both find nothing here and each insert a thread.
+        await ChatRepository.lockConversationPair(
+            tx,
+            context.driverId,
+            context.passengerId
+        );
+        const existing = await ChatRepository.findPairConversationId(
+            tx,
+            context.driverId,
+            context.passengerId
+        );
+        if (existing) {
+            return existing;
         }
 
-        if (context.conversationId) {
-            return context.conversationId;
+        const counterpartId =
+            role === "DRIVER" ? context.passengerId : context.driverId;
+
+        // No new thread to a banned recipient — they can't read it. An existing
+        // thread is still returned above so its history stays readable.
+        if (await ChatRepository.isUserBanned(tx, counterpartId)) {
+            throw new ChatError(ChatErrorCodes.RecipientBanned);
+        }
+
+        // Distinguish the two block directions so the client can explain why:
+        // a block the caller created is fixable by unblocking, the
+        // counterpart's block is not (and the caller can't see it via /blocks).
+        const blockDirection = await BlockService.getBlockDirection(
+            userId,
+            counterpartId,
+            tx
+        );
+        if (blockDirection === "BY_ME") {
+            throw new ChatError(ChatErrorCodes.Blocked);
+        }
+        if (blockDirection === "BY_OTHER") {
+            throw new ChatError(ChatErrorCodes.BlockedByOther);
         }
 
         const created = await ChatRepository.insertConversation(tx, {
@@ -77,6 +111,9 @@ const getConversations = async (
         const myRole: ConversationRole =
             row.driverId === userId ? "DRIVER" : "PASSENGER";
         const counterpart = myRole === "DRIVER" ? row.passenger : row.driver;
+        // Drives the disabled composer + notice on the counterpart-banned thread.
+        const counterpartBanned =
+            myRole === "DRIVER" ? row.passengerBanned : row.driverBanned;
 
         return {
             id: row.id,
@@ -85,6 +122,7 @@ const getConversations = async (
             rideId: row.rideId,
             myRole,
             counterpart,
+            counterpartBanned,
             lastMessage: row.lastMessageId
                 ? (messageById.get(row.lastMessageId) ?? null)
                 : null,
@@ -141,6 +179,12 @@ const sendMessage = async (
         }
 
         const role = resolveRole(context, userId);
+
+        const counterpartId =
+            role === "DRIVER" ? context.passengerId : context.driverId;
+        if (await ChatRepository.isUserBanned(tx, counterpartId)) {
+            throw new ChatError(ChatErrorCodes.RecipientBanned);
+        }
 
         if (
             await BlockService.isBlockedBetween(

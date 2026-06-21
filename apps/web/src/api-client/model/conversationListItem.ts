@@ -26,6 +26,7 @@ export interface ConversationListItem {
     rideId: string | null;
     myRole: ConversationRole;
     counterpart: PublicUserPreview;
+    counterpartBanned: boolean;
     /** @nullable */
     lastMessage: ConversationListItemLastMessage;
     /**
