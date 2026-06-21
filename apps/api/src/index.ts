@@ -22,11 +22,20 @@ import { ChatRoutes } from "./modules/chat/chat.routes";
 import { ChatError, chatErrorToHttpStatus } from "./modules/chat/chat.errors";
 import { ChatRealtime } from "./modules/chat/chat.realtime";
 import { ReviewRoutes } from "./modules/reviews/review.routes";
-import { ReviewError, reviewErrorToHttpStatus } from "./modules/reviews/review.errors";
+import {
+    ReviewError,
+    reviewErrorToHttpStatus,
+} from "./modules/reviews/review.errors";
 import { ReportRoutes } from "./modules/reports/report.routes";
 import { BlockRoutes } from "./modules/blocks/block.routes";
-import { BlockError, blockErrorToHttpStatus } from "./modules/blocks/block.errors";
-import { ReportError, reportErrorToHttpStatus } from "./modules/reports/report.errors";
+import {
+    BlockError,
+    blockErrorToHttpStatus,
+} from "./modules/blocks/block.errors";
+import {
+    ReportError,
+    reportErrorToHttpStatus,
+} from "./modules/reports/report.errors";
 import { AdminRoutes } from "./modules/admin/admin.routes";
 import { checkRateLimit } from "./shared/rate-limit";
 import {

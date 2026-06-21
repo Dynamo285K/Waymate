@@ -46,7 +46,8 @@ export type ChatPanel = {
     activeName: string | null;
     activeCounterpartId: string | null;
     activeRideId: string | null;
-    isActiveBlocked: boolean;
+    isCounterpartBlockedByMe: boolean;
+    isThreadBlocked: boolean;
     messages: MessageView[];
     isLoadingMessages: boolean;
     isSending: boolean;
@@ -59,10 +60,7 @@ export type ChatPanel = {
     unblockActive: () => void;
 };
 
-function counterpartName(
-    item: ConversationListItem,
-    fallback: string
-): string {
+function counterpartName(item: ConversationListItem, fallback: string): string {
     const name = [item.counterpart.firstName, item.counterpart.lastName]
         .filter(Boolean)
         .join(" ")
@@ -77,9 +75,7 @@ function counterpartName(
  * by `useChatSocket`, which keeps the underlying query caches live — this hook
  * just reads from them and maps to view models the UI components consume.
  */
-export function useChatPanel(
-    initialConversationId?: string | null
-): ChatPanel {
+export function useChatPanel(initialConversationId?: string | null): ChatPanel {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
     const navigate = useNavigate();
@@ -124,7 +120,7 @@ export function useChatPanel(
         name: counterpartName(item, unknownUser),
         lastMessage: item.lastMessage?.content ?? "",
         unreadCount: item.unreadCount,
-        blocked: blockedIds.has(item.counterpart.id),
+        blocked: item.isBlocked,
     }));
 
     const activeConversation = (conversationsQuery.data ?? []).find(
@@ -135,9 +131,10 @@ export function useChatPanel(
         : null;
     const activeCounterpartId = activeConversation?.counterpart.id ?? null;
     const activeRideId = activeConversation?.rideId ?? null;
-    const isActiveBlocked = activeCounterpartId
+    const isCounterpartBlockedByMe = activeCounterpartId
         ? blockedIds.has(activeCounterpartId)
         : false;
+    const isThreadBlocked = activeConversation?.isBlocked ?? false;
 
     const messages: MessageView[] = (messagesQuery.data ?? []).map((m) => ({
         id: m.id,
@@ -172,12 +169,7 @@ export function useChatPanel(
                 // Reflect the sent message immediately; the socket echo dedupes
                 // against it by id.
                 onSuccess: (message) =>
-                    applyMessageToCache(
-                        queryClient,
-                        activeId,
-                        message,
-                        userId
-                    ),
+                    applyMessageToCache(queryClient, activeId, message, userId),
             }
         );
     };
@@ -216,7 +208,8 @@ export function useChatPanel(
         activeName,
         activeCounterpartId,
         activeRideId,
-        isActiveBlocked,
+        isCounterpartBlockedByMe,
+        isThreadBlocked,
         messages,
         isLoadingMessages: Boolean(activeId) && messagesQuery.isLoading,
         isSending: sendMutation.isPending,

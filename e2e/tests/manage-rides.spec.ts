@@ -10,7 +10,12 @@ async function login(page: Page, email: string, password: string) {
     await page.locator('form button[type="submit"]').click();
 }
 
-async function pickCity(page: Page, fieldTestId: string, query: string, city: string) {
+async function pickCity(
+    page: Page,
+    fieldTestId: string,
+    query: string,
+    city: string
+) {
     await page.getByTestId(fieldTestId).locator("input").fill(query);
     await page.getByRole("option", { name: city }).first().click();
 }
@@ -20,7 +25,7 @@ async function publishRide(
     fromCity = "Bratislava",
     toCity = "Nitra",
     day = "16",
-    price = "10",
+    price = "10"
 ) {
     await page.goto("/driver/offer");
     await expect(page.locator("h1").first()).toBeVisible();
@@ -29,8 +34,15 @@ async function publishRide(
     await pickCity(page, "offer-dropoff", toCity, toCity);
 
     await page.getByTestId("offer-date").getByRole("button").click();
-    await page.getByRole("button", { name: /next|ďalší|další|přístí|nasledujúci/i }).first().click();
-    await page.getByRole("gridcell").filter({ hasText: new RegExp(`^${day}$`) }).first().click();
+    await page
+        .getByRole("button", { name: /next|ďalší|další|přístí|nasledujúci/i })
+        .first()
+        .click();
+    await page
+        .getByRole("gridcell")
+        .filter({ hasText: new RegExp(`^${day}$`) })
+        .first()
+        .click();
 
     await page.getByTestId("offer-time").getByRole("combobox").click();
     await page.getByRole("option", { name: "14:00" }).click();
@@ -54,15 +66,21 @@ test.describe("manage rides", () => {
         await expect(page).toHaveURL(/\/passenger$/);
         await publishRide(page, "Bratislava", "Nitra", "16");
 
-        const rideCard = page.getByTestId("ride-card").filter({ hasText: "Nitra" }).first();
-        const cancelBtn = rideCard.getByRole("button", { name: /cancel|zrušiť/i });
+        const rideCard = page
+            .getByTestId("ride-card")
+            .filter({ hasText: "Nitra" })
+            .first();
+        const cancelBtn = rideCard.getByRole("button", {
+            name: /cancel|zrušiť/i,
+        });
         await cancelBtn.click();
 
         const dialog = page.getByRole("dialog");
         await expect(dialog).toBeVisible();
 
         const cancelPromise = page.waitForResponse(
-            (r) => r.url().includes("/cancel") && r.request().method() === "PATCH",
+            (r) =>
+                r.url().includes("/cancel") && r.request().method() === "PATCH"
         );
         await dialog.getByRole("textbox").fill("Zmena plánov - musím do práce");
         await dialog.getByRole("button", { name: /confirm|potvrdiť/i }).click();
@@ -84,22 +102,30 @@ test.describe("manage rides", () => {
         await expect(page).toHaveURL(/\/passenger$/);
 
         // Book the specific ride we just created
-        const specificRide = page.locator(".available-ride-card", { hasText: "Trnava" }).first();
+        const specificRide = page
+            .locator(".available-ride-card", { hasText: "Trnava" })
+            .first();
         await expect(specificRide).toBeVisible();
         await specificRide.getByRole("button", { name: "Book" }).click();
 
         await expect(page).toHaveURL(/\/passenger\/rides$/);
 
         // Cancel the booking
-        const bookedRideCard = page.getByTestId("ride-card").filter({ hasText: "Trnava" }).first();
-        const cancelBtn = bookedRideCard.getByRole("button", { name: /cancel|zrušiť/i });
+        const bookedRideCard = page
+            .getByTestId("ride-card")
+            .filter({ hasText: "Trnava" })
+            .first();
+        const cancelBtn = bookedRideCard.getByRole("button", {
+            name: /cancel|zrušiť/i,
+        });
         await cancelBtn.click();
 
         const dialog = page.getByRole("dialog");
         await expect(dialog).toBeVisible();
 
         const cancelPromise = page.waitForResponse(
-            (r) => r.url().includes("/cancel") && r.request().method() === "PATCH",
+            (r) =>
+                r.url().includes("/cancel") && r.request().method() === "PATCH"
         );
         await dialog.getByRole("textbox").fill("Zmena plánov");
         await dialog.getByRole("button", { name: /confirm|potvrdiť/i }).click();

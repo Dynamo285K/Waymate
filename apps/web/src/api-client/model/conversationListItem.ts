@@ -34,4 +34,5 @@ export interface ConversationListItem {
      */
     unreadCount: number;
     updatedAt: string;
+    isBlocked: boolean;
 }

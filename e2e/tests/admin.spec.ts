@@ -15,9 +15,11 @@ test.describe("admin flow", () => {
         await context.clearCookies();
     });
 
-    test("admin can view dashboard statistics and metrics", async ({ page }) => {
+    test("admin can view dashboard statistics and metrics", async ({
+        page,
+    }) => {
         await login(page, ADMIN_EMAIL, ADMIN_PASSWORD);
-        
+
         // Správca by mal byť automaticky presmerovaný na /admin po prihlásení
         await expect(page).toHaveURL(/\/admin$/);
 

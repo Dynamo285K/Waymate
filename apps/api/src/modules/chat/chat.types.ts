@@ -1,7 +1,11 @@
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import type { conversations } from "../../db/schema/conversation";
 import type { messages } from "../../db/schema/message";
-import type { ConversationRole, Message, PublicUserPreview } from "@repo/shared";
+import type {
+    ConversationRole,
+    Message,
+    PublicUserPreview,
+} from "@repo/shared";
 
 // ==========================================
 // 1. BASE DATABASE TYPES (SELECT)
@@ -47,4 +51,5 @@ export type ConversationListItem = {
     lastMessage: Message | null;
     unreadCount: number;
     updatedAt: Date;
+    isBlocked: boolean;
 };

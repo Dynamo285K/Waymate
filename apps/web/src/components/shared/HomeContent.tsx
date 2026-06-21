@@ -299,6 +299,26 @@ export function HomeContent({
                                 from={r.originCity}
                                 to={r.destinationCity}
                                 count={r.count}
+                                onClick={() => {
+                                    onSearch?.(
+                                        {
+                                            id: r.originCity,
+                                            name: r.originCity,
+                                            lat: r.originLat ?? 0,
+                                            lng: r.originLng ?? 0,
+                                            city: r.originCity,
+                                        },
+                                        {
+                                            id: r.destinationCity,
+                                            name: r.destinationCity,
+                                            lat: r.destLat ?? 0,
+                                            lng: r.destLng ?? 0,
+                                            city: r.destinationCity,
+                                        },
+                                        undefined,
+                                        1
+                                    );
+                                }}
                             />
                         ))}
                     </div>

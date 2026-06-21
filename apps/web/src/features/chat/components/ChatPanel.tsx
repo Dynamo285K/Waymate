@@ -45,6 +45,7 @@ type ThreadProps = {
     unblockLabel: string;
     isUnblocking: boolean;
     onUnblock: () => void;
+    showUnblock?: boolean;
 };
 
 // The scrollable message list + composer, shared by the desktop and mobile
@@ -63,6 +64,7 @@ function Thread({
     unblockLabel,
     isUnblocking,
     onUnblock,
+    showUnblock = true,
 }: ThreadProps) {
     const { t } = useTranslation();
     const bottomRef = useRef<HTMLDivElement>(null);
@@ -114,13 +116,15 @@ function Thread({
                     <span className="text-sm text-(--color-text-secondary)">
                         {blockedNotice}
                     </span>
-                    <Button
-                        variant="secondary"
-                        onClick={onUnblock}
-                        disabled={isUnblocking}
-                    >
-                        {unblockLabel}
-                    </Button>
+                    {showUnblock && (
+                        <Button
+                            variant="secondary"
+                            onClick={onUnblock}
+                            disabled={isUnblocking}
+                        >
+                            {unblockLabel}
+                        </Button>
+                    )}
                 </div>
             ) : (
                 <MessageComposer
@@ -155,7 +159,7 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
     const chatHeaderLabels = {
         viewProfile: t("chat.viewProfile"),
         // Same menu entry toggles to "Unblock" once the user is blocked.
-        blockUser: panel.isActiveBlocked
+        blockUser: panel.isCounterpartBlockedByMe
             ? t("blocked.unblock")
             : t("chat.blockUser"),
         reportUser: t("chat.reportUser"),
@@ -164,7 +168,7 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
     const hasActive = panel.activeId !== null;
 
     // Block needs a confirm; unblock is harmless, so it fires directly.
-    const onBlockToggle = panel.isActiveBlocked
+    const onBlockToggle = panel.isCounterpartBlockedByMe
         ? panel.unblockActive
         : () => setConfirmBlock(true);
 
@@ -182,11 +186,17 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
     );
 
     const threadBlockProps = {
-        blocked: panel.isActiveBlocked,
-        blockedNotice: t("chat.blockedNotice"),
+        blocked: panel.isThreadBlocked,
+        blockedNotice: panel.isCounterpartBlockedByMe
+            ? t("chat.blockedNotice")
+            : t(
+                  "chat.blockedNoticeCounterpart",
+                  "You cannot reply to this conversation."
+              ),
         unblockLabel: t("blocked.unblock"),
         isUnblocking: panel.isUnblocking,
         onUnblock: panel.unblockActive,
+        showUnblock: panel.isCounterpartBlockedByMe,
     };
 
     return (

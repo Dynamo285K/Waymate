@@ -75,7 +75,11 @@ const isBlockedBetween = async (
     userB: string,
     executor: Executor = db
 ): Promise<boolean> => {
-    return await BlockRepository.existsActiveBlockBetween(executor, userA, userB);
+    return await BlockRepository.existsActiveBlockBetween(
+        executor,
+        userA,
+        userB
+    );
 };
 
 export const BlockService = {

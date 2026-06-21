@@ -30,8 +30,7 @@ export function useRideSearch({
         startLat !== null &&
         startLng !== null &&
         destLat !== null &&
-        destLng !== null &&
-        !!travelDate;
+        destLng !== null;
 
     const query = useGetRidesSearch(
         {
@@ -43,7 +42,7 @@ export function useRideSearch({
             destLat: destLat ?? 0,
             destLng: destLng ?? 0,
             destCity: destCity ?? undefined,
-            travelDate: travelDate?.toISOString() ?? "",
+            travelDate: travelDate?.toISOString(),
         },
         {
             query: { enabled: canSearch },

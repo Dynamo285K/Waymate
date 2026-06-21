@@ -1,10 +1,21 @@
-import { and, aliasedTable, desc, eq, inArray, isNull, lt, or, sql } from "drizzle-orm";
+import {
+    and,
+    aliasedTable,
+    desc,
+    eq,
+    inArray,
+    isNull,
+    lt,
+    or,
+    sql,
+} from "drizzle-orm";
 import type { Executor } from "../../db";
 import { conversations as conversationsTable } from "../../db/schema/conversation";
 import { messages as messagesTable } from "../../db/schema/message";
 import { bookings as bookingsTable } from "../../db/schema/booking";
 import { rides as ridesTable } from "../../db/schema/ride";
 import { users as usersTable } from "../../db/schema/user";
+import { blocklist as blocklistTable } from "../../db/schema/blocklist";
 import type { ConversationParticipants, ConversationType } from "./chat.types";
 import type { Message } from "@repo/shared";
 
@@ -73,10 +84,16 @@ const findConversationContext = async (
             passengerId: bookingsTable.passengerId,
         })
         .from(conversationsTable)
-        .innerJoin(bookingsTable, eq(conversationsTable.bookingId, bookingsTable.id))
+        .innerJoin(
+            bookingsTable,
+            eq(conversationsTable.bookingId, bookingsTable.id)
+        )
         .innerJoin(ridesTable, eq(bookingsTable.rideId, ridesTable.id))
         .where(
-            and(eq(conversationsTable.id, conversationId), conversationNotSoftDeleted)
+            and(
+                eq(conversationsTable.id, conversationId),
+                conversationNotSoftDeleted
+            )
         )
         .limit(1);
 
@@ -129,6 +146,17 @@ const findUserConversations = async (executor: Executor, userId: string) => {
           AND ${messagesTable.deletedAt} IS NULL
     ), ${conversationsTable.updatedAt})`;
 
+    const isBlocked = sql<boolean>`EXISTS (
+        SELECT 1 FROM ${blocklistTable}
+        WHERE ${blocklistTable.blockStatus} = 'ACTIVE'
+          AND ${blocklistTable.revokedAt} IS NULL
+          AND ${blocklistTable.deletedAt} IS NULL
+          AND (
+            (${blocklistTable.blockerUserId} = ${ridesTable.driverId} AND ${blocklistTable.blockedUserId} = ${bookingsTable.passengerId}) OR
+            (${blocklistTable.blockerUserId} = ${bookingsTable.passengerId} AND ${blocklistTable.blockedUserId} = ${ridesTable.driverId})
+          )
+    )`;
+
     return await executor
         .select({
             id: conversationsTable.id,
@@ -152,16 +180,26 @@ const findUserConversations = async (executor: Executor, userId: string) => {
             },
             lastMessageId,
             unreadCount,
+            isBlocked,
         })
         .from(conversationsTable)
-        .innerJoin(bookingsTable, eq(conversationsTable.bookingId, bookingsTable.id))
+        .innerJoin(
+            bookingsTable,
+            eq(conversationsTable.bookingId, bookingsTable.id)
+        )
         .innerJoin(ridesTable, eq(bookingsTable.rideId, ridesTable.id))
         .innerJoin(driverUser, eq(ridesTable.driverId, driverUser.id))
-        .innerJoin(passengerUser, eq(bookingsTable.passengerId, passengerUser.id))
+        .innerJoin(
+            passengerUser,
+            eq(bookingsTable.passengerId, passengerUser.id)
+        )
         .where(
             and(
                 conversationNotSoftDeleted,
-                or(eq(ridesTable.driverId, userId), eq(bookingsTable.passengerId, userId))
+                or(
+                    eq(ridesTable.driverId, userId),
+                    eq(bookingsTable.passengerId, userId)
+                )
             )
         )
         .orderBy(desc(lastActivityAt));
