@@ -87,7 +87,7 @@ export function RideCard(props: RideCardProps) {
             data-testid="ride-card"
             className="flex flex-col gap-4 py-5 px-6 bg-(--color-card) border border-(--color-border) rounded-2xl max-600:gap-3 max-600:p-4"
         >
-            <div className="flex justify-between items-start gap-6 max-600:flex-col max-600:gap-3">
+            <div className="flex justify-between items-start gap-6 max-600:gap-3">
                 <div className="flex flex-col gap-3 min-w-0 flex-1">
                     <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-2 min-w-0">
@@ -104,40 +104,10 @@ export function RideCard(props: RideCardProps) {
                             </span>
                         </div>
                     </div>
-
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 [&_svg]:w-4 [&_svg]:h-4 [&_svg]:text-(--color-text-secondary) [&_svg]:shrink-0">
-                        <span className="inline-flex items-center gap-1.5 text-sm text-(--color-text-secondary)">
-                            <ClockIcon />
-                            <span className="break-words">{datetime}</span>
-                        </span>
-                        {duration && (
-                            <span className="text-sm text-(--color-text-secondary)">
-                                {"\u00b7 "}
-                                {duration}
-                            </span>
-                        )}
-                        {props.variant === "driver-upcoming" && (
-                            <span className="inline-flex items-center gap-1.5 text-sm text-(--color-text-secondary)">
-                                <UserIcon />
-                                <span>
-                                    {props.seatsLeft === "full"
-                                        ? (labels?.full ?? "Full")
-                                        : seatsText(props.seatsLeft)}
-                                </span>
-                            </span>
-                        )}
-                        {props.variant === "passenger-upcoming" &&
-                            props.seatsLeft !== undefined && (
-                                <span className="inline-flex items-center gap-1.5 text-sm text-(--color-text-secondary)">
-                                    <UserIcon />
-                                    <span>{seatsText(props.seatsLeft)}</span>
-                                </span>
-                            )}
-                    </div>
                 </div>
 
                 <div
-                    className={`flex flex-col items-end gap-2 shrink-0 max-600:w-full ${hasDriver ? "max-600:flex-row max-600:items-start max-600:justify-between" : "max-600:items-end"}`}
+                    className={`flex flex-col items-end gap-2 shrink-0 ${hasDriver ? "" : "max-600:items-end"}`}
                 >
                     {hasDriver && (
                         <div className="flex items-center gap-3 min-w-0">
@@ -224,68 +194,102 @@ export function RideCard(props: RideCardProps) {
                 </div>
             </div>
 
-            {props.variant === "passenger-upcoming" && (
-                <div className="flex flex-wrap justify-end gap-2 max-600:flex-col max-600:w-full">
-                    {props.onSendMessage && (
-                        <Button
-                            variant="secondary"
-                            className={passengerActionClassName}
-                            onClick={props.onSendMessage}
-                        >
-                            {labels?.messageDriver ?? "Message driver"}
-                        </Button>
+            <div className="flex items-end justify-between gap-4 max-600:flex-col max-600:items-stretch">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 min-w-0 [&_svg]:w-4 [&_svg]:h-4 [&_svg]:text-(--color-text-secondary) [&_svg]:shrink-0">
+                    <span className="inline-flex items-center gap-1.5 text-sm text-(--color-text-secondary)">
+                        <ClockIcon />
+                        <span className="break-words">{datetime}</span>
+                    </span>
+                    {duration && (
+                        <span className="text-sm text-(--color-text-secondary)">
+                            {"\u00b7 "}
+                            {duration}
+                        </span>
                     )}
-                    {props.status === "pending" && (
-                        <Button
-                            variant="secondary"
-                            className={passengerActionClassName}
-                        >
-                            {labels?.pendingConfirmation ??
-                                "Pending confirmation"}
-                        </Button>
+                    {props.variant === "driver-upcoming" && (
+                        <span className="inline-flex items-center gap-1.5 text-sm text-(--color-text-secondary)">
+                            <UserIcon />
+                            <span>
+                                {props.seatsLeft === "full"
+                                    ? (labels?.full ?? "Full")
+                                    : seatsText(props.seatsLeft)}
+                            </span>
+                        </span>
                     )}
-                    <Button
-                        variant="red"
-                        className={passengerActionClassName}
-                        onClick={props.onCancelBooking}
-                    >
-                        {labels?.cancelBooking ?? "Cancel booking"}
-                    </Button>
-                    {props.status === "confirmed" && props.onReport && (
-                        <Button
-                            variant="secondary"
-                            className={passengerActionClassName}
-                            onClick={props.onReport}
-                        >
-                            {labels?.reportDriver ?? "Report driver"}
-                        </Button>
-                    )}
+                    {props.variant === "passenger-upcoming" &&
+                        props.seatsLeft !== undefined && (
+                            <span className="inline-flex items-center gap-1.5 text-sm text-(--color-text-secondary)">
+                                <UserIcon />
+                                <span>{seatsText(props.seatsLeft)}</span>
+                            </span>
+                        )}
                 </div>
-            )}
 
-            {props.variant === "passenger-past" && (
-                <div className="flex flex-wrap justify-end gap-2 max-600:flex-col max-600:w-full">
-                    <Button
-                        variant={props.alreadyReviewed ? "secondary" : "black"}
-                        className={passengerActionClassName}
-                        onClick={props.onRateDriver}
-                        disabled={props.alreadyReviewed}
-                    >
-                        {props.alreadyReviewed
-                            ? (labels?.rated ?? "Rated")
-                            : (labels?.rateDriver ?? "Rate driver")}
-                    </Button>
-                    {props.onReport && (
+                {props.variant === "passenger-upcoming" && (
+                    <div className="flex flex-wrap justify-end gap-2 shrink-0 max-600:flex-col max-600:w-full">
+                        {props.onSendMessage && (
+                            <Button
+                                variant="secondary"
+                                className={passengerActionClassName}
+                                onClick={props.onSendMessage}
+                            >
+                                {labels?.messageDriver ?? "Message driver"}
+                            </Button>
+                        )}
+                        {props.status === "pending" && (
+                            <Button
+                                variant="secondary"
+                                className={passengerActionClassName}
+                            >
+                                {labels?.pendingConfirmation ??
+                                    "Pending confirmation"}
+                            </Button>
+                        )}
                         <Button
-                            variant="secondary"
+                            variant="red"
                             className={passengerActionClassName}
-                            onClick={props.onReport}
+                            onClick={props.onCancelBooking}
                         >
-                            {labels?.reportDriver ?? "Report driver"}
+                            {labels?.cancelBooking ?? "Cancel booking"}
                         </Button>
-                    )}
-                </div>
-            )}
+                        {props.status === "confirmed" && props.onReport && (
+                            <Button
+                                variant="secondary"
+                                className={passengerActionClassName}
+                                onClick={props.onReport}
+                            >
+                                {labels?.reportDriver ?? "Report driver"}
+                            </Button>
+                        )}
+                    </div>
+                )}
+
+                {props.variant === "passenger-past" && (
+                    <div className="flex flex-wrap justify-end gap-2 shrink-0 max-600:flex-col max-600:w-full">
+                        <Button
+                            variant={
+                                props.alreadyReviewed ? "secondary" : "black"
+                            }
+                            className={passengerActionClassName}
+                            onClick={props.onRateDriver}
+                            disabled={props.alreadyReviewed}
+                        >
+                            {props.alreadyReviewed
+                                ? (labels?.rated ?? "Rated")
+                                : (labels?.rateDriver ?? "Rate driver")}
+                        </Button>
+                        {props.onReport && (
+                            <Button
+                                variant="secondary"
+                                className={passengerActionClassName}
+                                onClick={props.onReport}
+                            >
+                                {labels?.reportDriver ?? "Report driver"}
+                            </Button>
+                        )}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
