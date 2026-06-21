@@ -178,6 +178,7 @@ const findReportDetailById = async (
             targetFirstName: target.firstName,
             targetLastName: target.lastName,
             targetProfilePhotoUrl: target.profilePhotoUrl,
+            targetUserStatus: target.userStatus,
             rideDepartureAt: ridesTable.departureAt,
             originCity: originStops.city,
             destinationCity: destStops.city,
@@ -228,6 +229,7 @@ const findReportDetailById = async (
             firstName: row.targetFirstName,
             lastName: row.targetLastName,
             profilePhotoUrl: row.targetProfilePhotoUrl,
+            userStatus: row.targetUserStatus,
         },
         ride:
             row.rideId &&

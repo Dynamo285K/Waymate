@@ -23,10 +23,7 @@ function computeBreakpoint(
  * @param desktopMin width (px) above which the layout is "desktop"
  * @param mobileMax  width (px) at or below which the layout is "mobile"
  */
-export function useBreakpoint(
-    desktopMin: number,
-    mobileMax = 560
-): Breakpoint {
+export function useBreakpoint(desktopMin: number, mobileMax = 560): Breakpoint {
     const [breakpoint, setBreakpoint] = useState<Breakpoint>(() =>
         computeBreakpoint(
             typeof window !== "undefined" ? window.innerWidth : 1280,
