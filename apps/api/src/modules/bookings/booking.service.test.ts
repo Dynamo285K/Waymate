@@ -184,7 +184,7 @@ describe("BookingService.createBookingRequest", () => {
         ).rejects.toMatchObject({ code: BookingErrorCodes.PriceNotFound });
     });
 
-    it("throws NotEnoughSeats when the request would exceed offeredSeats (counting PENDING + CONFIRMED)", async () => {
+    it("allows creating PENDING requests that exceed offeredSeats (PENDING doesn't consume capacity)", async () => {
         const { rideId, pickupStopId, dropoffStopId } = await createRideContext(
             {
                 rideOverrides: {
@@ -207,16 +207,16 @@ describe("BookingService.createBookingRequest", () => {
             seatCount: 2,
         });
 
-        // 2 (held) + 2 = 4 > 3 → NotEnoughSeats.
-        await expect(
-            BookingService.createBookingRequest({
-                rideId,
-                passengerId: passenger2.id,
-                pickupStopId,
-                dropoffStopId,
-                seatCount: 2,
-            })
-        ).rejects.toMatchObject({ code: BookingErrorCodes.NotEnoughSeats });
+        // 2 (held) + 2 = 4 > 3, but PENDING doesn't consume capacity, so it should succeed.
+        const bookingId = await BookingService.createBookingRequest({
+            rideId,
+            passengerId: passenger2.id,
+            pickupStopId,
+            dropoffStopId,
+            seatCount: 2,
+        });
+
+        expect(bookingId).toBeTruthy();
     });
 
     it("throws AlreadyBooked when the same passenger requests twice", async () => {
@@ -347,6 +347,61 @@ describe("BookingService.confirmBooking", () => {
         await expect(
             BookingService.confirmBooking(bookingId, setup.driver.id)
         ).rejects.toMatchObject({ code: BookingErrorCodes.NotEnoughSeats });
+    });
+
+    it("auto-rejects remaining PENDING requests if confirming a booking reaches max capacity", async () => {
+        const setup = await createRideContext({
+            rideOverrides: {
+                offeredSeats: 3,
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }],
+            },
+        });
+
+        const passenger1 = await insertTestUser();
+        const passenger2 = await insertTestUser();
+        const passenger3 = await insertTestUser();
+
+        const bookingId1 = await BookingService.createBookingRequest({
+            rideId: setup.rideId,
+            passengerId: passenger1.id,
+            pickupStopId: setup.pickupStopId,
+            dropoffStopId: setup.dropoffStopId,
+            seatCount: 2,
+        });
+
+        const bookingId2 = await BookingService.createBookingRequest({
+            rideId: setup.rideId,
+            passengerId: passenger2.id,
+            pickupStopId: setup.pickupStopId,
+            dropoffStopId: setup.dropoffStopId,
+            seatCount: 2,
+        });
+
+        const bookingId3 = await BookingService.createBookingRequest({
+            rideId: setup.rideId,
+            passengerId: passenger3.id,
+            pickupStopId: setup.pickupStopId,
+            dropoffStopId: setup.dropoffStopId,
+            seatCount: 1,
+        });
+
+        // Confirming passenger1 takes 2 seats out of 3.
+        await BookingService.confirmBooking(bookingId1, setup.driver.id);
+
+        // passenger2 wants 2 seats, but only 1 is left. It should be auto-rejected.
+        // passenger3 wants 1 seat, and 1 is left. It should NOT be rejected.
+        const b2 = await db.query.bookings.findFirst({
+            where: eq(bookingsTable.id, bookingId2),
+        });
+        expect(b2!.bookingStatus).toBe("REJECTED");
+
+        const b3 = await db.query.bookings.findFirst({
+            where: eq(bookingsTable.id, bookingId3),
+        });
+        expect(b3!.bookingStatus).toBe("PENDING");
+
+        // Confirming passenger3 takes the last seat.
+        await BookingService.confirmBooking(bookingId3, setup.driver.id);
     });
 });
 

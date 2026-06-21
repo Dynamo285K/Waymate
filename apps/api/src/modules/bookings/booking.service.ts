@@ -133,7 +133,7 @@ const createBookingRequest = async (
         const heldSeats = await BookingRepository.sumSeatsForRide(
             tx,
             payload.rideId,
-            ["PENDING", "CONFIRMED"]
+            ["CONFIRMED", "COMPLETED"]
         );
 
         if (heldSeats + payload.seatCount > ride.offeredSeats) {
@@ -234,6 +234,28 @@ const confirmBooking = async (
             changedByUserId: driverId,
             reason: "Driver confirmed booking",
         });
+
+        const newConfirmedSeats = confirmedSeats + booking.seatCount;
+        const seatsLeft = Math.max(0, ride.offeredSeats - newConfirmedSeats);
+
+        const pendingBookings =
+            await BookingRepository.findPendingBookingsForRide(tx, ride.id);
+
+        for (const pending of pendingBookings) {
+            if (pending.seatCount > seatsLeft) {
+                await BookingRepository.updateBookingFields(tx, pending.id, {
+                    bookingStatus: "REJECTED",
+                });
+
+                await BookingRepository.insertBookingStatusHistory(tx, {
+                    bookingId: pending.id,
+                    oldStatus: "PENDING",
+                    newStatus: "REJECTED",
+                    changedByUserId: driverId,
+                    reason: "System auto-rejected: Ride reached maximum capacity",
+                });
+            }
+        }
 
         return updatedBooking.id;
     });

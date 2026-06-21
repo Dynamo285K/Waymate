@@ -470,6 +470,22 @@ const findActiveBookingByPassenger = async (
     });
 };
 
+const findPendingBookingsForRide = async (
+    executor: Executor,
+    rideId: string
+): Promise<BookingRow[]> => {
+    return await executor
+        .select()
+        .from(bookingsTable)
+        .where(
+            and(
+                eq(bookingsTable.rideId, rideId),
+                eq(bookingsTable.bookingStatus, "PENDING"),
+                bookingNotSoftDeleted
+            )
+        );
+};
+
 const insertBooking = async (
     executor: Executor,
     values: {
@@ -546,6 +562,7 @@ export const BookingRepository = {
     findSegmentPrice,
     sumSeatsForRide,
     findActiveBookingByPassenger,
+    findPendingBookingsForRide,
     insertBooking,
     updateBookingFields,
     insertBookingStatusHistory,

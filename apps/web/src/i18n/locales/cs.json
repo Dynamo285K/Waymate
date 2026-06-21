@@ -364,7 +364,9 @@
         "plateLength": "SPZ musí mít {{min}}-{{max}} znaků.",
         "carCreateError": "Nepodařilo se uložit auto. Zkontrolujte detaily auta.",
         "estimatedArrival": "Předpokládaný čas příjezdu: {{time}}",
-        "estimatedArrivalLoading": "Počítá se předpokládaný čas příjezdu..."
+        "estimatedArrivalLoading": "Počítá se předpokládaný čas příjezdu...",
+        "publishError": "Nepodařilo se zveřejnit jízdu. Zkuste to prosím znovu.",
+        "overlappingRide": "V tomto čase již máte naplánovanou jinou jízdu."
     },
     "rideRequests": {
         "title": "Žádosti o jízdu",
