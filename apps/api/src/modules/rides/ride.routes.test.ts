@@ -1,104 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
 import { TEST_CITY_IDS } from "../../../test/reference-data";
-import { apiRequest } from "../../../test/http";
+import { jsonRequest, apiRequest } from "../../../test/http";
 import {
     authenticatedRequest,
+    createSignedInUser,
     createSignInUser,
-    signIn,
 } from "../../../test/auth-helpers";
+import { createTestCar, buildRideBody, createRideContext } from "../../../test/factories";
 import { db } from "../../db";
 import { carModels, cars, rides } from "../../db/schema";
 import { RideService } from "./ride.service";
 import { RideErrorCodes } from "./ride.errors";
 import type { CreateRideBody } from "@repo/shared";
 
-async function getAnyCarModelId(): Promise<number> {
-    const [model] = await db.select().from(carModels).limit(1);
-    if (!model) {
-        throw new Error(
-            "car_models is empty — reset-db.ts should reseed reference data"
-        );
-    }
-    return model.id;
-}
 
-async function insertCarFor(ownerId: string) {
-    const [car] = await db
-        .insert(cars)
-        .values({
-            ownerId,
-            modelId: await getAnyCarModelId(),
-            spz: `RT${crypto.randomUUID().slice(0, 6).toUpperCase()}`,
-            countryCode: "SK",
-            color: "BLUE",
-            seatsTotal: 4,
-            isActive: true,
-        })
-        .returning();
-    if (!car) throw new Error("Failed to insert test car");
-    return car;
-}
-
-function buildCreateRideBody(
-    carId: string,
-    overrides: Partial<CreateRideBody> = {}
-): CreateRideBody {
-    const departureAt =
-        overrides.departureAt ?? new Date(Date.now() + 24 * 60 * 60 * 1000);
-
-    return {
-        carId,
-        departureAt,
-        arrivalEstimateAt:
-            "arrivalEstimateAt" in overrides
-                ? overrides.arrivalEstimateAt
-                : new Date(departureAt.getTime() + 90 * 60 * 1000),
-        durationMinutes: overrides.durationMinutes,
-        offeredSeats: overrides.offeredSeats ?? 2,
-        currency: overrides.currency ?? "EUR",
-        description: overrides.description ?? null,
-        stops: overrides.stops ?? [
-            {
-                address: "Hlavná 1",
-                city: "Bratislava",
-                countryCode: "SK",
-                lat: 48.148,
-                lng: 17.107,
-                plannedArrivalAt: null,
-                plannedDepartureAt: departureAt,
-            },
-            {
-                address: "Námestie SNP 1",
-                city: "Banská Bystrica",
-                countryCode: "SK",
-                lat: 48.736,
-                lng: 19.146,
-                plannedArrivalAt: new Date(
-                    departureAt.getTime() + 90 * 60 * 1000
-                ),
-                plannedDepartureAt: null,
-            },
-        ],
-        prices: overrides.prices,
-    };
-}
-
-async function createSignedInUser(
-    options?: Parameters<typeof createSignInUser>[0]
-) {
-    const credentials = await createSignInUser(options);
-    const cookie = await signIn(credentials.email, credentials.password);
-    return { ...credentials, cookie };
-}
-
-function jsonRequest(data: unknown): RequestInit {
-    return {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(data),
-    };
-}
 
 describe("RideRoutes public endpoints", () => {
     it("returns an empty list from GET /rides/available when no rides exist", async () => {
@@ -166,22 +82,12 @@ describe("RideRoutes protected endpoints", () => {
     });
 
     it("ends a driver's ride through PATCH /rides/:id/end", async () => {
-        const { user: driver, cookie } = await createSignedInUser();
-        const car = await insertCarFor(driver.id);
         const departureAt = new Date(Date.now() - 2 * 60 * 60 * 1000);
-        const rideId = await RideService.createRide(
-            driver.id,
-            buildCreateRideBody(car.id, {
-                departureAt,
-                arrivalEstimateAt: new Date(
-                    departureAt.getTime() + 60 * 60 * 1000
-                ),
-            })
-        );
+        const { driver, driverCookie, rideId } = await createRideContext({ departureAt });
 
         const response = await authenticatedRequest(
             `/rides/${rideId}/end`,
-            cookie,
+            driverCookie,
             {
                 method: "PATCH",
                 headers: { "content-type": "application/json" },
@@ -205,19 +111,9 @@ describe("RideRoutes protected endpoints", () => {
     });
 
     it("returns 404 when a driver tries to end someone else's ride", async () => {
-        const owner = await createSignInUser();
         const { cookie: strangerCookie } = await createSignedInUser();
-        const car = await insertCarFor(owner.user.id);
         const departureAt = new Date(Date.now() - 2 * 60 * 60 * 1000);
-        const rideId = await RideService.createRide(
-            owner.user.id,
-            buildCreateRideBody(car.id, {
-                departureAt,
-                arrivalEstimateAt: new Date(
-                    departureAt.getTime() + 60 * 60 * 1000
-                ),
-            })
-        );
+        const { rideId } = await createRideContext({ departureAt });
 
         const response = await authenticatedRequest(
             `/rides/${rideId}/end`,
@@ -237,8 +133,8 @@ describe("RideRoutes protected endpoints", () => {
 
     it("creates a ride through POST /rides for an onboarded user", async () => {
         const { user, cookie } = await createSignedInUser({ onboarded: true });
-        const car = await insertCarFor(user.id);
-        const body = buildCreateRideBody(car.id);
+        const car = await createTestCar(user.id);
+        const body = buildRideBody(car.id, new Date(Date.now() + 24 * 60 * 60 * 1000));
 
         const response = await authenticatedRequest(
             "/rides",
@@ -261,8 +157,8 @@ describe("RideRoutes protected endpoints", () => {
         const { user, cookie } = await createSignedInUser({
             onboarded: false,
         });
-        const car = await insertCarFor(user.id);
-        const body = buildCreateRideBody(car.id);
+        const car = await createTestCar(user.id);
+        const body = buildRideBody(car.id, new Date(Date.now() + 24 * 60 * 60 * 1000));
 
         const response = await authenticatedRequest(
             "/rides",

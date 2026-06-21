@@ -1,7 +1,8 @@
 import { defineConfig } from "vitest/config";
-import path from "node:path";
+import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 
+// @ts-ignore: import.meta is only allowed with specific module settings
 const dir = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
@@ -13,7 +14,8 @@ export default defineConfig({
         // without fileParallelism:false one file's reset would interleave with
         // another file's inserts even inside a single fork.
         pool: "forks",
-        forks: { singleFork: true },
+        // @ts-expect-error: poolOptions is valid in Vitest 4 but might not align with InlineConfig types
+        poolOptions: { forks: { singleFork: true } },
         fileParallelism: false,
         globalSetup: [path.resolve(dir, "./test/global-setup.ts")],
         // Order matters: load-env mutates process.env so the later setup

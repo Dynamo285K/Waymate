@@ -18,6 +18,7 @@ import { TEST_CITY_IDS } from "../../../test/reference-data";
 import { CreateRideBodySchema, type CreateRideBody } from "@repo/shared";
 import { vi } from "vitest";
 import { fetchOsrmRouteCells } from "./osrm.service";
+import { createTestCar, buildRideBody } from "../../../test/factories";
 
 vi.mock("./osrm.service", () => ({
     fetchOsrmRouteCells: vi
@@ -37,82 +38,16 @@ async function insertTestUser() {
     return user;
 }
 
-async function getAnyCarModelId(): Promise<number> {
-    const [model] = await db.select().from(carModels).limit(1);
-    if (!model) {
-        throw new Error(
-            "car_models is empty — reset-db.ts should reseed reference data"
-        );
-    }
-    return model.id;
-}
-
-// Inserts a car directly via Drizzle to avoid coupling ride tests to CarService.
-async function insertCarFor(
-    ownerId: string,
-    overrides: Partial<typeof cars.$inferInsert> = {}
-) {
-    const modelId = overrides.modelId ?? (await getAnyCarModelId());
-    const [car] = await db
-        .insert(cars)
-        .values({
-            ownerId,
-            modelId,
-            spz:
-                overrides.spz ??
-                `R${crypto.randomUUID().slice(0, 6).toUpperCase()}`,
-            countryCode: overrides.countryCode ?? "SK",
-            color: overrides.color ?? "BLUE",
-            seatsTotal: overrides.seatsTotal ?? 4,
-            isActive: overrides.isActive ?? true,
-            deletedAt: overrides.deletedAt ?? null,
-        })
-        .returning();
-    if (!car) throw new Error("Failed to insert test car");
-    return car;
-}
 
 function buildCreateRideBody(
     carId: string,
     overrides: Partial<CreateRideBody> = {}
 ): CreateRideBody {
-    const departureAt =
-        overrides.departureAt ?? new Date(Date.now() + 24 * 60 * 60 * 1000);
-    return {
+    return buildRideBody(
         carId,
-        departureAt,
-        arrivalEstimateAt:
-            "arrivalEstimateAt" in overrides
-                ? overrides.arrivalEstimateAt
-                : new Date(departureAt.getTime() + 60 * 60 * 1000),
-        offeredSeats: overrides.offeredSeats ?? 3,
-        currency: overrides.currency ?? "EUR",
-        description: overrides.description ?? null,
-        stops: overrides.stops ?? [
-            {
-                address: "Hlavná 1",
-                city: "Bratislava",
-                countryCode: "SK",
-                lat: 48.148,
-                lng: 17.107,
-                plannedArrivalAt: null,
-                plannedDepartureAt: departureAt,
-            },
-            {
-                address: "Námestie SNP 1",
-                city: "Banská Bystrica",
-                countryCode: "SK",
-                lat: 48.736,
-                lng: 19.146,
-                plannedArrivalAt: new Date(
-                    departureAt.getTime() + 2 * 60 * 60 * 1000
-                ),
-                plannedDepartureAt: null,
-            },
-        ],
-        prices: overrides.prices,
-        durationMinutes: overrides.durationMinutes,
-    };
+        overrides.departureAt ?? new Date(Date.now() + 24 * 60 * 60 * 1000),
+        overrides
+    );
 }
 
 // Mirrors AUTO_END_BUFFER_MS in ride.service.ts: a ride auto-ends one hour
@@ -122,7 +57,7 @@ const AUTO_END_BUFFER_MS = 60 * 60 * 1000;
 describe("RideService.createRide", () => {
     it("creates a ride with stops, prices, and a status-history row in one transaction", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const body = buildCreateRideBody(car.id, {
             prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }],
         });
@@ -168,7 +103,7 @@ describe("RideService.createRide", () => {
 
     it("resolves arrivalEstimateAt from OSRM durations when neither arrivalEstimateAt nor durationMinutes is supplied", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const departureAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
         const rideId = await RideService.createRide(
@@ -223,7 +158,7 @@ describe("RideService.createRide", () => {
         });
 
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const departureAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
         const plannedArrivalAt = new Date(
             departureAt.getTime() + 2 * 60 * 60 * 1000
@@ -269,11 +204,11 @@ describe("RideService.createRide", () => {
 
     it("works without a prices array (prices are optional)", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
 
         const rideId = await RideService.createRide(
             driver.id,
-            buildCreateRideBody(car.id)
+            buildCreateRideBody(car.id, { prices: undefined })
         );
 
         const ridePrices = await db
@@ -286,7 +221,7 @@ describe("RideService.createRide", () => {
     it("throws CarNotAvailableForDriver when the car belongs to someone else", async () => {
         const driver = await insertTestUser();
         const stranger = await insertTestUser();
-        const car = await insertCarFor(stranger.id);
+        const car = await createTestCar(stranger.id);
 
         await expect(
             RideService.createRide(driver.id, buildCreateRideBody(car.id))
@@ -297,7 +232,7 @@ describe("RideService.createRide", () => {
 
     it("throws CarNotAvailableForDriver for an inactive car", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id, { isActive: false });
+        const car = await createTestCar(driver.id, { isActive: false });
 
         await expect(
             RideService.createRide(driver.id, buildCreateRideBody(car.id))
@@ -308,7 +243,7 @@ describe("RideService.createRide", () => {
 
     it("throws CarNotAvailableForDriver for a soft-deleted car", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id, { deletedAt: new Date() });
+        const car = await createTestCar(driver.id, { deletedAt: new Date() });
 
         await expect(
             RideService.createRide(driver.id, buildCreateRideBody(car.id))
@@ -319,7 +254,7 @@ describe("RideService.createRide", () => {
 
     it("throws InvalidPriceStopOrders when a price references a stopOrder that doesn't exist", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
 
         await expect(
             RideService.createRide(
@@ -345,7 +280,7 @@ describe("RideService.createRide", () => {
 
     it("throws TooManySeats when offeredSeats exceeds the car's capacity", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id, { seatsTotal: 3 });
+        const car = await createTestCar(driver.id, { seatsTotal: 3 });
 
         await expect(
             RideService.createRide(
@@ -368,7 +303,7 @@ describe("RideService.createRide", () => {
 describe("RideService.createRide — arrival from duration", () => {
     it("resolves durationMinutes into an absolute arrivalEstimateAt and autoEndAt", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const departureAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
         const rideId = await RideService.createRide(
@@ -442,7 +377,7 @@ describe("CreateRideBodySchema — arrival input", () => {
 describe("RideService.cancelRide", () => {
     it("cancels a PLANNED ride and writes a status-history row", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const rideId = await RideService.createRide(
             driver.id,
             buildCreateRideBody(car.id)
@@ -475,7 +410,7 @@ describe("RideService.cancelRide", () => {
     it("throws RideNotFoundOrNotOwner when a non-driver tries to cancel", async () => {
         const driver = await insertTestUser();
         const stranger = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const rideId = await RideService.createRide(
             driver.id,
             buildCreateRideBody(car.id)
@@ -500,7 +435,7 @@ describe("RideService.cancelRide", () => {
 
     it("throws RideAlreadyCancelled on the second cancel", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const rideId = await RideService.createRide(
             driver.id,
             buildCreateRideBody(car.id)
@@ -535,8 +470,8 @@ describe("RideService.getDriverRides", () => {
     it("returns only the driver's own rides", async () => {
         const driver = await insertTestUser();
         const otherDriver = await insertTestUser();
-        const driverCar = await insertCarFor(driver.id);
-        const otherCar = await insertCarFor(otherDriver.id);
+        const driverCar = await createTestCar(driver.id);
+        const otherCar = await createTestCar(otherDriver.id);
 
         const future = new Date(Date.now() + 24 * 60 * 60 * 1000);
         const ownRideId = await createRideAt(driver.id, driverCar.id, future);
@@ -548,7 +483,7 @@ describe("RideService.getDriverRides", () => {
 
     it("splits UPCOMING vs PAST by status and ALL returns both", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
 
         // The list splits on ride status, not departure time: a COMPLETED ride
         // is PAST, anything not-yet-completed (PLANNED/IN_PROGRESS) is UPCOMING.
@@ -576,7 +511,7 @@ describe("RideService.getDriverRides", () => {
 
     it("excludes CANCELLED rides", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const future = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
         const keptId = await createRideAt(driver.id, car.id, future);
@@ -593,7 +528,7 @@ describe("RideService.getDriverRides", () => {
 
     it("excludes soft-deleted rides", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const future = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
         const keptId = await createRideAt(driver.id, car.id, future);
@@ -669,7 +604,7 @@ describe("RideService ride termination", () => {
     it("manually ends a departed PLANNED ride and carries confirmed bookings", async () => {
         const driver = await insertTestUser();
         const passenger = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const { rideId, pickupStopId, dropoffStopId } =
             await createDepartedRide(driver.id, car.id);
         const booking = await insertConfirmedBooking(
@@ -726,7 +661,7 @@ describe("RideService ride termination", () => {
 
     it("throws RideNotDeparted for a ride whose departure is still in the future", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const rideId = await RideService.createRide(
             driver.id,
             buildCreateRideBody(car.id, {
@@ -741,7 +676,7 @@ describe("RideService ride termination", () => {
 
     it("is idempotent on the second end and does not duplicate history", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const { rideId } = await createDepartedRide(driver.id, car.id);
         const firstReturnedId = await RideService.endRide({
             rideId,
@@ -779,7 +714,7 @@ describe("RideService ride termination", () => {
 
     it("allows the system to end a departed ride without a user actor", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const { rideId } = await createDepartedRide(driver.id, car.id);
         const endedAt = new Date();
 
@@ -815,7 +750,7 @@ describe("RideService ride termination", () => {
 
     it("autoEndExpiredRides ends only active rides whose autoEndAt has expired", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const now = new Date();
         const { rideId: expiredRideId } = await createDepartedRide(
             driver.id,
@@ -823,7 +758,7 @@ describe("RideService ride termination", () => {
             new Date(now.getTime() - 2 * HOUR)
         );
         const driver2 = await insertTestUser();
-        const car2 = await insertCarFor(driver2.id);
+        const car2 = await createTestCar(driver2.id);
         const futureAutoEndRideId = await RideService.createRide(
             driver2.id,
             buildCreateRideBody(car2.id, {
@@ -862,7 +797,7 @@ describe("RideService ride termination", () => {
 
     it("autoEndExpiredRides does not duplicate termination or history on repeated runs", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const now = new Date();
         const { rideId } = await createDepartedRide(
             driver.id,
@@ -898,7 +833,7 @@ describe("RideService ride termination", () => {
 
     it("throws RideNotCompletable for a cancelled ride", async () => {
         const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const { rideId } = await createDepartedRide(driver.id, car.id);
         await RideService.cancelRide(rideId, driver.id);
 
@@ -910,7 +845,7 @@ describe("RideService ride termination", () => {
     it("throws RideNotFoundOrNotOwner when a non-owner tries to complete", async () => {
         const driver = await insertTestUser();
         const stranger = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const { rideId } = await createDepartedRide(driver.id, car.id);
 
         await expect(
@@ -926,7 +861,7 @@ describe("RideService.getRidePassengers", () => {
         const driver = await insertTestUser();
         const passengerA = await insertTestUser();
         const passengerB = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
 
         const departureAt = new Date(Date.now() - 2 * 60 * 60 * 1000);
         const rideId = await RideService.createRide(

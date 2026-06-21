@@ -14,6 +14,7 @@ import { RideService } from "../rides/ride.service";
 import { BookingService } from "../bookings/booking.service";
 import { TEST_CITY_IDS } from "../../../test/reference-data";
 import type { CreateRideBody } from "@repo/shared";
+import { createRideContext, createTestCar, buildRideBody } from "../../../test/factories";
 
 async function insertTestUser() {
     const [user] = await db
@@ -27,71 +28,7 @@ async function insertTestUser() {
     return user;
 }
 
-async function getAnyCarModelId(): Promise<number> {
-    const [model] = await db.select().from(carModels).limit(1);
-    if (!model) {
-        throw new Error(
-            "car_models is empty — reset-db.ts should reseed reference data"
-        );
-    }
-    return model.id;
-}
 
-async function insertCarFor(ownerId: string) {
-    const modelId = await getAnyCarModelId();
-    const [car] = await db
-        .insert(cars)
-        .values({
-            ownerId,
-            modelId,
-            spz: `V${crypto.randomUUID().slice(0, 6).toUpperCase()}`,
-            countryCode: "SK",
-            color: "BLUE",
-            seatsTotal: 4,
-            isActive: true,
-        })
-        .returning();
-    if (!car) throw new Error("Failed to insert test car");
-    return car;
-}
-
-function buildRideBody(
-    carId: string,
-    departureAt: Date,
-    overrides: Partial<CreateRideBody> = {}
-): CreateRideBody {
-    return {
-        carId,
-        departureAt,
-        arrivalEstimateAt: new Date(departureAt.getTime() + 60 * 60 * 1000),
-        offeredSeats: overrides.offeredSeats ?? 3,
-        currency: "EUR",
-        description: null,
-        stops: [
-            {
-                address: "Hlavná 1",
-                city: "Bratislava",
-                countryCode: "SK",
-                lat: 48.148,
-                lng: 17.107,
-                plannedArrivalAt: null,
-                plannedDepartureAt: departureAt,
-            },
-            {
-                address: "Námestie SNP 1",
-                city: "Banská Bystrica",
-                countryCode: "SK",
-                lat: 48.736,
-                lng: 19.146,
-                plannedArrivalAt: new Date(
-                    departureAt.getTime() + 2 * 60 * 60 * 1000
-                ),
-                plannedDepartureAt: null,
-            },
-        ],
-        prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }],
-    };
-}
 
 type CompletedRideSetup = {
     driver: Awaited<ReturnType<typeof insertTestUser>>;
@@ -108,43 +45,16 @@ async function setupCompletedRideWithPassenger(
         departureAt?: Date;
     } = {}
 ): Promise<CompletedRideSetup> {
-    const driver = await insertTestUser();
-    const passenger = await insertTestUser();
-    const car = await insertCarFor(driver.id);
-
-    // Default: 1 day ago — window stays open.
-    const departureAt =
-        opts.departureAt ?? new Date(Date.now() - 24 * 60 * 60 * 1000);
-
-    const rideId = await RideService.createRide(
-        driver.id,
-        buildRideBody(car.id, departureAt)
-    );
-
-    const stops = await db
-        .select({ id: rideStops.id, stopOrder: rideStops.stopOrder })
-        .from(rideStops)
-        .where(eq(rideStops.rideId, rideId))
-        .orderBy(asc(rideStops.stopOrder));
-
-    const bookingId = await BookingService.createBookingRequest({
-        rideId,
-        passengerId: passenger.id,
-        pickupStopId: stops[0]!.id,
-        dropoffStopId: stops[1]!.id,
-        seatCount: 1,
+    const ctx = await createRideContext({ 
+        withPassenger: true, 
+        rideStatus: "COMPLETED",
+        departureAt: opts.departureAt 
     });
-    await BookingService.confirmBooking(bookingId, driver.id);
-
-    // The service layer doesn't expose a "complete ride" transition (rides
-    // only move PLANNED → CANCELLED), so we flip it directly here. Reviews
-    // gate strictly on rideStatus === "COMPLETED".
-    await db
-        .update(ridesTable)
-        .set({ rideStatus: "COMPLETED" })
-        .where(eq(ridesTable.id, rideId));
-
-    return { driver, passenger, rideId };
+    return {
+        driver: ctx.driver,
+        passenger: ctx.passenger!,
+        rideId: ctx.rideId,
+    };
 }
 
 describe("ReviewService.submitReview validation", () => {
@@ -180,7 +90,7 @@ describe("ReviewService.submitReview validation", () => {
     it("throws RideNotCompleted when the ride is still PLANNED", async () => {
         const driver = await insertTestUser();
         const passenger = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
 
         // Future departure — the ride stays PLANNED so we hit the not-completed branch.
         const departureAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -251,7 +161,7 @@ describe("ReviewService.submitReview validation", () => {
         const driver = await insertTestUser();
         const passenger1 = await insertTestUser();
         const passenger2 = await insertTestUser();
-        const car = await insertCarFor(driver.id);
+        const car = await createTestCar(driver.id);
         const departureAt = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
         const rideId = await RideService.createRide(
@@ -356,8 +266,8 @@ describe("ReviewService listings", () => {
         const driver = await insertTestUser();
         const passenger = await insertTestUser();
         const otherDriver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
-        const car2 = await insertCarFor(otherDriver.id);
+        const car = await createTestCar(driver.id);
+        const car2 = await createTestCar(otherDriver.id);
         const past = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
         async function bookAndComplete(d: { id: string }, c: { id: string }) {
