@@ -282,7 +282,7 @@ export function AdminNavbar({
     );
 
     const adminBadge = (
-        <span className="bg-(--color-primary) text-white rounded-full py-2 px-5 text-sm font-semibold border-0 cursor-default self-start shrink-0">
+        <span className="bg-(--color-primary) flex items-center justify-center text-white rounded-full py-2 px-5 text-sm font-semibold border-0 cursor-default self-center shrink-0">
             {labels?.adminRole ?? "Admin"}
         </span>
     );
