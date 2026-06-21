@@ -256,12 +256,15 @@ describe("ReviewRoutes", () => {
             const fetchPayload = (await fetchRes.json()) as {
                 averageRating: number;
                 reviewCount: number;
-                reviews: any[];
+                reviews: {
+                    comment: string;
+                    author: { id: string };
+                }[];
             };
             expect(fetchPayload.reviewCount).toBe(1);
             expect(fetchPayload.averageRating).toBe(4);
-            expect(fetchPayload.reviews[0].comment).toBe("Good driving");
-            expect(fetchPayload.reviews[0].author.id).toBe(passenger.id);
+            expect(fetchPayload.reviews[0]!.comment).toBe("Good driving");
+            expect(fetchPayload.reviews[0]!.author.id).toBe(passenger.id);
         });
 
         it("successfully fetches my authored reviews via GET /reviews/me/authored", async () => {
@@ -287,11 +290,15 @@ describe("ReviewRoutes", () => {
             );
             expect(authoredRes.status).toBe(200);
 
-            const authoredPayload = (await authoredRes.json()) as any[];
+            const authoredPayload = (await authoredRes.json()) as {
+                subject: { id: string };
+                rating: number;
+                comment: string;
+            }[];
             expect(authoredPayload).toHaveLength(1);
-            expect(authoredPayload[0].subject.id).toBe(driver.id);
-            expect(authoredPayload[0].rating).toBe(5);
-            expect(authoredPayload[0].comment).toBe("Five stars");
+            expect(authoredPayload[0]!.subject.id).toBe(driver.id);
+            expect(authoredPayload[0]!.rating).toBe(5);
+            expect(authoredPayload[0]!.comment).toBe("Five stars");
         });
     });
 });
