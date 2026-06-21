@@ -18,4 +18,5 @@ export interface CreateReportBody {
      * @maxLength 2000
      */
     description: string;
+    blockTarget?: boolean;
 }

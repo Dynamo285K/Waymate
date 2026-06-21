@@ -120,10 +120,39 @@ const insertReportStatusHistory = async (
     });
 };
 
+// Is there already an unresolved (OPEN / INVESTIGATING) report from this
+// reporter against this target for the same ride context? Used to stop
+// duplicate / spam reports while one is still being handled.
+const hasOpenReport = async (
+    executor: Executor,
+    reporterId: string,
+    targetUserId: string,
+    rideId: string | undefined
+): Promise<boolean> => {
+    const [row] = await executor
+        .select({ id: reportsTable.id })
+        .from(reportsTable)
+        .where(
+            and(
+                isNull(reportsTable.deletedAt),
+                eq(reportsTable.reporterId, reporterId),
+                eq(reportsTable.targetUserId, targetUserId),
+                rideId
+                    ? eq(reportsTable.rideId, rideId)
+                    : isNull(reportsTable.rideId),
+                inArray(reportsTable.reportStatus, ["OPEN", "INVESTIGATING"])
+            )
+        )
+        .limit(1);
+
+    return row !== undefined;
+};
+
 export const ReportRepository = {
     findVisibleTargetUserById,
     findVisibleRideById,
     haveSharedRide,
+    hasOpenReport,
     insertReport,
     insertReportStatusHistory,
 };

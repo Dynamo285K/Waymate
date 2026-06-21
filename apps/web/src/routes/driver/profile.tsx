@@ -8,6 +8,7 @@ import { authClient } from "../../lib/auth-client";
 import { getDisplayName } from "../../lib/session-user";
 import { useLayout } from "../../lib/use-layout";
 import { RideCard } from "../../components/shared/RideCard";
+import { BlockedUsersSection } from "../../components/shared/BlockedUsersSection";
 import { useDriverNavbarProps } from "../../features/driver/hooks/useDriverNavbarProps";
 import { useCancelRide } from "../../features/driver/hooks/useCancelRide";
 import { useDeleteCar } from "./-profile/hooks/useDeleteCar";
@@ -151,6 +152,8 @@ export function DriverProfilePage() {
                         </p>
                     </div>
                 )}
+
+                <BlockedUsersSection />
 
                 <div className="flex flex-col lg:flex-row gap-6">
                     <div className="flex-1 flex flex-col gap-4">

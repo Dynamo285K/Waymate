@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { Controller, useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { Button, IconButton, Modal, Textarea } from "@waymate/ui";
 import { usePostReports } from "../../api-client/reports/reports";
@@ -34,6 +36,14 @@ const REPORT_TYPE_OPTIONS: ReadonlyArray<{
     { value: ReportType.OTHER, labelKey: "report.types.other" },
 ];
 
+const reportFormSchema = z.object({
+    reportType: z.nativeEnum(ReportType),
+    description: z.string().trim().min(1).max(2000),
+    blockTarget: z.boolean(),
+});
+
+type ReportFormValues = z.infer<typeof reportFormSchema>;
+
 type ReportUserModalProps = {
     targetUserId: string;
     targetName: string;
@@ -52,10 +62,21 @@ export function ReportUserModal({
     const { t } = useTranslation();
     const { theme } = useLayout();
     const queryClient = useQueryClient();
-    const [reportType, setReportType] = useState<ReportType>(
-        ReportType.INAPPROPRIATE_BEHAVIOR
-    );
-    const [description, setDescription] = useState("");
+
+    const {
+        register,
+        control,
+        handleSubmit,
+        formState: { isValid },
+    } = useForm<ReportFormValues>({
+        resolver: zodResolver(reportFormSchema),
+        mode: "onChange",
+        defaultValues: {
+            reportType: ReportType.INAPPROPRIATE_BEHAVIOR,
+            description: "",
+            blockTarget: true,
+        },
+    });
 
     const mutation = usePostReports({
         mutation: {
@@ -69,15 +90,12 @@ export function ReportUserModal({
         },
     });
 
-    const trimmedDescription = description.trim();
-    const canSubmit = trimmedDescription.length > 0 && !mutation.isPending;
-
-    const handleSubmit = () => {
-        if (!canSubmit) return;
+    const onSubmit: SubmitHandler<ReportFormValues> = (values) => {
         const body: CreateReportBody = {
             targetUserId,
-            reportType,
-            description: trimmedDescription,
+            reportType: values.reportType,
+            description: values.description.trim(),
+            blockTarget: values.blockTarget,
             ...(rideId ? { rideId } : {}),
         };
         mutation.mutate({ data: body });
@@ -89,7 +107,10 @@ export function ReportUserModal({
             onClose={onClose}
             theme={theme}
         >
-            <div className="w-[calc(100vw-2rem)] max-w-lg p-8">
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="w-[calc(100vw-2rem)] max-w-lg p-8"
+            >
                 <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
                         {t("report.title")} — {targetName}
@@ -112,10 +133,7 @@ export function ReportUserModal({
                         <span className="text-(--color-danger-text)">*</span>
                     </label>
                     <select
-                        value={reportType}
-                        onChange={(e) =>
-                            setReportType(e.target.value as ReportType)
-                        }
+                        {...register("reportType")}
                         className="w-full rounded-xl border border-(--color-border) bg-(--color-card) px-4 py-3 text-sm text-(--color-text-primary) focus:outline-none focus:border-(--color-primary)"
                     >
                         {REPORT_TYPE_OPTIONS.map((opt) => (
@@ -134,13 +152,33 @@ export function ReportUserModal({
                         {t("report.descriptionLabel")}{" "}
                         <span className="text-(--color-danger-text)">*</span>
                     </label>
-                    <Textarea
-                        placeholder={t("report.descriptionPlaceholder")}
-                        maxLength={2000}
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
+                    <Controller
+                        control={control}
+                        name="description"
+                        render={({ field }) => (
+                            <Textarea
+                                placeholder={t("report.descriptionPlaceholder")}
+                                maxLength={2000}
+                                value={field.value}
+                                onChange={field.onChange}
+                            />
+                        )}
                     />
                 </div>
+
+                <label className="flex items-start gap-2.5 mb-6 cursor-pointer select-none">
+                    <input
+                        type="checkbox"
+                        {...register("blockTarget")}
+                        className="mt-0.5 h-4 w-4 shrink-0 accent-(--color-primary)"
+                    />
+                    <span className="text-sm text-(--color-text-primary)">
+                        {t("report.blockUser")}
+                        <span className="block text-xs text-(--color-text-secondary)">
+                            {t("report.blockUserHint")}
+                        </span>
+                    </span>
+                </label>
 
                 {mutation.isError && (
                     <p className="text-sm text-(--color-danger-text) mb-4">
@@ -150,6 +188,7 @@ export function ReportUserModal({
 
                 <div className="flex gap-3 justify-end">
                     <Button
+                        type="button"
                         variant="secondary"
                         onClick={onClose}
                         disabled={mutation.isPending}
@@ -157,14 +196,14 @@ export function ReportUserModal({
                         {t("report.cancel")}
                     </Button>
                     <Button
+                        type="submit"
                         variant="red"
-                        onClick={handleSubmit}
-                        disabled={!canSubmit}
+                        disabled={!isValid || mutation.isPending}
                     >
                         {t("report.submit")}
                     </Button>
                 </div>
-            </div>
+            </form>
         </Modal>
     );
 }

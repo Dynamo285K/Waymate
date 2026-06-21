@@ -11,6 +11,7 @@ export const BookingErrorCodes = {
     InvalidStatusTransition: "BOOKING_INVALID_STATUS_TRANSITION",
     PriceNotFound: "BOOKING_PRICE_NOT_FOUND",
     SelfBookingNotAllowed: "BOOKING_SELF_BOOKING_NOT_ALLOWED",
+    Blocked: "BOOKING_BLOCKED",
 } as const;
 
 export type BookingErrorCode =
@@ -30,6 +31,7 @@ export function bookingErrorToHttpStatus(code: BookingErrorCode): number {
         case BookingErrorCodes.RideNotFoundOrUnavailable:
             return 404;
         case BookingErrorCodes.UnauthorizedAction:
+        case BookingErrorCodes.Blocked:
             return 403;
         case BookingErrorCodes.NotEnoughSeats:
         case BookingErrorCodes.AlreadyBooked:

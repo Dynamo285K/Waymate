@@ -84,6 +84,10 @@
             "markInvestigating": "Mark investigating",
             "markResolved": "Mark resolved",
             "markDismissed": "Dismiss",
+            "conversation": "Conversation",
+            "viewConversation": "View conversation",
+            "conversationLoading": "Loading conversation…",
+            "noConversation": "No conversation available for this report.",
             "statusOpen": "Open",
             "statusInvestigating": "Investigating",
             "statusResolved": "Resolved",
@@ -481,7 +485,8 @@
         "cancelBooking": "Cancel booking",
         "rateDriver": "Rate driver",
         "rated": "Rated",
-        "reportDriver": "Report driver"
+        "reportDriver": "Report driver",
+        "messageDriver": "Message driver"
     },
     "bookGuest": {
         "title": "Create an account to book",
@@ -506,7 +511,24 @@
         "typeMessage": "Type a message...",
         "viewProfile": "View profile",
         "blockUser": "Block user",
-        "reportUser": "Report user"
+        "reportUser": "Report user",
+        "loading": "Loading messages…",
+        "selectConversation": "Select a conversation to start chatting",
+        "unknownUser": "Unknown user",
+        "back": "Back",
+        "cancel": "Cancel",
+        "blockConfirmTitle": "Block {{name}}?",
+        "blockConfirmText": "You won't be able to message, book, or see each other's rides. You can unblock them later from your profile.",
+        "reviewsCount": "{{count}} reviews",
+        "noReviews": "No reviews yet",
+        "blockedShort": "Blocked",
+        "blockedNotice": "You've blocked this user.",
+        "today": "Today",
+        "yesterday": "Yesterday"
+    },
+    "blocked": {
+        "title": "Blocked users",
+        "unblock": "Unblock"
     },
     "roles": {
         "passenger": "Passenger",
@@ -521,6 +543,8 @@
         "descriptionPlaceholder": "Describe what happened (max 2000 characters)…",
         "cancel": "Cancel",
         "submit": "Submit report",
+        "blockUser": "Also block this user",
+        "blockUserHint": "You won't be able to message, book, or see each other's rides.",
         "types": {
             "inappropriateBehavior": "Inappropriate behavior",
             "noShow": "No-show",
@@ -533,7 +557,8 @@
             "targetNotFound": "This user is no longer available.",
             "targetNotAllowed": "You can only report users you have shared a ride with.",
             "selfReport": "You cannot report yourself.",
-            "rideNotFound": "This ride no longer exists."
+            "rideNotFound": "This ride no longer exists.",
+            "duplicateOpen": "You already have an open report against this user. We'll review it soon."
         }
     },
     "nav": {

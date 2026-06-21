@@ -1,6 +1,7 @@
 import { db } from "../../db";
 import { BookingRepository } from "./booking.repository";
 import { BookingError, BookingErrorCodes } from "./booking.errors";
+import { BlockService } from "../blocks/block.service";
 import type {
     BookingTimeframe,
     CreateBookingInput,
@@ -50,6 +51,16 @@ const createBookingRequest = async (
 
         if (ride.driverId === payload.passengerId) {
             throw new BookingError(BookingErrorCodes.SelfBookingNotAllowed);
+        }
+
+        if (
+            await BlockService.isBlockedBetween(
+                ride.driverId,
+                payload.passengerId,
+                tx
+            )
+        ) {
+            throw new BookingError(BookingErrorCodes.Blocked);
         }
 
         let finalPickupStopId = payload.pickupStopId;

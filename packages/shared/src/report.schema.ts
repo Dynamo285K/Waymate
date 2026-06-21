@@ -33,6 +33,9 @@ export const CreateReportBodySchema = z
         rideId: RideIdSchema.optional(),
         reportType: ReportTypeSchema,
         description: DescriptionSchema,
+        // When true, also adds the target to the reporter's personal block list
+        // (no more chat / bookings / search visibility between the two).
+        blockTarget: z.boolean().optional(),
     })
     .strict();
 

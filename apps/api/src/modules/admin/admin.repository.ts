@@ -16,6 +16,7 @@ import {
 } from "drizzle-orm";
 import type {
     AdminDashboardResponse,
+    AdminReportConversationMessage,
     AdminReportDetail,
     AdminReportListItem,
     AdminReportStatusHistoryItem,
@@ -49,6 +50,8 @@ import { reviews as reviewsTable } from "../../db/schema/review";
 import { reviewStatusHistory as reviewStatusHistoryTable } from "../../db/schema/review_status_history";
 import { reports as reportsTable } from "../../db/schema/report";
 import { reportStatusHistory as reportStatusHistoryTable } from "../../db/schema/report_status_history";
+import { conversations as conversationsTable } from "../../db/schema/conversation";
+import { messages as messagesTable } from "../../db/schema/message";
 
 const adminUserListColumns = {
     id: usersTable.id,
@@ -1453,6 +1456,76 @@ const getDashboardMetrics = async (
     };
 };
 
+// Resolve the booking-scoped conversation that ties a report's two parties
+// together: the conversation on the report's ride whose booking pairs the
+// reporter and target as {passenger, driver} in either direction. Null when the
+// report has no ride, or the pair never shared a booking-backed conversation
+// (e.g. two passengers, who have no chat in this model).
+const findConversationIdForReport = async (
+    executor: Executor,
+    reportId: string
+): Promise<{ conversationId: string } | null> => {
+    const [row] = await executor
+        .select({ conversationId: conversationsTable.id })
+        .from(reportsTable)
+        .innerJoin(
+            conversationsTable,
+            and(
+                eq(conversationsTable.rideId, reportsTable.rideId),
+                isNull(conversationsTable.deletedAt)
+            )
+        )
+        .innerJoin(
+            bookingsTable,
+            eq(conversationsTable.bookingId, bookingsTable.id)
+        )
+        .innerJoin(ridesTable, eq(bookingsTable.rideId, ridesTable.id))
+        .where(
+            and(
+                eq(reportsTable.id, reportId),
+                isNull(reportsTable.deletedAt),
+                or(
+                    and(
+                        eq(bookingsTable.passengerId, reportsTable.reporterId),
+                        eq(ridesTable.driverId, reportsTable.targetUserId)
+                    ),
+                    and(
+                        eq(bookingsTable.passengerId, reportsTable.targetUserId),
+                        eq(ridesTable.driverId, reportsTable.reporterId)
+                    )
+                )
+            )
+        )
+        .limit(1);
+
+    return row ?? null;
+};
+
+// Full message thread of a conversation, oldest first, for read-only admin
+// moderation. No participant check — authorization is the requireAdmin guard.
+const findConversationMessagesForReport = async (
+    executor: Executor,
+    conversationId: string,
+    limit: number
+): Promise<AdminReportConversationMessage[]> => {
+    return await executor
+        .select({
+            id: messagesTable.id,
+            senderId: messagesTable.senderId,
+            content: messagesTable.content,
+            sentAt: messagesTable.sentAt,
+        })
+        .from(messagesTable)
+        .where(
+            and(
+                eq(messagesTable.conversationId, conversationId),
+                isNull(messagesTable.deletedAt)
+            )
+        )
+        .orderBy(asc(messagesTable.sentAt))
+        .limit(limit);
+};
+
 export const AdminRepository = {
     findUserList,
     findUserCreatedAt,
@@ -1482,6 +1555,8 @@ export const AdminRepository = {
     findReportCreatedAt,
     findReportDetailById,
     findReportStatusHistoryByReportId,
+    findConversationIdForReport,
+    findConversationMessagesForReport,
     findReportForAdminUpdate,
     updateReportStatusById,
     insertReportStatusHistoryRow,

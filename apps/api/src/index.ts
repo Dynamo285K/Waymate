@@ -17,8 +17,13 @@ import {
 } from "./modules/bookings/booking.errors";
 import { startRideAutoEndWorker } from "./modules/rides/ride.auto-end";
 import { BookingRoutes } from "./modules/bookings/booking.routes";
+import { ChatRoutes } from "./modules/chat/chat.routes";
+import { ChatError, chatErrorToHttpStatus } from "./modules/chat/chat.errors";
+import { ChatRealtime } from "./modules/chat/chat.realtime";
 import { ReviewRoutes } from "./modules/reviews/review.routes";
 import { ReportRoutes } from "./modules/reports/report.routes";
+import { BlockRoutes } from "./modules/blocks/block.routes";
+import { BlockError, blockErrorToHttpStatus } from "./modules/blocks/block.errors";
 import { AdminRoutes } from "./modules/admin/admin.routes";
 import { checkRateLimit } from "./shared/rate-limit";
 import {
@@ -69,6 +74,13 @@ const RATE_LIMIT_RULES: RateLimitRule[] = [
             method === "POST" && (path === "/reports" || path === "/reports/"),
         keyPrefix: "rl:reports:create",
         max: 10,
+    },
+    {
+        match: (method, path) =>
+            method === "POST" &&
+            /^\/conversations\/[^/]+\/messages\/?$/.test(path),
+        keyPrefix: "rl:chat:send",
+        max: 30,
     },
     {
         match: (method, path) =>
@@ -226,6 +238,16 @@ export const app = new Elysia()
                 error: error.code,
             });
         }
+        if (error instanceof ChatError) {
+            return status(chatErrorToHttpStatus(error.code), {
+                error: error.code,
+            });
+        }
+        if (error instanceof BlockError) {
+            return status(blockErrorToHttpStatus(error.code), {
+                error: error.code,
+            });
+        }
         if (code === "VALIDATION" || code === "PARSE") {
             return status(400, { error: "VALIDATION" });
         }
@@ -311,8 +333,10 @@ export const app = new Elysia()
     .use(CarRoutes)
     .use(RideRoutes)
     .use(BookingRoutes)
+    .use(ChatRoutes)
     .use(ReviewRoutes)
     .use(ReportRoutes)
+    .use(BlockRoutes)
     .use(AdminRoutes);
 
 export type App = typeof app;
@@ -320,6 +344,9 @@ export type Auth = typeof auth;
 
 if (import.meta.main) {
     const server = app.listen(env.PORT);
+    // Hand the live Bun server to the chat hub so REST writes can broadcast to
+    // connected WebSocket clients (see chat.realtime.ts).
+    ChatRealtime.setBroadcaster(server.server);
     startRideAutoEndWorker();
     logger.info(
         {

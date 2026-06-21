@@ -7,6 +7,7 @@ import { useCancelBooking } from "../../features/passenger/hooks/useCancelBookin
 import type { Language } from "../../components/controls/LanguageSwitcher";
 import { PassengerNavbar } from "../../components/navigation/PassengerNavbar";
 import { RideCard } from "../../components/shared/RideCard";
+import { BlockedUsersSection } from "../../components/shared/BlockedUsersSection";
 import { useGetBookingsMe } from "../../api-client/bookings/bookings";
 import { useGetReviewsUsersByUserId } from "../../api-client/reviews/reviews";
 import { getErrorI18nKey } from "../../lib/api-errors";
@@ -126,6 +127,8 @@ export function PassengerProfilePage() {
                         </p>
                     </div>
                 )}
+
+                <BlockedUsersSection />
 
                 <div className="flex flex-col gap-4">
                     <h2 className="text-lg font-bold text-(--color-text-primary)">

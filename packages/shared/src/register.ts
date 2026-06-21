@@ -1,8 +1,10 @@
 import { z } from "zod";
 
 import * as adminSchemas from "./admin.schema";
+import * as blockSchemas from "./block.schema";
 import * as bookingSchemas from "./booking.schema";
 import * as carSchemas from "./car.schema";
+import * as chatSchemas from "./chat.schema";
 import * as cityInputSchemas from "./city-input.schema";
 import * as countryCodeSchemas from "./country-code.schema";
 import * as currencySchemas from "./currency.schema";
@@ -16,8 +18,10 @@ import * as userSchemas from "./user.schema";
 
 const allModules = [
     adminSchemas,
+    blockSchemas,
     bookingSchemas,
     carSchemas,
+    chatSchemas,
     cityInputSchemas,
     countryCodeSchemas,
     currencySchemas,

@@ -1,7 +1,22 @@
 import { Elysia } from "elysia";
 import { RideService } from "./ride.service";
+import { auth } from "../auth/auth";
 import { isFullyOnboarded } from "../auth/auth.middleware";
 import { createErrorHandler } from "../auth/auth.errors";
+
+// /available and /search are public (guests can browse), so we can't use the
+// auth guard. Softly resolve the session if a cookie is present — used only to
+// hide rides from drivers the viewer has blocked — and never throw on anon.
+const resolveViewerId = async (
+    request: Request
+): Promise<string | undefined> => {
+    try {
+        const session = await auth.api.getSession({ headers: request.headers });
+        return session?.user?.id;
+    } catch {
+        return undefined;
+    }
+};
 import { RideError, rideErrorToHttpStatus } from "./ride.errors";
 import {
     ErrorResponseSchema,
@@ -50,8 +65,10 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
     .onError(createErrorHandler(RideError, rideErrorToHttpStatus))
     .get(
         "/available",
-        async () => {
-            return await RideService.getAvailableRides();
+        async ({ request }) => {
+            return await RideService.getAvailableRides(
+                await resolveViewerId(request)
+            );
         },
         {
             response: {
@@ -67,8 +84,11 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
     )
     .get(
         "/search",
-        async ({ query }) => {
-            return await RideService.searchRides(query);
+        async ({ query, request }) => {
+            return await RideService.searchRides(
+                query,
+                await resolveViewerId(request)
+            );
         },
         {
             query: SearchRidesQuerySchema,

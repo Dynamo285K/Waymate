@@ -9,6 +9,7 @@ import { passengerRidesSearchSchema } from "../../../lib/passenger-rides-search-
 import { Button, RateDriverModal } from "@waymate/ui";
 import { PassengerNavbar } from "../../../components/navigation/PassengerNavbar";
 import { RideCard } from "../../../components/shared/RideCard";
+import { useOpenConversation } from "../../../features/chat/hooks/useOpenConversation";
 import { ReportUserModal } from "../../../components/shared/ReportUserModal";
 import { useGetBookingsMe } from "../../../api-client/bookings/bookings";
 import { getErrorI18nKey } from "../../../lib/api-errors";
@@ -48,6 +49,7 @@ export function PassengerMyRidesPage() {
     });
     const search = Route.useSearch();
     const location = useLocation();
+    const { openConversation } = useOpenConversation("/passenger/chat");
     const [tab, setTab] = useState(search.tab === "past" ? "past" : "upcoming");
     const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
     const cancelBooking = useCancelBooking();
@@ -135,6 +137,7 @@ export function PassengerMyRidesPage() {
         rateDriver: t("myRides.rateDriver"),
         rated: t("myRides.rated"),
         reportDriver: t("myRides.reportDriver"),
+        messageDriver: t("myRides.messageDriver"),
     };
 
     const handleReport = (ride: DisplayedRide) => {
@@ -225,6 +228,9 @@ export function PassengerMyRidesPage() {
                                 driverRating={ride.driverRating}
                                 seatsLeft={ride.seatsLeft}
                                 status={ride.status}
+                                onSendMessage={() =>
+                                    openConversation(String(ride.id))
+                                }
                                 onCancelBooking={() =>
                                     setBookingToCancel(String(ride.id))
                                 }

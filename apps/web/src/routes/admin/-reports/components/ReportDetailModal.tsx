@@ -11,6 +11,7 @@ import {
 import { useReportTypeLabels } from "../lib/admin-report-labels";
 import { ReportStatusBadge } from "./ReportStatusBadge";
 import { ReportStatusHistoryEntry } from "./ReportStatusHistoryEntry";
+import { ReportConversation } from "./ReportConversation";
 
 type ReportDetailModalProps = {
     theme: "light" | "dark";
@@ -175,6 +176,17 @@ export function ReportDetailModal({
                                 {data.report.description}
                             </p>
                         </div>
+
+                        <ReportConversation
+                            reportId={reportId}
+                            nameFor={(senderId) =>
+                                senderId === data.report.target.id
+                                    ? targetName
+                                    : senderId === data.report.reporter.id
+                                      ? reporterName
+                                      : t("chat.unknownUser")
+                            }
+                        />
 
                         {data.report.resolutionReason && (
                             <div className="mb-6">

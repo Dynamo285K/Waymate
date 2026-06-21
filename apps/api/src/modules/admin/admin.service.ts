@@ -1,6 +1,7 @@
 import type {
     AdminDashboardResponse,
     AdminDeleteReviewResponse,
+    AdminReportConversation,
     AdminReportDetailResponse,
     AdminReportListResponse,
     AdminReviewCounts,
@@ -15,6 +16,7 @@ import type {
     ReportStatus,
 } from "@repo/shared";
 import { db } from "../../db";
+import { logger } from "../../shared/logger";
 import { AdminError, AdminErrorCodes } from "./admin.errors";
 import { AdminRepository } from "./admin.repository";
 import { RideRepository } from "../rides/ride.repository";
@@ -451,6 +453,66 @@ const getReportDetail = async (
     return { report, statusHistory };
 };
 
+const REPORT_CONVERSATION_MESSAGE_LIMIT = 500;
+
+// Read-only view of the chat between a report's two parties, for moderation
+// context. Returns `available: false` (rather than throwing) when the report
+// has no ride or the pair never opened a conversation, so the UI can show a
+// neutral "no chat" state instead of an error.
+const getReportConversation = async (
+    reportId: string,
+    actorId: string
+): Promise<AdminReportConversation> => {
+    const report = await AdminRepository.findReportDetailById(db, reportId);
+    if (!report) {
+        throw new AdminError(AdminErrorCodes.ReportNotFound);
+    }
+
+    const empty: AdminReportConversation = {
+        available: false,
+        conversationId: null,
+        participants: [],
+        messages: [],
+    };
+
+    if (!report.rideId) return empty;
+
+    const conversation = await AdminRepository.findConversationIdForReport(
+        db,
+        reportId
+    );
+    if (!conversation) return empty;
+
+    const messages = await AdminRepository.findConversationMessagesForReport(
+        db,
+        conversation.conversationId,
+        REPORT_CONVERSATION_MESSAGE_LIMIT
+    );
+
+    // Admin access to private messages is sensitive — leave an audit trail.
+    logger.info(
+        {
+            adminId: actorId,
+            reportId,
+            conversationId: conversation.conversationId,
+            messageCount: messages.length,
+        },
+        "admin_read_report_conversation"
+    );
+
+    return {
+        available: true,
+        conversationId: conversation.conversationId,
+        participants: [report.reporter, report.target].map((u) => ({
+            id: u.id,
+            firstName: u.firstName,
+            lastName: u.lastName,
+            profilePhotoUrl: u.profilePhotoUrl,
+        })),
+        messages,
+    };
+};
+
 const setReportStatus = async ({
     actorId,
     reportId,
@@ -547,6 +609,7 @@ export const AdminService = {
     deleteReview,
     getReportList,
     getReportDetail,
+    getReportConversation,
     setReportStatus,
     getDashboard,
 };
