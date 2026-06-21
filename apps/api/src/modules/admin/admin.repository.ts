@@ -1369,7 +1369,7 @@ const getDashboardMetrics = async (
             executor
                 .select({
                     date: sql<string>`to_char(${bookingsTable.createdAt}, 'YYYY-MM-DD')`,
-                    totalCents: sql<number>`COALESCE(SUM(${bookingsTable.priceAmount} * ${bookingsTable.seatCount}), 0)::int`,
+                    totalCents: sql<number>`COALESCE(SUM(${bookingsTable.priceAmount}), 0)::int`,
                 })
                 .from(bookingsTable)
                 .where(

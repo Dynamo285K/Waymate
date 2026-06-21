@@ -50,7 +50,7 @@ function fillWeeklyRevenue(data: { date: string; totalCents: number }[]) {
     const map = new Map(data.map((d) => [d.date, d.totalCents]));
     return getLast7Days().map(({ date, dayLabel }) => ({
         day: dayLabel,
-        eur: (map.get(date) ?? 0) / 100,
+        eur: map.get(date) ?? 0,
     }));
 }
 
@@ -151,7 +151,7 @@ export function AdminDashboardPage() {
             "",
             "=== Weekly Revenue (EUR) ===",
             ...dashboard.weeklyRevenue.map(
-                (r) => `${r.date}: ${(r.totalCents / 100).toFixed(2)} EUR`
+                (r) => `${r.date}: ${r.totalCents.toFixed(2)} EUR`
             ),
         ];
         const blob = new Blob([lines.join("\n")], { type: "text/plain" });
