@@ -299,7 +299,7 @@ describe("CarRoutes", () => {
 
             // Car should no longer appear in the GET /cars/me list
             const getResponse = await authenticatedRequest("/cars/me", cookie);
-            const list = (await getResponse.json()) as any[];
+            const list = (await getResponse.json()) as { id: string }[];
             expect(list).toHaveLength(0);
         });
 

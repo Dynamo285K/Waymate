@@ -386,9 +386,15 @@ const insertDynamicStop = async (
             ) ASC
             LIMIT 1
         `);
+            interface PointOrderResult {
+                pointOrder: number;
+            }
+            const firstResult = pRes[0] as unknown as
+                | PointOrderResult
+                | undefined;
             return {
                 id: stop.id,
-                pointOrder: (pRes[0] as any)?.pointOrder || stop.stopOrder,
+                pointOrder: firstResult?.pointOrder ?? stop.stopOrder,
             };
         })
     );

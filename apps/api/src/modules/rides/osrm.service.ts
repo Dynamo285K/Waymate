@@ -20,12 +20,17 @@ export const fetchOsrmRouteCells = async (
             return { cells: [], durations: [] };
         }
 
-        const data = await response.json();
+        type OsrmLeg = { duration: number };
+        type OsrmResponse = {
+            code: string;
+            routes: { geometry: string; legs: OsrmLeg[] }[];
+        };
+        const data = (await response.json()) as OsrmResponse;
         if (data.code !== "Ok" || !data.routes || data.routes.length === 0) {
             return { cells: [], durations: [] };
         }
 
-        const durations = data.routes[0].legs.map((leg: any) => leg.duration);
+        const durations = data.routes[0].legs.map((leg) => leg.duration);
 
         const encodedGeometry = data.routes[0].geometry;
         const decodedPoints = polyline.decode(encodedGeometry); // returns [[lat, lng]]
