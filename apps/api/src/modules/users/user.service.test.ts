@@ -5,34 +5,11 @@ import { users } from "../../db/schema";
 import { UserService } from "./user.service";
 import { UserError, UserErrorCodes } from "./user.errors";
 
-async function insertTestUser(
-    overrides: Partial<typeof users.$inferInsert> = {}
-) {
-    const [user] = await db
-        .insert(users)
-        .values({
-            name: overrides.name ?? "Test User",
-            email: overrides.email ?? `test-${crypto.randomUUID()}@example.com`,
-            firstName: overrides.firstName ?? null,
-            lastName: overrides.lastName ?? null,
-            displayName: overrides.displayName ?? null,
-            phone: overrides.phone ?? null,
-            bio: overrides.bio ?? null,
-            profilePhotoUrl: overrides.profilePhotoUrl ?? null,
-            userRole: overrides.userRole ?? "USER",
-            banned: overrides.banned ?? false,
-            banReason: overrides.banReason ?? null,
-            banExpires: overrides.banExpires ?? null,
-            deletedAt: overrides.deletedAt ?? null,
-        })
-        .returning();
-    if (!user) throw new Error("Failed to insert test user");
-    return user;
-}
+import { createTestUser } from "../../../test/factories";
 
 describe("UserService.getUserById", () => {
     it("returns the user when found", async () => {
-        const user = await insertTestUser({ name: "Alice Example" });
+        const user = await createTestUser({ name: "Alice Example" });
 
         const result = await UserService.getUserById(user.id);
 
@@ -42,7 +19,7 @@ describe("UserService.getUserById", () => {
     });
 
     it("strips the better-auth admin-plugin fields (banned/banReason/banExpires)", async () => {
-        const user = await insertTestUser({
+        const user = await createTestUser({
             banned: true,
             banReason: "test reason",
             banExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
@@ -63,7 +40,7 @@ describe("UserService.getUserById", () => {
     });
 
     it("throws UserNotFound for a soft-deleted user", async () => {
-        const user = await insertTestUser({ deletedAt: new Date() });
+        const user = await createTestUser({ deletedAt: new Date() });
 
         await expect(UserService.getUserById(user.id)).rejects.toMatchObject({
             code: UserErrorCodes.UserNotFound,
@@ -73,7 +50,7 @@ describe("UserService.getUserById", () => {
 
 describe("UserService.onboardUser", () => {
     it("sets firstName, lastName, and phone on the user", async () => {
-        const user = await insertTestUser();
+        const user = await createTestUser();
 
         const result = await UserService.onboardUser(user.id, {
             firstName: "Alice",
@@ -95,7 +72,7 @@ describe("UserService.onboardUser", () => {
     });
 
     it("strips admin-plugin fields from its response too", async () => {
-        const user = await insertTestUser({ banned: true });
+        const user = await createTestUser({ banned: true });
 
         const result = await UserService.onboardUser(user.id, {
             firstName: "Bob",
@@ -117,7 +94,7 @@ describe("UserService.onboardUser", () => {
     });
 
     it("throws UserNotFound for a soft-deleted user (UPDATE … WHERE deleted_at IS NULL)", async () => {
-        const user = await insertTestUser({ deletedAt: new Date() });
+        const user = await createTestUser({ deletedAt: new Date() });
 
         await expect(
             UserService.onboardUser(user.id, {
@@ -131,7 +108,7 @@ describe("UserService.onboardUser", () => {
 
 describe("UserService.updateUserProfile", () => {
     it("updates only the keys that were passed in", async () => {
-        const user = await insertTestUser({
+        const user = await createTestUser({
             firstName: "Alice",
             lastName: "Example",
             phone: "+421900000000",
@@ -150,7 +127,7 @@ describe("UserService.updateUserProfile", () => {
     });
 
     it("can set displayName and profilePhotoUrl together", async () => {
-        const user = await insertTestUser();
+        const user = await createTestUser();
 
         const result = await UserService.updateUserProfile(user.id, {
             displayName: "alice",
@@ -170,7 +147,7 @@ describe("UserService.updateUserProfile", () => {
     });
 
     it("throws UserNotFound for a soft-deleted user", async () => {
-        const user = await insertTestUser({ deletedAt: new Date() });
+        const user = await createTestUser({ deletedAt: new Date() });
 
         await expect(
             UserService.updateUserProfile(user.id, { bio: "Won't land" })

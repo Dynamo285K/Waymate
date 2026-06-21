@@ -14,6 +14,7 @@ import { BookingService } from "./booking.service";
 import { BookingError, BookingErrorCodes } from "./booking.errors";
 import { RideService } from "../rides/ride.service";
 import { TEST_CITY_IDS } from "../../../test/reference-data";
+import { createRideContext } from "../../../test/factories";
 import type { CreateRideBody } from "@repo/shared";
 
 async function insertTestUser() {
@@ -28,127 +29,14 @@ async function insertTestUser() {
     return user;
 }
 
-async function getAnyCarModelId(): Promise<number> {
-    const [model] = await db.select().from(carModels).limit(1);
-    if (!model) {
-        throw new Error(
-            "car_models is empty — reset-db.ts should reseed reference data"
-        );
-    }
-    return model.id;
-}
 
-async function insertCarFor(ownerId: string) {
-    const modelId = await getAnyCarModelId();
-    const [car] = await db
-        .insert(cars)
-        .values({
-            ownerId,
-            modelId,
-            spz: `B${crypto.randomUUID().slice(0, 6).toUpperCase()}`,
-            countryCode: "SK",
-            color: "BLUE",
-            seatsTotal: 4,
-            isActive: true,
-        })
-        .returning();
-    if (!car) throw new Error("Failed to insert test car");
-    return car;
-}
-
-function buildCreateRideBody(
-    carId: string,
-    overrides: Partial<CreateRideBody> = {}
-): CreateRideBody {
-    const departureAt =
-        overrides.departureAt ?? new Date(Date.now() + 24 * 60 * 60 * 1000);
-    return {
-        carId,
-        departureAt,
-        arrivalEstimateAt: new Date(departureAt.getTime() + 60 * 60 * 1000),
-        offeredSeats: overrides.offeredSeats ?? 3,
-        currency: overrides.currency ?? "EUR",
-        description: null,
-        stops: overrides.stops ?? [
-            {
-                address: "Hlavná 1",
-                city: "Bratislava",
-                countryCode: "SK",
-                lat: 48.148,
-                lng: 17.107,
-                plannedArrivalAt: null,
-                plannedDepartureAt: departureAt,
-            },
-            {
-                address: "Námestie SNP 1",
-                city: "Banská Bystrica",
-                countryCode: "SK",
-                lat: 48.736,
-                lng: 19.146,
-                plannedArrivalAt: new Date(
-                    departureAt.getTime() + 2 * 60 * 60 * 1000
-                ),
-                plannedDepartureAt: null,
-            },
-        ],
-        prices: overrides.prices,
-    };
-}
-
-type RideSetup = {
-    driver: Awaited<ReturnType<typeof insertTestUser>>;
-    rideId: string;
-    pickupStopId: string;
-    dropoffStopId: string;
-};
-
-// Creates a driver, car, and PLANNED ride with a price for the 0→1 segment.
-// Returns the IDs a booking test needs.
-async function setupRide(
-    overrides: {
-        offeredSeats?: number;
-        priceAmount?: number;
-        withPrice?: boolean;
-    } = {}
-): Promise<RideSetup> {
-    const driver = await insertTestUser();
-    const car = await insertCarFor(driver.id);
-
-    const withPrice = overrides.withPrice ?? true;
-    const rideId = await RideService.createRide(
-        driver.id,
-        buildCreateRideBody(car.id, {
-            offeredSeats: overrides.offeredSeats ?? 3,
-            prices: withPrice
-                ? [
-                      {
-                          startStopOrder: 0,
-                          endStopOrder: 1,
-                          amount: overrides.priceAmount ?? 500,
-                      },
-                  ]
-                : undefined,
-        })
-    );
-
-    const stops = await db
-        .select({ id: rideStops.id, stopOrder: rideStops.stopOrder })
-        .from(rideStops)
-        .where(eq(rideStops.rideId, rideId))
-        .orderBy(asc(rideStops.stopOrder));
-
-    return {
-        driver,
-        rideId,
-        pickupStopId: stops[0]!.id,
-        dropoffStopId: stops[1]!.id,
-    };
-}
 
 describe("BookingService.createBookingRequest", () => {
     it("creates a PENDING booking with the right total price and a history row", async () => {
-        const { rideId, pickupStopId, dropoffStopId } = await setupRide({
-            priceAmount: 500,
+        const { rideId, pickupStopId, dropoffStopId } = await createRideContext({
+            rideOverrides: {
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }]
+            }
         });
         const passenger = await insertTestUser();
 
@@ -182,7 +70,11 @@ describe("BookingService.createBookingRequest", () => {
 
     it("throws SelfBookingNotAllowed when the driver tries to book their own ride", async () => {
         const { driver, rideId, pickupStopId, dropoffStopId } =
-            await setupRide();
+            await createRideContext({
+            rideOverrides: {
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }]
+            }
+        });
 
         await expect(
             BookingService.createBookingRequest({
@@ -198,7 +90,11 @@ describe("BookingService.createBookingRequest", () => {
     });
 
     it("throws RideNotFoundOrUnavailable for an unknown ride id", async () => {
-        const { pickupStopId, dropoffStopId } = await setupRide();
+        const { pickupStopId, dropoffStopId } = await createRideContext({
+            rideOverrides: {
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }]
+            }
+        });
         const passenger = await insertTestUser();
 
         await expect(
@@ -216,7 +112,11 @@ describe("BookingService.createBookingRequest", () => {
 
     it("throws RideNotFoundOrUnavailable when the ride is CANCELLED", async () => {
         const { driver, rideId, pickupStopId, dropoffStopId } =
-            await setupRide();
+            await createRideContext({
+            rideOverrides: {
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }]
+            }
+        });
         await RideService.cancelRide(rideId, driver.id);
         const passenger = await insertTestUser();
 
@@ -234,7 +134,11 @@ describe("BookingService.createBookingRequest", () => {
     });
 
     it("throws InvalidStops when pickup and dropoff are in the wrong order", async () => {
-        const { rideId, pickupStopId, dropoffStopId } = await setupRide();
+        const { rideId, pickupStopId, dropoffStopId } = await createRideContext({
+            rideOverrides: {
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }]
+            }
+        });
         const passenger = await insertTestUser();
 
         await expect(
@@ -250,8 +154,10 @@ describe("BookingService.createBookingRequest", () => {
     });
 
     it("throws PriceNotFound when the ride has no price for the requested segment", async () => {
-        const { rideId, pickupStopId, dropoffStopId } = await setupRide({
-            withPrice: false,
+        const { rideId, pickupStopId, dropoffStopId } = await createRideContext({
+            rideOverrides: {
+                prices: []
+            }
         });
         const passenger = await insertTestUser();
 
@@ -267,8 +173,11 @@ describe("BookingService.createBookingRequest", () => {
     });
 
     it("throws NotEnoughSeats when the request would exceed offeredSeats (counting PENDING + CONFIRMED)", async () => {
-        const { rideId, pickupStopId, dropoffStopId } = await setupRide({
-            offeredSeats: 3,
+        const { rideId, pickupStopId, dropoffStopId } = await createRideContext({
+            rideOverrides: {
+                offeredSeats: 3,
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }]
+            }
         });
         const passenger1 = await insertTestUser();
         const passenger2 = await insertTestUser();
@@ -295,7 +204,11 @@ describe("BookingService.createBookingRequest", () => {
     });
 
     it("throws AlreadyBooked when the same passenger requests twice", async () => {
-        const { rideId, pickupStopId, dropoffStopId } = await setupRide();
+        const { rideId, pickupStopId, dropoffStopId } = await createRideContext({
+            rideOverrides: {
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }]
+            }
+        });
         const passenger = await insertTestUser();
 
         await BookingService.createBookingRequest({
@@ -322,8 +235,11 @@ describe("BookingService.confirmBooking", () => {
     async function setupPendingBooking(
         seatsOverrides: { offeredSeats?: number; seatCount?: number } = {}
     ) {
-        const setup = await setupRide({
-            offeredSeats: seatsOverrides.offeredSeats ?? 3,
+        const setup = await createRideContext({
+            rideOverrides: {
+                offeredSeats: seatsOverrides.offeredSeats ?? 3,
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }]
+            }
         });
         const passenger = await insertTestUser();
         const bookingId = await BookingService.createBookingRequest({
@@ -388,7 +304,12 @@ describe("BookingService.confirmBooking", () => {
         // Reachable when a driver shrinks capacity after a passenger has
         // already requested a booking — createBookingRequest can't catch it
         // because the request was valid against the old capacity.
-        const setup = await setupRide({ offeredSeats: 3 });
+        const setup = await createRideContext({ 
+            rideOverrides: { 
+                offeredSeats: 3, 
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }] 
+            } 
+        });
         const passenger = await insertTestUser();
         const bookingId = await BookingService.createBookingRequest({
             rideId: setup.rideId,
@@ -411,7 +332,11 @@ describe("BookingService.confirmBooking", () => {
 
 describe("BookingService.rejectBooking", () => {
     async function setupPendingBooking() {
-        const setup = await setupRide();
+        const setup = await createRideContext({
+            rideOverrides: {
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }]
+            }
+        });
         const passenger = await insertTestUser();
         const bookingId = await BookingService.createBookingRequest({
             rideId: setup.rideId,
@@ -455,7 +380,11 @@ describe("BookingService.rejectBooking", () => {
 
 describe("BookingService.cancelBookingByPassenger", () => {
     async function setupPendingBooking() {
-        const setup = await setupRide();
+        const setup = await createRideContext({
+            rideOverrides: {
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }]
+            }
+        });
         const passenger = await insertTestUser();
         const bookingId = await BookingService.createBookingRequest({
             rideId: setup.rideId,
@@ -510,7 +439,11 @@ describe("BookingService.cancelBookingByPassenger", () => {
 
 describe("BookingService.cancelBookingByDriver", () => {
     it("transitions PENDING → CANCELLED and records the driver as canceller", async () => {
-        const setup = await setupRide();
+        const setup = await createRideContext({
+            rideOverrides: {
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }]
+            }
+        });
         const passenger = await insertTestUser();
         const bookingId = await BookingService.createBookingRequest({
             rideId: setup.rideId,
@@ -538,7 +471,11 @@ describe("BookingService.cancelBookingByDriver", () => {
 describe("BookingService.getPendingRequestsForDriver", () => {
     it("includes a PENDING request for an upcoming PLANNED ride", async () => {
         const { driver, rideId, pickupStopId, dropoffStopId } =
-            await setupRide();
+            await createRideContext({
+            rideOverrides: {
+                prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }]
+            }
+        });
         const passenger = await insertTestUser();
         const bookingId = await BookingService.createBookingRequest({
             rideId,
@@ -556,28 +493,20 @@ describe("BookingService.getPendingRequestsForDriver", () => {
     });
 
     it("excludes a PENDING request for a ride whose departure is in the past", async () => {
-        const driver = await insertTestUser();
-        const car = await insertCarFor(driver.id);
         const departureAt = new Date(Date.now() - 2 * 60 * 60 * 1000);
-        const rideId = await RideService.createRide(
-            driver.id,
-            buildCreateRideBody(car.id, {
-                departureAt,
+        const { driver, rideId, pickupStopId, dropoffStopId } = await createRideContext({
+            departureAt,
+            rideOverrides: {
                 prices: [{ startStopOrder: 0, endStopOrder: 1, amount: 500 }],
-            })
-        );
-        const stops = await db
-            .select({ id: rideStops.id, stopOrder: rideStops.stopOrder })
-            .from(rideStops)
-            .where(eq(rideStops.rideId, rideId))
-            .orderBy(asc(rideStops.stopOrder));
+            }
+        });
         const passenger = await insertTestUser();
 
         const bookingId = await BookingService.createBookingRequest({
             rideId,
             passengerId: passenger.id,
-            pickupStopId: stops[0]!.id,
-            dropoffStopId: stops[1]!.id,
+            pickupStopId,
+            dropoffStopId,
             seatCount: 1,
         });
 

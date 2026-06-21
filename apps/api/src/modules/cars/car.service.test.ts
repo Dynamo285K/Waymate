@@ -3,7 +3,7 @@ import { db } from "../../db";
 import { carModels, rides, users } from "../../db/schema";
 import { CarService } from "./car.service";
 import { CarError, CarErrorCodes } from "./car.errors";
-import type { CreateCarBody } from "@repo/shared";
+import { createTestCar } from "../../../test/factories";
 
 async function insertTestUser() {
     const [user] = await db
@@ -17,36 +17,13 @@ async function insertTestUser() {
     return user;
 }
 
-async function getAnyCarModelId(): Promise<number> {
-    const [model] = await db.select().from(carModels).limit(1);
-    if (!model) {
-        throw new Error(
-            "car_models is empty — reset-db.ts should reseed reference data"
-        );
-    }
-    return model.id;
-}
 
-async function createCarFor(
-    userId: string,
-    overrides: Partial<CreateCarBody> = {}
-) {
-    const modelId = overrides.modelId ?? (await getAnyCarModelId());
-    return CarService.createCar(userId, {
-        modelId,
-        spz:
-            overrides.spz ??
-            `T${crypto.randomUUID().slice(0, 6).toUpperCase()}`,
-        countryCode: overrides.countryCode ?? "SK",
-        color: overrides.color ?? "BLUE",
-        seatsTotal: overrides.seatsTotal ?? 4,
-    });
-}
 
 describe("CarService.createCar", () => {
     it("creates a car owned by the given user", async () => {
         const user = await insertTestUser();
-        const modelId = await getAnyCarModelId();
+        const model = await db.select().from(carModels).limit(1);
+        const modelId = model[0]!.id;
 
         const car = await CarService.createCar(user.id, {
             modelId,
@@ -64,7 +41,8 @@ describe("CarService.createCar", () => {
 
     it("throws DuplicatePlate on a unique-violation", async () => {
         const user = await insertTestUser();
-        const modelId = await getAnyCarModelId();
+        const model = await db.select().from(carModels).limit(1);
+        const modelId = model[0]!.id;
 
         await CarService.createCar(user.id, {
             modelId,
@@ -107,7 +85,7 @@ describe("CarService.createCar", () => {
 describe("CarService.deleteCar", () => {
     it("soft-deletes a car owned by the user", async () => {
         const user = await insertTestUser();
-        const car = await createCarFor(user.id);
+        const car = await createTestCar(user.id);
 
         const deleted = await CarService.deleteCar(car.id, user.id);
 
@@ -119,7 +97,7 @@ describe("CarService.deleteCar", () => {
     it("throws CarNotFound when another user tries to delete the car", async () => {
         const owner = await insertTestUser();
         const stranger = await insertTestUser();
-        const car = await createCarFor(owner.id);
+        const car = await createTestCar(owner.id);
 
         await expect(
             CarService.deleteCar(car.id, stranger.id)
@@ -128,7 +106,7 @@ describe("CarService.deleteCar", () => {
 
     it("throws CarNotFound on a second delete (already soft-deleted)", async () => {
         const user = await insertTestUser();
-        const car = await createCarFor(user.id);
+        const car = await createTestCar(user.id);
         await CarService.deleteCar(car.id, user.id);
 
         await expect(
@@ -146,7 +124,7 @@ describe("CarService.deleteCar", () => {
 
     it("throws CarInUse and keeps the car when it has an active ride", async () => {
         const user = await insertTestUser();
-        const car = await createCarFor(user.id);
+        const car = await createTestCar(user.id);
 
         // A non-terminal ride still depends on the car.
         await db.insert(rides).values({
@@ -171,7 +149,7 @@ describe("CarService.deleteCar", () => {
 describe("CarService.updateCarStatus", () => {
     it("toggles isActive for the owner", async () => {
         const user = await insertTestUser();
-        const car = await createCarFor(user.id);
+        const car = await createTestCar(user.id);
 
         const deactivated = await CarService.updateCarStatus(car.id, user.id, {
             isActive: false,
@@ -187,7 +165,7 @@ describe("CarService.updateCarStatus", () => {
     it("throws CarNotFound when a different user tries to update", async () => {
         const owner = await insertTestUser();
         const stranger = await insertTestUser();
-        const car = await createCarFor(owner.id);
+        const car = await createTestCar(owner.id);
 
         await expect(
             CarService.updateCarStatus(car.id, stranger.id, { isActive: false })
@@ -196,7 +174,7 @@ describe("CarService.updateCarStatus", () => {
 
     it("throws CarNotFound for a soft-deleted car", async () => {
         const user = await insertTestUser();
-        const car = await createCarFor(user.id);
+        const car = await createTestCar(user.id);
         await CarService.deleteCar(car.id, user.id);
 
         await expect(
@@ -209,8 +187,8 @@ describe("CarService.getCarsByUserId", () => {
     it("returns only the requester's cars", async () => {
         const owner = await insertTestUser();
         const otherUser = await insertTestUser();
-        const ownCar = await createCarFor(owner.id);
-        await createCarFor(otherUser.id);
+        const ownCar = await createTestCar(owner.id);
+        await createTestCar(otherUser.id);
 
         const cars = await CarService.getCarsByUserId(owner.id);
 
@@ -230,8 +208,8 @@ describe("CarService.getCarsByUserId", () => {
 
     it("excludes soft-deleted cars", async () => {
         const user = await insertTestUser();
-        const kept = await createCarFor(user.id);
-        const removed = await createCarFor(user.id);
+        const kept = await createTestCar(user.id);
+        const removed = await createTestCar(user.id);
         await CarService.deleteCar(removed.id, user.id);
 
         const cars = await CarService.getCarsByUserId(user.id);
