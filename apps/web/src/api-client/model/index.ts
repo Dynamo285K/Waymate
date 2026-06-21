@@ -183,6 +183,8 @@ export * from "./passengerBookingListItem";
 export * from "./passengerBookingListItemBookingStatus";
 export * from "./passengerBookingListItemMyReviewOfDriver";
 export * from "./passengerBookingListItemRide";
+export * from "./popularRoute";
+export * from "./popularRouteList";
 export * from "./publicUserPreview";
 export * from "./publicUserPreviewWithRating";
 export * from "./rejectBookingBody";

@@ -20,6 +20,12 @@ const getAvailableRides = async (viewerId?: string) => {
     return await RideRepository.findAvailableRides(db, viewerId);
 };
 
+const POPULAR_ROUTES_LIMIT = 4;
+
+const getPopularRoutes = async () => {
+    return await RideRepository.findPopularRoutes(db, POPULAR_ROUTES_LIMIT);
+};
+
 const getDriverRides = async (driverId: string, timeframe?: RideTimeframe) => {
     return await RideRepository.findRidesByDriverId(db, driverId, timeframe);
 };
@@ -571,6 +577,7 @@ const autoEndExpiredRides = async ({
 
 export const RideService = {
     getAvailableRides,
+    getPopularRoutes,
     getDriverRides,
     getRidePassengers,
     searchRides,

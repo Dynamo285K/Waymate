@@ -8,8 +8,11 @@ import type {
     PublicUserPreviewWithRating,
     RideEndSource,
     bookingStatusValues,
+    PopularRoute,
 } from "@repo/shared";
 import type { Car } from "../cars";
+
+export type { PopularRoute };
 
 // ==========================================
 // 1. BASE DATABASE TYPES (SELECT - what the DB returns)

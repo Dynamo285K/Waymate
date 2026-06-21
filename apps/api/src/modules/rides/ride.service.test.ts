@@ -1035,5 +1035,55 @@ describe("RideService.getRidePassengers", () => {
     });
 });
 
+describe("RideService.getPopularRoutes", () => {
+    // Reverse the default Bratislava → Banská Bystrica stops so the two
+    // directions register as distinct origin/destination pairs.
+    function reversedStops(departureAt: Date): CreateRideBody["stops"] {
+        const base = buildCreateRideBody("placeholder", { departureAt }).stops;
+        return [base[1]!, base[0]!];
+    }
+
+    it("aggregates rides by advertised endpoints and orders by ride count", async () => {
+        const driver = await insertTestUser();
+        const car = await insertCarFor(driver.id);
+        const dayMs = 24 * 60 * 60 * 1000;
+        const departureFor = (dayOffset: number) =>
+            new Date(Date.now() + dayOffset * dayMs);
+
+        // Stagger departures by whole days so the driver's overlap check never
+        // trips. Two rides Bratislava → Banská Bystrica, one in reverse.
+        await RideService.createRide(
+            driver.id,
+            buildCreateRideBody(car.id, { departureAt: departureFor(1) })
+        );
+        await RideService.createRide(
+            driver.id,
+            buildCreateRideBody(car.id, { departureAt: departureFor(2) })
+        );
+        await RideService.createRide(
+            driver.id,
+            buildCreateRideBody(car.id, {
+                departureAt: departureFor(3),
+                stops: reversedStops(departureFor(3)),
+            })
+        );
+
+        const routes = await RideService.getPopularRoutes();
+
+        expect(routes).toEqual([
+            {
+                originCity: "Bratislava",
+                destinationCity: "Banská Bystrica",
+                count: 2,
+            },
+            {
+                originCity: "Banská Bystrica",
+                destinationCity: "Bratislava",
+                count: 1,
+            },
+        ]);
+    });
+});
+
 // Keep RideError importable in this file for clarity even when only .code is asserted.
 void RideError;

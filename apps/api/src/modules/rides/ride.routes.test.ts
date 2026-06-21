@@ -108,6 +108,13 @@ describe("RideRoutes public endpoints", () => {
         await expect(response.json()).resolves.toEqual([]);
     });
 
+    it("returns an empty list from GET /rides/popular-routes when no rides exist", async () => {
+        const response = await apiRequest("/rides/popular-routes");
+
+        expect(response.status).toBe(200);
+        await expect(response.json()).resolves.toEqual([]);
+    });
+
     it("returns an empty list from GET /rides/search for a valid no-match query", async () => {
         const travelDate = new Date(Date.now() + 24 * 60 * 60 * 1000)
             .toISOString()
