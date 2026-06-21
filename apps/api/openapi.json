@@ -667,6 +667,47 @@
         "operationId": "getRidesAvailable"
       }
     },
+    "/rides/popular-routes": {
+      "get": {
+        "tags": [
+          "Rides"
+        ],
+        "description": "Returns the most-travelled origin → destination city pairs by ride count",
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PopularRouteList"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Response for status 429",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Response for status 500",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getRidesPopular-routes"
+      }
+    },
     "/rides/search": {
       "get": {
         "tags": [
@@ -5571,6 +5612,14 @@
                   "minimum": -9007199254740991,
                   "maximum": 9007199254740991
                 },
+                "priceAmount": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "currency": {
+                  "$ref": "#/components/schemas/Currency"
+                },
                 "passenger": {
                   "$ref": "#/components/schemas/PublicUserPreviewWithRating"
                 },
@@ -5654,6 +5703,8 @@
                 "bookingId",
                 "bookingStatus",
                 "seatCount",
+                "priceAmount",
+                "currency",
                 "passenger",
                 "requestedPickupCity",
                 "requestedDropoffCity",
@@ -5682,6 +5733,12 @@
         "type": "array",
         "items": {
           "$ref": "#/components/schemas/AvailableRideItem"
+        }
+      },
+      "PopularRouteList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PopularRoute"
         }
       },
       "CreateRideResponse": {
@@ -8966,6 +9023,28 @@
           "currency",
           "originalStartCity",
           "originalEndCity"
+        ],
+        "additionalProperties": false
+      },
+      "PopularRoute": {
+        "type": "object",
+        "properties": {
+          "originCity": {
+            "type": "string"
+          },
+          "destinationCity": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "originCity",
+          "destinationCity",
+          "count"
         ],
         "additionalProperties": false
       },

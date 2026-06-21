@@ -423,3 +423,15 @@ export const EstimateEtaResponseSchema = z.array(
 );
 
 export type EstimateEtaResponse = z.infer<typeof EstimateEtaResponseSchema>;
+
+export const PopularRouteSchema = z.object({
+    originCity: z.string(),
+    destinationCity: z.string(),
+    count: z.number().int().nonnegative(),
+});
+
+export type PopularRoute = z.infer<typeof PopularRouteSchema>;
+
+export const PopularRouteListSchema = z.array(PopularRouteSchema);
+
+export type PopularRouteList = z.infer<typeof PopularRouteListSchema>;

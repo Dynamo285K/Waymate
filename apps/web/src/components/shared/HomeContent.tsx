@@ -12,7 +12,10 @@ import type { Language } from "../controls/LanguageSwitcher";
 import { AvailableRideCard } from "./AvailableRideCard";
 import { formatRideDate, formatDuration } from "../../lib/date-format";
 import { toUiLanguage } from "../../lib/language";
-import { useGetRidesAvailable } from "../../api-client/rides/rides";
+import {
+    useGetRidesAvailable,
+    useGetRidesPopularRoutes,
+} from "../../api-client/rides/rides";
 import { fetchPhotonLocations } from "../../lib/geocoding/photon";
 import { useUserLocation } from "../../hooks/shared/useUserLocation";
 
@@ -42,13 +45,6 @@ type HomeContentProps = {
     onViewAllRides?: () => void;
     onBook?: (ride: AvailableRide) => void;
 };
-
-const POPULAR_ROUTES = [
-    { from: "Praha", to: "Brno", count: 42 },
-    { from: "Praha", to: "Viedeň", count: 27 },
-    { from: "Brno", to: "Martin", count: 23 },
-    { from: "Bratislava", to: "Košice", count: 15 },
-];
 
 const DATE_FNS_LOCALE_MAP = { en: enUS, sk: skLocale, cs };
 
@@ -203,6 +199,11 @@ export function HomeContent({
         isLoading: areAvailableRidesLoading,
         isError: areAvailableRidesError,
     } = useGetRidesAvailable();
+    const { data: popularRouteRows } = useGetRidesPopularRoutes();
+
+    const popularRoutes = Array.isArray(popularRouteRows)
+        ? popularRouteRows
+        : [];
 
     const availableRides: AvailableRide[] = Array.isArray(availableRideRows)
         ? availableRideRows.map((ride) => {
@@ -286,21 +287,23 @@ export function HomeContent({
             </section>
 
             {/* Popular routes */}
-            <section className="w-full px-4 sm:max-w-5xl sm:mx-auto sm:px-8 pb-8 sm:pb-12">
-                <p className="text-sm font-semibold text-(--color-text-secondary) mb-3">
-                    {t("home.popularRoutes")}
-                </p>
-                <div className="flex flex-wrap gap-3">
-                    {POPULAR_ROUTES.map((r) => (
-                        <PopularRouteChip
-                            key={`${r.from}-${r.to}`}
-                            from={r.from}
-                            to={r.to}
-                            count={r.count}
-                        />
-                    ))}
-                </div>
-            </section>
+            {popularRoutes.length > 0 && (
+                <section className="w-full px-4 sm:max-w-5xl sm:mx-auto sm:px-8 pb-8 sm:pb-12">
+                    <p className="text-sm font-semibold text-(--color-text-secondary) mb-3">
+                        {t("home.popularRoutes")}
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                        {popularRoutes.map((r) => (
+                            <PopularRouteChip
+                                key={`${r.originCity}-${r.destinationCity}`}
+                                from={r.originCity}
+                                to={r.destinationCity}
+                                count={r.count}
+                            />
+                        ))}
+                    </div>
+                </section>
+            )}
 
             <div className="border-t border-(--color-border)" />
 

@@ -36,6 +36,7 @@ import type {
     EstimateEtaResponse,
     GetRidesMeParams,
     GetRidesSearchParams,
+    PopularRouteList,
     RideId,
     RideListItemList,
     RidePassengersView,
@@ -189,6 +190,161 @@ export function useGetRidesAvailable<
     queryKey: DataTag<QueryKey, TData, TError>;
 } {
     const queryOptions = getGetRidesAvailableQueryOptions(options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * Returns the most-travelled origin → destination city pairs by ride count
+ */
+export const getGetRidesPopularRoutesUrl = () => {
+    return `/rides/popular-routes`;
+};
+
+export const getRidesPopularRoutes = async (
+    options?: RequestInit
+): Promise<PopularRouteList> => {
+    return apiFetcher<PopularRouteList>(getGetRidesPopularRoutesUrl(), {
+        ...options,
+        method: "GET",
+    });
+};
+
+export const getGetRidesPopularRoutesQueryKey = () => {
+    return [`/rides/popular-routes`] as const;
+};
+
+export const getGetRidesPopularRoutesQueryOptions = <
+    TData = Awaited<ReturnType<typeof getRidesPopularRoutes>>,
+    TError = ErrorResponse,
+>(options?: {
+    query?: Partial<
+        UseQueryOptions<
+            Awaited<ReturnType<typeof getRidesPopularRoutes>>,
+            TError,
+            TData
+        >
+    >;
+    request?: SecondParameter<typeof apiFetcher>;
+}) => {
+    const { query: queryOptions, request: requestOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getGetRidesPopularRoutesQueryKey();
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof getRidesPopularRoutes>>
+    > = () => getRidesPopularRoutes(requestOptions);
+
+    return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof getRidesPopularRoutes>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetRidesPopularRoutesQueryResult = NonNullable<
+    Awaited<ReturnType<typeof getRidesPopularRoutes>>
+>;
+export type GetRidesPopularRoutesQueryError = ErrorResponse;
+
+export function useGetRidesPopularRoutes<
+    TData = Awaited<ReturnType<typeof getRidesPopularRoutes>>,
+    TError = ErrorResponse,
+>(
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getRidesPopularRoutes>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getRidesPopularRoutes>>,
+                    TError,
+                    Awaited<ReturnType<typeof getRidesPopularRoutes>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetRidesPopularRoutes<
+    TData = Awaited<ReturnType<typeof getRidesPopularRoutes>>,
+    TError = ErrorResponse,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getRidesPopularRoutes>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getRidesPopularRoutes>>,
+                    TError,
+                    Awaited<ReturnType<typeof getRidesPopularRoutes>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetRidesPopularRoutes<
+    TData = Awaited<ReturnType<typeof getRidesPopularRoutes>>,
+    TError = ErrorResponse,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getRidesPopularRoutes>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetRidesPopularRoutes<
+    TData = Awaited<ReturnType<typeof getRidesPopularRoutes>>,
+    TError = ErrorResponse,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getRidesPopularRoutes>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getGetRidesPopularRoutesQueryOptions(options);
 
     const query = useQuery(queryOptions, queryClient) as UseQueryResult<
         TData,

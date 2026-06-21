@@ -35,6 +35,7 @@ import type {
     AvailableRideItem,
     BookingStatus,
     RideStatus,
+    PopularRoute,
 } from "./ride.types";
 
 const rideNotSoftDeleted = isNull(ridesTable.deletedAt);
@@ -404,6 +405,58 @@ const findAvailableRides = async (
         .orderBy(asc(ridesTable.departureAt));
 
     return rows as AvailableRideItem[];
+};
+
+// Top origin → destination pairs by ride count, used for the home page
+// "popular routes" chips. Counts the advertised (non-dynamic) endpoints of
+// every non-deleted ride, mirroring the admin dashboard's definition.
+const findPopularRoutes = async (
+    executor: Executor,
+    limit: number
+): Promise<PopularRoute[]> => {
+    const originStops = aliasedTable(rideStopsTable, "popular_origin_stops");
+    const destStops = aliasedTable(rideStopsTable, "popular_dest_stops");
+
+    const lastStopOrders = executor
+        .select({
+            rideId: rideStopsTable.rideId,
+            stopOrder: sql<number>`MAX(${rideStopsTable.stopOrder})`.as(
+                "stopOrder"
+            ),
+        })
+        .from(rideStopsTable)
+        .where(eq(rideStopsTable.isDynamic, false))
+        .groupBy(rideStopsTable.rideId)
+        .as("popular_last_stop_orders");
+
+    const rows = await executor
+        .select({
+            originCity: originStops.city,
+            destinationCity: destStops.city,
+            count: sql<number>`COUNT(${ridesTable.id})::int`,
+        })
+        .from(ridesTable)
+        .innerJoin(
+            originStops,
+            and(
+                eq(originStops.rideId, ridesTable.id),
+                eq(originStops.stopOrder, 0)
+            )
+        )
+        .innerJoin(lastStopOrders, eq(lastStopOrders.rideId, ridesTable.id))
+        .innerJoin(
+            destStops,
+            and(
+                eq(destStops.rideId, ridesTable.id),
+                eq(destStops.stopOrder, lastStopOrders.stopOrder)
+            )
+        )
+        .where(rideNotSoftDeleted)
+        .groupBy(originStops.city, destStops.city)
+        .orderBy(desc(sql`COUNT(${ridesTable.id})`))
+        .limit(limit);
+
+    return rows;
 };
 
 const searchRides = async (
@@ -1044,6 +1097,7 @@ export const RideRepository = {
     findReviewsByAuthorForSubjects,
     findAverageRatingsByUserIds,
     findAvailableRides,
+    findPopularRoutes,
     searchRides,
     findActiveCarForDriver,
     insertRide,

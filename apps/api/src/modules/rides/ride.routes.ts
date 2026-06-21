@@ -32,6 +32,7 @@ import {
     RidePassengersViewSchema,
     RideSearchResultListSchema,
     AvailableRideListSchema,
+    PopularRouteListSchema,
     CreateRideResponseSchema,
     CancelRideResponseSchema,
     CompleteRideResponseSchema,
@@ -54,6 +55,7 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
         RidePassengersView: RidePassengersViewSchema,
         RideSearchResultList: RideSearchResultListSchema,
         AvailableRideList: AvailableRideListSchema,
+        PopularRouteList: PopularRouteListSchema,
         CreateRideResponse: CreateRideResponseSchema,
         CancelRideResponse: CancelRideResponseSchema,
         CompleteRideBody: CompleteRideBodySchema,
@@ -79,6 +81,23 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
             detail: {
                 description:
                     "Returns upcoming planned rides available for booking",
+            },
+        }
+    )
+    .get(
+        "/popular-routes",
+        async () => {
+            return await RideService.getPopularRoutes();
+        },
+        {
+            response: {
+                200: "PopularRouteList",
+                429: "ErrorResponse",
+                500: "ErrorResponse",
+            },
+            detail: {
+                description:
+                    "Returns the most-travelled origin → destination city pairs by ride count",
             },
         }
     )
