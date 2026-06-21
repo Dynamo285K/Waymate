@@ -29,5 +29,5 @@ export type GetRidesSearchParams = {
      */
     destLng: number;
     destCity?: string;
-    travelDate: string;
+    travelDate?: string;
 };

@@ -110,7 +110,7 @@ const searchRides = async (query: SearchRidesQuery, viewerId?: string) => {
         query.destLat,
         query.destLng,
         query.travelDate,
-        query.startCity || "Dynamic Location",
+        query.startCity ?? "Dynamic Location",
         query.destCity || "Dynamic Location",
         viewerId
     );

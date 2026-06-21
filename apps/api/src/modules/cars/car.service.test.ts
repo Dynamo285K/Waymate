@@ -17,8 +17,6 @@ async function insertTestUser() {
     return user;
 }
 
-
-
 describe("CarService.createCar", () => {
     it("creates a car owned by the given user", async () => {
         const user = await insertTestUser();

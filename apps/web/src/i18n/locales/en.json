@@ -497,6 +497,7 @@
     "bookings": {
         "createError": "Could not create the booking request. Please try again.",
         "alreadyBooked": "You already have an active booking for this ride.",
+        "cannotBookOwnRide": "You cannot book your own ride.",
         "errorTitle": "Could not book"
     },
     "rides": {

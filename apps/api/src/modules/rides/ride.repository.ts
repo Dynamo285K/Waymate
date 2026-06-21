@@ -432,7 +432,11 @@ const findPopularRoutes = async (
     const rows = await executor
         .select({
             originCity: originStops.city,
+            originLat: sql<number>`AVG(${originStops.lat})::float`,
+            originLng: sql<number>`AVG(${originStops.lng})::float`,
             destinationCity: destStops.city,
+            destLat: sql<number>`AVG(${destStops.lat})::float`,
+            destLng: sql<number>`AVG(${destStops.lng})::float`,
             count: sql<number>`COUNT(${ridesTable.id})::int`,
         })
         .from(ridesTable)
@@ -451,7 +455,13 @@ const findPopularRoutes = async (
                 eq(destStops.stopOrder, lastStopOrders.stopOrder)
             )
         )
-        .where(rideNotSoftDeleted)
+        .where(
+            and(
+                rideNotSoftDeleted,
+                eq(ridesTable.rideStatus, "PLANNED"),
+                gte(ridesTable.departureAt, new Date())
+            )
+        )
         .groupBy(originStops.city, destStops.city)
         .orderBy(desc(sql`COUNT(${ridesTable.id})`))
         .limit(limit);
@@ -465,7 +475,7 @@ const searchRides = async (
     startLng: number,
     destLat: number,
     destLng: number,
-    travelDate: Date,
+    travelDate: Date | undefined,
     startCity: string,
     destCity: string,
     viewerId?: string
@@ -474,8 +484,9 @@ const searchRides = async (
     const destCell = h3.latLngToCell(destLat, destLng, 7);
     const startH3s = h3.gridDisk(startCell, 12); // Approx. 20 km radius
     const destH3s = h3.gridDisk(destCell, 12);
-    const { start: startOfDay, end: endOfDay } =
-        dayBoundsInTimeZone(travelDate);
+    const { start: startOfDay, end: endOfDay } = travelDate
+        ? dayBoundsInTimeZone(travelDate)
+        : { start: new Date(), end: undefined };
 
     const pickupCells = aliasedTable(rideRouteCellsTable, "pickup_cells");
     const dropoffCells = aliasedTable(rideRouteCellsTable, "dropoff_cells");
@@ -674,7 +685,7 @@ const searchRides = async (
                 isNotNull(usersTable.lastName),
                 lt(pickupCells.pointOrder, dropoffCells.pointOrder),
                 gte(ridesTable.departureAt, startOfDay),
-                lt(ridesTable.departureAt, endOfDay),
+                endOfDay ? lt(ridesTable.departureAt, endOfDay) : undefined,
                 lte(pickupDistanceSql, 15),
                 lte(dropoffDistanceSql, 15),
                 driverNotBlockedForViewer(viewerId)

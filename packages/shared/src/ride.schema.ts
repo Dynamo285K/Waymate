@@ -147,7 +147,7 @@ export const SearchRidesQuerySchema = z.object({
     destLat: z.coerce.number().min(-90).max(90),
     destLng: z.coerce.number().min(-180).max(180),
     destCity: z.string().optional(),
-    travelDate: z.coerce.date(),
+    travelDate: z.coerce.date().optional(),
 });
 
 export const RideSearchResultItemSchema = z.object({
@@ -426,7 +426,11 @@ export type EstimateEtaResponse = z.infer<typeof EstimateEtaResponseSchema>;
 
 export const PopularRouteSchema = z.object({
     originCity: z.string(),
+    originLat: z.number().optional(),
+    originLng: z.number().optional(),
     destinationCity: z.string(),
+    destLat: z.number().optional(),
+    destLng: z.number().optional(),
     count: z.number().int().nonnegative(),
 });
 

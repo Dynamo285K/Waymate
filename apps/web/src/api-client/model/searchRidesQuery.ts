@@ -29,5 +29,5 @@ export interface SearchRidesQuery {
      */
     destLng: number;
     destCity?: string;
-    travelDate: string;
+    travelDate?: string;
 }

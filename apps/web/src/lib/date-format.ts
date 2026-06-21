@@ -53,8 +53,7 @@ export function formatDayLabel(
     return new Intl.DateTimeFormat(locale, {
         day: "numeric",
         month: "long",
-        year:
-            date.getFullYear() === now.getFullYear() ? undefined : "numeric",
+        year: date.getFullYear() === now.getFullYear() ? undefined : "numeric",
     }).format(date);
 }
 

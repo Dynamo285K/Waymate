@@ -90,9 +90,7 @@ export function authenticatedRequest(
  * Creates a credential user and signs them in, returning the user object,
  * credentials, and the session cookie string in one go.
  */
-export async function createSignedInUser(
-    options?: CreateSignInUserOptions
-) {
+export async function createSignedInUser(options?: CreateSignInUserOptions) {
     const credentials = await createSignInUser(options);
     const cookie = await signIn(credentials.email, credentials.password);
     return { ...credentials, cookie };

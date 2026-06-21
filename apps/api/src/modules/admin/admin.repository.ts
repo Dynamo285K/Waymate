@@ -1490,7 +1490,10 @@ const findConversationIdForReport = async (
                         eq(ridesTable.driverId, reportsTable.targetUserId)
                     ),
                     and(
-                        eq(bookingsTable.passengerId, reportsTable.targetUserId),
+                        eq(
+                            bookingsTable.passengerId,
+                            reportsTable.targetUserId
+                        ),
                         eq(ridesTable.driverId, reportsTable.reporterId)
                     )
                 )

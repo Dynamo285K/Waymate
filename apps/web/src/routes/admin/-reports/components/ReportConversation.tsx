@@ -29,7 +29,8 @@ export function ReportConversation({
     });
 
     const data = query.data;
-    const hasMessages = Boolean(data?.available) && (data?.messages.length ?? 0) > 0;
+    const hasMessages =
+        Boolean(data?.available) && (data?.messages.length ?? 0) > 0;
 
     return (
         <div className="mb-6">

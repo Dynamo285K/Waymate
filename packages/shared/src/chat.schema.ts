@@ -56,6 +56,7 @@ export const ConversationListItemSchema = z.object({
     lastMessage: MessageSchema.nullable(),
     unreadCount: z.number().int(),
     updatedAt: z.date(),
+    isBlocked: z.boolean(),
 });
 
 export const ConversationListSchema = ConversationListItemSchema.array();
