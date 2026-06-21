@@ -1,4 +1,4 @@
-import { and, eq, inArray, isNull, ne, or } from "drizzle-orm";
+import { and, eq, inArray, isNull, or } from "drizzle-orm";
 import type { Executor } from "../../db";
 import { reports as reportsTable } from "../../db/schema/report";
 import { reportStatusHistory as reportStatusHistoryTable } from "../../db/schema/report_status_history";
@@ -7,19 +7,14 @@ import { bookings as bookingsTable } from "../../db/schema/booking";
 import { users as usersTable } from "../../db/schema/user";
 import type { CreateReportInput, Report } from "./report.types";
 
-const userVisible = and(
-    isNull(usersTable.deletedAt),
-    ne(usersTable.userRole, "ADMIN")
-);
-
-const findVisibleTargetUserById = async (
+const findUserById = async (
     executor: Executor,
     userId: string
-): Promise<{ id: string } | null> => {
+): Promise<{ id: string; userRole: string } | null> => {
     const [row] = await executor
-        .select({ id: usersTable.id })
+        .select({ id: usersTable.id, userRole: usersTable.userRole })
         .from(usersTable)
-        .where(and(eq(usersTable.id, userId), userVisible))
+        .where(and(eq(usersTable.id, userId), isNull(usersTable.deletedAt)))
         .limit(1);
 
     return row ?? null;
@@ -43,7 +38,7 @@ const findVisibleRideById = async (
 // direction. The booking must be in a state where the pair was actually
 // matched (CONFIRMED / COMPLETED / NO_SHOW) — PENDING / REJECTED / CANCELLED
 // don't count.
-const haveSharedRide = async (
+const findSharedRideExists = async (
     executor: Executor,
     reporterId: string,
     targetUserId: string
@@ -123,7 +118,7 @@ const insertReportStatusHistory = async (
 // Is there already an unresolved (OPEN / INVESTIGATING) report from this
 // reporter against this target for the same ride context? Used to stop
 // duplicate / spam reports while one is still being handled.
-const hasOpenReport = async (
+const findOpenReportExists = async (
     executor: Executor,
     reporterId: string,
     targetUserId: string,
@@ -149,10 +144,10 @@ const hasOpenReport = async (
 };
 
 export const ReportRepository = {
-    findVisibleTargetUserById,
+    findUserById,
     findVisibleRideById,
-    haveSharedRide,
-    hasOpenReport,
+    findSharedRideExists,
+    findOpenReportExists,
     insertReport,
     insertReportStatusHistory,
 };

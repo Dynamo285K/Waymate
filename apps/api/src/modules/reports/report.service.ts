@@ -10,11 +10,11 @@ const submitReport = async (input: CreateReportInput): Promise<Report> => {
     }
 
     return await db.transaction(async (tx) => {
-        const target = await ReportRepository.findVisibleTargetUserById(
+        const target = await ReportRepository.findUserById(
             tx,
             input.targetUserId
         );
-        if (!target) {
+        if (!target || target.userRole === "ADMIN") {
             throw new ReportError(ReportErrorCodes.TargetUserNotFound);
         }
 
@@ -28,7 +28,7 @@ const submitReport = async (input: CreateReportInput): Promise<Report> => {
             }
         }
 
-        const eligible = await ReportRepository.haveSharedRide(
+        const eligible = await ReportRepository.findSharedRideExists(
             tx,
             input.reporterId,
             input.targetUserId
@@ -40,7 +40,7 @@ const submitReport = async (input: CreateReportInput): Promise<Report> => {
         // One unresolved report per reporter→target→ride. A new report is
         // allowed again once the previous one is resolved/dismissed, or for a
         // different ride.
-        const alreadyOpen = await ReportRepository.hasOpenReport(
+        const alreadyOpen = await ReportRepository.findOpenReportExists(
             tx,
             input.reporterId,
             input.targetUserId,

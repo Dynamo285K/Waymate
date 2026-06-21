@@ -13,6 +13,7 @@ import type {
     CreateRideInput,
     EndRideInput,
     RidePassengersView,
+    RideSearchResultItem,
     RideTimeframe,
 } from "./ride.types";
 
@@ -103,17 +104,126 @@ const getRidePassengers = async (
 };
 
 const searchRides = async (query: SearchRidesQuery, viewerId?: string) => {
-    return await RideRepository.searchRides(
+    const { startLat, startLng, destLat, destLng } = query;
+
+    const rawResults = await RideRepository.searchRides(
         db,
-        query.startLat,
-        query.startLng,
-        query.destLat,
-        query.destLng,
+        startLat,
+        startLng,
+        destLat,
+        destLng,
         query.travelDate,
         query.startCity ?? "Dynamic Location",
         query.destCity || "Dynamic Location",
         viewerId
     );
+
+    const uniqueRides = new Map<
+        string,
+        RideSearchResultItem & { _totalDist: number }
+    >();
+    for (const row of rawResults) {
+        const totalDist =
+            (row.pickupStop.distanceKm || 0) +
+            (row.dropoffStop.distanceKm || 0);
+        const existing = uniqueRides.get(row.rideId);
+        if (!existing || totalDist < existing._totalDist) {
+            uniqueRides.set(row.rideId, { ...row, _totalDist: totalDist });
+        }
+    }
+
+    const finalRides = Array.from(uniqueRides.values()).map(
+        ({ _totalDist, ...cleanRide }) => cleanRide
+    );
+
+    if (finalRides.length === 0) return [];
+
+    const rideIds = finalRides.map((r) => r.rideId);
+    const [allStops, allPrices] = await Promise.all([
+        RideRepository.findStopsForRides(db, rideIds),
+        RideRepository.findPricesForRides(db, rideIds),
+    ]);
+
+    const validFinalRides: RideSearchResultItem[] = [];
+
+    for (const ride of finalRides) {
+        const stopsForRide = allStops.filter((s) => s.rideId === ride.rideId);
+
+        let actualPickupStop = null;
+        let actualDropoffStop = null;
+
+        for (const stop of stopsForRide) {
+            if (haversineKm(startLat, startLng, stop.lat, stop.lng) <= 25) {
+                actualPickupStop = stop;
+                break;
+            }
+        }
+
+        for (const stop of stopsForRide) {
+            if (haversineKm(destLat, destLng, stop.lat, stop.lng) <= 25) {
+                actualDropoffStop = stop;
+                break;
+            }
+        }
+
+        if (actualPickupStop) {
+            ride.pickupStop.pickupStopId = actualPickupStop.id;
+            ride.pickupStop.isDynamic = false;
+            ride.pickupStop.city = actualPickupStop.city;
+            ride.pickupStop.lat = actualPickupStop.lat;
+            ride.pickupStop.lng = actualPickupStop.lng;
+            ride.pickupStop.plannedDepartureAt =
+                actualPickupStop.plannedDepartureAt ||
+                ride.pickupStop.plannedDepartureAt;
+            ride.pickupStop.distanceKm = Number(
+                haversineKm(
+                    startLat,
+                    startLng,
+                    actualPickupStop.lat,
+                    actualPickupStop.lng
+                ).toFixed(1)
+            );
+        }
+
+        if (actualDropoffStop) {
+            ride.dropoffStop.dropoffStopId = actualDropoffStop.id;
+            ride.dropoffStop.isDynamic = false;
+            ride.dropoffStop.city = actualDropoffStop.city;
+            ride.dropoffStop.lat = actualDropoffStop.lat;
+            ride.dropoffStop.lng = actualDropoffStop.lng;
+            ride.dropoffStop.plannedArrivalAt =
+                actualDropoffStop.plannedArrivalAt ||
+                ride.dropoffStop.plannedArrivalAt;
+            ride.dropoffStop.distanceKm = Number(
+                haversineKm(
+                    destLat,
+                    destLng,
+                    actualDropoffStop.lat,
+                    actualDropoffStop.lng
+                ).toFixed(1)
+            );
+        }
+
+        if (actualPickupStop && actualDropoffStop) {
+            if (actualPickupStop.stopOrder > actualDropoffStop.stopOrder) {
+                continue;
+            }
+
+            const exactPrice = allPrices.find(
+                (p) =>
+                    p.rideId === ride.rideId &&
+                    p.startStopId === actualPickupStop.id &&
+                    p.endStopId === actualDropoffStop.id
+            );
+            if (exactPrice) {
+                ride.priceAmount = exactPrice.amount;
+            }
+        }
+
+        validFinalRides.push(ride);
+    }
+
+    return validFinalRides;
 };
 
 export const calculateEtasFromDurations = (
@@ -511,6 +621,25 @@ const defaultEndReason = (source: EndRideInput["source"]) => {
         case "DRIVER":
             return "Ride ended by driver";
     }
+};
+
+export const haversineKm = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+): number => {
+    const R = 6371;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lat1 * Math.PI) / 180) *
+            Math.cos((lat2 * Math.PI) / 180) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
 };
 
 const completeRide = async (
