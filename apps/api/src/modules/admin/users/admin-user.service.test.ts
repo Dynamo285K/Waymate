@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
-import { db } from "../../db";
-import { sessions, users } from "../../db/schema";
-import { AdminService } from "./admin.service";
+import { db } from "../../../db";
+import { sessions, users } from "../../../db/schema";
+import { AdminUserService } from "./admin-user.service";
 
 async function insertAdminUser() {
     const [user] = await db
@@ -63,13 +63,13 @@ async function insertSession(userId: string) {
     return session;
 }
 
-describe("AdminService.setUserStatus", () => {
+describe("AdminUserService.setUserStatus", () => {
     it("syncs a BANNED status to better-auth ban fields and clears sessions", async () => {
         const admin = await insertAdminUser();
         const target = await insertRegularUser();
         await insertSession(target.id);
 
-        await AdminService.setUserStatus({
+        await AdminUserService.setUserStatus({
             actorId: admin.id,
             targetUserId: target.id,
             newStatus: "BANNED",
@@ -109,7 +109,7 @@ describe("AdminService.setUserStatus", () => {
             banExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
         });
 
-        await AdminService.setUserStatus({
+        await AdminUserService.setUserStatus({
             actorId: admin.id,
             targetUserId: target.id,
             newStatus: "ACTIVE",

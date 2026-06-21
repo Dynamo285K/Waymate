@@ -42,7 +42,11 @@ import {
 import { requireAdmin } from "../auth/auth.middleware";
 import { createErrorHandler } from "../auth/auth.errors";
 import { AdminError, adminErrorToHttpStatus } from "./admin.errors";
-import { AdminService } from "./admin.service";
+import { AdminUserService } from "./users/admin-user.service";
+import { AdminRideService } from "./rides/admin-ride.service";
+import { AdminReviewService } from "./reviews/admin-review.service";
+import { AdminReportService } from "./reports/admin-report.service";
+import { AdminDashboardService } from "./dashboard/admin-dashboard.service";
 
 export const AdminRoutes = new Elysia({
     prefix: "/admin",
@@ -92,23 +96,27 @@ export const AdminRoutes = new Elysia({
     .use(requireAdmin)
     .guard({ auth: true, admin: true }, (app) =>
         app
-            .get("/dashboard", async () => await AdminService.getDashboard(), {
-                response: {
-                    200: "AdminDashboardResponse",
-                    401: "ErrorResponse",
-                    403: "ErrorResponse",
-                    429: "ErrorResponse",
-                    500: "ErrorResponse",
-                },
-                detail: {
-                    description:
-                        "Returns aggregated platform statistics for the admin dashboard: weekly ride/revenue charts, popular routes, and user metrics.",
-                },
-            })
+            .get(
+                "/dashboard",
+                async () => await AdminDashboardService.getDashboard(),
+                {
+                    response: {
+                        200: "AdminDashboardResponse",
+                        401: "ErrorResponse",
+                        403: "ErrorResponse",
+                        429: "ErrorResponse",
+                        500: "ErrorResponse",
+                    },
+                    detail: {
+                        description:
+                            "Returns aggregated platform statistics for the admin dashboard: weekly ride/revenue charts, popular routes, and user metrics.",
+                    },
+                }
+            )
             .get(
                 "/users",
                 async ({ query }) => {
-                    return await AdminService.getUserList({
+                    return await AdminUserService.getUserList({
                         limit: query.limit,
                         cursor: query.cursor,
                         search: query.search,
@@ -133,7 +141,7 @@ export const AdminRoutes = new Elysia({
             .get(
                 "/users/:id",
                 async ({ params }) =>
-                    await AdminService.getUserDetail(params.id),
+                    await AdminUserService.getUserDetail(params.id),
                 {
                     params: AdminUserIdParamsSchema,
                     response: {
@@ -154,7 +162,7 @@ export const AdminRoutes = new Elysia({
             .patch(
                 "/users/:id/status",
                 async ({ user, params, body }) =>
-                    await AdminService.setUserStatus({
+                    await AdminUserService.setUserStatus({
                         actorId: user.id,
                         targetUserId: params.id,
                         newStatus: body.status,
@@ -182,7 +190,7 @@ export const AdminRoutes = new Elysia({
             .get(
                 "/rides",
                 async ({ query }) => {
-                    return await AdminService.getRideList({
+                    return await AdminRideService.getRideList({
                         limit: query.limit,
                         cursor: query.cursor,
                         status: query.status,
@@ -208,7 +216,7 @@ export const AdminRoutes = new Elysia({
             .get(
                 "/rides/:id",
                 async ({ params }) =>
-                    await AdminService.getRideDetail(params.id),
+                    await AdminRideService.getRideDetail(params.id),
                 {
                     params: AdminRideIdParamsSchema,
                     response: {
@@ -229,7 +237,7 @@ export const AdminRoutes = new Elysia({
             .get(
                 "/reviews",
                 async ({ query }) => {
-                    return await AdminService.getReviewList({
+                    return await AdminReviewService.getReviewList({
                         limit: query.limit,
                         cursor: query.cursor,
                         status: query.status,
@@ -256,7 +264,7 @@ export const AdminRoutes = new Elysia({
             )
             .get(
                 "/reviews/counts",
-                async () => await AdminService.getReviewCounts(),
+                async () => await AdminReviewService.getReviewCounts(),
                 {
                     response: {
                         200: "AdminReviewCounts",
@@ -274,7 +282,7 @@ export const AdminRoutes = new Elysia({
             .delete(
                 "/reviews/:id",
                 async ({ params }) =>
-                    await AdminService.deleteReview(params.id),
+                    await AdminReviewService.deleteReview(params.id),
                 {
                     params: AdminReviewIdParamsSchema,
                     response: {
@@ -294,7 +302,7 @@ export const AdminRoutes = new Elysia({
             .get(
                 "/reviews/:id",
                 async ({ params }) =>
-                    await AdminService.getReviewDetail(params.id),
+                    await AdminReviewService.getReviewDetail(params.id),
                 {
                     params: AdminReviewIdParamsSchema,
                     response: {
@@ -315,7 +323,7 @@ export const AdminRoutes = new Elysia({
             .patch(
                 "/reviews/:id/status",
                 async ({ user, params, body }) =>
-                    await AdminService.setReviewStatus({
+                    await AdminReviewService.setReviewStatus({
                         actorId: user.id,
                         reviewId: params.id,
                         newStatus: body.status,
@@ -343,7 +351,7 @@ export const AdminRoutes = new Elysia({
             .patch(
                 "/rides/:id/cancel",
                 async ({ user, params, body }) =>
-                    await AdminService.cancelRide({
+                    await AdminRideService.cancelRide({
                         actorId: user.id,
                         rideId: params.id,
                         reason: body.reason,
@@ -370,7 +378,7 @@ export const AdminRoutes = new Elysia({
             .get(
                 "/reports",
                 async ({ query }) => {
-                    return await AdminService.getReportList({
+                    return await AdminReportService.getReportList({
                         limit: query.limit,
                         cursor: query.cursor,
                         status: query.status,
@@ -397,7 +405,7 @@ export const AdminRoutes = new Elysia({
             .get(
                 "/reports/:id",
                 async ({ params }) =>
-                    await AdminService.getReportDetail(params.id),
+                    await AdminReportService.getReportDetail(params.id),
                 {
                     params: AdminReportIdParamsSchema,
                     response: {
@@ -418,7 +426,7 @@ export const AdminRoutes = new Elysia({
             .get(
                 "/reports/:id/conversation",
                 async ({ user, params }) =>
-                    await AdminService.getReportConversation(
+                    await AdminReportService.getReportConversation(
                         params.id,
                         user.id
                     ),
@@ -442,7 +450,7 @@ export const AdminRoutes = new Elysia({
             .patch(
                 "/reports/:id/status",
                 async ({ user, params, body }) =>
-                    await AdminService.setReportStatus({
+                    await AdminReportService.setReportStatus({
                         actorId: user.id,
                         reportId: params.id,
                         newStatus: body.status,
