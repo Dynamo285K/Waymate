@@ -80,39 +80,35 @@ export function PassengerRidesPage() {
     });
 
     const availableRides = Array.isArray(availableRideRows)
-        ? availableRideRows
-              .map((ride) => {
-                  const departure = new Date(
-                      ride.pickupStop.plannedDepartureAt ?? ride.departureAt
-                  );
-                  const driverName = [
-                      ride.driver.firstName,
-                      ride.driver.lastName,
-                  ]
-                      .filter(Boolean)
-                      .join(" ");
+        ? availableRideRows.map((ride) => {
+              const departure = new Date(
+                  ride.pickupStop.plannedDepartureAt ?? ride.departureAt
+              );
+              const driverName = [ride.driver.firstName, ride.driver.lastName]
+                  .filter(Boolean)
+                  .join(" ");
 
-                  return {
-                      id: ride.rideId,
-                      rideId: ride.rideId,
-                      pickupStopId: ride.pickupStop.pickupStopId,
-                      dropoffStopId: ride.dropoffStop.dropoffStopId,
-                      from: ride.pickupStop.city,
-                      to: ride.dropoffStop.city,
-                      originalStartCity: ride.originalStartCity,
-                      originalEndCity: ride.originalEndCity,
-                      date: departure,
-                      duration: formatDuration(
-                          ride.departureAt,
-                          ride.arrivalEstimateAt
-                      ),
-                      seatsLeft: ride.seatsLeft,
-                      driverName: driverName || t("roles.driver"),
-                      driverRating: ride.driver.averageRating ?? 0,
-                      price: (ride.priceAmount ?? 0) * seats,
-                      pricePerSeat: ride.priceAmount ?? 0,
-                  };
-              })
+              return {
+                  id: ride.rideId,
+                  rideId: ride.rideId,
+                  pickupStopId: ride.pickupStop.pickupStopId,
+                  dropoffStopId: ride.dropoffStop.dropoffStopId,
+                  from: ride.pickupStop.city,
+                  to: ride.dropoffStop.city,
+                  originalStartCity: ride.originalStartCity,
+                  originalEndCity: ride.originalEndCity,
+                  date: departure,
+                  duration: formatDuration(
+                      ride.departureAt,
+                      ride.arrivalEstimateAt
+                  ),
+                  seatsLeft: ride.seatsLeft,
+                  driverName: driverName || t("roles.driver"),
+                  driverRating: ride.driver.averageRating ?? 0,
+                  price: (ride.priceAmount ?? 0) * seats,
+                  pricePerSeat: ride.priceAmount ?? 0,
+              };
+          })
         : [];
 
     const displayedRides = rides ?? [];

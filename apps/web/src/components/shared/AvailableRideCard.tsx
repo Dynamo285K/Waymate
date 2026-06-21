@@ -39,7 +39,7 @@ export function AvailableRideCard({
 }: AvailableRideCardProps) {
     const isFull = seatsLeft <= 0;
     const seatsText = isFull
-        ? labels?.full ?? "Full"
+        ? (labels?.full ?? "Full")
         : labels?.seatsLeft
           ? labels.seatsLeft(seatsLeft)
           : `${seatsLeft} seats left`;
