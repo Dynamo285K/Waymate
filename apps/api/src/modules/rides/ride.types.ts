@@ -14,19 +14,13 @@ import type { Car } from "../cars";
 
 export type { PopularRoute };
 
-// ==========================================
-// 1. BASE DATABASE TYPES (SELECT - what the DB returns)
 // These replace z.infer<typeof RideSchema> etc.
-// ==========================================
 export type Ride = InferSelectModel<typeof rides>;
 export type RideStop = InferSelectModel<typeof rideStops>;
 export type Price = InferSelectModel<typeof prices>;
 export type RideStatusHistory = InferSelectModel<typeof rideStatusHistory>;
 
-// ==========================================
-// 2. DATABASE TYPES FOR INSERTION (INSERT)
 // These contain optional fields for id, createdAt, etc.
-// ==========================================
 export type RideInsert = InferInsertModel<typeof rides>;
 export type RideStopInsert = InferInsertModel<typeof rideStops>;
 export type PriceInsert = InferInsertModel<typeof prices>;
@@ -34,14 +28,8 @@ export type RideStatusHistoryInsert = InferInsertModel<
     typeof rideStatusHistory
 >;
 
-// ==========================================
-// 3. SPECIFIC PROPERTIES AND ALIASES
-// ==========================================
 export type RideStatus = Ride["rideStatus"];
 export type BookingStatus = (typeof bookingStatusValues)[number];
-// ==========================================
-// 4. SERVICE / REPOSITORY CONTRACTS (COMPOSITE TYPES)
-// ==========================================
 
 export type PublicCarProfile = Pick<Car, "id" | "modelId" | "color" | "spz">;
 

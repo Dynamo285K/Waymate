@@ -6,6 +6,8 @@ export const ChatErrorCodes = {
     NotAParticipant: "CHAT_NOT_A_PARTICIPANT",
     MessageEmpty: "CHAT_MESSAGE_EMPTY",
     Blocked: "CHAT_BLOCKED",
+    BlockedByOther: "CHAT_BLOCKED_BY_OTHER",
+    RecipientBanned: "CHAT_RECIPIENT_BANNED",
 } as const;
 
 export type ChatErrorCode =
@@ -26,6 +28,8 @@ export function chatErrorToHttpStatus(code: ChatErrorCode): number {
             return 404;
         case ChatErrorCodes.NotAParticipant:
         case ChatErrorCodes.Blocked:
+        case ChatErrorCodes.BlockedByOther:
+        case ChatErrorCodes.RecipientBanned:
             return 403;
         case ChatErrorCodes.MessageEmpty:
             return 400;

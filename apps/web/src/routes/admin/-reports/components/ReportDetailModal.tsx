@@ -20,6 +20,7 @@ type ReportDetailModalProps = {
     mutationErrorForThisReport: unknown;
     onClose: () => void;
     onRequestStatus: (target: ReportStatus) => void;
+    onBanTarget: (target: { id: string; name: string }) => void;
 };
 
 // Workflow: OPEN can go to INVESTIGATING / RESOLVED / DISMISSED.
@@ -40,6 +41,7 @@ export function ReportDetailModal({
     mutationErrorForThisReport,
     onClose,
     onRequestStatus,
+    onBanTarget,
 }: ReportDetailModalProps) {
     const { t } = useTranslation();
     const detailQuery = useGetAdminReportsById(reportId);
@@ -147,6 +149,27 @@ export function ReportDetailModal({
                                         </p>
                                     </div>
                                 </div>
+                                {data.report.target.userStatus === "BANNED" ? (
+                                    <p className="text-xs font-semibold text-(--color-danger-text) mt-3">
+                                        {t("admin.reports.targetAlreadyBanned")}
+                                    </p>
+                                ) : (
+                                    data.report.target.userStatus !==
+                                        "DELETED" && (
+                                        <Button
+                                            variant="red"
+                                            className="mt-3"
+                                            onClick={() =>
+                                                onBanTarget({
+                                                    id: data.report.target.id,
+                                                    name: targetName,
+                                                })
+                                            }
+                                        >
+                                            ⊘ {t("admin.banUser")}
+                                        </Button>
+                                    )
+                                )}
                             </div>
                         </div>
 

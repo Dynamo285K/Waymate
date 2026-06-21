@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { useBreakpoint } from "../../hooks/shared/useBreakpoint";
 import {
     Avatar,
     Button,
@@ -144,19 +145,14 @@ export function AdminNavbar({
     labels,
 }: AdminNavbarProps) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [windowWidth, setWindowWidth] = useState(() =>
-        typeof window !== "undefined" ? window.innerWidth : 1280
-    );
     const navbarRef = useRef<HTMLElement>(null);
 
-    const isDesktop = windowWidth > 1280;
-    const isTablet = windowWidth > 560 && windowWidth <= 1280;
-    const isMobile = windowWidth <= 560;
+    const breakpoint = useBreakpoint(1280);
+    const isDesktop = breakpoint === "desktop";
+    const isTablet = breakpoint === "tablet";
+    const isMobile = breakpoint === "mobile";
 
     useEffect(() => {
-        function handleResize() {
-            setWindowWidth(window.innerWidth);
-        }
         function handleClickOutside(e: MouseEvent) {
             if (
                 navbarRef.current &&
@@ -167,11 +163,9 @@ export function AdminNavbar({
         function handleEscape(e: KeyboardEvent) {
             if (e.key === "Escape") setIsMobileMenuOpen(false);
         }
-        window.addEventListener("resize", handleResize);
         document.addEventListener("mousedown", handleClickOutside);
         document.addEventListener("keydown", handleEscape);
         return () => {
-            window.removeEventListener("resize", handleResize);
             document.removeEventListener("mousedown", handleClickOutside);
             document.removeEventListener("keydown", handleEscape);
         };

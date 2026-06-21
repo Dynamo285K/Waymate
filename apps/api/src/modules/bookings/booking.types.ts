@@ -4,31 +4,18 @@ import type { bookingStatusHistory } from "../../db/schema"; // Import rovnaký 
 import type { User } from "../users/user.types";
 import type { Ride } from "../rides/ride.types";
 
-// ==========================================
-// 1. BASE DATABASE TYPES (SELECT)
-// ==========================================
 export type Booking = InferSelectModel<typeof bookings>;
 export type BookingStatusHistory = InferSelectModel<
     typeof bookingStatusHistory
 >;
 
-// ==========================================
-// 2. DATABASE TYPES FOR INSERTION (INSERT)
-// ==========================================
 export type BookingInsert = InferInsertModel<typeof bookings>;
 export type BookingStatusHistoryInsert = InferInsertModel<
     typeof bookingStatusHistory
 >;
 
-// ==========================================
-// 3. SPECIFIC PROPERTIES AND ALIASES
-// ==========================================
 export type BookingStatus = Booking["bookingStatus"];
 export type BookingTimeframe = "UPCOMING" | "PAST" | "ALL";
-
-// ==========================================
-// 4. SERVICE / REPOSITORY CONTRACTS (COMPOSITE TYPES)
-// ==========================================
 
 // Data passed from the service layer to the repository when creating a booking.
 // Price is resolved inside the repository transaction.

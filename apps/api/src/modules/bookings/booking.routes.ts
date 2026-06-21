@@ -36,9 +36,7 @@ export const BookingRoutes = new Elysia({
     .guard({ auth: true, onboarded: true }, (app) =>
         app
             .onError(createErrorHandler(BookingError, bookingErrorToHttpStatus))
-            // ==========================================
             // PASSENGER ROUTES
-            // ==========================================
 
             .get(
                 "/requests",
@@ -152,9 +150,7 @@ export const BookingRoutes = new Elysia({
                 }
             )
 
-            // ==========================================
             // DRIVER ROUTES
-            // ==========================================
 
             .patch(
                 "/:id/driver/cancel",

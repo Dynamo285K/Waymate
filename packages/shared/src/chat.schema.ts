@@ -2,16 +2,10 @@ import { z } from "zod";
 import { conversationTypeValues, messageTypeValues } from "./status-values";
 import { PublicUserPreviewSchema } from "./user.schema";
 
-// ==========================================
-// 1. URL PARAMETERS
-// ==========================================
 export const ConversationIdParamsSchema = z.object({
     id: z.uuid("Invalid conversation ID"),
 });
 
-// ==========================================
-// 2. REQUEST BODIES (Inputs from frontend)
-// ==========================================
 export const CreateConversationBodySchema = z.object({
     bookingId: z.uuid("Invalid booking ID"),
 });
@@ -29,9 +23,6 @@ export const MessagesQuerySchema = z.object({
     before: z.coerce.date().optional(),
 });
 
-// ==========================================
-// 3. RESPONSE SCHEMAS (Outputs for Swagger)
-// ==========================================
 export const ConversationRoleSchema = z.enum(["DRIVER", "PASSENGER"]);
 
 export const MessageSchema = z.object({
@@ -53,6 +44,7 @@ export const ConversationListItemSchema = z.object({
     rideId: z.uuid().nullable(),
     myRole: ConversationRoleSchema,
     counterpart: PublicUserPreviewSchema,
+    counterpartBanned: z.boolean(),
     lastMessage: MessageSchema.nullable(),
     unreadCount: z.number().int(),
     updatedAt: z.date(),
@@ -70,9 +62,6 @@ export const ConversationReadResponseSchema = z.object({
     lastReadAt: z.date(),
 });
 
-// ==========================================
-// 4. REALTIME (WebSocket) EVENTS
-// ==========================================
 // Server -> client events pushed over `GET /conversations/ws`. The socket is a
 // delivery channel only: clients still send messages / mark-read over REST, and
 // the server broadcasts the resulting state to every participant's user topic.

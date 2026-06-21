@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { Controller, useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { Button, IconButton, Modal, Textarea } from "@waymate/ui";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
@@ -13,6 +15,9 @@ type CancelRideModalProps = {
     onConfirm: (reason: string) => void;
 };
 
+const schema = z.object({ reason: z.string().trim().min(1) });
+type FormValues = z.infer<typeof schema>;
+
 export function CancelRideModal({
     theme,
     rideRoute,
@@ -22,10 +27,19 @@ export function CancelRideModal({
     onConfirm,
 }: CancelRideModalProps) {
     const { t } = useTranslation();
-    const [reason, setReason] = useState("");
 
-    const trimmedReason = reason.trim();
-    const canConfirm = trimmedReason.length > 0 && !isPending;
+    const {
+        control,
+        handleSubmit,
+        formState: { isValid },
+    } = useForm<FormValues>({
+        resolver: zodResolver(schema),
+        mode: "onChange",
+        defaultValues: { reason: "" },
+    });
+
+    const onSubmit: SubmitHandler<FormValues> = ({ reason }) =>
+        onConfirm(reason.trim());
 
     return (
         <Modal
@@ -33,7 +47,10 @@ export function CancelRideModal({
             onClose={onClose}
             theme={theme}
         >
-            <div className="w-[calc(100vw-2rem)] max-w-lg p-8">
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="w-[calc(100vw-2rem)] max-w-lg p-8"
+            >
                 <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-(--color-text-primary)">
                         {t("admin.forceCancelRide")} — {rideRoute}
@@ -55,11 +72,17 @@ export function CancelRideModal({
                         {t("admin.reasonForCancel")}{" "}
                         <span className="text-(--color-danger-text)">*</span>
                     </label>
-                    <Textarea
-                        placeholder={t("admin.reasonPlaceholder")}
-                        maxLength={500}
-                        value={reason}
-                        onChange={(e) => setReason(e.target.value)}
+                    <Controller
+                        control={control}
+                        name="reason"
+                        render={({ field }) => (
+                            <Textarea
+                                placeholder={t("admin.reasonPlaceholder")}
+                                maxLength={500}
+                                value={field.value}
+                                onChange={field.onChange}
+                            />
+                        )}
                     />
                 </div>
 
@@ -71,6 +94,7 @@ export function CancelRideModal({
 
                 <div className="flex gap-3 justify-end">
                     <Button
+                        type="button"
                         variant="secondary"
                         onClick={onClose}
                         disabled={isPending}
@@ -78,14 +102,14 @@ export function CancelRideModal({
                         {t("admin.cancel")}
                     </Button>
                     <Button
+                        type="submit"
                         variant="red"
-                        onClick={() => onConfirm(trimmedReason)}
-                        disabled={!canConfirm}
+                        disabled={!isValid || isPending}
                     >
                         ⊘ {t("admin.confirmCancel")}
                     </Button>
                 </div>
-            </div>
+            </form>
         </Modal>
     );
 }

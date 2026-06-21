@@ -61,7 +61,6 @@ async function main() {
             "All car models successfully reset and seeded into the database."
         );
 
-        // --- Additional seed data (users, cars, rides, prices, bookings, reviews) ---
         console.log("Seeding users, cars, rides, bookings and reviews...");
 
         // Lifted out of the transaction so the post-commit accounts insert
@@ -71,7 +70,6 @@ async function main() {
         const userCId = randomUUID(); // passenger C — has password (see PASSENGER_EMAIL)
 
         await db.transaction(async (tx) => {
-            // Users
             const userBId = randomUUID(); // driver B
 
             // Bulk USER fixtures so the admin tooling has something to
@@ -195,7 +193,6 @@ async function main() {
                 ...bulkUsers,
             ]);
 
-            // Find model ids for specific models we want to use
             const octaviaRow = await tx
                 .select({
                     id: carModels.id,

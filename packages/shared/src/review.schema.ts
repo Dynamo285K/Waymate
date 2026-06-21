@@ -3,9 +3,6 @@ import { reviewStatusValues } from "./status-values";
 import { UserIdSchema, PublicUserPreviewSchema } from "./user.schema";
 import { RideIdSchema } from "./ride.schema";
 
-// ==========================================
-// 0. PRIMITIVES
-// ==========================================
 export const ReviewIdSchema = z.uuid();
 export type ReviewId = z.infer<typeof ReviewIdSchema>;
 
@@ -20,9 +17,6 @@ const RatingSchema = z
 
 const CommentSchema = z.string().trim().max(1000).nullable();
 
-// ==========================================
-// 1. URL PARAMETERS
-// ==========================================
 export const ReviewIdParamsSchema = z.object({
     id: z.uuid("Invalid review ID"),
 });
@@ -31,9 +25,6 @@ export const SubjectUserIdParamsSchema = z.object({
     userId: UserIdSchema,
 });
 
-// ==========================================
-// 2. REQUEST BODIES (Inputs from frontend)
-// ==========================================
 export const CreateReviewBodySchema = z
     .object({
         rideId: RideIdSchema,
@@ -43,9 +34,6 @@ export const CreateReviewBodySchema = z
     })
     .strict();
 
-// ==========================================
-// 3. RESPONSE SCHEMAS (Outputs for Swagger)
-// ==========================================
 export const ReviewSchema = z.object({
     id: ReviewIdSchema,
     rideId: RideIdSchema,
@@ -102,9 +90,6 @@ export const AuthoredReviewListItemSchema = z.object({
 
 export const AuthoredReviewListSchema = z.array(AuthoredReviewListItemSchema);
 
-// ==========================================
-// 4. INFERRED TYPES
-// ==========================================
 export type CreateReviewBody = z.infer<typeof CreateReviewBodySchema>;
 export type ReviewIdParams = z.infer<typeof ReviewIdParamsSchema>;
 export type SubjectUserIdParams = z.infer<typeof SubjectUserIdParamsSchema>;

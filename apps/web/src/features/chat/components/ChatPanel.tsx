@@ -46,6 +46,8 @@ type ThreadProps = {
     isUnblocking: boolean;
     onUnblock: () => void;
     showUnblock?: boolean;
+    recipientBanned: boolean;
+    bannedNotice: string;
 };
 
 // The scrollable message list + composer, shared by the desktop and mobile
@@ -65,6 +67,8 @@ function Thread({
     isUnblocking,
     onUnblock,
     showUnblock = true,
+    recipientBanned,
+    bannedNotice,
 }: ThreadProps) {
     const { t } = useTranslation();
     const bottomRef = useRef<HTMLDivElement>(null);
@@ -111,7 +115,15 @@ function Thread({
                 )}
                 <div ref={bottomRef} />
             </div>
-            {blocked ? (
+            {recipientBanned ? (
+                // The counterpart's account is banned — no composer at all, and
+                // no unblock (this isn't a block the user can lift).
+                <div className="px-6 py-4 border-t border-(--color-border) bg-(--color-card) max-600:px-4">
+                    <span className="text-sm text-(--color-text-secondary)">
+                        {bannedNotice}
+                    </span>
+                </div>
+            ) : blocked ? (
                 <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-(--color-border) bg-(--color-card) max-600:px-4 max-600:flex-wrap">
                     <span className="text-sm text-(--color-text-secondary)">
                         {blockedNotice}
@@ -197,6 +209,8 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
         isUnblocking: panel.isUnblocking,
         onUnblock: panel.unblockActive,
         showUnblock: panel.isCounterpartBlockedByMe,
+        recipientBanned: panel.isActiveCounterpartBanned,
+        bannedNotice: t("chat.recipientBannedNotice"),
     };
 
     return (

@@ -9,9 +9,8 @@ import { z } from "zod";
 // the lightweight "@repo/shared/validation" subpath export stays cheap for the
 // web, which already bundles zod for its form schemas anyway.
 
-// --- Raw constants -------------------------------------------------------
-// Used where a bare value is needed outside a zod schema: imperative length
-// checks and i18n message interpolation.
+// Raw constants — used where a bare value is needed outside a zod schema:
+// imperative length checks and i18n message interpolation.
 
 /** E.164 phone number, e.g. +421901234567. */
 export const PHONE_REGEX = /^\+[1-9]\d{1,14}$/;
@@ -34,8 +33,8 @@ export const BIO_MAX_LENGTH = 500;
 export const CAR_SEATS_MIN = 2;
 export const CAR_SEATS_MAX = 9;
 
-// --- Field-schema factories ---------------------------------------------
-// Return the validation *core* of a field. The caller supplies the error
+// Field-schema factories — return the validation *core* of a field. The caller
+// supplies the error
 // message — the API passes a developer string, the web passes an i18n key —
 // so the rule chain itself is written exactly once and shared.
 

@@ -3,24 +3,11 @@ import type { reviews } from "../../db/schema/review";
 import type { User } from "../users/user.types";
 import type { RideId } from "@repo/shared";
 
-// ==========================================
-// 1. BASE DATABASE TYPES (SELECT)
-// ==========================================
 export type Review = InferSelectModel<typeof reviews>;
 
-// ==========================================
-// 2. DATABASE TYPES FOR INSERTION (INSERT)
-// ==========================================
 export type ReviewInsert = InferInsertModel<typeof reviews>;
 
-// ==========================================
-// 3. SPECIFIC PROPERTIES AND ALIASES
-// ==========================================
 export type ReviewStatus = Review["reviewStatus"];
-
-// ==========================================
-// 4. SERVICE / REPOSITORY CONTRACTS (COMPOSITE TYPES)
-// ==========================================
 
 // Data passed from the service layer to the repository when creating a review.
 export type CreateReviewInput = {
