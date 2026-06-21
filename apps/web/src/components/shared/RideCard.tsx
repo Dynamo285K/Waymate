@@ -81,7 +81,7 @@ export function RideCard(props: RideCardProps) {
     }
 
     return (
-        <div className="flex justify-between items-center gap-4 py-5 px-6 bg-(--color-card) border border-(--color-border) rounded-2xl max-600:flex-col max-600:items-stretch max-600:gap-3 max-600:p-4">
+        <div data-testid="ride-card" className="flex justify-between items-center gap-4 py-5 px-6 bg-(--color-card) border border-(--color-border) rounded-2xl max-600:flex-col max-600:items-stretch max-600:gap-3 max-600:p-4">
             <div className="flex flex-col gap-3">
                 <div className="flex flex-col">
                     <div className="flex items-center gap-2">
@@ -213,19 +213,18 @@ export function RideCard(props: RideCardProps) {
                                     {labels?.messageDriver ?? "Message driver"}
                                 </Button>
                             )}
-                            {props.status === "pending" ? (
+                            {props.status === "pending" && (
                                 <Button variant="secondary">
                                     {labels?.pendingConfirmation ??
                                         "Pending confirmation"}
                                 </Button>
-                            ) : (
-                                <Button
-                                    variant="red"
-                                    onClick={props.onCancelBooking}
-                                >
-                                    {labels?.cancelBooking ?? "Cancel booking"}
-                                </Button>
                             )}
+                            <Button
+                                variant="red"
+                                onClick={props.onCancelBooking}
+                            >
+                                {labels?.cancelBooking ?? "Cancel booking"}
+                            </Button>
                             {props.status === "confirmed" && props.onReport && (
                                 <Button
                                     variant="secondary"
