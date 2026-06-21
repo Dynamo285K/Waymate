@@ -81,7 +81,9 @@ export function CancelRideDialog({
                             <Textarea
                                 label={
                                     reasonRequired
-                                        ? t("cancelRideDialog.reasonLabelRequired")
+                                        ? t(
+                                              "cancelRideDialog.reasonLabelRequired"
+                                          )
                                         : t("cancelRideDialog.reasonLabel")
                                 }
                                 placeholder={t(
