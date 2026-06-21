@@ -273,7 +273,6 @@ const findAvailableRides = async (
         .where(
             and(
                 inArray(bookingsTable.bookingStatus, [
-                    "PENDING",
                     "CONFIRMED",
                     "COMPLETED",
                 ]),
@@ -547,7 +546,6 @@ const searchRides = async (
         .where(
             and(
                 inArray(bookingsTable.bookingStatus, [
-                    "PENDING",
                     "CONFIRMED",
                     "COMPLETED",
                 ]),

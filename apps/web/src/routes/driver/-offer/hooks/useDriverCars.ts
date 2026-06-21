@@ -97,6 +97,10 @@ export function useDriverCars(manualEntry: ManualEntry) {
         setLocalSavedCars((cars) => [...cars, car]);
     }, []);
 
+    const removeLocalCar = useCallback((carId: string) => {
+        setLocalSavedCars((cars) => cars.filter((c) => c.id !== carId));
+    }, []);
+
     return {
         driverCars,
         carMode,
@@ -105,5 +109,6 @@ export function useDriverCars(manualEntry: ManualEntry) {
         selectedCarId,
         setSelectedCarId,
         addLocalCar,
+        removeLocalCar,
     };
 }

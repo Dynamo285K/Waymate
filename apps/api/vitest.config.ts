@@ -12,11 +12,9 @@ export default defineConfig({
         // Single fork + serial files so the shared test DB doesn't race.
         // Per-test isolation comes from TRUNCATE in beforeEach (see test/setup.ts);
         // without fileParallelism:false one file's reset would interleave with
-        // another file's inserts even inside a single fork.
         pool: "forks",
-        // @ts-expect-error: poolOptions is valid in Vitest 4 but might not align with InlineConfig types
-        poolOptions: { forks: { singleFork: true } },
         fileParallelism: false,
+        maxWorkers: 1,
         globalSetup: [path.resolve(dir, "./test/global-setup.ts")],
         // Order matters: load-env mutates process.env so the later setup
         // (which transitively imports config/env) sees the test values.

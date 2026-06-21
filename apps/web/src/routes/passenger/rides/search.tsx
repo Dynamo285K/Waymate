@@ -113,10 +113,9 @@ export function PassengerRidesPage() {
                       pricePerSeat: ride.priceAmount ?? 0,
                   };
               })
-              .filter((r) => r.seatsLeft >= seats)
         : [];
 
-    const displayedRides = rides?.filter((r) => r.seatsLeft >= seats) ?? [];
+    const displayedRides = rides ?? [];
     const count = showAllRides ? availableRides.length : displayedRides.length;
 
     return (
@@ -223,6 +222,7 @@ export function PassengerRidesPage() {
                                     driverName={ride.driverName}
                                     driverRating={ride.driverRating}
                                     price={ride.price}
+                                    canBook={ride.seatsLeft >= seats}
                                     onBook={() =>
                                         createBooking.mutate(
                                             {
@@ -267,6 +267,7 @@ export function PassengerRidesPage() {
                                             t("home.availableRides.seatsLeft", {
                                                 count,
                                             }),
+                                        full: t("driverRides.full"),
                                         book: t("home.availableRides.book"),
                                     }}
                                 />
@@ -301,6 +302,7 @@ export function PassengerRidesPage() {
                                         ride.driver.averageRating ?? 0
                                     }
                                     price={(ride.priceAmount ?? 0) * seats}
+                                    canBook={ride.seatsLeft >= seats}
                                     onBook={() =>
                                         createBooking.mutate(
                                             {
@@ -406,6 +408,7 @@ export function PassengerRidesPage() {
                                             t("home.availableRides.seatsLeft", {
                                                 count,
                                             }),
+                                        full: t("driverRides.full"),
                                         book: t("home.availableRides.book"),
                                     }}
                                 />

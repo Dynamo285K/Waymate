@@ -26,6 +26,7 @@ import {
 import {
     getCarsBrandsByBrandModels,
     getCarsMe,
+    deleteCarsById,
     useGetCarsBrands,
     useGetCarsBrandsByBrandModels,
     usePostCarsMe,
@@ -124,6 +125,7 @@ export function DriverOfferRidePage() {
         selectedCarId,
         setSelectedCarId,
         addLocalCar,
+        removeLocalCar,
     } = useDriverCars({ manualBrand, manualModel, manualPlate });
 
     const etaPreview = useEtaPreview({
@@ -359,12 +361,35 @@ export function DriverOfferRidePage() {
                     return;
                 }
 
-                await publishRide(carId);
+                try {
+                    await publishRide(carId);
+                } catch (publishError) {
+                    // If we just created the car and ride publishing failed, delete the car so it doesn't clutter the user's profile
+                    if (!alreadySaved) {
+                        try {
+                            await deleteCarsById(carId);
+                            removeLocalCar(carId);
+                            await queryClient.invalidateQueries({
+                                queryKey: getGetCarsMeQueryKey(),
+                            });
+                        } catch (e) {
+                            console.error("Failed to delete unused car", e);
+                        }
+                    }
+                    throw publishError;
+                }
             } catch (error) {
                 console.error("Publish ride failed", error);
-                setPublishError(
-                    getErrorI18nKey(error, {}, "offerRide.publishError")
+                const errorMsg = getErrorI18nKey(
+                    error,
+                    {
+                        RIDE_DRIVER_ALREADY_HAS_RIDE_IN_TIMEFRAME:
+                            "offerRide.overlappingRide",
+                    },
+                    "offerRide.publishError"
                 );
+                // Delay setting the error so that the formKey sync (caused by removing the car) completes first
+                setTimeout(() => setPublishError(errorMsg), 0);
             }
 
             return;
@@ -379,9 +404,15 @@ export function DriverOfferRidePage() {
             await publishRide(selectedCarId);
         } catch (error) {
             console.error("Publish ride failed", error);
-            setPublishError(
-                getErrorI18nKey(error, {}, "offerRide.publishError")
+            const errorMsg = getErrorI18nKey(
+                error,
+                {
+                    RIDE_DRIVER_ALREADY_HAS_RIDE_IN_TIMEFRAME:
+                        "offerRide.overlappingRide",
+                },
+                "offerRide.publishError"
             );
+            setTimeout(() => setPublishError(errorMsg), 0);
         }
     };
 

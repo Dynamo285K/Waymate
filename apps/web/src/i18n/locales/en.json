@@ -364,7 +364,9 @@
         "plateLength": "License plate must be {{min}}-{{max}} characters.",
         "carCreateError": "Could not save this car. Please check the car details.",
         "estimatedArrival": "Estimated arrival time: {{time}}",
-        "estimatedArrivalLoading": "Calculating estimated arrival time..."
+        "estimatedArrivalLoading": "Calculating estimated arrival time...",
+        "publishError": "Failed to publish the ride. Please try again.",
+        "overlappingRide": "You already have a ride scheduled at this time."
     },
     "rideRequests": {
         "title": "Ride Requests",

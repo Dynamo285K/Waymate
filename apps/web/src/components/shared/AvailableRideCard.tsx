@@ -2,6 +2,7 @@ import { Avatar, Button, StarIcon, ClockIcon, UserIcon } from "@waymate/ui";
 
 export type AvailableRideCardLabels = {
     seatsLeft?: (count: number) => string;
+    full?: string;
     book?: string;
 };
 
@@ -16,6 +17,7 @@ export type AvailableRideCardProps = {
     driverName: string;
     driverRating: number;
     price: number;
+    canBook?: boolean;
     onBook: () => void;
     labels?: AvailableRideCardLabels;
 };
@@ -31,12 +33,16 @@ export function AvailableRideCard({
     driverName,
     driverRating,
     price,
+    canBook,
     onBook,
     labels,
 }: AvailableRideCardProps) {
-    const seatsText = labels?.seatsLeft
-        ? labels.seatsLeft(seatsLeft)
-        : `${seatsLeft} seats left`;
+    const isFull = seatsLeft <= 0;
+    const seatsText = isFull
+        ? labels?.full ?? "Full"
+        : labels?.seatsLeft
+          ? labels.seatsLeft(seatsLeft)
+          : `${seatsLeft} seats left`;
 
     const showFullRoute =
         originalStartCity &&
@@ -96,6 +102,7 @@ export function AvailableRideCard({
                 <Button
                     variant="black"
                     onClick={onBook}
+                    disabled={canBook === false || isFull}
                 >
                     {labels?.book ?? "Book"}
                 </Button>
