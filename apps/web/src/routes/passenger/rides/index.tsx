@@ -156,7 +156,7 @@ export function PassengerMyRidesPage() {
         >
             <PassengerNavbar {...navbarProps} />
 
-            <section className="w-full px-4 sm:max-w-3xl sm:mx-auto sm:px-8 py-8 sm:py-12">
+            <section className="w-full px-4 sm:max-w-5xl sm:mx-auto sm:px-8 py-8 sm:py-12">
                 <h1 className="text-2xl font-bold text-(--color-text-primary) mb-6">
                     {t("myRides.title")}
                 </h1>
