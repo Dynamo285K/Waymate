@@ -691,148 +691,7 @@ const searchRides = async (
         )
         .orderBy(asc(distanceZoneSql), asc(ridesTable.departureAt));
 
-    // Deduplicate in JS: keep only the combination with the shortest total distance to passenger
-    const uniqueRides = new Map<
-        string,
-        RideSearchResultItem & { _totalDist: number }
-    >();
-
-    for (const row of result as RideSearchResultItem[]) {
-        const totalDist =
-            (row.pickupStop.distanceKm || 0) +
-            (row.dropoffStop.distanceKm || 0);
-        const existing = uniqueRides.get(row.rideId);
-
-        if (!existing || totalDist < existing._totalDist) {
-            uniqueRides.set(row.rideId, { ...row, _totalDist: totalDist });
-        }
-    }
-
-    const finalRides = Array.from(uniqueRides.values()).map((r) => {
-        const { _totalDist, ...cleanRide } = r;
-        return cleanRide;
-    });
-
-    if (finalRides.length === 0) return [];
-
-    // Fetch actual stops and prices to map back to original if within 25km
-    const rideIds = finalRides.map((r) => r.rideId);
-
-    const allStops = await executor
-        .select()
-        .from(rideStopsTable)
-        .where(
-            and(
-                inArray(rideStopsTable.rideId, rideIds),
-                eq(rideStopsTable.isDynamic, false)
-            )
-        );
-
-    const allPrices = await executor
-        .select()
-        .from(pricesTable)
-        .where(inArray(pricesTable.rideId, rideIds));
-
-    // Haversine formula in JS
-    const distanceKm = (
-        lat1: number,
-        lon1: number,
-        lat2: number,
-        lon2: number
-    ) => {
-        const R = 6371;
-        const dLat = ((lat2 - lat1) * Math.PI) / 180;
-        const dLon = ((lon2 - lon1) * Math.PI) / 180;
-        const a =
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos((lat1 * Math.PI) / 180) *
-                Math.cos((lat2 * Math.PI) / 180) *
-                Math.sin(dLon / 2) *
-                Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
-    };
-
-    const validFinalRides: RideSearchResultItem[] = [];
-
-    for (const ride of finalRides) {
-        const stopsForRide = allStops.filter((s) => s.rideId === ride.rideId);
-
-        let actualPickupStop = null;
-        let actualDropoffStop = null;
-
-        for (const stop of stopsForRide) {
-            if (distanceKm(startLat, startLng, stop.lat, stop.lng) <= 25) {
-                actualPickupStop = stop;
-                break;
-            }
-        }
-
-        for (const stop of stopsForRide) {
-            if (distanceKm(destLat, destLng, stop.lat, stop.lng) <= 25) {
-                actualDropoffStop = stop;
-                break;
-            }
-        }
-
-        if (actualPickupStop) {
-            ride.pickupStop.pickupStopId = actualPickupStop.id;
-            ride.pickupStop.isDynamic = false;
-            ride.pickupStop.city = actualPickupStop.city;
-            ride.pickupStop.lat = actualPickupStop.lat;
-            ride.pickupStop.lng = actualPickupStop.lng;
-            ride.pickupStop.plannedDepartureAt =
-                actualPickupStop.plannedDepartureAt ||
-                ride.pickupStop.plannedDepartureAt;
-            ride.pickupStop.distanceKm = Number(
-                distanceKm(
-                    startLat,
-                    startLng,
-                    actualPickupStop.lat,
-                    actualPickupStop.lng
-                ).toFixed(1)
-            );
-        }
-
-        if (actualDropoffStop) {
-            ride.dropoffStop.dropoffStopId = actualDropoffStop.id;
-            ride.dropoffStop.isDynamic = false;
-            ride.dropoffStop.city = actualDropoffStop.city;
-            ride.dropoffStop.lat = actualDropoffStop.lat;
-            ride.dropoffStop.lng = actualDropoffStop.lng;
-            ride.dropoffStop.plannedArrivalAt =
-                actualDropoffStop.plannedArrivalAt ||
-                ride.dropoffStop.plannedArrivalAt;
-            ride.dropoffStop.distanceKm = Number(
-                distanceKm(
-                    destLat,
-                    destLng,
-                    actualDropoffStop.lat,
-                    actualDropoffStop.lng
-                ).toFixed(1)
-            );
-        }
-
-        if (actualPickupStop && actualDropoffStop) {
-            if (actualPickupStop.stopOrder > actualDropoffStop.stopOrder) {
-                continue;
-            }
-
-            const exactPrice = allPrices.find(
-                (p) =>
-                    p.rideId === ride.rideId &&
-                    p.startStopId === actualPickupStop.id &&
-                    p.endStopId === actualDropoffStop.id
-            );
-            if (exactPrice) {
-                ride.priceAmount = exactPrice.amount;
-            }
-        }
-
-        validFinalRides.push(ride);
-    }
-
-    return validFinalRides;
+    return result as RideSearchResultItem[];
 };
 
 const findActiveCarForDriver = async (
@@ -1100,6 +959,33 @@ const findOverlappingRidesForDriver = async (
     });
 };
 
+const findStopsForRides = async (
+    executor: Executor,
+    rideIds: string[]
+): Promise<(typeof rideStopsTable.$inferSelect)[]> => {
+    if (rideIds.length === 0) return [];
+    return await executor
+        .select()
+        .from(rideStopsTable)
+        .where(
+            and(
+                inArray(rideStopsTable.rideId, rideIds),
+                eq(rideStopsTable.isDynamic, false)
+            )
+        );
+};
+
+const findPricesForRides = async (
+    executor: Executor,
+    rideIds: string[]
+): Promise<(typeof pricesTable.$inferSelect)[]> => {
+    if (rideIds.length === 0) return [];
+    return await executor
+        .select()
+        .from(pricesTable)
+        .where(inArray(pricesTable.rideId, rideIds));
+};
+
 export const RideRepository = {
     findRidesByDriverId,
     findRidePassengersBundle,
@@ -1125,4 +1011,6 @@ export const RideRepository = {
     bulkCancelBookings,
     bulkInsertBookingStatusHistory,
     findOverlappingRidesForDriver,
+    findStopsForRides,
+    findPricesForRides,
 };
