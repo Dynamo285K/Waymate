@@ -7,14 +7,16 @@ import {
     createSignedInUser,
     createSignInUser,
 } from "../../../test/auth-helpers";
-import { createTestCar, buildRideBody, createRideContext } from "../../../test/factories";
+import {
+    createTestCar,
+    buildRideBody,
+    createRideContext,
+} from "../../../test/factories";
 import { db } from "../../db";
 import { carModels, cars, rides } from "../../db/schema";
 import { RideService } from "./ride.service";
 import { RideErrorCodes } from "./ride.errors";
 import type { CreateRideBody } from "@repo/shared";
-
-
 
 describe("RideRoutes public endpoints", () => {
     it("returns an empty list from GET /rides/available when no rides exist", async () => {
@@ -90,7 +92,9 @@ describe("RideRoutes protected endpoints", () => {
 
     it("ends a driver's ride through PATCH /rides/:id/end", async () => {
         const departureAt = new Date(Date.now() - 2 * 60 * 60 * 1000);
-        const { driver, driverCookie, rideId } = await createRideContext({ departureAt });
+        const { driver, driverCookie, rideId } = await createRideContext({
+            departureAt,
+        });
 
         const response = await authenticatedRequest(
             `/rides/${rideId}/end`,
@@ -141,7 +145,10 @@ describe("RideRoutes protected endpoints", () => {
     it("creates a ride through POST /rides for an onboarded user", async () => {
         const { user, cookie } = await createSignedInUser({ onboarded: true });
         const car = await createTestCar(user.id);
-        const body = buildRideBody(car.id, new Date(Date.now() + 24 * 60 * 60 * 1000));
+        const body = buildRideBody(
+            car.id,
+            new Date(Date.now() + 24 * 60 * 60 * 1000)
+        );
 
         const response = await authenticatedRequest(
             "/rides",
@@ -165,7 +172,10 @@ describe("RideRoutes protected endpoints", () => {
             onboarded: false,
         });
         const car = await createTestCar(user.id);
-        const body = buildRideBody(car.id, new Date(Date.now() + 24 * 60 * 60 * 1000));
+        const body = buildRideBody(
+            car.id,
+            new Date(Date.now() + 24 * 60 * 60 * 1000)
+        );
 
         const response = await authenticatedRequest(
             "/rides",

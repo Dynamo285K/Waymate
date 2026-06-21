@@ -14,7 +14,11 @@ import { RideService } from "../rides/ride.service";
 import { BookingService } from "../bookings/booking.service";
 import { TEST_CITY_IDS } from "../../../test/reference-data";
 import type { CreateRideBody } from "@repo/shared";
-import { createRideContext, createTestCar, buildRideBody } from "../../../test/factories";
+import {
+    createRideContext,
+    createTestCar,
+    buildRideBody,
+} from "../../../test/factories";
 
 async function insertTestUser() {
     const [user] = await db
@@ -27,8 +31,6 @@ async function insertTestUser() {
     if (!user) throw new Error("Failed to insert test user");
     return user;
 }
-
-
 
 type CompletedRideSetup = {
     driver: Awaited<ReturnType<typeof insertTestUser>>;
@@ -45,10 +47,10 @@ async function setupCompletedRideWithPassenger(
         departureAt?: Date;
     } = {}
 ): Promise<CompletedRideSetup> {
-    const ctx = await createRideContext({ 
-        withPassenger: true, 
+    const ctx = await createRideContext({
+        withPassenger: true,
         rideStatus: "COMPLETED",
-        departureAt: opts.departureAt 
+        departureAt: opts.departureAt,
     });
     return {
         driver: ctx.driver,

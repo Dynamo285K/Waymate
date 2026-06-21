@@ -59,10 +59,7 @@ export type ChatPanel = {
     unblockActive: () => void;
 };
 
-function counterpartName(
-    item: ConversationListItem,
-    fallback: string
-): string {
+function counterpartName(item: ConversationListItem, fallback: string): string {
     const name = [item.counterpart.firstName, item.counterpart.lastName]
         .filter(Boolean)
         .join(" ")
@@ -77,9 +74,7 @@ function counterpartName(
  * by `useChatSocket`, which keeps the underlying query caches live — this hook
  * just reads from them and maps to view models the UI components consume.
  */
-export function useChatPanel(
-    initialConversationId?: string | null
-): ChatPanel {
+export function useChatPanel(initialConversationId?: string | null): ChatPanel {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
     const navigate = useNavigate();
@@ -172,12 +167,7 @@ export function useChatPanel(
                 // Reflect the sent message immediately; the socket echo dedupes
                 // against it by id.
                 onSuccess: (message) =>
-                    applyMessageToCache(
-                        queryClient,
-                        activeId,
-                        message,
-                        userId
-                    ),
+                    applyMessageToCache(queryClient, activeId, message, userId),
             }
         );
     };

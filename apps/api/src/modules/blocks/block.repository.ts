@@ -129,7 +129,9 @@ const listBlocksByBlocker = async (
         })
         .from(blocklistTable)
         .innerJoin(usersTable, eq(blocklistTable.blockedUserId, usersTable.id))
-        .where(and(activeBlock, eq(blocklistTable.blockerUserId, blockerUserId)))
+        .where(
+            and(activeBlock, eq(blocklistTable.blockerUserId, blockerUserId))
+        )
         .orderBy(desc(blocklistTable.createdAt));
 };
 

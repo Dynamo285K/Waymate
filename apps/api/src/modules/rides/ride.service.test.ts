@@ -38,7 +38,6 @@ async function insertTestUser() {
     return user;
 }
 
-
 function buildCreateRideBody(
     carId: string,
     overrides: Partial<CreateRideBody> = {}

@@ -84,7 +84,9 @@ export function buildRideBody(
                 countryCode: "SK",
                 lat: 48.5,
                 lng: 17.5,
-                plannedArrivalAt: new Date(departureAt.getTime() + 60 * 60 * 1000),
+                plannedArrivalAt: new Date(
+                    departureAt.getTime() + 60 * 60 * 1000
+                ),
                 plannedDepartureAt: null,
             },
         ],
@@ -94,8 +96,8 @@ export function buildRideBody(
 }
 
 export type RideContextOptions = {
-    /** 
-     * Specific departure time. Defaults to tomorrow (future) 
+    /**
+     * Specific departure time. Defaults to tomorrow (future)
      * if rideStatus is not COMPLETED, otherwise defaults to yesterday.
      */
     departureAt?: Date;
@@ -109,7 +111,7 @@ export type RideContextOptions = {
 
 /**
  * Powerful composite factory that sets up a full ride context.
- * It creates the driver, their car, the ride, and optionally 
+ * It creates the driver, their car, the ride, and optionally
  * a confirmed passenger and forcefully manipulates the ride status.
  */
 export async function createRideContext(opts: RideContextOptions = {}) {
@@ -118,10 +120,11 @@ export async function createRideContext(opts: RideContextOptions = {}) {
 
     // If they want a COMPLETED ride but didn't specify a date, default to yesterday
     // so the ride is realistically in the past. Otherwise, default to tomorrow.
-    const defaultDeparture = opts.rideStatus === "COMPLETED"
-        ? new Date(Date.now() - 24 * 60 * 60 * 1000)
-        : new Date(Date.now() + 24 * 60 * 60 * 1000);
-        
+    const defaultDeparture =
+        opts.rideStatus === "COMPLETED"
+            ? new Date(Date.now() - 24 * 60 * 60 * 1000)
+            : new Date(Date.now() + 24 * 60 * 60 * 1000);
+
     const departureAt = opts.departureAt ?? defaultDeparture;
 
     const rideId = await RideService.createRide(
@@ -138,7 +141,9 @@ export async function createRideContext(opts: RideContextOptions = {}) {
     const pickupStopId = stops[0]!.id;
     const dropoffStopId = stops[1]!.id;
 
-    let passengerAuth: Awaited<ReturnType<typeof createSignedInUser>> | undefined;
+    let passengerAuth:
+        | Awaited<ReturnType<typeof createSignedInUser>>
+        | undefined;
     let bookingId: string | undefined;
 
     if (opts.withPassenger) {
