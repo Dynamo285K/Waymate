@@ -10,8 +10,10 @@ export * from "./user.schema";
 export * from "./car.schema";
 export * from "./ride.schema";
 export * from "./booking.schema";
+export * from "./chat.schema";
 export * from "./review.schema";
 export * from "./report.schema";
+export * from "./block.schema";
 export * from "./admin.schema";
 
 import "./register";

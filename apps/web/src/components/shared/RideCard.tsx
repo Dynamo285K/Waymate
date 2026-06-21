@@ -15,6 +15,7 @@ export type RideCardLabels = {
     rateDriver?: string;
     rated?: string;
     reportDriver?: string;
+    messageDriver?: string;
     viewPassengers?: string;
     cancelRide?: string;
     completeRide?: string;
@@ -49,6 +50,7 @@ type PassengerUpcomingProps = RideCardBaseProps & {
     status: "pending" | "confirmed";
     onCancelBooking: () => void;
     onReport?: () => void;
+    onSendMessage?: () => void;
 };
 type PassengerPastProps = RideCardBaseProps & {
     variant: "passenger-past";
@@ -203,6 +205,14 @@ export function RideCard(props: RideCardProps) {
                     )}
                     {props.variant === "passenger-upcoming" && (
                         <div className="flex gap-2">
+                            {props.onSendMessage && (
+                                <Button
+                                    variant="secondary"
+                                    onClick={props.onSendMessage}
+                                >
+                                    {labels?.messageDriver ?? "Message driver"}
+                                </Button>
+                            )}
                             {props.status === "pending" ? (
                                 <Button variant="secondary">
                                     {labels?.pendingConfirmation ??

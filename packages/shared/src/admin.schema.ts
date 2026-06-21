@@ -434,6 +434,23 @@ export const UpdateReportStatusBodySchema = z
     })
     .strict();
 
+// Read-only view of the booking-scoped conversation between a report's reporter
+// and target, surfaced to admins for moderation context. `available` is false
+// when the report has no ride or the two parties never opened a chat.
+export const AdminReportConversationMessageSchema = z.object({
+    id: z.uuid(),
+    senderId: UserIdSchema,
+    content: z.string(),
+    sentAt: z.date(),
+});
+
+export const AdminReportConversationSchema = z.object({
+    available: z.boolean(),
+    conversationId: z.uuid().nullable(),
+    participants: z.array(PublicUserPreviewSchema),
+    messages: z.array(AdminReportConversationMessageSchema),
+});
+
 export type AdminReportListQuery = z.infer<typeof AdminReportListQuerySchema>;
 export type AdminReportListItem = z.infer<typeof AdminReportListItemSchema>;
 export type AdminReportListResponse = z.infer<
@@ -448,6 +465,12 @@ export type AdminReportDetailResponse = z.infer<
 >;
 export type UpdateReportStatusBody = z.infer<
     typeof UpdateReportStatusBodySchema
+>;
+export type AdminReportConversationMessage = z.infer<
+    typeof AdminReportConversationMessageSchema
+>;
+export type AdminReportConversation = z.infer<
+    typeof AdminReportConversationSchema
 >;
 
 // ==========================================

@@ -84,6 +84,10 @@
             "markInvestigating": "Označit jako vyšetřované",
             "markResolved": "Označit jako vyřešené",
             "markDismissed": "Zamítnout",
+            "conversation": "Konverzace",
+            "viewConversation": "Zobrazit konverzaci",
+            "conversationLoading": "Načítání konverzace…",
+            "noConversation": "K tomuto hlášení není dostupná žádná konverzace.",
             "statusOpen": "Otevřené",
             "statusInvestigating": "Vyšetřuje se",
             "statusResolved": "Vyřešené",
@@ -481,7 +485,8 @@
         "cancelBooking": "Zrušit rezervaci",
         "rateDriver": "Ohodnotit řidiče",
         "rated": "Ohodnoceno",
-        "reportDriver": "Nahlásit řidiče"
+        "reportDriver": "Nahlásit řidiče",
+        "messageDriver": "Napsat řidiči"
     },
     "bookGuest": {
         "title": "Vytvořte účet pro rezervaci",
@@ -506,7 +511,24 @@
         "typeMessage": "Napište zprávu...",
         "viewProfile": "Zobrazit profil",
         "blockUser": "Zablokovat uživatele",
-        "reportUser": "Nahlásit uživatele"
+        "reportUser": "Nahlásit uživatele",
+        "loading": "Načítání zpráv…",
+        "selectConversation": "Vyberte konverzaci a začněte chatovat",
+        "unknownUser": "Neznámý uživatel",
+        "back": "Zpět",
+        "cancel": "Zrušit",
+        "blockConfirmTitle": "Zablokovat {{name}}?",
+        "blockConfirmText": "Nebudete si moci psát, rezervovat ani navzájem vidět jízdy. Později ho můžete odblokovat ve svém profilu.",
+        "reviewsCount": "{{count}} hodnocení",
+        "noReviews": "Zatím žádná hodnocení",
+        "blockedShort": "Zablokováno",
+        "blockedNotice": "Tohoto uživatele jste zablokovali.",
+        "today": "Dnes",
+        "yesterday": "Včera"
+    },
+    "blocked": {
+        "title": "Zablokovaní uživatelé",
+        "unblock": "Odblokovat"
     },
     "roles": {
         "passenger": "Cestující",
@@ -521,6 +543,8 @@
         "descriptionPlaceholder": "Popište, co se stalo (max 2000 znaků)…",
         "cancel": "Zrušit",
         "submit": "Odeslat hlášení",
+        "blockUser": "Zároveň tohoto uživatele zablokovat",
+        "blockUserHint": "Nebudete si moci psát, rezervovat ani navzájem vidět jízdy.",
         "types": {
             "inappropriateBehavior": "Nevhodné chování",
             "noShow": "Nedostavil se",
@@ -533,7 +557,8 @@
             "targetNotFound": "Tento uživatel již není dostupný.",
             "targetNotAllowed": "Nahlásit můžete pouze uživatele, se kterým jste sdíleli jízdu.",
             "selfReport": "Nemůžete nahlásit sami sebe.",
-            "rideNotFound": "Tato jízda již neexistuje."
+            "rideNotFound": "Tato jízda již neexistuje.",
+            "duplicateOpen": "Na tohoto uživatele už máte otevřené hlášení. Brzy ho posoudíme."
         }
     },
     "nav": {

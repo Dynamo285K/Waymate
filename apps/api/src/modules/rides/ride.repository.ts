@@ -25,6 +25,7 @@ import { rideRouteCells as rideRouteCellsTable } from "../../db/schema/ride_rout
 import { rideStatusHistory as rideStatusHistoryTable } from "../../db/schema/ride_status_history";
 import { bookingStatusHistory as bookingStatusHistoryTable } from "../../db/schema";
 import { cars as carsTable } from "../../db/schema/car";
+import { blocklist as blocklistTable } from "../../db/schema/blocklist";
 import * as h3 from "h3-js";
 import { dayBoundsInTimeZone } from "../../shared/time";
 import type {
@@ -236,8 +237,26 @@ const findAverageRatingsByUserIds = async (
 const pickupStops = aliasedTable(rideStopsTable, "pickup_stops");
 const dropoffStops = aliasedTable(rideStopsTable, "dropoff_stops");
 
+// SQL fragment that excludes rides whose driver is in an active block (either
+// direction) with the viewer. Returns undefined for anonymous searches (no
+// viewer), and `and(...)` simply skips undefined conditions.
+const driverNotBlockedForViewer = (viewerId: string | undefined) =>
+    viewerId
+        ? sql`NOT EXISTS (
+            SELECT 1 FROM ${blocklistTable} bl
+            WHERE bl.block_status = 'ACTIVE'
+              AND bl.revoked_at IS NULL
+              AND bl.deleted_at IS NULL
+              AND (
+                (bl.blocker_user_id = ${viewerId} AND bl.blocked_user_id = ${ridesTable.driverId})
+                OR (bl.blocked_user_id = ${viewerId} AND bl.blocker_user_id = ${ridesTable.driverId})
+              )
+          )`
+        : undefined;
+
 const findAvailableRides = async (
-    executor: Executor
+    executor: Executor,
+    viewerId?: string
 ): Promise<AvailableRideItem[]> => {
     const now = new Date();
 
@@ -378,7 +397,8 @@ const findAvailableRides = async (
                 rideNotSoftDeleted,
                 eq(ridesTable.rideStatus, "PLANNED"),
                 gte(ridesTable.departureAt, now),
-                sql`GREATEST(0, ${ridesTable.offeredSeats} - COALESCE(${capacityByRide.occupiedSeats}, 0)) > 0`
+                sql`GREATEST(0, ${ridesTable.offeredSeats} - COALESCE(${capacityByRide.occupiedSeats}, 0)) > 0`,
+                driverNotBlockedForViewer(viewerId)
             )
         )
         .orderBy(asc(ridesTable.departureAt));
@@ -394,7 +414,8 @@ const searchRides = async (
     destLng: number,
     travelDate: Date,
     startCity: string,
-    destCity: string
+    destCity: string,
+    viewerId?: string
 ): Promise<RideSearchResultItem[]> => {
     const startCell = h3.latLngToCell(startLat, startLng, 7);
     const destCell = h3.latLngToCell(destLat, destLng, 7);
@@ -602,7 +623,8 @@ const searchRides = async (
                 gte(ridesTable.departureAt, startOfDay),
                 lt(ridesTable.departureAt, endOfDay),
                 lte(pickupDistanceSql, 15),
-                lte(dropoffDistanceSql, 15)
+                lte(dropoffDistanceSql, 15),
+                driverNotBlockedForViewer(viewerId)
             )
         )
         .orderBy(asc(distanceZoneSql), asc(ridesTable.departureAt));

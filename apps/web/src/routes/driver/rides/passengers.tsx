@@ -8,6 +8,7 @@ import {
 import { StatCard, TextLink } from "@waymate/ui";
 import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
 import { PassengerCard } from "../../../features/driver/components/PassengerCard";
+import { useOpenConversation } from "../../../features/chat/hooks/useOpenConversation";
 import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { ReportUserModal } from "../../../components/shared/ReportUserModal";
 import { useGetRidesByIdPassengers } from "../../../api-client/rides/rides";
@@ -67,6 +68,7 @@ function IconBox({
 export function DriverPassengersPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { openConversation } = useOpenConversation("/driver/chat");
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
     const { data: session } = authClient.useSession();
     const user = session?.user;
@@ -213,7 +215,7 @@ export function DriverPassengersPage() {
                                         undefined
                                     }
                                     onSendMessage={() =>
-                                        navigate({ to: "/driver/chat" })
+                                        openConversation(booking.bookingId)
                                     }
                                     onCancelBooking={() =>
                                         setBookingToCancel(booking.bookingId)

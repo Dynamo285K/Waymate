@@ -28,4 +28,7 @@ export type CreateReportInput = {
     rideId?: RideId;
     reportType: ReportType;
     description: string;
+    // When true, also add the target to the reporter's personal block list as
+    // part of the same transaction.
+    blockTarget?: boolean;
 };

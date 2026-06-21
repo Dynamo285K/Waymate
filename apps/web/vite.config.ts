@@ -37,6 +37,10 @@ export default defineConfig(({ mode }) => {
                 "/api": {
                     target: apiTarget,
                     changeOrigin: true,
+                    // Proxy WebSocket upgrades too (chat realtime connects to
+                    // /api/conversations/ws). Without this Vite only forwards
+                    // plain HTTP and the upgrade handshake never reaches the API.
+                    ws: true,
                     rewrite: (path) => path.replace(/^\/api/, ""),
                 },
             },

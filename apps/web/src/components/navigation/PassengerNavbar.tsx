@@ -36,6 +36,7 @@ export type PassengerNavbarLabels = {
 
 export type PassengerNavbarProps = {
     activeTab?: PassengerNavbarTab;
+    chatBadge?: number;
     language: Language;
     onLanguageChange: (value: Language) => void;
     role: Role;
@@ -58,6 +59,7 @@ export type PassengerNavbarProps = {
 
 export function PassengerNavbar({
     activeTab = "my-rides",
+    chatBadge,
     language,
     onLanguageChange,
     role,
@@ -208,7 +210,17 @@ export function PassengerNavbar({
                 active={activeTab === "chat"}
                 onClick={onChatClick}
             >
-                {labels?.chat ?? "Chat"}
+                <span className="inline-flex items-center gap-1.5">
+                    {labels?.chat ?? "Chat"}
+                    {chatBadge ? (
+                        <span
+                            className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-(--color-red) text-white text-[11px] font-semibold leading-none"
+                            aria-label={`${chatBadge} unread`}
+                        >
+                            {chatBadge > 99 ? "99+" : chatBadge}
+                        </span>
+                    ) : null}
+                </span>
             </NavButton>
         </>
     );

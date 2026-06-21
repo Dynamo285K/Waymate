@@ -16,8 +16,8 @@ import type {
     RideTimeframe,
 } from "./ride.types";
 
-const getAvailableRides = async () => {
-    return await RideRepository.findAvailableRides(db);
+const getAvailableRides = async (viewerId?: string) => {
+    return await RideRepository.findAvailableRides(db, viewerId);
 };
 
 const getDriverRides = async (driverId: string, timeframe?: RideTimeframe) => {
@@ -96,7 +96,7 @@ const getRidePassengers = async (
     };
 };
 
-const searchRides = async (query: SearchRidesQuery) => {
+const searchRides = async (query: SearchRidesQuery, viewerId?: string) => {
     return await RideRepository.searchRides(
         db,
         query.startLat,
@@ -105,7 +105,8 @@ const searchRides = async (query: SearchRidesQuery) => {
         query.destLng,
         query.travelDate,
         query.startCity || "Dynamic Location",
-        query.destCity || "Dynamic Location"
+        query.destCity || "Dynamic Location",
+        viewerId
     );
 };
 

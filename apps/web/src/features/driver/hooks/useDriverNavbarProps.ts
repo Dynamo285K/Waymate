@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { toUiLanguage } from "../../../lib/language";
 import { useLogout } from "../../../hooks/shared/useLogout";
+import { useUnreadCount } from "../../chat/hooks/useUnreadCount";
 
 export function useDriverNavbarProps(params: {
     activeTab?: "offer-ride" | "my-rides" | "ride-requests" | "chat";
@@ -16,9 +17,11 @@ export function useDriverNavbarProps(params: {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const logout = useLogout();
+    const chatBadge = useUnreadCount();
 
     return {
         ...params,
+        chatBadge,
         language: toUiLanguage(params.language),
         role: "driver" as const,
         onRoleChange: (r: "passenger" | "driver") =>

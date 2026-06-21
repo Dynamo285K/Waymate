@@ -4,6 +4,7 @@ import {
     AdminCancelRideResponseSchema,
     AdminDashboardResponseSchema,
     AdminDeleteReviewResponseSchema,
+    AdminReportConversationSchema,
     AdminReportDetailResponseSchema,
     AdminReportDetailSchema,
     AdminReportIdParamsSchema,
@@ -83,6 +84,7 @@ export const AdminRoutes = new Elysia({
         AdminReportDetail: AdminReportDetailSchema,
         AdminReportStatusHistoryItem: AdminReportStatusHistoryItemSchema,
         AdminReportDetailResponse: AdminReportDetailResponseSchema,
+        AdminReportConversation: AdminReportConversationSchema,
         UpdateReportStatusBody: UpdateReportStatusBodySchema,
         ErrorResponse: ErrorResponseSchema,
     })
@@ -410,6 +412,30 @@ export const AdminRoutes = new Elysia({
                     detail: {
                         description:
                             "Returns full report detail (reporter, target, ride context if present, resolution reason) plus the status history (newest first, capped at 50).",
+                    },
+                }
+            )
+            .get(
+                "/reports/:id/conversation",
+                async ({ user, params }) =>
+                    await AdminService.getReportConversation(
+                        params.id,
+                        user.id
+                    ),
+                {
+                    params: AdminReportIdParamsSchema,
+                    response: {
+                        200: "AdminReportConversation",
+                        400: "ErrorResponse",
+                        401: "ErrorResponse",
+                        403: "ErrorResponse",
+                        404: "ErrorResponse",
+                        429: "ErrorResponse",
+                        500: "ErrorResponse",
+                    },
+                    detail: {
+                        description:
+                            "Returns the read-only chat between a report's reporter and target (the booking-scoped conversation on the report's ride) for moderation context. `available` is false when the report has no ride or the two never opened a chat. Admin access is audit-logged.",
                     },
                 }
             )

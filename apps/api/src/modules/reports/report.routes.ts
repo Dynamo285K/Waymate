@@ -30,6 +30,7 @@ export const ReportRoutes = new Elysia({
                     rideId: body.rideId,
                     reportType: body.reportType,
                     description: body.description,
+                    blockTarget: body.blockTarget,
                 });
 
                 return status(201, {
