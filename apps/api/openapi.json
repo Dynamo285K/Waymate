@@ -746,7 +746,7 @@
                     {
                         "name": "travelDate",
                         "in": "query",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "type": "string",
                             "format": "date-time"
@@ -5302,13 +5302,7 @@
                         "format": "date-time"
                     }
                 },
-                "required": [
-                    "startLat",
-                    "startLng",
-                    "destLat",
-                    "destLng",
-                    "travelDate"
-                ],
+                "required": ["startLat", "startLng", "destLat", "destLng"],
                 "additionalProperties": false
             },
             "CancelRideBody": {
@@ -8631,8 +8625,20 @@
                     "originCity": {
                         "type": "string"
                     },
+                    "originLat": {
+                        "type": "number"
+                    },
+                    "originLng": {
+                        "type": "number"
+                    },
                     "destinationCity": {
                         "type": "string"
+                    },
+                    "destLat": {
+                        "type": "number"
+                    },
+                    "destLng": {
+                        "type": "number"
                     },
                     "count": {
                         "type": "integer",
@@ -8788,6 +8794,9 @@
                     "updatedAt": {
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "isBlocked": {
+                        "type": "boolean"
                     }
                 },
                 "required": [
@@ -8799,7 +8808,8 @@
                     "counterpart",
                     "lastMessage",
                     "unreadCount",
-                    "updatedAt"
+                    "updatedAt",
+                    "isBlocked"
                 ],
                 "additionalProperties": false
             },

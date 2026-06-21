@@ -90,6 +90,7 @@ const getConversations = async (
                 : null,
             unreadCount: row.unreadCount,
             updatedAt: row.updatedAt,
+            isBlocked: row.isBlocked,
         };
     });
 };

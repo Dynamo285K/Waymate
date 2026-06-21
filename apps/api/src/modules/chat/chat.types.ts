@@ -51,4 +51,5 @@ export type ConversationListItem = {
     lastMessage: Message | null;
     unreadCount: number;
     updatedAt: Date;
+    isBlocked: boolean;
 };

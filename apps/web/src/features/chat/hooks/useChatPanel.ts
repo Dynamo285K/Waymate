@@ -46,7 +46,8 @@ export type ChatPanel = {
     activeName: string | null;
     activeCounterpartId: string | null;
     activeRideId: string | null;
-    isActiveBlocked: boolean;
+    isCounterpartBlockedByMe: boolean;
+    isThreadBlocked: boolean;
     messages: MessageView[];
     isLoadingMessages: boolean;
     isSending: boolean;
@@ -119,7 +120,7 @@ export function useChatPanel(initialConversationId?: string | null): ChatPanel {
         name: counterpartName(item, unknownUser),
         lastMessage: item.lastMessage?.content ?? "",
         unreadCount: item.unreadCount,
-        blocked: blockedIds.has(item.counterpart.id),
+        blocked: item.isBlocked,
     }));
 
     const activeConversation = (conversationsQuery.data ?? []).find(
@@ -130,9 +131,10 @@ export function useChatPanel(initialConversationId?: string | null): ChatPanel {
         : null;
     const activeCounterpartId = activeConversation?.counterpart.id ?? null;
     const activeRideId = activeConversation?.rideId ?? null;
-    const isActiveBlocked = activeCounterpartId
+    const isCounterpartBlockedByMe = activeCounterpartId
         ? blockedIds.has(activeCounterpartId)
         : false;
+    const isThreadBlocked = activeConversation?.isBlocked ?? false;
 
     const messages: MessageView[] = (messagesQuery.data ?? []).map((m) => ({
         id: m.id,
@@ -206,7 +208,8 @@ export function useChatPanel(initialConversationId?: string | null): ChatPanel {
         activeName,
         activeCounterpartId,
         activeRideId,
-        isActiveBlocked,
+        isCounterpartBlockedByMe,
+        isThreadBlocked,
         messages,
         isLoadingMessages: Boolean(activeId) && messagesQuery.isLoading,
         isSending: sendMutation.isPending,

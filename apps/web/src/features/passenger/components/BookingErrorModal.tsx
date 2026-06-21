@@ -11,6 +11,7 @@ type BookingErrorModalProps = {
 
 const BOOKING_ERROR_MAP: Record<string, string> = {
     BOOKING_ALREADY_EXISTS: "bookings.alreadyBooked",
+    BOOKING_SELF_BOOKING_NOT_ALLOWED: "bookings.cannotBookOwnRide",
 };
 
 export function BookingErrorModal({

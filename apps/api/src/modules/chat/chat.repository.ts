@@ -15,6 +15,7 @@ import { messages as messagesTable } from "../../db/schema/message";
 import { bookings as bookingsTable } from "../../db/schema/booking";
 import { rides as ridesTable } from "../../db/schema/ride";
 import { users as usersTable } from "../../db/schema/user";
+import { blocklist as blocklistTable } from "../../db/schema/blocklist";
 import type { ConversationParticipants, ConversationType } from "./chat.types";
 import type { Message } from "@repo/shared";
 
@@ -145,6 +146,17 @@ const findUserConversations = async (executor: Executor, userId: string) => {
           AND ${messagesTable.deletedAt} IS NULL
     ), ${conversationsTable.updatedAt})`;
 
+    const isBlocked = sql<boolean>`EXISTS (
+        SELECT 1 FROM ${blocklistTable}
+        WHERE ${blocklistTable.blockStatus} = 'ACTIVE'
+          AND ${blocklistTable.revokedAt} IS NULL
+          AND ${blocklistTable.deletedAt} IS NULL
+          AND (
+            (${blocklistTable.blockerUserId} = ${ridesTable.driverId} AND ${blocklistTable.blockedUserId} = ${bookingsTable.passengerId}) OR
+            (${blocklistTable.blockerUserId} = ${bookingsTable.passengerId} AND ${blocklistTable.blockedUserId} = ${ridesTable.driverId})
+          )
+    )`;
+
     return await executor
         .select({
             id: conversationsTable.id,
@@ -168,6 +180,7 @@ const findUserConversations = async (executor: Executor, userId: string) => {
             },
             lastMessageId,
             unreadCount,
+            isBlocked,
         })
         .from(conversationsTable)
         .innerJoin(

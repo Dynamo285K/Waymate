@@ -8,7 +8,11 @@
 
 export interface PopularRoute {
     originCity: string;
+    originLat?: number;
+    originLng?: number;
     destinationCity: string;
+    destLat?: number;
+    destLng?: number;
     /**
      * @minimum 0
      * @maximum 9007199254740991

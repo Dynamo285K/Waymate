@@ -497,6 +497,7 @@
     "bookings": {
         "createError": "Nepodařilo se vytvořit žádost o rezervaci. Zkuste to znovu.",
         "alreadyBooked": "Na tuto jízdu již máte aktivní rezervaci.",
+        "cannotBookOwnRide": "Nemůžete si rezervovat vlastní jízdu.",
         "errorTitle": "Rezervaci nelze vytvořit"
     },
     "rides": {
