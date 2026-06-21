@@ -15,15 +15,18 @@ import {
     BookingError,
     bookingErrorToHttpStatus,
 } from "./modules/bookings/booking.errors";
+import { CarError, carErrorToHttpStatus } from "./modules/cars/car.errors";
 import { startRideAutoEndWorker } from "./modules/rides/ride.auto-end";
 import { BookingRoutes } from "./modules/bookings/booking.routes";
 import { ChatRoutes } from "./modules/chat/chat.routes";
 import { ChatError, chatErrorToHttpStatus } from "./modules/chat/chat.errors";
 import { ChatRealtime } from "./modules/chat/chat.realtime";
 import { ReviewRoutes } from "./modules/reviews/review.routes";
+import { ReviewError, reviewErrorToHttpStatus } from "./modules/reviews/review.errors";
 import { ReportRoutes } from "./modules/reports/report.routes";
 import { BlockRoutes } from "./modules/blocks/block.routes";
 import { BlockError, blockErrorToHttpStatus } from "./modules/blocks/block.errors";
+import { ReportError, reportErrorToHttpStatus } from "./modules/reports/report.errors";
 import { AdminRoutes } from "./modules/admin/admin.routes";
 import { checkRateLimit } from "./shared/rate-limit";
 import {
@@ -245,6 +248,21 @@ export const app = new Elysia()
         }
         if (error instanceof BlockError) {
             return status(blockErrorToHttpStatus(error.code), {
+                error: error.code,
+            });
+        }
+        if (error instanceof CarError) {
+            return status(carErrorToHttpStatus(error.code), {
+                error: error.code,
+            });
+        }
+        if (error instanceof ReportError) {
+            return status(reportErrorToHttpStatus(error.code), {
+                error: error.code,
+            });
+        }
+        if (error instanceof ReviewError) {
+            return status(reviewErrorToHttpStatus(error.code), {
                 error: error.code,
             });
         }
