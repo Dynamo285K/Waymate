@@ -36,12 +36,15 @@
     --color-success-border: var(--wm-color-success-border);
     --color-success-bg: var(--wm-color-success-bg);
     --color-success-text: var(--wm-color-success-text);
+    --color-control-elevation: rgb(17 24 39 / 0.12);
 
     --shadow-hairline: 0 1px 3px rgb(0 0 0 / 0.08);
     --shadow-button: 0 1px 4px rgb(0 0 0 / 0.08);
     --shadow-navbar: 0 1px 4px rgb(0 0 0 / 0.05);
     --shadow-primary-sm: 0 1px 5px rgb(17 173 50 / 0.16);
     --shadow-dropdown-strong: 0 6px 18px rgb(0 0 0 / 0.1);
+    --shadow-control-floating:
+        0 0 0 1px var(--color-control-elevation), 0 6px 18px rgb(0 0 0 / 0.18);
 
     --spacing-modal-viewport: calc(100vw - 2rem);
     --spacing-modal-body: 90vh;
@@ -75,9 +78,20 @@
     --z-time-select: 200;
 }
 
+[data-theme="dark"] {
+    --color-control-elevation: rgb(255 255 255 / 0.16);
+    --shadow-button:
+        0 0 0 1px rgb(255 255 255 / 0.06), 0 2px 8px rgb(0 0 0 / 0.35);
+    --shadow-dropdown-strong:
+        0 0 0 1px rgb(255 255 255 / 0.08), 0 10px 26px rgb(0 0 0 / 0.45);
+    --shadow-control-floating:
+        0 0 0 1px var(--color-control-elevation), 0 8px 22px rgb(0 0 0 / 0.55);
+}
+
 @custom-variant icon-svg (& svg);
 @custom-variant menu-line (& > span);
 @custom-variant nav-button (& .nav-button);
+@custom-variant profile-dropdown-surface (& > div);
 @custom-variant radix-placeholder (&[data-placeholder] > span:first-child);
 @custom-variant radix-disabled (&[data-disabled]);
 @custom-variant radix-highlighted (&[data-highlighted]);
