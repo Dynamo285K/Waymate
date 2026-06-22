@@ -16,7 +16,7 @@ import {
     bookingErrorToHttpStatus,
 } from "./modules/bookings/booking.errors";
 import { CarError, carErrorToHttpStatus } from "./modules/cars/car.errors";
-import { startRideAutoEndWorker } from "./modules/rides/ride.auto-end";
+import { startRideAutoEndWorker } from "./modules/rides/lifecycle/ride.auto-end";
 import { BookingRoutes } from "./modules/bookings/booking.routes";
 import { ChatRoutes } from "./modules/chat/chat.routes";
 import { ChatError, chatErrorToHttpStatus } from "./modules/chat/chat.errors";
@@ -36,7 +36,7 @@ import {
     ReportError,
     reportErrorToHttpStatus,
 } from "./modules/reports/report.errors";
-import { AdminRoutes } from "./modules/admin/admin.routes";
+import { StatisticsRoutes } from "./modules/statistics/statistics.routes";
 import { checkRateLimit } from "./shared/rate-limit";
 import {
     RateLimitError,
@@ -364,7 +364,7 @@ export const app = new Elysia()
     .use(ReviewRoutes)
     .use(ReportRoutes)
     .use(BlockRoutes)
-    .use(AdminRoutes);
+    .use(StatisticsRoutes);
 
 export type App = typeof app;
 export type Auth = typeof auth;

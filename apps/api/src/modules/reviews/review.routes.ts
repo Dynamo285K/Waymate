@@ -3,6 +3,7 @@ import { ReviewService } from "./review.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
 import { createErrorHandler } from "../auth/auth.errors";
 import { ReviewError, reviewErrorToHttpStatus } from "./review.errors";
+import { AdminReviewRoutes } from "./admin/admin-review.routes";
 import {
     ErrorResponseSchema,
     AuthoredReviewListSchema,
@@ -110,4 +111,5 @@ export const ReviewRoutes = new Elysia({
                     },
                 }
             )
-    );
+    )
+    .use(AdminReviewRoutes);

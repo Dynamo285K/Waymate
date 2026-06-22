@@ -1,14 +1,14 @@
 import {
     getPendingRequestsForDriver,
     getPassengerBookings,
-} from "./booking-query.service";
-import { createBookingRequest } from "./booking-request.service";
+} from "./queries/booking-query.service";
+import { createBookingRequest } from "./requests/booking-request.service";
 import {
     confirmBooking,
     rejectBooking,
     cancelBookingByPassenger,
     cancelBookingByDriver,
-} from "./booking-lifecycle.service";
+} from "./lifecycle/booking-lifecycle.service";
 
 export const BookingService = {
     getPendingRequestsForDriver,

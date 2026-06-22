@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Avatar, Button, CloseIcon, IconButton, Modal } from "@waymate/ui";
-import { useGetAdminRidesById } from "../../../../api-client/admin/admin";
+import { useGetRidesAdminById } from "../../../../api-client/rides/rides";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminRidesErrorMap } from "../-lib/admin-ride-errors";
 import {
@@ -29,7 +29,7 @@ export function RideDetailModal({
     onRequestCancel,
 }: RideDetailModalProps) {
     const { t } = useTranslation();
-    const detailQuery = useGetAdminRidesById(rideId);
+    const detailQuery = useGetRidesAdminById(rideId);
 
     const labelClass =
         "text-xs font-bold text-text-secondary tracking-wider mb-1 block";

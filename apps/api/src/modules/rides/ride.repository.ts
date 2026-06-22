@@ -3,16 +3,16 @@ import {
     findRidePassengersBundle,
     findReviewsByAuthorForSubjects,
     findAverageRatingsByUserIds,
-} from "./ride-listing.repository";
+} from "./listing/ride-listing.repository";
 import {
     findAvailableRides,
     findPopularRoutes,
-} from "./ride-discovery.repository";
+} from "./search/ride-discovery.repository";
 import {
     searchRides,
     findStopsForRides,
     findPricesForRides,
-} from "./ride-search.repository";
+} from "./search/ride-search.repository";
 import {
     findActiveCarForDriver,
     insertRide,
@@ -21,7 +21,7 @@ import {
     insertRidePrices,
     insertRideStatusHistory,
     findOverlappingRidesForDriver,
-} from "./ride-write.repository";
+} from "./creation/ride-write.repository";
 import {
     findRideForCancel,
     updateRideStatusToCancelled,
@@ -33,10 +33,10 @@ import {
     bulkCompleteBookings,
     bulkCancelBookings,
     bulkInsertBookingStatusHistory,
-} from "./ride-lifecycle.repository";
+} from "./lifecycle/ride-lifecycle.repository";
 
 // Re-exported so consumers keep importing the bundle type from the repository.
-export type { RidePassengersBundle } from "./ride-listing.repository";
+export type { RidePassengersBundle } from "./listing/ride-listing.repository";
 
 export const RideRepository = {
     findRidesByDriverId,

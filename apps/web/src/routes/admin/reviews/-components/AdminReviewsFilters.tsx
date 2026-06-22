@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { Button, SearchInput } from "@waymate/ui";
 import { FilterSelect } from "../../../../features/admin/components/FilterSelect";
-import { useGetAdminReviewsCounts } from "../../../../api-client/admin/admin";
+import { useGetReviewsAdminCounts } from "../../../../api-client/reviews/reviews";
 import type { ReviewStatus } from "../../../../api-client/model/reviewStatus";
-import type { GetAdminReviewsSubjectRole } from "../../../../api-client/model/getAdminReviewsSubjectRole";
+import type { GetReviewsAdminSubjectRole } from "../../../../api-client/model/getReviewsAdminSubjectRole";
 
 type StatusFilter = "ALL" | ReviewStatus;
 
@@ -12,9 +12,9 @@ type AdminReviewsFiltersProps = {
     onStatusFilterChange: (value: StatusFilter) => void;
     ratingFilter: number | null;
     onRatingFilterChange: (value: number | null) => void;
-    targetRoleFilter: GetAdminReviewsSubjectRole | null;
+    targetRoleFilter: GetReviewsAdminSubjectRole | null;
     onTargetRoleFilterChange: (
-        value: GetAdminReviewsSubjectRole | null
+        value: GetReviewsAdminSubjectRole | null
     ) => void;
     searchInput: string;
     onSearchInputChange: (value: string) => void;
@@ -31,7 +31,7 @@ export function AdminReviewsFilters({
     onSearchInputChange,
 }: AdminReviewsFiltersProps) {
     const { t } = useTranslation();
-    const countsQuery = useGetAdminReviewsCounts({
+    const countsQuery = useGetReviewsAdminCounts({
         query: { staleTime: 30_000 },
     });
     const counts = countsQuery.data;
@@ -64,7 +64,7 @@ export function AdminReviewsFilters({
     ];
 
     const targetOptions: {
-        value: GetAdminReviewsSubjectRole | null;
+        value: GetReviewsAdminSubjectRole | null;
         label: string;
     }[] = [
         { value: null, label: t("admin.allTargets") },
@@ -121,7 +121,7 @@ export function AdminReviewsFilters({
                     onTargetRoleFilterChange(
                         value === "ALL"
                             ? null
-                            : (value as GetAdminReviewsSubjectRole)
+                            : (value as GetReviewsAdminSubjectRole)
                     )
                 }
                 options={targetOptions.map((opt) => ({

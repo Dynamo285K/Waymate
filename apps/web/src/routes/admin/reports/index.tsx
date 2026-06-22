@@ -7,9 +7,9 @@ import { useSetReportStatus } from "./-hooks/useSetReportStatus";
 import { useSetUserStatus } from "../users/-hooks/useSetUserStatus";
 import { BanUserModal } from "../users/-components/BanUserModal";
 import {
-    getGetAdminReportsQueryKey,
-    getGetAdminReportsByIdQueryKey,
-} from "../../../api-client/admin/admin";
+    getGetReportsAdminQueryKey,
+    getGetReportsAdminByIdQueryKey,
+} from "../../../api-client/reports/reports";
 import type { ReportStatus } from "../../../api-client/model/reportStatus";
 import type { ReportType } from "../../../api-client/model/reportType";
 import { getErrorCode, getErrorI18nKey } from "../../../lib/api-errors";
@@ -89,7 +89,7 @@ function AdminReportsPage() {
         (error: unknown) => {
             if (getErrorCode(error) === ADMIN_REPORT_NOT_FOUND_CODE) {
                 void queryClient.invalidateQueries({
-                    queryKey: getGetAdminReportsQueryKey(),
+                    queryKey: getGetReportsAdminQueryKey(),
                 });
                 setSelectedReportId(null);
                 setPendingStatus(null);
@@ -125,7 +125,7 @@ function AdminReportsPage() {
                     // ban button is replaced by the "already banned" note.
                     if (reportId) {
                         void queryClient.invalidateQueries({
-                            queryKey: getGetAdminReportsByIdQueryKey(reportId),
+                            queryKey: getGetReportsAdminByIdQueryKey(reportId),
                         });
                     }
                 },

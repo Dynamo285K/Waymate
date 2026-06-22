@@ -1,10 +1,10 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import {
-    getAdminReviews,
-    getGetAdminReviewsQueryKey,
-} from "../../../../api-client/admin/admin";
+    getReviewsAdmin,
+    getGetReviewsAdminQueryKey,
+} from "../../../../api-client/reviews/reviews";
 import type { ReviewStatus } from "../../../../api-client/model/reviewStatus";
-import type { GetAdminReviewsSubjectRole } from "../../../../api-client/model/getAdminReviewsSubjectRole";
+import type { GetReviewsAdminSubjectRole } from "../../../../api-client/model/getReviewsAdminSubjectRole";
 
 const PAGE_SIZE = 20;
 
@@ -12,13 +12,13 @@ export type AdminReviewsListFilters = {
     status?: ReviewStatus;
     minRating?: number;
     maxRating?: number;
-    subjectRole?: GetAdminReviewsSubjectRole;
+    subjectRole?: GetReviewsAdminSubjectRole;
     search?: string;
 };
 
 export function useAdminReviewsList(filters: AdminReviewsListFilters) {
     const query = useInfiniteQuery({
-        queryKey: getGetAdminReviewsQueryKey({
+        queryKey: getGetReviewsAdminQueryKey({
             limit: PAGE_SIZE,
             status: filters.status,
             minRating: filters.minRating,
@@ -27,7 +27,7 @@ export function useAdminReviewsList(filters: AdminReviewsListFilters) {
             search: filters.search,
         }),
         queryFn: ({ pageParam }) =>
-            getAdminReviews({
+            getReviewsAdmin({
                 limit: PAGE_SIZE,
                 status: filters.status,
                 minRating: filters.minRating,

@@ -2,26 +2,26 @@ import {
     getAvailableRides,
     getPopularRoutes,
     searchRides,
-} from "./ride-search.service";
-import { getDriverRides, getRidePassengers } from "./ride-listing.service";
-import { createRide } from "./ride-creation.service";
+} from "./search/ride-search.service";
+import { getDriverRides, getRidePassengers } from "./listing/ride-listing.service";
+import { createRide } from "./creation/ride-creation.service";
 import {
     cancelRide,
     endRide,
     completeRide,
     autoEndExpiredRides,
-} from "./ride-lifecycle.service";
+} from "./lifecycle/ride-lifecycle.service";
 import {
     calculateEtasFromDurations,
     estimateEtasForStops,
-} from "./ride-eta.service";
+} from "./eta/ride-eta.service";
 
 // Re-exported so consumers keep importing these helpers from the service entry.
 export {
     haversineKm,
     calculateEtasFromDurations,
     estimateEtasForStops,
-} from "./ride-eta.service";
+} from "./eta/ride-eta.service";
 
 export const RideService = {
     getAvailableRides,

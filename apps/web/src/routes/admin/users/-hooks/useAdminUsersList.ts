@@ -1,8 +1,8 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import {
-    getAdminUsers,
-    getGetAdminUsersQueryKey,
-} from "../../../../api-client/admin/admin";
+    getUsersAdmin,
+    getGetUsersAdminQueryKey,
+} from "../../../../api-client/users/users";
 
 const PAGE_SIZE = 20;
 
@@ -15,12 +15,12 @@ export function useAdminUsersList(filters: AdminUsersListFilters) {
     // change starts a fresh infinite query while load-more keeps reusing
     // the same cached pages.
     const query = useInfiniteQuery({
-        queryKey: getGetAdminUsersQueryKey({
+        queryKey: getGetUsersAdminQueryKey({
             limit: PAGE_SIZE,
             search: filters.search,
         }),
         queryFn: ({ pageParam }) =>
-            getAdminUsers({
+            getUsersAdmin({
                 limit: PAGE_SIZE,
                 search: filters.search,
                 cursor: pageParam,

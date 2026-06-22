@@ -6,12 +6,12 @@ import { Button } from "@waymate/ui";
 import { useSetReviewStatus } from "./-hooks/useSetReviewStatus";
 import { useDeleteReview } from "./-hooks/useDeleteReview";
 import {
-    getGetAdminReviewsQueryKey,
-    getGetAdminReviewsCountsQueryKey,
-} from "../../../api-client/admin/admin";
+    getGetReviewsAdminQueryKey,
+    getGetReviewsAdminCountsQueryKey,
+} from "../../../api-client/reviews/reviews";
 import type { AdminReviewListItem } from "../../../api-client/model/adminReviewListItem";
 import type { ReviewStatus } from "../../../api-client/model/reviewStatus";
-import type { GetAdminReviewsSubjectRole } from "../../../api-client/model/getAdminReviewsSubjectRole";
+import type { GetReviewsAdminSubjectRole } from "../../../api-client/model/getReviewsAdminSubjectRole";
 import { getErrorCode, getErrorI18nKey } from "../../../lib/api-errors";
 import { AdminReviewsFilters } from "./-components/AdminReviewsFilters";
 import { AdminReviewsTable } from "./-components/AdminReviewsTable";
@@ -42,7 +42,7 @@ function AdminReviewsPage() {
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
     const [ratingFilter, setRatingFilter] = useState<number | null>(null);
     const [targetRoleFilter, setTargetRoleFilter] =
-        useState<GetAdminReviewsSubjectRole | null>(null);
+        useState<GetReviewsAdminSubjectRole | null>(null);
     const [searchInput, setSearchInput] = useState("");
     const debouncedSearch = useDebounced(searchInput, SEARCH_DEBOUNCE_MS);
 
@@ -94,10 +94,10 @@ function AdminReviewsPage() {
         (error: unknown) => {
             if (getErrorCode(error) === ADMIN_REVIEW_NOT_FOUND_CODE) {
                 void queryClient.invalidateQueries({
-                    queryKey: getGetAdminReviewsQueryKey(),
+                    queryKey: getGetReviewsAdminQueryKey(),
                 });
                 void queryClient.invalidateQueries({
-                    queryKey: getGetAdminReviewsCountsQueryKey(),
+                    queryKey: getGetReviewsAdminCountsQueryKey(),
                 });
                 setSelectedReviewId(null);
                 setIsDetailOpen(false);

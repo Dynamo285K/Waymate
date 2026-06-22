@@ -9,7 +9,7 @@ import {
     Modal,
     TrashIcon,
 } from "@waymate/ui";
-import { useGetAdminReviewsById } from "../../../../api-client/admin/admin";
+import { useGetReviewsAdminById } from "../../../../api-client/reviews/reviews";
 import type { ReviewStatus } from "../../../../api-client/model/reviewStatus";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminReviewsErrorMap } from "../-lib/admin-review-errors";
@@ -41,7 +41,7 @@ export function ReviewDetailModal({
     onRequestDelete,
 }: ReviewDetailModalProps) {
     const { t } = useTranslation();
-    const detailQuery = useGetAdminReviewsById(reviewId);
+    const detailQuery = useGetReviewsAdminById(reviewId);
 
     const labelClass =
         "text-xs font-bold text-text-secondary tracking-wider mb-1 block";

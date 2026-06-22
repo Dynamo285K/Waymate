@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@waymate/ui";
 import { useSetUserStatus } from "./-hooks/useSetUserStatus";
-import { getGetAdminUsersQueryKey } from "../../../api-client/admin/admin";
+import { getGetUsersAdminQueryKey } from "../../../api-client/users/users";
 import type { AdminUserListItem } from "../../../api-client/model/adminUserListItem";
 import { getErrorCode, getErrorI18nKey } from "../../../lib/api-errors";
 import { AdminUsersFilters } from "./-components/AdminUsersFilters";
@@ -74,7 +74,7 @@ function AdminUsersPage() {
         (error: unknown) => {
             if (getErrorCode(error) === ADMIN_USER_NOT_FOUND_CODE) {
                 void queryClient.invalidateQueries({
-                    queryKey: getGetAdminUsersQueryKey(),
+                    queryKey: getGetUsersAdminQueryKey(),
                 });
                 setSelectedUserId(null);
                 setBanTarget(null);

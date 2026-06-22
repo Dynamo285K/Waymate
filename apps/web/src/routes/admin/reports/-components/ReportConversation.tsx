@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@waymate/ui";
-import { useGetAdminReportsByIdConversation } from "../../../../api-client/admin/admin";
+import { useGetReportsAdminByIdConversation } from "../../../../api-client/reports/reports";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminReportsErrorMap } from "../-lib/admin-report-errors";
 import { formatDate } from "../../../../features/admin/lib/admin-format";
@@ -24,7 +24,7 @@ export function ReportConversation({
 }: ReportConversationProps) {
     const { t } = useTranslation();
     const [open, setOpen] = useState(false);
-    const query = useGetAdminReportsByIdConversation(reportId, {
+    const query = useGetReportsAdminByIdConversation(reportId, {
         query: { enabled: open },
     });
 

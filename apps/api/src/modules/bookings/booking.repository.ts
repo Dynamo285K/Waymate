@@ -1,20 +1,22 @@
 import {
     findPendingRequestsForDriver,
     findBookingsByPassengerId,
-} from "./booking-query.repository";
+    sumSeatsForRide,
+} from "./queries/booking-query.repository";
 import {
     lockRideForBooking,
-    lockBookingById,
     findRideStops,
     insertDynamicStop,
     findSegmentPrice,
-    sumSeatsForRide,
     findActiveBookingByPassenger,
-    findPendingBookingsForRide,
     insertBooking,
+} from "./requests/booking-request.repository";
+import {
+    lockBookingById,
+    findPendingBookingsForRide,
     updateBookingFields,
     insertBookingStatusHistory,
-} from "./booking-mutation.repository";
+} from "./lifecycle/booking-lifecycle.repository";
 
 // Re-exported so consumers keep importing these types from the repository.
 export type {

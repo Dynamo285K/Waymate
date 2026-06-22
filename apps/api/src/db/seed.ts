@@ -22,7 +22,7 @@ import { carCatalog } from "@repo/shared/car-catalog";
 import { auth } from "../modules/auth/auth";
 import type { CountryCode } from "@repo/shared";
 import * as h3 from "h3-js";
-import { fetchOsrmRouteCells } from "../modules/rides/osrm.service";
+import { fetchOsrmRouteCells } from "../modules/rides/eta/osrm.service";
 
 // Dev-only credentials. Documented here on purpose so anyone running
 // `db:seed` knows how to log in without re-deriving them.
