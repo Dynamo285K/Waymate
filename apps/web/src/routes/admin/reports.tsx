@@ -40,7 +40,7 @@ type TypeFilter = "ALL" | ReportType;
 
 const SEARCH_DEBOUNCE_MS = 300;
 
-export function AdminReportsPage() {
+function AdminReportsPage() {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();

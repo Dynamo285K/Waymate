@@ -14,7 +14,7 @@ export const Route = createFileRoute("/driver/chat")({
     component: DriverChatPage,
 });
 
-export function DriverChatPage() {
+function DriverChatPage() {
     const { conversation } = Route.useSearch();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
     const { data: session } = authClient.useSession();

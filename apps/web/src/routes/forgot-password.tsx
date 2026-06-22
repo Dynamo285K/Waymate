@@ -54,7 +54,7 @@ function IconCircle({ children }: { children: React.ReactNode }) {
     );
 }
 
-export function ForgotPasswordPage() {
+function ForgotPasswordPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { theme } = useLayout();

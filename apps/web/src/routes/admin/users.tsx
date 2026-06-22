@@ -32,7 +32,7 @@ export const Route = createFileRoute("/admin/users")({
 
 const SEARCH_DEBOUNCE_MS = 300;
 
-export function AdminUsersPage() {
+function AdminUsersPage() {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();

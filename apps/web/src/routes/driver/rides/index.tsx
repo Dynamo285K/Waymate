@@ -29,7 +29,7 @@ export const Route = createFileRoute("/driver/rides/")({
     component: DriverMyRidesPage,
 });
 
-export function DriverMyRidesPage() {
+function DriverMyRidesPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const queryClient = useQueryClient();

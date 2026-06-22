@@ -95,6 +95,12 @@ Current modules: `auth`, `users`, `cars`, `rides`, `bookings`, `reviews`, `healt
 - Services are the only layer that imports `db` directly and the only layer that calls `db.transaction(async (tx) => …)`. Inside a transaction, services call repository functions with `tx`; outside, they pass `db`. Services own all branching, status-history writes, business validation (e.g. self-booking, capacity, rating-window), and translation of low-level errors (e.g. Postgres unique-violation) into domain errors.
 - Routes catch domain errors thrown by services and map them to HTTP status codes.
 
+**REST conventions:**
+
+- Collections are plural nouns (`/rides`, `/bookings`, `/cars`, …). Creation is `POST /<collection>` returning `201`.
+- **State-machine transitions are `PATCH /<collection>/:id/<action>`** — e.g. `PATCH /rides/:id/{cancel,end,complete}`, `PATCH /bookings/:id/{cancel,confirm,reject}`, `PATCH /cars/:id/status`. They mutate a resource's status (with a status-history write) rather than creating anything, and re-issuing the same transition is a no-op / domain error, so PATCH (not POST) is the deliberate, uniform choice. New transitions must follow this pattern — do not introduce `POST /:id/<action>` for a transition.
+- `POST` on a non-collection path is reserved for **complex-body reads** that don't fit in query params and don't mutate state — currently only `POST /rides/estimate-eta` (an OSRM ETA computation). Keep these rare and clearly read-only.
+
 The Elysia app is exported as `app` from `apps/api/src/index.ts`. The web client consumes the API through generated TypeScript hooks; the OpenAPI spec is rendered from Zod schemas via `@elysiajs/openapi`. The `Auth` type is also exported for better-auth client usage.
 
 ### Authentication and authorization

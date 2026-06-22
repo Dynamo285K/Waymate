@@ -23,7 +23,7 @@ export const Route = createFileRoute("/passenger/profile")({
     component: PassengerProfilePage,
 });
 
-export function PassengerProfilePage() {
+function PassengerProfilePage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();

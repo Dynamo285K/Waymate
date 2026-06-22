@@ -20,7 +20,7 @@ export const Route = createFileRoute("/driver/ratings")({
     component: DriverRatingsPage,
 });
 
-export function DriverRatingsPage() {
+function DriverRatingsPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();

@@ -65,7 +65,7 @@ function IconBox({
     );
 }
 
-export function DriverPassengersPage() {
+function DriverPassengersPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { openConversation } = useOpenConversation("/driver/chat");

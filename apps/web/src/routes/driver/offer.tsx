@@ -74,7 +74,7 @@ const FALLBACK_CAR_BRANDS = Array.from(
     new Set(carCatalog.map((row) => row.brand))
 ).sort((a, b) => a.localeCompare(b));
 
-export function DriverOfferRidePage() {
+function DriverOfferRidePage() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();

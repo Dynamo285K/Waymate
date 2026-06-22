@@ -30,7 +30,7 @@ export const Route = createFileRoute("/passenger/rides/")({
     component: PassengerMyRidesPage,
 });
 
-export function PassengerMyRidesPage() {
+function PassengerMyRidesPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();

@@ -28,7 +28,7 @@ export const Route = createFileRoute("/driver/profile")({
     component: DriverProfilePage,
 });
 
-export function DriverProfilePage() {
+function DriverProfilePage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
