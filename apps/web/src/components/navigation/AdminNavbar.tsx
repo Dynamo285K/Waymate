@@ -184,9 +184,8 @@ export function AdminNavbar({
         <img
             src={logoSrc}
             alt="WayMate logo"
-            className="w-24 h-auto object-contain block shrink-0"
+            className={`w-24 h-auto object-contain block shrink-0 ${onLogoClick ? "cursor-pointer" : "cursor-default"}`}
             onClick={onLogoClick}
-            style={{ cursor: onLogoClick ? "pointer" : "default" }}
         />
     );
 
