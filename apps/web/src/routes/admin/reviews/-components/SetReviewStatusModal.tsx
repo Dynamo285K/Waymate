@@ -2,11 +2,17 @@ import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { Button, CloseIcon, IconButton, Modal, Textarea } from "@waymate/ui";
+import { Button, Modal, Textarea } from "@waymate/ui";
 import type { ReviewStatus } from "../../../../api-client/model/reviewStatus";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminReviewsErrorMap } from "../-lib/admin-review-errors";
 import { useReviewStatusLabels } from "../-lib/admin-review-labels";
+import {
+    AdminModalActions,
+    AdminModalBody,
+    AdminModalHeader,
+    adminActionButtonClass,
+} from "../../-components/AdminModalLayout";
 
 type SetReviewStatusModalProps = {
     theme: "light" | "dark";
@@ -52,23 +58,16 @@ export function SetReviewStatusModal({
             onClose={onClose}
             theme={theme}
         >
-            <form
+            <AdminModalBody
+                as="form"
                 onSubmit={handleSubmit(onSubmit)}
-                className="w-modal-viewport max-w-lg p-8"
             >
-                <div className="flex justify-between items-center mb-5">
-                    <h2 className="text-xl font-bold text-text-primary">
-                        {t("admin.setReviewStatus", {
-                            status: labels[targetStatus],
-                        })}
-                    </h2>
-                    <IconButton
-                        ariaLabel="Close"
-                        icon={<CloseIcon />}
-                        variant="ghost"
-                        onClick={onClose}
-                    />
-                </div>
+                <AdminModalHeader
+                    title={t("admin.setReviewStatus", {
+                        status: labels[targetStatus],
+                    })}
+                    onClose={onClose}
+                />
 
                 {targetStatus !== "VISIBLE" && (
                     <div className="bg-warning-bg border border-border rounded-xl p-4 mb-5 text-sm text-text-primary">
@@ -103,10 +102,11 @@ export function SetReviewStatusModal({
                     </p>
                 )}
 
-                <div className="flex gap-3 justify-end">
+                <AdminModalActions>
                     <Button
                         type="button"
                         variant="secondary"
+                        className={adminActionButtonClass}
                         onClick={onClose}
                         disabled={isPending}
                     >
@@ -115,12 +115,13 @@ export function SetReviewStatusModal({
                     <Button
                         type="submit"
                         variant={variant}
+                        className={adminActionButtonClass}
                         disabled={!isValid || isPending}
                     >
                         {t("admin.confirm")}
                     </Button>
-                </div>
-            </form>
+                </AdminModalActions>
+            </AdminModalBody>
         </Modal>
     );
 }

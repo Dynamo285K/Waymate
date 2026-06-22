@@ -2,9 +2,15 @@ import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { Button, CloseIcon, IconButton, Modal, Textarea } from "@waymate/ui";
+import { Button, CloseIcon, Modal, Textarea } from "@waymate/ui";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminRidesErrorMap } from "../-lib/admin-ride-errors";
+import {
+    AdminModalActions,
+    AdminModalBody,
+    AdminModalHeader,
+    adminActionButtonClass,
+} from "../../-components/AdminModalLayout";
 
 type CancelRideModalProps = {
     theme: "light" | "dark";
@@ -47,21 +53,14 @@ export function CancelRideModal({
             onClose={onClose}
             theme={theme}
         >
-            <form
+            <AdminModalBody
+                as="form"
                 onSubmit={handleSubmit(onSubmit)}
-                className="w-modal-viewport max-w-lg p-8"
             >
-                <div className="flex justify-between items-center mb-5">
-                    <h2 className="text-xl font-bold text-text-primary">
-                        {t("admin.forceCancelRide")} — {rideRoute}
-                    </h2>
-                    <IconButton
-                        ariaLabel="Close"
-                        icon={<CloseIcon />}
-                        variant="ghost"
-                        onClick={onClose}
-                    />
-                </div>
+                <AdminModalHeader
+                    title={`${t("admin.forceCancelRide")} - ${rideRoute}`}
+                    onClose={onClose}
+                />
 
                 <div className="bg-danger-bg border border-danger-border rounded-xl p-4 mb-5 text-sm text-danger-text">
                     {t("admin.cancelRideWarning")}
@@ -92,10 +91,11 @@ export function CancelRideModal({
                     </p>
                 )}
 
-                <div className="flex gap-3 justify-end">
+                <AdminModalActions>
                     <Button
                         type="button"
                         variant="secondary"
+                        className={adminActionButtonClass}
                         onClick={onClose}
                         disabled={isPending}
                     >
@@ -105,12 +105,13 @@ export function CancelRideModal({
                         type="submit"
                         variant="red"
                         leftIcon={<CloseIcon />}
+                        className={adminActionButtonClass}
                         disabled={!isValid || isPending}
                     >
                         {t("admin.confirmCancel")}
                     </Button>
-                </div>
-            </form>
+                </AdminModalActions>
+            </AdminModalBody>
         </Modal>
     );
 }

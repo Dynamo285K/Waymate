@@ -24,12 +24,12 @@ export function StatusHistoryEntry({
           t("admin.systemAction")
         : t("admin.systemAction");
     return (
-        <li className="border border-border rounded-xl p-3">
-            <div className="flex justify-between items-start gap-3">
-                <p className="text-sm font-semibold text-text-primary">
+        <li className="min-w-0 overflow-hidden border border-border rounded-xl p-3">
+            <div className="flex flex-col items-start gap-1 sm:flex-row sm:justify-between sm:gap-3">
+                <p className="text-sm font-semibold text-text-primary break-words">
                     {transition}
                 </p>
-                <p className="text-xs text-text-secondary shrink-0">
+                <p className="text-xs text-text-secondary sm:shrink-0">
                     {formatDate(entry.createdAt, "—")}
                 </p>
             </div>
@@ -37,7 +37,7 @@ export function StatusHistoryEntry({
                 {t("admin.changedBy", { name: actorName })}
             </p>
             {entry.reason && (
-                <p className="text-sm text-text-primary mt-2 whitespace-pre-wrap">
+                <p className="text-sm text-text-primary mt-2 whitespace-pre-wrap break-words">
                     {entry.reason}
                 </p>
             )}

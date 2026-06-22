@@ -1,9 +1,15 @@
 import { useTranslation } from "react-i18next";
-import { Button, CloseIcon, IconButton, Modal } from "@waymate/ui";
+import { Button, Modal } from "@waymate/ui";
 import { useGetRidesAdminById } from "../../../../api-client/rides/rides";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminRidesErrorMap } from "../-lib/admin-ride-errors";
 import { formatDate } from "../../../../features/admin/lib/admin-format";
+import {
+    AdminModalActions,
+    AdminModalBody,
+    AdminModalHeader,
+    adminActionButtonClass,
+} from "../../-components/AdminModalLayout";
 import { RideStatusBadge } from "./RideStatusBadge";
 import { RideStatusHistoryEntry } from "./RideStatusHistoryEntry";
 import { RideDriverCard } from "./RideDriverCard";
@@ -35,7 +41,7 @@ export function RideDetailModal({
     const originStop = data?.ride.stops[0];
     const destinationStop = data?.ride.stops[data.ride.stops.length - 1];
     const route = data
-        ? `${originStop?.city ?? "—"} → ${destinationStop?.city ?? "—"}`
+        ? `${originStop?.city ?? "-"} - ${destinationStop?.city ?? "-"}`
         : "";
 
     return (
@@ -44,18 +50,11 @@ export function RideDetailModal({
             onClose={onClose}
             theme={theme}
         >
-            <div className="w-modal-viewport max-w-3xl p-8 max-h-modal-body overflow-y-auto">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold text-text-primary">
-                        {t("admin.rideDetail")}
-                    </h2>
-                    <IconButton
-                        ariaLabel="Close"
-                        icon={<CloseIcon />}
-                        variant="ghost"
-                        onClick={onClose}
-                    />
-                </div>
+            <AdminModalBody size="lg">
+                <AdminModalHeader
+                    title={t("admin.rideDetail")}
+                    onClose={onClose}
+                />
 
                 {detailQuery.isLoading && (
                     <p className="text-text-secondary">
@@ -77,12 +76,12 @@ export function RideDetailModal({
                 {!detailQuery.isLoading && data && (
                     <>
                         <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
-                            <div>
-                                <p className="text-lg font-bold text-text-primary">
+                            <div className="min-w-0">
+                                <p className="text-lg font-bold text-text-primary break-words">
                                     {route}
                                 </p>
                                 <p className="text-sm text-text-secondary mb-2">
-                                    {formatDate(data.ride.departureAt, "—")}
+                                    {formatDate(data.ride.departureAt, "-")}
                                 </p>
                                 <RideStatusBadge
                                     status={data.ride.rideStatus}
@@ -118,22 +117,20 @@ export function RideDetailModal({
                                 </p>
                             )}
 
-                        {/* Force cancel only applies to a ride that hasn't run
-                            yet. Keep the button visible for context but disable
-                            it once the ride is in progress, completed, or
-                            already cancelled — the backend enforces the same
-                            PLANNED-only rule. */}
-                        <div className="flex gap-2 flex-wrap mb-6">
-                            <Button
-                                variant="red"
-                                onClick={onRequestCancel}
-                                disabled={
-                                    data.ride.rideStatus !== "PLANNED" ||
-                                    isThisRideMutating
-                                }
-                            >
-                                {t("admin.forceCancel")}
-                            </Button>
+                        <div className="mb-6">
+                            <AdminModalActions>
+                                <Button
+                                    variant="red"
+                                    className={adminActionButtonClass}
+                                    onClick={onRequestCancel}
+                                    disabled={
+                                        data.ride.rideStatus !== "PLANNED" ||
+                                        isThisRideMutating
+                                    }
+                                >
+                                    {t("admin.forceCancel")}
+                                </Button>
+                            </AdminModalActions>
                         </div>
 
                         <h3 className="text-base font-bold text-text-primary mb-3">
@@ -155,7 +152,7 @@ export function RideDetailModal({
                         )}
                     </>
                 )}
-            </div>
+            </AdminModalBody>
         </Modal>
     );
 }
