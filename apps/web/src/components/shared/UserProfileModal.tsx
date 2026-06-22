@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Avatar, IconButton, Modal, StarIcon } from "@waymate/ui";
+import { Avatar, CloseIcon, IconButton, Modal, StarIcon } from "@waymate/ui";
 import { useGetReviewsUsersByUserId } from "../../api-client/reviews/reviews";
 import { useLayout } from "../../lib/use-layout";
 
@@ -34,7 +34,7 @@ export function UserProfileModal({
                 <div className="flex justify-end">
                     <IconButton
                         ariaLabel={t("chat.back")}
-                        icon={<span aria-hidden>✕</span>}
+                        icon={<CloseIcon />}
                         variant="ghost"
                         onClick={onClose}
                     />

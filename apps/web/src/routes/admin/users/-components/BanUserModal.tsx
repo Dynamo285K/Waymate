@@ -1,6 +1,13 @@
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Button, IconButton, Modal, Textarea } from "@waymate/ui";
+import {
+    BanIcon,
+    Button,
+    CloseIcon,
+    IconButton,
+    Modal,
+    Textarea,
+} from "@waymate/ui";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminUsersErrorMap } from "../-lib/admin-errors";
 
@@ -52,7 +59,7 @@ export function BanUserModal({
                     </h2>
                     <IconButton
                         ariaLabel="Close"
-                        icon={<span aria-hidden>✕</span>}
+                        icon={<CloseIcon />}
                         variant="ghost"
                         onClick={onClose}
                     />
@@ -98,9 +105,10 @@ export function BanUserModal({
                     <Button
                         type="submit"
                         variant="red"
+                        leftIcon={<BanIcon />}
                         disabled={isPending}
                     >
-                        ⊘ {t("admin.confirmBan")}
+                        {t("admin.confirmBan")}
                     </Button>
                 </div>
             </form>

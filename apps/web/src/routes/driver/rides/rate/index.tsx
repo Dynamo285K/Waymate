@@ -4,7 +4,14 @@ import {
     useNavigate,
     useLocation,
 } from "@tanstack/react-router";
-import { RatePassengerCard, StatCard, TextLink } from "@waymate/ui";
+import {
+    DollarIcon,
+    MapIcon,
+    RatePassengerCard,
+    StatCard,
+    TextLink,
+    UsersIcon,
+} from "@waymate/ui";
 import { useGetRidesByIdPassengers } from "../../../../api-client/rides/rides";
 import { useSubmitReview } from "../../../../hooks/shared/useSubmitReview";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
@@ -14,85 +21,25 @@ export const Route = createFileRoute("/driver/rides/rate/")({
     component: DriverRatePassengersPage,
 });
 
-function MapIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
-            <line
-                x1="9"
-                y1="3"
-                x2="9"
-                y2="18"
-            />
-            <line
-                x1="15"
-                y1="6"
-                x2="15"
-                y2="21"
-            />
-        </svg>
-    );
-}
-function DollarIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <line
-                x1="12"
-                y1="1"
-                x2="12"
-                y2="23"
-            />
-            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-        </svg>
-    );
-}
-function UsersIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-            <circle
-                cx="9"
-                cy="7"
-                r="4"
-            />
-            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-        </svg>
-    );
-}
-function IconBox({
-    bg,
-    color,
+function StatVisual({
+    tone,
     children,
 }: {
-    bg: string;
-    color: string;
+    tone: "success" | "danger" | "primary";
     children: React.ReactNode;
 }) {
+    const toneClass = {
+        success:
+            "bg-success-bg text-success-text icon-svg:text-success-text icon-svg:stroke-current",
+        danger:
+            "bg-danger-bg text-danger-text icon-svg:text-danger-text icon-svg:stroke-current",
+        primary:
+            "bg-primary/10 text-primary icon-svg:text-primary icon-svg:stroke-current",
+    }[tone];
+
     return (
         <div
-            className={`w-full h-full ${bg} ${color} rounded-xl flex items-center justify-center`}
+            className={`w-full h-full ${toneClass} rounded-xl flex items-center justify-center`}
         >
             {children}
         </div>
@@ -141,12 +88,9 @@ function DriverRatePassengersPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                     <StatCard
                         icon={
-                            <IconBox
-                                bg="bg-success-bg"
-                                color="text-success-text"
-                            >
+                            <StatVisual tone="success">
                                 <MapIcon />
-                            </IconBox>
+                            </StatVisual>
                         }
                         value={ride ? `${ride.from} → ${ride.to}` : "—"}
                         label={
@@ -157,12 +101,9 @@ function DriverRatePassengersPage() {
                     />
                     <StatCard
                         icon={
-                            <IconBox
-                                bg="bg-danger-bg"
-                                color="text-danger-text"
-                            >
+                            <StatVisual tone="danger">
                                 <DollarIcon />
-                            </IconBox>
+                            </StatVisual>
                         }
                         value={`${totalEarned}€`}
                         label={
@@ -173,12 +114,9 @@ function DriverRatePassengersPage() {
                     />
                     <StatCard
                         icon={
-                            <IconBox
-                                bg="bg-primary/10"
-                                color="text-primary"
-                            >
+                            <StatVisual tone="primary">
                                 <UsersIcon />
-                            </IconBox>
+                            </StatVisual>
                         }
                         value={String(passengers.length)}
                         label={t("driverRides.passengers")}

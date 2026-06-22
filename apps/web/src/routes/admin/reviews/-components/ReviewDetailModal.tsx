@@ -1,6 +1,14 @@
 import { useTranslation } from "react-i18next";
-import { Avatar, Button, IconButton, Modal } from "@waymate/ui";
-import { EyeIcon, EyeOffIcon, TrashIcon } from "@waymate/ui";
+import {
+    Avatar,
+    Button,
+    CloseIcon,
+    EyeIcon,
+    EyeOffIcon,
+    IconButton,
+    Modal,
+    TrashIcon,
+} from "@waymate/ui";
 import { useGetAdminReviewsById } from "../../../../api-client/admin/admin";
 import type { ReviewStatus } from "../../../../api-client/model/reviewStatus";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
@@ -63,7 +71,7 @@ export function ReviewDetailModal({
                     </h2>
                     <IconButton
                         ariaLabel="Close"
-                        icon={<span aria-hidden>✕</span>}
+                        icon={<CloseIcon />}
                         variant="ghost"
                         onClick={onClose}
                     />

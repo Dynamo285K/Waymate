@@ -1,5 +1,13 @@
 import { useTranslation } from "react-i18next";
-import { Avatar, Button, IconButton, Modal } from "@waymate/ui";
+import {
+    Avatar,
+    BanIcon,
+    Button,
+    CheckIcon,
+    CloseIcon,
+    IconButton,
+    Modal,
+} from "@waymate/ui";
 import { useGetAdminUsersById } from "../../../../api-client/admin/admin";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminUsersErrorMap } from "../-lib/admin-errors";
@@ -57,7 +65,7 @@ export function UserDetailModal({
                     </h2>
                     <IconButton
                         ariaLabel="Close"
-                        icon={<span aria-hidden>✕</span>}
+                        icon={<CloseIcon />}
                         variant="ghost"
                         onClick={onClose}
                     />
@@ -164,6 +172,7 @@ export function UserDetailModal({
                             {detailQuery.data.user.userStatus === "BANNED" ? (
                                 <Button
                                     variant="primary"
+                                    leftIcon={<CheckIcon />}
                                     onClick={onUnban}
                                     disabled={isSelf || isThisUserMutating}
                                     title={
@@ -177,6 +186,7 @@ export function UserDetailModal({
                             ) : (
                                 <Button
                                     variant="red"
+                                    leftIcon={<BanIcon />}
                                     onClick={onRequestBan}
                                     disabled={isSelf || isThisUserMutating}
                                     title={

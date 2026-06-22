@@ -2,7 +2,7 @@ import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { Button, IconButton, Modal, Textarea } from "@waymate/ui";
+import { Button, CloseIcon, IconButton, Modal, Textarea } from "@waymate/ui";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminRidesErrorMap } from "../-lib/admin-ride-errors";
 
@@ -57,7 +57,7 @@ export function CancelRideModal({
                     </h2>
                     <IconButton
                         ariaLabel="Close"
-                        icon={<span aria-hidden>✕</span>}
+                        icon={<CloseIcon />}
                         variant="ghost"
                         onClick={onClose}
                     />
@@ -104,9 +104,10 @@ export function CancelRideModal({
                     <Button
                         type="submit"
                         variant="red"
+                        leftIcon={<CloseIcon />}
                         disabled={!isValid || isPending}
                     >
-                        ⊘ {t("admin.confirmCancel")}
+                        {t("admin.confirmCancel")}
                     </Button>
                 </div>
             </form>

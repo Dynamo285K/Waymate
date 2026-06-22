@@ -1,13 +1,23 @@
+import { StarIcon } from "@waymate/ui";
+
 export function RatingStars({ rating }: { rating: number }) {
-    const filled = "★".repeat(rating);
-    const empty = "☆".repeat(Math.max(0, 5 - rating));
     return (
         <span
-            className="text-warning-text font-semibold"
+            className="inline-flex items-center gap-0.5"
             aria-label={`${rating} / 5`}
         >
-            {filled}
-            <span className="text-text-secondary">{empty}</span>
+            {Array.from({ length: 5 }, (_, index) => (
+                <span
+                    key={index}
+                    className={
+                        index < rating
+                            ? "text-warning-text icon-svg:w-4 icon-svg:h-4 icon-svg:fill-current"
+                            : "text-text-secondary icon-svg:w-4 icon-svg:h-4"
+                    }
+                >
+                    <StarIcon />
+                </span>
+            ))}
         </span>
     );
 }

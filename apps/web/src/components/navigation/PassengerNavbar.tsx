@@ -108,7 +108,7 @@ export function PassengerNavbar({
     }, []);
 
     const logoSrc = theme === "dark" ? logoDark : logoLight;
-    const themeIcon = theme === "dark" ? <SunIcon /> : <MoonIcon />;
+    const themeToggleGlyph = theme === "dark" ? <SunIcon /> : <MoonIcon />;
     const themeLabel =
         theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
 
@@ -234,7 +234,7 @@ export function PassengerNavbar({
             />
             <IconButton
                 ariaLabel={themeLabel}
-                icon={themeIcon}
+                icon={themeToggleGlyph}
                 variant="default"
                 onClick={onThemeToggle}
             />
@@ -288,7 +288,7 @@ export function PassengerNavbar({
                                 <div className="flex items-center gap-2.5">
                                     <IconButton
                                         ariaLabel={themeLabel}
-                                        icon={themeIcon}
+                                        icon={themeToggleGlyph}
                                         variant="default"
                                         onClick={onThemeToggle}
                                     />
@@ -323,7 +323,7 @@ export function PassengerNavbar({
                             <div className="flex items-center gap-2.5">
                                 <IconButton
                                     ariaLabel={themeLabel}
-                                    icon={themeIcon}
+                                    icon={themeToggleGlyph}
                                     variant="default"
                                     onClick={onThemeToggle}
                                 />

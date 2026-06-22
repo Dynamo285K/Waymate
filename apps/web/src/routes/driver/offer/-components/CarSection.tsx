@@ -43,7 +43,8 @@ const selectViewport =
 const selectItem =
     "w-full py-2 px-3 rounded-lg bg-transparent text-text-primary text-sm font-medium cursor-pointer transition-colors duration-100 outline-none select-none flex items-center hover:bg-background radix-highlighted:bg-background radix-highlighted:outline-none radix-checked:bg-primary-tint radix-checked:text-primary";
 
-const selectIcon = "text-text-secondary inline-flex items-center shrink-0";
+const selectAdornmentClass =
+    "text-text-secondary inline-flex items-center shrink-0";
 
 export function CarSection({
     savedCars,
@@ -121,7 +122,7 @@ export function CarSection({
                                 <Select.Value
                                     placeholder={t("offerRide.chooseCar")}
                                 />
-                                <Select.Icon className={selectIcon}>
+                                <Select.Icon className={selectAdornmentClass}>
                                     <ChevronDownIcon />
                                 </Select.Icon>
                             </Select.Trigger>
@@ -204,7 +205,9 @@ export function CarSection({
                                                 : t("offerRide.selectCarBrand")
                                         }
                                     />
-                                    <Select.Icon className={selectIcon}>
+                                    <Select.Icon
+                                        className={selectAdornmentClass}
+                                    >
                                         <ChevronDownIcon />
                                     </Select.Icon>
                                 </Select.Trigger>
@@ -255,7 +258,9 @@ export function CarSection({
                                                 : t("offerRide.selectCarModel")
                                         }
                                     />
-                                    <Select.Icon className={selectIcon}>
+                                    <Select.Icon
+                                        className={selectAdornmentClass}
+                                    >
                                         <ChevronDownIcon />
                                     </Select.Icon>
                                 </Select.Trigger>

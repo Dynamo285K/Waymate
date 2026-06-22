@@ -1,6 +1,14 @@
 import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
-import { Button } from "@waymate/ui";
+import {
+    AlertIcon,
+    Button,
+    CarIcon,
+    ClockIcon,
+    DownloadIcon,
+    UserIcon,
+    UsersIcon,
+} from "@waymate/ui";
 import {
     BarChart,
     Bar,
@@ -85,24 +93,28 @@ function AdminDashboardPage() {
 
     const USER_METRIC_ROWS = [
         {
-            icon: "👥",
+            icon: <UsersIcon />,
             label: "totalRegistered",
             value: userMetrics?.totalRegistered,
         },
         {
-            icon: "👤",
+            icon: <UserIcon />,
             label: "activeUsers",
             value: userMetrics?.activeInLast24h,
         },
-        { icon: "🚗", label: "drivers", value: userMetrics?.drivers },
-        { icon: "🧍", label: "passengers", value: userMetrics?.passengers },
+        { icon: <CarIcon />, label: "drivers", value: userMetrics?.drivers },
         {
-            icon: "⏳",
+            icon: <UsersIcon />,
+            label: "passengers",
+            value: userMetrics?.passengers,
+        },
+        {
+            icon: <ClockIcon />,
             label: "pendingVerification",
             value: userMetrics?.pendingVerification,
         },
         {
-            icon: "🚫",
+            icon: <AlertIcon />,
             label: "bannedAccounts",
             value: userMetrics?.bannedAccounts,
         },
@@ -326,7 +338,7 @@ function AdminDashboardPage() {
                                         className="flex items-center justify-between py-3"
                                     >
                                         <div className="flex items-center gap-3 text-text-secondary text-sm">
-                                            <span className="text-base">
+                                            <span className="inline-flex text-base">
                                                 {m.icon}
                                             </span>
                                             {t(`admin.${m.label}`)}
@@ -341,10 +353,11 @@ function AdminDashboardPage() {
                         <div className="mt-4">
                             <Button
                                 variant="secondary"
+                                leftIcon={<DownloadIcon />}
                                 onClick={handleExport}
                                 disabled={!dashboard}
                             >
-                                ⬇ {t("admin.exportReport")}
+                                {t("admin.exportReport")}
                             </Button>
                         </div>
                     </Card>
