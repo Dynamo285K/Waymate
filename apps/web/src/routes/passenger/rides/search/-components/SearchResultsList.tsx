@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { AvailableRideCard } from "../../../../../components/shared/AvailableRideCard";
 import { formatRideDate } from "../../../../../lib/date-format";
-import { useRideSearch } from "../../../../../hooks/shared/useRideSearch";
+import type { useRideSearch } from "../../../../../hooks/shared/useRideSearch";
 import type { useBookRide } from "../-hooks/useBookRide";
 
 type SearchRideRow = NonNullable<

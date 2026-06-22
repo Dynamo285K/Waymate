@@ -2,7 +2,7 @@ import { defineConfig } from "vitest/config";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 
-// @ts-ignore: import.meta is only allowed with specific module settings
+// @ts-expect-error: import.meta is only allowed with specific module settings
 const dir = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
