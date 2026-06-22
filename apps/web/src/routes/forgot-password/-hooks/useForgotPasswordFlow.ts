@@ -57,9 +57,11 @@ export function useForgotPasswordFlow() {
         name: "newPassword",
     });
 
+    // The countdown is reset by `handleSendCode` (the only path into step 2),
+    // so the effect just owns the ticking interval — no synchronous setState
+    // in the effect body.
     useEffect(() => {
         if (step !== 2) return;
-        setCountdown(59);
         const timer = setInterval(
             () => setCountdown((value) => (value > 0 ? value - 1 : 0)),
             1000
@@ -83,6 +85,7 @@ export function useForgotPasswordFlow() {
             return;
         }
 
+        setCountdown(59);
         setStep(2);
     }
 

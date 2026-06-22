@@ -1,13 +1,5 @@
 import { useTranslation } from "react-i18next";
-import {
-    Avatar,
-    BanIcon,
-    Button,
-    CheckIcon,
-    CloseIcon,
-    IconButton,
-    Modal,
-} from "@waymate/ui";
+import { CloseIcon, IconButton, Modal } from "@waymate/ui";
 import { useGetReportsAdminById } from "../../../../api-client/reports/reports";
 import type { ReportStatus } from "../../../../api-client/model/reportStatus";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
@@ -20,6 +12,8 @@ import { useReportTypeLabels } from "../-lib/admin-report-labels";
 import { ReportStatusBadge } from "./ReportStatusBadge";
 import { ReportStatusHistoryEntry } from "./ReportStatusHistoryEntry";
 import { ReportConversation } from "./ReportConversation";
+import { ReportPartiesGrid } from "./ReportPartiesGrid";
+import { ReportStatusActions } from "./ReportStatusActions";
 
 type ReportDetailModalProps = {
     theme: "light" | "dark";
@@ -29,17 +23,6 @@ type ReportDetailModalProps = {
     onClose: () => void;
     onRequestStatus: (target: ReportStatus) => void;
     onBanTarget: (target: { id: string; name: string }) => void;
-};
-
-// Workflow: OPEN can go to INVESTIGATING / RESOLVED / DISMISSED.
-// INVESTIGATING can go to RESOLVED / DISMISSED. RESOLVED and DISMISSED
-// are terminal — the detail UI hides any action that the backend would
-// reject so admins can't waste a click.
-const ALLOWED_TRANSITIONS: Record<ReportStatus, ReportStatus[]> = {
-    OPEN: ["INVESTIGATING", "RESOLVED", "DISMISSED"],
-    INVESTIGATING: ["RESOLVED", "DISMISSED"],
-    RESOLVED: [],
-    DISMISSED: [],
 };
 
 export function ReportDetailModal({
@@ -59,6 +42,7 @@ export function ReportDetailModal({
         "text-xs font-bold text-text-secondary tracking-wider mb-1 block";
 
     const data = detailQuery.data;
+
     const reporterName = data
         ? fullName(
               data.report.reporter.firstName,
@@ -69,8 +53,6 @@ export function ReportDetailModal({
         ? fullName(data.report.target.firstName, data.report.target.lastName) ||
           data.report.target.email
         : "";
-
-    const allowed = data ? ALLOWED_TRANSITIONS[data.report.reportStatus] : [];
 
     return (
         <Modal
@@ -119,68 +101,12 @@ export function ReportDetailModal({
                             />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4 mb-6">
-                            <div className="border border-border rounded-xl p-4">
-                                <p className={labelClass}>
-                                    {t("admin.reports.reporter")}
-                                </p>
-                                <div className="flex items-center gap-2">
-                                    <Avatar
-                                        name={reporterName}
-                                        size="sm"
-                                    />
-                                    <div>
-                                        <p className="text-sm font-semibold text-text-primary">
-                                            {reporterName}
-                                        </p>
-                                        <p className="text-xs text-text-secondary">
-                                            {data.report.reporter.email}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="border border-border rounded-xl p-4">
-                                <p className={labelClass}>
-                                    {t("admin.reports.target")}
-                                </p>
-                                <div className="flex items-center gap-2">
-                                    <Avatar
-                                        name={targetName}
-                                        size="sm"
-                                    />
-                                    <div>
-                                        <p className="text-sm font-semibold text-text-primary">
-                                            {targetName}
-                                        </p>
-                                        <p className="text-xs text-text-secondary">
-                                            {data.report.target.email}
-                                        </p>
-                                    </div>
-                                </div>
-                                {data.report.target.userStatus === "BANNED" ? (
-                                    <p className="text-xs font-semibold text-danger-text mt-3">
-                                        {t("admin.reports.targetAlreadyBanned")}
-                                    </p>
-                                ) : (
-                                    data.report.target.userStatus !==
-                                        "DELETED" && (
-                                        <Button
-                                            variant="red"
-                                            leftIcon={<BanIcon />}
-                                            className="mt-3"
-                                            onClick={() =>
-                                                onBanTarget({
-                                                    id: data.report.target.id,
-                                                    name: targetName,
-                                                })
-                                            }
-                                        >
-                                            {t("admin.banUser")}
-                                        </Button>
-                                    )
-                                )}
-                            </div>
-                        </div>
+                        <ReportPartiesGrid
+                            report={data.report}
+                            reporterName={reporterName}
+                            targetName={targetName}
+                            onBanTarget={onBanTarget}
+                        />
 
                         {data.report.ride && (
                             <div className="border border-border rounded-xl p-4 mb-6">
@@ -243,45 +169,11 @@ export function ReportDetailModal({
                                 </p>
                             )}
 
-                        {allowed.length > 0 && (
-                            <div className="flex gap-2 flex-wrap mb-6">
-                                {allowed.includes("INVESTIGATING") && (
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() =>
-                                            onRequestStatus("INVESTIGATING")
-                                        }
-                                        disabled={isThisReportMutating}
-                                    >
-                                        {t("admin.reports.markInvestigating")}
-                                    </Button>
-                                )}
-                                {allowed.includes("RESOLVED") && (
-                                    <Button
-                                        variant="primary"
-                                        leftIcon={<CheckIcon />}
-                                        onClick={() =>
-                                            onRequestStatus("RESOLVED")
-                                        }
-                                        disabled={isThisReportMutating}
-                                    >
-                                        {t("admin.reports.markResolved")}
-                                    </Button>
-                                )}
-                                {allowed.includes("DISMISSED") && (
-                                    <Button
-                                        variant="red"
-                                        leftIcon={<CloseIcon />}
-                                        onClick={() =>
-                                            onRequestStatus("DISMISSED")
-                                        }
-                                        disabled={isThisReportMutating}
-                                    >
-                                        {t("admin.reports.markDismissed")}
-                                    </Button>
-                                )}
-                            </div>
-                        )}
+                        <ReportStatusActions
+                            status={data.report.reportStatus}
+                            isMutating={isThisReportMutating}
+                            onRequestStatus={onRequestStatus}
+                        />
 
                         <h3 className="text-base font-bold text-text-primary mb-3">
                             {t("admin.statusHistory")}

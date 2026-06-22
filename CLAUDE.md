@@ -183,9 +183,10 @@ const { data } = useGetCarsBrands();
 
 #### Routing
 
-- **TanStack Router** — code-based routing in `apps/web/src/router.tsx`. Pages live in `apps/web/src/pages/`; the router file maps URLs to page components and injects layout state + navigation callbacks.
-- **`react-router-dom` is NOT installed.** Pages currently import `useNavigate`/`useLocation`/`useSearchParams` from `apps/web/src/lib/router-compat.ts` — a shim that mirrors react-router-dom v7's API on top of TanStack Router. New code should prefer TanStack Router APIs (`useNavigate` from `@tanstack/react-router`, typed search params via `Route.useSearch()`); the shim is a transitional helper.
-- **Layout state** (`language`, `theme`) lives in `LayoutProvider` (`apps/web/src/lib/layout-context.tsx`). Pages access it via `useLayout()` (or by being instantiated through the router with layout props injected). Do not lift this state back to `App.tsx`.
+- **TanStack Router — file-based routing.** Routes live in `apps/web/src/routes/` and the route tree is generated into `apps/web/src/routeTree.gen.ts` by the `@tanstack/router-plugin/vite` plugin (`vite.config.ts`, `autoCodeSplitting: true` — each route is its own lazy chunk). Don't edit `routeTree.gen.ts` by hand; add/rename files under `routes/` and the plugin regenerates it. Folder conventions: `route.tsx` is a layout/pathless wrapper, `index.tsx` is the page at that path, and `-`-prefixed folders (`-components/`, `-hooks/`, `-lib/`, `-schema.ts`) are co-located, route-private modules that the plugin excludes from the route tree.
+- The router instance is built in `apps/web/src/router.tsx` via `createAppRouter(queryClient)`, which wires the generated `routeTree`, injects `{ queryClient }` as router context, and sets `RouteErrorBoundary` as the `defaultErrorComponent`. The root route (`routes/__root.tsx`) wraps everything in `LayoutProvider` + a session-wide `ChatSocketConnection` + a `Suspense` boundary for the code-split chunks. Route guards compose through `RouterContext` (`apps/web/src/lib/route-guards.ts`); typed `history.state` lives in `apps/web/src/lib/router-state.ts`.
+- **`react-router-dom` is NOT installed** and there is no compat shim — use TanStack Router APIs directly (`useNavigate`/`Link` from `@tanstack/react-router`, typed search params via `Route.useSearch()`).
+- **Layout state** (`language`, `theme`) lives in `LayoutProvider` (`apps/web/src/lib/layout-context.tsx`). Components access it via `useLayout()` (`apps/web/src/lib/use-layout.ts`). Do not lift this state back to `App.tsx`.
 
 ### CI (GitLab)
 

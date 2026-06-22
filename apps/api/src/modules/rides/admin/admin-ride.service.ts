@@ -79,6 +79,17 @@ const cancelRide = async ({
             throw new RideError(RideErrorCodes.RideAlreadyCancelled);
         }
 
+        // Force cancel only applies to a ride that hasn't run yet. Once it has
+        // finished (COMPLETED) or departed (IN_PROGRESS) there's nothing to
+        // cancel — those states are rejected so the action stays meaningful.
+        if (ride.rideStatus === "COMPLETED") {
+            throw new RideError(RideErrorCodes.RideAlreadyCompleted);
+        }
+
+        if (ride.rideStatus !== "PLANNED") {
+            throw new RideError(RideErrorCodes.RideAlreadyDeparted);
+        }
+
         const updated =
             await AdminRideRepository.updateRideStatusToCancelledById(
                 tx,

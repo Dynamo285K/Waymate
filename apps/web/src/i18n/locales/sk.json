@@ -204,6 +204,8 @@
             "userNotFound": "Tento používateľ už neexistuje. Zoznam sa obnoví.",
             "rideNotFound": "Táto jazda už neexistuje. Zoznam sa obnoví.",
             "rideAlreadyCancelled": "Táto jazda už bola zrušená.",
+            "rideAlreadyCompleted": "Táto jazda už prebehla a nedá sa zrušiť.",
+            "rideAlreadyDeparted": "Táto jazda už prebieha a nedá sa zrušiť.",
             "reviewNotFound": "Táto recenzia už neexistuje. Zoznam sa obnoví.",
             "reportNotFound": "Toto hlásenie už neexistuje. Zoznam sa obnoví.",
             "reportReasonRequired": "Pri vyriešení alebo zamietnutí hlásenia treba uviesť dôvod.",
