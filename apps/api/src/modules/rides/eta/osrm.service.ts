@@ -2,6 +2,7 @@ import polyline from "@mapbox/polyline";
 import * as h3 from "h3-js";
 
 import { logger } from "../../../shared/logger";
+import { env } from "../../../config/env";
 
 export const fetchOsrmRouteCells = async (
     stops: { lat: number; lng: number }[]
@@ -13,7 +14,7 @@ export const fetchOsrmRouteCells = async (
 
     // OSRM expects: longitude,latitude separated by semicolon
     const coordinates = stops.map((s) => `${s.lng},${s.lat}`).join(";");
-    const url = `http://router.project-osrm.org/route/v1/driving/${coordinates}?overview=full&geometries=polyline`;
+    const url = `${env.OSRM_BASE_URL}/route/v1/driving/${coordinates}?overview=full&geometries=polyline`;
 
     try {
         const response = await fetch(url);
