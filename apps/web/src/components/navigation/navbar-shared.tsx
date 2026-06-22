@@ -127,7 +127,7 @@ export function NavbarBottomTabs({
 }) {
     return (
         <nav
-            className="fixed left-0 right-0 bottom-0 z-100 bg-card/95 border-t border-border shadow-dropdown-strong backdrop-blur pb-2"
+            className="fixed left-0 right-0 bottom-0 z-1000 bg-card/95 border-t border-border shadow-dropdown-strong backdrop-blur pb-2"
             aria-label={ariaLabel}
         >
             <div

@@ -30,10 +30,12 @@ function AdminRouteLayout() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-background"
+            className="min-h-screen bg-background text-text-primary"
         >
             <AdminNavbar {...navbarProps} />
-            <Outlet />
+            <main className="bg-background pb-24 lg:pb-0">
+                <Outlet />
+            </main>
         </div>
     );
 }

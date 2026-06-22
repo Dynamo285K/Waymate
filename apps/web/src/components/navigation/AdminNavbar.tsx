@@ -1,24 +1,26 @@
-import { useState, useEffect, useRef } from "react";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { useBreakpoint } from "../../hooks/shared/useBreakpoint";
 import {
-    Avatar,
-    Button,
-    IconButton,
-    NavButton,
     AdminProfileDropdown,
-    DashboardIcon,
     AlertIcon,
-    MoonIcon,
-    SunIcon,
-    ChevronDownIcon,
+    DashboardIcon,
+    IconButton,
     ListIcon,
+    MoonIcon,
+    NavButton,
     StarIcon,
+    SunIcon,
     UserIcon,
 } from "@waymate/ui";
-import { LanguageSwitcher, type Language } from "../controls/LanguageSwitcher";
+import type { Language } from "../controls/LanguageSwitcher";
 import logoLight from "../../assets/logo_light_mode.png";
 import logoDark from "../../assets/logo_dark_mode.png";
+import {
+    NavbarBottomTabs,
+    NavbarLogo,
+    NavbarProfileMenu,
+    NavbarProfileSettings,
+    NavbarShell,
+} from "./navbar-shared";
+import { useNavbar } from "./use-navbar";
 
 export type AdminNavbarTab =
     | "dashboard"
@@ -74,234 +76,158 @@ export function AdminNavbar({
     onLogoutClick,
     labels,
 }: AdminNavbarProps) {
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const navbarRef = useRef<HTMLElement>(null);
-
-    const breakpoint = useBreakpoint(1280);
-    const isDesktop = breakpoint === "desktop";
-    const isTablet = breakpoint === "tablet";
-    const isMobile = breakpoint === "mobile";
-
-    useEffect(() => {
-        function handleClickOutside(e: MouseEvent) {
-            if (
-                navbarRef.current &&
-                !navbarRef.current.contains(e.target as Node)
-            )
-                setIsMobileMenuOpen(false);
-        }
-        function handleEscape(e: KeyboardEvent) {
-            if (e.key === "Escape") setIsMobileMenuOpen(false);
-        }
-        document.addEventListener("mousedown", handleClickOutside);
-        document.addEventListener("keydown", handleEscape);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-            document.removeEventListener("keydown", handleEscape);
-        };
-    }, []);
-
-    const logoSrc = theme === "dark" ? logoDark : logoLight;
-    const themeIcon = theme === "dark" ? <SunIcon /> : <MoonIcon />;
-    const themeLabel =
-        theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
-    const dropdownLabels = {
-        logout: labels?.logout,
-    };
+    const { navbarRef, isDesktop, isTablet, isMobile, themeIcon, themeLabel } =
+        useNavbar({ breakpointWidth: 1024, theme });
 
     const logoImg = (
-        <img
-            src={logoSrc}
-            alt="WayMate logo"
-            className="w-24 h-auto object-contain block shrink-0"
-            onClick={onLogoClick}
-            style={{ cursor: onLogoClick ? "pointer" : "default" }}
+        <NavbarLogo
+            logoSrc={theme === "dark" ? logoDark : logoLight}
+            onLogoClick={onLogoClick}
         />
     );
 
-    const hamburger = (
-        <Button
-            variant="unstyled"
-            className="bg-card border border-border rounded-control w-10 h-10 cursor-pointer flex flex-col items-center justify-center gap-1.25 p-0 shadow-hairline [&_span]:block [&_span]:w-4.5 [&_span]:h-0.5 [&_span]:bg-text-primary [&_span]:rounded-sm"
-            onClick={() => setIsMobileMenuOpen((c) => !c)}
-        >
-            <span />
-            <span />
-            <span />
-        </Button>
-    );
-
-    const profileMenu = (
-        <DropdownMenu.Root>
-            <DropdownMenu.Trigger
-                className="inline-flex items-center gap-2 border-0 bg-transparent p-0 cursor-pointer group"
-                aria-label="Open profile menu"
-            >
-                <Avatar
-                    name={userName}
-                    size="sm"
-                />
-                <span className="w-8 h-8 rounded-full bg-card text-text-secondary shadow-button inline-flex items-center justify-center group-hover:bg-border [&_svg]:w-4 [&_svg]:h-4">
-                    <ChevronDownIcon />
-                </span>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Portal>
-                <DropdownMenu.Content
-                    className="z-200"
-                    sideOffset={12}
-                    align="end"
-                    data-theme={theme}
-                >
-                    <AdminProfileDropdown
-                        name={userName}
-                        email={userEmail}
-                        onLogoutClick={onLogoutClick}
-                        labels={dropdownLabels}
-                    />
-                </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-        </DropdownMenu.Root>
-    );
-
-    const navTabs = (
-        <>
-            <NavButton
-                icon={<DashboardIcon />}
-                active={activeTab === "dashboard"}
-                onClick={onDashboardClick}
-            >
-                {labels?.dashboard ?? "Dashboard"}
-            </NavButton>
-            <NavButton
-                icon={<ListIcon />}
-                active={activeTab === "rides"}
-                onClick={onRidesClick}
-            >
-                {labels?.rides ?? "Rides"}
-            </NavButton>
-            <NavButton
-                icon={<UserIcon />}
-                active={activeTab === "users"}
-                onClick={onUsersClick}
-            >
-                {labels?.users ?? "Users"}
-            </NavButton>
-            <NavButton
-                icon={<StarIcon />}
-                active={activeTab === "reviews"}
-                onClick={onReviewsClick}
-            >
-                {labels?.reviews ?? "Reviews"}
-            </NavButton>
-            <NavButton
-                icon={<AlertIcon />}
-                active={activeTab === "reports"}
-                onClick={onReportsClick}
-            >
-                {labels?.reports ?? "Reports"}
-            </NavButton>
-        </>
-    );
-
     const adminBadge = (
-        <span className="bg-primary flex items-center justify-center text-white rounded-full py-2 px-5 text-sm font-semibold border-0 cursor-default self-center shrink-0">
+        <span className="bg-primary text-white shadow-primary-sm flex items-center justify-center rounded-full py-2 px-5 text-sm font-semibold border-0 cursor-default self-center shrink-0">
             {labels?.adminRole ?? "Admin"}
         </span>
     );
 
-    const secondaryControls = (
+    const profileMenu = (
+        <NavbarProfileMenu
+            userName={userName}
+            theme={theme}
+        >
+            <div className="w-80 rounded-summary-card overflow-hidden bg-card border border-border shadow-dropdown-strong">
+                <div className="profile-dropdown-surface:w-full profile-dropdown-surface:rounded-none profile-dropdown-surface:border-0 profile-dropdown-surface:shadow-none">
+                    <AdminProfileDropdown
+                        name={userName}
+                        email={userEmail}
+                        onLogoutClick={onLogoutClick}
+                        labels={{ logout: labels?.logout }}
+                    />
+                </div>
+                <NavbarProfileSettings
+                    language={language}
+                    onLanguageChange={onLanguageChange}
+                    themeLabel={themeLabel}
+                    themeIcon={themeIcon}
+                    onThemeToggle={onThemeToggle}
+                />
+            </div>
+        </NavbarProfileMenu>
+    );
+
+    const navItems = [
+        {
+            key: "dashboard",
+            label: labels?.dashboard ?? "Dashboard",
+            icon: <DashboardIcon />,
+            active: activeTab === "dashboard",
+            onClick: onDashboardClick,
+        },
+        {
+            key: "rides",
+            label: labels?.rides ?? "Rides",
+            icon: <ListIcon />,
+            active: activeTab === "rides",
+            onClick: onRidesClick,
+        },
+        {
+            key: "users",
+            label: labels?.users ?? "Users",
+            icon: <UserIcon />,
+            active: activeTab === "users",
+            onClick: onUsersClick,
+        },
+        {
+            key: "reviews",
+            label: labels?.reviews ?? "Reviews",
+            icon: <StarIcon />,
+            active: activeTab === "reviews",
+            onClick: onReviewsClick,
+        },
+        {
+            key: "reports",
+            label: labels?.reports ?? "Reports",
+            icon: <AlertIcon />,
+            active: activeTab === "reports",
+            onClick: onReportsClick,
+        },
+    ];
+
+    const navTabs = (
         <>
-            {adminBadge}
-            <LanguageSwitcher
-                value={language}
-                onChange={onLanguageChange}
-            />
-            <IconButton
-                ariaLabel={themeLabel}
-                icon={themeIcon}
-                variant="default"
-                onClick={onThemeToggle}
-            />
-            {profileMenu}
+            {navItems.map((item) => (
+                <NavButton
+                    key={item.key}
+                    icon={item.icon}
+                    active={item.active}
+                    onClick={item.onClick}
+                >
+                    {item.label}
+                </NavButton>
+            ))}
         </>
     );
 
+    const bottomTabs = <NavbarBottomTabs items={navItems} />;
+
     return (
-        <header
-            className="w-full bg-background border-b border-border shadow-navbar"
-            ref={navbarRef}
-        >
-            {isDesktop && (
-                <div className="min-h-18 px-6 flex items-center justify-between gap-6">
-                    <div className="flex items-center gap-8 min-w-0">
-                        {logoImg}
-                        <nav className="flex items-center gap-5 flex-wrap">
-                            {navTabs}
-                        </nav>
-                    </div>
-                    <div className="flex items-center gap-5 shrink-0">
-                        {secondaryControls}
-                    </div>
-                </div>
-            )}
-            {isTablet && (
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between py-2.5 px-4 min-h-15">
-                        {logoImg}
-                        {hamburger}
-                    </div>
-                    {isMobileMenuOpen && (
-                        <div className="border-t border-border py-3 px-4 flex flex-col gap-3 bg-background">
+        <>
+            <NavbarShell navRef={navbarRef}>
+                {isDesktop && (
+                    <div className="min-h-18 px-6 flex items-center justify-between gap-6">
+                        <div className="flex items-center gap-8 min-w-0">
+                            {logoImg}
+                            <nav
+                                className="flex items-center gap-5 flex-wrap"
+                                aria-label="Admin navigation"
+                            >
+                                {navTabs}
+                            </nav>
+                        </div>
+                        <div className="flex items-center gap-5 shrink-0">
                             {adminBadge}
-                            <div className="flex items-center gap-2.5">
+                            <div className="inline-flex rounded-full bg-card shadow-control-floating">
                                 <IconButton
                                     ariaLabel={themeLabel}
-                                    icon={themeIcon}
+                                    icon={
+                                        theme === "dark" ? (
+                                            <SunIcon />
+                                        ) : (
+                                            <MoonIcon />
+                                        )
+                                    }
                                     variant="default"
                                     onClick={onThemeToggle}
                                 />
-                                <LanguageSwitcher
-                                    value={language}
-                                    onChange={onLanguageChange}
-                                />
-                                <div className="ml-auto">{profileMenu}</div>
                             </div>
+                            {profileMenu}
                         </div>
-                    )}
-                    <nav className="flex items-center gap-1 px-4 pt-1.5 pb-2 border-t border-border overflow-x-auto scrollbar-none [&_.nav-button]:shrink-0 [&_.nav-button]:text-caption [&_.nav-button]:py-1.5 [&_.nav-button]:px-3 [&_.nav-button]:gap-1.5">
-                        {navTabs}
-                    </nav>
-                </div>
-            )}
-            {isMobile && (
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between py-2.5 px-4">
-                        {logoImg}
-                        {hamburger}
                     </div>
-                    {isMobileMenuOpen && (
-                        <div className="border-t border-border py-3 px-4 flex flex-col gap-3 bg-background">
+                )}
+                {isTablet && (
+                    <div className="min-h-16 px-4 flex items-center justify-between gap-4">
+                        {logoImg}
+                        <div className="flex items-center gap-4 shrink-0">
                             {adminBadge}
-                            <div className="flex items-center gap-2.5">
-                                <IconButton
-                                    ariaLabel={themeLabel}
-                                    icon={themeIcon}
-                                    variant="default"
-                                    onClick={onThemeToggle}
-                                />
-                                <LanguageSwitcher
-                                    value={language}
-                                    onChange={onLanguageChange}
-                                />
-                                <div className="ml-auto">{profileMenu}</div>
+                            {profileMenu}
+                        </div>
+                    </div>
+                )}
+                {isMobile && (
+                    <div className="px-4 py-2.5">
+                        <div className="flex items-center justify-between gap-2">
+                            <div className="min-w-0">{logoImg}</div>
+                            <div className="flex items-center gap-3 shrink-0">
+                                {adminBadge}
+                                {profileMenu}
                             </div>
                         </div>
-                    )}
-                    <nav className="grid grid-cols-2 gap-1.5 px-4 pt-2 pb-2.5 border-t border-border [&_.nav-button]:py-2 [&_.nav-button]:px-2.5 [&_.nav-button]:text-caption [&_.nav-button]:gap-1.5 [&_.nav-button]:justify-center [&_.nav-button]:w-full">
-                        {navTabs}
-                    </nav>
-                </div>
-            )}
-        </header>
+                    </div>
+                )}
+            </NavbarShell>
+            {!isDesktop && bottomTabs}
+        </>
     );
 }
