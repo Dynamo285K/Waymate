@@ -31,8 +31,7 @@ function StatVisual({
     const toneClass = {
         success:
             "bg-success-bg text-success-text icon-svg:text-success-text icon-svg:stroke-current",
-        danger:
-            "bg-danger-bg text-danger-text icon-svg:text-danger-text icon-svg:stroke-current",
+        danger: "bg-danger-bg text-danger-text icon-svg:text-danger-text icon-svg:stroke-current",
         primary:
             "bg-primary/10 text-primary icon-svg:text-primary icon-svg:stroke-current",
     }[tone];

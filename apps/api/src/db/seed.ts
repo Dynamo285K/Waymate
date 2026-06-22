@@ -50,7 +50,7 @@ async function main() {
     // a production environment so it can never destroy real data or leak logins.
     if (process.env.NODE_ENV === "production") {
         console.error(
-            "Refusing to seed: NODE_ENV=production. db:seed is for local/dev databases only.",
+            "Refusing to seed: NODE_ENV=production. db:seed is for local/dev databases only."
         );
         process.exit(1);
     }

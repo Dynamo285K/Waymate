@@ -1,5 +1,5 @@
 import type { ErrorComponentProps } from "@tanstack/react-router";
-import { AlertIcon } from "@waymate/ui";
+import { AlertIcon, Button } from "@waymate/ui";
 
 // Last-resort fallback rendered by TanStack Router when a route component or
 // loader throws. Without it, a single render-time error (e.g. an undefined
@@ -29,20 +29,20 @@ export function RouteErrorBoundary({ error, reset }: ErrorComponentProps) {
                     </pre>
                 )}
                 <div className="mt-6 flex justify-center gap-3">
-                    <button
+                    <Button
                         type="button"
                         onClick={reset}
-                        className="rounded-xl border border-border px-4 py-2 text-sm font-semibold text-text-primary"
+                        variant="outline"
                     >
                         Try again
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         type="button"
                         onClick={() => window.location.assign("/")}
-                        className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white"
+                        variant="primary"
                     >
                         Go home
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>
