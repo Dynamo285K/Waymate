@@ -2,6 +2,47 @@
 @import "tailwindcss";
 
 @theme inline {
+    --color-background: var(--wm-color-bg);
+    --color-card: var(--wm-color-card);
+    --color-text-primary: var(--wm-color-text-primary);
+    --color-text-secondary: var(--wm-color-text-secondary);
+    --color-border: var(--wm-color-border);
+    --color-primary: var(--wm-color-primary);
+    --color-primary-hover: var(--wm-color-primary-hover);
+    --color-primary-tint: color-mix(
+        in srgb,
+        var(--wm-color-primary) 12%,
+        transparent
+    );
+    --color-secondary: var(--wm-color-secondary);
+    --color-secondary-hover: var(--wm-color-secondary-hover);
+    --color-input: var(--wm-color-input-bg);
+    --color-button: var(--wm-color-button);
+    --color-button-hover: var(--wm-color-button-hover);
+    --color-dark-green: var(--wm-color-dark-green);
+    --color-light-green: var(--wm-color-light-green);
+    --color-yellow: var(--wm-color-yellow);
+    --color-dark-yellow: var(--wm-color-dark-yellow);
+    --color-red: var(--wm-color-red);
+    --color-rose: var(--wm-color-rose);
+    --color-lila: var(--wm-color-lila);
+    --color-royal-blue: var(--wm-color-royal-blue);
+    --color-warning-border: var(--wm-color-warning-border);
+    --color-warning-bg: var(--wm-color-warning-bg);
+    --color-warning-text: var(--wm-color-warning-text);
+    --color-danger-border: var(--wm-color-danger-border);
+    --color-danger-bg: var(--wm-color-danger-bg);
+    --color-danger-text: var(--wm-color-danger-text);
+    --color-success-border: var(--wm-color-success-border);
+    --color-success-bg: var(--wm-color-success-bg);
+    --color-success-text: var(--wm-color-success-text);
+
+    --shadow-hairline: 0 1px 3px rgb(0 0 0 / 0.08);
+    --shadow-button: 0 1px 4px rgb(0 0 0 / 0.08);
+    --shadow-navbar: 0 1px 4px rgb(0 0 0 / 0.05);
+    --shadow-primary-sm: 0 1px 5px rgb(17 173 50 / 0.16);
+    --shadow-dropdown-strong: 0 6px 18px rgb(0 0 0 / 0.1);
+
     --spacing-modal-viewport: calc(100vw - 2rem);
     --spacing-modal-body: 90vh;
     --spacing-profile-modal-body: 85vh;

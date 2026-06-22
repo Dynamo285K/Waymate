@@ -22,17 +22,24 @@ export const Route = createFileRoute("/driver/rides/rate/")({
 });
 
 function StatVisual({
-    bg,
-    color,
+    tone,
     children,
 }: {
-    bg: string;
-    color: string;
+    tone: "success" | "danger" | "primary";
     children: React.ReactNode;
 }) {
+    const toneClass = {
+        success:
+            "bg-success-bg text-success-text icon-svg:text-success-text icon-svg:stroke-current",
+        danger:
+            "bg-danger-bg text-danger-text icon-svg:text-danger-text icon-svg:stroke-current",
+        primary:
+            "bg-primary/10 text-primary icon-svg:text-primary icon-svg:stroke-current",
+    }[tone];
+
     return (
         <div
-            className={`w-full h-full ${bg} ${color} rounded-xl flex items-center justify-center`}
+            className={`w-full h-full ${toneClass} rounded-xl flex items-center justify-center`}
         >
             {children}
         </div>
@@ -81,10 +88,7 @@ function DriverRatePassengersPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                     <StatCard
                         icon={
-                            <StatVisual
-                                bg="bg-success-bg"
-                                color="text-success-text"
-                            >
+                            <StatVisual tone="success">
                                 <MapIcon />
                             </StatVisual>
                         }
@@ -97,10 +101,7 @@ function DriverRatePassengersPage() {
                     />
                     <StatCard
                         icon={
-                            <StatVisual
-                                bg="bg-danger-bg"
-                                color="text-danger-text"
-                            >
+                            <StatVisual tone="danger">
                                 <DollarIcon />
                             </StatVisual>
                         }
@@ -113,10 +114,7 @@ function DriverRatePassengersPage() {
                     />
                     <StatCard
                         icon={
-                            <StatVisual
-                                bg="bg-primary/10"
-                                color="text-primary"
-                            >
+                            <StatVisual tone="primary">
                                 <UsersIcon />
                             </StatVisual>
                         }

@@ -19,18 +19,13 @@ export const Route = createFileRoute("/driver/rides/passengers/")({
     component: DriverPassengersPage,
 });
 
-function StatVisual({
-    bg,
-    color,
-    children,
-}: {
-    bg: string;
-    color: string;
-    children: React.ReactNode;
-}) {
+function StatVisual({ children }: { children: React.ReactNode }) {
+    const toneClass =
+        "bg-primary/10 text-primary icon-svg:text-primary icon-svg:stroke-current";
+
     return (
         <div
-            className={`w-full h-full ${bg} ${color} rounded-xl flex items-center justify-center`}
+            className={`w-full h-full ${toneClass} rounded-xl flex items-center justify-center`}
         >
             {children}
         </div>
@@ -88,10 +83,7 @@ function DriverPassengersPage() {
                 <div className="mb-6">
                     <StatCard
                         icon={
-                            <StatVisual
-                                bg="bg-primary/10"
-                                color="text-primary"
-                            >
+                            <StatVisual>
                                 <UsersIcon />
                             </StatVisual>
                         }

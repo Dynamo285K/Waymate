@@ -9,10 +9,7 @@ export function HomeStatsSection() {
         <section className="w-full px-4 sm:max-w-5xl sm:mx-auto sm:px-8 py-8 sm:py-12 grid grid-cols-1 sm:grid-cols-3 gap-4">
             <StatCard
                 icon={
-                    <FeatureVisual
-                        bg="bg-success-bg"
-                        color="text-success-text"
-                    >
+                    <FeatureVisual tone="blue">
                         <UsersIcon />
                     </FeatureVisual>
                 }
@@ -21,10 +18,7 @@ export function HomeStatsSection() {
             />
             <StatCard
                 icon={
-                    <FeatureVisual
-                        bg="bg-warning-bg"
-                        color="text-warning-text"
-                    >
+                    <FeatureVisual tone="yellow">
                         <StarIcon />
                     </FeatureVisual>
                 }
@@ -33,10 +27,7 @@ export function HomeStatsSection() {
             />
             <StatCard
                 icon={
-                    <FeatureVisual
-                        bg="bg-success-bg"
-                        color="text-success-text"
-                    >
+                    <FeatureVisual tone="success">
                         <LeafIcon />
                     </FeatureVisual>
                 }

@@ -39,10 +39,7 @@ export function HomeFeaturesSection({
                 <div className={gridClassName}>
                     <FeatureCard
                         icon={
-                            <FeatureVisual
-                                bg="bg-success-bg"
-                                color="text-success-text"
-                            >
+                            <FeatureVisual tone="success">
                                 <ShieldIcon />
                             </FeatureVisual>
                         }
@@ -53,10 +50,7 @@ export function HomeFeaturesSection({
                     />
                     <FeatureCard
                         icon={
-                            <FeatureVisual
-                                bg="bg-success-bg"
-                                color="text-success-text"
-                            >
+                            <FeatureVisual tone="yellow">
                                 <CoinsIcon />
                             </FeatureVisual>
                         }
@@ -65,10 +59,7 @@ export function HomeFeaturesSection({
                     />
                     <FeatureCard
                         icon={
-                            <FeatureVisual
-                                bg="bg-primary/10"
-                                color="text-primary"
-                            >
+                            <FeatureVisual tone="success">
                                 <LeafIcon />
                             </FeatureVisual>
                         }
@@ -77,10 +68,7 @@ export function HomeFeaturesSection({
                     />
                     <FeatureCard
                         icon={
-                            <FeatureVisual
-                                bg="bg-primary/10"
-                                color="text-primary"
-                            >
+                            <FeatureVisual tone="blue">
                                 <MessageCircleIcon />
                             </FeatureVisual>
                         }
@@ -89,10 +77,7 @@ export function HomeFeaturesSection({
                     />
                     <FeatureCard
                         icon={
-                            <FeatureVisual
-                                bg="bg-warning-bg"
-                                color="text-warning-text"
-                            >
+                            <FeatureVisual tone="purple">
                                 <BoltIcon />
                             </FeatureVisual>
                         }
@@ -101,10 +86,7 @@ export function HomeFeaturesSection({
                     />
                     <FeatureCard
                         icon={
-                            <FeatureVisual
-                                bg="bg-danger-bg"
-                                color="text-danger-text"
-                            >
+                            <FeatureVisual tone="rose">
                                 <StarIcon />
                             </FeatureVisual>
                         }
