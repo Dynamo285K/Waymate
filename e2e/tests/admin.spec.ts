@@ -23,13 +23,16 @@ test.describe("admin flow", () => {
         // Správca by mal byť automaticky presmerovaný na /admin po prihlásení
         await expect(page).toHaveURL(/\/admin$/);
 
-        // Overíme prítomnosť sekcie "User Metrics" pomocou ikon, ktoré sa určite vyrenderujú
-        await expect(page.getByText("👥")).toBeVisible();
-        await expect(page.getByText("🚗")).toBeVisible();
-        await expect(page.getByText("🚫")).toBeVisible();
+        // Overíme prítomnosť sekcie "User Metrics" pomocou textových štítkov
+        await expect(
+            page.getByRole("heading", { name: "User Metrics" })
+        ).toBeVisible();
+        await expect(page.getByText("Total Registered")).toBeVisible();
+        await expect(page.getByText("Drivers")).toBeVisible();
+        await expect(page.getByText("Banned")).toBeVisible();
 
-        // Tlačidlo na export reportu (obsahuje šípku dole a text)
-        const exportBtn = page.getByRole("button").filter({ hasText: "⬇" });
+        // Tlačidlo na export reportu
+        const exportBtn = page.getByRole("button", { name: /Export/i });
         await expect(exportBtn).toBeVisible();
 
         // Grafy používajú knižnicu Recharts, ktorá renderuje <svg> s triedou recharts-surface.

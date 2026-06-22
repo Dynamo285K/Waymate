@@ -8,6 +8,7 @@ import { isFullyOnboarded } from "../auth/auth.middleware";
 import { createErrorHandler } from "../auth/auth.errors";
 import { ReportError, reportErrorToHttpStatus } from "./report.errors";
 import { ReportService } from "./report.service";
+import { AdminReportRoutes } from "./admin/admin-report.routes";
 
 export const ReportRoutes = new Elysia({
     prefix: "/reports",
@@ -55,4 +56,5 @@ export const ReportRoutes = new Elysia({
                 },
             }
         )
-    );
+    )
+    .use(AdminReportRoutes);

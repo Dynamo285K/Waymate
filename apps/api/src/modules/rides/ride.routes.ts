@@ -3,6 +3,7 @@ import { RideService } from "./ride.service";
 import { auth } from "../auth/auth";
 import { isFullyOnboarded } from "../auth/auth.middleware";
 import { createErrorHandler } from "../auth/auth.errors";
+import { AdminRideRoutes } from "./admin/admin-ride.routes";
 
 // /available and /search are public (guests can browse), so we can't use the
 // auth guard. Softly resolve the session if a cookie is present — used only to
@@ -297,4 +298,5 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
                     },
                 }
             )
-    );
+    )
+    .use(AdminRideRoutes);

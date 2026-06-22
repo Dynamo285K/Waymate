@@ -3,6 +3,7 @@ import { UserService } from "./user.service";
 import { isAuthenticated } from "../auth/auth.middleware";
 import { createErrorHandler } from "../auth/auth.errors";
 import { UserError, userErrorToHttpStatus } from "./user.errors";
+import { AdminUserRoutes } from "./admin/admin-user.routes";
 import {
     ErrorResponseSchema,
     OnboardingUserBodySchema,
@@ -73,4 +74,5 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
                     },
                 }
             )
-    );
+    )
+    .use(AdminUserRoutes);

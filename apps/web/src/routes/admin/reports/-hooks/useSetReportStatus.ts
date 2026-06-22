@@ -1,10 +1,10 @@
 import type { MutateOptions } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-    usePatchAdminReportsByIdStatus,
-    getGetAdminReportsQueryKey,
-    getGetAdminReportsByIdQueryKey,
-} from "../../../../api-client/admin/admin";
+    usePatchReportsAdminByIdStatus,
+    getGetReportsAdminQueryKey,
+    getGetReportsAdminByIdQueryKey,
+} from "../../../../api-client/reports/reports";
 import type { AdminReportDetailResponse } from "../../../../api-client/model/adminReportDetailResponse";
 import type { ReportStatus } from "../../../../api-client/model/reportStatus";
 import type { ApiMutationError } from "../../../../lib/api-fetcher";
@@ -23,14 +23,14 @@ type MutationVars = {
 export function useSetReportStatus() {
     const queryClient = useQueryClient();
 
-    const mutation = usePatchAdminReportsByIdStatus<ApiMutationError>({
+    const mutation = usePatchReportsAdminByIdStatus<ApiMutationError>({
         mutation: {
             onSuccess: (_data, variables) => {
                 void queryClient.invalidateQueries({
-                    queryKey: getGetAdminReportsQueryKey(),
+                    queryKey: getGetReportsAdminQueryKey(),
                 });
                 void queryClient.invalidateQueries({
-                    queryKey: getGetAdminReportsByIdQueryKey(variables.id),
+                    queryKey: getGetReportsAdminByIdQueryKey(variables.id),
                 });
             },
         },

@@ -1,10 +1,10 @@
 import type { MutateOptions } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-    usePatchAdminUsersByIdStatus,
-    getGetAdminUsersQueryKey,
-    getGetAdminUsersByIdQueryKey,
-} from "../../../../api-client/admin/admin";
+    usePatchUsersAdminByIdStatus,
+    getGetUsersAdminQueryKey,
+    getGetUsersAdminByIdQueryKey,
+} from "../../../../api-client/users/users";
 import type { AdminUserListItem } from "../../../../api-client/model/adminUserListItem";
 import type { AdminSettableUserStatus } from "../../../../api-client/model/adminSettableUserStatus";
 import type { ApiMutationError } from "../../../../lib/api-fetcher";
@@ -23,14 +23,14 @@ type MutationVars = {
 export function useSetUserStatus() {
     const queryClient = useQueryClient();
 
-    const mutation = usePatchAdminUsersByIdStatus<ApiMutationError>({
+    const mutation = usePatchUsersAdminByIdStatus<ApiMutationError>({
         mutation: {
             onSuccess: (_data, variables) => {
                 void queryClient.invalidateQueries({
-                    queryKey: getGetAdminUsersQueryKey(),
+                    queryKey: getGetUsersAdminQueryKey(),
                 });
                 void queryClient.invalidateQueries({
-                    queryKey: getGetAdminUsersByIdQueryKey(variables.id),
+                    queryKey: getGetUsersAdminByIdQueryKey(variables.id),
                 });
             },
         },

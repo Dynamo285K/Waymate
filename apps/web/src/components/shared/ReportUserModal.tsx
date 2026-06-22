@@ -4,7 +4,7 @@ import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { Button, CloseIcon, IconButton, Modal, Textarea } from "@waymate/ui";
 import { usePostReports } from "../../api-client/reports/reports";
-import { getGetAdminReportsQueryKey } from "../../api-client/admin/admin";
+import { getGetReportsAdminQueryKey } from "../../api-client/reports/reports";
 import { ReportType } from "../../api-client/model/reportType";
 import type { CreateReportBody } from "../../api-client/model/createReportBody";
 import { useQueryClient } from "@tanstack/react-query";
@@ -83,7 +83,7 @@ export function ReportUserModal({
         mutation: {
             onSuccess: async () => {
                 await queryClient.invalidateQueries({
-                    queryKey: getGetAdminReportsQueryKey(),
+                    queryKey: getGetReportsAdminQueryKey(),
                 });
                 onSuccess?.();
                 onClose();

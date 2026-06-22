@@ -1,10 +1,10 @@
 import type { MutateOptions } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-    usePatchAdminReviewsByIdStatus,
-    getGetAdminReviewsQueryKey,
-    getGetAdminReviewsByIdQueryKey,
-} from "../../../../api-client/admin/admin";
+    usePatchReviewsAdminByIdStatus,
+    getGetReviewsAdminQueryKey,
+    getGetReviewsAdminByIdQueryKey,
+} from "../../../../api-client/reviews/reviews";
 import type { AdminReviewListItem } from "../../../../api-client/model/adminReviewListItem";
 import type { ReviewStatus } from "../../../../api-client/model/reviewStatus";
 import type { ApiMutationError } from "../../../../lib/api-fetcher";
@@ -23,14 +23,14 @@ type MutationVars = {
 export function useSetReviewStatus() {
     const queryClient = useQueryClient();
 
-    const mutation = usePatchAdminReviewsByIdStatus<ApiMutationError>({
+    const mutation = usePatchReviewsAdminByIdStatus<ApiMutationError>({
         mutation: {
             onSuccess: (_data, variables) => {
                 void queryClient.invalidateQueries({
-                    queryKey: getGetAdminReviewsQueryKey(),
+                    queryKey: getGetReviewsAdminQueryKey(),
                 });
                 void queryClient.invalidateQueries({
-                    queryKey: getGetAdminReviewsByIdQueryKey(variables.id),
+                    queryKey: getGetReviewsAdminByIdQueryKey(variables.id),
                 });
             },
         },

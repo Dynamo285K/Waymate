@@ -22,6 +22,10 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+    AdminCancelRideBody,
+    AdminCancelRideResponse,
+    AdminRideDetailResponse,
+    AdminRideListResponse,
     AvailableRideList,
     CancelRideBody,
     CancelRideResponse,
@@ -34,6 +38,7 @@ import type {
     ErrorResponse,
     EstimateEtaBody,
     EstimateEtaResponse,
+    GetRidesAdminParams,
     GetRidesMeParams,
     GetRidesSearchParams,
     PopularRouteList,
@@ -1310,6 +1315,445 @@ export const usePatchRidesByIdComplete = <
     TContext
 > => {
     const mutationOptions = getPatchRidesByIdCompleteMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+/**
+ * Returns a keyset-paginated list of rides for admin tooling. Supports filtering by status and case-insensitive driver email/firstName/lastName search.
+ */
+export const getGetRidesAdminUrl = (params: GetRidesAdminParams) => {
+    const normalizedParams = new URLSearchParams();
+
+    Object.entries(params || {}).forEach(([key, value]) => {
+        if (value !== undefined) {
+            normalizedParams.append(
+                key,
+                value === null ? "null" : value.toString()
+            );
+        }
+    });
+
+    const stringifiedParams = normalizedParams.toString();
+
+    return stringifiedParams.length > 0
+        ? `/rides/admin/?${stringifiedParams}`
+        : `/rides/admin/`;
+};
+
+export const getRidesAdmin = async (
+    params: GetRidesAdminParams,
+    options?: RequestInit
+): Promise<AdminRideListResponse> => {
+    return apiFetcher<AdminRideListResponse>(getGetRidesAdminUrl(params), {
+        ...options,
+        method: "GET",
+    });
+};
+
+export const getGetRidesAdminQueryKey = (params?: GetRidesAdminParams) => {
+    return [`/rides/admin/`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetRidesAdminQueryOptions = <
+    TData = Awaited<ReturnType<typeof getRidesAdmin>>,
+    TError = ErrorResponse,
+>(
+    params: GetRidesAdminParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getRidesAdmin>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    }
+) => {
+    const { query: queryOptions, request: requestOptions } = options ?? {};
+
+    const queryKey = queryOptions?.queryKey ?? getGetRidesAdminQueryKey(params);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof getRidesAdmin>>
+    > = () => getRidesAdmin(params, requestOptions);
+
+    return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof getRidesAdmin>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetRidesAdminQueryResult = NonNullable<
+    Awaited<ReturnType<typeof getRidesAdmin>>
+>;
+export type GetRidesAdminQueryError = ErrorResponse;
+
+export function useGetRidesAdmin<
+    TData = Awaited<ReturnType<typeof getRidesAdmin>>,
+    TError = ErrorResponse,
+>(
+    params: GetRidesAdminParams,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getRidesAdmin>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getRidesAdmin>>,
+                    TError,
+                    Awaited<ReturnType<typeof getRidesAdmin>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetRidesAdmin<
+    TData = Awaited<ReturnType<typeof getRidesAdmin>>,
+    TError = ErrorResponse,
+>(
+    params: GetRidesAdminParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getRidesAdmin>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getRidesAdmin>>,
+                    TError,
+                    Awaited<ReturnType<typeof getRidesAdmin>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetRidesAdmin<
+    TData = Awaited<ReturnType<typeof getRidesAdmin>>,
+    TError = ErrorResponse,
+>(
+    params: GetRidesAdminParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getRidesAdmin>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetRidesAdmin<
+    TData = Awaited<ReturnType<typeof getRidesAdmin>>,
+    TError = ErrorResponse,
+>(
+    params: GetRidesAdminParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getRidesAdmin>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getGetRidesAdminQueryOptions(params, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * Returns full ride detail (driver, car, stops, prices, bookings) plus the most recent status history entries (newest first, capped at 50). changedBy is null for system-triggered changes.
+ */
+export const getGetRidesAdminByIdUrl = (id: RideId) => {
+    return `/rides/admin/${id}`;
+};
+
+export const getRidesAdminById = async (
+    id: RideId,
+    options?: RequestInit
+): Promise<AdminRideDetailResponse> => {
+    return apiFetcher<AdminRideDetailResponse>(getGetRidesAdminByIdUrl(id), {
+        ...options,
+        method: "GET",
+    });
+};
+
+export const getGetRidesAdminByIdQueryKey = (id?: RideId) => {
+    return [`/rides/admin/${id}`] as const;
+};
+
+export const getGetRidesAdminByIdQueryOptions = <
+    TData = Awaited<ReturnType<typeof getRidesAdminById>>,
+    TError = ErrorResponse,
+>(
+    id: RideId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getRidesAdminById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    }
+) => {
+    const { query: queryOptions, request: requestOptions } = options ?? {};
+
+    const queryKey = queryOptions?.queryKey ?? getGetRidesAdminByIdQueryKey(id);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof getRidesAdminById>>
+    > = () => getRidesAdminById(id, requestOptions);
+
+    return {
+        queryKey,
+        queryFn,
+        enabled: !!id,
+        ...queryOptions,
+    } as UseQueryOptions<
+        Awaited<ReturnType<typeof getRidesAdminById>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetRidesAdminByIdQueryResult = NonNullable<
+    Awaited<ReturnType<typeof getRidesAdminById>>
+>;
+export type GetRidesAdminByIdQueryError = ErrorResponse;
+
+export function useGetRidesAdminById<
+    TData = Awaited<ReturnType<typeof getRidesAdminById>>,
+    TError = ErrorResponse,
+>(
+    id: RideId,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getRidesAdminById>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getRidesAdminById>>,
+                    TError,
+                    Awaited<ReturnType<typeof getRidesAdminById>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetRidesAdminById<
+    TData = Awaited<ReturnType<typeof getRidesAdminById>>,
+    TError = ErrorResponse,
+>(
+    id: RideId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getRidesAdminById>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getRidesAdminById>>,
+                    TError,
+                    Awaited<ReturnType<typeof getRidesAdminById>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetRidesAdminById<
+    TData = Awaited<ReturnType<typeof getRidesAdminById>>,
+    TError = ErrorResponse,
+>(
+    id: RideId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getRidesAdminById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetRidesAdminById<
+    TData = Awaited<ReturnType<typeof getRidesAdminById>>,
+    TError = ErrorResponse,
+>(
+    id: RideId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getRidesAdminById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getGetRidesAdminByIdQueryOptions(id, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * Force-cancels a ride as admin and cascades cancellation to all active passenger bookings (PENDING/CONFIRMED). Records an audit row in ride_status_history with the admin as changedByUserId. The reason is required so the audit log makes the override traceable.
+ */
+export const getPatchRidesAdminByIdCancelUrl = (id: RideId) => {
+    return `/rides/admin/${id}/cancel`;
+};
+
+export const patchRidesAdminByIdCancel = async (
+    id: RideId,
+    adminCancelRideBody: AdminCancelRideBody,
+    options?: RequestInit
+): Promise<AdminCancelRideResponse> => {
+    return apiFetcher<AdminCancelRideResponse>(
+        getPatchRidesAdminByIdCancelUrl(id),
+        {
+            ...options,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                ...options?.headers,
+            },
+            body: JSON.stringify(adminCancelRideBody),
+        }
+    );
+};
+
+export const getPatchRidesAdminByIdCancelMutationOptions = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof patchRidesAdminByIdCancel>>,
+        TError,
+        { id: RideId; data: AdminCancelRideBody },
+        TContext
+    >;
+    request?: SecondParameter<typeof apiFetcher>;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof patchRidesAdminByIdCancel>>,
+    TError,
+    { id: RideId; data: AdminCancelRideBody },
+    TContext
+> => {
+    const mutationKey = ["patchRidesAdminByIdCancel"];
+    const { mutation: mutationOptions, request: requestOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey }, request: undefined };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof patchRidesAdminByIdCancel>>,
+        { id: RideId; data: AdminCancelRideBody }
+    > = (props) => {
+        const { id, data } = props ?? {};
+
+        return patchRidesAdminByIdCancel(id, data, requestOptions);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type PatchRidesAdminByIdCancelMutationResult = NonNullable<
+    Awaited<ReturnType<typeof patchRidesAdminByIdCancel>>
+>;
+export type PatchRidesAdminByIdCancelMutationBody = AdminCancelRideBody;
+export type PatchRidesAdminByIdCancelMutationError = ErrorResponse;
+
+export const usePatchRidesAdminByIdCancel = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof patchRidesAdminByIdCancel>>,
+            TError,
+            { id: RideId; data: AdminCancelRideBody },
+            TContext
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseMutationResult<
+    Awaited<ReturnType<typeof patchRidesAdminByIdCancel>>,
+    TError,
+    { id: RideId; data: AdminCancelRideBody },
+    TContext
+> => {
+    const mutationOptions =
+        getPatchRidesAdminByIdCancelMutationOptions(options);
 
     return useMutation(mutationOptions, queryClient);
 };

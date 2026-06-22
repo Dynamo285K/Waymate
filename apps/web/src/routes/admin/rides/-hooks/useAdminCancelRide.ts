@@ -1,10 +1,10 @@
 import type { MutateOptions } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-    usePatchAdminRidesByIdCancel,
-    getGetAdminRidesQueryKey,
-    getGetAdminRidesByIdQueryKey,
-} from "../../../../api-client/admin/admin";
+    usePatchRidesAdminByIdCancel,
+    getGetRidesAdminQueryKey,
+    getGetRidesAdminByIdQueryKey,
+} from "../../../../api-client/rides/rides";
 import type { AdminCancelRideResponse } from "../../../../api-client/model/adminCancelRideResponse";
 import type { ApiMutationError } from "../../../../lib/api-fetcher";
 
@@ -21,14 +21,14 @@ type MutationVars = {
 export function useAdminCancelRide() {
     const queryClient = useQueryClient();
 
-    const mutation = usePatchAdminRidesByIdCancel<ApiMutationError>({
+    const mutation = usePatchRidesAdminByIdCancel<ApiMutationError>({
         mutation: {
             onSuccess: (_data, variables) => {
                 void queryClient.invalidateQueries({
-                    queryKey: getGetAdminRidesQueryKey(),
+                    queryKey: getGetRidesAdminQueryKey(),
                 });
                 void queryClient.invalidateQueries({
-                    queryKey: getGetAdminRidesByIdQueryKey(variables.id),
+                    queryKey: getGetRidesAdminByIdQueryKey(variables.id),
                 });
             },
         },

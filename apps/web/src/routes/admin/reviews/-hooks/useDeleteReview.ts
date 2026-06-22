@@ -1,10 +1,10 @@
 import type { MutateOptions } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-    useDeleteAdminReviewsById,
-    getGetAdminReviewsQueryKey,
-    getGetAdminReviewsCountsQueryKey,
-} from "../../../../api-client/admin/admin";
+    useDeleteReviewsAdminById,
+    getGetReviewsAdminQueryKey,
+    getGetReviewsAdminCountsQueryKey,
+} from "../../../../api-client/reviews/reviews";
 import type { AdminDeleteReviewResponse } from "../../../../api-client/model/adminDeleteReviewResponse";
 import type { ReviewId } from "../../../../api-client/model/reviewId";
 import type { ApiMutationError } from "../../../../lib/api-fetcher";
@@ -14,14 +14,14 @@ type MutationVars = { id: ReviewId };
 export function useDeleteReview() {
     const queryClient = useQueryClient();
 
-    const mutation = useDeleteAdminReviewsById<ApiMutationError>({
+    const mutation = useDeleteReviewsAdminById<ApiMutationError>({
         mutation: {
             onSuccess: () => {
                 void queryClient.invalidateQueries({
-                    queryKey: getGetAdminReviewsQueryKey(),
+                    queryKey: getGetReviewsAdminQueryKey(),
                 });
                 void queryClient.invalidateQueries({
-                    queryKey: getGetAdminReviewsCountsQueryKey(),
+                    queryKey: getGetReviewsAdminCountsQueryKey(),
                 });
             },
         },

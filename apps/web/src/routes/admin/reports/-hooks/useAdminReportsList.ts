@@ -1,8 +1,8 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import {
-    getAdminReports,
-    getGetAdminReportsQueryKey,
-} from "../../../../api-client/admin/admin";
+    getReportsAdmin,
+    getGetReportsAdminQueryKey,
+} from "../../../../api-client/reports/reports";
 import type { ReportStatus } from "../../../../api-client/model/reportStatus";
 import type { ReportType } from "../../../../api-client/model/reportType";
 
@@ -16,14 +16,14 @@ export type AdminReportsListFilters = {
 
 export function useAdminReportsList(filters: AdminReportsListFilters) {
     const query = useInfiniteQuery({
-        queryKey: getGetAdminReportsQueryKey({
+        queryKey: getGetReportsAdminQueryKey({
             limit: PAGE_SIZE,
             status: filters.status,
             reportType: filters.reportType,
             search: filters.search,
         }),
         queryFn: ({ pageParam }) =>
-            getAdminReports({
+            getReportsAdmin({
                 limit: PAGE_SIZE,
                 status: filters.status,
                 reportType: filters.reportType,

@@ -17,10 +17,10 @@ import { RideError, RideErrorCodes } from "./ride.errors";
 import { TEST_CITY_IDS } from "../../../test/reference-data";
 import { CreateRideBodySchema, type CreateRideBody } from "@repo/shared";
 import { vi } from "vitest";
-import { fetchOsrmRouteCells } from "./osrm.service";
+import { fetchOsrmRouteCells } from "./eta/osrm.service";
 import { createTestCar, buildRideBody } from "../../../test/factories";
 
-vi.mock("./osrm.service", () => ({
+vi.mock("./eta/osrm.service", () => ({
     fetchOsrmRouteCells: vi
         .fn()
         .mockResolvedValue({ cells: [], durations: [3600] }),

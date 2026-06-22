@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@waymate/ui";
 import { useAdminCancelRide } from "./-hooks/useAdminCancelRide";
-import { getGetAdminRidesQueryKey } from "../../../api-client/admin/admin";
+import { getGetRidesAdminQueryKey } from "../../../api-client/rides/rides";
 import type { AdminRideListItem } from "../../../api-client/model/adminRideListItem";
 import type { RideStatus } from "../../../api-client/model/rideStatus";
 import { getErrorCode, getErrorI18nKey } from "../../../lib/api-errors";
@@ -77,7 +77,7 @@ function AdminRidesPage() {
             // ADMIN_USER_NOT_FOUND.
             if (getErrorCode(error) === ADMIN_RIDE_NOT_FOUND_CODE) {
                 void queryClient.invalidateQueries({
-                    queryKey: getGetAdminRidesQueryKey(),
+                    queryKey: getGetRidesAdminQueryKey(),
                 });
                 setSelectedRideId(null);
                 setCancelTarget(null);

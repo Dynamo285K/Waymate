@@ -22,10 +22,18 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+    AdminDeleteReviewResponse,
+    AdminReviewCounts,
+    AdminReviewDetailResponse,
+    AdminReviewListItem,
+    AdminReviewListResponse,
     AuthoredReviewList,
     CreateReviewBody,
     ErrorResponse,
+    GetReviewsAdminParams,
     ReviewActionResponse,
+    ReviewId,
+    UpdateReviewStatusBody,
     UserId,
     UserReviewsView,
 } from ".././model";
@@ -443,3 +451,691 @@ export function useGetReviewsMeAuthored<
 
     return query;
 }
+
+/**
+ * Returns a keyset-paginated list of reviews for moderation. Supports filtering by status, rating range, and case-insensitive search across comment text and author/subject email/name.
+ */
+export const getGetReviewsAdminUrl = (params: GetReviewsAdminParams) => {
+    const normalizedParams = new URLSearchParams();
+
+    Object.entries(params || {}).forEach(([key, value]) => {
+        if (value !== undefined) {
+            normalizedParams.append(
+                key,
+                value === null ? "null" : value.toString()
+            );
+        }
+    });
+
+    const stringifiedParams = normalizedParams.toString();
+
+    return stringifiedParams.length > 0
+        ? `/reviews/admin/?${stringifiedParams}`
+        : `/reviews/admin/`;
+};
+
+export const getReviewsAdmin = async (
+    params: GetReviewsAdminParams,
+    options?: RequestInit
+): Promise<AdminReviewListResponse> => {
+    return apiFetcher<AdminReviewListResponse>(getGetReviewsAdminUrl(params), {
+        ...options,
+        method: "GET",
+    });
+};
+
+export const getGetReviewsAdminQueryKey = (params?: GetReviewsAdminParams) => {
+    return [`/reviews/admin/`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetReviewsAdminQueryOptions = <
+    TData = Awaited<ReturnType<typeof getReviewsAdmin>>,
+    TError = ErrorResponse,
+>(
+    params: GetReviewsAdminParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getReviewsAdmin>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    }
+) => {
+    const { query: queryOptions, request: requestOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getGetReviewsAdminQueryKey(params);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof getReviewsAdmin>>
+    > = () => getReviewsAdmin(params, requestOptions);
+
+    return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof getReviewsAdmin>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetReviewsAdminQueryResult = NonNullable<
+    Awaited<ReturnType<typeof getReviewsAdmin>>
+>;
+export type GetReviewsAdminQueryError = ErrorResponse;
+
+export function useGetReviewsAdmin<
+    TData = Awaited<ReturnType<typeof getReviewsAdmin>>,
+    TError = ErrorResponse,
+>(
+    params: GetReviewsAdminParams,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getReviewsAdmin>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getReviewsAdmin>>,
+                    TError,
+                    Awaited<ReturnType<typeof getReviewsAdmin>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetReviewsAdmin<
+    TData = Awaited<ReturnType<typeof getReviewsAdmin>>,
+    TError = ErrorResponse,
+>(
+    params: GetReviewsAdminParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getReviewsAdmin>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getReviewsAdmin>>,
+                    TError,
+                    Awaited<ReturnType<typeof getReviewsAdmin>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetReviewsAdmin<
+    TData = Awaited<ReturnType<typeof getReviewsAdmin>>,
+    TError = ErrorResponse,
+>(
+    params: GetReviewsAdminParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getReviewsAdmin>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetReviewsAdmin<
+    TData = Awaited<ReturnType<typeof getReviewsAdmin>>,
+    TError = ErrorResponse,
+>(
+    params: GetReviewsAdminParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getReviewsAdmin>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getGetReviewsAdminQueryOptions(params, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * Returns counts of non-deleted reviews grouped by status (all, visible, hidden) for admin tab badges.
+ */
+export const getGetReviewsAdminCountsUrl = () => {
+    return `/reviews/admin/counts`;
+};
+
+export const getReviewsAdminCounts = async (
+    options?: RequestInit
+): Promise<AdminReviewCounts> => {
+    return apiFetcher<AdminReviewCounts>(getGetReviewsAdminCountsUrl(), {
+        ...options,
+        method: "GET",
+    });
+};
+
+export const getGetReviewsAdminCountsQueryKey = () => {
+    return [`/reviews/admin/counts`] as const;
+};
+
+export const getGetReviewsAdminCountsQueryOptions = <
+    TData = Awaited<ReturnType<typeof getReviewsAdminCounts>>,
+    TError = ErrorResponse,
+>(options?: {
+    query?: Partial<
+        UseQueryOptions<
+            Awaited<ReturnType<typeof getReviewsAdminCounts>>,
+            TError,
+            TData
+        >
+    >;
+    request?: SecondParameter<typeof apiFetcher>;
+}) => {
+    const { query: queryOptions, request: requestOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getGetReviewsAdminCountsQueryKey();
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof getReviewsAdminCounts>>
+    > = () => getReviewsAdminCounts(requestOptions);
+
+    return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof getReviewsAdminCounts>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetReviewsAdminCountsQueryResult = NonNullable<
+    Awaited<ReturnType<typeof getReviewsAdminCounts>>
+>;
+export type GetReviewsAdminCountsQueryError = ErrorResponse;
+
+export function useGetReviewsAdminCounts<
+    TData = Awaited<ReturnType<typeof getReviewsAdminCounts>>,
+    TError = ErrorResponse,
+>(
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getReviewsAdminCounts>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getReviewsAdminCounts>>,
+                    TError,
+                    Awaited<ReturnType<typeof getReviewsAdminCounts>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetReviewsAdminCounts<
+    TData = Awaited<ReturnType<typeof getReviewsAdminCounts>>,
+    TError = ErrorResponse,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getReviewsAdminCounts>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getReviewsAdminCounts>>,
+                    TError,
+                    Awaited<ReturnType<typeof getReviewsAdminCounts>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetReviewsAdminCounts<
+    TData = Awaited<ReturnType<typeof getReviewsAdminCounts>>,
+    TError = ErrorResponse,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getReviewsAdminCounts>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetReviewsAdminCounts<
+    TData = Awaited<ReturnType<typeof getReviewsAdminCounts>>,
+    TError = ErrorResponse,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getReviewsAdminCounts>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getGetReviewsAdminCountsQueryOptions(options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * Permanently soft-deletes a review. The review is removed from all public surfaces and excluded from rating aggregates.
+ */
+export const getDeleteReviewsAdminByIdUrl = (id: ReviewId) => {
+    return `/reviews/admin/${id}`;
+};
+
+export const deleteReviewsAdminById = async (
+    id: ReviewId,
+    options?: RequestInit
+): Promise<AdminDeleteReviewResponse> => {
+    return apiFetcher<AdminDeleteReviewResponse>(
+        getDeleteReviewsAdminByIdUrl(id),
+        {
+            ...options,
+            method: "DELETE",
+        }
+    );
+};
+
+export const getDeleteReviewsAdminByIdMutationOptions = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof deleteReviewsAdminById>>,
+        TError,
+        { id: ReviewId },
+        TContext
+    >;
+    request?: SecondParameter<typeof apiFetcher>;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof deleteReviewsAdminById>>,
+    TError,
+    { id: ReviewId },
+    TContext
+> => {
+    const mutationKey = ["deleteReviewsAdminById"];
+    const { mutation: mutationOptions, request: requestOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey }, request: undefined };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof deleteReviewsAdminById>>,
+        { id: ReviewId }
+    > = (props) => {
+        const { id } = props ?? {};
+
+        return deleteReviewsAdminById(id, requestOptions);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteReviewsAdminByIdMutationResult = NonNullable<
+    Awaited<ReturnType<typeof deleteReviewsAdminById>>
+>;
+
+export type DeleteReviewsAdminByIdMutationError = ErrorResponse;
+
+export const useDeleteReviewsAdminById = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof deleteReviewsAdminById>>,
+            TError,
+            { id: ReviewId },
+            TContext
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseMutationResult<
+    Awaited<ReturnType<typeof deleteReviewsAdminById>>,
+    TError,
+    { id: ReviewId },
+    TContext
+> => {
+    const mutationOptions = getDeleteReviewsAdminByIdMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+/**
+ * Returns full review detail (author, subject, ride context) plus the most recent status history entries (newest first, capped at 50).
+ */
+export const getGetReviewsAdminByIdUrl = (id: ReviewId) => {
+    return `/reviews/admin/${id}`;
+};
+
+export const getReviewsAdminById = async (
+    id: ReviewId,
+    options?: RequestInit
+): Promise<AdminReviewDetailResponse> => {
+    return apiFetcher<AdminReviewDetailResponse>(
+        getGetReviewsAdminByIdUrl(id),
+        {
+            ...options,
+            method: "GET",
+        }
+    );
+};
+
+export const getGetReviewsAdminByIdQueryKey = (id?: ReviewId) => {
+    return [`/reviews/admin/${id}`] as const;
+};
+
+export const getGetReviewsAdminByIdQueryOptions = <
+    TData = Awaited<ReturnType<typeof getReviewsAdminById>>,
+    TError = ErrorResponse,
+>(
+    id: ReviewId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getReviewsAdminById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    }
+) => {
+    const { query: queryOptions, request: requestOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getGetReviewsAdminByIdQueryKey(id);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof getReviewsAdminById>>
+    > = () => getReviewsAdminById(id, requestOptions);
+
+    return {
+        queryKey,
+        queryFn,
+        enabled: !!id,
+        ...queryOptions,
+    } as UseQueryOptions<
+        Awaited<ReturnType<typeof getReviewsAdminById>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetReviewsAdminByIdQueryResult = NonNullable<
+    Awaited<ReturnType<typeof getReviewsAdminById>>
+>;
+export type GetReviewsAdminByIdQueryError = ErrorResponse;
+
+export function useGetReviewsAdminById<
+    TData = Awaited<ReturnType<typeof getReviewsAdminById>>,
+    TError = ErrorResponse,
+>(
+    id: ReviewId,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getReviewsAdminById>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getReviewsAdminById>>,
+                    TError,
+                    Awaited<ReturnType<typeof getReviewsAdminById>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetReviewsAdminById<
+    TData = Awaited<ReturnType<typeof getReviewsAdminById>>,
+    TError = ErrorResponse,
+>(
+    id: ReviewId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getReviewsAdminById>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getReviewsAdminById>>,
+                    TError,
+                    Awaited<ReturnType<typeof getReviewsAdminById>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetReviewsAdminById<
+    TData = Awaited<ReturnType<typeof getReviewsAdminById>>,
+    TError = ErrorResponse,
+>(
+    id: ReviewId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getReviewsAdminById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetReviewsAdminById<
+    TData = Awaited<ReturnType<typeof getReviewsAdminById>>,
+    TError = ErrorResponse,
+>(
+    id: ReviewId,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getReviewsAdminById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getGetReviewsAdminByIdQueryOptions(id, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * Changes a review's moderation status (VISIBLE / HIDDEN / REMOVED) and records an audit row in review_status_history. The reason is required so the moderation log makes the action traceable.
+ */
+export const getPatchReviewsAdminByIdStatusUrl = (id: ReviewId) => {
+    return `/reviews/admin/${id}/status`;
+};
+
+export const patchReviewsAdminByIdStatus = async (
+    id: ReviewId,
+    updateReviewStatusBody: UpdateReviewStatusBody,
+    options?: RequestInit
+): Promise<AdminReviewListItem> => {
+    return apiFetcher<AdminReviewListItem>(
+        getPatchReviewsAdminByIdStatusUrl(id),
+        {
+            ...options,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                ...options?.headers,
+            },
+            body: JSON.stringify(updateReviewStatusBody),
+        }
+    );
+};
+
+export const getPatchReviewsAdminByIdStatusMutationOptions = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof patchReviewsAdminByIdStatus>>,
+        TError,
+        { id: ReviewId; data: UpdateReviewStatusBody },
+        TContext
+    >;
+    request?: SecondParameter<typeof apiFetcher>;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof patchReviewsAdminByIdStatus>>,
+    TError,
+    { id: ReviewId; data: UpdateReviewStatusBody },
+    TContext
+> => {
+    const mutationKey = ["patchReviewsAdminByIdStatus"];
+    const { mutation: mutationOptions, request: requestOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey }, request: undefined };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof patchReviewsAdminByIdStatus>>,
+        { id: ReviewId; data: UpdateReviewStatusBody }
+    > = (props) => {
+        const { id, data } = props ?? {};
+
+        return patchReviewsAdminByIdStatus(id, data, requestOptions);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type PatchReviewsAdminByIdStatusMutationResult = NonNullable<
+    Awaited<ReturnType<typeof patchReviewsAdminByIdStatus>>
+>;
+export type PatchReviewsAdminByIdStatusMutationBody = UpdateReviewStatusBody;
+export type PatchReviewsAdminByIdStatusMutationError = ErrorResponse;
+
+export const usePatchReviewsAdminByIdStatus = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof patchReviewsAdminByIdStatus>>,
+            TError,
+            { id: ReviewId; data: UpdateReviewStatusBody },
+            TContext
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseMutationResult<
+    Awaited<ReturnType<typeof patchReviewsAdminByIdStatus>>,
+    TError,
+    { id: ReviewId; data: UpdateReviewStatusBody },
+    TContext
+> => {
+    const mutationOptions =
+        getPatchReviewsAdminByIdStatusMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};

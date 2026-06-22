@@ -8,7 +8,7 @@ import {
     IconButton,
     Modal,
 } from "@waymate/ui";
-import { useGetAdminUsersById } from "../../../../api-client/admin/admin";
+import { useGetUsersAdminById } from "../../../../api-client/users/users";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminUsersErrorMap } from "../-lib/admin-errors";
 import {
@@ -40,7 +40,7 @@ export function UserDetailModal({
     onUnban,
 }: UserDetailModalProps) {
     const { t } = useTranslation();
-    const detailQuery = useGetAdminUsersById(userId);
+    const detailQuery = useGetUsersAdminById(userId);
 
     const labelClass =
         "text-xs font-bold text-text-secondary tracking-wider mb-1 block";

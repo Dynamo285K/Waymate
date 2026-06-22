@@ -1,8 +1,8 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import {
-    getAdminRides,
-    getGetAdminRidesQueryKey,
-} from "../../../../api-client/admin/admin";
+    getRidesAdmin,
+    getGetRidesAdminQueryKey,
+} from "../../../../api-client/rides/rides";
 import type { RideStatus } from "../../../../api-client/model/rideStatus";
 
 const PAGE_SIZE = 20;
@@ -16,13 +16,13 @@ export function useAdminRidesList(filters: AdminRidesListFilters) {
     // Cursor lives in pageParam, not in queryKey — search/status changes
     // start a fresh infinite query while load-more reuses the same cache.
     const query = useInfiniteQuery({
-        queryKey: getGetAdminRidesQueryKey({
+        queryKey: getGetRidesAdminQueryKey({
             limit: PAGE_SIZE,
             status: filters.status,
             search: filters.search,
         }),
         queryFn: ({ pageParam }) =>
-            getAdminRides({
+            getRidesAdmin({
                 limit: PAGE_SIZE,
                 status: filters.status,
                 search: filters.search,

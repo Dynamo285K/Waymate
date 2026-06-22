@@ -8,7 +8,7 @@ import {
     IconButton,
     Modal,
 } from "@waymate/ui";
-import { useGetAdminReportsById } from "../../../../api-client/admin/admin";
+import { useGetReportsAdminById } from "../../../../api-client/reports/reports";
 import type { ReportStatus } from "../../../../api-client/model/reportStatus";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminReportsErrorMap } from "../-lib/admin-report-errors";
@@ -52,7 +52,7 @@ export function ReportDetailModal({
     onBanTarget,
 }: ReportDetailModalProps) {
     const { t } = useTranslation();
-    const detailQuery = useGetAdminReportsById(reportId);
+    const detailQuery = useGetReportsAdminById(reportId);
     const typeLabels = useReportTypeLabels();
 
     const labelClass =
