@@ -94,7 +94,6 @@
             "statusResolved": "Vyriešené",
             "statusDismissed": "Zamietnuté"
         },
-        "settings": "Nastavenia",
         "logout": "Odhlásiť sa",
         "adminRole": "Admin",
         "weeklyrRides": "Jazdy tento týždeň",
@@ -305,7 +304,9 @@
         "resetError": "Heslo sa nepodarilo obnoviť. Vyžiadajte si nový odkaz.",
         "resetLinkSent": "Poslali sme odkaz na obnovenie hesla na",
         "sending": "Odosielam...",
-        "settingPassword": "Nastavujem heslo..."
+        "settingPassword": "Nastavujem heslo...",
+        "showPassword": "Zobraziť heslo",
+        "hidePassword": "Skryť heslo"
     },
     "editProfile": {
         "title": "Upraviť profil",
@@ -576,7 +577,6 @@
         "profile": "Môj profil",
         "messages": "Správy",
         "ratings": "Hodnotenia",
-        "settings": "Nastavenia",
         "logout": "Odhlásiť sa"
     },
     "home": {

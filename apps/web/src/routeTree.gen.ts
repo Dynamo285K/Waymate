@@ -13,12 +13,13 @@ import { Route as RidesRouteImport } from './routes/rides'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as PassengerRouteRouteImport } from './routes/passenger/route'
+import { Route as ForgotPasswordRouteRouteImport } from './routes/forgot-password/route'
 import { Route as DriverRouteRouteImport } from './routes/driver/route'
 import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PassengerIndexRouteImport } from './routes/passenger/index'
+import { Route as ForgotPasswordIndexRouteImport } from './routes/forgot-password/index'
 import { Route as DriverIndexRouteImport } from './routes/driver/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ProfileEditRouteImport } from './routes/profile/edit'
@@ -61,14 +62,14 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PassengerRouteRoute = PassengerRouteRouteImport.update({
   id: '/passenger',
   path: '/passenger',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRouteRoute = ForgotPasswordRouteRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DriverRouteRoute = DriverRouteRouteImport.update({
@@ -90,6 +91,11 @@ const PassengerIndexRoute = PassengerIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PassengerRouteRoute,
+} as any)
+const ForgotPasswordIndexRoute = ForgotPasswordIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ForgotPasswordRouteRoute,
 } as any)
 const DriverIndexRoute = DriverIndexRouteImport.update({
   id: '/',
@@ -203,8 +209,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteRouteWithChildren
   '/driver': typeof DriverRouteRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRouteRouteWithChildren
   '/passenger': typeof PassengerRouteRouteWithChildren
-  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/register': typeof RegisterRoute
@@ -212,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/profile/edit': typeof ProfileEditRoute
   '/admin/': typeof AdminIndexRoute
   '/driver/': typeof DriverIndexRoute
+  '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/passenger/': typeof PassengerIndexRoute
   '/admin/reports/': typeof AdminReportsIndexRoute
   '/admin/reviews/': typeof AdminReviewsIndexRoute
@@ -234,7 +241,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/register': typeof RegisterRoute
@@ -242,6 +248,7 @@ export interface FileRoutesByTo {
   '/profile/edit': typeof ProfileEditRoute
   '/admin': typeof AdminIndexRoute
   '/driver': typeof DriverIndexRoute
+  '/forgot-password': typeof ForgotPasswordIndexRoute
   '/passenger': typeof PassengerIndexRoute
   '/admin/reports': typeof AdminReportsIndexRoute
   '/admin/reviews': typeof AdminReviewsIndexRoute
@@ -267,8 +274,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteRouteWithChildren
   '/driver': typeof DriverRouteRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRouteRouteWithChildren
   '/passenger': typeof PassengerRouteRouteWithChildren
-  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/register': typeof RegisterRoute
@@ -276,6 +283,7 @@ export interface FileRoutesById {
   '/profile/edit': typeof ProfileEditRoute
   '/admin/': typeof AdminIndexRoute
   '/driver/': typeof DriverIndexRoute
+  '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/passenger/': typeof PassengerIndexRoute
   '/admin/reports/': typeof AdminReportsIndexRoute
   '/admin/reviews/': typeof AdminReviewsIndexRoute
@@ -302,8 +310,8 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/driver'
-    | '/passenger'
     | '/forgot-password'
+    | '/passenger'
     | '/login'
     | '/onboarding'
     | '/register'
@@ -311,6 +319,7 @@ export interface FileRouteTypes {
     | '/profile/edit'
     | '/admin/'
     | '/driver/'
+    | '/forgot-password/'
     | '/passenger/'
     | '/admin/reports/'
     | '/admin/reviews/'
@@ -333,7 +342,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/forgot-password'
     | '/login'
     | '/onboarding'
     | '/register'
@@ -341,6 +349,7 @@ export interface FileRouteTypes {
     | '/profile/edit'
     | '/admin'
     | '/driver'
+    | '/forgot-password'
     | '/passenger'
     | '/admin/reports'
     | '/admin/reviews'
@@ -365,8 +374,8 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/driver'
-    | '/passenger'
     | '/forgot-password'
+    | '/passenger'
     | '/login'
     | '/onboarding'
     | '/register'
@@ -374,6 +383,7 @@ export interface FileRouteTypes {
     | '/profile/edit'
     | '/admin/'
     | '/driver/'
+    | '/forgot-password/'
     | '/passenger/'
     | '/admin/reports/'
     | '/admin/reviews/'
@@ -399,8 +409,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRouteRoute: typeof AdminRouteRouteWithChildren
   DriverRouteRoute: typeof DriverRouteRouteWithChildren
+  ForgotPasswordRouteRoute: typeof ForgotPasswordRouteRouteWithChildren
   PassengerRouteRoute: typeof PassengerRouteRouteWithChildren
-  ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
   RegisterRoute: typeof RegisterRoute
@@ -439,18 +449,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/forgot-password': {
-      id: '/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof ForgotPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/passenger': {
       id: '/passenger'
       path: '/passenger'
       fullPath: '/passenger'
       preLoaderRoute: typeof PassengerRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/driver': {
@@ -480,6 +490,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/passenger/'
       preLoaderRoute: typeof PassengerIndexRouteImport
       parentRoute: typeof PassengerRouteRoute
+    }
+    '/forgot-password/': {
+      id: '/forgot-password/'
+      path: '/'
+      fullPath: '/forgot-password/'
+      preLoaderRoute: typeof ForgotPasswordIndexRouteImport
+      parentRoute: typeof ForgotPasswordRouteRoute
     }
     '/driver/': {
       id: '/driver/'
@@ -679,6 +696,17 @@ const DriverRouteRouteWithChildren = DriverRouteRoute._addFileChildren(
   DriverRouteRouteChildren,
 )
 
+interface ForgotPasswordRouteRouteChildren {
+  ForgotPasswordIndexRoute: typeof ForgotPasswordIndexRoute
+}
+
+const ForgotPasswordRouteRouteChildren: ForgotPasswordRouteRouteChildren = {
+  ForgotPasswordIndexRoute: ForgotPasswordIndexRoute,
+}
+
+const ForgotPasswordRouteRouteWithChildren =
+  ForgotPasswordRouteRoute._addFileChildren(ForgotPasswordRouteRouteChildren)
+
 interface PassengerRouteRouteChildren {
   PassengerIndexRoute: typeof PassengerIndexRoute
   PassengerChatIndexRoute: typeof PassengerChatIndexRoute
@@ -705,8 +733,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRouteRoute: AdminRouteRouteWithChildren,
   DriverRouteRoute: DriverRouteRouteWithChildren,
+  ForgotPasswordRouteRoute: ForgotPasswordRouteRouteWithChildren,
   PassengerRouteRoute: PassengerRouteRouteWithChildren,
-  ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
   RegisterRoute: RegisterRoute,

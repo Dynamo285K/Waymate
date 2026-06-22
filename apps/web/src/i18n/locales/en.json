@@ -94,7 +94,6 @@
             "statusResolved": "Resolved",
             "statusDismissed": "Dismissed"
         },
-        "settings": "Settings",
         "logout": "Logout",
         "adminRole": "Admin",
         "weeklyrRides": "Weekly Rides",
@@ -305,7 +304,9 @@
         "resetError": "Could not reset your password. Please request a new link.",
         "resetLinkSent": "We sent a password reset link to",
         "sending": "Sending...",
-        "settingPassword": "Setting password..."
+        "settingPassword": "Setting password...",
+        "showPassword": "Show password",
+        "hidePassword": "Hide password"
     },
     "editProfile": {
         "title": "Edit Profile",
@@ -576,7 +577,6 @@
         "profile": "My profile",
         "messages": "Messages",
         "ratings": "Ratings",
-        "settings": "Settings",
         "logout": "Logout"
     },
     "home": {

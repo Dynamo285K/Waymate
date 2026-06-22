@@ -3,6 +3,7 @@ import {
     ProfileDropdown,
     PlusIcon,
     ListIcon,
+    ListChecksIcon,
     MessageCircleIcon,
 } from "@waymate/ui";
 import { type Language } from "../controls/LanguageSwitcher";
@@ -151,7 +152,7 @@ export function DriverNavbar({
                 {labels?.myRides ?? "My rides"}
             </NavButton>
             <NavButton
-                icon={<ListIcon />}
+                icon={<ListChecksIcon />}
                 active={activeTab === "ride-requests"}
                 onClick={onRideRequestsClick}
             >
