@@ -1,35 +1,16 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { PassengerNavbar } from "../../components/navigation/PassengerNavbar";
 import { HomeContent } from "../../components/shared/HomeContent";
-import { usePassengerNavbarProps } from "../../hooks/shared/usePassengerNavbarProps";
 import { useCreateBooking } from "../../features/passenger/hooks/useCreateBooking";
 import { BookingErrorModal } from "../../features/passenger/components/BookingErrorModal";
-import { authClient } from "../../lib/auth-client";
-import { getDisplayName } from "../../lib/session-user";
-import { requireAudience } from "../../lib/route-guards";
 import { useLayout } from "../../lib/use-layout";
 
 export const Route = createFileRoute("/passenger/")({
-    beforeLoad: requireAudience(["user"]),
     component: PassengerHomePage,
 });
 
 function PassengerHomePage() {
     const navigate = useNavigate();
-    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
-    const { data: session } = authClient.useSession();
-    const user = session?.user;
-    const userName = user ? getDisplayName(user) : undefined;
-    const userEmail = user?.email;
-    const navbarProps = usePassengerNavbarProps({
-        activeTab: "find-ride",
-        language,
-        onLanguageChange,
-        theme,
-        onThemeToggle,
-        userName,
-        userEmail,
-    });
+    const { language, theme } = useLayout();
     const createBooking = useCreateBooking();
 
     return (
@@ -37,7 +18,6 @@ function PassengerHomePage() {
             data-theme={theme}
             className="min-h-screen bg-background"
         >
-            <PassengerNavbar {...navbarProps} />
             <BookingErrorModal
                 isError={createBooking.isError}
                 error={createBooking.error}

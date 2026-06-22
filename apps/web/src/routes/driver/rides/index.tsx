@@ -5,7 +5,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@waymate/ui";
 import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { CompleteRideDialog } from "../../../features/driver/components/CompleteRideDialog";
-import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
 import { RideCard } from "../../../components/shared/RideCard";
 import {
     useGetRidesMe,
@@ -13,18 +12,13 @@ import {
     getGetRidesMeQueryKey,
 } from "../../../api-client/rides/rides";
 import { useCancelRide } from "../../../features/driver/hooks/useCancelRide";
-import { useDriverNavbarProps } from "../../../features/driver/hooks/useDriverNavbarProps";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { driverRidesSearchSchema } from "../../../lib/driver-rides-search-schema";
 import { formatRideDate, formatDuration } from "../../../lib/date-format";
 import type { ApiMutationError } from "../../../lib/api-fetcher";
-import { authClient } from "../../../lib/auth-client";
-import { getDisplayName } from "../../../lib/session-user";
-import { requireAudience } from "../../../lib/route-guards";
 import { useLayout } from "../../../lib/use-layout";
 
 export const Route = createFileRoute("/driver/rides/")({
-    beforeLoad: requireAudience(["user"]),
     validateSearch: driverRidesSearchSchema,
     component: DriverMyRidesPage,
 });
@@ -33,20 +27,7 @@ function DriverMyRidesPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
-    const { data: session } = authClient.useSession();
-    const user = session?.user;
-    const userName = user ? getDisplayName(user) : undefined;
-    const userEmail = user?.email;
-    const navbarProps = useDriverNavbarProps({
-        activeTab: "my-rides",
-        language,
-        onLanguageChange,
-        theme,
-        onThemeToggle,
-        userName,
-        userEmail,
-    });
+    const { theme } = useLayout();
     const search = Route.useSearch();
     const [tab, setTab] = useState(search.tab === "past" ? "past" : "upcoming");
     const [cancellingRideId, setCancellingRideId] = useState<string | null>(
@@ -126,8 +107,6 @@ function DriverMyRidesPage() {
             data-theme={theme}
             className="min-h-screen bg-background"
         >
-            <DriverNavbar {...navbarProps} />
-
             <section className="w-full px-4 sm:max-w-4xl sm:mx-auto sm:px-8 py-8 sm:py-12">
                 <h1 className="text-2xl font-bold text-text-primary mb-6">
                     {t("driverRides.title")}

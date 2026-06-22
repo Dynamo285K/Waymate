@@ -5,13 +5,11 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button, PlusIcon } from "@waymate/ui";
 import { CancelRideDialog } from "../../components/shared/CancelRideDialog";
 import { CompleteRideDialog } from "../../features/driver/components/CompleteRideDialog";
-import { DriverNavbar } from "../../components/navigation/DriverNavbar";
 import {
     usePatchRidesByIdComplete,
     getGetRidesMeQueryKey,
 } from "../../api-client/rides/rides";
 import { useCancelRide } from "../../features/driver/hooks/useCancelRide";
-import { useDriverNavbarProps } from "../../features/driver/hooks/useDriverNavbarProps";
 import type { ApiMutationError } from "../../lib/api-fetcher";
 import {
     useAcceptRideRequest,
@@ -21,35 +19,19 @@ import {
     useDriverDashboardData,
     type DriverUpcomingRide,
 } from "../../features/driver/hooks/useDriverDashboardData";
-import { authClient } from "../../lib/auth-client";
-import { getDisplayName } from "../../lib/session-user";
-import { requireAudience } from "../../lib/route-guards";
 import { useLayout } from "../../lib/use-layout";
-import { UpcomingRidesSection } from "./-home/components/UpcomingRidesSection";
-import { RideRequestsSection } from "./-home/components/RideRequestsSection";
+import { UpcomingRidesSection } from "./-components/UpcomingRidesSection";
+import { RideRequestsSection } from "./-components/RideRequestsSection";
 import { HomeFeaturesSection } from "../../components/shared/HomeFeaturesSection";
 
 export const Route = createFileRoute("/driver/")({
-    beforeLoad: requireAudience(["user"]),
     component: DriverHomePage,
 });
 
 function DriverHomePage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
-    const { data: session } = authClient.useSession();
-    const user = session?.user;
-    const userName = user ? getDisplayName(user) : undefined;
-    const userEmail = user?.email;
-    const navbarProps = useDriverNavbarProps({
-        language,
-        onLanguageChange,
-        theme,
-        onThemeToggle,
-        userName,
-        userEmail,
-    });
+    const { theme } = useLayout();
 
     const { upcomingRides, requests, ridesQuery, requestsQuery } =
         useDriverDashboardData();
@@ -88,8 +70,6 @@ function DriverHomePage() {
             data-theme={theme}
             className="min-h-screen bg-background"
         >
-            <DriverNavbar {...navbarProps} />
-
             {/* Hero */}
             <section className="flex flex-col items-center pt-16 sm:pt-24 pb-12 px-4 text-center">
                 <h1 className="text-4xl sm:text-5xl font-black text-text-primary tracking-tight">
