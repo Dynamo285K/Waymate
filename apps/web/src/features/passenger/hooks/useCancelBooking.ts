@@ -1,5 +1,7 @@
 import type { MutateOptions } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import {
     usePatchBookingsByIdCancel,
     getGetBookingsMeQueryKey,
@@ -10,20 +12,24 @@ import {
 } from "../../../api-client/rides/rides";
 import type { PatchBookingsByIdCancelMutationResult } from "../../../api-client/bookings/bookings";
 import type { ApiMutationError } from "../../../lib/api-fetcher";
+import { getErrorI18nKey } from "../../../lib/api-errors";
 
 type Vars = { id: string; data: { reason?: string } };
 
 export function useCancelBooking() {
     const queryClient = useQueryClient();
+    const { t } = useTranslation();
 
     const mutation = usePatchBookingsByIdCancel<ApiMutationError>({
         mutation: {
+            onError: (error) =>
+                toast.error(
+                    t(getErrorI18nKey(error, {}, "cancelBookingDialog.error"))
+                ),
             onSuccess: () => {
                 void queryClient.invalidateQueries({
                     queryKey: getGetBookingsMeQueryKey(),
                 });
-                // Cancelling frees a seat, so availability/search seat counts
-                // change — mirror useCreateBooking's invalidation set.
                 void queryClient.invalidateQueries({
                     queryKey: getGetRidesAvailableQueryKey(),
                 });

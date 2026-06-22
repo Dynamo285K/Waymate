@@ -348,9 +348,7 @@
         "chooseCar": "Choose one of your cars",
         "noCars": "You do not have any saved cars yet. Enter the car manually for this ride.",
         "carBrand": "Car brand",
-        "carBrandPlaceholder": "e.g., Skoda",
         "carModel": "Car model",
-        "carModelPlaceholder": "e.g., Fabia",
         "selectCarBrand": "Select brand",
         "selectCarModel": "Select model",
         "loadingCarBrands": "Loading brands...",
@@ -410,7 +408,8 @@
     },
     "cancelBookingDialog": {
         "title": "Cancel booking?",
-        "message": "Are you sure you want to cancel your booking? This action cannot be undone."
+        "message": "Are you sure you want to cancel your booking? This action cannot be undone.",
+        "error": "Could not cancel your booking. Please try again."
     },
     "cancelRideDialog": {
         "title": "Cancel ride?",
@@ -468,13 +467,13 @@
         "totalRatings": "Total Ratings",
         "myRatings": "My ratings",
         "loading": "Loading ratings...",
-        "empty": "No ratings yet.",
-        "ride": "Ride"
+        "empty": "No ratings yet."
     },
     "rateDriver": {
         "title": "Rate your driver",
         "submit": "Submit rating",
-        "placeholder": "Write a review..."
+        "placeholder": "Write a review...",
+        "error": "Could not submit your review. Please try again."
     },
     "myRides": {
         "title": "My Rides",

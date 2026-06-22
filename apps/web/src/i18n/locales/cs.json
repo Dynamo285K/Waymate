@@ -348,9 +348,7 @@
         "chooseCar": "Vyberte jedno ze svých aut",
         "noCars": "Zatím nemáte uložené žádné auto. Pro tuto jízdu ho zadejte ručně.",
         "carBrand": "Značka auta",
-        "carBrandPlaceholder": "např. Skoda",
         "carModel": "Model auta",
-        "carModelPlaceholder": "např. Fabia",
         "selectCarBrand": "Vyberte značku",
         "selectCarModel": "Vyberte model",
         "loadingCarBrands": "Načítám značky...",
@@ -410,7 +408,8 @@
     },
     "cancelBookingDialog": {
         "title": "Zrušit rezervaci?",
-        "message": "Opravdu chcete zrušit svou rezervaci? Tuto akci nelze vrátit."
+        "message": "Opravdu chcete zrušit svou rezervaci? Tuto akci nelze vrátit.",
+        "error": "Rezervaci se nepodařilo zrušit. Zkuste to prosím znovu."
     },
     "cancelRideDialog": {
         "title": "Zrušit jízdu?",
@@ -468,13 +467,13 @@
         "totalRatings": "Celkem hodnocení",
         "myRatings": "Moje hodnocení",
         "loading": "Načítám hodnocení...",
-        "empty": "Zatím žádná hodnocení.",
-        "ride": "Jízda"
+        "empty": "Zatím žádná hodnocení."
     },
     "rateDriver": {
         "title": "Ohodnoťte svého řidiče",
         "submit": "Odeslat hodnocení",
-        "placeholder": "Napište recenzi..."
+        "placeholder": "Napište recenzi...",
+        "error": "Hodnocení se nepodařilo odeslat. Zkuste to prosím znovu."
     },
     "myRides": {
         "title": "Moje jízdy",
