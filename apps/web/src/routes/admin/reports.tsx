@@ -163,15 +163,15 @@ function AdminReportsPage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <AdminNavbar {...navbarProps} />
 
             <div className="w-full px-4 sm:max-w-6xl sm:mx-auto sm:px-8 py-8">
-                <h1 className="text-2xl font-bold text-(--color-text-primary)">
+                <h1 className="text-2xl font-bold text-text-primary">
                     {t("admin.reports.title")}
                 </h1>
-                <p className="text-(--color-text-secondary) text-sm mt-1 mb-6">
+                <p className="text-text-secondary text-sm mt-1 mb-6">
                     {t("admin.reports.subtitle")}
                 </p>
 
@@ -185,13 +185,13 @@ function AdminReportsPage() {
                 />
 
                 {list.isInitialLoading && (
-                    <p className="text-(--color-text-secondary) py-4">
+                    <p className="text-text-secondary py-4">
                         {t("admin.reports.loading")}
                     </p>
                 )}
 
                 {!list.isInitialLoading && list.isError && (
-                    <p className="text-(--color-danger-text) py-4">
+                    <p className="text-danger-text py-4">
                         {t(getErrorI18nKey(list.error, adminReportsErrorMap))}
                     </p>
                 )}
@@ -199,7 +199,7 @@ function AdminReportsPage() {
                 {!list.isInitialLoading &&
                     !list.isError &&
                     list.items.length === 0 && (
-                        <p className="text-(--color-text-secondary) py-4">
+                        <p className="text-text-secondary py-4">
                             {t("admin.reports.empty")}
                         </p>
                     )}

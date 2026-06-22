@@ -96,10 +96,10 @@ export function HomeContent({
         <>
             {/* Hero */}
             <section className="flex flex-col items-center pt-16 sm:pt-28 pb-10 sm:pb-16 px-4">
-                <h1 className="text-3xl sm:text-5xl font-black text-(--color-text-primary) tracking-tight text-center">
+                <h1 className="text-3xl sm:text-5xl font-black text-text-primary tracking-tight text-center">
                     {t("home.hero.title")}
                 </h1>
-                <p className="mt-3 text-lg text-(--color-text-secondary) text-center">
+                <p className="mt-3 text-lg text-text-secondary text-center">
                     {t("home.hero.subtitle")}
                 </p>
                 <div className="mt-8 w-full max-w-2xl">
@@ -147,7 +147,7 @@ export function HomeContent({
             {/* Popular routes */}
             {popularRoutes.length > 0 && (
                 <section className="w-full px-4 sm:max-w-5xl sm:mx-auto sm:px-8 pb-8 sm:pb-12">
-                    <p className="text-sm font-semibold text-(--color-text-secondary) mb-3">
+                    <p className="text-sm font-semibold text-text-secondary mb-3">
                         {t("home.popularRoutes")}
                     </p>
                     <div className="flex flex-wrap gap-3">
@@ -183,36 +183,36 @@ export function HomeContent({
                 </section>
             )}
 
-            <div className="border-t border-(--color-border)" />
+            <div className="border-t border-border" />
 
             {/* Stats */}
             <HomeStatsSection />
 
-            <div className="border-t border-(--color-border)" />
+            <div className="border-t border-border" />
 
             {/* Available rides */}
             <section className="w-full px-4 sm:max-w-5xl sm:mx-auto sm:px-8 py-8 sm:py-12">
-                <h2 className="text-2xl font-bold text-(--color-text-primary)">
+                <h2 className="text-2xl font-bold text-text-primary">
                     {t("home.availableRides.title")}
                 </h2>
-                <p className="text-(--color-text-secondary) mt-1 mb-6">
+                <p className="text-text-secondary mt-1 mb-6">
                     {t("home.availableRides.subtitle")}
                 </p>
                 <div className="flex flex-col gap-3">
                     {areAvailableRidesLoading && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("rides.loading")}
                         </p>
                     )}
                     {areAvailableRidesError && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("rides.error")}
                         </p>
                     )}
                     {!areAvailableRidesLoading &&
                         !areAvailableRidesError &&
                         availableRides.length === 0 && (
-                            <p className="text-(--color-text-secondary)">
+                            <p className="text-text-secondary">
                                 {t("rides.noResults")}
                             </p>
                         )}

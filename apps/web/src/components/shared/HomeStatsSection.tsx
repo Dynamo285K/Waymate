@@ -1,11 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { StatCard } from "@waymate/ui";
-import {
-    IconBox,
-    UsersIcon,
-    StarIcon,
-    LeafIcon,
-} from "./icons/FeatureIcons";
+import { IconBox, UsersIcon, StarIcon, LeafIcon } from "./icons/FeatureIcons";
 
 export function HomeStatsSection() {
     const { t } = useTranslation();
@@ -15,8 +10,8 @@ export function HomeStatsSection() {
             <StatCard
                 icon={
                     <IconBox
-                        bg="bg-(--color-success-bg)"
-                        color="text-(--color-success-text)"
+                        bg="bg-success-bg"
+                        color="text-success-text"
                     >
                         <UsersIcon />
                     </IconBox>
@@ -27,8 +22,8 @@ export function HomeStatsSection() {
             <StatCard
                 icon={
                     <IconBox
-                        bg="bg-(--color-warning-bg)"
-                        color="text-(--color-warning-text)"
+                        bg="bg-warning-bg"
+                        color="text-warning-text"
                     >
                         <StarIcon />
                     </IconBox>
@@ -39,8 +34,8 @@ export function HomeStatsSection() {
             <StatCard
                 icon={
                     <IconBox
-                        bg="bg-(--color-success-bg)"
-                        color="text-(--color-success-text)"
+                        bg="bg-success-bg"
+                        color="text-success-text"
                     >
                         <LeafIcon />
                     </IconBox>

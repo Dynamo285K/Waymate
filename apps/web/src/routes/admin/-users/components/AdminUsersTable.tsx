@@ -27,10 +27,10 @@ export function AdminUsersTable({
     const { t } = useTranslation();
 
     return (
-        <div className="bg-(--color-card) rounded-2xl border border-(--color-border) overflow-x-auto">
+        <div className="bg-card rounded-2xl border border-border overflow-x-auto">
             <table className="w-full text-sm">
                 <thead>
-                    <tr className="border-b border-(--color-border)">
+                    <tr className="border-b border-border">
                         {[
                             t("admin.user"),
                             t("admin.email"),
@@ -40,7 +40,7 @@ export function AdminUsersTable({
                         ].map((h) => (
                             <th
                                 key={h}
-                                className="text-left text-xs font-bold text-(--color-text-secondary) tracking-wider px-5 py-4"
+                                className="text-left text-xs font-bold text-text-secondary tracking-wider px-5 py-4"
                             >
                                 {h}
                             </th>
@@ -58,7 +58,7 @@ export function AdminUsersTable({
                         return (
                             <tr
                                 key={listItem.id}
-                                className="border-b border-(--color-border) last:border-0 hover:bg-(--color-bg) transition-colors"
+                                className="border-b border-border last:border-0 hover:bg-background transition-colors"
                             >
                                 <td className="px-5 py-4">
                                     <div className="flex items-center gap-3">
@@ -66,18 +66,18 @@ export function AdminUsersTable({
                                             name={name}
                                             size="sm"
                                         />
-                                        <span className="font-semibold text-(--color-text-primary) whitespace-nowrap">
+                                        <span className="font-semibold text-text-primary whitespace-nowrap">
                                             {name}
                                         </span>
                                     </div>
                                 </td>
-                                <td className="px-5 py-4 text-(--color-text-secondary)">
+                                <td className="px-5 py-4 text-text-secondary">
                                     {listItem.email}
                                 </td>
                                 <td className="px-5 py-4">
                                     <StatusBadge status={listItem.userStatus} />
                                 </td>
-                                <td className="px-5 py-4 text-(--color-text-secondary)">
+                                <td className="px-5 py-4 text-text-secondary">
                                     {formatDate(
                                         listItem.lastActiveAt,
                                         t("admin.never")

@@ -86,16 +86,16 @@ function DriverHomePage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <DriverNavbar {...navbarProps} />
 
             {/* Hero */}
             <section className="flex flex-col items-center pt-16 sm:pt-24 pb-12 px-4 text-center">
-                <h1 className="text-4xl sm:text-5xl font-black text-(--color-text-primary) tracking-tight">
+                <h1 className="text-4xl sm:text-5xl font-black text-text-primary tracking-tight">
                     {t("driver.home.title")}
                 </h1>
-                <p className="mt-3 text-lg text-(--color-text-secondary)">
+                <p className="mt-3 text-lg text-text-secondary">
                     {t("driver.home.subtitle")}
                 </p>
                 <Button
@@ -134,7 +134,7 @@ function DriverHomePage() {
             />
 
             <HomeFeaturesSection
-                sectionClassName="bg-(--color-background) border-t border-(--color-border) py-16 px-4"
+                sectionClassName="bg-background border-t border-border py-16 px-4"
                 gridClassName="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-left"
             />
 

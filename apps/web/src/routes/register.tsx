@@ -122,17 +122,17 @@ function RegisterPage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <AuthNavbar {...authNavbarProps} />
 
-            <div className="flex items-center justify-center min-h-[calc(100vh-72px)] px-4 py-12">
+            <div className="flex items-center justify-center min-h-register-content px-4 py-12">
                 {registeredEmail ? (
-                    <section className="w-full max-w-md rounded-2xl border border-(--color-border) bg-(--color-card) p-8 text-center shadow-xl">
-                        <h1 className="text-2xl font-bold text-(--color-text-primary)">
+                    <section className="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-xl">
+                        <h1 className="text-2xl font-bold text-text-primary">
                             {t("register.checkEmailTitle")}
                         </h1>
-                        <p className="mt-3 text-sm text-(--color-text-secondary)">
+                        <p className="mt-3 text-sm text-text-secondary">
                             {t("register.checkEmailText", {
                                 email:
                                     registeredEmail || t("register.yourEmail"),

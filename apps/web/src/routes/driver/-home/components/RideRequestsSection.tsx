@@ -38,27 +38,29 @@ export function RideRequestsSection({
     };
 
     return (
-        <div className="border-t border-(--color-border)">
+        <div className="border-t border-border">
             <div className="w-full px-4 sm:max-w-4xl sm:mx-auto sm:px-8 py-10">
-                <h2 className="text-xl font-bold text-(--color-text-primary)">
+                <h2 className="text-xl font-bold text-text-primary">
                     {t("driver.home.rideRequests")}
                 </h2>
-                <p className="text-(--color-text-secondary) text-sm mt-1 mb-6">
+                <p className="text-text-secondary text-sm mt-1 mb-6">
                     {t("driver.home.rideRequestsSubtitle")}
                 </p>
                 <div className="flex flex-col gap-3">
                     {isLoading && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("driverRides.loading")}
                         </p>
                     )}
                     {isError && (
-                        <p className="text-(--color-text-secondary)">
-                            {t(getErrorI18nKey(error, {}, "rideRequests.error"))}
+                        <p className="text-text-secondary">
+                            {t(
+                                getErrorI18nKey(error, {}, "rideRequests.error")
+                            )}
                         </p>
                     )}
                     {actionIsError && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t(
                                 getErrorI18nKey(
                                     actionError,
@@ -69,7 +71,7 @@ export function RideRequestsSection({
                         </p>
                     )}
                     {!isLoading && !isError && requests.length === 0 && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("rideRequests.empty")}
                         </p>
                     )}
@@ -85,7 +87,10 @@ export function RideRequestsSection({
                                 currency={request.currency}
                                 from={request.from}
                                 to={request.to}
-                                datetime={formatDate(request.date, t("home.at"))}
+                                datetime={formatDate(
+                                    request.date,
+                                    t("home.at")
+                                )}
                                 onAccept={() => onAccept(request.id)}
                                 onDecline={() => onDecline(request.id)}
                                 labels={requestLabels}

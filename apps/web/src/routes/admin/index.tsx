@@ -63,7 +63,7 @@ function Card({
 }) {
     return (
         <div
-            className={`bg-(--color-card) rounded-2xl border border-(--color-border) p-6 ${className}`}
+            className={`bg-card rounded-2xl border border-border p-6 ${className}`}
         >
             {children}
         </div>
@@ -166,13 +166,13 @@ function AdminDashboardPage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <AdminNavbar {...navbarProps} />
 
             <div className="w-full px-4 sm:max-w-6xl sm:mx-auto sm:px-8 py-8 flex flex-col gap-6">
                 {isError && (
-                    <p className="text-sm text-(--color-text-secondary) text-center py-8">
+                    <p className="text-sm text-text-secondary text-center py-8">
                         {t("admin.dashboardLoadError")}
                     </p>
                 )}
@@ -180,12 +180,12 @@ function AdminDashboardPage() {
                 {/* Charts row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <Card>
-                        <h2 className="text-base font-bold text-(--color-text-primary) mb-4">
+                        <h2 className="text-base font-bold text-text-primary mb-4">
                             {t("admin.weeklyrRides")}
                         </h2>
                         {isLoading ? (
                             <div className="h-50 flex items-center justify-center">
-                                <span className="text-sm text-(--color-text-secondary)">
+                                <span className="text-sm text-text-secondary">
                                     {t("admin.loading")}
                                 </span>
                             </div>
@@ -232,12 +232,12 @@ function AdminDashboardPage() {
                     </Card>
 
                     <Card>
-                        <h2 className="text-base font-bold text-(--color-text-primary) mb-4">
+                        <h2 className="text-base font-bold text-text-primary mb-4">
                             {t("admin.weeklyRevenue")}
                         </h2>
                         {isLoading ? (
                             <div className="h-50 flex items-center justify-center">
-                                <span className="text-sm text-(--color-text-secondary)">
+                                <span className="text-sm text-text-secondary">
                                     {t("admin.loading")}
                                 </span>
                             </div>
@@ -288,15 +288,15 @@ function AdminDashboardPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Popular Routes */}
                     <Card>
-                        <h2 className="text-base font-bold text-(--color-text-primary) mb-5">
+                        <h2 className="text-base font-bold text-text-primary mb-5">
                             {t("admin.popularRoutes")}
                         </h2>
                         {isLoading ? (
-                            <p className="text-sm text-(--color-text-secondary)">
+                            <p className="text-sm text-text-secondary">
                                 {t("admin.loading")}
                             </p>
                         ) : popularRoutes.length === 0 ? (
-                            <p className="text-sm text-(--color-text-secondary)">
+                            <p className="text-sm text-text-secondary">
                                 {t("admin.noData")}
                             </p>
                         ) : (
@@ -306,19 +306,19 @@ function AdminDashboardPage() {
                                         key={`${r.originCity}-${r.destinationCity}`}
                                     >
                                         <div className="flex justify-between text-sm mb-1.5">
-                                            <span className="font-medium text-(--color-text-primary)">
+                                            <span className="font-medium text-text-primary">
                                                 {r.originCity} →{" "}
                                                 {r.destinationCity}
                                             </span>
-                                            <span className="text-(--color-text-secondary)">
+                                            <span className="text-text-secondary">
                                                 {t("admin.ridesCount", {
                                                     count: r.count,
                                                 })}
                                             </span>
                                         </div>
-                                        <div className="h-2 bg-(--color-border) rounded-full overflow-hidden">
+                                        <div className="h-2 bg-border rounded-full overflow-hidden">
                                             <div
-                                                className="h-full bg-(--color-primary) rounded-full transition-all"
+                                                className="h-full bg-primary rounded-full transition-all"
                                                 style={{
                                                     width: `${(r.count / popularRoutesMax) * 100}%`,
                                                 }}
@@ -332,27 +332,27 @@ function AdminDashboardPage() {
 
                     {/* User Metrics */}
                     <Card>
-                        <h2 className="text-base font-bold text-(--color-text-primary) mb-4">
+                        <h2 className="text-base font-bold text-text-primary mb-4">
                             {t("admin.userMetrics")}
                         </h2>
                         {isLoading ? (
-                            <p className="text-sm text-(--color-text-secondary)">
+                            <p className="text-sm text-text-secondary">
                                 {t("admin.loading")}
                             </p>
                         ) : (
-                            <div className="flex flex-col divide-y divide-(--color-border)">
+                            <div className="flex flex-col divide-y divide-border">
                                 {USER_METRIC_ROWS.map((m) => (
                                     <div
                                         key={m.label}
                                         className="flex items-center justify-between py-3"
                                     >
-                                        <div className="flex items-center gap-3 text-(--color-text-secondary) text-sm">
+                                        <div className="flex items-center gap-3 text-text-secondary text-sm">
                                             <span className="text-base">
                                                 {m.icon}
                                             </span>
                                             {t(`admin.${m.label}`)}
                                         </div>
-                                        <span className="font-bold text-(--color-text-primary)">
+                                        <span className="font-bold text-text-primary">
                                             {m.value?.toLocaleString() ?? "—"}
                                         </span>
                                     </div>

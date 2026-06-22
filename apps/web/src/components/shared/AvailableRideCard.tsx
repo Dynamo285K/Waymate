@@ -50,29 +50,29 @@ export function AvailableRideCard({
         (originalStartCity !== from || originalEndCity !== to);
 
     return (
-        <div className="available-ride-card flex justify-between items-center gap-6 px-6 py-4 bg-(--color-card) border border-(--color-border) rounded-2xl max-600:flex-wrap max-600:gap-3 max-600:py-3.5 max-600:px-4">
+        <div className="available-ride-card flex justify-between items-center gap-6 px-6 py-4 bg-card border border-border rounded-2xl max-600:flex-wrap max-600:gap-3 max-600:py-3.5 max-600:px-4">
             <div className="flex flex-col justify-center gap-1.5 flex-1 self-center max-600:w-full">
-                <span className="text-base font-bold text-(--color-text-primary)">
+                <span className="text-base font-bold text-text-primary">
                     {from} → {to}
                 </span>
                 {showFullRoute && (
-                    <span className="text-sm text-(--color-text-secondary)">
+                    <span className="text-sm text-text-secondary">
                         {originalStartCity} → {originalEndCity}
                     </span>
                 )}
-                <div className="flex items-center gap-1.5 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-(--color-text-secondary) [&_svg]:shrink-0">
+                <div className="flex items-center gap-1.5 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-text-secondary icon-svg:shrink-0">
                     <ClockIcon />
-                    <span className="text-[13px] text-(--color-text-secondary) max-600:whitespace-nowrap">
+                    <span className="text-caption text-text-secondary max-600:whitespace-nowrap">
                         {datetime}
                     </span>
                     {duration && (
-                        <span className="text-[13px] text-(--color-text-secondary)">
+                        <span className="text-caption text-text-secondary">
                             · {duration}
                         </span>
                     )}
                     <span className="ml-2 flex items-center gap-1.5">
                         <UserIcon />
-                        <span className="text-[13px] text-(--color-text-secondary) max-600:whitespace-nowrap">
+                        <span className="text-caption text-text-secondary max-600:whitespace-nowrap">
                             {seatsText}
                         </span>
                     </span>
@@ -84,19 +84,19 @@ export function AvailableRideCard({
                     size="sm"
                 />
                 <div className="flex flex-col gap-0.5">
-                    <span className="text-[15px] font-semibold text-(--color-text-primary) whitespace-nowrap">
+                    <span className="text-control font-semibold text-text-primary whitespace-nowrap">
                         {driverName}
                     </span>
-                    <div className="flex items-center gap-1 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-(--color-dark-yellow) [&_svg]:fill-(--color-dark-yellow) [&_svg]:shrink-0">
+                    <div className="flex items-center gap-1 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-dark-yellow icon-svg:fill-dark-yellow icon-svg:shrink-0">
                         <StarIcon />
-                        <span className="text-[13px] text-(--color-text-secondary)">
+                        <span className="text-caption text-text-secondary">
                             {driverRating.toFixed(1)}
                         </span>
                     </div>
                 </div>
             </div>
             <div className="flex items-center gap-4 shrink-0 self-center max-600:ml-auto max-600:gap-3">
-                <span className="text-[22px] font-bold text-(--color-text-primary)">
+                <span className="text-subtitle font-bold text-text-primary">
                     {price}€
                 </span>
                 <Button

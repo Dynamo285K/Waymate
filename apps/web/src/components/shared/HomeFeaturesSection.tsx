@@ -17,8 +17,7 @@ type HomeFeaturesSectionProps = {
     gridClassName?: string;
 };
 
-const DEFAULT_SECTION_CLASS =
-    "bg-(--color-bg) border-t border-(--color-border) py-16 px-4";
+const DEFAULT_SECTION_CLASS = "bg-background border-t border-border py-16 px-4";
 const DEFAULT_GRID_CLASS =
     "mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-left";
 
@@ -31,18 +30,18 @@ export function HomeFeaturesSection({
     return (
         <section className={sectionClassName}>
             <div className="w-full sm:max-w-5xl sm:mx-auto text-center">
-                <h2 className="text-2xl sm:text-4xl font-black text-(--color-text-primary)">
+                <h2 className="text-2xl sm:text-4xl font-black text-text-primary">
                     {t("home.features.title")}
                 </h2>
-                <p className="mt-2 text-(--color-text-secondary)">
+                <p className="mt-2 text-text-secondary">
                     {t("home.features.subtitle")}
                 </p>
                 <div className={gridClassName}>
                     <FeatureCard
                         icon={
                             <IconBox
-                                bg="bg-(--color-success-bg)"
-                                color="text-(--color-success-text)"
+                                bg="bg-success-bg"
+                                color="text-success-text"
                             >
                                 <ShieldIcon />
                             </IconBox>
@@ -55,8 +54,8 @@ export function HomeFeaturesSection({
                     <FeatureCard
                         icon={
                             <IconBox
-                                bg="bg-(--color-success-bg)"
-                                color="text-(--color-success-text)"
+                                bg="bg-success-bg"
+                                color="text-success-text"
                             >
                                 <CoinsIcon />
                             </IconBox>
@@ -67,8 +66,8 @@ export function HomeFeaturesSection({
                     <FeatureCard
                         icon={
                             <IconBox
-                                bg="bg-(--color-primary)/10"
-                                color="text-(--color-primary)"
+                                bg="bg-primary/10"
+                                color="text-primary"
                             >
                                 <LeafIcon />
                             </IconBox>
@@ -79,8 +78,8 @@ export function HomeFeaturesSection({
                     <FeatureCard
                         icon={
                             <IconBox
-                                bg="bg-(--color-primary)/10"
-                                color="text-(--color-primary)"
+                                bg="bg-primary/10"
+                                color="text-primary"
                             >
                                 <MessageIcon />
                             </IconBox>
@@ -91,8 +90,8 @@ export function HomeFeaturesSection({
                     <FeatureCard
                         icon={
                             <IconBox
-                                bg="bg-(--color-warning-bg)"
-                                color="text-(--color-warning-text)"
+                                bg="bg-warning-bg"
+                                color="text-warning-text"
                             >
                                 <BoltIcon />
                             </IconBox>
@@ -103,8 +102,8 @@ export function HomeFeaturesSection({
                     <FeatureCard
                         icon={
                             <IconBox
-                                bg="bg-(--color-danger-bg)"
-                                color="text-(--color-danger-text)"
+                                bg="bg-danger-bg"
+                                color="text-danger-text"
                             >
                                 <StarIcon />
                             </IconBox>

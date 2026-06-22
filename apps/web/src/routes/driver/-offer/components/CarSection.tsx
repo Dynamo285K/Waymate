@@ -32,19 +32,18 @@ export type CarSectionProps = {
 };
 
 const selectTrigger =
-    "w-full flex items-center justify-between gap-2 py-3 px-4 rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) text-sm font-medium cursor-pointer transition-[border-color] duration-150 outline-none hover:border-(--color-primary) focus-visible:border-(--color-primary) data-[disabled]:cursor-not-allowed data-[disabled]:opacity-60 [&[data-placeholder]>span:first-child]:text-(--color-text-secondary)";
+    "w-full flex items-center justify-between gap-2 py-3 px-4 rounded-xl border border-border bg-input text-text-primary text-sm font-medium cursor-pointer transition-colors duration-150 outline-none hover:border-primary focus-visible:border-primary radix-placeholder:text-text-secondary radix-disabled:cursor-not-allowed radix-disabled:opacity-60";
 
 const selectContent =
-    "w-(--radix-select-trigger-width) overflow-hidden rounded-xl border border-(--color-border) bg-(--color-card) p-1 shadow-[0_8px_24px_rgba(0,0,0,0.12)] z-[1000]";
+    "w-radix-select-trigger overflow-hidden rounded-xl border border-border bg-card p-1 shadow-dropdown-strong z-select-content";
 
 const selectViewport =
-    "max-h-[min(320px,var(--radix-select-content-available-height))] overflow-y-auto overscroll-contain";
+    "max-h-radix-select-list overflow-y-auto overscroll-contain";
 
 const selectItem =
-    "w-full py-2 px-3 rounded-lg bg-transparent text-(--color-text-primary) text-sm font-medium cursor-pointer transition-[background] duration-100 outline-none select-none flex items-center hover:bg-(--color-bg) data-[highlighted]:bg-(--color-bg) data-[highlighted]:outline-none data-[state=checked]:bg-[color-mix(in_srgb,var(--color-primary)_10%,transparent)] data-[state=checked]:text-(--color-primary)";
+    "w-full py-2 px-3 rounded-lg bg-transparent text-text-primary text-sm font-medium cursor-pointer transition-colors duration-100 outline-none select-none flex items-center hover:bg-background radix-highlighted:bg-background radix-highlighted:outline-none radix-checked:bg-primary-tint radix-checked:text-primary";
 
-const selectIcon =
-    "text-(--color-text-secondary) inline-flex items-center shrink-0";
+const selectIcon = "text-text-secondary inline-flex items-center shrink-0";
 
 export function CarSection({
     savedCars,
@@ -151,27 +150,27 @@ export function CarSection({
                         </Select.Root>
                     </div>
                     <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
-                        <div className="py-3 px-4 rounded-xl border border-(--color-border) bg-(--color-bg)">
-                            <p className="m-0 text-[11px] font-bold uppercase tracking-[0.06em] text-(--color-text-secondary)">
+                        <div className="py-3 px-4 rounded-xl border border-border bg-background">
+                            <p className="m-0 text-badge font-bold uppercase tracking-badge text-text-secondary">
                                 {t("offerRide.carBrand")}
                             </p>
-                            <p className="mt-1 text-sm font-semibold text-(--color-text-primary)">
+                            <p className="mt-1 text-sm font-semibold text-text-primary">
                                 {selectedCar?.brand ?? "—"}
                             </p>
                         </div>
-                        <div className="py-3 px-4 rounded-xl border border-(--color-border) bg-(--color-bg)">
-                            <p className="m-0 text-[11px] font-bold uppercase tracking-[0.06em] text-(--color-text-secondary)">
+                        <div className="py-3 px-4 rounded-xl border border-border bg-background">
+                            <p className="m-0 text-badge font-bold uppercase tracking-badge text-text-secondary">
                                 {t("offerRide.carModel")}
                             </p>
-                            <p className="mt-1 text-sm font-semibold text-(--color-text-primary)">
+                            <p className="mt-1 text-sm font-semibold text-text-primary">
                                 {selectedCar?.model ?? "—"}
                             </p>
                         </div>
-                        <div className="col-span-full py-3 px-4 rounded-xl border border-(--color-border) bg-(--color-bg) max-md:col-span-1">
-                            <p className="m-0 text-[11px] font-bold uppercase tracking-[0.06em] text-(--color-text-secondary)">
+                        <div className="col-span-full py-3 px-4 rounded-xl border border-border bg-background max-md:col-span-1">
+                            <p className="m-0 text-badge font-bold uppercase tracking-badge text-text-secondary">
                                 {t("offerRide.licensePlate")}
                             </p>
-                            <p className="mt-1 text-sm font-semibold text-(--color-text-primary)">
+                            <p className="mt-1 text-sm font-semibold text-text-primary">
                                 {selectedCar?.plate ?? "—"}
                             </p>
                         </div>
@@ -180,7 +179,7 @@ export function CarSection({
             ) : (
                 <div className="flex flex-col gap-5">
                     {!hasSavedCars && (
-                        <p className="m-0 py-3 px-4 rounded-xl border border-(--color-warning-border) bg-(--color-warning-bg) text-sm text-(--color-warning-text)">
+                        <p className="m-0 py-3 px-4 rounded-xl border border-warning-border bg-warning-bg text-sm text-warning-text">
                             {t("offerRide.noCars")}
                         </p>
                     )}
@@ -234,7 +233,7 @@ export function CarSection({
                                 </Select.Portal>
                             </Select.Root>
                             {errors.manualBrand?.message && (
-                                <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
+                                <p className="-mt-0.5 text-danger-text text-xs font-semibold">
                                     {t(errors.manualBrand.message)}
                                 </p>
                             )}
@@ -285,7 +284,7 @@ export function CarSection({
                                 </Select.Portal>
                             </Select.Root>
                             {errors.manualModel?.message && (
-                                <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
+                                <p className="-mt-0.5 text-danger-text text-xs font-semibold">
                                     {t(errors.manualModel.message)}
                                 </p>
                             )}
@@ -300,7 +299,7 @@ export function CarSection({
                                 placeholder={t("offerRide.platePlaceholder")}
                             />
                             {errors.manualPlate?.message && (
-                                <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
+                                <p className="-mt-0.5 text-danger-text text-xs font-semibold">
                                     {t(errors.manualPlate.message, {
                                         min: PLATE_MIN_LENGTH,
                                         max: PLATE_MAX_LENGTH,

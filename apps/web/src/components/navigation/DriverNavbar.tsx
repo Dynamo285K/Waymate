@@ -141,7 +141,7 @@ export function DriverNavbar({
     const hamburger = (
         <Button
             variant="unstyled"
-            className="bg-(--color-card) border border-(--color-border) rounded-[10px] w-10 h-10 cursor-pointer flex flex-col items-center justify-center gap-1.25 p-0 shadow-[0_1px_4px_rgba(0,0,0,0.1)] [&_span]:block [&_span]:w-4.5 [&_span]:h-0.5 [&_span]:bg-(--color-text-primary) [&_span]:rounded-sm"
+            className="bg-card border border-border rounded-control w-10 h-10 cursor-pointer flex flex-col items-center justify-center gap-1.25 p-0 shadow-hairline menu-line:block menu-line:w-4.5 menu-line:h-0.5 menu-line:bg-text-primary menu-line:rounded-sm"
             onClick={() => setIsMobileMenuOpen((c) => !c)}
             aria-label="Open menu"
             aria-expanded={isMobileMenuOpen}
@@ -162,7 +162,7 @@ export function DriverNavbar({
                     name={userName}
                     size="sm"
                 />
-                <span className="w-8 h-8 rounded-full bg-(--color-card) text-(--color-text-secondary) shadow-[0_2px_6px_rgba(0,0,0,0.12)] inline-flex items-center justify-center group-hover:bg-(--color-border) [&_svg]:w-4 [&_svg]:h-4">
+                <span className="w-8 h-8 rounded-full bg-card text-text-secondary shadow-button inline-flex items-center justify-center group-hover:bg-border icon-svg:w-4 icon-svg:h-4">
                     <ChevronDownIcon />
                 </span>
             </DropdownMenu.Trigger>
@@ -221,7 +221,7 @@ export function DriverNavbar({
                     {labels?.chat ?? "Chat"}
                     {chatBadge ? (
                         <span
-                            className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-(--color-red) text-white text-[11px] font-semibold leading-none"
+                            className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-red text-white text-badge font-semibold leading-none"
                             aria-label={`${chatBadge} unread`}
                         >
                             {chatBadge > 99 ? "99+" : chatBadge}
@@ -258,7 +258,7 @@ export function DriverNavbar({
 
     return (
         <header
-            className="w-full bg-(--color-bg) border-b border-(--color-border) shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+            className="w-full bg-background border-b border-border shadow-navbar"
             ref={navbarRef}
         >
             {isDesktop && (
@@ -289,7 +289,7 @@ export function DriverNavbar({
                     <div className="relative shrink-0">
                         {hamburger}
                         {isMobileMenuOpen && (
-                            <div className="absolute top-[calc(100%+8px)] right-0 min-w-70 rounded-2xl border border-(--color-border) shadow-[0_8px_24px_rgba(0,0,0,0.12)] z-30 py-3 px-4 flex flex-col gap-3 bg-(--color-bg)">
+                            <div className="absolute top-nav-dropdown-offset right-0 min-w-70 rounded-2xl border border-border shadow-dropdown-strong z-30 py-3 px-4 flex flex-col gap-3 bg-background">
                                 <RoleSwitcher
                                     value={role}
                                     onChange={onRoleChange}
@@ -324,7 +324,7 @@ export function DriverNavbar({
                         {hamburger}
                     </div>
                     {isMobileMenuOpen && (
-                        <div className="border-t border-(--color-border) py-3 px-4 flex flex-col gap-3 bg-(--color-bg)">
+                        <div className="border-t border-border py-3 px-4 flex flex-col gap-3 bg-background">
                             <RoleSwitcher
                                 value={role}
                                 onChange={onRoleChange}
@@ -350,7 +350,7 @@ export function DriverNavbar({
                         </div>
                     )}
                     <nav
-                        className="grid grid-cols-2 gap-1.5 px-4 pt-2 pb-2.5 border-t border-(--color-border) [&_.nav-button]:py-2 [&_.nav-button]:px-2.5 [&_.nav-button]:text-[13px] [&_.nav-button]:gap-1.5 [&_.nav-button]:justify-center [&_.nav-button]:w-full"
+                        className="grid grid-cols-2 gap-1.5 px-4 pt-2 pb-2.5 border-t border-border nav-button:py-2 nav-button:px-2.5 nav-button:text-caption nav-button:gap-1.5 nav-button:justify-center nav-button:w-full"
                         aria-label="Primary navigation"
                     >
                         {navButtons}

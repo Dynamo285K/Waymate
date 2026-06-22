@@ -43,22 +43,22 @@ export function UpcomingRidesSection({
     return (
         <div className="w-full px-4 sm:max-w-4xl sm:mx-auto sm:px-8 flex flex-col gap-10 pb-12">
             <div>
-                <h2 className="text-xl font-bold text-(--color-text-primary) mb-4">
+                <h2 className="text-xl font-bold text-text-primary mb-4">
                     {t("driver.home.upcomingRides")}
                 </h2>
                 <div className="flex flex-col gap-3">
                     {isLoading && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("driverRides.loading")}
                         </p>
                     )}
                     {isError && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t(getErrorI18nKey(error, {}, "driverRides.error"))}
                         </p>
                     )}
                     {!isLoading && !isError && rides.length === 0 && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("driverRides.noResults")}
                         </p>
                     )}
@@ -90,7 +90,7 @@ export function UpcomingRidesSection({
                             />
                         ))}
                     {cancelIsError && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t(
                                 getErrorI18nKey(
                                     cancelError,

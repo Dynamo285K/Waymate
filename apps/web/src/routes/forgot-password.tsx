@@ -39,7 +39,7 @@ function ProgressDots({ step }: { step: 1 | 2 | 3 }) {
             {[1, 2, 3].map((n) => (
                 <span
                     key={n}
-                    className={`w-2.5 h-2.5 rounded-full transition-colors ${n <= step ? "bg-(--color-primary)" : "bg-(--color-border)"}`}
+                    className={`w-2.5 h-2.5 rounded-full transition-colors ${n <= step ? "bg-primary" : "bg-border"}`}
                 />
             ))}
         </div>
@@ -48,7 +48,7 @@ function ProgressDots({ step }: { step: 1 | 2 | 3 }) {
 
 function IconCircle({ children }: { children: React.ReactNode }) {
     return (
-        <div className="w-16 h-16 rounded-full bg-(--color-success-bg) flex items-center justify-center mx-auto mb-5 text-(--color-success-text)">
+        <div className="w-16 h-16 rounded-full bg-success-bg flex items-center justify-center mx-auto mb-5 text-success-text">
             {children}
         </div>
     );
@@ -150,9 +150,9 @@ function ForgotPasswordPage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg) flex items-center justify-center px-4"
+            className="min-h-screen bg-background flex items-center justify-center px-4"
         >
-            <div className="bg-(--color-card) rounded-2xl border border-(--color-border) shadow-xl w-full max-w-sm p-8 flex flex-col items-center text-center">
+            <div className="bg-card rounded-2xl border border-border shadow-xl w-full max-w-sm p-8 flex flex-col items-center text-center">
                 {/* Step 1 — Enter email */}
                 {step === 1 && (
                     <>
@@ -181,15 +181,15 @@ function ForgotPasswordPage() {
                                 <path d="M7 11V7a5 5 0 0 1 9.9-1" />
                             </svg>
                         </IconCircle>
-                        <h1 className="text-xl font-bold text-(--color-text-primary) mb-2">
+                        <h1 className="text-xl font-bold text-text-primary mb-2">
                             {t("forgotPassword.step1Title")}
                         </h1>
-                        <p className="text-sm text-(--color-text-secondary) mb-6">
+                        <p className="text-sm text-text-secondary mb-6">
                             {t("forgotPassword.step1Subtitle")}
                         </p>
 
                         <div className="w-full text-left mb-4">
-                            <label className="text-sm font-semibold text-(--color-text-primary) mb-1 block">
+                            <label className="text-sm font-semibold text-text-primary mb-1 block">
                                 {t("forgotPassword.emailLabel")}
                             </label>
                             <Input
@@ -255,13 +255,13 @@ function ForgotPasswordPage() {
                                 <polyline points="16 17 18 19 22 15" />
                             </svg>
                         </IconCircle>
-                        <h1 className="text-xl font-bold text-(--color-text-primary) mb-2">
+                        <h1 className="text-xl font-bold text-text-primary mb-2">
                             {t("forgotPassword.step2Title")}
                         </h1>
-                        <p className="text-sm text-(--color-text-secondary) mb-1">
+                        <p className="text-sm text-text-secondary mb-1">
                             {t("forgotPassword.resetLinkSent")}
                         </p>
-                        <p className="text-sm font-bold text-(--color-text-primary) mb-6">
+                        <p className="text-sm font-bold text-text-primary mb-6">
                             {enteredEmail}
                         </p>
 
@@ -272,10 +272,10 @@ function ForgotPasswordPage() {
                             {t("forgotPassword.backToLogin")}
                         </Button>
 
-                        <p className="mt-4 text-xs text-(--color-text-secondary)">
+                        <p className="mt-4 text-xs text-text-secondary">
                             {t("forgotPassword.resendIn")}{" "}
                             {countdown > 0 ? (
-                                <span className="font-bold text-(--color-text-primary)">
+                                <span className="font-bold text-text-primary">
                                     {countdown}s
                                 </span>
                             ) : (
@@ -305,19 +305,19 @@ function ForgotPasswordPage() {
                                 <path d="M12 1C9.24 1 7 3.24 7 6v2H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-2V6c0-2.76-2.24-5-5-5zm0 2c1.66 0 3 1.34 3 3v2H9V6c0-1.66 1.34-3 3-3zm0 9a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" />
                             </svg>
                         </IconCircle>
-                        <h1 className="text-xl font-bold text-(--color-text-primary) mb-2">
+                        <h1 className="text-xl font-bold text-text-primary mb-2">
                             {t("forgotPassword.step3Title")}
                         </h1>
-                        <p className="text-sm text-(--color-text-secondary) mb-6">
+                        <p className="text-sm text-text-secondary mb-6">
                             {t("forgotPassword.step3Subtitle")}
                         </p>
 
                         <div className="w-full flex flex-col gap-4 mb-6">
                             <div className="text-left">
-                                <label className="text-sm font-semibold text-(--color-text-primary) mb-1 block">
+                                <label className="text-sm font-semibold text-text-primary mb-1 block">
                                     {t("forgotPassword.newPassword")}
                                 </label>
-                                <div className="flex items-center border border-(--color-border) rounded-xl bg-(--color-input-bg) px-3 gap-2">
+                                <div className="flex items-center border border-border rounded-xl bg-input px-3 gap-2">
                                     <Input
                                         {...register("newPassword")}
                                         type={showPw ? "text" : "password"}
@@ -352,7 +352,7 @@ function ForgotPasswordPage() {
                                 </FieldError>
                             </div>
                             <div className="text-left">
-                                <label className="text-sm font-semibold text-(--color-text-primary) mb-1 block">
+                                <label className="text-sm font-semibold text-text-primary mb-1 block">
                                     {t("forgotPassword.confirmPassword")}
                                 </label>
                                 <Input

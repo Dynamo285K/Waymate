@@ -136,7 +136,7 @@ function DriverRatePassengersPage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <DriverNavbar {...navbarProps} />
 
@@ -155,7 +155,7 @@ function DriverRatePassengersPage() {
                     </TextLink>
                 </div>
 
-                <h1 className="text-2xl font-bold text-(--color-text-primary) mb-6">
+                <h1 className="text-2xl font-bold text-text-primary mb-6">
                     {t("driverRides.ratePassengersTitle")}
                 </h1>
 
@@ -163,8 +163,8 @@ function DriverRatePassengersPage() {
                     <StatCard
                         icon={
                             <IconBox
-                                bg="bg-(--color-success-bg)"
-                                color="text-(--color-success-text)"
+                                bg="bg-success-bg"
+                                color="text-success-text"
                             >
                                 <MapIcon />
                             </IconBox>
@@ -179,8 +179,8 @@ function DriverRatePassengersPage() {
                     <StatCard
                         icon={
                             <IconBox
-                                bg="bg-(--color-danger-bg)"
-                                color="text-(--color-danger-text)"
+                                bg="bg-danger-bg"
+                                color="text-danger-text"
                             >
                                 <DollarIcon />
                             </IconBox>
@@ -195,8 +195,8 @@ function DriverRatePassengersPage() {
                     <StatCard
                         icon={
                             <IconBox
-                                bg="bg-(--color-primary)/10"
-                                color="text-(--color-primary)"
+                                bg="bg-primary/10"
+                                color="text-primary"
                             >
                                 <UsersIcon />
                             </IconBox>
@@ -207,19 +207,19 @@ function DriverRatePassengersPage() {
                 </div>
 
                 {!ride?.id && (
-                    <p className="text-(--color-text-secondary)">
+                    <p className="text-text-secondary">
                         {t("driverRides.passengersError")}
                     </p>
                 )}
 
                 {passengersQuery.isLoading && (
-                    <p className="text-(--color-text-secondary)">
+                    <p className="text-text-secondary">
                         {t("driverRides.loading")}
                     </p>
                 )}
 
                 {passengersQuery.isError && (
-                    <p className="text-(--color-text-secondary)">
+                    <p className="text-text-secondary">
                         {t(
                             getErrorI18nKey(
                                 passengersQuery.error,
@@ -234,7 +234,7 @@ function DriverRatePassengersPage() {
                     !passengersQuery.isError &&
                     passengers.length === 0 &&
                     ride?.id && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("driverRides.noPassengers")}
                         </p>
                     )}

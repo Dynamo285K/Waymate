@@ -60,7 +60,7 @@ export function ScheduleSection({
                         />
                     </div>
                     {errors.rideDate?.message && (
-                        <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
+                        <p className="-mt-0.5 text-danger-text text-xs font-semibold">
                             {t(errors.rideDate.message)}
                         </p>
                     )}
@@ -80,7 +80,7 @@ export function ScheduleSection({
                             }
                         >
                             <Select.Trigger
-                                className={`w-full flex items-center justify-between gap-2 py-3 px-4 rounded-xl border border-(--color-border) bg-(--color-input-bg) text-sm font-medium cursor-pointer transition-[border-color] duration-150 outline-none hover:border-(--color-primary) focus-visible:border-(--color-primary) [&_svg]:text-(--color-text-secondary) [&_svg]:shrink-0 ${!time ? "text-(--color-text-secondary)" : "text-(--color-text-primary)"}`}
+                                className={`w-full flex items-center justify-between gap-2 py-3 px-4 rounded-xl border border-border bg-input text-sm font-medium cursor-pointer transition-colors duration-150 outline-none hover:border-primary focus-visible:border-primary icon-svg:text-text-secondary icon-svg:shrink-0 ${!time ? "text-text-secondary" : "text-text-primary"}`}
                             >
                                 <Select.Value placeholder="--:--" />
                                 <Select.Icon className="inline-flex items-center">
@@ -89,7 +89,7 @@ export function ScheduleSection({
                             </Select.Trigger>
                             <Select.Portal>
                                 <Select.Content
-                                    className="w-(--radix-select-trigger-width) max-h-64 overflow-y-auto rounded-xl border border-(--color-border) bg-(--color-card) p-1 shadow-[0_8px_24px_rgba(0,0,0,0.12)] z-[200]"
+                                    className="w-radix-select-trigger max-h-64 overflow-y-auto rounded-xl border border-border bg-card p-1 shadow-dropdown-strong z-time-select"
                                     position="popper"
                                     sideOffset={8}
                                 >
@@ -98,7 +98,7 @@ export function ScheduleSection({
                                             <Select.Item
                                                 key={option}
                                                 value={option}
-                                                className="w-full py-2 px-3 rounded-lg border-0 bg-transparent text-(--color-text-primary) text-sm font-semibold text-left cursor-pointer transition-[background] duration-100 outline-none select-none flex items-center hover:bg-(--color-bg) data-[highlighted]:bg-(--color-bg) data-[highlighted]:outline-none data-[state=checked]:bg-[color-mix(in_srgb,var(--color-primary)_10%,transparent)] data-[state=checked]:text-(--color-primary)"
+                                                className="w-full py-2 px-3 rounded-lg border-0 bg-transparent text-text-primary text-sm font-semibold text-left cursor-pointer transition-colors duration-100 outline-none select-none flex items-center hover:bg-background radix-highlighted:bg-background radix-highlighted:outline-none radix-checked:bg-primary-tint radix-checked:text-primary"
                                             >
                                                 <Select.ItemText>
                                                     {option}
@@ -111,7 +111,7 @@ export function ScheduleSection({
                         </Select.Root>
                     </div>
                     {errors.rideTime?.message && (
-                        <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
+                        <p className="-mt-0.5 text-danger-text text-xs font-semibold">
                             {t(errors.rideTime.message)}
                         </p>
                     )}
@@ -119,7 +119,7 @@ export function ScheduleSection({
             </div>
             {etaPreview.isLoading && (
                 <p
-                    className="mt-3 text-sm text-(--color-text-secondary)"
+                    className="mt-3 text-sm text-text-secondary"
                     data-testid="eta-preview-loading"
                 >
                     {t("offerRide.estimatedArrivalLoading")}
@@ -127,7 +127,7 @@ export function ScheduleSection({
             )}
             {!etaPreview.isLoading && etaPreview.arrivalEstimateAt && (
                 <p
-                    className="mt-3 text-sm font-semibold text-(--color-text-primary)"
+                    className="mt-3 text-sm font-semibold text-text-primary"
                     data-testid="eta-preview"
                 >
                     {t("offerRide.estimatedArrival", {

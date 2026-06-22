@@ -32,7 +32,7 @@ export function RideDetailModal({
     const detailQuery = useGetAdminRidesById(rideId);
 
     const labelClass =
-        "text-xs font-bold text-(--color-text-secondary) tracking-wider mb-1 block";
+        "text-xs font-bold text-text-secondary tracking-wider mb-1 block";
 
     const data = detailQuery.data;
     const driverName = data
@@ -58,9 +58,9 @@ export function RideDetailModal({
             onClose={onClose}
             theme={theme}
         >
-            <div className="w-[calc(100vw-2rem)] max-w-3xl p-8 max-h-[90vh] overflow-y-auto">
+            <div className="w-modal-viewport max-w-3xl p-8 max-h-modal-body overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold text-(--color-text-primary)">
+                    <h2 className="text-xl font-bold text-text-primary">
                         {t("admin.rideDetail")}
                     </h2>
                     <IconButton
@@ -72,13 +72,13 @@ export function RideDetailModal({
                 </div>
 
                 {detailQuery.isLoading && (
-                    <p className="text-(--color-text-secondary)">
+                    <p className="text-text-secondary">
                         {t("admin.loadingRides")}
                     </p>
                 )}
 
                 {!detailQuery.isLoading && detailQuery.isError && (
-                    <p className="text-(--color-danger-text)">
+                    <p className="text-danger-text">
                         {t(
                             getErrorI18nKey(
                                 detailQuery.error,
@@ -92,10 +92,10 @@ export function RideDetailModal({
                     <>
                         <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
                             <div>
-                                <p className="text-lg font-bold text-(--color-text-primary)">
+                                <p className="text-lg font-bold text-text-primary">
                                     {route}
                                 </p>
-                                <p className="text-sm text-(--color-text-secondary) mb-2">
+                                <p className="text-sm text-text-secondary mb-2">
                                     {formatDate(data.ride.departureAt, "—")}
                                 </p>
                                 <RideStatusBadge
@@ -104,17 +104,17 @@ export function RideDetailModal({
                             </div>
                         </div>
 
-                        <div className="border border-(--color-border) rounded-xl p-4 mb-6">
+                        <div className="border border-border rounded-xl p-4 mb-6">
                             <div className="flex items-center gap-3 mb-3">
                                 <Avatar
                                     name={driverName}
                                     size="md"
                                 />
                                 <div>
-                                    <p className="text-sm font-bold text-(--color-text-primary)">
+                                    <p className="text-sm font-bold text-text-primary">
                                         {driverName}
                                     </p>
-                                    <p className="text-xs text-(--color-text-secondary)">
+                                    <p className="text-xs text-text-secondary">
                                         {data.ride.driver.email}
                                     </p>
                                 </div>
@@ -124,7 +124,7 @@ export function RideDetailModal({
                                     <p className={labelClass}>
                                         {t("admin.car")}
                                     </p>
-                                    <p className="font-semibold text-(--color-text-primary)">
+                                    <p className="font-semibold text-text-primary">
                                         {carLabel}
                                     </p>
                                 </div>
@@ -132,7 +132,7 @@ export function RideDetailModal({
                                     <p className={labelClass}>
                                         {t("admin.spzPlate")}
                                     </p>
-                                    <p className="font-semibold text-(--color-text-primary)">
+                                    <p className="font-semibold text-text-primary">
                                         {data.ride.car.spz}
                                     </p>
                                 </div>
@@ -140,7 +140,7 @@ export function RideDetailModal({
                                     <p className={labelClass}>
                                         {t("admin.seats")}
                                     </p>
-                                    <p className="font-semibold text-(--color-text-primary)">
+                                    <p className="font-semibold text-text-primary">
                                         {data.ride.offeredSeats}
                                     </p>
                                 </div>
@@ -148,7 +148,7 @@ export function RideDetailModal({
                                     <p className={labelClass}>
                                         {t("admin.currency")}
                                     </p>
-                                    <p className="font-semibold text-(--color-text-primary)">
+                                    <p className="font-semibold text-text-primary">
                                         {data.ride.currency}
                                     </p>
                                 </div>
@@ -157,7 +157,7 @@ export function RideDetailModal({
                                         <p className={labelClass}>
                                             {t("admin.description")}
                                         </p>
-                                        <p className="text-(--color-text-primary) whitespace-pre-wrap">
+                                        <p className="text-text-primary whitespace-pre-wrap">
                                             {data.ride.description}
                                         </p>
                                     </div>
@@ -165,24 +165,24 @@ export function RideDetailModal({
                             </div>
                         </div>
 
-                        <h3 className="text-base font-bold text-(--color-text-primary) mb-3">
+                        <h3 className="text-base font-bold text-text-primary mb-3">
                             {t("admin.stops")}
                         </h3>
                         <ol className="flex flex-col gap-2 mb-6">
                             {data.ride.stops.map((stop) => (
                                 <li
                                     key={stop.id}
-                                    className="border border-(--color-border) rounded-xl p-3"
+                                    className="border border-border rounded-xl p-3"
                                 >
-                                    <p className="text-sm font-semibold text-(--color-text-primary)">
+                                    <p className="text-sm font-semibold text-text-primary">
                                         {stop.stopOrder + 1}. {stop.city}
                                     </p>
-                                    <p className="text-xs text-(--color-text-secondary)">
+                                    <p className="text-xs text-text-secondary">
                                         {stop.address}
                                     </p>
                                     {(stop.plannedArrivalAt ||
                                         stop.plannedDepartureAt) && (
-                                        <p className="text-xs text-(--color-text-secondary) mt-1">
+                                        <p className="text-xs text-text-secondary mt-1">
                                             {stop.plannedArrivalAt &&
                                                 t("admin.arrival") +
                                                     ": " +
@@ -206,13 +206,13 @@ export function RideDetailModal({
                             ))}
                         </ol>
 
-                        <h3 className="text-base font-bold text-(--color-text-primary) mb-3">
+                        <h3 className="text-base font-bold text-text-primary mb-3">
                             {t("admin.confirmedPassengers", {
                                 count: data.ride.bookings.length,
                             })}
                         </h3>
                         {data.ride.bookings.length === 0 ? (
-                            <p className="text-sm text-(--color-text-secondary) mb-6">
+                            <p className="text-sm text-text-secondary mb-6">
                                 {t("admin.noBookings")}
                             </p>
                         ) : (
@@ -226,17 +226,17 @@ export function RideDetailModal({
                                     return (
                                         <li
                                             key={b.id}
-                                            className="border border-(--color-border) rounded-xl p-3 flex items-center gap-3"
+                                            className="border border-border rounded-xl p-3 flex items-center gap-3"
                                         >
                                             <Avatar
                                                 name={passengerName}
                                                 size="sm"
                                             />
                                             <div>
-                                                <p className="text-sm font-semibold text-(--color-text-primary)">
+                                                <p className="text-sm font-semibold text-text-primary">
                                                     {passengerName}
                                                 </p>
-                                                <p className="text-xs text-(--color-text-secondary)">
+                                                <p className="text-xs text-text-secondary">
                                                     {b.bookingStatus} ·{" "}
                                                     {b.seatCount}{" "}
                                                     {t("admin.seats")}
@@ -250,7 +250,7 @@ export function RideDetailModal({
 
                         {data.ride.prices.length > 0 && (
                             <>
-                                <h3 className="text-base font-bold text-(--color-text-primary) mb-3">
+                                <h3 className="text-base font-bold text-text-primary mb-3">
                                     {t("admin.prices")}
                                 </h3>
                                 <ul className="flex flex-col gap-1 mb-6 text-sm">
@@ -264,13 +264,13 @@ export function RideDetailModal({
                                         return (
                                             <li
                                                 key={`${p.startStopId}-${p.endStopId}`}
-                                                className="flex justify-between border border-(--color-border) rounded-xl px-3 py-2"
+                                                className="flex justify-between border border-border rounded-xl px-3 py-2"
                                             >
-                                                <span className="text-(--color-text-primary)">
+                                                <span className="text-text-primary">
                                                     {startStop?.city ?? "—"} →{" "}
                                                     {endStop?.city ?? "—"}
                                                 </span>
-                                                <span className="font-semibold text-(--color-text-primary)">
+                                                <span className="font-semibold text-text-primary">
                                                     {formatPrice(
                                                         p.amount,
                                                         p.currency
@@ -285,7 +285,7 @@ export function RideDetailModal({
 
                         {mutationErrorForThisRide !== null &&
                             mutationErrorForThisRide !== undefined && (
-                                <p className="text-sm text-(--color-danger-text) mb-4">
+                                <p className="text-sm text-danger-text mb-4">
                                     {t(
                                         getErrorI18nKey(
                                             mutationErrorForThisRide,
@@ -307,11 +307,11 @@ export function RideDetailModal({
                             </div>
                         )}
 
-                        <h3 className="text-base font-bold text-(--color-text-primary) mb-3">
+                        <h3 className="text-base font-bold text-text-primary mb-3">
                             {t("admin.statusHistory")}
                         </h3>
                         {data.statusHistory.length === 0 ? (
-                            <p className="text-sm text-(--color-text-secondary)">
+                            <p className="text-sm text-text-secondary">
                                 {t("admin.noStatusHistory")}
                             </p>
                         ) : (

@@ -443,7 +443,7 @@ function DriverOfferRidePage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <DriverNavbar {...navbarProps} />
 
@@ -471,7 +471,7 @@ function DriverOfferRidePage() {
                     />
                 </FormProvider>
                 {publishError && (
-                    <p className="mt-4 w-full rounded-xl border border-(--color-danger-border) bg-(--color-danger-bg) px-4 py-3 text-sm font-semibold text-(--color-danger-text)">
+                    <p className="mt-4 w-full rounded-xl border border-danger-border bg-danger-bg px-4 py-3 text-sm font-semibold text-danger-text">
                         {t(publishError)}
                     </p>
                 )}

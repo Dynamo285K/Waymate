@@ -34,23 +34,23 @@ export function RideRequestCard({
     labels,
 }: RideRequestCardProps) {
     return (
-        <div className="flex items-center justify-between gap-6 py-5 px-6 bg-(--color-card) border border-(--color-border) rounded-2xl max-sm:flex-wrap max-sm:gap-3 max-sm:p-4">
+        <div className="flex items-center justify-between gap-6 py-5 px-6 bg-card border border-border rounded-2xl max-sm:flex-wrap max-sm:gap-3 max-sm:p-4">
             <div className="flex items-center gap-4 shrink-0 max-sm:flex-1 max-sm:min-w-0">
                 <Avatar
                     name={name}
                     size="lg"
                 />
                 <div className="flex flex-col gap-0.75">
-                    <span className="text-base font-semibold text-(--color-text-primary) whitespace-nowrap">
+                    <span className="text-base font-semibold text-text-primary whitespace-nowrap">
                         {name}
                     </span>
-                    <div className="flex items-center gap-1 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-(--color-dark-yellow) [&_svg]:fill-(--color-dark-yellow) [&_svg]:shrink-0">
+                    <div className="flex items-center gap-1 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-dark-yellow icon-svg:fill-dark-yellow icon-svg:shrink-0">
                         <StarIcon />
-                        <span className="text-sm text-(--color-text-secondary)">
+                        <span className="text-sm text-text-secondary">
                             {rating.toFixed(1)}
                         </span>
                     </div>
-                    <span className="text-sm text-(--color-text-secondary) whitespace-nowrap">
+                    <span className="text-sm text-text-secondary whitespace-nowrap">
                         {labels?.seatsRequired
                             ? labels.seatsRequired(seatsRequired)
                             : `${seatsRequired} seat(s) required`}
@@ -59,27 +59,27 @@ export function RideRequestCard({
             </div>
             <div className="flex flex-col flex-1 max-sm:w-full max-sm:flex-none">
                 <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full border-2 border-(--color-text-primary) shrink-0" />
-                    <span className="text-[15px] font-medium text-(--color-text-primary)">
+                    <span className="w-3 h-3 rounded-full border-2 border-text-primary shrink-0" />
+                    <span className="text-control font-medium text-text-primary">
                         {from}
                     </span>
                 </div>
-                <div className="w-0.5 h-5 bg-(--color-text-secondary) ml-1.25" />
-                <div className="flex items-center gap-2 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-(--color-text-primary) [&_svg]:shrink-0">
+                <div className="w-0.5 h-5 bg-text-secondary ml-1.25" />
+                <div className="flex items-center gap-2 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-text-primary icon-svg:shrink-0">
                     <MapPinIcon />
-                    <span className="text-[15px] font-medium text-(--color-text-primary)">
+                    <span className="text-control font-medium text-text-primary">
                         {to}
                     </span>
                 </div>
-                <div className="flex items-center gap-1.5 mt-2 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-(--color-text-secondary) [&_svg]:shrink-0">
+                <div className="flex items-center gap-1.5 mt-2 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-text-secondary icon-svg:shrink-0">
                     <ClockIcon />
-                    <span className="text-[13px] text-(--color-text-secondary) max-sm:whitespace-nowrap">
+                    <span className="text-caption text-text-secondary max-sm:whitespace-nowrap">
                         {datetime}
                     </span>
                 </div>
             </div>
             <div className="flex flex-col items-end gap-3 shrink-0 max-sm:w-full">
-                <span className="text-xl font-bold text-(--color-text-primary)">
+                <span className="text-xl font-bold text-text-primary">
                     {price}
                     {currency === "EUR" ? "€" : currency}
                 </span>

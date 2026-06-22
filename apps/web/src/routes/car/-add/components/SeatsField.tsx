@@ -16,11 +16,10 @@ export function SeatsField({ control, error }: SeatsFieldProps) {
     const { t } = useTranslation();
 
     return (
-        <div className="p-6 border-b border-(--color-border)">
+        <div className="p-6 border-b border-border">
             <label className={labelClass}>
-                {t("addCar.seats")}{" "}
-                <span className="text-(--color-danger-text)">*</span>
-                <span className="font-normal text-(--color-text-secondary) ml-2">
+                {t("addCar.seats")} <span className="text-danger-text">*</span>
+                <span className="font-normal text-text-secondary ml-2">
                     {t("addCar.excludingDriver")}
                 </span>
             </label>
@@ -37,8 +36,8 @@ export function SeatsField({ control, error }: SeatsFieldProps) {
                                 onClick={() => field.onChange(n)}
                                 className={`flex items-center justify-center w-12 h-12 rounded-xl border-2 font-semibold text-sm transition-all cursor-pointer ${
                                     field.value === n
-                                        ? "border-(--color-primary) bg-(--color-primary)/10 text-(--color-primary)"
-                                        : "border-(--color-border) bg-(--color-card) text-(--color-text-primary) hover:border-(--color-primary)"
+                                        ? "border-primary bg-primary/10 text-primary"
+                                        : "border-border bg-card text-text-primary hover:border-primary"
                                 }`}
                             >
                                 {n}

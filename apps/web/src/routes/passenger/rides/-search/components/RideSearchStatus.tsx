@@ -33,43 +33,39 @@ export function RideSearchStatus({
     return (
         <>
             {showAllRides && (
-                <p className="text-(--color-text-secondary) mt-1 mb-8">
+                <p className="text-text-secondary mt-1 mb-8">
                     {t("rides.found", { count })}
                 </p>
             )}
 
             {showAllRides && areAvailableRidesLoading && (
-                <p className="text-(--color-text-secondary) mt-1">
-                    {t("rides.loading")}
-                </p>
+                <p className="text-text-secondary mt-1">{t("rides.loading")}</p>
             )}
 
             {showAllRides && areAvailableRidesError && (
-                <p className="text-(--color-text-secondary) mt-4">
+                <p className="text-text-secondary mt-4">
                     {t(getErrorI18nKey(availableRidesError, {}, "rides.error"))}
                 </p>
             )}
 
             {hasSearchParams && !canSearch && (
-                <p className="text-(--color-text-secondary) mt-1">
+                <p className="text-text-secondary mt-1">
                     {t("rides.noSearchParams")}
                 </p>
             )}
 
             {canSearch && isLoading && (
-                <p className="text-(--color-text-secondary) mt-1">
-                    {t("rides.loading")}
-                </p>
+                <p className="text-text-secondary mt-1">{t("rides.loading")}</p>
             )}
 
             {canSearch && !isLoading && !isError && (
-                <p className="text-(--color-text-secondary) mt-1 mb-8">
+                <p className="text-text-secondary mt-1 mb-8">
                     {t("rides.found", { count })}
                 </p>
             )}
 
             {canSearch && !isLoading && isError && (
-                <p className="text-(--color-text-secondary) mt-4">
+                <p className="text-text-secondary mt-4">
                     {t(getErrorI18nKey(searchError, {}, "rides.error"))}
                 </p>
             )}

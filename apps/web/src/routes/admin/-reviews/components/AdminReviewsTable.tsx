@@ -38,14 +38,14 @@ export function AdminReviewsTable({
     ];
 
     return (
-        <div className="bg-(--color-card) rounded-2xl border border-(--color-border) overflow-x-auto">
+        <div className="bg-card rounded-2xl border border-border overflow-x-auto">
             <table className="w-full text-sm">
                 <thead>
-                    <tr className="border-b border-(--color-border)">
+                    <tr className="border-b border-border">
                         {headers.map((h) => (
                             <th
                                 key={h}
-                                className="text-left text-xs font-bold text-(--color-text-secondary) tracking-wider px-3 py-4 whitespace-nowrap"
+                                className="text-left text-xs font-bold text-text-secondary tracking-wider px-3 py-4 whitespace-nowrap"
                             >
                                 {h}
                             </th>
@@ -69,15 +69,15 @@ export function AdminReviewsTable({
                         return (
                             <tr
                                 key={review.id}
-                                className={`border-b border-(--color-border) last:border-0 hover:bg-(--color-bg) transition-colors ${
+                                className={`border-b border-border last:border-0 hover:bg-background transition-colors ${
                                     isMutating ? "opacity-60" : ""
                                 }`}
                             >
                                 <td className="px-3 py-4">
-                                    <p className="font-medium text-(--color-text-primary) whitespace-nowrap text-sm">
+                                    <p className="font-medium text-text-primary whitespace-nowrap text-sm">
                                         {reviewerName}
                                     </p>
-                                    <p className="text-xs text-(--color-text-secondary)">
+                                    <p className="text-xs text-text-secondary">
                                         {review.authorRole === "DRIVER"
                                             ? t("admin.driver")
                                             : t("admin.passenger")}
@@ -85,10 +85,10 @@ export function AdminReviewsTable({
                                 </td>
 
                                 <td className="px-3 py-4">
-                                    <p className="font-medium text-(--color-text-primary) whitespace-nowrap text-sm">
+                                    <p className="font-medium text-text-primary whitespace-nowrap text-sm">
                                         {targetName}
                                     </p>
-                                    <p className="text-xs text-(--color-text-secondary)">
+                                    <p className="text-xs text-text-secondary">
                                         {review.subjectRole === "DRIVER"
                                             ? t("admin.driver")
                                             : t("admin.passenger")}
@@ -99,10 +99,10 @@ export function AdminReviewsTable({
                                     <RatingStars rating={review.rating} />
                                 </td>
 
-                                <td className="px-3 py-4 max-w-[140px]">
-                                    <p className="text-(--color-text-primary) truncate text-sm">
+                                <td className="px-3 py-4 max-w-admin-table-user">
+                                    <p className="text-text-primary truncate text-sm">
                                         {review.comment ?? (
-                                            <span className="text-(--color-text-secondary) italic">
+                                            <span className="text-text-secondary italic">
                                                 {t("admin.noComment")}
                                             </span>
                                         )}
@@ -110,13 +110,13 @@ export function AdminReviewsTable({
                                 </td>
 
                                 <td className="px-3 py-4 whitespace-nowrap">
-                                    <p className="text-xs text-(--color-text-secondary)">
+                                    <p className="text-xs text-text-secondary">
                                         {review.ride.originCity} →{" "}
                                         {review.ride.destinationCity}
                                     </p>
                                 </td>
 
-                                <td className="px-3 py-4 text-(--color-text-secondary) whitespace-nowrap text-xs">
+                                <td className="px-3 py-4 text-text-secondary whitespace-nowrap text-xs">
                                     {formatDate(review.createdAt, "—")}
                                 </td>
 
@@ -156,11 +156,7 @@ export function AdminReviewsTable({
                                             }
                                             disabled={isMutating}
                                         />
-                                        <span
-                                            style={{
-                                                color: "var(--color-red)",
-                                            }}
-                                        >
+                                        <span className="text-red">
                                             <IconButton
                                                 ariaLabel={t(
                                                     "admin.deleteReview"

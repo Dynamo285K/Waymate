@@ -25,10 +25,10 @@ export function CompleteRideDialog({
             theme={theme}
         >
             <div className="p-6">
-                <h2 className="text-xl font-bold text-(--color-text-primary) mb-2">
+                <h2 className="text-xl font-bold text-text-primary mb-2">
                     {t("completeRideDialog.title")}
                 </h2>
-                <p className="text-sm text-(--color-text-secondary) mb-6 leading-relaxed">
+                <p className="text-sm text-text-secondary mb-6 leading-relaxed">
                     {t("completeRideDialog.message")}
                 </p>
                 <div className="flex gap-3 justify-end">

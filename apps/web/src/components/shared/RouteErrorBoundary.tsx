@@ -8,18 +8,18 @@ import type { ErrorComponentProps } from "@tanstack/react-router";
 // escape hatch for anything deterministic.
 export function RouteErrorBoundary({ error, reset }: ErrorComponentProps) {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-(--color-bg) px-4">
-            <div className="w-full max-w-md rounded-2xl border border-(--color-border) bg-(--color-card) p-8 text-center shadow-xl">
+        <div className="min-h-screen flex items-center justify-center bg-background px-4">
+            <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-xl">
                 <div className="text-4xl">⚠️</div>
-                <h1 className="mt-4 text-xl font-bold text-(--color-text-primary)">
+                <h1 className="mt-4 text-xl font-bold text-text-primary">
                     Something went wrong
                 </h1>
-                <p className="mt-2 text-sm text-(--color-text-secondary)">
+                <p className="mt-2 text-sm text-text-secondary">
                     This page failed to load. Try again — if the problem
                     persists, reload the app.
                 </p>
                 {import.meta.env.DEV && (
-                    <pre className="mt-4 max-h-40 overflow-auto rounded-lg bg-(--color-bg) p-3 text-left text-xs text-(--color-danger-text)">
+                    <pre className="mt-4 max-h-40 overflow-auto rounded-lg bg-background p-3 text-left text-xs text-danger-text">
                         {error instanceof Error
                             ? (error.stack ?? error.message)
                             : String(error)}
@@ -29,14 +29,14 @@ export function RouteErrorBoundary({ error, reset }: ErrorComponentProps) {
                     <button
                         type="button"
                         onClick={reset}
-                        className="rounded-xl border border-(--color-border) px-4 py-2 text-sm font-semibold text-(--color-text-primary)"
+                        className="rounded-xl border border-border px-4 py-2 text-sm font-semibold text-text-primary"
                     >
                         Try again
                     </button>
                     <button
                         type="button"
                         onClick={() => window.location.assign("/")}
-                        className="rounded-xl bg-(--color-primary) px-4 py-2 text-sm font-semibold text-white"
+                        className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white"
                     >
                         Go home
                     </button>

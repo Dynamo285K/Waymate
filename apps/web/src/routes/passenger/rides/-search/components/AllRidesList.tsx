@@ -1,9 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { AvailableRideCard } from "../../../../../components/shared/AvailableRideCard";
-import {
-    formatRideDate,
-    formatDuration,
-} from "../../../../../lib/date-format";
+import { formatRideDate, formatDuration } from "../../../../../lib/date-format";
 import type { AvailableRideItem } from "../../../../../api-client/model/availableRideItem";
 import type { useBookRide } from "../hooks/useBookRide";
 

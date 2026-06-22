@@ -10,9 +10,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
             {/* One chat socket for the whole session, stable across navigation. */}
             <ChatSocketConnection />
             {/* Suspense boundary for the auto-code-split route chunks below. */}
-            <Suspense
-                fallback={<div className="min-h-screen bg-(--color-bg)" />}
-            >
+            <Suspense fallback={<div className="min-h-screen bg-background" />}>
                 <Outlet />
             </Suspense>
         </LayoutProvider>

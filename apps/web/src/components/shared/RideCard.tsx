@@ -74,7 +74,7 @@ export function RideCard(props: RideCardProps) {
         props.variant === "passenger-upcoming" ||
         props.variant === "passenger-past";
     const passengerActionClassName =
-        "min-w-[11rem] justify-center whitespace-normal text-center max-600:w-full";
+        "min-w-ride-action-min justify-center whitespace-normal text-center max-600:w-full";
 
     function seatsText(count: number) {
         return labels?.seatsLeft
@@ -85,21 +85,21 @@ export function RideCard(props: RideCardProps) {
     return (
         <div
             data-testid="ride-card"
-            className="flex flex-col gap-4 py-5 px-6 bg-(--color-card) border border-(--color-border) rounded-2xl max-600:gap-3 max-600:p-4"
+            className="flex flex-col gap-4 py-5 px-6 bg-card border border-border rounded-2xl max-600:gap-3 max-600:p-4"
         >
             <div className="flex justify-between items-start gap-6 max-600:gap-3">
                 <div className="flex flex-col gap-3 min-w-0 flex-1">
                     <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-2 min-w-0">
-                            <span className="w-3 h-3 rounded-full border-2 border-(--color-text-primary) shrink-0" />
-                            <span className="text-[17px] font-semibold text-(--color-text-primary) min-w-0 break-words">
+                            <span className="w-3 h-3 rounded-full border-2 border-text-primary shrink-0" />
+                            <span className="text-route font-semibold text-text-primary min-w-0 break-words">
                                 {from}
                             </span>
                         </div>
-                        <div className="w-0.5 h-5 bg-(--color-text-secondary) ml-1.25" />
-                        <div className="flex items-center gap-2 min-w-0 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-(--color-text-primary) [&_svg]:shrink-0">
+                        <div className="w-0.5 h-5 bg-text-secondary ml-1.25" />
+                        <div className="flex items-center gap-2 min-w-0 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-text-primary icon-svg:shrink-0">
                             <MapPinIcon />
-                            <span className="text-[17px] font-semibold text-(--color-text-primary) min-w-0 break-words">
+                            <span className="text-route font-semibold text-text-primary min-w-0 break-words">
                                 {to}
                             </span>
                         </div>
@@ -118,15 +118,15 @@ export function RideCard(props: RideCardProps) {
                                 size="md"
                             />
                             <div className="flex flex-col gap-0.5 min-w-0">
-                                <span className="text-[15px] font-semibold text-(--color-text-primary) break-words">
+                                <span className="text-control font-semibold text-text-primary break-words">
                                     {
                                         (props as PassengerUpcomingProps)
                                             .driverName
                                     }
                                 </span>
-                                <div className="flex items-center gap-1 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-(--color-dark-yellow) [&_svg]:fill-(--color-dark-yellow) [&_svg]:shrink-0">
+                                <div className="flex items-center gap-1 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-dark-yellow icon-svg:fill-dark-yellow icon-svg:shrink-0">
                                     <StarIcon />
-                                    <span className="text-[13px] text-(--color-text-secondary)">
+                                    <span className="text-caption text-text-secondary">
                                         {(
                                             props as PassengerUpcomingProps
                                         ).driverRating.toFixed(1)}
@@ -137,7 +137,7 @@ export function RideCard(props: RideCardProps) {
                     )}
 
                     <div className="flex flex-col items-end gap-2 max-600:items-end">
-                        <span className="text-[22px] font-bold text-(--color-text-primary)">
+                        <span className="text-subtitle font-bold text-text-primary">
                             {price}
                             {"\u20ac"}
                         </span>
@@ -174,7 +174,7 @@ export function RideCard(props: RideCardProps) {
                                         </Button>
                                     )}
                                 </div>
-                                <span className="text-[13px] text-(--color-text-secondary) text-right">
+                                <span className="text-caption text-text-secondary text-right">
                                     {props.seatsLeft === "full"
                                         ? (labels?.full ?? "Full")
                                         : seatsText(props.seatsLeft)}
@@ -195,19 +195,19 @@ export function RideCard(props: RideCardProps) {
             </div>
 
             <div className="flex items-end justify-between gap-4 max-600:flex-col max-600:items-stretch">
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 min-w-0 [&_svg]:w-4 [&_svg]:h-4 [&_svg]:text-(--color-text-secondary) [&_svg]:shrink-0">
-                    <span className="inline-flex items-center gap-1.5 text-sm text-(--color-text-secondary)">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 min-w-0 icon-svg:w-4 icon-svg:h-4 icon-svg:text-text-secondary icon-svg:shrink-0">
+                    <span className="inline-flex items-center gap-1.5 text-sm text-text-secondary">
                         <ClockIcon />
                         <span className="break-words">{datetime}</span>
                     </span>
                     {duration && (
-                        <span className="text-sm text-(--color-text-secondary)">
+                        <span className="text-sm text-text-secondary">
                             {"\u00b7 "}
                             {duration}
                         </span>
                     )}
                     {props.variant === "driver-upcoming" && (
-                        <span className="inline-flex items-center gap-1.5 text-sm text-(--color-text-secondary)">
+                        <span className="inline-flex items-center gap-1.5 text-sm text-text-secondary">
                             <UserIcon />
                             <span>
                                 {props.seatsLeft === "full"
@@ -218,7 +218,7 @@ export function RideCard(props: RideCardProps) {
                     )}
                     {props.variant === "passenger-upcoming" &&
                         props.seatsLeft !== undefined && (
-                            <span className="inline-flex items-center gap-1.5 text-sm text-(--color-text-secondary)">
+                            <span className="inline-flex items-center gap-1.5 text-sm text-text-secondary">
                                 <UserIcon />
                                 <span>{seatsText(props.seatsLeft)}</span>
                             </span>

@@ -35,8 +35,8 @@ export function BlockedUsersSection() {
     if (!blocks || blocks.length === 0) return null;
 
     return (
-        <div className="bg-(--color-card) rounded-2xl p-6 border border-(--color-border)">
-            <h2 className="text-base font-semibold text-(--color-text-primary) mb-4">
+        <div className="bg-card rounded-2xl p-6 border border-border">
+            <h2 className="text-base font-semibold text-text-primary mb-4">
                 {t("blocked.title")}
             </h2>
             <ul className="flex flex-col gap-3">
@@ -61,7 +61,7 @@ export function BlockedUsersSection() {
                                     name={name}
                                     size="sm"
                                 />
-                                <span className="text-sm font-medium text-(--color-text-primary) truncate">
+                                <span className="text-sm font-medium text-text-primary truncate">
                                     {name}
                                 </span>
                             </div>

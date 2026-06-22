@@ -126,10 +126,10 @@ function LoginPage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <AuthNavbar {...authNavbarProps} />
-            <div className="flex items-center justify-center min-h-[calc(100vh-72px)] px-4 py-12">
+            <div className="flex items-center justify-center min-h-register-content px-4 py-12">
                 <LoginBox
                     email={email}
                     password={password}

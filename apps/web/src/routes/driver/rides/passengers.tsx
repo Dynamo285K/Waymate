@@ -104,7 +104,7 @@ function DriverPassengersPage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <DriverNavbar {...navbarProps} />
 
@@ -118,12 +118,12 @@ function DriverPassengersPage() {
                     </TextLink>
                 </div>
 
-                <h1 className="text-2xl font-bold text-(--color-text-primary) mb-2">
+                <h1 className="text-2xl font-bold text-text-primary mb-2">
                     {t("driverRides.passengers")}
                 </h1>
 
                 {ride && (
-                    <div className="text-(--color-text-secondary) text-sm mb-6">
+                    <div className="text-text-secondary text-sm mb-6">
                         {ride.from} → {ride.to}
                     </div>
                 )}
@@ -132,8 +132,8 @@ function DriverPassengersPage() {
                     <StatCard
                         icon={
                             <IconBox
-                                bg="bg-(--color-primary)/10"
-                                color="text-(--color-primary)"
+                                bg="bg-primary/10"
+                                color="text-primary"
                             >
                                 <UsersIcon />
                             </IconBox>
@@ -145,19 +145,19 @@ function DriverPassengersPage() {
 
                 <div className="flex flex-col gap-4">
                     {!ride?.id && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("driverRides.passengersError")}
                         </p>
                     )}
 
                     {isLoading && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("driverRides.loading")}
                         </p>
                     )}
 
                     {isError && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t(
                                 getErrorI18nKey(
                                     error,
@@ -169,7 +169,7 @@ function DriverPassengersPage() {
                     )}
 
                     {cancelBooking.isError && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t(
                                 getErrorI18nKey(
                                     cancelBooking.error,
@@ -183,7 +183,7 @@ function DriverPassengersPage() {
                     {!isLoading &&
                         !isError &&
                         passengersView?.passengers.length === 0 && (
-                            <p className="text-(--color-text-secondary)">
+                            <p className="text-text-secondary">
                                 {t("driverRides.noPassengers")}
                             </p>
                         )}

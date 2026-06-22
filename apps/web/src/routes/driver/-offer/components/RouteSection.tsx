@@ -39,7 +39,7 @@ export function RouteSection() {
                 />
 
                 {errors.pickupCity?.message && (
-                    <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
+                    <p className="-mt-0.5 text-danger-text text-xs font-semibold">
                         {t(errors.pickupCity.message)}
                     </p>
                 )}
@@ -65,7 +65,7 @@ export function RouteSection() {
                 />
 
                 {errors.dropoffCity?.message && (
-                    <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
+                    <p className="-mt-0.5 text-danger-text text-xs font-semibold">
                         {t(errors.dropoffCity.message)}
                     </p>
                 )}

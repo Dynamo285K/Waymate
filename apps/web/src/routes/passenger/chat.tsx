@@ -34,7 +34,7 @@ function PassengerChatPage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg) flex flex-col"
+            className="min-h-screen bg-background flex flex-col"
         >
             <PassengerNavbar {...navbarProps} />
             <ChatPanel initialConversationId={conversation} />

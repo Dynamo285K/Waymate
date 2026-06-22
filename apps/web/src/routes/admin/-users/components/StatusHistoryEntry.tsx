@@ -24,20 +24,20 @@ export function StatusHistoryEntry({
           t("admin.systemAction")
         : t("admin.systemAction");
     return (
-        <li className="border border-(--color-border) rounded-xl p-3">
+        <li className="border border-border rounded-xl p-3">
             <div className="flex justify-between items-start gap-3">
-                <p className="text-sm font-semibold text-(--color-text-primary)">
+                <p className="text-sm font-semibold text-text-primary">
                     {transition}
                 </p>
-                <p className="text-xs text-(--color-text-secondary) shrink-0">
+                <p className="text-xs text-text-secondary shrink-0">
                     {formatDate(entry.createdAt, "—")}
                 </p>
             </div>
-            <p className="text-xs text-(--color-text-secondary) mt-1">
+            <p className="text-xs text-text-secondary mt-1">
                 {t("admin.changedBy", { name: actorName })}
             </p>
             {entry.reason && (
-                <p className="text-sm text-(--color-text-primary) mt-2 whitespace-pre-wrap">
+                <p className="text-sm text-text-primary mt-2 whitespace-pre-wrap">
                     {entry.reason}
                 </p>
             )}

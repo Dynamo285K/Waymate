@@ -124,12 +124,12 @@ function DriverMyRidesPage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <DriverNavbar {...navbarProps} />
 
             <section className="w-full px-4 sm:max-w-4xl sm:mx-auto sm:px-8 py-8 sm:py-12">
-                <h1 className="text-2xl font-bold text-(--color-text-primary) mb-6">
+                <h1 className="text-2xl font-bold text-text-primary mb-6">
                     {t("driverRides.title")}
                 </h1>
 
@@ -162,19 +162,19 @@ function DriverMyRidesPage() {
 
                 <div className="flex flex-col gap-4">
                     {isLoading && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("driverRides.loading")}
                         </p>
                     )}
 
                     {isError && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t(getErrorI18nKey(error, {}, "driverRides.error"))}
                         </p>
                     )}
 
                     {cancelRide.isError && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t(
                                 getErrorI18nKey(
                                     cancelRide.error,
@@ -186,7 +186,7 @@ function DriverMyRidesPage() {
                     )}
 
                     {completeRide.isError && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t(
                                 getErrorI18nKey(
                                     completeRide.error,
@@ -198,7 +198,7 @@ function DriverMyRidesPage() {
                     )}
 
                     {!isLoading && !isError && displayedRides.length === 0 && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("driverRides.noResults")}
                         </p>
                     )}

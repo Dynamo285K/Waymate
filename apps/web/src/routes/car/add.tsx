@@ -138,7 +138,7 @@ function AddCarPage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             {role === "driver" ? (
                 <DriverNavbar {...driverNavbarProps} />
@@ -155,14 +155,14 @@ function AddCarPage() {
                         {t("profile.backToProfile", "<- Back to My Profile")}
                     </TextLink>
                 </div>
-                <h1 className="text-2xl font-bold text-(--color-text-primary) mb-8">
+                <h1 className="text-2xl font-bold text-text-primary mb-8">
                     {t("addCar.title")}
                 </h1>
 
                 <form
                     onSubmit={handleSubmit(onSubmit)}
                     noValidate
-                    className="bg-(--color-card) rounded-2xl border border-(--color-border) overflow-hidden"
+                    className="bg-card rounded-2xl border border-border overflow-hidden"
                 >
                     <MakeModelFields
                         control={control}
@@ -192,7 +192,7 @@ function AddCarPage() {
 
                     <div className="p-6 flex flex-col gap-4 sm:items-end">
                         {errors.root?.message && (
-                            <p className="w-full rounded-xl border border-(--color-danger-border) bg-(--color-danger-bg) px-4 py-3 text-sm font-semibold text-(--color-danger-text)">
+                            <p className="w-full rounded-xl border border-danger-border bg-danger-bg px-4 py-3 text-sm font-semibold text-danger-text">
                                 {t(errors.root.message)}
                             </p>
                         )}

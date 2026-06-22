@@ -15,10 +15,9 @@ export type RoleSwitcherProps = {
 };
 
 const itemBase =
-    "min-w-[120px] py-[10px] px-[18px] rounded-full text-sm font-medium leading-none cursor-pointer transition-all duration-200 border-0 -ml-1.5 first:ml-0";
-const itemInactive = "bg-transparent text-(--color-text-secondary)";
-const itemActive =
-    "bg-(--color-primary) text-white shadow-[0_2px_8px_rgba(17,173,50,0.25)] relative z-[1]";
+    "min-w-role-switcher-min py-role-switcher-y px-role-switcher-x rounded-full text-sm font-medium leading-none cursor-pointer transition-all duration-200 border-0 -ml-1.5 first:ml-0";
+const itemInactive = "bg-transparent text-text-secondary";
+const itemActive = "bg-primary text-white shadow-primary-sm relative z-raised";
 
 export function RoleSwitcher({
     value,
@@ -28,7 +27,7 @@ export function RoleSwitcher({
 }: RoleSwitcherProps) {
     return (
         <div
-            className={`inline-flex items-center p-1 rounded-full bg-(--color-card) border border-(--color-border) shadow-[0_2px_6px_rgba(0,0,0,0.12)]${className ? ` ${className}` : ""}`}
+            className={`inline-flex items-center p-1 rounded-full bg-card border border-border shadow-button${className ? ` ${className}` : ""}`}
             role="tablist"
             aria-label="Role switcher"
         >

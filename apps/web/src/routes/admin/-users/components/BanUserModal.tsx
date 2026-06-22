@@ -44,10 +44,10 @@ export function BanUserModal({
         >
             <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="w-[calc(100vw-2rem)] max-w-lg p-8"
+                className="w-modal-viewport max-w-lg p-8"
             >
                 <div className="flex justify-between items-center mb-5">
-                    <h2 className="text-xl font-bold text-(--color-text-primary)">
+                    <h2 className="text-xl font-bold text-text-primary">
                         {t("admin.banUser")} — {userName}
                     </h2>
                     <IconButton
@@ -58,12 +58,12 @@ export function BanUserModal({
                     />
                 </div>
 
-                <div className="bg-(--color-danger-bg) border border-(--color-danger-border) rounded-xl p-4 mb-5 text-sm text-(--color-danger-text)">
+                <div className="bg-danger-bg border border-danger-border rounded-xl p-4 mb-5 text-sm text-danger-text">
                     {t("admin.banWarning")}
                 </div>
 
                 <div className="mb-6">
-                    <label className="text-sm font-semibold text-(--color-text-primary) mb-1.5 block">
+                    <label className="text-sm font-semibold text-text-primary mb-1.5 block">
                         {t("admin.reasonForBan")}
                     </label>
                     <Controller
@@ -81,7 +81,7 @@ export function BanUserModal({
                 </div>
 
                 {error !== null && error !== undefined && (
-                    <p className="text-sm text-(--color-danger-text) mb-4">
+                    <p className="text-sm text-danger-text mb-4">
                         {t(getErrorI18nKey(error, adminUsersErrorMap))}
                     </p>
                 )}

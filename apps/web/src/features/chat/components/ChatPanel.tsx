@@ -80,10 +80,10 @@ function Thread({
     return (
         <>
             <div
-                className={`flex-1 overflow-y-auto ${paddingClass} flex flex-col gap-4 bg-(--color-bg)`}
+                className={`flex-1 overflow-y-auto ${paddingClass} flex flex-col gap-4 bg-background`}
             >
                 {isLoading ? (
-                    <div className="m-auto text-(--color-text-secondary)">
+                    <div className="m-auto text-text-secondary">
                         {loadingLabel}
                     </div>
                 ) : (
@@ -96,7 +96,7 @@ function Thread({
                         return (
                             <Fragment key={msg.id}>
                                 {newDay && (
-                                    <div className="self-center text-xs text-(--color-text-secondary) bg-(--color-card) border border-(--color-border) rounded-full px-3 py-1 my-1">
+                                    <div className="self-center text-xs text-text-secondary bg-card border border-border rounded-full px-3 py-1 my-1">
                                         {formatDayLabel(
                                             msg.sentAt,
                                             t("chat.today"),
@@ -118,14 +118,14 @@ function Thread({
             {recipientBanned ? (
                 // The counterpart's account is banned — no composer at all, and
                 // no unblock (this isn't a block the user can lift).
-                <div className="px-6 py-4 border-t border-(--color-border) bg-(--color-card) max-600:px-4">
-                    <span className="text-sm text-(--color-text-secondary)">
+                <div className="px-6 py-4 border-t border-border bg-card max-600:px-4">
+                    <span className="text-sm text-text-secondary">
                         {bannedNotice}
                     </span>
                 </div>
             ) : blocked ? (
-                <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-(--color-border) bg-(--color-card) max-600:px-4 max-600:flex-wrap">
-                    <span className="text-sm text-(--color-text-secondary)">
+                <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-border bg-card max-600:px-4 max-600:flex-wrap">
+                    <span className="text-sm text-text-secondary">
                         {blockedNotice}
                     </span>
                     {showUnblock && (
@@ -247,7 +247,7 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
                         />
                     </div>
                 ) : (
-                    <div className="flex flex-1 items-center justify-center text-(--color-text-secondary)">
+                    <div className="flex flex-1 items-center justify-center text-text-secondary">
                         {t("chat.selectConversation")}
                     </div>
                 )}
@@ -264,7 +264,7 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
                     />
                 ) : (
                     <div className="flex flex-col flex-1 overflow-hidden">
-                        <div className="flex items-center gap-3 px-4 py-3 border-b border-(--color-border) bg-(--color-card)">
+                        <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
                             <IconButton
                                 ariaLabel={t("chat.back")}
                                 icon={<BackIcon />}
@@ -317,13 +317,13 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
                 onClose={() => setConfirmBlock(false)}
                 theme={theme}
             >
-                <div className="w-[calc(100vw-2rem)] max-w-md p-6">
-                    <h2 className="text-lg font-bold text-(--color-text-primary) mb-2">
+                <div className="w-modal-viewport max-w-md p-6">
+                    <h2 className="text-lg font-bold text-text-primary mb-2">
                         {t("chat.blockConfirmTitle", {
                             name: panel.activeName ?? "",
                         })}
                     </h2>
-                    <p className="text-sm text-(--color-text-secondary) mb-6">
+                    <p className="text-sm text-text-secondary mb-6">
                         {t("chat.blockConfirmText")}
                     </p>
                     <div className="flex gap-3 justify-end">

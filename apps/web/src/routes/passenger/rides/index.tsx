@@ -152,12 +152,12 @@ function PassengerMyRidesPage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <PassengerNavbar {...navbarProps} />
 
             <section className="w-full px-4 sm:max-w-5xl sm:mx-auto sm:px-8 py-8 sm:py-12">
-                <h1 className="text-2xl font-bold text-(--color-text-primary) mb-6">
+                <h1 className="text-2xl font-bold text-text-primary mb-6">
                     {t("myRides.title")}
                 </h1>
 
@@ -190,19 +190,19 @@ function PassengerMyRidesPage() {
 
                 <div className="flex flex-col gap-4 mt-6">
                     {isLoading && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("myRides.loading")}
                         </p>
                     )}
 
                     {isError && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t(getErrorI18nKey(error, {}, "myRides.error"))}
                         </p>
                     )}
 
                     {!isLoading && !isError && displayedRides.length === 0 && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("myRides.noResults")}
                         </p>
                     )}

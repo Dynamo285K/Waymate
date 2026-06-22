@@ -27,15 +27,15 @@ export function DeleteReviewModal({
             theme={theme}
         >
             <div className="p-6">
-                <h2 className="text-xl font-bold text-(--color-text-primary) mb-2">
+                <h2 className="text-xl font-bold text-text-primary mb-2">
                     {t("admin.deleteReviewTitle")}
                 </h2>
-                <p className="text-sm text-(--color-text-secondary) mb-6 leading-relaxed">
+                <p className="text-sm text-text-secondary mb-6 leading-relaxed">
                     {t("admin.deleteReviewMessage")}
                 </p>
 
                 {error !== null && error !== undefined && (
-                    <p className="text-sm text-(--color-danger-text) mb-4">
+                    <p className="text-sm text-danger-text mb-4">
                         {t(getErrorI18nKey(error, adminReviewsErrorMap))}
                     </p>
                 )}
@@ -51,8 +51,7 @@ export function DeleteReviewModal({
                     <Button
                         variant="unstyled"
                         disabled={isPending}
-                        className="px-4 py-3 rounded-xl font-semibold text-sm text-white cursor-pointer disabled:opacity-50"
-                        style={{ background: "var(--color-red)" }}
+                        className="px-4 py-3 rounded-xl bg-red font-semibold text-sm text-white cursor-pointer disabled:opacity-50"
                         onClick={onConfirm}
                     >
                         {t("admin.deleteReviewConfirm")}

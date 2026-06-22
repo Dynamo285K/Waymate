@@ -29,12 +29,12 @@ export function OfferRideForm({
     const { t } = useTranslation();
 
     return (
-        <div className="w-full max-w-[740px] mx-auto flex flex-col gap-8">
+        <div className="w-full max-w-content mx-auto flex flex-col gap-8">
             <div className="flex flex-col items-center gap-3 text-center">
-                <h1 className="m-0 text-[32px] font-bold text-(--color-text-primary) leading-10">
+                <h1 className="m-0 text-title font-bold text-text-primary leading-10">
                     {t("offerRide.title")}
                 </h1>
-                <p className="m-0 text-base text-(--color-text-secondary) leading-6">
+                <p className="m-0 text-base text-text-secondary leading-6">
                     {t("offerRide.subtitle")}
                 </p>
             </div>
@@ -51,7 +51,7 @@ export function OfferRideForm({
             </div>
 
             {publishedMessage && (
-                <p className="m-0 py-3 px-4 rounded-xl border border-(--color-success-border) bg-(--color-success-bg) text-sm font-semibold text-(--color-success-text)">
+                <p className="m-0 py-3 px-4 rounded-xl border border-success-border bg-success-bg text-sm font-semibold text-success-text">
                     {publishedMessage}
                 </p>
             )}
