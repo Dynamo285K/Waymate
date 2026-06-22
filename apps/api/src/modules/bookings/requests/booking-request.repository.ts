@@ -81,24 +81,17 @@ export const insertDynamicStop = async (
 
     const stopsWithOrder = await Promise.all(
         allStops.map(async (stop) => {
-            const pRes = await executor.execute(sql`
-            SELECT point_order as "pointOrder"
-            FROM ${rideRouteCellsTable}
-            WHERE ride_id = ${rideId}
-            ORDER BY (
-                6371 * acos(
-                    least(1.0, cos(radians(${stop.lat})) * cos(radians(lat)) * cos(radians(lng) - radians(${stop.lng})) +
-                    sin(radians(${stop.lat})) * sin(radians(lat)))
+            const [firstResult] = await executor
+                .select({
+                    pointOrder: rideRouteCellsTable.pointOrder,
+                })
+                .from(rideRouteCellsTable)
+                .where(eq(rideRouteCellsTable.rideId, rideId))
+                .orderBy(
+                    sql`6371 * acos(least(1.0, cos(radians(${stop.lat})) * cos(radians(${rideRouteCellsTable.lat})) * cos(radians(${rideRouteCellsTable.lng}) - radians(${stop.lng})) + sin(radians(${stop.lat})) * sin(radians(${rideRouteCellsTable.lat})))) ASC`
                 )
-            ) ASC
-            LIMIT 1
-        `);
-            interface PointOrderResult {
-                pointOrder: number;
-            }
-            const firstResult = pRes[0] as unknown as
-                | PointOrderResult
-                | undefined;
+                .limit(1);
+
             return {
                 id: stop.id,
                 pointOrder: firstResult?.pointOrder ?? stop.stopOrder,
