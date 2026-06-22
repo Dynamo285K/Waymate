@@ -4,6 +4,10 @@ import {
     usePatchBookingsByIdCancel,
     getGetBookingsMeQueryKey,
 } from "../../../api-client/bookings/bookings";
+import {
+    getGetRidesAvailableQueryKey,
+    getGetRidesSearchQueryKey,
+} from "../../../api-client/rides/rides";
 import type { PatchBookingsByIdCancelMutationResult } from "../../../api-client/bookings/bookings";
 import type { ApiMutationError } from "../../../lib/api-fetcher";
 
@@ -17,6 +21,14 @@ export function useCancelBooking() {
             onSuccess: () => {
                 void queryClient.invalidateQueries({
                     queryKey: getGetBookingsMeQueryKey(),
+                });
+                // Cancelling frees a seat, so availability/search seat counts
+                // change — mirror useCreateBooking's invalidation set.
+                void queryClient.invalidateQueries({
+                    queryKey: getGetRidesAvailableQueryKey(),
+                });
+                void queryClient.invalidateQueries({
+                    queryKey: getGetRidesSearchQueryKey(),
                 });
             },
         },
