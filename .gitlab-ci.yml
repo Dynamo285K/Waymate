@@ -83,6 +83,32 @@ test-web:
     script:
         - bun run --cwd apps/web test
 
+e2e:
+    stage: verify
+    services:
+        - name: postgres:18
+          alias: postgres
+    variables:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: postgres
+        # Playwright boots its own API (port 3010) + web (5174) inside this job
+        # container via its `webServer` config, so only Postgres is an external
+        # service. global-setup.ts (run by start-api.ts) recreates
+        # `spolujazda_e2e_db` on this service and runs db:reset (migrate + seed).
+        E2E_DATABASE_URL: "postgres://postgres:postgres@postgres:5432/spolujazda_e2e_db"
+    script:
+        # Pull the Chromium build matching the installed Playwright, plus its
+        # OS libraries (the bun image lacks them).
+        - bunx playwright install --with-deps chromium
+        - bun run --cwd e2e test
+    artifacts:
+        when: on_failure
+        paths:
+            - e2e/playwright-report/
+            - e2e/test-results/
+        expire_in: 1 week
+
 build:
     stage: verify
     script:
