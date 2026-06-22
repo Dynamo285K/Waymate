@@ -9,7 +9,6 @@ import type {
 } from "./chat.types";
 import type { ConversationRole, Message } from "@repo/shared";
 
-// Decide which side of a two-party conversation the user is on, or reject.
 const resolveRole = (
     context: ConversationParticipants,
     userId: string
@@ -19,8 +18,6 @@ const resolveRole = (
     throw new ChatError(ChatErrorCodes.NotAParticipant);
 };
 
-// Open (or reuse) the booking-scoped conversation between the booking's driver
-// and passenger. Idempotent: a booking has at most one live conversation.
 const getOrCreateConversation = async (
     bookingId: string,
     userId: string
@@ -34,16 +31,6 @@ const getOrCreateConversation = async (
 
         const role = resolveRole(context, userId);
 
-        // Exactly one conversation per driver↔passenger pair, regardless of how
-        // many bookings they share — reuse any existing thread between the two
-        // instead of opening a booking-specific one. An existing conversation
-        // can always be reopened, even between blocked users, so the thread
-        // stays viewable (the UI shows the blocked banner and disables the
-        // composer, and sendMessage enforces the block on its own). Only the
-        // creation of a brand-new conversation is blocked.
-        //
-        // Lock the pair first so concurrent opens serialize — without it two
-        // requests could both find nothing here and each insert a thread.
         await ChatRepository.lockConversationPair(
             tx,
             context.driverId,
@@ -61,25 +48,8 @@ const getOrCreateConversation = async (
         const counterpartId =
             role === "DRIVER" ? context.passengerId : context.driverId;
 
-        // No new thread to a banned recipient — they can't read it. An existing
-        // thread is still returned above so its history stays readable.
         if (await ChatRepository.isUserBanned(tx, counterpartId)) {
             throw new ChatError(ChatErrorCodes.RecipientBanned);
-        }
-
-        // Distinguish the two block directions so the client can explain why:
-        // a block the caller created is fixable by unblocking, the
-        // counterpart's block is not (and the caller can't see it via /blocks).
-        const blockDirection = await BlockService.getBlockDirection(
-            userId,
-            counterpartId,
-            tx
-        );
-        if (blockDirection === "BY_ME") {
-            throw new ChatError(ChatErrorCodes.Blocked);
-        }
-        if (blockDirection === "BY_OTHER") {
-            throw new ChatError(ChatErrorCodes.BlockedByOther);
         }
 
         const created = await ChatRepository.insertConversation(tx, {
@@ -111,7 +81,6 @@ const getConversations = async (
         const myRole: ConversationRole =
             row.driverId === userId ? "DRIVER" : "PASSENGER";
         const counterpart = myRole === "DRIVER" ? row.passenger : row.driver;
-        // Drives the disabled composer + notice on the counterpart-banned thread.
         const counterpartBanned =
             myRole === "DRIVER" ? row.passengerBanned : row.driverBanned;
 
@@ -202,7 +171,6 @@ const sendMessage = async (
             content: trimmed,
         });
 
-        // Sending implies you've seen everything up to your own message.
         await ChatRepository.updateLastReadAt(
             tx,
             conversationId,
@@ -213,8 +181,6 @@ const sendMessage = async (
         return { message, context };
     });
 
-    // Broadcast only after the transaction commits, so a rolled-back write is
-    // never delivered to a live socket.
     ChatRealtime.notifyMessage(
         context.driverId,
         context.passengerId,
@@ -243,7 +209,6 @@ const markRead = async (
 
     await ChatRepository.updateLastReadAt(db, conversationId, role, lastReadAt);
 
-    // Let the counterpart's live clients clear unread / show the read receipt.
     const counterpartId =
         role === "DRIVER" ? context.passengerId : context.driverId;
     ChatRealtime.notifyRead(counterpartId, conversationId, userId, lastReadAt);
