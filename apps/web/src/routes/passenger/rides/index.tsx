@@ -7,25 +7,19 @@ import {
 } from "@tanstack/react-router";
 import { passengerRidesSearchSchema } from "../../../lib/passenger-rides-search-schema";
 import { Button, RateDriverModal } from "@waymate/ui";
-import { PassengerNavbar } from "../../../components/navigation/PassengerNavbar";
 import { RideCard } from "../../../components/shared/RideCard";
 import { useOpenConversation } from "../../../features/chat/hooks/useOpenConversation";
 import { ReportUserModal } from "../../../components/shared/ReportUserModal";
 import { useGetBookingsMe } from "../../../api-client/bookings/bookings";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { formatRideDate, formatDuration } from "../../../lib/date-format";
-import { usePassengerNavbarProps } from "../../../hooks/shared/usePassengerNavbarProps";
 import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { useCancelBooking } from "../../../features/passenger/hooks/useCancelBooking";
 import { useSubmitReview } from "../../../hooks/shared/useSubmitReview";
 import type { UpcomingRide } from "../../../features/passenger/types";
-import { authClient } from "../../../lib/auth-client";
-import { getDisplayName } from "../../../lib/session-user";
-import { requireAudience } from "../../../lib/route-guards";
 import { useLayout } from "../../../lib/use-layout";
 
 export const Route = createFileRoute("/passenger/rides/")({
-    beforeLoad: requireAudience(["user"]),
     validateSearch: passengerRidesSearchSchema,
     component: PassengerMyRidesPage,
 });
@@ -33,20 +27,7 @@ export const Route = createFileRoute("/passenger/rides/")({
 function PassengerMyRidesPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
-    const { data: session } = authClient.useSession();
-    const user = session?.user;
-    const userName = user ? getDisplayName(user) : undefined;
-    const userEmail = user?.email;
-    const navbarProps = usePassengerNavbarProps({
-        activeTab: "my-rides",
-        language,
-        onLanguageChange,
-        theme,
-        onThemeToggle,
-        userName,
-        userEmail,
-    });
+    const { theme } = useLayout();
     const search = Route.useSearch();
     const location = useLocation();
     const { openConversation } = useOpenConversation("/passenger/chat");
@@ -154,8 +135,6 @@ function PassengerMyRidesPage() {
             data-theme={theme}
             className="min-h-screen bg-background"
         >
-            <PassengerNavbar {...navbarProps} />
-
             <section className="w-full px-4 sm:max-w-5xl sm:mx-auto sm:px-8 py-8 sm:py-12">
                 <h1 className="text-2xl font-bold text-text-primary mb-6">
                     {t("myRides.title")}

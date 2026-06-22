@@ -14,29 +14,32 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as PassengerRouteRouteImport } from './routes/passenger/route'
+import { Route as DriverRouteRouteImport } from './routes/driver/route'
+import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PassengerIndexRouteImport } from './routes/passenger/index'
 import { Route as DriverIndexRouteImport } from './routes/driver/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ProfileEditRouteImport } from './routes/profile/edit'
-import { Route as PassengerRatingsRouteImport } from './routes/passenger/ratings'
-import { Route as PassengerProfileRouteImport } from './routes/passenger/profile'
-import { Route as PassengerChatRouteImport } from './routes/passenger/chat'
-import { Route as DriverRequestsRouteImport } from './routes/driver/requests'
-import { Route as DriverRatingsRouteImport } from './routes/driver/ratings'
-import { Route as DriverProfileRouteImport } from './routes/driver/profile'
-import { Route as DriverOfferRouteImport } from './routes/driver/offer'
-import { Route as DriverChatRouteImport } from './routes/driver/chat'
-import { Route as CarAddRouteImport } from './routes/car/add'
-import { Route as AdminUsersRouteImport } from './routes/admin/users'
-import { Route as AdminRidesRouteImport } from './routes/admin/rides'
-import { Route as AdminReviewsRouteImport } from './routes/admin/reviews'
-import { Route as AdminReportsRouteImport } from './routes/admin/reports'
 import { Route as PassengerRidesIndexRouteImport } from './routes/passenger/rides/index'
+import { Route as PassengerRatingsIndexRouteImport } from './routes/passenger/ratings/index'
+import { Route as PassengerProfileIndexRouteImport } from './routes/passenger/profile/index'
+import { Route as PassengerChatIndexRouteImport } from './routes/passenger/chat/index'
 import { Route as DriverRidesIndexRouteImport } from './routes/driver/rides/index'
-import { Route as PassengerRidesSearchRouteImport } from './routes/passenger/rides/search'
-import { Route as DriverRidesRateRouteImport } from './routes/driver/rides/rate'
-import { Route as DriverRidesPassengersRouteImport } from './routes/driver/rides/passengers'
+import { Route as DriverRequestsIndexRouteImport } from './routes/driver/requests/index'
+import { Route as DriverRatingsIndexRouteImport } from './routes/driver/ratings/index'
+import { Route as DriverProfileIndexRouteImport } from './routes/driver/profile/index'
+import { Route as DriverOfferIndexRouteImport } from './routes/driver/offer/index'
+import { Route as DriverChatIndexRouteImport } from './routes/driver/chat/index'
+import { Route as CarAddIndexRouteImport } from './routes/car/add/index'
+import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
+import { Route as AdminRidesIndexRouteImport } from './routes/admin/rides/index'
+import { Route as AdminReviewsIndexRouteImport } from './routes/admin/reviews/index'
+import { Route as AdminReportsIndexRouteImport } from './routes/admin/reports/index'
+import { Route as PassengerRidesSearchIndexRouteImport } from './routes/passenger/rides/search/index'
+import { Route as DriverRidesRateIndexRouteImport } from './routes/driver/rides/rate/index'
+import { Route as DriverRidesPassengersIndexRouteImport } from './routes/driver/rides/passengers/index'
 
 const RidesRoute = RidesRouteImport.update({
   id: '/rides',
@@ -63,151 +66,171 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PassengerRouteRoute = PassengerRouteRouteImport.update({
+  id: '/passenger',
+  path: '/passenger',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DriverRouteRoute = DriverRouteRouteImport.update({
+  id: '/driver',
+  path: '/driver',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRouteRoute = AdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PassengerIndexRoute = PassengerIndexRouteImport.update({
-  id: '/passenger/',
-  path: '/passenger/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => PassengerRouteRoute,
 } as any)
 const DriverIndexRoute = DriverIndexRouteImport.update({
-  id: '/driver/',
-  path: '/driver/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => DriverRouteRoute,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const ProfileEditRoute = ProfileEditRouteImport.update({
   id: '/profile/edit',
   path: '/profile/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PassengerRatingsRoute = PassengerRatingsRouteImport.update({
-  id: '/passenger/ratings',
-  path: '/passenger/ratings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PassengerProfileRoute = PassengerProfileRouteImport.update({
-  id: '/passenger/profile',
-  path: '/passenger/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PassengerChatRoute = PassengerChatRouteImport.update({
-  id: '/passenger/chat',
-  path: '/passenger/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DriverRequestsRoute = DriverRequestsRouteImport.update({
-  id: '/driver/requests',
-  path: '/driver/requests',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DriverRatingsRoute = DriverRatingsRouteImport.update({
-  id: '/driver/ratings',
-  path: '/driver/ratings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DriverProfileRoute = DriverProfileRouteImport.update({
-  id: '/driver/profile',
-  path: '/driver/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DriverOfferRoute = DriverOfferRouteImport.update({
-  id: '/driver/offer',
-  path: '/driver/offer',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DriverChatRoute = DriverChatRouteImport.update({
-  id: '/driver/chat',
-  path: '/driver/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CarAddRoute = CarAddRouteImport.update({
-  id: '/car/add',
-  path: '/car/add',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminUsersRoute = AdminUsersRouteImport.update({
-  id: '/admin/users',
-  path: '/admin/users',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRidesRoute = AdminRidesRouteImport.update({
-  id: '/admin/rides',
-  path: '/admin/rides',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminReviewsRoute = AdminReviewsRouteImport.update({
-  id: '/admin/reviews',
-  path: '/admin/reviews',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminReportsRoute = AdminReportsRouteImport.update({
-  id: '/admin/reports',
-  path: '/admin/reports',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PassengerRidesIndexRoute = PassengerRidesIndexRouteImport.update({
-  id: '/passenger/rides/',
-  path: '/passenger/rides/',
-  getParentRoute: () => rootRouteImport,
+  id: '/rides/',
+  path: '/rides/',
+  getParentRoute: () => PassengerRouteRoute,
+} as any)
+const PassengerRatingsIndexRoute = PassengerRatingsIndexRouteImport.update({
+  id: '/ratings/',
+  path: '/ratings/',
+  getParentRoute: () => PassengerRouteRoute,
+} as any)
+const PassengerProfileIndexRoute = PassengerProfileIndexRouteImport.update({
+  id: '/profile/',
+  path: '/profile/',
+  getParentRoute: () => PassengerRouteRoute,
+} as any)
+const PassengerChatIndexRoute = PassengerChatIndexRouteImport.update({
+  id: '/chat/',
+  path: '/chat/',
+  getParentRoute: () => PassengerRouteRoute,
 } as any)
 const DriverRidesIndexRoute = DriverRidesIndexRouteImport.update({
-  id: '/driver/rides/',
-  path: '/driver/rides/',
+  id: '/rides/',
+  path: '/rides/',
+  getParentRoute: () => DriverRouteRoute,
+} as any)
+const DriverRequestsIndexRoute = DriverRequestsIndexRouteImport.update({
+  id: '/requests/',
+  path: '/requests/',
+  getParentRoute: () => DriverRouteRoute,
+} as any)
+const DriverRatingsIndexRoute = DriverRatingsIndexRouteImport.update({
+  id: '/ratings/',
+  path: '/ratings/',
+  getParentRoute: () => DriverRouteRoute,
+} as any)
+const DriverProfileIndexRoute = DriverProfileIndexRouteImport.update({
+  id: '/profile/',
+  path: '/profile/',
+  getParentRoute: () => DriverRouteRoute,
+} as any)
+const DriverOfferIndexRoute = DriverOfferIndexRouteImport.update({
+  id: '/offer/',
+  path: '/offer/',
+  getParentRoute: () => DriverRouteRoute,
+} as any)
+const DriverChatIndexRoute = DriverChatIndexRouteImport.update({
+  id: '/chat/',
+  path: '/chat/',
+  getParentRoute: () => DriverRouteRoute,
+} as any)
+const CarAddIndexRoute = CarAddIndexRouteImport.update({
+  id: '/car/add/',
+  path: '/car/add/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PassengerRidesSearchRoute = PassengerRidesSearchRouteImport.update({
-  id: '/passenger/rides/search',
-  path: '/passenger/rides/search',
-  getParentRoute: () => rootRouteImport,
+const AdminUsersIndexRoute = AdminUsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
-const DriverRidesRateRoute = DriverRidesRateRouteImport.update({
-  id: '/driver/rides/rate',
-  path: '/driver/rides/rate',
-  getParentRoute: () => rootRouteImport,
+const AdminRidesIndexRoute = AdminRidesIndexRouteImport.update({
+  id: '/rides/',
+  path: '/rides/',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
-const DriverRidesPassengersRoute = DriverRidesPassengersRouteImport.update({
-  id: '/driver/rides/passengers',
-  path: '/driver/rides/passengers',
-  getParentRoute: () => rootRouteImport,
+const AdminReviewsIndexRoute = AdminReviewsIndexRouteImport.update({
+  id: '/reviews/',
+  path: '/reviews/',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminReportsIndexRoute = AdminReportsIndexRouteImport.update({
+  id: '/reports/',
+  path: '/reports/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const PassengerRidesSearchIndexRoute =
+  PassengerRidesSearchIndexRouteImport.update({
+    id: '/rides/search/',
+    path: '/rides/search/',
+    getParentRoute: () => PassengerRouteRoute,
+  } as any)
+const DriverRidesRateIndexRoute = DriverRidesRateIndexRouteImport.update({
+  id: '/rides/rate/',
+  path: '/rides/rate/',
+  getParentRoute: () => DriverRouteRoute,
+} as any)
+const DriverRidesPassengersIndexRoute =
+  DriverRidesPassengersIndexRouteImport.update({
+    id: '/rides/passengers/',
+    path: '/rides/passengers/',
+    getParentRoute: () => DriverRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
+  '/driver': typeof DriverRouteRouteWithChildren
+  '/passenger': typeof PassengerRouteRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/register': typeof RegisterRoute
   '/rides': typeof RidesRoute
-  '/admin/reports': typeof AdminReportsRoute
-  '/admin/reviews': typeof AdminReviewsRoute
-  '/admin/rides': typeof AdminRidesRoute
-  '/admin/users': typeof AdminUsersRoute
-  '/car/add': typeof CarAddRoute
-  '/driver/chat': typeof DriverChatRoute
-  '/driver/offer': typeof DriverOfferRoute
-  '/driver/profile': typeof DriverProfileRoute
-  '/driver/ratings': typeof DriverRatingsRoute
-  '/driver/requests': typeof DriverRequestsRoute
-  '/passenger/chat': typeof PassengerChatRoute
-  '/passenger/profile': typeof PassengerProfileRoute
-  '/passenger/ratings': typeof PassengerRatingsRoute
   '/profile/edit': typeof ProfileEditRoute
   '/admin/': typeof AdminIndexRoute
   '/driver/': typeof DriverIndexRoute
   '/passenger/': typeof PassengerIndexRoute
-  '/driver/rides/passengers': typeof DriverRidesPassengersRoute
-  '/driver/rides/rate': typeof DriverRidesRateRoute
-  '/passenger/rides/search': typeof PassengerRidesSearchRoute
+  '/admin/reports/': typeof AdminReportsIndexRoute
+  '/admin/reviews/': typeof AdminReviewsIndexRoute
+  '/admin/rides/': typeof AdminRidesIndexRoute
+  '/admin/users/': typeof AdminUsersIndexRoute
+  '/car/add/': typeof CarAddIndexRoute
+  '/driver/chat/': typeof DriverChatIndexRoute
+  '/driver/offer/': typeof DriverOfferIndexRoute
+  '/driver/profile/': typeof DriverProfileIndexRoute
+  '/driver/ratings/': typeof DriverRatingsIndexRoute
+  '/driver/requests/': typeof DriverRequestsIndexRoute
   '/driver/rides/': typeof DriverRidesIndexRoute
+  '/passenger/chat/': typeof PassengerChatIndexRoute
+  '/passenger/profile/': typeof PassengerProfileIndexRoute
+  '/passenger/ratings/': typeof PassengerRatingsIndexRoute
   '/passenger/rides/': typeof PassengerRidesIndexRoute
+  '/driver/rides/passengers/': typeof DriverRidesPassengersIndexRoute
+  '/driver/rides/rate/': typeof DriverRidesRateIndexRoute
+  '/passenger/rides/search/': typeof PassengerRidesSearchIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -216,91 +239,97 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/register': typeof RegisterRoute
   '/rides': typeof RidesRoute
-  '/admin/reports': typeof AdminReportsRoute
-  '/admin/reviews': typeof AdminReviewsRoute
-  '/admin/rides': typeof AdminRidesRoute
-  '/admin/users': typeof AdminUsersRoute
-  '/car/add': typeof CarAddRoute
-  '/driver/chat': typeof DriverChatRoute
-  '/driver/offer': typeof DriverOfferRoute
-  '/driver/profile': typeof DriverProfileRoute
-  '/driver/ratings': typeof DriverRatingsRoute
-  '/driver/requests': typeof DriverRequestsRoute
-  '/passenger/chat': typeof PassengerChatRoute
-  '/passenger/profile': typeof PassengerProfileRoute
-  '/passenger/ratings': typeof PassengerRatingsRoute
   '/profile/edit': typeof ProfileEditRoute
   '/admin': typeof AdminIndexRoute
   '/driver': typeof DriverIndexRoute
   '/passenger': typeof PassengerIndexRoute
-  '/driver/rides/passengers': typeof DriverRidesPassengersRoute
-  '/driver/rides/rate': typeof DriverRidesRateRoute
-  '/passenger/rides/search': typeof PassengerRidesSearchRoute
+  '/admin/reports': typeof AdminReportsIndexRoute
+  '/admin/reviews': typeof AdminReviewsIndexRoute
+  '/admin/rides': typeof AdminRidesIndexRoute
+  '/admin/users': typeof AdminUsersIndexRoute
+  '/car/add': typeof CarAddIndexRoute
+  '/driver/chat': typeof DriverChatIndexRoute
+  '/driver/offer': typeof DriverOfferIndexRoute
+  '/driver/profile': typeof DriverProfileIndexRoute
+  '/driver/ratings': typeof DriverRatingsIndexRoute
+  '/driver/requests': typeof DriverRequestsIndexRoute
   '/driver/rides': typeof DriverRidesIndexRoute
+  '/passenger/chat': typeof PassengerChatIndexRoute
+  '/passenger/profile': typeof PassengerProfileIndexRoute
+  '/passenger/ratings': typeof PassengerRatingsIndexRoute
   '/passenger/rides': typeof PassengerRidesIndexRoute
+  '/driver/rides/passengers': typeof DriverRidesPassengersIndexRoute
+  '/driver/rides/rate': typeof DriverRidesRateIndexRoute
+  '/passenger/rides/search': typeof PassengerRidesSearchIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
+  '/driver': typeof DriverRouteRouteWithChildren
+  '/passenger': typeof PassengerRouteRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/register': typeof RegisterRoute
   '/rides': typeof RidesRoute
-  '/admin/reports': typeof AdminReportsRoute
-  '/admin/reviews': typeof AdminReviewsRoute
-  '/admin/rides': typeof AdminRidesRoute
-  '/admin/users': typeof AdminUsersRoute
-  '/car/add': typeof CarAddRoute
-  '/driver/chat': typeof DriverChatRoute
-  '/driver/offer': typeof DriverOfferRoute
-  '/driver/profile': typeof DriverProfileRoute
-  '/driver/ratings': typeof DriverRatingsRoute
-  '/driver/requests': typeof DriverRequestsRoute
-  '/passenger/chat': typeof PassengerChatRoute
-  '/passenger/profile': typeof PassengerProfileRoute
-  '/passenger/ratings': typeof PassengerRatingsRoute
   '/profile/edit': typeof ProfileEditRoute
   '/admin/': typeof AdminIndexRoute
   '/driver/': typeof DriverIndexRoute
   '/passenger/': typeof PassengerIndexRoute
-  '/driver/rides/passengers': typeof DriverRidesPassengersRoute
-  '/driver/rides/rate': typeof DriverRidesRateRoute
-  '/passenger/rides/search': typeof PassengerRidesSearchRoute
+  '/admin/reports/': typeof AdminReportsIndexRoute
+  '/admin/reviews/': typeof AdminReviewsIndexRoute
+  '/admin/rides/': typeof AdminRidesIndexRoute
+  '/admin/users/': typeof AdminUsersIndexRoute
+  '/car/add/': typeof CarAddIndexRoute
+  '/driver/chat/': typeof DriverChatIndexRoute
+  '/driver/offer/': typeof DriverOfferIndexRoute
+  '/driver/profile/': typeof DriverProfileIndexRoute
+  '/driver/ratings/': typeof DriverRatingsIndexRoute
+  '/driver/requests/': typeof DriverRequestsIndexRoute
   '/driver/rides/': typeof DriverRidesIndexRoute
+  '/passenger/chat/': typeof PassengerChatIndexRoute
+  '/passenger/profile/': typeof PassengerProfileIndexRoute
+  '/passenger/ratings/': typeof PassengerRatingsIndexRoute
   '/passenger/rides/': typeof PassengerRidesIndexRoute
+  '/driver/rides/passengers/': typeof DriverRidesPassengersIndexRoute
+  '/driver/rides/rate/': typeof DriverRidesRateIndexRoute
+  '/passenger/rides/search/': typeof PassengerRidesSearchIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
+    | '/driver'
+    | '/passenger'
     | '/forgot-password'
     | '/login'
     | '/onboarding'
     | '/register'
     | '/rides'
-    | '/admin/reports'
-    | '/admin/reviews'
-    | '/admin/rides'
-    | '/admin/users'
-    | '/car/add'
-    | '/driver/chat'
-    | '/driver/offer'
-    | '/driver/profile'
-    | '/driver/ratings'
-    | '/driver/requests'
-    | '/passenger/chat'
-    | '/passenger/profile'
-    | '/passenger/ratings'
     | '/profile/edit'
     | '/admin/'
     | '/driver/'
     | '/passenger/'
-    | '/driver/rides/passengers'
-    | '/driver/rides/rate'
-    | '/passenger/rides/search'
+    | '/admin/reports/'
+    | '/admin/reviews/'
+    | '/admin/rides/'
+    | '/admin/users/'
+    | '/car/add/'
+    | '/driver/chat/'
+    | '/driver/offer/'
+    | '/driver/profile/'
+    | '/driver/ratings/'
+    | '/driver/requests/'
     | '/driver/rides/'
+    | '/passenger/chat/'
+    | '/passenger/profile/'
+    | '/passenger/ratings/'
     | '/passenger/rides/'
+    | '/driver/rides/passengers/'
+    | '/driver/rides/rate/'
+    | '/passenger/rides/search/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -309,6 +338,10 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/register'
     | '/rides'
+    | '/profile/edit'
+    | '/admin'
+    | '/driver'
+    | '/passenger'
     | '/admin/reports'
     | '/admin/reviews'
     | '/admin/rides'
@@ -319,79 +352,61 @@ export interface FileRouteTypes {
     | '/driver/profile'
     | '/driver/ratings'
     | '/driver/requests'
+    | '/driver/rides'
     | '/passenger/chat'
     | '/passenger/profile'
     | '/passenger/ratings'
-    | '/profile/edit'
-    | '/admin'
-    | '/driver'
-    | '/passenger'
+    | '/passenger/rides'
     | '/driver/rides/passengers'
     | '/driver/rides/rate'
     | '/passenger/rides/search'
-    | '/driver/rides'
-    | '/passenger/rides'
   id:
     | '__root__'
     | '/'
+    | '/admin'
+    | '/driver'
+    | '/passenger'
     | '/forgot-password'
     | '/login'
     | '/onboarding'
     | '/register'
     | '/rides'
-    | '/admin/reports'
-    | '/admin/reviews'
-    | '/admin/rides'
-    | '/admin/users'
-    | '/car/add'
-    | '/driver/chat'
-    | '/driver/offer'
-    | '/driver/profile'
-    | '/driver/ratings'
-    | '/driver/requests'
-    | '/passenger/chat'
-    | '/passenger/profile'
-    | '/passenger/ratings'
     | '/profile/edit'
     | '/admin/'
     | '/driver/'
     | '/passenger/'
-    | '/driver/rides/passengers'
-    | '/driver/rides/rate'
-    | '/passenger/rides/search'
+    | '/admin/reports/'
+    | '/admin/reviews/'
+    | '/admin/rides/'
+    | '/admin/users/'
+    | '/car/add/'
+    | '/driver/chat/'
+    | '/driver/offer/'
+    | '/driver/profile/'
+    | '/driver/ratings/'
+    | '/driver/requests/'
     | '/driver/rides/'
+    | '/passenger/chat/'
+    | '/passenger/profile/'
+    | '/passenger/ratings/'
     | '/passenger/rides/'
+    | '/driver/rides/passengers/'
+    | '/driver/rides/rate/'
+    | '/passenger/rides/search/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren
+  DriverRouteRoute: typeof DriverRouteRouteWithChildren
+  PassengerRouteRoute: typeof PassengerRouteRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
   RegisterRoute: typeof RegisterRoute
   RidesRoute: typeof RidesRoute
-  AdminReportsRoute: typeof AdminReportsRoute
-  AdminReviewsRoute: typeof AdminReviewsRoute
-  AdminRidesRoute: typeof AdminRidesRoute
-  AdminUsersRoute: typeof AdminUsersRoute
-  CarAddRoute: typeof CarAddRoute
-  DriverChatRoute: typeof DriverChatRoute
-  DriverOfferRoute: typeof DriverOfferRoute
-  DriverProfileRoute: typeof DriverProfileRoute
-  DriverRatingsRoute: typeof DriverRatingsRoute
-  DriverRequestsRoute: typeof DriverRequestsRoute
-  PassengerChatRoute: typeof PassengerChatRoute
-  PassengerProfileRoute: typeof PassengerProfileRoute
-  PassengerRatingsRoute: typeof PassengerRatingsRoute
   ProfileEditRoute: typeof ProfileEditRoute
-  AdminIndexRoute: typeof AdminIndexRoute
-  DriverIndexRoute: typeof DriverIndexRoute
-  PassengerIndexRoute: typeof PassengerIndexRoute
-  DriverRidesPassengersRoute: typeof DriverRidesPassengersRoute
-  DriverRidesRateRoute: typeof DriverRidesRateRoute
-  PassengerRidesSearchRoute: typeof PassengerRidesSearchRoute
-  DriverRidesIndexRoute: typeof DriverRidesIndexRoute
-  PassengerRidesIndexRoute: typeof PassengerRidesIndexRoute
+  CarAddIndexRoute: typeof CarAddIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -431,6 +446,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/passenger': {
+      id: '/passenger'
+      path: '/passenger'
+      fullPath: '/passenger'
+      preLoaderRoute: typeof PassengerRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/driver': {
+      id: '/driver'
+      path: '/driver'
+      fullPath: '/driver'
+      preLoaderRoute: typeof DriverRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -440,24 +476,24 @@ declare module '@tanstack/react-router' {
     }
     '/passenger/': {
       id: '/passenger/'
-      path: '/passenger'
+      path: '/'
       fullPath: '/passenger/'
       preLoaderRoute: typeof PassengerIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof PassengerRouteRoute
     }
     '/driver/': {
       id: '/driver/'
-      path: '/driver'
+      path: '/'
       fullPath: '/driver/'
       preLoaderRoute: typeof DriverIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof DriverRouteRoute
     }
     '/admin/': {
       id: '/admin/'
-      path: '/admin'
+      path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/profile/edit': {
       id: '/profile/edit'
@@ -466,164 +502,217 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileEditRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/passenger/ratings': {
-      id: '/passenger/ratings'
-      path: '/passenger/ratings'
-      fullPath: '/passenger/ratings'
-      preLoaderRoute: typeof PassengerRatingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/passenger/profile': {
-      id: '/passenger/profile'
-      path: '/passenger/profile'
-      fullPath: '/passenger/profile'
-      preLoaderRoute: typeof PassengerProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/passenger/chat': {
-      id: '/passenger/chat'
-      path: '/passenger/chat'
-      fullPath: '/passenger/chat'
-      preLoaderRoute: typeof PassengerChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/driver/requests': {
-      id: '/driver/requests'
-      path: '/driver/requests'
-      fullPath: '/driver/requests'
-      preLoaderRoute: typeof DriverRequestsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/driver/ratings': {
-      id: '/driver/ratings'
-      path: '/driver/ratings'
-      fullPath: '/driver/ratings'
-      preLoaderRoute: typeof DriverRatingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/driver/profile': {
-      id: '/driver/profile'
-      path: '/driver/profile'
-      fullPath: '/driver/profile'
-      preLoaderRoute: typeof DriverProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/driver/offer': {
-      id: '/driver/offer'
-      path: '/driver/offer'
-      fullPath: '/driver/offer'
-      preLoaderRoute: typeof DriverOfferRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/driver/chat': {
-      id: '/driver/chat'
-      path: '/driver/chat'
-      fullPath: '/driver/chat'
-      preLoaderRoute: typeof DriverChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/car/add': {
-      id: '/car/add'
-      path: '/car/add'
-      fullPath: '/car/add'
-      preLoaderRoute: typeof CarAddRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/admin/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/rides': {
-      id: '/admin/rides'
-      path: '/admin/rides'
-      fullPath: '/admin/rides'
-      preLoaderRoute: typeof AdminRidesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/reviews': {
-      id: '/admin/reviews'
-      path: '/admin/reviews'
-      fullPath: '/admin/reviews'
-      preLoaderRoute: typeof AdminReviewsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/reports': {
-      id: '/admin/reports'
-      path: '/admin/reports'
-      fullPath: '/admin/reports'
-      preLoaderRoute: typeof AdminReportsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/passenger/rides/': {
       id: '/passenger/rides/'
-      path: '/passenger/rides'
+      path: '/rides'
       fullPath: '/passenger/rides/'
       preLoaderRoute: typeof PassengerRidesIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof PassengerRouteRoute
+    }
+    '/passenger/ratings/': {
+      id: '/passenger/ratings/'
+      path: '/ratings'
+      fullPath: '/passenger/ratings/'
+      preLoaderRoute: typeof PassengerRatingsIndexRouteImport
+      parentRoute: typeof PassengerRouteRoute
+    }
+    '/passenger/profile/': {
+      id: '/passenger/profile/'
+      path: '/profile'
+      fullPath: '/passenger/profile/'
+      preLoaderRoute: typeof PassengerProfileIndexRouteImport
+      parentRoute: typeof PassengerRouteRoute
+    }
+    '/passenger/chat/': {
+      id: '/passenger/chat/'
+      path: '/chat'
+      fullPath: '/passenger/chat/'
+      preLoaderRoute: typeof PassengerChatIndexRouteImport
+      parentRoute: typeof PassengerRouteRoute
     }
     '/driver/rides/': {
       id: '/driver/rides/'
-      path: '/driver/rides'
+      path: '/rides'
       fullPath: '/driver/rides/'
       preLoaderRoute: typeof DriverRidesIndexRouteImport
+      parentRoute: typeof DriverRouteRoute
+    }
+    '/driver/requests/': {
+      id: '/driver/requests/'
+      path: '/requests'
+      fullPath: '/driver/requests/'
+      preLoaderRoute: typeof DriverRequestsIndexRouteImport
+      parentRoute: typeof DriverRouteRoute
+    }
+    '/driver/ratings/': {
+      id: '/driver/ratings/'
+      path: '/ratings'
+      fullPath: '/driver/ratings/'
+      preLoaderRoute: typeof DriverRatingsIndexRouteImport
+      parentRoute: typeof DriverRouteRoute
+    }
+    '/driver/profile/': {
+      id: '/driver/profile/'
+      path: '/profile'
+      fullPath: '/driver/profile/'
+      preLoaderRoute: typeof DriverProfileIndexRouteImport
+      parentRoute: typeof DriverRouteRoute
+    }
+    '/driver/offer/': {
+      id: '/driver/offer/'
+      path: '/offer'
+      fullPath: '/driver/offer/'
+      preLoaderRoute: typeof DriverOfferIndexRouteImport
+      parentRoute: typeof DriverRouteRoute
+    }
+    '/driver/chat/': {
+      id: '/driver/chat/'
+      path: '/chat'
+      fullPath: '/driver/chat/'
+      preLoaderRoute: typeof DriverChatIndexRouteImport
+      parentRoute: typeof DriverRouteRoute
+    }
+    '/car/add/': {
+      id: '/car/add/'
+      path: '/car/add'
+      fullPath: '/car/add/'
+      preLoaderRoute: typeof CarAddIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/passenger/rides/search': {
-      id: '/passenger/rides/search'
-      path: '/passenger/rides/search'
-      fullPath: '/passenger/rides/search'
-      preLoaderRoute: typeof PassengerRidesSearchRouteImport
-      parentRoute: typeof rootRouteImport
+    '/admin/users/': {
+      id: '/admin/users/'
+      path: '/users'
+      fullPath: '/admin/users/'
+      preLoaderRoute: typeof AdminUsersIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
-    '/driver/rides/rate': {
-      id: '/driver/rides/rate'
-      path: '/driver/rides/rate'
-      fullPath: '/driver/rides/rate'
-      preLoaderRoute: typeof DriverRidesRateRouteImport
-      parentRoute: typeof rootRouteImport
+    '/admin/rides/': {
+      id: '/admin/rides/'
+      path: '/rides'
+      fullPath: '/admin/rides/'
+      preLoaderRoute: typeof AdminRidesIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
-    '/driver/rides/passengers': {
-      id: '/driver/rides/passengers'
-      path: '/driver/rides/passengers'
-      fullPath: '/driver/rides/passengers'
-      preLoaderRoute: typeof DriverRidesPassengersRouteImport
-      parentRoute: typeof rootRouteImport
+    '/admin/reviews/': {
+      id: '/admin/reviews/'
+      path: '/reviews'
+      fullPath: '/admin/reviews/'
+      preLoaderRoute: typeof AdminReviewsIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/reports/': {
+      id: '/admin/reports/'
+      path: '/reports'
+      fullPath: '/admin/reports/'
+      preLoaderRoute: typeof AdminReportsIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/passenger/rides/search/': {
+      id: '/passenger/rides/search/'
+      path: '/rides/search'
+      fullPath: '/passenger/rides/search/'
+      preLoaderRoute: typeof PassengerRidesSearchIndexRouteImport
+      parentRoute: typeof PassengerRouteRoute
+    }
+    '/driver/rides/rate/': {
+      id: '/driver/rides/rate/'
+      path: '/rides/rate'
+      fullPath: '/driver/rides/rate/'
+      preLoaderRoute: typeof DriverRidesRateIndexRouteImport
+      parentRoute: typeof DriverRouteRoute
+    }
+    '/driver/rides/passengers/': {
+      id: '/driver/rides/passengers/'
+      path: '/rides/passengers'
+      fullPath: '/driver/rides/passengers/'
+      preLoaderRoute: typeof DriverRidesPassengersIndexRouteImport
+      parentRoute: typeof DriverRouteRoute
     }
   }
 }
 
+interface AdminRouteRouteChildren {
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminReportsIndexRoute: typeof AdminReportsIndexRoute
+  AdminReviewsIndexRoute: typeof AdminReviewsIndexRoute
+  AdminRidesIndexRoute: typeof AdminRidesIndexRoute
+  AdminUsersIndexRoute: typeof AdminUsersIndexRoute
+}
+
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminIndexRoute: AdminIndexRoute,
+  AdminReportsIndexRoute: AdminReportsIndexRoute,
+  AdminReviewsIndexRoute: AdminReviewsIndexRoute,
+  AdminRidesIndexRoute: AdminRidesIndexRoute,
+  AdminUsersIndexRoute: AdminUsersIndexRoute,
+}
+
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+)
+
+interface DriverRouteRouteChildren {
+  DriverIndexRoute: typeof DriverIndexRoute
+  DriverChatIndexRoute: typeof DriverChatIndexRoute
+  DriverOfferIndexRoute: typeof DriverOfferIndexRoute
+  DriverProfileIndexRoute: typeof DriverProfileIndexRoute
+  DriverRatingsIndexRoute: typeof DriverRatingsIndexRoute
+  DriverRequestsIndexRoute: typeof DriverRequestsIndexRoute
+  DriverRidesIndexRoute: typeof DriverRidesIndexRoute
+  DriverRidesPassengersIndexRoute: typeof DriverRidesPassengersIndexRoute
+  DriverRidesRateIndexRoute: typeof DriverRidesRateIndexRoute
+}
+
+const DriverRouteRouteChildren: DriverRouteRouteChildren = {
+  DriverIndexRoute: DriverIndexRoute,
+  DriverChatIndexRoute: DriverChatIndexRoute,
+  DriverOfferIndexRoute: DriverOfferIndexRoute,
+  DriverProfileIndexRoute: DriverProfileIndexRoute,
+  DriverRatingsIndexRoute: DriverRatingsIndexRoute,
+  DriverRequestsIndexRoute: DriverRequestsIndexRoute,
+  DriverRidesIndexRoute: DriverRidesIndexRoute,
+  DriverRidesPassengersIndexRoute: DriverRidesPassengersIndexRoute,
+  DriverRidesRateIndexRoute: DriverRidesRateIndexRoute,
+}
+
+const DriverRouteRouteWithChildren = DriverRouteRoute._addFileChildren(
+  DriverRouteRouteChildren,
+)
+
+interface PassengerRouteRouteChildren {
+  PassengerIndexRoute: typeof PassengerIndexRoute
+  PassengerChatIndexRoute: typeof PassengerChatIndexRoute
+  PassengerProfileIndexRoute: typeof PassengerProfileIndexRoute
+  PassengerRatingsIndexRoute: typeof PassengerRatingsIndexRoute
+  PassengerRidesIndexRoute: typeof PassengerRidesIndexRoute
+  PassengerRidesSearchIndexRoute: typeof PassengerRidesSearchIndexRoute
+}
+
+const PassengerRouteRouteChildren: PassengerRouteRouteChildren = {
+  PassengerIndexRoute: PassengerIndexRoute,
+  PassengerChatIndexRoute: PassengerChatIndexRoute,
+  PassengerProfileIndexRoute: PassengerProfileIndexRoute,
+  PassengerRatingsIndexRoute: PassengerRatingsIndexRoute,
+  PassengerRidesIndexRoute: PassengerRidesIndexRoute,
+  PassengerRidesSearchIndexRoute: PassengerRidesSearchIndexRoute,
+}
+
+const PassengerRouteRouteWithChildren = PassengerRouteRoute._addFileChildren(
+  PassengerRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
+  DriverRouteRoute: DriverRouteRouteWithChildren,
+  PassengerRouteRoute: PassengerRouteRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
   RegisterRoute: RegisterRoute,
   RidesRoute: RidesRoute,
-  AdminReportsRoute: AdminReportsRoute,
-  AdminReviewsRoute: AdminReviewsRoute,
-  AdminRidesRoute: AdminRidesRoute,
-  AdminUsersRoute: AdminUsersRoute,
-  CarAddRoute: CarAddRoute,
-  DriverChatRoute: DriverChatRoute,
-  DriverOfferRoute: DriverOfferRoute,
-  DriverProfileRoute: DriverProfileRoute,
-  DriverRatingsRoute: DriverRatingsRoute,
-  DriverRequestsRoute: DriverRequestsRoute,
-  PassengerChatRoute: PassengerChatRoute,
-  PassengerProfileRoute: PassengerProfileRoute,
-  PassengerRatingsRoute: PassengerRatingsRoute,
   ProfileEditRoute: ProfileEditRoute,
-  AdminIndexRoute: AdminIndexRoute,
-  DriverIndexRoute: DriverIndexRoute,
-  PassengerIndexRoute: PassengerIndexRoute,
-  DriverRidesPassengersRoute: DriverRidesPassengersRoute,
-  DriverRidesRateRoute: DriverRidesRateRoute,
-  PassengerRidesSearchRoute: PassengerRidesSearchRoute,
-  DriverRidesIndexRoute: DriverRidesIndexRoute,
-  PassengerRidesIndexRoute: PassengerRidesIndexRoute,
+  CarAddIndexRoute: CarAddIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

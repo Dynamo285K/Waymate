@@ -10,16 +10,10 @@ import {
     ResponsiveContainer,
     CartesianGrid,
 } from "recharts";
-import { AdminNavbar } from "../../components/navigation/AdminNavbar";
-import { useAdminNavbarProps } from "../../features/admin/hooks/useAdminNavbarProps";
 import { useGetAdminDashboard } from "../../api-client/admin/admin";
-import { authClient } from "../../lib/auth-client";
-import { getDisplayName } from "../../lib/session-user";
-import { requireAudience } from "../../lib/route-guards";
 import { useLayout } from "../../lib/use-layout";
 
 export const Route = createFileRoute("/admin/")({
-    beforeLoad: requireAudience(["admin"]),
     component: AdminDashboardPage,
 });
 
@@ -72,20 +66,7 @@ function Card({
 
 function AdminDashboardPage() {
     const { t } = useTranslation();
-    const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
-    const { data: session } = authClient.useSession();
-    const user = session?.user;
-    const userName = user ? getDisplayName(user) : undefined;
-    const userEmail = user?.email;
-    const navbarProps = useAdminNavbarProps({
-        activeTab: "dashboard",
-        language,
-        onLanguageChange,
-        theme,
-        onThemeToggle,
-        userName,
-        userEmail,
-    });
+    const { theme } = useLayout();
 
     const { data: dashboard, isLoading, isError } = useGetAdminDashboard();
 
@@ -168,8 +149,6 @@ function AdminDashboardPage() {
             data-theme={theme}
             className="min-h-screen bg-background"
         >
-            <AdminNavbar {...navbarProps} />
-
             <div className="w-full px-4 sm:max-w-6xl sm:mx-auto sm:px-8 py-8 flex flex-col gap-6">
                 {isError && (
                     <p className="text-sm text-text-secondary text-center py-8">
