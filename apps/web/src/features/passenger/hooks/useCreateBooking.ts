@@ -14,7 +14,7 @@ import type { ApiMutationError } from "../../../lib/api-fetcher";
 
 type DynamicStop = { lat: number; lng: number; city: string };
 
-type CreateBookingInput = {
+export type CreateBookingInput = {
     rideId: string;
     pickupStopId: string;
     dropoffStopId: string;

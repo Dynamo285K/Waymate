@@ -34,7 +34,7 @@ type StatusFilter = "ALL" | RideStatus;
 
 const SEARCH_DEBOUNCE_MS = 300;
 
-export function AdminRidesPage() {
+function AdminRidesPage() {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();

@@ -14,7 +14,7 @@ export const Route = createFileRoute("/passenger/chat")({
     component: PassengerChatPage,
 });
 
-export function PassengerChatPage() {
+function PassengerChatPage() {
     const { conversation } = Route.useSearch();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
     const { data: session } = authClient.useSession();

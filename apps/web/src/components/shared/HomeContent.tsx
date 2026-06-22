@@ -1,15 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { enUS, sk as skLocale, cs } from "date-fns/locale";
-import {
-    SearchBox,
-    PopularRouteChip,
-    StatCard,
-    FeatureCard,
-    Button,
-} from "@waymate/ui";
+import { SearchBox, PopularRouteChip, Button } from "@waymate/ui";
 import type { SearchBoxCityOption } from "@waymate/ui";
 import type { Language } from "../controls/LanguageSwitcher";
 import { AvailableRideCard } from "./AvailableRideCard";
+import { HomeStatsSection } from "./HomeStatsSection";
+import { HomeFeaturesSection } from "./HomeFeaturesSection";
 import { formatRideDate, formatDuration } from "../../lib/date-format";
 import { toUiLanguage } from "../../lib/language";
 import {
@@ -47,144 +43,6 @@ type HomeContentProps = {
 };
 
 const DATE_FNS_LOCALE_MAP = { en: enUS, sk: skLocale, cs };
-
-function IconBox({
-    bg,
-    color,
-    children,
-}: {
-    bg: string;
-    color: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <div
-            className={`w-full h-full ${bg} ${color} rounded-xl flex items-center justify-center`}
-        >
-            {children}
-        </div>
-    );
-}
-
-function UsersIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-            <circle
-                cx="9"
-                cy="7"
-                r="4"
-            />
-            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-        </svg>
-    );
-}
-
-function StarIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>
-    );
-}
-
-function LeafIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
-            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
-        </svg>
-    );
-}
-
-function ShieldIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        </svg>
-    );
-}
-
-function CoinsIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <circle
-                cx="8"
-                cy="8"
-                r="6"
-            />
-            <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
-            <path d="M7 6h1v4" />
-            <path d="m16.71 13.88.7.71-2.82 2.82" />
-        </svg>
-    );
-}
-
-function MessageIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-        </svg>
-    );
-}
-
-function BoltIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-        </svg>
-    );
-}
 
 export function HomeContent({
     language,
@@ -328,44 +186,7 @@ export function HomeContent({
             <div className="border-t border-(--color-border)" />
 
             {/* Stats */}
-            <section className="w-full px-4 sm:max-w-5xl sm:mx-auto sm:px-8 py-8 sm:py-12 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <StatCard
-                    icon={
-                        <IconBox
-                            bg="bg-(--color-success-bg)"
-                            color="text-(--color-success-text)"
-                        >
-                            <UsersIcon />
-                        </IconBox>
-                    }
-                    value="12 500+"
-                    label={t("home.stats.drivers")}
-                />
-                <StatCard
-                    icon={
-                        <IconBox
-                            bg="bg-(--color-warning-bg)"
-                            color="text-(--color-warning-text)"
-                        >
-                            <StarIcon />
-                        </IconBox>
-                    }
-                    value="4.9/5.0"
-                    label={t("home.stats.satisfaction")}
-                />
-                <StatCard
-                    icon={
-                        <IconBox
-                            bg="bg-(--color-success-bg)"
-                            color="text-(--color-success-text)"
-                        >
-                            <LeafIcon />
-                        </IconBox>
-                    }
-                    value="2 400t"
-                    label={t("home.stats.co2Saved")}
-                />
-            </section>
+            <HomeStatsSection />
 
             <div className="border-t border-(--color-border)" />
 
@@ -435,100 +256,7 @@ export function HomeContent({
             </section>
 
             {/* Features */}
-            <section className="bg-(--color-bg) border-t border-(--color-border) py-16 px-4">
-                <div className="w-full sm:max-w-5xl sm:mx-auto text-center">
-                    <h2 className="text-2xl sm:text-4xl font-black text-(--color-text-primary)">
-                        {t("home.features.title")}
-                    </h2>
-                    <p className="mt-2 text-(--color-text-secondary)">
-                        {t("home.features.subtitle")}
-                    </p>
-                    <div className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-left">
-                        <FeatureCard
-                            icon={
-                                <IconBox
-                                    bg="bg-(--color-success-bg)"
-                                    color="text-(--color-success-text)"
-                                >
-                                    <ShieldIcon />
-                                </IconBox>
-                            }
-                            title={t("home.features.verifiedDrivers.title")}
-                            description={t(
-                                "home.features.verifiedDrivers.description"
-                            )}
-                        />
-                        <FeatureCard
-                            icon={
-                                <IconBox
-                                    bg="bg-(--color-success-bg)"
-                                    color="text-(--color-success-text)"
-                                >
-                                    <CoinsIcon />
-                                </IconBox>
-                            }
-                            title={t("home.features.fairPricing.title")}
-                            description={t(
-                                "home.features.fairPricing.description"
-                            )}
-                        />
-                        <FeatureCard
-                            icon={
-                                <IconBox
-                                    bg="bg-(--color-primary)/10"
-                                    color="text-(--color-primary)"
-                                >
-                                    <LeafIcon />
-                                </IconBox>
-                            }
-                            title={t("home.features.ecoFriendly.title")}
-                            description={t(
-                                "home.features.ecoFriendly.description"
-                            )}
-                        />
-                        <FeatureCard
-                            icon={
-                                <IconBox
-                                    bg="bg-(--color-primary)/10"
-                                    color="text-(--color-primary)"
-                                >
-                                    <MessageIcon />
-                                </IconBox>
-                            }
-                            title={t("home.features.directChat.title")}
-                            description={t(
-                                "home.features.directChat.description"
-                            )}
-                        />
-                        <FeatureCard
-                            icon={
-                                <IconBox
-                                    bg="bg-(--color-warning-bg)"
-                                    color="text-(--color-warning-text)"
-                                >
-                                    <BoltIcon />
-                                </IconBox>
-                            }
-                            title={t("home.features.fastBooking.title")}
-                            description={t(
-                                "home.features.fastBooking.description"
-                            )}
-                        />
-                        <FeatureCard
-                            icon={
-                                <IconBox
-                                    bg="bg-(--color-danger-bg)"
-                                    color="text-(--color-danger-text)"
-                                >
-                                    <StarIcon />
-                                </IconBox>
-                            }
-                            title={t("home.features.ratings.title")}
-                            description={t("home.features.ratings.description")}
-                        />
-                    </div>
-                </div>
-            </section>
+            <HomeFeaturesSection />
         </>
     );
 }

@@ -43,7 +43,7 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-export function EditProfilePage() {
+function EditProfilePage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const location = useLocation();

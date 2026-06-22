@@ -20,7 +20,7 @@ export const Route = createFileRoute("/driver/requests")({
     component: DriverRideRequestsPage,
 });
 
-export function DriverRideRequestsPage() {
+function DriverRideRequestsPage() {
     const { t } = useTranslation();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
     const { data: session } = authClient.useSession();

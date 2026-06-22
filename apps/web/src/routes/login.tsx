@@ -38,7 +38,7 @@ const loginFormSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginFormSchema>;
 
-export function LoginPage() {
+function LoginPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
