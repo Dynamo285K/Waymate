@@ -348,9 +348,7 @@
         "chooseCar": "Vyberte jedno z vašich áut",
         "noCars": "Zatiaľ nemáte uložené žiadne auto. Pre túto jazdu ho zadajte ručne.",
         "carBrand": "Značka auta",
-        "carBrandPlaceholder": "napr. Skoda",
         "carModel": "Model auta",
-        "carModelPlaceholder": "napr. Fabia",
         "selectCarBrand": "Vyberte značku",
         "selectCarModel": "Vyberte model",
         "loadingCarBrands": "Načítavam značky...",
@@ -410,7 +408,8 @@
     },
     "cancelBookingDialog": {
         "title": "Zrušiť rezerváciu?",
-        "message": "Naozaj chcete zrušiť svoju rezerváciu? Táto akcia sa nedá vrátiť."
+        "message": "Naozaj chcete zrušiť svoju rezerváciu? Táto akcia sa nedá vrátiť.",
+        "error": "Rezerváciu sa nepodarilo zrušiť. Skúste to prosím znova."
     },
     "cancelRideDialog": {
         "title": "Zrušiť jazdu?",
@@ -468,13 +467,13 @@
         "totalRatings": "Celkom hodnotení",
         "myRatings": "Moje hodnotenia",
         "loading": "Načítavam hodnotenia...",
-        "empty": "Zatiaľ žiadne hodnotenia.",
-        "ride": "Jazda"
+        "empty": "Zatiaľ žiadne hodnotenia."
     },
     "rateDriver": {
         "title": "Ohodnoťte svojho vodiča",
         "submit": "Odoslať hodnotenie",
-        "placeholder": "Napíšte recenziu..."
+        "placeholder": "Napíšte recenziu...",
+        "error": "Hodnotenie sa nepodarilo odoslať. Skúste to prosím znova."
     },
     "myRides": {
         "title": "Moje jazdy",
