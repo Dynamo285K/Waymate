@@ -171,6 +171,8 @@ function LoginPage() {
                         emailPlaceholder: t("login.emailPlaceholder"),
                         passwordLabel: t("login.passwordLabel"),
                         passwordPlaceholder: t("login.passwordPlaceholder"),
+                        showPassword: t("forgotPassword.showPassword"),
+                        hidePassword: t("forgotPassword.hidePassword"),
                         forgotPassword: t("login.forgotPassword"),
                         loginButton: t("login.loginButton"),
                         loginWithGoogle: t("login.loginWithGoogle"),

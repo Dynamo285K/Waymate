@@ -193,6 +193,8 @@ function RegisterPage() {
                             email: t("register.email"),
                             password: t("register.password"),
                             confirmPassword: t("register.confirmPassword"),
+                            showPassword: t("forgotPassword.showPassword"),
+                            hidePassword: t("forgotPassword.hidePassword"),
                             createAccountButton: t(
                                 "register.createAccountButton"
                             ),
