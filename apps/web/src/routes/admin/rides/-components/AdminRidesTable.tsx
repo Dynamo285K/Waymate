@@ -52,9 +52,12 @@ export function AdminRidesTable({
                                 ride.driver.lastName
                             ) || ride.driver.email;
                         const isThisRowMutating = rowMutatingId === ride.id;
+                        // Force cancel only applies to a ride that hasn't run
+                        // yet — disabled once it's in progress, completed, or
+                        // already cancelled (the backend enforces PLANNED-only).
                         const cancelDisabled =
                             isThisRowMutating ||
-                            ride.rideStatus === "CANCELLED";
+                            ride.rideStatus !== "PLANNED";
                         return (
                             <tr
                                 key={ride.id}

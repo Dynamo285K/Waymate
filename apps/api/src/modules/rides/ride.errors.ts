@@ -7,6 +7,7 @@ export const RideErrorCodes = {
     RideNotFoundOrNotOwner: "RIDE_NOT_FOUND_OR_NOT_OWNER",
     RideAlreadyCancelled: "RIDE_ALREADY_CANCELLED",
     RideAlreadyCompleted: "RIDE_ALREADY_COMPLETED",
+    RideAlreadyDeparted: "RIDE_ALREADY_DEPARTED",
     RideNotCompletable: "RIDE_NOT_COMPLETABLE",
     RideNotDeparted: "RIDE_NOT_DEPARTED",
     TooManySeats: "RIDE_TOO_MANY_SEATS",
@@ -36,6 +37,7 @@ export function rideErrorToHttpStatus(code: RideErrorCode): number {
         case RideErrorCodes.InvalidPriceStopOrders:
         case RideErrorCodes.RideAlreadyCancelled:
         case RideErrorCodes.RideAlreadyCompleted:
+        case RideErrorCodes.RideAlreadyDeparted:
         case RideErrorCodes.RideNotCompletable:
         case RideErrorCodes.RideNotDeparted:
         case RideErrorCodes.TooManySeats:

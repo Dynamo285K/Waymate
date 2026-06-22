@@ -204,6 +204,8 @@
             "userNotFound": "This user no longer exists. The list will refresh.",
             "rideNotFound": "This ride no longer exists. The list will refresh.",
             "rideAlreadyCancelled": "This ride has already been cancelled.",
+            "rideAlreadyCompleted": "This ride has already taken place and can't be cancelled.",
+            "rideAlreadyDeparted": "This ride is already in progress and can't be cancelled.",
             "reviewNotFound": "This review no longer exists. The list will refresh.",
             "reportNotFound": "This report no longer exists. The list will refresh.",
             "reportReasonRequired": "A reason is required when resolving or dismissing a report.",

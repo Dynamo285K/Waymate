@@ -204,6 +204,8 @@
             "userNotFound": "Tento uživatel již neexistuje. Seznam se obnoví.",
             "rideNotFound": "Tato jízda již neexistuje. Seznam se obnoví.",
             "rideAlreadyCancelled": "Tato jízda již byla zrušena.",
+            "rideAlreadyCompleted": "Tato jízda již proběhla a nelze ji zrušit.",
+            "rideAlreadyDeparted": "Tato jízda již probíhá a nelze ji zrušit.",
             "reviewNotFound": "Tato recenze již neexistuje. Seznam se obnoví.",
             "reportNotFound": "Toto hlášení již neexistuje. Seznam se obnoví.",
             "reportReasonRequired": "Při vyřešení nebo zamítnutí hlášení je nutné uvést důvod.",
