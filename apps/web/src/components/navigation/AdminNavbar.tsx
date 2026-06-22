@@ -32,7 +32,6 @@ export type AdminNavbarLabels = {
     users?: string;
     reviews?: string;
     reports?: string;
-    settings?: string;
     logout?: string;
 };
 
@@ -52,7 +51,6 @@ export type AdminNavbarProps = {
     onReportsClick?: () => void;
     onMessagesClick?: () => void;
     onRatingsClick?: () => void;
-    onSettingsClick?: () => void;
     onLogoutClick?: () => void;
     labels?: AdminNavbarLabels;
 };
@@ -71,7 +69,6 @@ export function AdminNavbar({
     onUsersClick,
     onReviewsClick,
     onReportsClick,
-    onSettingsClick,
     onLogoutClick,
     labels,
 }: AdminNavbarProps) {
@@ -109,10 +106,8 @@ export function AdminNavbar({
             <AdminProfileDropdown
                 name={userName}
                 email={userEmail}
-                onSettingsClick={onSettingsClick}
                 onLogoutClick={onLogoutClick}
                 labels={{
-                    settings: labels?.settings,
                     logout: labels?.logout,
                 }}
             />

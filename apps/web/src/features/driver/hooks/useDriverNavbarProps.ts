@@ -46,7 +46,6 @@ export function useDriverNavbarProps(params: {
             dropdownMyRides: t("driver.nav.myRides"),
             messages: t("nav.messages"),
             ratings: t("nav.ratings"),
-            settings: t("nav.settings"),
             logout: t("nav.logout"),
         },
     };

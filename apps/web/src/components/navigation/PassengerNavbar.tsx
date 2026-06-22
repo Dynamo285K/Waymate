@@ -29,7 +29,6 @@ export type PassengerNavbarLabels = {
     dropdownMyRides?: string;
     messages?: string;
     ratings?: string;
-    settings?: string;
     logout?: string;
 };
 
@@ -51,7 +50,6 @@ export type PassengerNavbarProps = {
     onProfileClick?: () => void;
     onMessagesClick?: () => void;
     onRatingsClick?: () => void;
-    onSettingsClick?: () => void;
     onLogoutClick?: () => void;
     labels?: PassengerNavbarLabels;
 };
@@ -74,7 +72,6 @@ export function PassengerNavbar({
     onProfileClick,
     onMessagesClick,
     onRatingsClick,
-    onSettingsClick,
     onLogoutClick,
     labels,
 }: PassengerNavbarProps) {
@@ -118,14 +115,12 @@ export function PassengerNavbar({
                 onMyRidesClick={onMyRidesClick}
                 onMessagesClick={onMessagesClick}
                 onRatingsClick={onRatingsClick}
-                onSettingsClick={onSettingsClick}
                 onLogoutClick={onLogoutClick}
                 labels={{
                     profile: labels?.profile,
                     myRides: labels?.dropdownMyRides,
                     messages: labels?.messages,
                     ratings: labels?.ratings,
-                    settings: labels?.settings,
                     logout: labels?.logout,
                 }}
             />

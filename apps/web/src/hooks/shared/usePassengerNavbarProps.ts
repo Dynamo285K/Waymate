@@ -44,7 +44,6 @@ export function usePassengerNavbarProps(params: {
             dropdownMyRides: t("nav.myRides"),
             messages: t("nav.messages"),
             ratings: t("nav.ratings"),
-            settings: t("nav.settings"),
             logout: t("nav.logout"),
         },
     };
