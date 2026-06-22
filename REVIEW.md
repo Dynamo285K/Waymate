@@ -12,21 +12,21 @@ Waymate is a carpooling web application built as a **Bun workspace monorepo** or
 
 ## Review Summary
 
-| Category              | Status |
-| --------------------- | ------ |
-| Component Library     | ✅ Good |
-| Styling               | ✅ Good |
-| Loading Data          | ✅ Good |
-| Environment Variables | ✅ Good |
-| REST API Design       | ✅ Good |
-| Database              | ✅ Good |
-| BE Design Patterns    | ✅ Good |
-| Auth                  | ✅ Good |
-| Testing               | ✅ Good |
-| Logging & Monitoring  | ✅ Good |
-| Error Handling        | ✅ Good |
-| Security              | ✅ Good |
-| Forms                 | ✅ Good |
+| Category              | Status      |
+| --------------------- | ----------- |
+| Component Library     | ✅ Good     |
+| Styling               | ✅ Good     |
+| Loading Data          | ✅ Good     |
+| Environment Variables | ✅ Good     |
+| REST API Design       | ✅ Good     |
+| Database              | ✅ Good     |
+| BE Design Patterns    | ✅ Good     |
+| Auth                  | ✅ Good     |
+| Testing               | ✅ Good     |
+| Logging & Monitoring  | ✅ Good     |
+| Error Handling        | ✅ Good     |
+| Security              | ✅ Good     |
+| Forms                 | ✅ Good     |
 | Frontend Structure    | ⚠️ Concerns |
 
 Status legend: ✅ Good | ⚠️ Concerns | ❌ Issues | N/A
@@ -39,7 +39,7 @@ Status legend: ✅ Good | ⚠️ Concerns | ❌ Issues | N/A
 
 **Status:** ✅ Good
 
-The project depends on the external `@waymate/ui` library (`apps/web/package.json`) plus Radix primitives (`@radix-ui/react-select`, `@radix-ui/react-dropdown-menu`). It is imported and used in **77 places** across `.tsx` files. A scan for raw `<button>`/`<input>`/`<select>` elements returned a single hit — a *comment* in `apps/web/src/features/admin/components/FilterSelect.tsx:17` explaining that the raw `<select>` is "forbidden by the no-restricted-syntax lint rule," confirming the bypass is actively guarded against by ESLint rather than tolerated.
+The project depends on the external `@waymate/ui` library (`apps/web/package.json`) plus Radix primitives (`@radix-ui/react-select`, `@radix-ui/react-dropdown-menu`). It is imported and used in **77 places** across `.tsx` files. A scan for raw `<button>`/`<input>`/`<select>` elements returned a single hit — a _comment_ in `apps/web/src/features/admin/components/FilterSelect.tsx:17` explaining that the raw `<select>` is "forbidden by the no-restricted-syntax lint rule," confirming the bypass is actively guarded against by ESLint rather than tolerated.
 
 **Recommendations:**
 
@@ -87,7 +87,7 @@ Data fetching goes through the **Orval-generated TanStack Query hooks** (`apps/w
 
 **Status:** ✅ Good
 
-This is exemplary. Collections are plural nouns (`/rides`, `/bookings`, `/cars`), creation is `POST /<collection>` returning **201** (`ride.routes.ts:152-156` → `status(201, …)`), and **state-machine transitions use `PATCH /:id/<action>`** uniformly — `PATCH /rides/:id/{cancel,end,complete}`, `PATCH /bookings/:id/{cancel,confirm,reject}` (`ride.routes.ts:216,244,273`; `booking.routes.ts:121-218`). Verb distribution across route files is sensible (29 GET, 15 PATCH, 9 POST, 3 DELETE — no verbs-in-paths abuse). The single non-collection `POST /rides/estimate-eta` (`ride.routes.ts:174`) is a deliberate, documented complex-body *read*. Each route declares a typed response map with correct status semantics (`400`/`403`/`404`/`413`/`429`/`500`).
+This is exemplary. Collections are plural nouns (`/rides`, `/bookings`, `/cars`), creation is `POST /<collection>` returning **201** (`ride.routes.ts:152-156` → `status(201, …)`), and **state-machine transitions use `PATCH /:id/<action>`** uniformly — `PATCH /rides/:id/{cancel,end,complete}`, `PATCH /bookings/:id/{cancel,confirm,reject}` (`ride.routes.ts:216,244,273`; `booking.routes.ts:121-218`). Verb distribution across route files is sensible (29 GET, 15 PATCH, 9 POST, 3 DELETE — no verbs-in-paths abuse). The single non-collection `POST /rides/estimate-eta` (`ride.routes.ts:174`) is a deliberate, documented complex-body _read_. Each route declares a typed response map with correct status semantics (`400`/`403`/`404`/`413`/`429`/`500`).
 
 **Recommendations:**
 

@@ -34,7 +34,6 @@ export function useAdminNavbarProps(params: {
             users: t("admin.users"),
             reviews: t("admin.reviewsTab"),
             reports: t("admin.reports.tab"),
-            settings: t("admin.settings"),
             logout: t("admin.logout"),
         },
     };

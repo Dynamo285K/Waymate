@@ -34,7 +34,6 @@ export type DriverNavbarLabels = {
     dropdownMyRides?: string;
     messages?: string;
     ratings?: string;
-    settings?: string;
     logout?: string;
 };
 
@@ -57,7 +56,6 @@ export type DriverNavbarProps = {
     onProfileClick?: () => void;
     onMessagesClick?: () => void;
     onRatingsClick?: () => void;
-    onSettingsClick?: () => void;
     onLogoutClick?: () => void;
     labels?: DriverNavbarLabels;
 };
@@ -81,7 +79,6 @@ export function DriverNavbar({
     onProfileClick,
     onMessagesClick,
     onRatingsClick,
-    onSettingsClick,
     onLogoutClick,
     labels,
 }: DriverNavbarProps) {
@@ -125,14 +122,12 @@ export function DriverNavbar({
                 onMyRidesClick={onMyRidesClick}
                 onMessagesClick={onMessagesClick}
                 onRatingsClick={onRatingsClick}
-                onSettingsClick={onSettingsClick}
                 onLogoutClick={onLogoutClick}
                 labels={{
                     profile: labels?.profile,
                     myRides: labels?.dropdownMyRides,
                     messages: labels?.messages,
                     ratings: labels?.ratings,
-                    settings: labels?.settings,
                     logout: labels?.logout,
                 }}
             />
