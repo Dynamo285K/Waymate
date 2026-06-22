@@ -39,7 +39,7 @@ export function FilterSelect<T extends string>({
             </Select.Trigger>
             <Select.Portal>
                 <Select.Content
-                    className="z-1100 min-w-(--radix-select-trigger-width) rounded-xl border border-border bg-card p-1 shadow-lg"
+                    className="z-1100 min-w-radix-select-trigger rounded-xl border border-border bg-card p-1 shadow-lg"
                     position="popper"
                     sideOffset={4}
                 >
@@ -48,7 +48,7 @@ export function FilterSelect<T extends string>({
                             <Select.Item
                                 key={option.value}
                                 value={option.value}
-                                className="flex items-center px-3 py-2 text-sm rounded-lg text-text-primary cursor-pointer outline-none data-highlighted:bg-background data-[state=checked]:text-primary"
+                                className="flex items-center px-3 py-2 text-sm rounded-lg text-text-primary cursor-pointer outline-none data-highlighted:bg-background radix-checked:text-primary"
                             >
                                 <Select.ItemText>
                                     {option.label}

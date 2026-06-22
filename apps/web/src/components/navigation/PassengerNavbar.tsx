@@ -135,7 +135,7 @@ export function PassengerNavbar({
         <Button
             variant="unstyled"
             type="button"
-            className="bg-card border border-border rounded-[10px] w-10 h-10 cursor-pointer flex flex-col items-center justify-center gap-1.25 p-0 shadow-hairline [&_span]:block [&_span]:w-4.5 [&_span]:h-0.5 [&_span]:bg-text-primary [&_span]:rounded-sm"
+            className="bg-card border border-border rounded-control w-10 h-10 cursor-pointer flex flex-col items-center justify-center gap-1.25 p-0 shadow-hairline menu-line:block menu-line:w-4.5 menu-line:h-0.5 menu-line:bg-text-primary menu-line:rounded-sm"
             onClick={() => setIsMobileMenuOpen((c) => !c)}
             aria-label="Open menu"
             aria-expanded={isMobileMenuOpen}
@@ -156,7 +156,7 @@ export function PassengerNavbar({
                     name={userName}
                     size="sm"
                 />
-                <span className="w-8 h-8 rounded-full bg-card text-text-secondary shadow-button inline-flex items-center justify-center group-hover:bg-border [&_svg]:w-4 [&_svg]:h-4">
+                <span className="w-8 h-8 rounded-full bg-card text-text-secondary shadow-button inline-flex items-center justify-center group-hover:bg-border icon-svg:w-4 icon-svg:h-4">
                     <ChevronDownIcon />
                 </span>
             </DropdownMenu.Trigger>
@@ -276,7 +276,7 @@ export function PassengerNavbar({
                     <div className="relative shrink-0">
                         {hamburger}
                         {isMobileMenuOpen && (
-                            <div className="absolute top-[calc(100%+8px)] right-0 min-w-70 rounded-2xl border border-border shadow-dropdown-strong z-30 py-3 px-4 flex flex-col gap-3 bg-background">
+                            <div className="absolute top-nav-dropdown-offset right-0 min-w-70 rounded-2xl border border-border shadow-dropdown-strong z-30 py-3 px-4 flex flex-col gap-3 bg-background">
                                 <RoleSwitcher
                                     value={role}
                                     onChange={onRoleChange}
@@ -337,7 +337,7 @@ export function PassengerNavbar({
                         </div>
                     )}
                     <nav
-                        className="flex items-center flex-wrap gap-1.5 px-4 pt-2 pb-2.5 border-t border-border [&_.nav-button]:py-2 [&_.nav-button]:px-2.5 [&_.nav-button]:text-caption [&_.nav-button]:gap-1.5"
+                        className="flex items-center flex-wrap gap-1.5 px-4 pt-2 pb-2.5 border-t border-border nav-button:py-2 nav-button:px-2.5 nav-button:text-caption nav-button:gap-1.5"
                         aria-label="Primary navigation"
                     >
                         {navButtons}

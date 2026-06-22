@@ -80,7 +80,7 @@ export function ScheduleSection({
                             }
                         >
                             <Select.Trigger
-                                className={`w-full flex items-center justify-between gap-2 py-3 px-4 rounded-xl border border-border bg-input text-sm font-medium cursor-pointer transition-[border-color] duration-150 outline-none hover:border-primary focus-visible:border-primary [&_svg]:text-text-secondary [&_svg]:shrink-0 ${!time ? "text-text-secondary" : "text-text-primary"}`}
+                                className={`w-full flex items-center justify-between gap-2 py-3 px-4 rounded-xl border border-border bg-input text-sm font-medium cursor-pointer transition-colors duration-150 outline-none hover:border-primary focus-visible:border-primary icon-svg:text-text-secondary icon-svg:shrink-0 ${!time ? "text-text-secondary" : "text-text-primary"}`}
                             >
                                 <Select.Value placeholder="--:--" />
                                 <Select.Icon className="inline-flex items-center">
@@ -89,7 +89,7 @@ export function ScheduleSection({
                             </Select.Trigger>
                             <Select.Portal>
                                 <Select.Content
-                                    className="w-(--radix-select-trigger-width) max-h-64 overflow-y-auto rounded-xl border border-border bg-card p-1 shadow-dropdown-strong z-[200]"
+                                    className="w-radix-select-trigger max-h-64 overflow-y-auto rounded-xl border border-border bg-card p-1 shadow-dropdown-strong z-time-select"
                                     position="popper"
                                     sideOffset={8}
                                 >
@@ -98,7 +98,7 @@ export function ScheduleSection({
                                             <Select.Item
                                                 key={option}
                                                 value={option}
-                                                className="w-full py-2 px-3 rounded-lg border-0 bg-transparent text-text-primary text-sm font-semibold text-left cursor-pointer transition-[background] duration-100 outline-none select-none flex items-center hover:bg-background data-[highlighted]:bg-background data-[highlighted]:outline-none data-[state=checked]:bg-primary-tint data-[state=checked]:text-primary"
+                                                className="w-full py-2 px-3 rounded-lg border-0 bg-transparent text-text-primary text-sm font-semibold text-left cursor-pointer transition-colors duration-100 outline-none select-none flex items-center hover:bg-background radix-highlighted:bg-background radix-highlighted:outline-none radix-checked:bg-primary-tint radix-checked:text-primary"
                                             >
                                                 <Select.ItemText>
                                                     {option}

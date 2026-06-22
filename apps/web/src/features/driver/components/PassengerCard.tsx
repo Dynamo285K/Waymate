@@ -41,7 +41,7 @@ export function PassengerCard({
                     <span className="text-base font-semibold text-text-primary">
                         {name}
                     </span>
-                    <div className="flex items-center gap-1 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-dark-yellow [&_svg]:fill-dark-yellow [&_svg]:shrink-0">
+                    <div className="flex items-center gap-1 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-dark-yellow icon-svg:fill-dark-yellow icon-svg:shrink-0">
                         <StarIcon />
                         <span className="text-sm text-text-secondary">
                             {rating.toFixed(1)}

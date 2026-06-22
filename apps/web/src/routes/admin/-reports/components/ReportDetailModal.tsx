@@ -70,7 +70,7 @@ export function ReportDetailModal({
             onClose={onClose}
             theme={theme}
         >
-            <div className="w-[calc(100vw-2rem)] max-w-2xl p-8 max-h-[90vh] overflow-y-auto">
+            <div className="w-modal-viewport max-w-2xl p-8 max-h-modal-body overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-text-primary">
                         {t("admin.reports.detailTitle")}

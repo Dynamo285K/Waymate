@@ -158,7 +158,7 @@ function OnboardingPage() {
         >
             <AuthNavbar {...authNavbarProps} />
 
-            <main className="flex min-h-[calc(100vh-72px)] items-center justify-center px-4 py-12">
+            <main className="flex min-h-register-content items-center justify-center px-4 py-12">
                 {!isLoadingProfile && (
                     <form
                         onSubmit={handleSubmit(onSubmit)}

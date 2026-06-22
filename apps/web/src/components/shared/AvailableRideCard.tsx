@@ -60,7 +60,7 @@ export function AvailableRideCard({
                         {originalStartCity} → {originalEndCity}
                     </span>
                 )}
-                <div className="flex items-center gap-1.5 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-text-secondary [&_svg]:shrink-0">
+                <div className="flex items-center gap-1.5 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-text-secondary icon-svg:shrink-0">
                     <ClockIcon />
                     <span className="text-caption text-text-secondary max-600:whitespace-nowrap">
                         {datetime}
@@ -87,7 +87,7 @@ export function AvailableRideCard({
                     <span className="text-control font-semibold text-text-primary whitespace-nowrap">
                         {driverName}
                     </span>
-                    <div className="flex items-center gap-1 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-dark-yellow [&_svg]:fill-dark-yellow [&_svg]:shrink-0">
+                    <div className="flex items-center gap-1 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-dark-yellow icon-svg:fill-dark-yellow icon-svg:shrink-0">
                         <StarIcon />
                         <span className="text-caption text-text-secondary">
                             {driverRating.toFixed(1)}

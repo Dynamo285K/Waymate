@@ -126,7 +126,7 @@ function RegisterPage() {
         >
             <AuthNavbar {...authNavbarProps} />
 
-            <div className="flex items-center justify-center min-h-[calc(100vh-72px)] px-4 py-12">
+            <div className="flex items-center justify-center min-h-register-content px-4 py-12">
                 {registeredEmail ? (
                     <section className="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-xl">
                         <h1 className="text-2xl font-bold text-text-primary">

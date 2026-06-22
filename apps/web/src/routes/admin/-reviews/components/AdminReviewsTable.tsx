@@ -99,7 +99,7 @@ export function AdminReviewsTable({
                                     <RatingStars rating={review.rating} />
                                 </td>
 
-                                <td className="px-3 py-4 max-w-[140px]">
+                                <td className="px-3 py-4 max-w-admin-table-user">
                                     <p className="text-text-primary truncate text-sm">
                                         {review.comment ?? (
                                             <span className="text-text-secondary italic">

@@ -193,7 +193,7 @@ export function AdminNavbar({
     const hamburger = (
         <Button
             variant="unstyled"
-            className="bg-card border border-border rounded-[10px] w-10 h-10 cursor-pointer flex flex-col items-center justify-center gap-1.25 p-0 shadow-hairline [&_span]:block [&_span]:w-4.5 [&_span]:h-0.5 [&_span]:bg-text-primary [&_span]:rounded-sm"
+            className="bg-card border border-border rounded-control w-10 h-10 cursor-pointer flex flex-col items-center justify-center gap-1.25 p-0 shadow-hairline menu-line:block menu-line:w-4.5 menu-line:h-0.5 menu-line:bg-text-primary menu-line:rounded-sm"
             onClick={() => setIsMobileMenuOpen((c) => !c)}
         >
             <span />
@@ -212,7 +212,7 @@ export function AdminNavbar({
                     name={userName}
                     size="sm"
                 />
-                <span className="w-8 h-8 rounded-full bg-card text-text-secondary shadow-button inline-flex items-center justify-center group-hover:bg-border [&_svg]:w-4 [&_svg]:h-4">
+                <span className="w-8 h-8 rounded-full bg-card text-text-secondary shadow-button inline-flex items-center justify-center group-hover:bg-border icon-svg:w-4 icon-svg:h-4">
                     <ChevronDownIcon />
                 </span>
             </DropdownMenu.Trigger>
@@ -340,7 +340,7 @@ export function AdminNavbar({
                             </div>
                         </div>
                     )}
-                    <nav className="flex items-center gap-1 px-4 pt-1.5 pb-2 border-t border-border overflow-x-auto scrollbar-none [&_.nav-button]:shrink-0 [&_.nav-button]:text-caption [&_.nav-button]:py-1.5 [&_.nav-button]:px-3 [&_.nav-button]:gap-1.5">
+                    <nav className="flex items-center gap-1 px-4 pt-1.5 pb-2 border-t border-border overflow-x-auto scrollbar-none nav-button:shrink-0 nav-button:text-caption nav-button:py-1.5 nav-button:px-3 nav-button:gap-1.5">
                         {navTabs}
                     </nav>
                 </div>
@@ -369,7 +369,7 @@ export function AdminNavbar({
                             </div>
                         </div>
                     )}
-                    <nav className="grid grid-cols-2 gap-1.5 px-4 pt-2 pb-2.5 border-t border-border [&_.nav-button]:py-2 [&_.nav-button]:px-2.5 [&_.nav-button]:text-caption [&_.nav-button]:gap-1.5 [&_.nav-button]:justify-center [&_.nav-button]:w-full">
+                    <nav className="grid grid-cols-2 gap-1.5 px-4 pt-2 pb-2.5 border-t border-border nav-button:py-2 nav-button:px-2.5 nav-button:text-caption nav-button:gap-1.5 nav-button:justify-center nav-button:w-full">
                         {navTabs}
                     </nav>
                 </div>

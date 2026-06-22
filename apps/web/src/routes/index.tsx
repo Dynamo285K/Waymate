@@ -65,7 +65,7 @@ function HomePage({
                 open={showGuestModal}
                 onClose={() => setShowGuestModal(false)}
             >
-                <div className="w-[calc(100vw-2rem)] max-w-sm p-8 text-center flex flex-col gap-4">
+                <div className="w-modal-viewport max-w-sm p-8 text-center flex flex-col gap-4">
                     <div className="text-4xl">🔒</div>
                     <h2 className="text-xl font-bold text-text-primary">
                         {t("bookGuest.title")}

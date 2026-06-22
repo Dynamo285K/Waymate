@@ -317,7 +317,7 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
                 onClose={() => setConfirmBlock(false)}
                 theme={theme}
             >
-                <div className="w-[calc(100vw-2rem)] max-w-md p-6">
+                <div className="w-modal-viewport max-w-md p-6">
                     <h2 className="text-lg font-bold text-text-primary mb-2">
                         {t("chat.blockConfirmTitle", {
                             name: panel.activeName ?? "",

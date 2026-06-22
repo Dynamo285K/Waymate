@@ -64,7 +64,7 @@ export function MakeModelFields({
                                 </Select.Trigger>
                                 <Select.Portal>
                                     <Select.Content
-                                        className="z-1100 w-(--radix-select-trigger-width) rounded-xl border border-border bg-card p-1 shadow-lg"
+                                        className="z-1100 w-radix-select-trigger rounded-xl border border-border bg-card p-1 shadow-lg"
                                         position="popper"
                                         sideOffset={4}
                                     >
@@ -73,7 +73,7 @@ export function MakeModelFields({
                                                 <Select.Item
                                                     key={m}
                                                     value={m}
-                                                    className="flex items-center px-3 py-2 text-sm rounded-lg text-text-primary cursor-pointer outline-none data-highlighted:bg-background data-[state=checked]:text-primary"
+                                                    className="flex items-center px-3 py-2 text-sm rounded-lg text-text-primary cursor-pointer outline-none data-highlighted:bg-background radix-checked:text-primary"
                                                 >
                                                     <Select.ItemText>
                                                         {m}
@@ -123,7 +123,7 @@ export function MakeModelFields({
                                 </Select.Trigger>
                                 <Select.Portal>
                                     <Select.Content
-                                        className="z-1100 w-(--radix-select-trigger-width) rounded-xl border border-border bg-card p-1 shadow-lg"
+                                        className="z-1100 w-radix-select-trigger rounded-xl border border-border bg-card p-1 shadow-lg"
                                         position="popper"
                                         sideOffset={4}
                                     >
@@ -132,7 +132,7 @@ export function MakeModelFields({
                                                 <Select.Item
                                                     key={m.id}
                                                     value={m.modelName}
-                                                    className="flex items-center px-3 py-2 text-sm rounded-lg text-text-primary cursor-pointer outline-none data-highlighted:bg-background data-[state=checked]:text-primary"
+                                                    className="flex items-center px-3 py-2 text-sm rounded-lg text-text-primary cursor-pointer outline-none data-highlighted:bg-background radix-checked:text-primary"
                                                 >
                                                     <Select.ItemText>
                                                         {m.modelName}

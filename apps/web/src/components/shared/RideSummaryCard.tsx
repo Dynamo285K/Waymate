@@ -27,22 +27,22 @@ export function RideSummaryCard({
     onCancelClick,
 }: RideSummaryCardProps) {
     return (
-        <div className="w-full bg-card rounded-[18px] py-5 px-[22px] shadow-card flex items-center justify-between gap-6 max-900:flex-col max-900:items-stretch">
+        <div className="w-full bg-card rounded-summary-card py-5 px-summary-content-x shadow-card flex items-center justify-between gap-6 max-900:flex-col max-900:items-stretch">
             <div className="flex flex-col gap-4 min-w-0">
                 <div className="flex flex-col gap-1.5">
                     <div className="flex items-center gap-3">
-                        <span className="inline-flex items-center justify-center text-text-secondary [&_svg]:w-[22px] [&_svg]:h-[22px]">
+                        <span className="inline-flex items-center justify-center text-text-secondary icon-svg:w-5.5 icon-svg:h-5.5">
                             <CircleIcon />
                         </span>
                         <span className="text-lg font-bold text-text-primary leading-7">
                             {pickup}
                         </span>
                     </div>
-                    <span className="ml-[10px] text-border [&_svg]:w-0.5 [&_svg]:h-6">
+                    <span className="ml-summary-divider text-border ">
                         <VerticalLineIcon />
                     </span>
                     <div className="flex items-center gap-3">
-                        <span className="inline-flex items-center justify-center text-text-secondary [&_svg]:w-[22px] [&_svg]:h-[22px]">
+                        <span className="inline-flex items-center justify-center text-text-secondary icon-svg:w-5.5 icon-svg:h-5.5">
                             <MapPinIcon />
                         </span>
                         <span className="text-lg font-bold text-text-primary leading-7">
@@ -50,31 +50,31 @@ export function RideSummaryCard({
                         </span>
                     </div>
                 </div>
-                <div className="flex items-center gap-[18px] flex-wrap">
-                    <div className="inline-flex items-center gap-2 text-text-secondary text-sm leading-5 [&_svg]:w-[18px] [&_svg]:h-[18px]">
+                <div className="flex items-center gap-summary-gap flex-wrap">
+                    <div className="inline-flex items-center gap-2 text-text-secondary text-sm leading-5 icon-svg:w-4.5 icon-svg:h-4.5">
                         <ClockIcon />
                         <span>{dateTime}</span>
                     </div>
-                    <div className="inline-flex items-center gap-2 text-text-secondary text-sm leading-5 [&_svg]:w-[18px] [&_svg]:h-[18px]">
+                    <div className="inline-flex items-center gap-2 text-text-secondary text-sm leading-5 icon-svg:w-4.5 icon-svg:h-4.5">
                         <UserIcon />
                         <span>{seatsLeft}</span>
                     </div>
                 </div>
             </div>
-            <div className="flex flex-col items-end gap-[18px] shrink-0 max-900:items-stretch">
+            <div className="flex flex-col items-end gap-summary-gap shrink-0 max-900:items-stretch">
                 <div className="text-panel-title font-bold text-text-primary leading-9">
                     {price}
                 </div>
                 <div className="flex items-center gap-3 max-900:flex-col max-900:items-stretch">
                     <Button
-                        className="min-w-[130px] max-900:w-full"
+                        className="min-w-summary-action-min max-900:w-full"
                         onClick={onManageClick}
                     >
                         Manage
                     </Button>
                     <Button
                         variant="red"
-                        className="min-w-[130px] max-900:w-full"
+                        className="min-w-summary-action-min max-900:w-full"
                         onClick={onCancelClick}
                     >
                         Cancel ride

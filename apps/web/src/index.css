@@ -1,6 +1,47 @@
 @import "@waymate/ui/dist/index.css";
 @import "tailwindcss";
 
+@theme inline {
+    --spacing-modal-viewport: calc(100vw - 2rem);
+    --spacing-modal-body: 90vh;
+    --spacing-profile-modal-body: 85vh;
+    --spacing-nav-dropdown-offset: calc(100% + 8px);
+    --spacing-role-switcher-min: 120px;
+    --spacing-role-switcher-x: 18px;
+    --spacing-role-switcher-y: 10px;
+    --spacing-summary-content-x: 22px;
+    --spacing-summary-gap: 18px;
+    --spacing-summary-divider: 10px;
+    --spacing-summary-action-min: 130px;
+    --spacing-ride-action-min: 11rem;
+    --spacing-register-content: calc(100vh - 72px);
+    --spacing-radix-select-trigger: var(--radix-select-trigger-width);
+    --spacing-radix-select-list: min(
+        320px,
+        var(--radix-select-content-available-height)
+    );
+    --spacing-admin-table-user: 140px;
+
+    --radius-control: 10px;
+    --radius-summary-card: 18px;
+
+    --tracking-badge: 0.06em;
+
+    --animate-spin-fast: spin 0.6s linear infinite;
+
+    --z-raised: 1;
+    --z-select-content: 1000;
+    --z-time-select: 200;
+}
+
+@custom-variant icon-svg (& svg);
+@custom-variant menu-line (& > span);
+@custom-variant nav-button (& .nav-button);
+@custom-variant radix-placeholder (&[data-placeholder] > span:first-child);
+@custom-variant radix-disabled (&[data-disabled]);
+@custom-variant radix-highlighted (&[data-highlighted]);
+@custom-variant radix-checked (&[data-state="checked"]);
+
 /* Prevent Radix Select from locking page scroll — dropdowns are not modals */
 body[data-scroll-locked] {
     overflow: unset !important;

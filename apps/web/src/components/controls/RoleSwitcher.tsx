@@ -15,9 +15,9 @@ export type RoleSwitcherProps = {
 };
 
 const itemBase =
-    "min-w-[120px] py-[10px] px-[18px] rounded-full text-sm font-medium leading-none cursor-pointer transition-all duration-200 border-0 -ml-1.5 first:ml-0";
+    "min-w-role-switcher-min py-role-switcher-y px-role-switcher-x rounded-full text-sm font-medium leading-none cursor-pointer transition-all duration-200 border-0 -ml-1.5 first:ml-0";
 const itemInactive = "bg-transparent text-text-secondary";
-const itemActive = "bg-primary text-white shadow-primary-sm relative z-[1]";
+const itemActive = "bg-primary text-white shadow-primary-sm relative z-raised";
 
 export function RoleSwitcher({
     value,

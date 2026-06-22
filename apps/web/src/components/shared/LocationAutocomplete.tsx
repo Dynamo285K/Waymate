@@ -19,7 +19,7 @@ type LocationAutocompleteProps = {
 function SpinnerIcon() {
     return (
         <span
-            className="inline-block w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin [animation-duration:0.6s]"
+            className="inline-block w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin-fast"
             aria-hidden
         />
     );

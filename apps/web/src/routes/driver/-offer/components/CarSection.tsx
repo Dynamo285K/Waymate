@@ -32,16 +32,16 @@ export type CarSectionProps = {
 };
 
 const selectTrigger =
-    "w-full flex items-center justify-between gap-2 py-3 px-4 rounded-xl border border-border bg-input text-text-primary text-sm font-medium cursor-pointer transition-[border-color] duration-150 outline-none hover:border-primary focus-visible:border-primary data-[disabled]:cursor-not-allowed data-[disabled]:opacity-60 [&[data-placeholder]>span:first-child]:text-text-secondary";
+    "w-full flex items-center justify-between gap-2 py-3 px-4 rounded-xl border border-border bg-input text-text-primary text-sm font-medium cursor-pointer transition-colors duration-150 outline-none hover:border-primary focus-visible:border-primary radix-placeholder:text-text-secondary radix-disabled:cursor-not-allowed radix-disabled:opacity-60";
 
 const selectContent =
-    "w-(--radix-select-trigger-width) overflow-hidden rounded-xl border border-border bg-card p-1 shadow-dropdown-strong z-[1000]";
+    "w-radix-select-trigger overflow-hidden rounded-xl border border-border bg-card p-1 shadow-dropdown-strong z-select-content";
 
 const selectViewport =
-    "max-h-[min(320px,var(--radix-select-content-available-height))] overflow-y-auto overscroll-contain";
+    "max-h-radix-select-list overflow-y-auto overscroll-contain";
 
 const selectItem =
-    "w-full py-2 px-3 rounded-lg bg-transparent text-text-primary text-sm font-medium cursor-pointer transition-[background] duration-100 outline-none select-none flex items-center hover:bg-background data-[highlighted]:bg-background data-[highlighted]:outline-none data-[state=checked]:bg-primary-tint data-[state=checked]:text-primary";
+    "w-full py-2 px-3 rounded-lg bg-transparent text-text-primary text-sm font-medium cursor-pointer transition-colors duration-100 outline-none select-none flex items-center hover:bg-background radix-highlighted:bg-background radix-highlighted:outline-none radix-checked:bg-primary-tint radix-checked:text-primary";
 
 const selectIcon = "text-text-secondary inline-flex items-center shrink-0";
 
@@ -151,7 +151,7 @@ export function CarSection({
                     </div>
                     <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
                         <div className="py-3 px-4 rounded-xl border border-border bg-background">
-                            <p className="m-0 text-badge font-bold uppercase tracking-[0.06em] text-text-secondary">
+                            <p className="m-0 text-badge font-bold uppercase tracking-badge text-text-secondary">
                                 {t("offerRide.carBrand")}
                             </p>
                             <p className="mt-1 text-sm font-semibold text-text-primary">
@@ -159,7 +159,7 @@ export function CarSection({
                             </p>
                         </div>
                         <div className="py-3 px-4 rounded-xl border border-border bg-background">
-                            <p className="m-0 text-badge font-bold uppercase tracking-[0.06em] text-text-secondary">
+                            <p className="m-0 text-badge font-bold uppercase tracking-badge text-text-secondary">
                                 {t("offerRide.carModel")}
                             </p>
                             <p className="mt-1 text-sm font-semibold text-text-primary">
@@ -167,7 +167,7 @@ export function CarSection({
                             </p>
                         </div>
                         <div className="col-span-full py-3 px-4 rounded-xl border border-border bg-background max-md:col-span-1">
-                            <p className="m-0 text-badge font-bold uppercase tracking-[0.06em] text-text-secondary">
+                            <p className="m-0 text-badge font-bold uppercase tracking-badge text-text-secondary">
                                 {t("offerRide.licensePlate")}
                             </p>
                             <p className="mt-1 text-sm font-semibold text-text-primary">

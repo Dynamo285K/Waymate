@@ -74,7 +74,7 @@ export function RideCard(props: RideCardProps) {
         props.variant === "passenger-upcoming" ||
         props.variant === "passenger-past";
     const passengerActionClassName =
-        "min-w-[11rem] justify-center whitespace-normal text-center max-600:w-full";
+        "min-w-ride-action-min justify-center whitespace-normal text-center max-600:w-full";
 
     function seatsText(count: number) {
         return labels?.seatsLeft
@@ -97,7 +97,7 @@ export function RideCard(props: RideCardProps) {
                             </span>
                         </div>
                         <div className="w-0.5 h-5 bg-text-secondary ml-1.25" />
-                        <div className="flex items-center gap-2 min-w-0 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-text-primary [&_svg]:shrink-0">
+                        <div className="flex items-center gap-2 min-w-0 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-text-primary icon-svg:shrink-0">
                             <MapPinIcon />
                             <span className="text-route font-semibold text-text-primary min-w-0 break-words">
                                 {to}
@@ -124,7 +124,7 @@ export function RideCard(props: RideCardProps) {
                                             .driverName
                                     }
                                 </span>
-                                <div className="flex items-center gap-1 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-dark-yellow [&_svg]:fill-dark-yellow [&_svg]:shrink-0">
+                                <div className="flex items-center gap-1 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-dark-yellow icon-svg:fill-dark-yellow icon-svg:shrink-0">
                                     <StarIcon />
                                     <span className="text-caption text-text-secondary">
                                         {(
@@ -195,7 +195,7 @@ export function RideCard(props: RideCardProps) {
             </div>
 
             <div className="flex items-end justify-between gap-4 max-600:flex-col max-600:items-stretch">
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 min-w-0 [&_svg]:w-4 [&_svg]:h-4 [&_svg]:text-text-secondary [&_svg]:shrink-0">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 min-w-0 icon-svg:w-4 icon-svg:h-4 icon-svg:text-text-secondary icon-svg:shrink-0">
                     <span className="inline-flex items-center gap-1.5 text-sm text-text-secondary">
                         <ClockIcon />
                         <span className="break-words">{datetime}</span>

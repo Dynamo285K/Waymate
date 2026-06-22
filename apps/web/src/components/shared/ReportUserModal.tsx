@@ -109,7 +109,7 @@ export function ReportUserModal({
         >
             <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="w-[calc(100vw-2rem)] max-w-lg p-8"
+                className="w-modal-viewport max-w-lg p-8"
             >
                 <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-text-primary">
