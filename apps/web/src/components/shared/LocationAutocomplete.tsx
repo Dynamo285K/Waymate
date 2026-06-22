@@ -19,15 +19,7 @@ type LocationAutocompleteProps = {
 function SpinnerIcon() {
     return (
         <span
-            style={{
-                display: "inline-block",
-                width: 14,
-                height: 14,
-                border: "2px solid var(--color-primary)",
-                borderTopColor: "transparent",
-                borderRadius: "50%",
-                animation: "spin 0.6s linear infinite",
-            }}
+            className="inline-block w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin [animation-duration:0.6s]"
             aria-hidden
         />
     );
@@ -160,7 +152,7 @@ export function LocationAutocomplete({
             {open && suggestions.length > 0 && (
                 <ul
                     role="listbox"
-                    className="absolute z-50 top-full left-0 right-0 mt-1 bg-(--color-card) border border-(--color-border) rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto"
+                    className="absolute z-50 top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto"
                 >
                     {suggestions.map((loc, idx) => (
                         <li
@@ -169,24 +161,24 @@ export function LocationAutocomplete({
                             aria-selected={idx === activeIndex}
                             className={`flex items-center gap-2 px-4 py-3 text-sm cursor-pointer transition-colors ${
                                 idx === activeIndex
-                                    ? "bg-(--color-bg)"
-                                    : "hover:bg-(--color-bg)"
-                            } text-(--color-text-primary)`}
+                                    ? "bg-background"
+                                    : "hover:bg-background"
+                            } text-text-primary`}
                             onMouseDown={() => handleSelect(loc)}
                             onMouseEnter={() => setActiveIndex(idx)}
                         >
-                            <span className="text-(--color-text-secondary) flex-shrink-0">
+                            <span className="text-text-secondary flex-shrink-0">
                                 <MapPinIcon />
                             </span>
                             <div className="flex flex-col">
                                 <span>{loc.address}</span>
                                 {loc.city !== loc.address && (
-                                    <span className="text-xs text-(--color-text-secondary)">
+                                    <span className="text-xs text-text-secondary">
                                         {loc.city}
                                     </span>
                                 )}
                             </div>
-                            <span className="ml-auto text-xs font-medium text-(--color-text-secondary) bg-(--color-bg) px-2 py-1 rounded-md">
+                            <span className="ml-auto text-xs font-medium text-text-secondary bg-background px-2 py-1 rounded-md">
                                 {loc.countryCode}
                             </span>
                         </li>

@@ -88,7 +88,7 @@ export function PassengerProfilePage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <PassengerNavbar {...navbarProps} />
 
@@ -118,11 +118,11 @@ export function PassengerProfilePage() {
                 />
 
                 {aboutMe && (
-                    <div className="bg-(--color-card) rounded-2xl p-6 border border-(--color-border)">
-                        <h2 className="text-base font-semibold text-(--color-text-primary) mb-3">
+                    <div className="bg-card rounded-2xl p-6 border border-border">
+                        <h2 className="text-base font-semibold text-text-primary mb-3">
                             {t("profile.aboutMe")}
                         </h2>
-                        <p className="text-(--color-text-secondary) text-sm leading-relaxed">
+                        <p className="text-text-secondary text-sm leading-relaxed">
                             {aboutMe}
                         </p>
                     </div>
@@ -131,18 +131,18 @@ export function PassengerProfilePage() {
                 <BlockedUsersSection />
 
                 <div className="flex flex-col gap-4">
-                    <h2 className="text-lg font-bold text-(--color-text-primary)">
+                    <h2 className="text-lg font-bold text-text-primary">
                         {t("profile.myUpcomingRides")}
                     </h2>
 
                     {ridesLoading && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("myRides.loading")}
                         </p>
                     )}
 
                     {ridesError && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t(
                                 getErrorI18nKey(
                                     ridesErrorObj,
@@ -156,7 +156,7 @@ export function PassengerProfilePage() {
                     {!ridesLoading &&
                         !ridesError &&
                         upcomingRides.length === 0 && (
-                            <p className="text-(--color-text-secondary)">
+                            <p className="text-text-secondary">
                                 {t("myRides.noResults")}
                             </p>
                         )}

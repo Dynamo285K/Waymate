@@ -161,9 +161,8 @@ export function AddCarPage() {
     });
 
     const inputClass =
-        "w-full rounded-xl border border-(--color-border) bg-(--color-input-bg) text-(--color-text-primary) px-3 py-3 text-sm outline-none focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10 transition-colors font-[Inter,sans-serif] appearance-none";
-    const labelClass =
-        "text-sm font-bold text-(--color-text-primary) mb-1 block";
+        "w-full rounded-xl border border-border bg-input text-text-primary px-3 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-colors font-[Inter,sans-serif] appearance-none";
+    const labelClass = "text-sm font-bold text-text-primary mb-1 block";
 
     const onSubmit: SubmitHandler<CarFormValues> = (values) => {
         const selectedModel = carModels.find(
@@ -190,7 +189,7 @@ export function AddCarPage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             {role === "driver" ? (
                 <DriverNavbar {...driverNavbarProps} />
@@ -207,23 +206,21 @@ export function AddCarPage() {
                         {t("profile.backToProfile", "<- Back to My Profile")}
                     </TextLink>
                 </div>
-                <h1 className="text-2xl font-bold text-(--color-text-primary) mb-8">
+                <h1 className="text-2xl font-bold text-text-primary mb-8">
                     {t("addCar.title")}
                 </h1>
 
                 <form
                     onSubmit={handleSubmit(onSubmit)}
                     noValidate
-                    className="bg-(--color-card) rounded-2xl border border-(--color-border) overflow-hidden"
+                    className="bg-card rounded-2xl border border-border overflow-hidden"
                 >
-                    <div className="p-6 border-b border-(--color-border)">
+                    <div className="p-6 border-b border-border">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className={labelClass}>
                                     {t("addCar.make")}{" "}
-                                    <span className="text-(--color-danger-text)">
-                                        *
-                                    </span>
+                                    <span className="text-danger-text">*</span>
                                 </label>
                                 <Controller
                                     control={control}
@@ -247,13 +244,13 @@ export function AddCarPage() {
                                                         "addCar.selectMake"
                                                     )}
                                                 />
-                                                <Select.Icon className="text-(--color-text-secondary) shrink-0">
+                                                <Select.Icon className="text-text-secondary shrink-0">
                                                     <ChevronDownIcon />
                                                 </Select.Icon>
                                             </Select.Trigger>
                                             <Select.Portal>
                                                 <Select.Content
-                                                    className="z-1100 w-(--radix-select-trigger-width) rounded-xl border border-(--color-border) bg-(--color-card) p-1 shadow-lg"
+                                                    className="z-1100 w-(--radix-select-trigger-width) rounded-xl border border-border bg-card p-1 shadow-lg"
                                                     position="popper"
                                                     sideOffset={4}
                                                 >
@@ -262,7 +259,7 @@ export function AddCarPage() {
                                                             <Select.Item
                                                                 key={m}
                                                                 value={m}
-                                                                className="flex items-center px-3 py-2 text-sm rounded-lg text-(--color-text-primary) cursor-pointer outline-none data-highlighted:bg-(--color-bg) data-[state=checked]:text-(--color-primary)"
+                                                                className="flex items-center px-3 py-2 text-sm rounded-lg text-text-primary cursor-pointer outline-none data-highlighted:bg-background data-[state=checked]:text-primary"
                                                             >
                                                                 <Select.ItemText>
                                                                     {m}
@@ -283,9 +280,7 @@ export function AddCarPage() {
                             <div>
                                 <label className={labelClass}>
                                     {t("addCar.model")}{" "}
-                                    <span className="text-(--color-danger-text)">
-                                        *
-                                    </span>
+                                    <span className="text-danger-text">*</span>
                                 </label>
                                 <Controller
                                     control={control}
@@ -313,13 +308,13 @@ export function AddCarPage() {
                                                               )
                                                     }
                                                 />
-                                                <Select.Icon className="text-(--color-text-secondary) shrink-0">
+                                                <Select.Icon className="text-text-secondary shrink-0">
                                                     <ChevronDownIcon />
                                                 </Select.Icon>
                                             </Select.Trigger>
                                             <Select.Portal>
                                                 <Select.Content
-                                                    className="z-1100 w-(--radix-select-trigger-width) rounded-xl border border-(--color-border) bg-(--color-card) p-1 shadow-lg"
+                                                    className="z-1100 w-(--radix-select-trigger-width) rounded-xl border border-border bg-card p-1 shadow-lg"
                                                     position="popper"
                                                     sideOffset={4}
                                                 >
@@ -330,7 +325,7 @@ export function AddCarPage() {
                                                                 value={
                                                                     m.modelName
                                                                 }
-                                                                className="flex items-center px-3 py-2 text-sm rounded-lg text-(--color-text-primary) cursor-pointer outline-none data-highlighted:bg-(--color-bg) data-[state=checked]:text-(--color-primary)"
+                                                                className="flex items-center px-3 py-2 text-sm rounded-lg text-text-primary cursor-pointer outline-none data-highlighted:bg-background data-[state=checked]:text-primary"
                                                             >
                                                                 <Select.ItemText>
                                                                     {
@@ -353,13 +348,11 @@ export function AddCarPage() {
                         </div>
                     </div>
 
-                    <div className="p-6 border-b border-(--color-border)">
+                    <div className="p-6 border-b border-border">
                         <label className={labelClass}>
                             {t("addCar.seats")}{" "}
-                            <span className="text-(--color-danger-text)">
-                                *
-                            </span>
-                            <span className="font-normal text-(--color-text-secondary) ml-2">
+                            <span className="text-danger-text">*</span>
+                            <span className="font-normal text-text-secondary ml-2">
                                 {t("addCar.excludingDriver")}
                             </span>
                         </label>
@@ -376,8 +369,8 @@ export function AddCarPage() {
                                             onClick={() => field.onChange(n)}
                                             className={`flex items-center justify-center w-12 h-12 rounded-xl border-2 font-semibold text-sm transition-all cursor-pointer ${
                                                 field.value === n
-                                                    ? "border-(--color-primary) bg-(--color-primary)/10 text-(--color-primary)"
-                                                    : "border-(--color-border) bg-(--color-card) text-(--color-text-primary) hover:border-(--color-primary)"
+                                                    ? "border-primary bg-primary/10 text-primary"
+                                                    : "border-border bg-card text-text-primary hover:border-primary"
                                             }`}
                                         >
                                             {n}
@@ -391,12 +384,10 @@ export function AddCarPage() {
                         </FieldError>
                     </div>
 
-                    <div className="p-6 border-b border-(--color-border)">
+                    <div className="p-6 border-b border-border">
                         <label className={labelClass}>
                             {t("addCar.color")}{" "}
-                            <span className="text-(--color-danger-text)">
-                                *
-                            </span>
+                            <span className="text-danger-text">*</span>
                         </label>
                         <Controller
                             control={control}
@@ -414,13 +405,13 @@ export function AddCarPage() {
                                             className="flex flex-col items-center gap-1"
                                         >
                                             <span
-                                                className={`w-10 h-10 rounded-full transition-all ${field.value === c.value ? "ring-2 ring-offset-2 ring-(--color-primary) scale-110" : ""}`}
+                                                className={`w-10 h-10 rounded-full transition-all ${field.value === c.value ? "ring-2 ring-offset-2 ring-primary scale-110" : ""}`}
                                                 style={{
                                                     backgroundColor: c.hex,
                                                     border: `1.5px solid ${c.border}`,
                                                 }}
                                             />
-                                            <span className="text-xs text-(--color-text-secondary)">
+                                            <span className="text-xs text-text-secondary">
                                                 {c.label}
                                             </span>
                                         </Button>
@@ -433,20 +424,18 @@ export function AddCarPage() {
                         </FieldError>
                     </div>
 
-                    <div className="p-6 border-b border-(--color-border)">
+                    <div className="p-6 border-b border-border">
                         <label className={labelClass}>
                             {t("addCar.licensePlate")}{" "}
-                            <span className="text-(--color-danger-text)">
-                                *
-                            </span>
+                            <span className="text-danger-text">*</span>
                         </label>
                         <div className="flex gap-2 mt-1 items-center">
                             {/* eslint-disable no-restricted-syntax -- SK license plate visual uses real plate colors */}
                             <div className="shrink-0 w-16 h-12 rounded-xl bg-slate-800 flex flex-col items-center justify-center text-white text-xs font-bold">
-                                <span className="text-yellow-300 tracking-widest text-[10px]">
+                                <span className="text-yellow-300 tracking-widest text-plate">
                                     ***
                                 </span>
-                                <span className="text-[11px] mt-0.5">SK</span>
+                                <span className="text-badge mt-0.5">SK</span>
                             </div>
                             {/* eslint-enable no-restricted-syntax */}
                             <Controller
@@ -476,7 +465,7 @@ export function AddCarPage() {
 
                     <div className="p-6 flex flex-col gap-4 sm:items-end">
                         {errors.root?.message && (
-                            <p className="w-full rounded-xl border border-(--color-danger-border) bg-(--color-danger-bg) px-4 py-3 text-sm font-semibold text-(--color-danger-text)">
+                            <p className="w-full rounded-xl border border-danger-border bg-danger-bg px-4 py-3 text-sm font-semibold text-danger-text">
                                 {t(errors.root.message)}
                             </p>
                         )}

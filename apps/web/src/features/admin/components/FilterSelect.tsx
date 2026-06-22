@@ -30,16 +30,16 @@ export function FilterSelect<T extends string>({
         >
             <Select.Trigger
                 aria-label={ariaLabel}
-                className="flex items-center justify-between gap-2 rounded-xl border border-(--color-border) bg-(--color-card) px-3 py-2 text-sm text-(--color-text-primary) cursor-pointer outline-none focus:border-(--color-primary)"
+                className="flex items-center justify-between gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm text-text-primary cursor-pointer outline-none focus:border-primary"
             >
                 <Select.Value />
-                <Select.Icon className="text-(--color-text-secondary) shrink-0">
+                <Select.Icon className="text-text-secondary shrink-0">
                     <ChevronDownIcon />
                 </Select.Icon>
             </Select.Trigger>
             <Select.Portal>
                 <Select.Content
-                    className="z-1100 min-w-(--radix-select-trigger-width) rounded-xl border border-(--color-border) bg-(--color-card) p-1 shadow-lg"
+                    className="z-1100 min-w-(--radix-select-trigger-width) rounded-xl border border-border bg-card p-1 shadow-lg"
                     position="popper"
                     sideOffset={4}
                 >
@@ -48,7 +48,7 @@ export function FilterSelect<T extends string>({
                             <Select.Item
                                 key={option.value}
                                 value={option.value}
-                                className="flex items-center px-3 py-2 text-sm rounded-lg text-(--color-text-primary) cursor-pointer outline-none data-highlighted:bg-(--color-bg) data-[state=checked]:text-(--color-primary)"
+                                className="flex items-center px-3 py-2 text-sm rounded-lg text-text-primary cursor-pointer outline-none data-highlighted:bg-background data-[state=checked]:text-primary"
                             >
                                 <Select.ItemText>
                                     {option.label}

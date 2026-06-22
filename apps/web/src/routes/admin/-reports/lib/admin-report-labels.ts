@@ -3,12 +3,10 @@ import type { ReportStatus } from "../../../../api-client/model/reportStatus";
 import type { ReportType } from "../../../../api-client/model/reportType";
 
 export const REPORT_STATUS_BADGE_CLASSES: Record<ReportStatus, string> = {
-    OPEN: "border border-(--color-warning-border) bg-(--color-warning-bg) text-(--color-warning-text)",
-    INVESTIGATING:
-        "border border-(--color-primary) bg-(--color-primary)/10 text-(--color-primary)",
-    RESOLVED:
-        "border border-(--color-success-border) bg-(--color-success-bg) text-(--color-success-text)",
-    DISMISSED: "bg-(--color-secondary-hover) text-(--color-text-secondary)",
+    OPEN: "border border-warning-border bg-warning-bg text-warning-text",
+    INVESTIGATING: "border border-primary bg-primary/10 text-primary",
+    RESOLVED: "border border-success-border bg-success-bg text-success-text",
+    DISMISSED: "bg-secondary-hover text-text-secondary",
 };
 
 export function useReportStatusLabels(): Record<ReportStatus, string> {

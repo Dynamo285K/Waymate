@@ -113,7 +113,7 @@ export function DriverProfilePage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <DriverNavbar {...navbarProps} />
 
@@ -143,11 +143,11 @@ export function DriverProfilePage() {
                 />
 
                 {aboutMe && (
-                    <div className="bg-(--color-card) rounded-2xl p-6 border border-(--color-border)">
-                        <h2 className="text-base font-semibold text-(--color-text-primary) mb-3">
+                    <div className="bg-card rounded-2xl p-6 border border-border">
+                        <h2 className="text-base font-semibold text-text-primary mb-3">
                             {t("profile.aboutMe")}
                         </h2>
-                        <p className="text-(--color-text-secondary) text-sm leading-relaxed">
+                        <p className="text-text-secondary text-sm leading-relaxed">
                             {aboutMe}
                         </p>
                     </div>
@@ -157,17 +157,17 @@ export function DriverProfilePage() {
 
                 <div className="flex flex-col lg:flex-row gap-6">
                     <div className="flex-1 flex flex-col gap-4">
-                        <h2 className="text-lg font-bold text-(--color-text-primary)">
+                        <h2 className="text-lg font-bold text-text-primary">
                             {t("profile.myUpcomingRides")}
                         </h2>
                         {ridesLoading && (
-                            <p className="text-(--color-text-secondary)">
+                            <p className="text-text-secondary">
                                 {t("driverRides.loading")}
                             </p>
                         )}
 
                         {ridesError && (
-                            <p className="text-(--color-text-secondary)">
+                            <p className="text-text-secondary">
                                 {t(
                                     getErrorI18nKey(
                                         ridesErrorObj,
@@ -179,7 +179,7 @@ export function DriverProfilePage() {
                         )}
 
                         {cancelRide.isError && (
-                            <p className="text-(--color-text-secondary)">
+                            <p className="text-text-secondary">
                                 {t(
                                     getErrorI18nKey(
                                         cancelRide.error,
@@ -193,7 +193,7 @@ export function DriverProfilePage() {
                         {!ridesLoading &&
                             !ridesError &&
                             upcomingRides.length === 0 && (
-                                <p className="text-(--color-text-secondary)">
+                                <p className="text-text-secondary">
                                     {t("driverRides.noResults")}
                                 </p>
                             )}
@@ -247,7 +247,7 @@ export function DriverProfilePage() {
 
                     <div className="lg:w-72 flex flex-col gap-4">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-bold text-(--color-text-primary)">
+                            <h2 className="text-lg font-bold text-text-primary">
                                 {t("profile.myCars")}
                             </h2>
                             <Button
@@ -262,12 +262,12 @@ export function DriverProfilePage() {
                             </Button>
                         </div>
                         {carsQuery.isLoading && (
-                            <p className="text-(--color-text-secondary)">
+                            <p className="text-text-secondary">
                                 {t("profile.loadingCars")}
                             </p>
                         )}
                         {carsQuery.isError && (
-                            <p className="text-(--color-text-secondary)">
+                            <p className="text-text-secondary">
                                 {t(
                                     getErrorI18nKey(
                                         carsQuery.error,
@@ -280,7 +280,7 @@ export function DriverProfilePage() {
                         {!carsQuery.isLoading &&
                             !carsQuery.isError &&
                             carsQuery.data?.length === 0 && (
-                                <p className="text-(--color-text-secondary)">
+                                <p className="text-text-secondary">
                                     {t("profile.noCars")}
                                 </p>
                             )}
@@ -299,10 +299,10 @@ export function DriverProfilePage() {
                 open={carToDelete !== null}
                 onClose={() => setCarToDelete(null)}
             >
-                <h2 className="text-xl font-bold text-(--color-text-primary) mb-2">
+                <h2 className="text-xl font-bold text-text-primary mb-2">
                     {t("profile.deleteCar.title")}
                 </h2>
-                <p className="text-sm text-(--color-text-secondary) mb-8 leading-relaxed">
+                <p className="text-sm text-text-secondary mb-8 leading-relaxed">
                     {t("profile.deleteCar.message")}
                 </p>
                 <div className="flex gap-3 justify-end">
@@ -315,8 +315,7 @@ export function DriverProfilePage() {
                     <Button
                         variant="unstyled"
                         disabled={deleteCar.isPending}
-                        className="px-4 py-3 rounded-xl font-semibold text-sm text-white cursor-pointer disabled:opacity-50"
-                        style={{ background: "var(--color-red)" }}
+                        className="px-4 py-3 rounded-xl bg-red font-semibold text-sm text-white cursor-pointer disabled:opacity-50"
                         onClick={() => {
                             if (carToDelete) deleteCar.mutate(carToDelete);
                         }}

@@ -80,7 +80,7 @@ export function DriverRatingsPage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <DriverNavbar {...navbarProps} />
 
@@ -94,7 +94,7 @@ export function DriverRatingsPage() {
                     </TextLink>
                 </div>
 
-                <h1 className="text-2xl font-bold text-(--color-text-primary) mb-6">
+                <h1 className="text-2xl font-bold text-text-primary mb-6">
                     {isReceived ? t("ratings.title") : t("ratings.myRatings")}
                 </h1>
 
@@ -106,17 +106,17 @@ export function DriverRatingsPage() {
 
                 <div className="flex flex-col gap-4 mt-6">
                     {isLoading && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("ratings.loading")}
                         </p>
                     )}
                     {isError && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t(getErrorI18nKey(error, {}, "ratings.error"))}
                         </p>
                     )}
                     {!isLoading && !isError && ratings.length === 0 && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("ratings.empty")}
                         </p>
                     )}

@@ -34,7 +34,7 @@ export function DriverChatPage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg) flex flex-col"
+            className="min-h-screen bg-background flex flex-col"
         >
             <DriverNavbar {...navbarProps} />
             <ChatPanel initialConversationId={conversation} />

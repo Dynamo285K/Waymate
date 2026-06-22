@@ -87,31 +87,31 @@ export function DriverRideRequestsPage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <DriverNavbar {...navbarProps} />
             <section className="w-full px-4 sm:max-w-3xl sm:mx-auto sm:px-8 py-8 sm:py-12">
-                <h1 className="text-2xl font-bold text-(--color-text-primary)">
+                <h1 className="text-2xl font-bold text-text-primary">
                     {t("rideRequests.title")}
                 </h1>
-                <p className="text-(--color-text-secondary) mt-1 mb-8">
+                <p className="text-text-secondary mt-1 mb-8">
                     {t("rideRequests.subtitle")}
                 </p>
                 <div className="flex flex-col gap-4">
                     {isLoading && (
-                        <p className="text-(--color-text-secondary) text-center py-12">
+                        <p className="text-text-secondary text-center py-12">
                             {t("driverRides.loading")}
                         </p>
                     )}
                     {isError && (
-                        <p className="text-(--color-text-secondary) text-center py-12">
+                        <p className="text-text-secondary text-center py-12">
                             {t(
                                 getErrorI18nKey(error, {}, "rideRequests.error")
                             )}
                         </p>
                     )}
                     {(acceptRequest.isError || declineRequest.isError) && (
-                        <p className="text-(--color-text-secondary) text-center">
+                        <p className="text-text-secondary text-center">
                             {t(
                                 getErrorI18nKey(
                                     acceptRequest.error ?? declineRequest.error,
@@ -124,7 +124,7 @@ export function DriverRideRequestsPage() {
                     {!isLoading &&
                         !isError &&
                         displayedRequests.length === 0 && (
-                            <p className="text-(--color-text-secondary) text-center py-12">
+                            <p className="text-text-secondary text-center py-12">
                                 {t("rideRequests.empty")}
                             </p>
                         )}

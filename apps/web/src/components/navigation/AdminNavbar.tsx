@@ -193,7 +193,7 @@ export function AdminNavbar({
     const hamburger = (
         <Button
             variant="unstyled"
-            className="bg-(--color-card) border border-(--color-border) rounded-[10px] w-10 h-10 cursor-pointer flex flex-col items-center justify-center gap-1.25 p-0 shadow-[0_1px_4px_rgba(0,0,0,0.1)] [&_span]:block [&_span]:w-4.5 [&_span]:h-0.5 [&_span]:bg-(--color-text-primary) [&_span]:rounded-sm"
+            className="bg-card border border-border rounded-[10px] w-10 h-10 cursor-pointer flex flex-col items-center justify-center gap-1.25 p-0 shadow-hairline [&_span]:block [&_span]:w-4.5 [&_span]:h-0.5 [&_span]:bg-text-primary [&_span]:rounded-sm"
             onClick={() => setIsMobileMenuOpen((c) => !c)}
         >
             <span />
@@ -212,7 +212,7 @@ export function AdminNavbar({
                     name={userName}
                     size="sm"
                 />
-                <span className="w-8 h-8 rounded-full bg-(--color-card) text-(--color-text-secondary) shadow-[0_2px_6px_rgba(0,0,0,0.12)] inline-flex items-center justify-center group-hover:bg-(--color-border) [&_svg]:w-4 [&_svg]:h-4">
+                <span className="w-8 h-8 rounded-full bg-card text-text-secondary shadow-button inline-flex items-center justify-center group-hover:bg-border [&_svg]:w-4 [&_svg]:h-4">
                     <ChevronDownIcon />
                 </span>
             </DropdownMenu.Trigger>
@@ -276,7 +276,7 @@ export function AdminNavbar({
     );
 
     const adminBadge = (
-        <span className="bg-(--color-primary) flex items-center justify-center text-white rounded-full py-2 px-5 text-sm font-semibold border-0 cursor-default self-center shrink-0">
+        <span className="bg-primary flex items-center justify-center text-white rounded-full py-2 px-5 text-sm font-semibold border-0 cursor-default self-center shrink-0">
             {labels?.adminRole ?? "Admin"}
         </span>
     );
@@ -300,7 +300,7 @@ export function AdminNavbar({
 
     return (
         <header
-            className="w-full bg-(--color-bg) border-b border-(--color-border) shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+            className="w-full bg-background border-b border-border shadow-navbar"
             ref={navbarRef}
         >
             {isDesktop && (
@@ -323,7 +323,7 @@ export function AdminNavbar({
                         {hamburger}
                     </div>
                     {isMobileMenuOpen && (
-                        <div className="border-t border-(--color-border) py-3 px-4 flex flex-col gap-3 bg-(--color-bg)">
+                        <div className="border-t border-border py-3 px-4 flex flex-col gap-3 bg-background">
                             {adminBadge}
                             <div className="flex items-center gap-2.5">
                                 <IconButton
@@ -340,7 +340,7 @@ export function AdminNavbar({
                             </div>
                         </div>
                     )}
-                    <nav className="flex items-center gap-1 px-4 pt-1.5 pb-2 border-t border-(--color-border) overflow-x-auto scrollbar-none [&_.nav-button]:shrink-0 [&_.nav-button]:text-[13px] [&_.nav-button]:py-1.5 [&_.nav-button]:px-3 [&_.nav-button]:gap-1.5">
+                    <nav className="flex items-center gap-1 px-4 pt-1.5 pb-2 border-t border-border overflow-x-auto scrollbar-none [&_.nav-button]:shrink-0 [&_.nav-button]:text-caption [&_.nav-button]:py-1.5 [&_.nav-button]:px-3 [&_.nav-button]:gap-1.5">
                         {navTabs}
                     </nav>
                 </div>
@@ -352,7 +352,7 @@ export function AdminNavbar({
                         {hamburger}
                     </div>
                     {isMobileMenuOpen && (
-                        <div className="border-t border-(--color-border) py-3 px-4 flex flex-col gap-3 bg-(--color-bg)">
+                        <div className="border-t border-border py-3 px-4 flex flex-col gap-3 bg-background">
                             {adminBadge}
                             <div className="flex items-center gap-2.5">
                                 <IconButton
@@ -369,7 +369,7 @@ export function AdminNavbar({
                             </div>
                         </div>
                     )}
-                    <nav className="grid grid-cols-2 gap-1.5 px-4 pt-2 pb-2.5 border-t border-(--color-border) [&_.nav-button]:py-2 [&_.nav-button]:px-2.5 [&_.nav-button]:text-[13px] [&_.nav-button]:gap-1.5 [&_.nav-button]:justify-center [&_.nav-button]:w-full">
+                    <nav className="grid grid-cols-2 gap-1.5 px-4 pt-2 pb-2.5 border-t border-border [&_.nav-button]:py-2 [&_.nav-button]:px-2.5 [&_.nav-button]:text-caption [&_.nav-button]:gap-1.5 [&_.nav-button]:justify-center [&_.nav-button]:w-full">
                         {navTabs}
                     </nav>
                 </div>

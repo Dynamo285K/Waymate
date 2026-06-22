@@ -39,7 +39,7 @@ export function SeatsPriceSection() {
                         placeholder={t("offerRide.seatsPlaceholder")}
                     />
                     {errors.seats?.message && (
-                        <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
+                        <p className="-mt-0.5 text-danger-text text-xs font-semibold">
                             {t(errors.seats.message)}
                         </p>
                     )}
@@ -59,7 +59,7 @@ export function SeatsPriceSection() {
                         placeholder={t("offerRide.pricePlaceholder")}
                     />
                     {errors.price?.message && (
-                        <p className="-mt-0.5 text-(--color-danger-text) text-xs font-semibold">
+                        <p className="-mt-0.5 text-danger-text text-xs font-semibold">
                             {t(errors.price.message)}
                         </p>
                     )}

@@ -35,7 +35,7 @@ export function PassengerHomePage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <PassengerNavbar {...navbarProps} />
             <BookingErrorModal

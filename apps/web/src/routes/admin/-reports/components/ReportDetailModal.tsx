@@ -48,7 +48,7 @@ export function ReportDetailModal({
     const typeLabels = useReportTypeLabels();
 
     const labelClass =
-        "text-xs font-bold text-(--color-text-secondary) tracking-wider mb-1 block";
+        "text-xs font-bold text-text-secondary tracking-wider mb-1 block";
 
     const data = detailQuery.data;
     const reporterName = data
@@ -72,7 +72,7 @@ export function ReportDetailModal({
         >
             <div className="w-[calc(100vw-2rem)] max-w-2xl p-8 max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold text-(--color-text-primary)">
+                    <h2 className="text-xl font-bold text-text-primary">
                         {t("admin.reports.detailTitle")}
                     </h2>
                     <IconButton
@@ -84,13 +84,13 @@ export function ReportDetailModal({
                 </div>
 
                 {detailQuery.isLoading && (
-                    <p className="text-(--color-text-secondary)">
+                    <p className="text-text-secondary">
                         {t("admin.reports.loading")}
                     </p>
                 )}
 
                 {!detailQuery.isLoading && detailQuery.isError && (
-                    <p className="text-(--color-danger-text)">
+                    <p className="text-danger-text">
                         {t(
                             getErrorI18nKey(
                                 detailQuery.error,
@@ -103,7 +103,7 @@ export function ReportDetailModal({
                 {!detailQuery.isLoading && data && (
                     <>
                         <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
-                            <span className="text-sm font-semibold text-(--color-text-primary)">
+                            <span className="text-sm font-semibold text-text-primary">
                                 {typeLabels[data.report.reportType]}
                             </span>
                             <ReportStatusBadge
@@ -112,7 +112,7 @@ export function ReportDetailModal({
                         </div>
 
                         <div className="grid grid-cols-2 gap-4 mb-6">
-                            <div className="border border-(--color-border) rounded-xl p-4">
+                            <div className="border border-border rounded-xl p-4">
                                 <p className={labelClass}>
                                     {t("admin.reports.reporter")}
                                 </p>
@@ -122,16 +122,16 @@ export function ReportDetailModal({
                                         size="sm"
                                     />
                                     <div>
-                                        <p className="text-sm font-semibold text-(--color-text-primary)">
+                                        <p className="text-sm font-semibold text-text-primary">
                                             {reporterName}
                                         </p>
-                                        <p className="text-xs text-(--color-text-secondary)">
+                                        <p className="text-xs text-text-secondary">
                                             {data.report.reporter.email}
                                         </p>
                                     </div>
                                 </div>
                             </div>
-                            <div className="border border-(--color-border) rounded-xl p-4">
+                            <div className="border border-border rounded-xl p-4">
                                 <p className={labelClass}>
                                     {t("admin.reports.target")}
                                 </p>
@@ -141,16 +141,16 @@ export function ReportDetailModal({
                                         size="sm"
                                     />
                                     <div>
-                                        <p className="text-sm font-semibold text-(--color-text-primary)">
+                                        <p className="text-sm font-semibold text-text-primary">
                                             {targetName}
                                         </p>
-                                        <p className="text-xs text-(--color-text-secondary)">
+                                        <p className="text-xs text-text-secondary">
                                             {data.report.target.email}
                                         </p>
                                     </div>
                                 </div>
                                 {data.report.target.userStatus === "BANNED" ? (
-                                    <p className="text-xs font-semibold text-(--color-danger-text) mt-3">
+                                    <p className="text-xs font-semibold text-danger-text mt-3">
                                         {t("admin.reports.targetAlreadyBanned")}
                                     </p>
                                 ) : (
@@ -174,15 +174,15 @@ export function ReportDetailModal({
                         </div>
 
                         {data.report.ride && (
-                            <div className="border border-(--color-border) rounded-xl p-4 mb-6">
+                            <div className="border border-border rounded-xl p-4 mb-6">
                                 <p className={labelClass}>
                                     {t("admin.rideContext")}
                                 </p>
-                                <p className="text-sm font-semibold text-(--color-text-primary)">
+                                <p className="text-sm font-semibold text-text-primary">
                                     {data.report.ride.originCity} →{" "}
                                     {data.report.ride.destinationCity}
                                 </p>
-                                <p className="text-xs text-(--color-text-secondary) mt-1">
+                                <p className="text-xs text-text-secondary mt-1">
                                     {formatDate(
                                         data.report.ride.departureAt,
                                         "—"
@@ -195,7 +195,7 @@ export function ReportDetailModal({
                             <p className={labelClass}>
                                 {t("admin.reports.description")}
                             </p>
-                            <p className="text-sm text-(--color-text-primary) whitespace-pre-wrap border border-(--color-border) rounded-xl p-3 bg-(--color-bg)">
+                            <p className="text-sm text-text-primary whitespace-pre-wrap border border-border rounded-xl p-3 bg-background">
                                 {data.report.description}
                             </p>
                         </div>
@@ -216,7 +216,7 @@ export function ReportDetailModal({
                                 <p className={labelClass}>
                                     {t("admin.reports.resolutionReason")}
                                 </p>
-                                <p className="text-sm text-(--color-text-primary) whitespace-pre-wrap border border-(--color-border) rounded-xl p-3 bg-(--color-bg)">
+                                <p className="text-sm text-text-primary whitespace-pre-wrap border border-border rounded-xl p-3 bg-background">
                                     {data.report.resolutionReason}
                                 </p>
                             </div>
@@ -224,7 +224,7 @@ export function ReportDetailModal({
 
                         {mutationErrorForThisReport !== null &&
                             mutationErrorForThisReport !== undefined && (
-                                <p className="text-sm text-(--color-danger-text) mb-4">
+                                <p className="text-sm text-danger-text mb-4">
                                     {t(
                                         getErrorI18nKey(
                                             mutationErrorForThisReport,
@@ -272,11 +272,11 @@ export function ReportDetailModal({
                             </div>
                         )}
 
-                        <h3 className="text-base font-bold text-(--color-text-primary) mb-3">
+                        <h3 className="text-base font-bold text-text-primary mb-3">
                             {t("admin.statusHistory")}
                         </h3>
                         {data.statusHistory.length === 0 ? (
-                            <p className="text-sm text-(--color-text-secondary)">
+                            <p className="text-sm text-text-secondary">
                                 {t("admin.noStatusHistory")}
                             </p>
                         ) : (

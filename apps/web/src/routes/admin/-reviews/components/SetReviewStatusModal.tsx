@@ -57,7 +57,7 @@ export function SetReviewStatusModal({
                 className="w-[calc(100vw-2rem)] max-w-lg p-8"
             >
                 <div className="flex justify-between items-center mb-5">
-                    <h2 className="text-xl font-bold text-(--color-text-primary)">
+                    <h2 className="text-xl font-bold text-text-primary">
                         {t("admin.setReviewStatus", {
                             status: labels[targetStatus],
                         })}
@@ -71,7 +71,7 @@ export function SetReviewStatusModal({
                 </div>
 
                 {targetStatus !== "VISIBLE" && (
-                    <div className="bg-(--color-warning-bg) border border-(--color-border) rounded-xl p-4 mb-5 text-sm text-(--color-text-primary)">
+                    <div className="bg-warning-bg border border-border rounded-xl p-4 mb-5 text-sm text-text-primary">
                         {targetStatus === "HIDDEN"
                             ? t("admin.hideReviewWarning")
                             : t("admin.removeReviewWarning")}
@@ -79,9 +79,9 @@ export function SetReviewStatusModal({
                 )}
 
                 <div className="mb-6">
-                    <label className="text-sm font-semibold text-(--color-text-primary) mb-1.5 block">
+                    <label className="text-sm font-semibold text-text-primary mb-1.5 block">
                         {t("admin.reasonForModeration")}{" "}
-                        <span className="text-(--color-danger-text)">*</span>
+                        <span className="text-danger-text">*</span>
                     </label>
                     <Controller
                         control={control}
@@ -98,7 +98,7 @@ export function SetReviewStatusModal({
                 </div>
 
                 {error !== null && error !== undefined && (
-                    <p className="text-sm text-(--color-danger-text) mb-4">
+                    <p className="text-sm text-danger-text mb-4">
                         {t(getErrorI18nKey(error, adminReviewsErrorMap))}
                     </p>
                 )}

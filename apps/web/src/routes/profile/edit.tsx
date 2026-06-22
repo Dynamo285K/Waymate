@@ -114,7 +114,7 @@ export function EditProfilePage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             {role === "driver" ? (
                 <DriverNavbar {...driverNavbarProps} />
@@ -123,13 +123,13 @@ export function EditProfilePage() {
             )}
 
             <section className="w-full px-4 sm:max-w-2xl sm:mx-auto sm:px-8 py-8 sm:py-12">
-                <h1 className="text-2xl font-bold text-(--color-text-primary) mb-8">
+                <h1 className="text-2xl font-bold text-text-primary mb-8">
                     {t("editProfile.title")}
                 </h1>
 
                 <form
                     onSubmit={handleSubmit(onSubmit)}
-                    className="bg-(--color-card) rounded-2xl p-6 sm:p-8 border border-(--color-border) flex flex-col gap-6"
+                    className="bg-card rounded-2xl p-6 sm:p-8 border border-border flex flex-col gap-6"
                 >
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1">
@@ -175,7 +175,7 @@ export function EditProfilePage() {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold text-(--color-text-primary)">
+                        <label className="text-sm font-semibold text-text-primary">
                             {t("editProfile.aboutMe")}
                         </label>
                         <Controller

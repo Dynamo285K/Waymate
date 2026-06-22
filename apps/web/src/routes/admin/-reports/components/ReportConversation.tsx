@@ -13,7 +13,7 @@ type ReportConversationProps = {
 };
 
 const labelClass =
-    "text-xs font-bold text-(--color-text-secondary) tracking-wider mb-1 block";
+    "text-xs font-bold text-text-secondary tracking-wider mb-1 block";
 
 // Read-only chat between a report's two parties, loaded on demand (admins
 // shouldn't pull private messages unless they explicitly open them — the access
@@ -44,32 +44,32 @@ export function ReportConversation({
                     {t("admin.reports.viewConversation")}
                 </Button>
             ) : query.isLoading ? (
-                <p className="text-sm text-(--color-text-secondary)">
+                <p className="text-sm text-text-secondary">
                     {t("admin.reports.conversationLoading")}
                 </p>
             ) : query.isError ? (
-                <p className="text-sm text-(--color-danger-text)">
+                <p className="text-sm text-danger-text">
                     {t(getErrorI18nKey(query.error, adminReportsErrorMap))}
                 </p>
             ) : !hasMessages ? (
-                <p className="text-sm text-(--color-text-secondary)">
+                <p className="text-sm text-text-secondary">
                     {t("admin.reports.noConversation")}
                 </p>
             ) : (
-                <div className="flex flex-col gap-3 border border-(--color-border) rounded-xl p-3 bg-(--color-bg) max-h-80 overflow-y-auto">
+                <div className="flex flex-col gap-3 border border-border rounded-xl p-3 bg-background max-h-80 overflow-y-auto">
                     {data!.messages.map((m) => (
                         <div
                             key={m.id}
                             className="flex flex-col"
                         >
-                            <span className="text-xs font-semibold text-(--color-text-primary)">
+                            <span className="text-xs font-semibold text-text-primary">
                                 {nameFor(m.senderId)}
-                                <span className="font-normal text-(--color-text-secondary)">
+                                <span className="font-normal text-text-secondary">
                                     {" · "}
                                     {formatDate(m.sentAt, "—")}
                                 </span>
                             </span>
-                            <span className="text-sm text-(--color-text-primary) whitespace-pre-wrap">
+                            <span className="text-sm text-text-primary whitespace-pre-wrap">
                                 {m.content}
                             </span>
                         </div>

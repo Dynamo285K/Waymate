@@ -2,12 +2,11 @@ import { useTranslation } from "react-i18next";
 import type { UserStatus } from "../../../../api-client/model/userStatus";
 
 export const STATUS_BADGE_CLASSES: Record<UserStatus, string> = {
-    ACTIVE: "border border-(--color-success-border) bg-(--color-success-bg) text-(--color-success-text)",
-    PENDING: "bg-(--color-warning-bg) text-(--color-warning-text)",
-    SUSPENDED: "bg-(--color-warning-bg) text-(--color-warning-text)",
-    BANNED: "border border-(--color-danger-border) bg-(--color-danger-bg) text-(--color-danger-text)",
-    DELETED:
-        "border border-(--color-border) bg-(--color-bg) text-(--color-text-secondary)",
+    ACTIVE: "border border-success-border bg-success-bg text-success-text",
+    PENDING: "bg-warning-bg text-warning-text",
+    SUSPENDED: "bg-warning-bg text-warning-text",
+    BANNED: "border border-danger-border bg-danger-bg text-danger-text",
+    DELETED: "border border-border bg-background text-text-secondary",
 };
 
 export function useStatusLabels(): Record<UserStatus, string> {

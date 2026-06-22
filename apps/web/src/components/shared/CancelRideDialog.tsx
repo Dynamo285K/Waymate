@@ -67,10 +67,10 @@ export function CancelRideDialog({
             theme={theme}
         >
             <form onSubmit={handleSubmit(onSubmit)}>
-                <h2 className="text-xl font-bold text-(--color-text-primary) mb-2">
+                <h2 className="text-xl font-bold text-text-primary mb-2">
                     {title ?? t("cancelRideDialog.title")}
                 </h2>
-                <p className="text-sm text-(--color-text-secondary) mb-5 leading-relaxed">
+                <p className="text-sm text-text-secondary mb-5 leading-relaxed">
                     {message ?? t("cancelRideDialog.message")}
                 </p>
                 <div className="mb-6">

@@ -36,7 +36,7 @@ export function ReviewDetailModal({
     const detailQuery = useGetAdminReviewsById(reviewId);
 
     const labelClass =
-        "text-xs font-bold text-(--color-text-secondary) tracking-wider mb-1 block";
+        "text-xs font-bold text-text-secondary tracking-wider mb-1 block";
 
     const data = detailQuery.data;
     const authorName = data
@@ -58,7 +58,7 @@ export function ReviewDetailModal({
         >
             <div className="w-[calc(100vw-2rem)] max-w-2xl p-8 max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold text-(--color-text-primary)">
+                    <h2 className="text-xl font-bold text-text-primary">
                         {t("admin.reviewDetail")}
                     </h2>
                     <IconButton
@@ -70,13 +70,13 @@ export function ReviewDetailModal({
                 </div>
 
                 {detailQuery.isLoading && (
-                    <p className="text-(--color-text-secondary)">
+                    <p className="text-text-secondary">
                         {t("admin.loadingReviews")}
                     </p>
                 )}
 
                 {!detailQuery.isLoading && detailQuery.isError && (
-                    <p className="text-(--color-danger-text)">
+                    <p className="text-danger-text">
                         {t(
                             getErrorI18nKey(
                                 detailQuery.error,
@@ -88,42 +88,40 @@ export function ReviewDetailModal({
 
                 {!detailQuery.isLoading && data && (
                     <>
-                        <div className="flex items-center gap-4 mb-6 p-4 border border-(--color-border) rounded-xl">
+                        <div className="flex items-center gap-4 mb-6 p-4 border border-border rounded-xl">
                             <div className="flex items-center gap-2">
                                 <Avatar
                                     name={authorName}
                                     size="sm"
                                 />
                                 <div>
-                                    <p className="text-xs text-(--color-text-secondary) uppercase tracking-wider mb-0.5">
+                                    <p className="text-xs text-text-secondary uppercase tracking-wider mb-0.5">
                                         {t("admin.reviewer")}
                                     </p>
-                                    <p className="text-sm font-semibold text-(--color-text-primary)">
+                                    <p className="text-sm font-semibold text-text-primary">
                                         {authorName}
                                     </p>
-                                    <p className="text-xs text-(--color-text-secondary)">
+                                    <p className="text-xs text-text-secondary">
                                         {data.review.authorRole === "DRIVER"
                                             ? t("admin.driver")
                                             : t("admin.passenger")}
                                     </p>
                                 </div>
                             </div>
-                            <span className="text-(--color-text-secondary) mx-2">
-                                →
-                            </span>
+                            <span className="text-text-secondary mx-2">→</span>
                             <div className="flex items-center gap-2">
                                 <Avatar
                                     name={subjectName}
                                     size="sm"
                                 />
                                 <div>
-                                    <p className="text-xs text-(--color-text-secondary) uppercase tracking-wider mb-0.5">
+                                    <p className="text-xs text-text-secondary uppercase tracking-wider mb-0.5">
                                         {t("admin.target")}
                                     </p>
-                                    <p className="text-sm font-semibold text-(--color-text-primary)">
+                                    <p className="text-sm font-semibold text-text-primary">
                                         {subjectName}
                                     </p>
-                                    <p className="text-xs text-(--color-text-secondary)">
+                                    <p className="text-xs text-text-secondary">
                                         {data.review.subjectRole === "DRIVER"
                                             ? t("admin.driver")
                                             : t("admin.passenger")}
@@ -135,7 +133,7 @@ export function ReviewDetailModal({
                         <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
                             <div className="flex items-center gap-3">
                                 <RatingStars rating={data.review.rating} />
-                                <span className="text-sm text-(--color-text-secondary)">
+                                <span className="text-sm text-text-secondary">
                                     {formatDate(data.review.createdAt, "—")}
                                 </span>
                             </div>
@@ -144,15 +142,15 @@ export function ReviewDetailModal({
                             />
                         </div>
 
-                        <div className="border border-(--color-border) rounded-xl p-4 mb-6">
+                        <div className="border border-border rounded-xl p-4 mb-6">
                             <p className={labelClass}>
                                 {t("admin.rideContext")}
                             </p>
-                            <p className="text-sm font-semibold text-(--color-text-primary)">
+                            <p className="text-sm font-semibold text-text-primary">
                                 {data.review.ride.originCity} →{" "}
                                 {data.review.ride.destinationCity}
                             </p>
-                            <p className="text-xs text-(--color-text-secondary) mt-1">
+                            <p className="text-xs text-text-secondary mt-1">
                                 {formatDate(data.review.ride.departureAt, "—")}
                             </p>
                         </div>
@@ -160,11 +158,11 @@ export function ReviewDetailModal({
                         <div className="mb-6">
                             <p className={labelClass}>{t("admin.comment")}</p>
                             {data.review.comment ? (
-                                <p className="text-sm text-(--color-text-primary) whitespace-pre-wrap border border-(--color-border) rounded-xl p-3 bg-(--color-bg)">
+                                <p className="text-sm text-text-primary whitespace-pre-wrap border border-border rounded-xl p-3 bg-background">
                                     "{data.review.comment}"
                                 </p>
                             ) : (
-                                <p className="text-sm text-(--color-text-secondary) italic">
+                                <p className="text-sm text-text-secondary italic">
                                     {t("admin.noComment")}
                                 </p>
                             )}
@@ -172,7 +170,7 @@ export function ReviewDetailModal({
 
                         {mutationErrorForThisReview !== null &&
                             mutationErrorForThisReview !== undefined && (
-                                <p className="text-sm text-(--color-danger-text) mb-4">
+                                <p className="text-sm text-danger-text mb-4">
                                     {t(
                                         getErrorI18nKey(
                                             mutationErrorForThisReview,
@@ -213,11 +211,11 @@ export function ReviewDetailModal({
                             )}
                         </div>
 
-                        <h3 className="text-base font-bold text-(--color-text-primary) mb-3">
+                        <h3 className="text-base font-bold text-text-primary mb-3">
                             {t("admin.statusHistory")}
                         </h3>
                         {data.statusHistory.length === 0 ? (
-                            <p className="text-sm text-(--color-text-secondary)">
+                            <p className="text-sm text-text-secondary">
                                 {t("admin.noStatusHistory")}
                             </p>
                         ) : (

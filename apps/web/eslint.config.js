@@ -17,6 +17,16 @@ const tailwindColorRules = [
             "Literal[value=/\\b(bg|text|border|ring|fill|stroke|outline|shadow|accent|caret|placeholder|decoration|divide|from|to|via)-\\[(#|rgb|rgba|hsl|hsla|oklch|oklab)/]",
         message: "Use theme tokens instead of Tailwind arbitrary color values.",
     },
+    {
+        selector:
+            "Literal[value=/\\b(bg|text|border|ring|fill|stroke|outline|accent|caret|placeholder|decoration|divide)-\\(--color-/]",
+        message:
+            "Use named Tailwind theme tokens instead of CSS variables in className.",
+    },
+    {
+        selector: "Literal[value=/\\bshadow-\\[/]",
+        message: "Use named shadow tokens instead of arbitrary shadow values.",
+    },
 ];
 
 const pageFormElementRules = [

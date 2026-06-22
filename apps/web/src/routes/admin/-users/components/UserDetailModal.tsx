@@ -35,7 +35,7 @@ export function UserDetailModal({
     const detailQuery = useGetAdminUsersById(userId);
 
     const labelClass =
-        "text-xs font-bold text-(--color-text-secondary) tracking-wider mb-1 block";
+        "text-xs font-bold text-text-secondary tracking-wider mb-1 block";
 
     const displayedName = detailQuery.data
         ? fullName(
@@ -52,7 +52,7 @@ export function UserDetailModal({
         >
             <div className="w-[calc(100vw-2rem)] max-w-2xl p-8 max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold text-(--color-text-primary)">
+                    <h2 className="text-xl font-bold text-text-primary">
                         {t("admin.userProfile")}
                     </h2>
                     <IconButton
@@ -64,13 +64,13 @@ export function UserDetailModal({
                 </div>
 
                 {detailQuery.isLoading && (
-                    <p className="text-(--color-text-secondary)">
+                    <p className="text-text-secondary">
                         {t("admin.loadingUsers")}
                     </p>
                 )}
 
                 {!detailQuery.isLoading && detailQuery.isError && (
-                    <p className="text-(--color-danger-text)">
+                    <p className="text-danger-text">
                         {t(
                             getErrorI18nKey(
                                 detailQuery.error,
@@ -88,13 +88,13 @@ export function UserDetailModal({
                                 size="lg"
                             />
                             <div>
-                                <p className="text-lg font-bold text-(--color-text-primary)">
+                                <p className="text-lg font-bold text-text-primary">
                                     {fullName(
                                         detailQuery.data.user.firstName,
                                         detailQuery.data.user.lastName
                                     ) || "—"}
                                 </p>
-                                <p className="text-sm text-(--color-text-secondary) mb-1">
+                                <p className="text-sm text-text-secondary mb-1">
                                     {detailQuery.data.user.email}
                                 </p>
                                 <StatusBadge
@@ -106,7 +106,7 @@ export function UserDetailModal({
                         <div className="grid grid-cols-2 gap-x-8 gap-y-4 mb-6">
                             <div>
                                 <p className={labelClass}>{t("admin.phone")}</p>
-                                <p className="text-sm font-semibold text-(--color-text-primary)">
+                                <p className="text-sm font-semibold text-text-primary">
                                     {detailQuery.data.user.phone ?? "—"}
                                 </p>
                             </div>
@@ -114,7 +114,7 @@ export function UserDetailModal({
                                 <p className={labelClass}>
                                     {t("admin.displayName")}
                                 </p>
-                                <p className="text-sm font-semibold text-(--color-text-primary)">
+                                <p className="text-sm font-semibold text-text-primary">
                                     {detailQuery.data.user.displayName ?? "—"}
                                 </p>
                             </div>
@@ -122,7 +122,7 @@ export function UserDetailModal({
                                 <p className={labelClass}>
                                     {t("admin.joined")}
                                 </p>
-                                <p className="text-sm font-semibold text-(--color-text-primary)">
+                                <p className="text-sm font-semibold text-text-primary">
                                     {formatDate(
                                         detailQuery.data.user.createdAt,
                                         "—"
@@ -133,7 +133,7 @@ export function UserDetailModal({
                                 <p className={labelClass}>
                                     {t("admin.lastActive")}
                                 </p>
-                                <p className="text-sm font-semibold text-(--color-text-primary)">
+                                <p className="text-sm font-semibold text-text-primary">
                                     {formatDate(
                                         detailQuery.data.user.lastActiveAt,
                                         t("admin.never")
@@ -142,7 +142,7 @@ export function UserDetailModal({
                             </div>
                             <div className="col-span-2">
                                 <p className={labelClass}>{t("admin.bio")}</p>
-                                <p className="text-sm text-(--color-text-primary) whitespace-pre-wrap">
+                                <p className="text-sm text-text-primary whitespace-pre-wrap">
                                     {detailQuery.data.user.bio ?? "—"}
                                 </p>
                             </div>
@@ -150,7 +150,7 @@ export function UserDetailModal({
 
                         {mutationErrorForThisUser !== null &&
                             mutationErrorForThisUser !== undefined && (
-                                <p className="text-sm text-(--color-danger-text) mb-4">
+                                <p className="text-sm text-danger-text mb-4">
                                     {t(
                                         getErrorI18nKey(
                                             mutationErrorForThisUser,
@@ -190,11 +190,11 @@ export function UserDetailModal({
                             )}
                         </div>
 
-                        <h3 className="text-base font-bold text-(--color-text-primary) mb-3">
+                        <h3 className="text-base font-bold text-text-primary mb-3">
                             {t("admin.statusHistory")}
                         </h3>
                         {detailQuery.data.statusHistory.length === 0 ? (
-                            <p className="text-sm text-(--color-text-secondary)">
+                            <p className="text-sm text-text-secondary">
                                 {t("admin.noStatusHistory")}
                             </p>
                         ) : (

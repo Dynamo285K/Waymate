@@ -45,13 +45,13 @@ export function UserProfileModal({
                         name={name}
                         size="lg"
                     />
-                    <h2 className="text-lg font-bold text-(--color-text-primary)">
+                    <h2 className="text-lg font-bold text-text-primary">
                         {name}
                     </h2>
                     {data && data.averageRating != null ? (
-                        <div className="flex items-center gap-1.5 [&_svg]:w-4 [&_svg]:h-4 [&_svg]:text-(--color-dark-yellow) [&_svg]:fill-(--color-dark-yellow)">
+                        <div className="flex items-center gap-1.5 [&_svg]:w-4 [&_svg]:h-4 [&_svg]:text-dark-yellow [&_svg]:fill-dark-yellow">
                             <StarIcon />
-                            <span className="text-sm text-(--color-text-secondary)">
+                            <span className="text-sm text-text-secondary">
                                 {data.averageRating.toFixed(1)} ·{" "}
                                 {t("chat.reviewsCount", {
                                     count: data.reviewCount,
@@ -60,7 +60,7 @@ export function UserProfileModal({
                         </div>
                     ) : (
                         !isLoading && (
-                            <span className="text-sm text-(--color-text-secondary)">
+                            <span className="text-sm text-text-secondary">
                                 {t("chat.noReviews")}
                             </span>
                         )
@@ -81,18 +81,18 @@ export function UserProfileModal({
                             return (
                                 <li
                                     key={review.id}
-                                    className="border border-(--color-border) rounded-xl p-3"
+                                    className="border border-border rounded-xl p-3"
                                 >
-                                    <div className="flex items-center gap-1.5 mb-1 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-(--color-dark-yellow) [&_svg]:fill-(--color-dark-yellow)">
+                                    <div className="flex items-center gap-1.5 mb-1 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-dark-yellow [&_svg]:fill-dark-yellow">
                                         <StarIcon />
-                                        <span className="text-xs font-semibold text-(--color-text-primary)">
+                                        <span className="text-xs font-semibold text-text-primary">
                                             {review.rating.toFixed(1)}
                                         </span>
-                                        <span className="text-xs text-(--color-text-secondary)">
+                                        <span className="text-xs text-text-secondary">
                                             · {author}
                                         </span>
                                     </div>
-                                    <p className="text-sm text-(--color-text-primary) whitespace-pre-wrap">
+                                    <p className="text-sm text-text-primary whitespace-pre-wrap">
                                         {review.comment}
                                     </p>
                                 </li>

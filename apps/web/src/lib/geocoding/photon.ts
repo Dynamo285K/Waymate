@@ -290,7 +290,7 @@ export async function fetchPhotonLocations(
                 score,
             };
 
-            let dedupKey = `${address}|${city}`;
+            const dedupKey = `${address}|${city}`;
 
             let isDuplicate = false;
 
@@ -341,7 +341,7 @@ export async function fetchPhotonLocations(
             }
         }
 
-        let suggestions = Array.from(dedupMap.values());
+        const suggestions = Array.from(dedupMap.values());
 
         // Sort by custom ranking system
         suggestions.sort((a, b) => b.score - a.score);

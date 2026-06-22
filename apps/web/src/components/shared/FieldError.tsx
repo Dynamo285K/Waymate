@@ -15,7 +15,7 @@ export function FieldError({ children, className }: FieldErrorProps) {
     if (!children) return null;
     return (
         <span
-            className={`block text-sm font-semibold text-(--color-danger-text)${
+            className={`block text-sm font-semibold text-danger-text${
                 className ? ` ${className}` : ""
             }`}
         >

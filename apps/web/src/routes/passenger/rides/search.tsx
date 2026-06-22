@@ -117,29 +117,29 @@ export function PassengerRidesPage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <PassengerNavbar {...navbarProps} />
 
             <section className="w-full px-4 sm:max-w-3xl sm:mx-auto sm:px-8 py-8 sm:py-12">
-                <h2 className="text-2xl font-bold text-(--color-text-primary)">
+                <h2 className="text-2xl font-bold text-text-primary">
                     {t("home.availableRides.title")}
                 </h2>
 
                 {showAllRides && (
-                    <p className="text-(--color-text-secondary) mt-1 mb-8">
+                    <p className="text-text-secondary mt-1 mb-8">
                         {t("rides.found", { count })}
                     </p>
                 )}
 
                 {showAllRides && areAvailableRidesLoading && (
-                    <p className="text-(--color-text-secondary) mt-1">
+                    <p className="text-text-secondary mt-1">
                         {t("rides.loading")}
                     </p>
                 )}
 
                 {showAllRides && areAvailableRidesError && (
-                    <p className="text-(--color-text-secondary) mt-4">
+                    <p className="text-text-secondary mt-4">
                         {t(
                             getErrorI18nKey(
                                 availableRidesError,
@@ -151,25 +151,25 @@ export function PassengerRidesPage() {
                 )}
 
                 {hasSearchParams && !canSearch && (
-                    <p className="text-(--color-text-secondary) mt-1">
+                    <p className="text-text-secondary mt-1">
                         {t("rides.noSearchParams")}
                     </p>
                 )}
 
                 {canSearch && isLoading && (
-                    <p className="text-(--color-text-secondary) mt-1">
+                    <p className="text-text-secondary mt-1">
                         {t("rides.loading")}
                     </p>
                 )}
 
                 {canSearch && !isLoading && !isError && (
-                    <p className="text-(--color-text-secondary) mt-1 mb-8">
+                    <p className="text-text-secondary mt-1 mb-8">
                         {t("rides.found", { count })}
                     </p>
                 )}
 
                 {canSearch && !isLoading && isError && (
-                    <p className="text-(--color-text-secondary) mt-4">
+                    <p className="text-text-secondary mt-4">
                         {t(getErrorI18nKey(searchError, {}, "rides.error"))}
                     </p>
                 )}
@@ -184,7 +184,7 @@ export function PassengerRidesPage() {
                     !isLoading &&
                     !isError &&
                     displayedRides.length === 0 && (
-                        <p className="text-(--color-text-secondary) mt-4">
+                        <p className="text-text-secondary mt-4">
                             {t("rides.noResults")}
                         </p>
                     )}
@@ -193,7 +193,7 @@ export function PassengerRidesPage() {
                     !areAvailableRidesLoading &&
                     !areAvailableRidesError &&
                     availableRides.length === 0 && (
-                        <p className="text-(--color-text-secondary) mt-4">
+                        <p className="text-text-secondary mt-4">
                             {t("rides.noResults")}
                         </p>
                     )}

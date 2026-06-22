@@ -272,16 +272,16 @@ export function DriverHomePage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <DriverNavbar {...navbarProps} />
 
             {/* Hero */}
             <section className="flex flex-col items-center pt-16 sm:pt-24 pb-12 px-4 text-center">
-                <h1 className="text-4xl sm:text-5xl font-black text-(--color-text-primary) tracking-tight">
+                <h1 className="text-4xl sm:text-5xl font-black text-text-primary tracking-tight">
                     {t("driver.home.title")}
                 </h1>
-                <p className="mt-3 text-lg text-(--color-text-secondary)">
+                <p className="mt-3 text-lg text-text-secondary">
                     {t("driver.home.subtitle")}
                 </p>
                 <Button
@@ -297,17 +297,17 @@ export function DriverHomePage() {
             <div className="w-full px-4 sm:max-w-4xl sm:mx-auto sm:px-8 flex flex-col gap-10 pb-12">
                 {/* Upcoming Rides */}
                 <div>
-                    <h2 className="text-xl font-bold text-(--color-text-primary) mb-4">
+                    <h2 className="text-xl font-bold text-text-primary mb-4">
                         {t("driver.home.upcomingRides")}
                     </h2>
                     <div className="flex flex-col gap-3">
                         {isLoading && (
-                            <p className="text-(--color-text-secondary)">
+                            <p className="text-text-secondary">
                                 {t("driverRides.loading")}
                             </p>
                         )}
                         {isError && (
-                            <p className="text-(--color-text-secondary)">
+                            <p className="text-text-secondary">
                                 {t(
                                     getErrorI18nKey(
                                         ridesError,
@@ -320,7 +320,7 @@ export function DriverHomePage() {
                         {!isLoading &&
                             !isError &&
                             upcomingRides.length === 0 && (
-                                <p className="text-(--color-text-secondary)">
+                                <p className="text-text-secondary">
                                     {t("driverRides.noResults")}
                                 </p>
                             )}
@@ -360,7 +360,7 @@ export function DriverHomePage() {
                                 />
                             ))}
                         {cancelRide.isError && (
-                            <p className="text-(--color-text-secondary)">
+                            <p className="text-text-secondary">
                                 {t(
                                     getErrorI18nKey(
                                         cancelRide.error,
@@ -383,22 +383,22 @@ export function DriverHomePage() {
             </div>
 
             {/* Ride Requests */}
-            <div className="border-t border-(--color-border)">
+            <div className="border-t border-border">
                 <div className="w-full px-4 sm:max-w-4xl sm:mx-auto sm:px-8 py-10">
-                    <h2 className="text-xl font-bold text-(--color-text-primary)">
+                    <h2 className="text-xl font-bold text-text-primary">
                         {t("driver.home.rideRequests")}
                     </h2>
-                    <p className="text-(--color-text-secondary) text-sm mt-1 mb-6">
+                    <p className="text-text-secondary text-sm mt-1 mb-6">
                         {t("driver.home.rideRequestsSubtitle")}
                     </p>
                     <div className="flex flex-col gap-3">
                         {areRequestsLoading && (
-                            <p className="text-(--color-text-secondary)">
+                            <p className="text-text-secondary">
                                 {t("driverRides.loading")}
                             </p>
                         )}
                         {areRequestsError && (
-                            <p className="text-(--color-text-secondary)">
+                            <p className="text-text-secondary">
                                 {t(
                                     getErrorI18nKey(
                                         requestsError,
@@ -409,7 +409,7 @@ export function DriverHomePage() {
                             </p>
                         )}
                         {(acceptRequest.isError || declineRequest.isError) && (
-                            <p className="text-(--color-text-secondary)">
+                            <p className="text-text-secondary">
                                 {t(
                                     getErrorI18nKey(
                                         acceptRequest.error ??
@@ -423,7 +423,7 @@ export function DriverHomePage() {
                         {!areRequestsLoading &&
                             !areRequestsError &&
                             requests.length === 0 && (
-                                <p className="text-(--color-text-secondary)">
+                                <p className="text-text-secondary">
                                     {t("rideRequests.empty")}
                                 </p>
                             )}
@@ -465,20 +465,20 @@ export function DriverHomePage() {
             </div>
 
             {/* Features */}
-            <section className="bg-(--color-background) border-t border-(--color-border) py-16 px-4">
+            <section className="bg-background border-t border-border py-16 px-4">
                 <div className="w-full sm:max-w-5xl sm:mx-auto text-center">
-                    <h2 className="text-2xl sm:text-4xl font-black text-(--color-text-primary)">
+                    <h2 className="text-2xl sm:text-4xl font-black text-text-primary">
                         {t("home.features.title")}
                     </h2>
-                    <p className="mt-2 text-(--color-text-secondary)">
+                    <p className="mt-2 text-text-secondary">
                         {t("home.features.subtitle")}
                     </p>
                     <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-left">
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-(--color-success-bg)"
-                                    color="text-(--color-success-text)"
+                                    bg="bg-success-bg"
+                                    color="text-success-text"
                                 >
                                     <ShieldIcon />
                                 </IconBox>
@@ -491,8 +491,8 @@ export function DriverHomePage() {
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-(--color-success-bg)"
-                                    color="text-(--color-success-text)"
+                                    bg="bg-success-bg"
+                                    color="text-success-text"
                                 >
                                     <CoinsIcon />
                                 </IconBox>
@@ -505,8 +505,8 @@ export function DriverHomePage() {
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-(--color-primary)/10"
-                                    color="text-(--color-primary)"
+                                    bg="bg-primary/10"
+                                    color="text-primary"
                                 >
                                     <LeafIcon />
                                 </IconBox>
@@ -519,8 +519,8 @@ export function DriverHomePage() {
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-(--color-primary)/10"
-                                    color="text-(--color-primary)"
+                                    bg="bg-primary/10"
+                                    color="text-primary"
                                 >
                                     <MessageIcon />
                                 </IconBox>
@@ -533,8 +533,8 @@ export function DriverHomePage() {
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-(--color-warning-bg)"
-                                    color="text-(--color-warning-text)"
+                                    bg="bg-warning-bg"
+                                    color="text-warning-text"
                                 >
                                     <BoltIcon />
                                 </IconBox>
@@ -547,8 +547,8 @@ export function DriverHomePage() {
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-(--color-danger-bg)"
-                                    color="text-(--color-danger-text)"
+                                    bg="bg-danger-bg"
+                                    color="text-danger-text"
                                 >
                                     <StarIcon />
                                 </IconBox>

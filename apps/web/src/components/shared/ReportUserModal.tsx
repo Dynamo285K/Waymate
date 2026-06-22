@@ -112,7 +112,7 @@ export function ReportUserModal({
                 className="w-[calc(100vw-2rem)] max-w-lg p-8"
             >
                 <div className="flex justify-between items-center mb-5">
-                    <h2 className="text-xl font-bold text-(--color-text-primary)">
+                    <h2 className="text-xl font-bold text-text-primary">
                         {t("report.title")} — {targetName}
                     </h2>
                     <IconButton
@@ -123,18 +123,18 @@ export function ReportUserModal({
                     />
                 </div>
 
-                <p className="text-sm text-(--color-text-secondary) mb-5">
+                <p className="text-sm text-text-secondary mb-5">
                     {t("report.intro")}
                 </p>
 
                 <div className="mb-5">
-                    <label className="text-sm font-semibold text-(--color-text-primary) mb-1.5 block">
+                    <label className="text-sm font-semibold text-text-primary mb-1.5 block">
                         {t("report.typeLabel")}{" "}
-                        <span className="text-(--color-danger-text)">*</span>
+                        <span className="text-danger-text">*</span>
                     </label>
                     <select
                         {...register("reportType")}
-                        className="w-full rounded-xl border border-(--color-border) bg-(--color-card) px-4 py-3 text-sm text-(--color-text-primary) focus:outline-none focus:border-(--color-primary)"
+                        className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-text-primary focus:outline-none focus:border-primary"
                     >
                         {REPORT_TYPE_OPTIONS.map((opt) => (
                             <option
@@ -148,9 +148,9 @@ export function ReportUserModal({
                 </div>
 
                 <div className="mb-6">
-                    <label className="text-sm font-semibold text-(--color-text-primary) mb-1.5 block">
+                    <label className="text-sm font-semibold text-text-primary mb-1.5 block">
                         {t("report.descriptionLabel")}{" "}
-                        <span className="text-(--color-danger-text)">*</span>
+                        <span className="text-danger-text">*</span>
                     </label>
                     <Controller
                         control={control}
@@ -170,18 +170,18 @@ export function ReportUserModal({
                     <input
                         type="checkbox"
                         {...register("blockTarget")}
-                        className="mt-0.5 h-4 w-4 shrink-0 accent-(--color-primary)"
+                        className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
                     />
-                    <span className="text-sm text-(--color-text-primary)">
+                    <span className="text-sm text-text-primary">
                         {t("report.blockUser")}
-                        <span className="block text-xs text-(--color-text-secondary)">
+                        <span className="block text-xs text-text-secondary">
                             {t("report.blockUserHint")}
                         </span>
                     </span>
                 </label>
 
                 {mutation.isError && (
-                    <p className="text-sm text-(--color-danger-text) mb-4">
+                    <p className="text-sm text-danger-text mb-4">
                         {t(getErrorI18nKey(mutation.error, reportUserErrorMap))}
                     </p>
                 )}

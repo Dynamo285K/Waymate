@@ -51,7 +51,7 @@ function HomePage({
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <AuthNavbar {...authNavbarProps} />
             <HomeContent
@@ -67,10 +67,10 @@ function HomePage({
             >
                 <div className="w-[calc(100vw-2rem)] max-w-sm p-8 text-center flex flex-col gap-4">
                     <div className="text-4xl">🔒</div>
-                    <h2 className="text-xl font-bold text-(--color-text-primary)">
+                    <h2 className="text-xl font-bold text-text-primary">
                         {t("bookGuest.title")}
                     </h2>
-                    <p className="text-(--color-text-secondary) text-sm">
+                    <p className="text-text-secondary text-sm">
                         {t("bookGuest.message")}
                     </p>
                     <div className="flex gap-3 mt-2">

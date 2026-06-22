@@ -151,7 +151,7 @@ export function OnboardingPage() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-(--color-bg)"
+            className="min-h-screen bg-background"
         >
             <AuthNavbar {...authNavbarProps} />
 
@@ -160,18 +160,18 @@ export function OnboardingPage() {
                     <form
                         onSubmit={handleSubmit(onSubmit)}
                         noValidate
-                        className="w-full max-w-xl rounded-2xl border border-(--color-border) bg-(--color-card) p-6 shadow-xl sm:p-8"
+                        className="w-full max-w-xl rounded-2xl border border-border bg-card p-6 shadow-xl sm:p-8"
                     >
-                        <h1 className="text-2xl font-bold text-(--color-text-primary)">
+                        <h1 className="text-2xl font-bold text-text-primary">
                             {t("onboarding.title")}
                         </h1>
-                        <p className="mt-2 text-sm text-(--color-text-secondary)">
+                        <p className="mt-2 text-sm text-text-secondary">
                             {t("onboarding.subtitle")}
                         </p>
 
                         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
                             <label className="flex flex-col gap-2">
-                                <span className="text-sm font-semibold text-(--color-text-primary)">
+                                <span className="text-sm font-semibold text-text-primary">
                                     {t("onboarding.firstName")}
                                 </span>
                                 <Input
@@ -185,7 +185,7 @@ export function OnboardingPage() {
                             </label>
 
                             <label className="flex flex-col gap-2">
-                                <span className="text-sm font-semibold text-(--color-text-primary)">
+                                <span className="text-sm font-semibold text-text-primary">
                                     {t("onboarding.lastName")}
                                 </span>
                                 <Input
@@ -199,7 +199,7 @@ export function OnboardingPage() {
                             </label>
 
                             <label className="flex flex-col gap-2">
-                                <span className="text-sm font-semibold text-(--color-text-primary)">
+                                <span className="text-sm font-semibold text-text-primary">
                                     {t("onboarding.phone")}
                                 </span>
                                 <Input

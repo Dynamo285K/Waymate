@@ -23,10 +23,10 @@ export function AdminReportsTable({
     const typeLabels = useReportTypeLabels();
 
     return (
-        <div className="bg-(--color-card) rounded-2xl border border-(--color-border) overflow-x-auto">
+        <div className="bg-card rounded-2xl border border-border overflow-x-auto">
             <table className="w-full text-sm">
                 <thead>
-                    <tr className="border-b border-(--color-border)">
+                    <tr className="border-b border-border">
                         {[
                             t("admin.reports.reporter"),
                             t("admin.reports.target"),
@@ -38,7 +38,7 @@ export function AdminReportsTable({
                         ].map((h) => (
                             <th
                                 key={h}
-                                className="text-left text-xs font-bold text-(--color-text-secondary) tracking-wider px-5 py-4"
+                                className="text-left text-xs font-bold text-text-secondary tracking-wider px-5 py-4"
                             >
                                 {h}
                             </th>
@@ -61,7 +61,7 @@ export function AdminReportsTable({
                         return (
                             <tr
                                 key={report.id}
-                                className={`border-b border-(--color-border) last:border-0 hover:bg-(--color-bg) transition-colors ${
+                                className={`border-b border-border last:border-0 hover:bg-background transition-colors ${
                                     isThisRowMutating ? "opacity-60" : ""
                                 }`}
                             >
@@ -71,7 +71,7 @@ export function AdminReportsTable({
                                             name={reporterName}
                                             size="sm"
                                         />
-                                        <span className="font-semibold text-(--color-text-primary) whitespace-nowrap">
+                                        <span className="font-semibold text-text-primary whitespace-nowrap">
                                             {reporterName}
                                         </span>
                                     </div>
@@ -82,16 +82,16 @@ export function AdminReportsTable({
                                             name={targetName}
                                             size="sm"
                                         />
-                                        <span className="font-semibold text-(--color-text-primary) whitespace-nowrap">
+                                        <span className="font-semibold text-text-primary whitespace-nowrap">
                                             {targetName}
                                         </span>
                                     </div>
                                 </td>
-                                <td className="px-5 py-4 text-(--color-text-secondary) whitespace-nowrap">
+                                <td className="px-5 py-4 text-text-secondary whitespace-nowrap">
                                     {typeLabels[report.reportType]}
                                 </td>
                                 <td className="px-5 py-4 max-w-md">
-                                    <p className="text-(--color-text-primary) line-clamp-2">
+                                    <p className="text-text-primary line-clamp-2">
                                         {report.description}
                                     </p>
                                 </td>
@@ -100,7 +100,7 @@ export function AdminReportsTable({
                                         status={report.reportStatus}
                                     />
                                 </td>
-                                <td className="px-5 py-4 text-(--color-text-secondary) whitespace-nowrap">
+                                <td className="px-5 py-4 text-text-secondary whitespace-nowrap">
                                     {formatDate(report.createdAt, "—")}
                                 </td>
                                 <td className="px-5 py-4">

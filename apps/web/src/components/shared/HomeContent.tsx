@@ -238,10 +238,10 @@ export function HomeContent({
         <>
             {/* Hero */}
             <section className="flex flex-col items-center pt-16 sm:pt-28 pb-10 sm:pb-16 px-4">
-                <h1 className="text-3xl sm:text-5xl font-black text-(--color-text-primary) tracking-tight text-center">
+                <h1 className="text-3xl sm:text-5xl font-black text-text-primary tracking-tight text-center">
                     {t("home.hero.title")}
                 </h1>
-                <p className="mt-3 text-lg text-(--color-text-secondary) text-center">
+                <p className="mt-3 text-lg text-text-secondary text-center">
                     {t("home.hero.subtitle")}
                 </p>
                 <div className="mt-8 w-full max-w-2xl">
@@ -289,7 +289,7 @@ export function HomeContent({
             {/* Popular routes */}
             {popularRoutes.length > 0 && (
                 <section className="w-full px-4 sm:max-w-5xl sm:mx-auto sm:px-8 pb-8 sm:pb-12">
-                    <p className="text-sm font-semibold text-(--color-text-secondary) mb-3">
+                    <p className="text-sm font-semibold text-text-secondary mb-3">
                         {t("home.popularRoutes")}
                     </p>
                     <div className="flex flex-wrap gap-3">
@@ -325,15 +325,15 @@ export function HomeContent({
                 </section>
             )}
 
-            <div className="border-t border-(--color-border)" />
+            <div className="border-t border-border" />
 
             {/* Stats */}
             <section className="w-full px-4 sm:max-w-5xl sm:mx-auto sm:px-8 py-8 sm:py-12 grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <StatCard
                     icon={
                         <IconBox
-                            bg="bg-(--color-success-bg)"
-                            color="text-(--color-success-text)"
+                            bg="bg-success-bg"
+                            color="text-success-text"
                         >
                             <UsersIcon />
                         </IconBox>
@@ -344,8 +344,8 @@ export function HomeContent({
                 <StatCard
                     icon={
                         <IconBox
-                            bg="bg-(--color-warning-bg)"
-                            color="text-(--color-warning-text)"
+                            bg="bg-warning-bg"
+                            color="text-warning-text"
                         >
                             <StarIcon />
                         </IconBox>
@@ -356,8 +356,8 @@ export function HomeContent({
                 <StatCard
                     icon={
                         <IconBox
-                            bg="bg-(--color-success-bg)"
-                            color="text-(--color-success-text)"
+                            bg="bg-success-bg"
+                            color="text-success-text"
                         >
                             <LeafIcon />
                         </IconBox>
@@ -367,31 +367,31 @@ export function HomeContent({
                 />
             </section>
 
-            <div className="border-t border-(--color-border)" />
+            <div className="border-t border-border" />
 
             {/* Available rides */}
             <section className="w-full px-4 sm:max-w-5xl sm:mx-auto sm:px-8 py-8 sm:py-12">
-                <h2 className="text-2xl font-bold text-(--color-text-primary)">
+                <h2 className="text-2xl font-bold text-text-primary">
                     {t("home.availableRides.title")}
                 </h2>
-                <p className="text-(--color-text-secondary) mt-1 mb-6">
+                <p className="text-text-secondary mt-1 mb-6">
                     {t("home.availableRides.subtitle")}
                 </p>
                 <div className="flex flex-col gap-3">
                     {areAvailableRidesLoading && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("rides.loading")}
                         </p>
                     )}
                     {areAvailableRidesError && (
-                        <p className="text-(--color-text-secondary)">
+                        <p className="text-text-secondary">
                             {t("rides.error")}
                         </p>
                     )}
                     {!areAvailableRidesLoading &&
                         !areAvailableRidesError &&
                         availableRides.length === 0 && (
-                            <p className="text-(--color-text-secondary)">
+                            <p className="text-text-secondary">
                                 {t("rides.noResults")}
                             </p>
                         )}
@@ -435,20 +435,20 @@ export function HomeContent({
             </section>
 
             {/* Features */}
-            <section className="bg-(--color-bg) border-t border-(--color-border) py-16 px-4">
+            <section className="bg-background border-t border-border py-16 px-4">
                 <div className="w-full sm:max-w-5xl sm:mx-auto text-center">
-                    <h2 className="text-2xl sm:text-4xl font-black text-(--color-text-primary)">
+                    <h2 className="text-2xl sm:text-4xl font-black text-text-primary">
                         {t("home.features.title")}
                     </h2>
-                    <p className="mt-2 text-(--color-text-secondary)">
+                    <p className="mt-2 text-text-secondary">
                         {t("home.features.subtitle")}
                     </p>
                     <div className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-left">
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-(--color-success-bg)"
-                                    color="text-(--color-success-text)"
+                                    bg="bg-success-bg"
+                                    color="text-success-text"
                                 >
                                     <ShieldIcon />
                                 </IconBox>
@@ -461,8 +461,8 @@ export function HomeContent({
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-(--color-success-bg)"
-                                    color="text-(--color-success-text)"
+                                    bg="bg-success-bg"
+                                    color="text-success-text"
                                 >
                                     <CoinsIcon />
                                 </IconBox>
@@ -475,8 +475,8 @@ export function HomeContent({
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-(--color-primary)/10"
-                                    color="text-(--color-primary)"
+                                    bg="bg-primary/10"
+                                    color="text-primary"
                                 >
                                     <LeafIcon />
                                 </IconBox>
@@ -489,8 +489,8 @@ export function HomeContent({
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-(--color-primary)/10"
-                                    color="text-(--color-primary)"
+                                    bg="bg-primary/10"
+                                    color="text-primary"
                                 >
                                     <MessageIcon />
                                 </IconBox>
@@ -503,8 +503,8 @@ export function HomeContent({
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-(--color-warning-bg)"
-                                    color="text-(--color-warning-text)"
+                                    bg="bg-warning-bg"
+                                    color="text-warning-text"
                                 >
                                     <BoltIcon />
                                 </IconBox>
@@ -517,8 +517,8 @@ export function HomeContent({
                         <FeatureCard
                             icon={
                                 <IconBox
-                                    bg="bg-(--color-danger-bg)"
-                                    color="text-(--color-danger-text)"
+                                    bg="bg-danger-bg"
+                                    color="text-danger-text"
                                 >
                                     <StarIcon />
                                 </IconBox>

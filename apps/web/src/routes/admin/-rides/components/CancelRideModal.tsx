@@ -52,7 +52,7 @@ export function CancelRideModal({
                 className="w-[calc(100vw-2rem)] max-w-lg p-8"
             >
                 <div className="flex justify-between items-center mb-5">
-                    <h2 className="text-xl font-bold text-(--color-text-primary)">
+                    <h2 className="text-xl font-bold text-text-primary">
                         {t("admin.forceCancelRide")} — {rideRoute}
                     </h2>
                     <IconButton
@@ -63,14 +63,14 @@ export function CancelRideModal({
                     />
                 </div>
 
-                <div className="bg-(--color-danger-bg) border border-(--color-danger-border) rounded-xl p-4 mb-5 text-sm text-(--color-danger-text)">
+                <div className="bg-danger-bg border border-danger-border rounded-xl p-4 mb-5 text-sm text-danger-text">
                     {t("admin.cancelRideWarning")}
                 </div>
 
                 <div className="mb-6">
-                    <label className="text-sm font-semibold text-(--color-text-primary) mb-1.5 block">
+                    <label className="text-sm font-semibold text-text-primary mb-1.5 block">
                         {t("admin.reasonForCancel")}{" "}
-                        <span className="text-(--color-danger-text)">*</span>
+                        <span className="text-danger-text">*</span>
                     </label>
                     <Controller
                         control={control}
@@ -87,7 +87,7 @@ export function CancelRideModal({
                 </div>
 
                 {error !== null && error !== undefined && (
-                    <p className="text-sm text-(--color-danger-text) mb-4">
+                    <p className="text-sm text-danger-text mb-4">
                         {t(getErrorI18nKey(error, adminRidesErrorMap))}
                     </p>
                 )}
