@@ -24,7 +24,9 @@ test.describe("admin flow", () => {
         await expect(page).toHaveURL(/\/admin$/);
 
         // Overíme prítomnosť sekcie "User Metrics" pomocou textových štítkov
-        await expect(page.getByRole("heading", { name: "User Metrics" })).toBeVisible();
+        await expect(
+            page.getByRole("heading", { name: "User Metrics" })
+        ).toBeVisible();
         await expect(page.getByText("Total Registered")).toBeVisible();
         await expect(page.getByText("Drivers")).toBeVisible();
         await expect(page.getByText("Banned")).toBeVisible();

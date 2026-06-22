@@ -10,20 +10,16 @@ export const AdminDashboardRoutes = new Elysia()
         AdminDashboardResponse: AdminDashboardResponseSchema,
         ErrorResponse: ErrorResponseSchema,
     })
-    .get(
-        "/dashboard",
-        async () => await AdminDashboardService.getDashboard(),
-        {
-            response: {
-                200: "AdminDashboardResponse",
-                401: "ErrorResponse",
-                403: "ErrorResponse",
-                429: "ErrorResponse",
-                500: "ErrorResponse",
-            },
-            detail: {
-                description:
-                    "Returns aggregated platform statistics for the admin dashboard: weekly ride/revenue charts, popular routes, and user metrics.",
-            },
-        }
-    );
+    .get("/dashboard", async () => await AdminDashboardService.getDashboard(), {
+        response: {
+            200: "AdminDashboardResponse",
+            401: "ErrorResponse",
+            403: "ErrorResponse",
+            429: "ErrorResponse",
+            500: "ErrorResponse",
+        },
+        detail: {
+            description:
+                "Returns aggregated platform statistics for the admin dashboard: weekly ride/revenue charts, popular routes, and user metrics.",
+        },
+    });
