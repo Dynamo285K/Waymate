@@ -5,8 +5,13 @@ const apiDirUrl = new URL("../apps/api", import.meta.url);
 // Single source of truth for the e2e Postgres URL. apps/api/.env points at the
 // dev DB (`spolujazda_db`) — we deliberately use a separate database so e2e
 // runs never trash the developer's data.
+// Read from process.env (not Bun.env): playwright.config.ts imports this under
+// the Node-based `playwright` runner where `Bun` is undefined, while
+// start-api.ts runs it under Bun — process.env is populated in both. Reading
+// Bun.env here meant a CI E2E_DATABASE_URL override was silently ignored on the
+// Node side, so the API fell back to localhost instead of the CI DB service.
 export const E2E_DATABASE_URL =
-    (typeof Bun === "undefined" ? undefined : Bun.env.E2E_DATABASE_URL) ??
+    process.env.E2E_DATABASE_URL ??
     "postgres://postgres:postgres@localhost:5432/spolujazda_e2e_db";
 
 async function recreateDatabase(): Promise<void> {
