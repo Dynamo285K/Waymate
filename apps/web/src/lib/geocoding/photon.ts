@@ -116,7 +116,8 @@ export async function fetchPhotonLocations(
 ): Promise<LocationSuggestion[]> {
     if (!query || query.length < 2) return [];
     try {
-        let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=100`;
+        const baseUrl = import.meta.env.VITE_PHOTON_BASE_URL || "https://photon.komoot.io";
+        let url = `${baseUrl}/api/?q=${encodeURIComponent(query)}&limit=100`;
 
         if (bias) {
             url += `&lat=${bias.lat}&lon=${bias.lng}`;
