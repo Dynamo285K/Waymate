@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Button } from "@waymate/ui";
@@ -32,11 +33,13 @@ export function ColorField({ control, error }: ColorFieldProps) {
                                 className="flex flex-col items-center gap-1"
                             >
                                 <span
-                                    className={`w-10 h-10 rounded-full transition-all ${field.value === c.value ? "ring-2 ring-offset-2 ring-primary scale-110" : ""}`}
-                                    style={{
-                                        backgroundColor: c.hex,
-                                        border: `1.5px solid ${c.border}`,
-                                    }}
+                                    className={`w-10 h-10 rounded-full border-[1.5px] border-solid bg-[var(--swatch-bg)] border-[color:var(--swatch-border)] transition-all ${field.value === c.value ? "ring-2 ring-offset-2 ring-primary scale-110" : ""}`}
+                                    style={
+                                        {
+                                            "--swatch-bg": c.hex,
+                                            "--swatch-border": c.border,
+                                        } as CSSProperties
+                                    }
                                 />
                                 <span className="text-xs text-text-secondary">
                                     {c.label}

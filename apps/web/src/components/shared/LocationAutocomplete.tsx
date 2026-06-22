@@ -125,7 +125,7 @@ export function LocationAutocomplete({
     return (
         <div
             ref={containerRef}
-            style={{ position: "relative" }}
+            className="relative"
         >
             <Input
                 label={label}
