@@ -4,6 +4,9 @@
   "workspaces": {
     "": {
       "name": "Waymate",
+      "dependencies": {
+        "@waymate/ui": "^0.1.56",
+      },
       "devDependencies": {
         "@eslint/js": "^9.39.4",
         "drizzle-kit": "^0.31.10",
