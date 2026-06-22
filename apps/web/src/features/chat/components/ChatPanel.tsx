@@ -200,7 +200,7 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
     return (
         <>
             {/* Desktop: split view */}
-            <div className="hidden md:flex flex-1 overflow-hidden h-[calc(100vh-72px)]">
+            <div className="hidden md:flex flex-1 overflow-hidden h-[calc(100vh_-_72px)]">
                 <ConversationSidebar
                     title={t("chat.messages")}
                     conversations={sidebarConversations}
