@@ -1,9 +1,10 @@
 import {
     Avatar,
     Button,
-    StarIcon,
-    MapPinIcon,
+    CircleIcon,
     ClockIcon,
+    MapPinIcon,
+    StarIcon,
     UserIcon,
 } from "@waymate/ui";
 
@@ -73,8 +74,11 @@ export function RideCard(props: RideCardProps) {
     const hasDriver =
         props.variant === "passenger-upcoming" ||
         props.variant === "passenger-past";
+    const isPassengerRide = hasDriver;
     const passengerActionClassName =
-        "min-w-ride-action-min justify-center whitespace-normal text-center max-600:w-full";
+        "min-w-0 justify-center whitespace-nowrap text-center text-sm px-3 max-600:w-full";
+    const metaRowClassName =
+        "flex items-center gap-1.5 text-sm text-text-secondary icon-svg:w-4 icon-svg:h-4 icon-svg:text-text-secondary icon-svg:shrink-0";
 
     function seatsText(count: number) {
         return labels?.seatsLeft
@@ -194,20 +198,26 @@ export function RideCard(props: RideCardProps) {
                 </div>
             </div>
 
-            <div className="flex items-end justify-between gap-4 max-600:flex-col max-600:items-stretch">
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 min-w-0 icon-svg:w-4 icon-svg:h-4 icon-svg:text-text-secondary icon-svg:shrink-0">
-                    <span className="inline-flex items-center gap-1.5 text-sm text-text-secondary">
+            <div
+                className={
+                    isPassengerRide
+                        ? "flex flex-col items-stretch gap-4"
+                        : "flex items-end justify-between gap-4 max-600:flex-col max-600:items-stretch"
+                }
+            >
+                <div className="flex min-w-0 flex-col items-start gap-1">
+                    <span className={metaRowClassName}>
                         <ClockIcon />
                         <span className="break-words">{datetime}</span>
                     </span>
                     {duration && (
-                        <span className="text-sm text-text-secondary">
-                            {"\u00b7 "}
-                            {duration}
+                        <span className={metaRowClassName}>
+                            <CircleIcon />
+                            <span className="break-words">{duration}</span>
                         </span>
                     )}
                     {props.variant === "driver-upcoming" && (
-                        <span className="inline-flex items-center gap-1.5 text-sm text-text-secondary">
+                        <span className={metaRowClassName}>
                             <UserIcon />
                             <span>
                                 {props.seatsLeft === "full"
@@ -218,7 +228,7 @@ export function RideCard(props: RideCardProps) {
                     )}
                     {props.variant === "passenger-upcoming" &&
                         props.seatsLeft !== undefined && (
-                            <span className="inline-flex items-center gap-1.5 text-sm text-text-secondary">
+                            <span className={metaRowClassName}>
                                 <UserIcon />
                                 <span>{seatsText(props.seatsLeft)}</span>
                             </span>
@@ -226,7 +236,7 @@ export function RideCard(props: RideCardProps) {
                 </div>
 
                 {props.variant === "passenger-upcoming" && (
-                    <div className="flex flex-wrap justify-end gap-2 shrink-0 max-600:flex-col max-600:w-full">
+                    <div className="grid grid-cols-1 gap-2 shrink-0 sm:grid-cols-3">
                         {props.onSendMessage && (
                             <Button
                                 variant="secondary"
@@ -265,7 +275,7 @@ export function RideCard(props: RideCardProps) {
                 )}
 
                 {props.variant === "passenger-past" && (
-                    <div className="flex flex-wrap justify-end gap-2 shrink-0 max-600:flex-col max-600:w-full">
+                    <div className="grid grid-cols-1 gap-2 shrink-0 sm:grid-cols-2">
                         <Button
                             variant={
                                 props.alreadyReviewed ? "secondary" : "black"

@@ -55,6 +55,8 @@ export function AvailableRideCard({
         originalStartCity &&
         originalEndCity &&
         (originalStartCity !== from || originalEndCity !== to);
+    const metaRowClassName =
+        "flex items-center gap-1.5 text-caption text-text-secondary icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-text-secondary icon-svg:shrink-0";
 
     return (
         <div className="available-ride-card text-left flex items-center justify-between gap-6 px-6 py-4 bg-card border border-border rounded-2xl max-600:items-start max-600:gap-4 max-600:px-5">
@@ -67,26 +69,20 @@ export function AvailableRideCard({
                         {originalStartCity} &rarr; {originalEndCity}
                     </span>
                 )}
-                <div className="available-ride-card-meta icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-text-secondary icon-svg:shrink-0">
-                    <span className="available-ride-card-meta-row">
+                <div className="flex flex-col items-start gap-1">
+                    <span className={metaRowClassName}>
                         <ClockIcon />
-                        <span className="text-caption text-text-secondary">
-                            {datetime}
-                        </span>
+                        <span>{datetime}</span>
                     </span>
                     {duration && (
-                        <span className="available-ride-card-meta-row">
+                        <span className={metaRowClassName}>
                             <CircleIcon />
-                            <span className="text-caption text-text-secondary">
-                                {duration}
-                            </span>
+                            <span>{duration}</span>
                         </span>
                     )}
-                    <span className="available-ride-card-meta-row">
+                    <span className={metaRowClassName}>
                         <UserIcon />
-                        <span className="text-caption text-text-secondary">
-                            {seatsText}
-                        </span>
+                        <span>{seatsText}</span>
                     </span>
                 </div>
             </div>
