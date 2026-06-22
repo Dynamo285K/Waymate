@@ -45,6 +45,16 @@ const addMinutes = (date: Date, minutes: number) =>
     new Date(date.getTime() + minutes * MINUTE_MS);
 
 async function main() {
+    // This script wipes all data (TRUNCATE … CASCADE) and prints dev
+    // credentials to stdout — strictly a local/dev tool. Refuse to run against
+    // a production environment so it can never destroy real data or leak logins.
+    if (process.env.NODE_ENV === "production") {
+        console.error(
+            "Refusing to seed: NODE_ENV=production. db:seed is for local/dev databases only.",
+        );
+        process.exit(1);
+    }
+
     console.log("Starting reset and seeding of car models...");
     let exitCode = 0;
 
