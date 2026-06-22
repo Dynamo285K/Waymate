@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import type { AdminDashboardPopularRoute } from "../../../api-client/model/adminDashboardPopularRoute";
 import { DashboardCard } from "./DashboardCard";
@@ -40,12 +39,10 @@ export function PopularRoutesCard({
                             </div>
                             <div className="h-2 bg-border rounded-full overflow-hidden">
                                 <div
-                                    className="h-full bg-primary rounded-full transition-all w-[var(--bar-width)]"
-                                    style={
-                                        {
-                                            "--bar-width": `${(r.count / max) * 100}%`,
-                                        } as CSSProperties
-                                    }
+                                    className="h-full bg-primary rounded-full transition-all"
+                                    style={{
+                                        width: `${(r.count / max) * 100}%`,
+                                    }}
                                 />
                             </div>
                         </div>

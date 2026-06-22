@@ -149,7 +149,7 @@ export function NavbarBottomTabs({
                         onClick={item.onClick}
                     >
                         <span
-                            className={`relative inline-flex h-8 min-w-11 items-center justify-center rounded-full transition-colors duration-150 [&_svg]:h-5 [&_svg]:w-5 ${
+                            className={`relative inline-flex h-8 min-w-11 items-center justify-center rounded-full transition-colors duration-150 icon-svg:h-5 icon-svg:w-5 ${
                                 item.active
                                     ? "bg-primary-tint text-primary"
                                     : "bg-transparent"

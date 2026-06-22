@@ -59,6 +59,7 @@
     --spacing-summary-action-min: 130px;
     --spacing-ride-action-min: 11rem;
     --spacing-register-content: calc(100vh - 72px);
+    --spacing-chat-panel: calc(100vh - 72px);
     --spacing-radix-select-trigger: var(--radix-select-trigger-width);
     --spacing-radix-select-list: min(
         320px,
