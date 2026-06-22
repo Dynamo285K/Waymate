@@ -109,6 +109,17 @@ remember to rotate it if your machine is shared.
 bun install
 ```
 
+#### Adding or Updating `@waymate/ui`
+
+If you are getting a `401 Unauthorized` error when installing, make sure you have correctly created and exported your GitLab Personal Access Token as `CI_JOB_TOKEN` (see Step 2).
+
+To manually add or update the UI library to the latest version, you should clear Bun's package cache first, as it aggressively caches packages from the registry:
+
+```bash
+bun pm cache rm
+bun add @waymate/ui@latest
+```
+
 ### 4. Set up the database
 
 The API talks to a local PostgreSQL running in Docker. You need:
