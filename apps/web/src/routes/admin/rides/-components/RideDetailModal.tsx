@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Avatar, Button, IconButton, Modal } from "@waymate/ui";
+import { Avatar, Button, CloseIcon, IconButton, Modal } from "@waymate/ui";
 import { useGetAdminRidesById } from "../../../../api-client/admin/admin";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminRidesErrorMap } from "../-lib/admin-ride-errors";
@@ -65,7 +65,7 @@ export function RideDetailModal({
                     </h2>
                     <IconButton
                         ariaLabel="Close"
-                        icon={<span aria-hidden>✕</span>}
+                        icon={<CloseIcon />}
                         variant="ghost"
                         onClick={onClose}
                     />

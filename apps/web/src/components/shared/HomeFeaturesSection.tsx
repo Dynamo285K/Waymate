@@ -1,14 +1,14 @@
 import { useTranslation } from "react-i18next";
-import { FeatureCard } from "@waymate/ui";
 import {
-    IconBox,
-    ShieldIcon,
-    CoinsIcon,
-    LeafIcon,
-    MessageIcon,
     BoltIcon,
+    CoinsIcon,
+    FeatureCard,
+    LeafIcon,
+    MessageCircleIcon,
+    ShieldIcon,
     StarIcon,
-} from "./icons/FeatureIcons";
+} from "@waymate/ui";
+import { FeatureVisual } from "./FeatureVisual";
 
 type HomeFeaturesSectionProps = {
     // The driver and passenger home pages share this block verbatim and differ
@@ -39,12 +39,12 @@ export function HomeFeaturesSection({
                 <div className={gridClassName}>
                     <FeatureCard
                         icon={
-                            <IconBox
+                            <FeatureVisual
                                 bg="bg-success-bg"
                                 color="text-success-text"
                             >
                                 <ShieldIcon />
-                            </IconBox>
+                            </FeatureVisual>
                         }
                         title={t("home.features.verifiedDrivers.title")}
                         description={t(
@@ -53,60 +53,60 @@ export function HomeFeaturesSection({
                     />
                     <FeatureCard
                         icon={
-                            <IconBox
+                            <FeatureVisual
                                 bg="bg-success-bg"
                                 color="text-success-text"
                             >
                                 <CoinsIcon />
-                            </IconBox>
+                            </FeatureVisual>
                         }
                         title={t("home.features.fairPricing.title")}
                         description={t("home.features.fairPricing.description")}
                     />
                     <FeatureCard
                         icon={
-                            <IconBox
+                            <FeatureVisual
                                 bg="bg-primary/10"
                                 color="text-primary"
                             >
                                 <LeafIcon />
-                            </IconBox>
+                            </FeatureVisual>
                         }
                         title={t("home.features.ecoFriendly.title")}
                         description={t("home.features.ecoFriendly.description")}
                     />
                     <FeatureCard
                         icon={
-                            <IconBox
+                            <FeatureVisual
                                 bg="bg-primary/10"
                                 color="text-primary"
                             >
-                                <MessageIcon />
-                            </IconBox>
+                                <MessageCircleIcon />
+                            </FeatureVisual>
                         }
                         title={t("home.features.directChat.title")}
                         description={t("home.features.directChat.description")}
                     />
                     <FeatureCard
                         icon={
-                            <IconBox
+                            <FeatureVisual
                                 bg="bg-warning-bg"
                                 color="text-warning-text"
                             >
                                 <BoltIcon />
-                            </IconBox>
+                            </FeatureVisual>
                         }
                         title={t("home.features.fastBooking.title")}
                         description={t("home.features.fastBooking.description")}
                     />
                     <FeatureCard
                         icon={
-                            <IconBox
+                            <FeatureVisual
                                 bg="bg-danger-bg"
                                 color="text-danger-text"
                             >
                                 <StarIcon />
-                            </IconBox>
+                            </FeatureVisual>
                         }
                         title={t("home.features.ratings.title")}
                         description={t("home.features.ratings.description")}

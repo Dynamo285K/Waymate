@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Button, Modal } from "@waymate/ui";
+import { Button, Modal, TrashIcon } from "@waymate/ui";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminReviewsErrorMap } from "../-lib/admin-review-errors";
 
@@ -50,6 +50,7 @@ export function DeleteReviewModal({
                     </Button>
                     <Button
                         variant="unstyled"
+                        leftIcon={<TrashIcon />}
                         disabled={isPending}
                         className="px-4 py-3 rounded-xl bg-red font-semibold text-sm text-white cursor-pointer disabled:opacity-50"
                         onClick={onConfirm}

@@ -1,5 +1,13 @@
 import { useTranslation } from "react-i18next";
-import { Avatar, Button, IconButton, Modal } from "@waymate/ui";
+import {
+    Avatar,
+    BanIcon,
+    Button,
+    CheckIcon,
+    CloseIcon,
+    IconButton,
+    Modal,
+} from "@waymate/ui";
 import { useGetAdminReportsById } from "../../../../api-client/admin/admin";
 import type { ReportStatus } from "../../../../api-client/model/reportStatus";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
@@ -77,7 +85,7 @@ export function ReportDetailModal({
                     </h2>
                     <IconButton
                         ariaLabel="Close"
-                        icon={<span aria-hidden>✕</span>}
+                        icon={<CloseIcon />}
                         variant="ghost"
                         onClick={onClose}
                     />
@@ -158,6 +166,7 @@ export function ReportDetailModal({
                                         "DELETED" && (
                                         <Button
                                             variant="red"
+                                            leftIcon={<BanIcon />}
                                             className="mt-3"
                                             onClick={() =>
                                                 onBanTarget({
@@ -166,7 +175,7 @@ export function ReportDetailModal({
                                                 })
                                             }
                                         >
-                                            ⊘ {t("admin.banUser")}
+                                            {t("admin.banUser")}
                                         </Button>
                                     )
                                 )}
@@ -250,6 +259,7 @@ export function ReportDetailModal({
                                 {allowed.includes("RESOLVED") && (
                                     <Button
                                         variant="primary"
+                                        leftIcon={<CheckIcon />}
                                         onClick={() =>
                                             onRequestStatus("RESOLVED")
                                         }
@@ -261,6 +271,7 @@ export function ReportDetailModal({
                                 {allowed.includes("DISMISSED") && (
                                     <Button
                                         variant="red"
+                                        leftIcon={<CloseIcon />}
                                         onClick={() =>
                                             onRequestStatus("DISMISSED")
                                         }

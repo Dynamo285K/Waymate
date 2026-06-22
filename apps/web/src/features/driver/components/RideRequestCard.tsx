@@ -1,4 +1,12 @@
-import { Avatar, Button, StarIcon, MapPinIcon, ClockIcon } from "@waymate/ui";
+import {
+    Avatar,
+    Button,
+    CheckIcon,
+    ClockIcon,
+    CloseIcon,
+    MapPinIcon,
+    StarIcon,
+} from "@waymate/ui";
 
 export type RideRequestCardLabels = {
     seatsRequired?: (count: number) => string;
@@ -86,15 +94,17 @@ export function RideRequestCard({
                 <div className="flex gap-2 max-sm:w-full max-sm:justify-end">
                     <Button
                         variant="black"
+                        leftIcon={<CheckIcon />}
                         onClick={onAccept}
                     >
-                        ✓ {labels?.accept ?? "Accept"}
+                        {labels?.accept ?? "Accept"}
                     </Button>
                     <Button
                         variant="red"
+                        leftIcon={<CloseIcon />}
                         onClick={onDecline}
                     >
-                        ✕ {labels?.decline ?? "Decline"}
+                        {labels?.decline ?? "Decline"}
                     </Button>
                 </div>
             </div>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AuthNavbar, Button, Modal } from "@waymate/ui";
+import { AuthNavbar, Button, LockIcon, Modal } from "@waymate/ui";
 import type { SearchBoxCityOption } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { HomeContent } from "../components/shared/HomeContent";
@@ -66,7 +66,9 @@ function HomePage({
                 onClose={() => setShowGuestModal(false)}
             >
                 <div className="w-modal-viewport max-w-sm p-8 text-center flex flex-col gap-4">
-                    <div className="text-4xl">🔒</div>
+                    <div className="inline-flex justify-center text-primary">
+                        <LockIcon />
+                    </div>
                     <h2 className="text-xl font-bold text-text-primary">
                         {t("bookGuest.title")}
                     </h2>

@@ -5,7 +5,7 @@ import {
     useNavigate,
     useLocation,
 } from "@tanstack/react-router";
-import { StatCard, TextLink } from "@waymate/ui";
+import { StatCard, TextLink, UsersIcon } from "@waymate/ui";
 import { PassengerCard } from "../../../../features/driver/components/PassengerCard";
 import { useOpenConversation } from "../../../../features/chat/hooks/useOpenConversation";
 import { CancelRideDialog } from "../../../../components/shared/CancelRideDialog";
@@ -19,29 +19,7 @@ export const Route = createFileRoute("/driver/rides/passengers/")({
     component: DriverPassengersPage,
 });
 
-function UsersIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-            <circle
-                cx="9"
-                cy="7"
-                r="4"
-            />
-            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-        </svg>
-    );
-}
-
-function IconBox({
+function StatVisual({
     bg,
     color,
     children,
@@ -110,12 +88,12 @@ function DriverPassengersPage() {
                 <div className="mb-6">
                     <StatCard
                         icon={
-                            <IconBox
+                            <StatVisual
                                 bg="bg-primary/10"
                                 color="text-primary"
                             >
                                 <UsersIcon />
-                            </IconBox>
+                            </StatVisual>
                         }
                         value={String(passengersView?.passengerCount ?? 0)}
                         label={t("driverRides.passengers")}

@@ -3,7 +3,7 @@ import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { Button, IconButton, Modal, Textarea } from "@waymate/ui";
+import { Button, CloseIcon, IconButton, Modal, Textarea } from "@waymate/ui";
 import type { ReportStatus } from "../../../../api-client/model/reportStatus";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminReportsErrorMap } from "../-lib/admin-report-errors";
@@ -84,7 +84,7 @@ export function SetReportStatusModal({
                     </h2>
                     <IconButton
                         ariaLabel="Close"
-                        icon={<span aria-hidden>✕</span>}
+                        icon={<CloseIcon />}
                         variant="ghost"
                         onClick={onClose}
                     />

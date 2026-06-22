@@ -4,7 +4,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Button, Input, TextLink, IconButton } from "@waymate/ui";
+import {
+    Button,
+    CheckIcon,
+    EyeIcon,
+    IconButton,
+    Input,
+    LockIcon,
+    MailIcon,
+    SendIcon,
+    TextLink,
+} from "@waymate/ui";
 import { FieldError } from "../components/shared/FieldError";
 import { requestPasswordReset, resetPassword } from "../lib/auth";
 import { useLayout } from "../lib/use-layout";
@@ -46,7 +56,7 @@ function ProgressDots({ step }: { step: 1 | 2 | 3 }) {
     );
 }
 
-function IconCircle({ children }: { children: React.ReactNode }) {
+function StepVisual({ children }: { children: React.ReactNode }) {
     return (
         <div className="w-16 h-16 rounded-full bg-success-bg flex items-center justify-center mx-auto mb-5 text-success-text">
             {children}
@@ -157,30 +167,9 @@ function ForgotPasswordPage() {
                 {step === 1 && (
                     <>
                         <ProgressDots step={1} />
-                        <IconCircle>
-                            <svg
-                                width="28"
-                                height="28"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <path d="M21 2v6h-6" />
-                                <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
-                                <rect
-                                    x="3"
-                                    y="11"
-                                    width="18"
-                                    height="11"
-                                    rx="2"
-                                    ry="2"
-                                />
-                                <path d="M7 11V7a5 5 0 0 1 9.9-1" />
-                            </svg>
-                        </IconCircle>
+                        <StepVisual>
+                            <LockIcon />
+                        </StepVisual>
                         <h1 className="text-xl font-bold text-text-primary mb-2">
                             {t("forgotPassword.step1Title")}
                         </h1>
@@ -207,11 +196,12 @@ function ForgotPasswordPage() {
 
                         <Button
                             fullWidth
+                            leftIcon={<SendIcon />}
                             onClick={handleSendCode}
                         >
                             {isSendingReset
                                 ? t("forgotPassword.sending")
-                                : `➤ ${t("forgotPassword.sendCode")}`}
+                                : t("forgotPassword.sendCode")}
                         </Button>
                         {resetError && (
                             <FieldError className="mt-3">
@@ -233,28 +223,9 @@ function ForgotPasswordPage() {
                 {step === 2 && (
                     <>
                         <ProgressDots step={2} />
-                        <IconCircle>
-                            <svg
-                                width="28"
-                                height="28"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <rect
-                                    width="20"
-                                    height="16"
-                                    x="2"
-                                    y="4"
-                                    rx="2"
-                                />
-                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                                <polyline points="16 17 18 19 22 15" />
-                            </svg>
-                        </IconCircle>
+                        <StepVisual>
+                            <MailIcon />
+                        </StepVisual>
                         <h1 className="text-xl font-bold text-text-primary mb-2">
                             {t("forgotPassword.step2Title")}
                         </h1>
@@ -294,17 +265,9 @@ function ForgotPasswordPage() {
                 {step === 3 && (
                     <>
                         <ProgressDots step={3} />
-                        <IconCircle>
-                            <svg
-                                width="28"
-                                height="28"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                stroke="none"
-                            >
-                                <path d="M12 1C9.24 1 7 3.24 7 6v2H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-2V6c0-2.76-2.24-5-5-5zm0 2c1.66 0 3 1.34 3 3v2H9V6c0-1.66 1.34-3 3-3zm0 9a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" />
-                            </svg>
-                        </IconCircle>
+                        <StepVisual>
+                            <LockIcon />
+                        </StepVisual>
                         <h1 className="text-xl font-bold text-text-primary mb-2">
                             {t("forgotPassword.step3Title")}
                         </h1>
@@ -325,23 +288,7 @@ function ForgotPasswordPage() {
                                     />
                                     <IconButton
                                         ariaLabel="Toggle password visibility"
-                                        icon={
-                                            <svg
-                                                width="18"
-                                                height="18"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                            >
-                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                                <circle
-                                                    cx="12"
-                                                    cy="12"
-                                                    r="3"
-                                                />
-                                            </svg>
-                                        }
+                                        icon={<EyeIcon />}
                                         variant="ghost"
                                         onClick={() => setShowPw((v) => !v)}
                                     />
@@ -369,11 +316,12 @@ function ForgotPasswordPage() {
 
                         <Button
                             fullWidth
+                            leftIcon={<CheckIcon />}
                             onClick={handleSetPassword}
                         >
                             {isResettingPassword
                                 ? t("forgotPassword.settingPassword")
-                                : `✓ ${t("forgotPassword.setPassword")}`}
+                                : t("forgotPassword.setPassword")}
                         </Button>
                         {resetError && (
                             <FieldError className="mt-3">

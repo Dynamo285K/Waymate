@@ -115,7 +115,7 @@ export function DriverNavbar({
     }, []);
 
     const logoSrc = theme === "dark" ? logoDark : logoLight;
-    const themeIcon = theme === "dark" ? <SunIcon /> : <MoonIcon />;
+    const themeToggleGlyph = theme === "dark" ? <SunIcon /> : <MoonIcon />;
     const themeLabel =
         theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
 
@@ -248,7 +248,7 @@ export function DriverNavbar({
             />
             <IconButton
                 ariaLabel={themeLabel}
-                icon={themeIcon}
+                icon={themeToggleGlyph}
                 variant="default"
                 onClick={onThemeToggle}
             />
@@ -302,7 +302,7 @@ export function DriverNavbar({
                                 <div className="flex items-center gap-2.5">
                                     <IconButton
                                         ariaLabel={themeLabel}
-                                        icon={themeIcon}
+                                        icon={themeToggleGlyph}
                                         variant="default"
                                         onClick={onThemeToggle}
                                     />
@@ -337,7 +337,7 @@ export function DriverNavbar({
                             <div className="flex items-center gap-2.5">
                                 <IconButton
                                     ariaLabel={themeLabel}
-                                    icon={themeIcon}
+                                    icon={themeToggleGlyph}
                                     variant="default"
                                     onClick={onThemeToggle}
                                 />

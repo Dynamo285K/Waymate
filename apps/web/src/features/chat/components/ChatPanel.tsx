@@ -4,6 +4,7 @@ import { formatDayLabel } from "../../../lib/date-format";
 import {
     Button,
     ConversationSidebar,
+    BackIcon,
     ChatHeader,
     IconButton,
     MessageBubble,
@@ -14,23 +15,6 @@ import { useLayout } from "../../../lib/use-layout";
 import { ReportUserModal } from "../../../components/shared/ReportUserModal";
 import { UserProfileModal } from "../../../components/shared/UserProfileModal";
 import { useChatPanel, type MessageView } from "../hooks/useChatPanel";
-
-function BackIcon() {
-    return (
-        <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M19 12H5M12 5l-7 7 7 7" />
-        </svg>
-    );
-}
 
 type ThreadProps = {
     messages: MessageView[];

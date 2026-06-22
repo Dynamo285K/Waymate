@@ -2,7 +2,7 @@ import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { Button, IconButton, Modal, Textarea } from "@waymate/ui";
+import { Button, CloseIcon, IconButton, Modal, Textarea } from "@waymate/ui";
 import type { ReviewStatus } from "../../../../api-client/model/reviewStatus";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminReviewsErrorMap } from "../-lib/admin-review-errors";
@@ -64,7 +64,7 @@ export function SetReviewStatusModal({
                     </h2>
                     <IconButton
                         ariaLabel="Close"
-                        icon={<span aria-hidden>✕</span>}
+                        icon={<CloseIcon />}
                         variant="ghost"
                         onClick={onClose}
                     />

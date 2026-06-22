@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Input, MapPinIcon } from "@waymate/ui";
+import { Input, LoaderCircleIcon, MapPinIcon } from "@waymate/ui";
 import { useUserLocation } from "../../hooks/shared/useUserLocation";
 import { fetchPhotonLocations } from "../../lib/geocoding/photon";
 import type { LocationSuggestion } from "../../lib/geocoding/photon";
@@ -15,15 +15,6 @@ type LocationAutocompleteProps = {
     placeholder?: string;
     label?: string;
 };
-
-function SpinnerIcon() {
-    return (
-        <span
-            className="inline-block w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin-fast"
-            aria-hidden
-        />
-    );
-}
 
 export function LocationAutocomplete({
     value,
@@ -139,7 +130,16 @@ export function LocationAutocomplete({
             <Input
                 label={label}
                 leftIcon={<MapPinIcon />}
-                rightIcon={isLoading ? <SpinnerIcon /> : undefined}
+                rightIcon={
+                    isLoading ? (
+                        <span
+                            className="inline-flex text-primary animate-spin-fast"
+                            aria-hidden
+                        >
+                            <LoaderCircleIcon />
+                        </span>
+                    ) : undefined
+                }
                 value={inputValue}
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
