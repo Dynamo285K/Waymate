@@ -11,6 +11,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getErrorI18nKey } from "../../lib/api-errors";
 import { reportUserErrorMap } from "../../lib/report-errors";
 import { useLayout } from "../../lib/use-layout";
+import { FilterSelect } from "../../features/admin/components/FilterSelect";
 
 const REPORT_TYPE_OPTIONS: ReadonlyArray<{
     value: ReportType;
@@ -132,19 +133,21 @@ export function ReportUserModal({
                         {t("report.typeLabel")}{" "}
                         <span className="text-danger-text">*</span>
                     </label>
-                    <select
-                        {...register("reportType")}
-                        className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-text-primary focus:outline-none focus:border-primary"
-                    >
-                        {REPORT_TYPE_OPTIONS.map((opt) => (
-                            <option
-                                key={opt.value}
-                                value={opt.value}
-                            >
-                                {t(opt.labelKey)}
-                            </option>
-                        ))}
-                    </select>
+                    <Controller
+                        control={control}
+                        name="reportType"
+                        render={({ field }) => (
+                            <FilterSelect
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                ariaLabel={t("report.typeLabel")}
+                                options={REPORT_TYPE_OPTIONS.map((opt) => ({
+                                    value: opt.value,
+                                    label: t(opt.labelKey),
+                                }))}
+                            />
+                        )}
+                    />
                 </div>
 
                 <div className="mb-6">
