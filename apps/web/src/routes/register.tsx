@@ -41,7 +41,7 @@ const registerFormSchema = z
 
 type RegisterFormValues = z.infer<typeof registerFormSchema>;
 
-export function RegisterPage() {
+function RegisterPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();

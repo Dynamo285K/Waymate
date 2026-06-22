@@ -14,7 +14,7 @@ export const Route = createFileRoute("/passenger/")({
     component: PassengerHomePage,
 });
 
-export function PassengerHomePage() {
+function PassengerHomePage() {
     const navigate = useNavigate();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
     const { data: session } = authClient.useSession();

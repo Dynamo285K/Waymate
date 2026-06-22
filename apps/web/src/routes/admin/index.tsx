@@ -70,7 +70,7 @@ function Card({
     );
 }
 
-export function AdminDashboardPage() {
+function AdminDashboardPage() {
     const { t } = useTranslation();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
     const { data: session } = authClient.useSession();

@@ -71,11 +71,14 @@ const onboardingFormSchema = z.object({
 
 type OnboardingFormValues = z.infer<typeof onboardingFormSchema>;
 
-export function OnboardingPage() {
+function OnboardingPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
     async function handleSwitchAccount(to: "/login" | "/register") {
+        // Best-effort sign-out: the user is leaving onboarding to switch
+        // accounts, so a failed sign-out must not block navigation to
+        // login/register. Swallow the error deliberately.
         await signOut().catch(() => {});
         navigate({ to });
     }

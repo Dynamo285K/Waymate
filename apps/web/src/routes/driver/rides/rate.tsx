@@ -105,7 +105,7 @@ function IconBox({
     );
 }
 
-export function DriverRatePassengersPage() {
+function DriverRatePassengersPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();

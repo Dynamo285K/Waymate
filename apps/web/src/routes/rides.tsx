@@ -18,7 +18,7 @@ export const Route = createFileRoute("/rides")({
     component: RidesPage,
 });
 
-export function RidesPage() {
+function RidesPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();

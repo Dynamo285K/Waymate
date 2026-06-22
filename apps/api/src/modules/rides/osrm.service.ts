@@ -1,6 +1,8 @@
 import polyline from "@mapbox/polyline";
 import * as h3 from "h3-js";
 
+import { logger } from "../../shared/logger";
+
 export const fetchOsrmRouteCells = async (
     stops: { lat: number; lng: number }[]
 ): Promise<{
@@ -16,7 +18,10 @@ export const fetchOsrmRouteCells = async (
     try {
         const response = await fetch(url);
         if (!response.ok) {
-            console.error("OSRM fetch failed:", await response.text());
+            logger.error(
+                { status: response.status, body: await response.text() },
+                "osrm_fetch_failed"
+            );
             return { cells: [], durations: [] };
         }
 
@@ -59,7 +64,7 @@ export const fetchOsrmRouteCells = async (
 
         return { cells, durations };
     } catch (e) {
-        console.error("OSRM parse error:", e);
+        logger.error({ err: e }, "osrm_parse_failed");
         return { cells: [], durations: [] };
     }
 };

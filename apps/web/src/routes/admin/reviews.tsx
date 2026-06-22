@@ -40,7 +40,7 @@ type StatusFilter = "ALL" | ReviewStatus;
 
 const SEARCH_DEBOUNCE_MS = 300;
 
-export function AdminReviewsPage() {
+function AdminReviewsPage() {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
