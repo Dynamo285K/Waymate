@@ -12,11 +12,12 @@ import { useNavbar } from "./use-navbar";
 import {
     NavbarShell,
     NavbarLogo,
-    NavbarHamburger,
+    NavbarBottomTabs,
     NavbarProfileMenu,
+    NavbarProfileSettings,
     NavbarRoleControls,
-    NavbarRolePanel,
 } from "./navbar-shared";
+import { RoleSwitcher } from "../controls/RoleSwitcher";
 
 export type DriverNavbarTab =
     | "offer-ride"
@@ -85,8 +86,6 @@ export function DriverNavbar({
 }: DriverNavbarProps) {
     const {
         navbarRef,
-        isMobileMenuOpen,
-        setIsMobileMenuOpen,
         isDesktop,
         isTablet,
         isMobile,
@@ -104,34 +103,38 @@ export function DriverNavbar({
         />
     );
 
-    const hamburger = (
-        <NavbarHamburger
-            open={isMobileMenuOpen}
-            onToggle={() => setIsMobileMenuOpen((c) => !c)}
-        />
-    );
-
     const profileMenu = (
         <NavbarProfileMenu
             userName={userName}
             theme={theme}
         >
-            <ProfileDropdown
-                name={userName}
-                email={userEmail}
-                onProfileClick={onProfileClick}
-                onMyRidesClick={onMyRidesClick}
-                onMessagesClick={onMessagesClick}
-                onRatingsClick={onRatingsClick}
-                onLogoutClick={onLogoutClick}
-                labels={{
-                    profile: labels?.profile,
-                    myRides: labels?.dropdownMyRides,
-                    messages: labels?.messages,
-                    ratings: labels?.ratings,
-                    logout: labels?.logout,
-                }}
-            />
+            <div className="w-80 rounded-summary-card overflow-hidden bg-card border border-border shadow-dropdown-strong">
+                <div className="profile-dropdown-surface:w-full profile-dropdown-surface:rounded-none profile-dropdown-surface:border-0 profile-dropdown-surface:shadow-none">
+                    <ProfileDropdown
+                        name={userName}
+                        email={userEmail}
+                        onProfileClick={onProfileClick}
+                        onMyRidesClick={onMyRidesClick}
+                        onMessagesClick={onMessagesClick}
+                        onRatingsClick={onRatingsClick}
+                        onLogoutClick={onLogoutClick}
+                        labels={{
+                            profile: labels?.profile,
+                            myRides: labels?.dropdownMyRides,
+                            messages: labels?.messages,
+                            ratings: labels?.ratings,
+                            logout: labels?.logout,
+                        }}
+                    />
+                </div>
+                <NavbarProfileSettings
+                    language={language}
+                    onLanguageChange={onLanguageChange}
+                    themeLabel={themeLabel}
+                    themeIcon={themeIcon}
+                    onThemeToggle={onThemeToggle}
+                />
+            </div>
         </NavbarProfileMenu>
     );
 
@@ -189,6 +192,49 @@ export function DriverNavbar({
         onThemeToggle,
         profileMenu,
     };
+    const compactRoleSwitcher = (
+        <RoleSwitcher
+            value={role}
+            onChange={onRoleChange}
+            labels={roleLabels}
+            size="sm"
+        />
+    );
+    const bottomTabs = (
+        <NavbarBottomTabs
+            items={[
+                {
+                    key: "offer-ride",
+                    label: labels?.offerRide ?? "Offer ride",
+                    icon: <PlusIcon />,
+                    active: activeTab === "offer-ride",
+                    onClick: onOfferRideClick,
+                },
+                {
+                    key: "my-rides",
+                    label: labels?.myRides ?? "My rides",
+                    icon: <ListIcon />,
+                    active: activeTab === "my-rides",
+                    onClick: onMyRidesClick,
+                },
+                {
+                    key: "ride-requests",
+                    label: labels?.rideRequests ?? "Ride requests",
+                    icon: <ListChecksIcon />,
+                    active: activeTab === "ride-requests",
+                    onClick: onRideRequestsClick,
+                },
+                {
+                    key: "chat",
+                    label: labels?.chat ?? "Chat",
+                    icon: <MessageCircleIcon />,
+                    active: activeTab === "chat",
+                    badge: chatBadge,
+                    onClick: onChatClick,
+                },
+            ]}
+        />
+    );
 
     return (
         <NavbarShell navRef={navbarRef}>
@@ -209,41 +255,25 @@ export function DriverNavbar({
                 </div>
             )}
             {isTablet && (
-                <div className="min-h-18 px-4 flex items-center justify-between gap-3">
+                <div className="min-h-16 px-4 flex items-center justify-between gap-4">
                     {logoImg}
-                    <nav
-                        className="flex items-center gap-5 flex-wrap"
-                        aria-label="Primary navigation"
-                    >
-                        {navButtons}
-                    </nav>
-                    <div className="relative shrink-0">
-                        {hamburger}
-                        {isMobileMenuOpen && (
-                            <div className="absolute top-nav-dropdown-offset right-0 min-w-70 rounded-2xl border border-border shadow-dropdown-strong z-30 py-3 px-4 flex flex-col gap-3 bg-background">
-                                <NavbarRolePanel {...roleControlsProps} />
-                            </div>
-                        )}
+                    <div className="flex items-center gap-4 shrink-0">
+                        {compactRoleSwitcher}
+                        {profileMenu}
                     </div>
+                    {bottomTabs}
                 </div>
             )}
             {isMobile && (
-                <div className="flex flex-col">
-                    <div className="flex items-center justify-between py-2.5 px-4">
-                        {logoImg}
-                        {hamburger}
-                    </div>
-                    {isMobileMenuOpen && (
-                        <div className="border-t border-border py-3 px-4 flex flex-col gap-3 bg-background">
-                            <NavbarRolePanel {...roleControlsProps} />
+                <div className="px-4 py-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0">{logoImg}</div>
+                        <div className="flex items-center gap-3 shrink-0">
+                            {compactRoleSwitcher}
+                            {profileMenu}
                         </div>
-                    )}
-                    <nav
-                        className="grid grid-cols-2 gap-1.5 px-4 pt-2 pb-2.5 border-t border-border nav-button:py-2 nav-button:px-2.5 nav-button:text-caption nav-button:gap-1.5 nav-button:justify-center nav-button:w-full"
-                        aria-label="Primary navigation"
-                    >
-                        {navButtons}
-                    </nav>
+                    </div>
+                    {bottomTabs}
                 </div>
             )}
         </NavbarShell>

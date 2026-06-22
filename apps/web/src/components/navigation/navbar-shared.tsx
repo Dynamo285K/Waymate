@@ -10,6 +10,15 @@ export type RoleLabels = {
     driver?: string;
 };
 
+export type NavbarBottomTabItem = {
+    key: string;
+    label: string;
+    icon: ReactNode;
+    active?: boolean;
+    badge?: number;
+    onClick?: () => void;
+};
+
 export function NavbarShell({
     navRef,
     children,
@@ -19,7 +28,7 @@ export function NavbarShell({
 }) {
     return (
         <header
-            className="w-full bg-background border-b border-border shadow-navbar"
+            className="sticky top-0 z-100 w-full bg-background border-b border-border shadow-dropdown-strong"
             ref={navRef}
         >
             {children}
@@ -98,7 +107,7 @@ export function NavbarProfileMenu({
             <DropdownMenu.Portal>
                 <DropdownMenu.Content
                     className="z-200"
-                    sideOffset={12}
+                    sideOffset={16}
                     align="end"
                     data-theme={theme}
                 >
@@ -106,6 +115,96 @@ export function NavbarProfileMenu({
                 </DropdownMenu.Content>
             </DropdownMenu.Portal>
         </DropdownMenu.Root>
+    );
+}
+
+export function NavbarBottomTabs({
+    items,
+    ariaLabel = "Primary navigation",
+}: {
+    items: NavbarBottomTabItem[];
+    ariaLabel?: string;
+}) {
+    return (
+        <nav
+            className="fixed left-0 right-0 bottom-0 z-100 bg-card/95 border-t border-border shadow-dropdown-strong backdrop-blur pb-2"
+            aria-label={ariaLabel}
+        >
+            <div
+                className="grid min-h-16 px-2 pt-1.5"
+                style={{
+                    gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))`,
+                }}
+            >
+                {items.map((item) => (
+                    <button
+                        key={item.key}
+                        type="button"
+                        className={`relative flex flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-1.5 text-caption font-semibold leading-none transition-colors duration-150 ${
+                            item.active
+                                ? "text-primary"
+                                : "text-text-secondary hover:text-text-primary"
+                        }`}
+                        aria-current={item.active ? "page" : undefined}
+                        onClick={item.onClick}
+                    >
+                        <span
+                            className={`relative inline-flex h-8 min-w-11 items-center justify-center rounded-full transition-colors duration-150 [&_svg]:h-5 [&_svg]:w-5 ${
+                                item.active
+                                    ? "bg-primary-tint text-primary"
+                                    : "bg-transparent"
+                            }`}
+                        >
+                            {item.icon}
+                            {item.badge ? (
+                                <span
+                                    className="absolute -top-1 -right-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-red px-1 text-badge font-bold leading-none text-white"
+                                    aria-label={`${item.badge} unread`}
+                                >
+                                    {item.badge > 99 ? "99+" : item.badge}
+                                </span>
+                            ) : null}
+                        </span>
+                        <span className="max-w-full truncate">
+                            {item.label}
+                        </span>
+                    </button>
+                ))}
+            </div>
+        </nav>
+    );
+}
+
+export function NavbarProfileSettings({
+    language,
+    onLanguageChange,
+    themeLabel,
+    themeIcon,
+    onThemeToggle,
+}: {
+    language: Language;
+    onLanguageChange: (value: Language) => void;
+    themeLabel: string;
+    themeIcon: ReactNode;
+    onThemeToggle?: () => void;
+}) {
+    return (
+        <div className="border-t border-border py-3 px-4 flex items-center justify-between gap-3">
+            <div className="rounded-full bg-card shadow-control-floating">
+                <LanguageSwitcher
+                    value={language}
+                    onChange={onLanguageChange}
+                />
+            </div>
+            <div className="inline-flex rounded-full bg-card shadow-control-floating">
+                <IconButton
+                    ariaLabel={themeLabel}
+                    icon={themeIcon}
+                    variant="default"
+                    onClick={onThemeToggle}
+                />
+            </div>
+        </div>
     );
 }
 
@@ -127,16 +226,20 @@ export function NavbarControlsRow({
 }) {
     return (
         <div className="flex items-center gap-2.5">
-            <IconButton
-                ariaLabel={themeLabel}
-                icon={themeIcon}
-                variant="default"
-                onClick={onThemeToggle}
-            />
-            <LanguageSwitcher
-                value={language}
-                onChange={onLanguageChange}
-            />
+            <div className="inline-flex rounded-full bg-card shadow-control-floating">
+                <IconButton
+                    ariaLabel={themeLabel}
+                    icon={themeIcon}
+                    variant="default"
+                    onClick={onThemeToggle}
+                />
+            </div>
+            <div className="rounded-full bg-card shadow-control-floating">
+                <LanguageSwitcher
+                    value={language}
+                    onChange={onLanguageChange}
+                />
+            </div>
             <div className="ml-auto">{profileMenu}</div>
         </div>
     );
@@ -206,6 +309,7 @@ export function NavbarRolePanel({
                 value={role}
                 onChange={onRoleChange}
                 className="self-start shrink-0"
+                size="sm"
                 labels={roleLabels}
             />
             <NavbarControlsRow

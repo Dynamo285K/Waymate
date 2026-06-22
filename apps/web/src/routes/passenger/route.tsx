@@ -30,7 +30,7 @@ function PassengerRouteLayout() {
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-background"
+            className="min-h-screen bg-background pb-24 lg:pb-0"
         >
             <PassengerNavbar {...navbarProps} />
             <Outlet />

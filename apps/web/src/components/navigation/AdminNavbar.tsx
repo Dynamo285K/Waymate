@@ -122,7 +122,7 @@ export function AdminNavbar({
     const hamburger = (
         <Button
             variant="unstyled"
-            className="bg-card border border-border rounded-[10px] w-10 h-10 cursor-pointer flex flex-col items-center justify-center gap-1.25 p-0 shadow-hairline [&_span]:block [&_span]:w-4.5 [&_span]:h-0.5 [&_span]:bg-text-primary [&_span]:rounded-sm"
+            className="bg-card border border-border rounded-control w-10 h-10 cursor-pointer flex flex-col items-center justify-center gap-1.25 p-0 shadow-hairline [&_span]:block [&_span]:w-4.5 [&_span]:h-0.5 [&_span]:bg-text-primary [&_span]:rounded-sm"
             onClick={() => setIsMobileMenuOpen((c) => !c)}
         >
             <span />
