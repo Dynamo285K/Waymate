@@ -1,24 +1,25 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ProfileHeroCard, CarCard, Button, Modal } from "@waymate/ui";
-import type { Language } from "../../../components/controls/LanguageSwitcher";
+import { ProfileHeroCard } from "@waymate/ui";
 import { authClient } from "../../../lib/auth-client";
 import { getDisplayName } from "../../../lib/session-user";
 import { useLayout } from "../../../lib/use-layout";
-import { RideCard } from "../../../components/shared/RideCard";
 import { BlockedUsersSection } from "../../../components/shared/BlockedUsersSection";
 import { useCancelRide } from "../../../features/driver/hooks/useCancelRide";
 import { useDeleteCar } from "./-hooks/useDeleteCar";
 import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { useGetRidesMe } from "../../../api-client/rides/rides";
-import {
-    formatRideDate as formatDate,
-    formatDuration,
-} from "../../../lib/date-format";
 import { useGetCarsMe } from "../../../api-client/cars/cars";
 import { useGetReviewsUsersByUserId } from "../../../api-client/reviews/reviews";
-import { getErrorI18nKey } from "../../../lib/api-errors";
+import {
+    formatMemberSince,
+    mapUpcomingRides,
+    type UpcomingRide,
+} from "./-lib/driver-profile";
+import { UpcomingRidesColumn } from "./-components/UpcomingRidesColumn";
+import { MyCarsColumn } from "./-components/MyCarsColumn";
+import { DeleteCarModal } from "./-components/DeleteCarModal";
 
 export const Route = createFileRoute("/driver/profile/")({
     component: DriverProfilePage,
@@ -31,62 +32,36 @@ function DriverProfilePage() {
     const { data: session } = authClient.useSession();
     const user = session?.user;
     const userId = user?.id;
-    const userName = user ? getDisplayName(user) : undefined;
-    const userEmail = user?.email;
-    const userBio = user?.bio ?? undefined;
-    const userCreatedAt = user?.createdAt;
-    const displayName = userName ?? t("profile.fallbackName");
-    const displayEmail = userEmail ?? "";
-    const memberSince = formatMemberSince(userCreatedAt, language);
-    const aboutMe = userBio?.trim();
+
+    const displayName = user ? getDisplayName(user) : t("profile.fallbackName");
+    const displayEmail = user?.email ?? "";
+    const memberSince = formatMemberSince(user?.createdAt, language);
+    const aboutMe = user?.bio?.trim();
+
     const [cancellingRideId, setCancellingRideId] = useState<string | null>(
         null
     );
     const [rideToCancel, setRideToCancel] = useState<string | null>(null);
     const [carToDelete, setCarToDelete] = useState<string | null>(null);
+
     const deleteCar = useDeleteCar();
+    const cancelRide = useCancelRide();
+    const carsQuery = useGetCarsMe();
     const {
         data: rides,
         isLoading: ridesLoading,
         isError: ridesError,
         error: ridesErrorObj,
     } = useGetRidesMe({ timeframe: "UPCOMING" });
-    const cancelRide = useCancelRide();
-    const carsQuery = useGetCarsMe();
     const { data: receivedReviews } = useGetReviewsUsersByUserId(userId ?? "", {
         query: { enabled: Boolean(userId) },
     });
+
     const profileRating =
         receivedReviews?.averageRating != null
             ? receivedReviews.averageRating.toFixed(1)
             : "0.0";
-    const upcomingRides =
-        rides?.map((ride) => {
-            const sortedStops = [...ride.rideStops].sort(
-                (a, b) => a.stopOrder - b.stopOrder
-            );
-            const from = sortedStops[0]?.city ?? "";
-            const to = sortedStops[sortedStops.length - 1]?.city ?? "";
-            const confirmedSeats = ride.bookings.reduce(
-                (sum, booking) => sum + booking.seatCount,
-                0
-            );
-            const remainingSeats = ride.offeredSeats - confirmedSeats;
-
-            return {
-                id: ride.id,
-                from,
-                to,
-                date: ride.departureAt,
-                price: ride.prices[0]?.amount ?? 0,
-                seatsLeft:
-                    remainingSeats > 0 ? remainingSeats : ("full" as const),
-                duration: formatDuration(
-                    ride.departureAt,
-                    ride.arrivalEstimateAt
-                ),
-            };
-        }) ?? [];
+    const upcomingRides = mapUpcomingRides(rides);
 
     function handleConfirmCancel(reason: string) {
         if (!rideToCancel) return;
@@ -96,6 +71,10 @@ function DriverProfilePage() {
             { rideId: rideToCancel, reason },
             { onSettled: () => setCancellingRideId(null) }
         );
+    }
+
+    function handleViewPassengers(ride: UpcomingRide) {
+        navigate({ to: "/driver/rides/passengers", state: { ride } });
     }
 
     return (
@@ -142,174 +121,41 @@ function DriverProfilePage() {
                 <BlockedUsersSection />
 
                 <div className="flex flex-col lg:flex-row gap-6">
-                    <div className="flex-1 flex flex-col gap-4">
-                        <h2 className="text-lg font-bold text-text-primary">
-                            {t("profile.myUpcomingRides")}
-                        </h2>
-                        {ridesLoading && (
-                            <p className="text-text-secondary">
-                                {t("driverRides.loading")}
-                            </p>
-                        )}
+                    <UpcomingRidesColumn
+                        rides={upcomingRides}
+                        loading={ridesLoading}
+                        ridesError={ridesError ? ridesErrorObj : null}
+                        cancelIsError={cancelRide.isError}
+                        cancelError={cancelRide.error}
+                        cancelPending={cancelRide.isPending}
+                        cancellingRideId={cancellingRideId}
+                        onViewPassengers={handleViewPassengers}
+                        onCancelRide={setRideToCancel}
+                    />
 
-                        {ridesError && (
-                            <p className="text-text-secondary">
-                                {t(
-                                    getErrorI18nKey(
-                                        ridesErrorObj,
-                                        {},
-                                        "driverRides.error"
-                                    )
-                                )}
-                            </p>
-                        )}
-
-                        {cancelRide.isError && (
-                            <p className="text-text-secondary">
-                                {t(
-                                    getErrorI18nKey(
-                                        cancelRide.error,
-                                        {},
-                                        "driverRides.cancelError"
-                                    )
-                                )}
-                            </p>
-                        )}
-
-                        {!ridesLoading &&
-                            !ridesError &&
-                            upcomingRides.length === 0 && (
-                                <p className="text-text-secondary">
-                                    {t("driverRides.noResults")}
-                                </p>
-                            )}
-
-                        {!ridesLoading &&
-                            !ridesError &&
-                            upcomingRides.map((ride) => {
-                                const isCancelling =
-                                    cancelRide.isPending &&
-                                    cancellingRideId === ride.id;
-
-                                return (
-                                    <RideCard
-                                        key={ride.id}
-                                        variant="driver-upcoming"
-                                        from={ride.from}
-                                        to={ride.to}
-                                        datetime={formatDate(
-                                            new Date(ride.date),
-                                            t("home.at")
-                                        )}
-                                        price={ride.price}
-                                        seatsLeft={ride.seatsLeft}
-                                        duration={ride.duration}
-                                        onViewPassengers={() =>
-                                            navigate({
-                                                to: "/driver/rides/passengers",
-                                                state: { ride },
-                                            })
-                                        }
-                                        onCancelRide={() =>
-                                            setRideToCancel(ride.id)
-                                        }
-                                        labels={{
-                                            seatsLeft: (count) =>
-                                                t("driverRides.seatsLeft", {
-                                                    count,
-                                                }),
-                                            full: t("driverRides.full"),
-                                            viewPassengers: t(
-                                                "driverRides.viewPassengers"
-                                            ),
-                                            cancelRide: isCancelling
-                                                ? t("driverRides.cancelling")
-                                                : t("profile.cancelRide"),
-                                        }}
-                                    />
-                                );
-                            })}
-                    </div>
-
-                    <div className="lg:w-72 flex flex-col gap-4">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-bold text-text-primary">
-                                {t("profile.myCars")}
-                            </h2>
-                            <Button
-                                onClick={() =>
-                                    navigate({
-                                        to: "/car/add",
-                                        state: { role: "driver" },
-                                    })
-                                }
-                            >
-                                {t("profile.addCar")}
-                            </Button>
-                        </div>
-                        {carsQuery.isLoading && (
-                            <p className="text-text-secondary">
-                                {t("profile.loadingCars")}
-                            </p>
-                        )}
-                        {carsQuery.isError && (
-                            <p className="text-text-secondary">
-                                {t(
-                                    getErrorI18nKey(
-                                        carsQuery.error,
-                                        {},
-                                        "profile.carsError"
-                                    )
-                                )}
-                            </p>
-                        )}
-                        {!carsQuery.isLoading &&
-                            !carsQuery.isError &&
-                            carsQuery.data?.length === 0 && (
-                                <p className="text-text-secondary">
-                                    {t("profile.noCars")}
-                                </p>
-                            )}
-                        {carsQuery.data?.map((car) => (
-                            <CarCard
-                                key={car.id}
-                                model={`${car.brand} ${car.modelName}`}
-                                onDelete={() => setCarToDelete(car.id)}
-                            />
-                        ))}
-                    </div>
+                    <MyCarsColumn
+                        cars={carsQuery.data}
+                        loading={carsQuery.isLoading}
+                        error={carsQuery.isError ? carsQuery.error : null}
+                        onAddCar={() =>
+                            navigate({
+                                to: "/car/add",
+                                state: { role: "driver" },
+                            })
+                        }
+                        onDeleteCar={setCarToDelete}
+                    />
                 </div>
             </div>
 
-            <Modal
+            <DeleteCarModal
                 open={carToDelete !== null}
+                pending={deleteCar.isPending}
                 onClose={() => setCarToDelete(null)}
-            >
-                <h2 className="text-xl font-bold text-text-primary mb-2">
-                    {t("profile.deleteCar.title")}
-                </h2>
-                <p className="text-sm text-text-secondary mb-8 leading-relaxed">
-                    {t("profile.deleteCar.message")}
-                </p>
-                <div className="flex gap-3 justify-end">
-                    <Button
-                        variant="secondary"
-                        onClick={() => setCarToDelete(null)}
-                    >
-                        {t("profile.deleteCar.cancel")}
-                    </Button>
-                    <Button
-                        variant="unstyled"
-                        disabled={deleteCar.isPending}
-                        className="px-4 py-3 rounded-xl bg-red font-semibold text-sm text-white cursor-pointer disabled:opacity-50"
-                        onClick={() => {
-                            if (carToDelete) deleteCar.mutate(carToDelete);
-                        }}
-                    >
-                        {t("profile.deleteCar.confirm")}
-                    </Button>
-                </div>
-            </Modal>
+                onConfirm={() => {
+                    if (carToDelete) deleteCar.mutate(carToDelete);
+                }}
+            />
 
             <CancelRideDialog
                 open={rideToCancel !== null}
@@ -321,19 +167,4 @@ function DriverProfilePage() {
             />
         </div>
     );
-}
-
-function formatMemberSince(
-    value: string | Date | undefined,
-    language: Language
-) {
-    if (!value) return "";
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return "";
-
-    return new Intl.DateTimeFormat(language, {
-        month: "long",
-        year: "numeric",
-    }).format(date);
 }

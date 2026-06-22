@@ -1,23 +1,21 @@
-import { useState, useEffect, useRef } from "react";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { useBreakpoint } from "../../hooks/shared/useBreakpoint";
 import {
-    Avatar,
-    Button,
-    IconButton,
     NavButton,
     ProfileDropdown,
-    MoonIcon,
-    SunIcon,
     PlusIcon,
     ListIcon,
     MessageCircleIcon,
-    ChevronDownIcon,
 } from "@waymate/ui";
-import { LanguageSwitcher, type Language } from "../controls/LanguageSwitcher";
-import { RoleSwitcher, type Role } from "../controls/RoleSwitcher";
-import logoLight from "../../assets/logo_light_mode.png";
-import logoDark from "../../assets/logo_dark_mode.png";
+import { type Language } from "../controls/LanguageSwitcher";
+import { type Role } from "../controls/RoleSwitcher";
+import { useNavbar } from "./use-navbar";
+import {
+    NavbarShell,
+    NavbarLogo,
+    NavbarHamburger,
+    NavbarProfileMenu,
+    NavbarRoleControls,
+    NavbarRolePanel,
+} from "./navbar-shared";
 
 export type DriverNavbarTab =
     | "offer-ride"
@@ -87,105 +85,58 @@ export function DriverNavbar({
     onLogoutClick,
     labels,
 }: DriverNavbarProps) {
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const navbarRef = useRef<HTMLElement>(null);
+    const {
+        navbarRef,
+        isMobileMenuOpen,
+        setIsMobileMenuOpen,
+        isDesktop,
+        isTablet,
+        isMobile,
+        logoSrc,
+        themeIcon,
+        themeLabel,
+    } = useNavbar({ breakpointWidth: 1024, theme });
 
-    const breakpoint = useBreakpoint(1024);
-    const isDesktop = breakpoint === "desktop";
-    const isTablet = breakpoint === "tablet";
-    const isMobile = breakpoint === "mobile";
-
-    useEffect(() => {
-        function handleClickOutside(e: MouseEvent) {
-            if (
-                navbarRef.current &&
-                !navbarRef.current.contains(e.target as Node)
-            )
-                setIsMobileMenuOpen(false);
-        }
-        function handleEscape(e: KeyboardEvent) {
-            if (e.key === "Escape") setIsMobileMenuOpen(false);
-        }
-        document.addEventListener("mousedown", handleClickOutside);
-        document.addEventListener("keydown", handleEscape);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-            document.removeEventListener("keydown", handleEscape);
-        };
-    }, []);
-
-    const logoSrc = theme === "dark" ? logoDark : logoLight;
-    const themeToggleGlyph = theme === "dark" ? <SunIcon /> : <MoonIcon />;
-    const themeLabel =
-        theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
-
-    const profileDropdownLabels = {
-        profile: labels?.profile,
-        myRides: labels?.dropdownMyRides,
-        messages: labels?.messages,
-        ratings: labels?.ratings,
-        settings: labels?.settings,
-        logout: labels?.logout,
-    };
+    const roleLabels = { passenger: labels?.passenger, driver: labels?.driver };
 
     const logoImg = (
-        <img
-            src={logoSrc}
-            alt="WayMate logo"
-            className={`w-24 h-auto object-contain block shrink-0 ${onLogoClick ? "cursor-pointer" : "cursor-default"}`}
-            onClick={onLogoClick}
+        <NavbarLogo
+            logoSrc={logoSrc}
+            onLogoClick={onLogoClick}
         />
     );
 
     const hamburger = (
-        <Button
-            variant="unstyled"
-            className="bg-card border border-border rounded-control w-10 h-10 cursor-pointer flex flex-col items-center justify-center gap-1.25 p-0 shadow-hairline menu-line:block menu-line:w-4.5 menu-line:h-0.5 menu-line:bg-text-primary menu-line:rounded-sm"
-            onClick={() => setIsMobileMenuOpen((c) => !c)}
-            aria-label="Open menu"
-            aria-expanded={isMobileMenuOpen}
-        >
-            <span />
-            <span />
-            <span />
-        </Button>
+        <NavbarHamburger
+            open={isMobileMenuOpen}
+            onToggle={() => setIsMobileMenuOpen((c) => !c)}
+        />
     );
 
     const profileMenu = (
-        <DropdownMenu.Root>
-            <DropdownMenu.Trigger
-                className="inline-flex items-center gap-2 border-0 bg-transparent p-0 cursor-pointer group"
-                aria-label="Open profile menu"
-            >
-                <Avatar
-                    name={userName}
-                    size="sm"
-                />
-                <span className="w-8 h-8 rounded-full bg-card text-text-secondary shadow-button inline-flex items-center justify-center group-hover:bg-border icon-svg:w-4 icon-svg:h-4">
-                    <ChevronDownIcon />
-                </span>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Portal>
-                <DropdownMenu.Content
-                    className="z-200"
-                    sideOffset={12}
-                    align="end"
-                    data-theme={theme}
-                >
-                    <ProfileDropdown
-                        name={userName}
-                        email={userEmail}
-                        onProfileClick={onProfileClick}
-                        onMyRidesClick={onMyRidesClick}
-                        onMessagesClick={onMessagesClick}
-                        onRatingsClick={onRatingsClick}
-                        onSettingsClick={onSettingsClick}
-                        onLogoutClick={onLogoutClick}
-                        labels={profileDropdownLabels}
-                    />
-                </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-        </DropdownMenu.Root>
+        <NavbarProfileMenu
+            userName={userName}
+            theme={theme}
+        >
+            <ProfileDropdown
+                name={userName}
+                email={userEmail}
+                onProfileClick={onProfileClick}
+                onMyRidesClick={onMyRidesClick}
+                onMessagesClick={onMessagesClick}
+                onRatingsClick={onRatingsClick}
+                onSettingsClick={onSettingsClick}
+                onLogoutClick={onLogoutClick}
+                labels={{
+                    profile: labels?.profile,
+                    myRides: labels?.dropdownMyRides,
+                    messages: labels?.messages,
+                    ratings: labels?.ratings,
+                    settings: labels?.settings,
+                    logout: labels?.logout,
+                }}
+            />
+        </NavbarProfileMenu>
     );
 
     const navButtons = (
@@ -231,35 +182,20 @@ export function DriverNavbar({
         </>
     );
 
-    const roleLang = (
-        <>
-            <RoleSwitcher
-                value={role}
-                onChange={onRoleChange}
-                labels={{
-                    passenger: labels?.passenger,
-                    driver: labels?.driver,
-                }}
-            />
-            <LanguageSwitcher
-                value={language}
-                onChange={onLanguageChange}
-            />
-            <IconButton
-                ariaLabel={themeLabel}
-                icon={themeToggleGlyph}
-                variant="default"
-                onClick={onThemeToggle}
-            />
-            {profileMenu}
-        </>
-    );
+    const roleControlsProps = {
+        role,
+        onRoleChange,
+        roleLabels,
+        language,
+        onLanguageChange,
+        themeLabel,
+        themeIcon,
+        onThemeToggle,
+        profileMenu,
+    };
 
     return (
-        <header
-            className="w-full bg-background border-b border-border shadow-navbar"
-            ref={navbarRef}
-        >
+        <NavbarShell navRef={navbarRef}>
             {isDesktop && (
                 <div className="min-h-18 px-6 flex items-center justify-between gap-6">
                     <div className="flex items-center gap-8 min-w-0">
@@ -272,7 +208,7 @@ export function DriverNavbar({
                         </nav>
                     </div>
                     <div className="flex items-center gap-6 shrink-0">
-                        {roleLang}
+                        <NavbarRoleControls {...roleControlsProps} />
                     </div>
                 </div>
             )}
@@ -289,28 +225,7 @@ export function DriverNavbar({
                         {hamburger}
                         {isMobileMenuOpen && (
                             <div className="absolute top-nav-dropdown-offset right-0 min-w-70 rounded-2xl border border-border shadow-dropdown-strong z-30 py-3 px-4 flex flex-col gap-3 bg-background">
-                                <RoleSwitcher
-                                    value={role}
-                                    onChange={onRoleChange}
-                                    className="self-start shrink-0"
-                                    labels={{
-                                        passenger: labels?.passenger,
-                                        driver: labels?.driver,
-                                    }}
-                                />
-                                <div className="flex items-center gap-2.5">
-                                    <IconButton
-                                        ariaLabel={themeLabel}
-                                        icon={themeToggleGlyph}
-                                        variant="default"
-                                        onClick={onThemeToggle}
-                                    />
-                                    <LanguageSwitcher
-                                        value={language}
-                                        onChange={onLanguageChange}
-                                    />
-                                    <div className="ml-auto">{profileMenu}</div>
-                                </div>
+                                <NavbarRolePanel {...roleControlsProps} />
                             </div>
                         )}
                     </div>
@@ -324,28 +239,7 @@ export function DriverNavbar({
                     </div>
                     {isMobileMenuOpen && (
                         <div className="border-t border-border py-3 px-4 flex flex-col gap-3 bg-background">
-                            <RoleSwitcher
-                                value={role}
-                                onChange={onRoleChange}
-                                className="self-start shrink-0"
-                                labels={{
-                                    passenger: labels?.passenger,
-                                    driver: labels?.driver,
-                                }}
-                            />
-                            <div className="flex items-center gap-2.5">
-                                <IconButton
-                                    ariaLabel={themeLabel}
-                                    icon={themeToggleGlyph}
-                                    variant="default"
-                                    onClick={onThemeToggle}
-                                />
-                                <LanguageSwitcher
-                                    value={language}
-                                    onChange={onLanguageChange}
-                                />
-                                <div className="ml-auto">{profileMenu}</div>
-                            </div>
+                            <NavbarRolePanel {...roleControlsProps} />
                         </div>
                     )}
                     <nav
@@ -356,6 +250,6 @@ export function DriverNavbar({
                     </nav>
                 </div>
             )}
-        </header>
+        </NavbarShell>
     );
 }

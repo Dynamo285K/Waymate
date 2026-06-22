@@ -1,76 +1,16 @@
 import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
-import {
-    AlertIcon,
-    Button,
-    CarIcon,
-    ClockIcon,
-    DownloadIcon,
-    UserIcon,
-    UsersIcon,
-} from "@waymate/ui";
-import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    Tooltip,
-    ResponsiveContainer,
-    CartesianGrid,
-} from "recharts";
 import { useGetAdminDashboard } from "../../api-client/admin/admin";
 import { useLayout } from "../../lib/use-layout";
+import { fillWeeklyRides, fillWeeklyRevenue } from "./-lib/dashboard-data";
+import { downloadDashboardReport } from "./-lib/dashboard-export";
+import { WeeklyBarChart } from "./-components/WeeklyBarChart";
+import { PopularRoutesCard } from "./-components/PopularRoutesCard";
+import { UserMetricsCard } from "./-components/UserMetricsCard";
 
 export const Route = createFileRoute("/admin/")({
     component: AdminDashboardPage,
 });
-
-function getLast7Days(): { date: string; dayLabel: string }[] {
-    const days = [];
-    const now = new Date();
-    for (let i = 6; i >= 0; i--) {
-        const d = new Date(now);
-        d.setDate(now.getDate() - i);
-        const dateStr = d.toISOString().slice(0, 10);
-        const dayLabel = d
-            .toLocaleDateString("en-US", { weekday: "short" })
-            .slice(0, 2);
-        days.push({ date: dateStr, dayLabel });
-    }
-    return days;
-}
-
-function fillWeeklyRides(data: { date: string; count: number }[]) {
-    const map = new Map(data.map((d) => [d.date, d.count]));
-    return getLast7Days().map(({ date, dayLabel }) => ({
-        day: dayLabel,
-        rides: map.get(date) ?? 0,
-    }));
-}
-
-function fillWeeklyRevenue(data: { date: string; totalCents: number }[]) {
-    const map = new Map(data.map((d) => [d.date, d.totalCents]));
-    return getLast7Days().map(({ date, dayLabel }) => ({
-        day: dayLabel,
-        eur: map.get(date) ?? 0,
-    }));
-}
-
-function Card({
-    children,
-    className = "",
-}: {
-    children: React.ReactNode;
-    className?: string;
-}) {
-    return (
-        <div
-            className={`bg-card rounded-2xl border border-border p-6 ${className}`}
-        >
-            {children}
-        </div>
-    );
-}
 
 function AdminDashboardPage() {
     const { t } = useTranslation();
@@ -78,83 +18,10 @@ function AdminDashboardPage() {
 
     const { data: dashboard, isLoading, isError } = useGetAdminDashboard();
 
-    const chartColor = "var(--color-primary)";
-    const chartCursorFill =
-        "color-mix(in srgb, var(--color-primary) 8%, transparent)";
-    const gridColor = "var(--color-border)";
-
     const weeklyRides = dashboard ? fillWeeklyRides(dashboard.weeklyRides) : [];
     const weeklyRevenue = dashboard
         ? fillWeeklyRevenue(dashboard.weeklyRevenue)
         : [];
-    const popularRoutes = dashboard?.popularRoutes ?? [];
-    const popularRoutesMax = popularRoutes[0]?.count ?? 1;
-    const userMetrics = dashboard?.userMetrics;
-
-    const USER_METRIC_ROWS = [
-        {
-            icon: <UsersIcon />,
-            label: "totalRegistered",
-            value: userMetrics?.totalRegistered,
-        },
-        {
-            icon: <UserIcon />,
-            label: "activeUsers",
-            value: userMetrics?.activeInLast24h,
-        },
-        { icon: <CarIcon />, label: "drivers", value: userMetrics?.drivers },
-        {
-            icon: <UsersIcon />,
-            label: "passengers",
-            value: userMetrics?.passengers,
-        },
-        {
-            icon: <ClockIcon />,
-            label: "pendingVerification",
-            value: userMetrics?.pendingVerification,
-        },
-        {
-            icon: <AlertIcon />,
-            label: "bannedAccounts",
-            value: userMetrics?.bannedAccounts,
-        },
-    ];
-
-    const handleExport = () => {
-        if (!dashboard) return;
-        const lines = [
-            `Dashboard Export — ${new Date().toLocaleDateString()}`,
-            "",
-            "=== User Metrics ===",
-            `Total Registered: ${dashboard.userMetrics.totalRegistered}`,
-            `Active (24h): ${dashboard.userMetrics.activeInLast24h}`,
-            `Drivers: ${dashboard.userMetrics.drivers}`,
-            `Passengers: ${dashboard.userMetrics.passengers}`,
-            `Pending Verification: ${dashboard.userMetrics.pendingVerification}`,
-            `Banned: ${dashboard.userMetrics.bannedAccounts}`,
-            "",
-            "=== Popular Routes ===",
-            ...dashboard.popularRoutes.map(
-                (r) =>
-                    `${r.originCity} → ${r.destinationCity}: ${r.count} rides`
-            ),
-            "",
-            "=== Weekly Rides ===",
-            ...dashboard.weeklyRides.map((r) => `${r.date}: ${r.count}`),
-            "",
-            "=== Weekly Revenue (EUR) ===",
-            ...dashboard.weeklyRevenue.map(
-                (r) => `${r.date}: ${r.totalCents.toFixed(2)} EUR`
-            ),
-        ];
-        const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `dashboard-${new Date().toISOString().slice(0, 10)}.txt`;
-        a.click();
-        URL.revokeObjectURL(url);
-    };
 
     return (
         <div
@@ -170,197 +37,36 @@ function AdminDashboardPage() {
 
                 {/* Charts row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <Card>
-                        <h2 className="text-base font-bold text-text-primary mb-4">
-                            {t("admin.weeklyrRides")}
-                        </h2>
-                        {isLoading ? (
-                            <div className="h-50 flex items-center justify-center">
-                                <span className="text-sm text-text-secondary">
-                                    {t("admin.loading")}
-                                </span>
-                            </div>
-                        ) : (
-                            <ResponsiveContainer
-                                width="100%"
-                                height={200}
-                            >
-                                <BarChart
-                                    data={weeklyRides}
-                                    barSize={28}
-                                >
-                                    <CartesianGrid
-                                        strokeDasharray="3 3"
-                                        stroke={gridColor}
-                                        vertical={false}
-                                    />
-                                    <XAxis
-                                        dataKey="day"
-                                        axisLine={false}
-                                        tickLine={false}
-                                        tick={{
-                                            fontSize: 12,
-                                            fill: "var(--color-text-secondary)",
-                                        }}
-                                    />
-                                    <YAxis hide />
-                                    <Tooltip
-                                        cursor={{ fill: chartCursorFill }}
-                                        contentStyle={{
-                                            borderRadius: 10,
-                                            border: "1px solid var(--color-border)",
-                                            background: "var(--color-card)",
-                                        }}
-                                    />
-                                    <Bar
-                                        dataKey="rides"
-                                        fill={chartColor}
-                                        radius={[6, 6, 0, 0]}
-                                    />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        )}
-                    </Card>
-
-                    <Card>
-                        <h2 className="text-base font-bold text-text-primary mb-4">
-                            {t("admin.weeklyRevenue")}
-                        </h2>
-                        {isLoading ? (
-                            <div className="h-50 flex items-center justify-center">
-                                <span className="text-sm text-text-secondary">
-                                    {t("admin.loading")}
-                                </span>
-                            </div>
-                        ) : (
-                            <ResponsiveContainer
-                                width="100%"
-                                height={200}
-                            >
-                                <BarChart
-                                    data={weeklyRevenue}
-                                    barSize={28}
-                                >
-                                    <CartesianGrid
-                                        strokeDasharray="3 3"
-                                        stroke={gridColor}
-                                        vertical={false}
-                                    />
-                                    <XAxis
-                                        dataKey="day"
-                                        axisLine={false}
-                                        tickLine={false}
-                                        tick={{
-                                            fontSize: 12,
-                                            fill: "var(--color-text-secondary)",
-                                        }}
-                                    />
-                                    <YAxis hide />
-                                    <Tooltip
-                                        cursor={{ fill: chartCursorFill }}
-                                        contentStyle={{
-                                            borderRadius: 10,
-                                            border: "1px solid var(--color-border)",
-                                            background: "var(--color-card)",
-                                        }}
-                                    />
-                                    <Bar
-                                        dataKey="eur"
-                                        fill={chartColor}
-                                        radius={[6, 6, 0, 0]}
-                                    />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        )}
-                    </Card>
+                    <WeeklyBarChart
+                        title={t("admin.weeklyrRides")}
+                        loadingLabel={t("admin.loading")}
+                        loading={isLoading}
+                        data={weeklyRides}
+                        dataKey="rides"
+                    />
+                    <WeeklyBarChart
+                        title={t("admin.weeklyRevenue")}
+                        loadingLabel={t("admin.loading")}
+                        loading={isLoading}
+                        data={weeklyRevenue}
+                        dataKey="eur"
+                    />
                 </div>
 
                 {/* Bottom row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Popular Routes */}
-                    <Card>
-                        <h2 className="text-base font-bold text-text-primary mb-5">
-                            {t("admin.popularRoutes")}
-                        </h2>
-                        {isLoading ? (
-                            <p className="text-sm text-text-secondary">
-                                {t("admin.loading")}
-                            </p>
-                        ) : popularRoutes.length === 0 ? (
-                            <p className="text-sm text-text-secondary">
-                                {t("admin.noData")}
-                            </p>
-                        ) : (
-                            <div className="flex flex-col gap-4">
-                                {popularRoutes.map((r) => (
-                                    <div
-                                        key={`${r.originCity}-${r.destinationCity}`}
-                                    >
-                                        <div className="flex justify-between text-sm mb-1.5">
-                                            <span className="font-medium text-text-primary">
-                                                {r.originCity} →{" "}
-                                                {r.destinationCity}
-                                            </span>
-                                            <span className="text-text-secondary">
-                                                {t("admin.ridesCount", {
-                                                    count: r.count,
-                                                })}
-                                            </span>
-                                        </div>
-                                        <div className="h-2 bg-border rounded-full overflow-hidden">
-                                            <div
-                                                className="h-full bg-primary rounded-full transition-all"
-                                                style={{
-                                                    width: `${(r.count / popularRoutesMax) * 100}%`,
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </Card>
-
-                    {/* User Metrics */}
-                    <Card>
-                        <h2 className="text-base font-bold text-text-primary mb-4">
-                            {t("admin.userMetrics")}
-                        </h2>
-                        {isLoading ? (
-                            <p className="text-sm text-text-secondary">
-                                {t("admin.loading")}
-                            </p>
-                        ) : (
-                            <div className="flex flex-col divide-y divide-border">
-                                {USER_METRIC_ROWS.map((m) => (
-                                    <div
-                                        key={m.label}
-                                        className="flex items-center justify-between py-3"
-                                    >
-                                        <div className="flex items-center gap-3 text-text-secondary text-sm">
-                                            <span className="inline-flex text-base">
-                                                {m.icon}
-                                            </span>
-                                            {t(`admin.${m.label}`)}
-                                        </div>
-                                        <span className="font-bold text-text-primary">
-                                            {m.value?.toLocaleString() ?? "—"}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                        <div className="mt-4">
-                            <Button
-                                variant="secondary"
-                                leftIcon={<DownloadIcon />}
-                                onClick={handleExport}
-                                disabled={!dashboard}
-                            >
-                                {t("admin.exportReport")}
-                            </Button>
-                        </div>
-                    </Card>
+                    <PopularRoutesCard
+                        routes={dashboard?.popularRoutes ?? []}
+                        loading={isLoading}
+                    />
+                    <UserMetricsCard
+                        metrics={dashboard?.userMetrics}
+                        loading={isLoading}
+                        canExport={Boolean(dashboard)}
+                        onExport={() => {
+                            if (dashboard) downloadDashboardReport(dashboard);
+                        }}
+                    />
                 </div>
             </div>
         </div>

@@ -1,4 +1,4 @@
-import { useForm, type SubmitHandler } from "react-hook-form";
+import { useForm, useWatch, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
@@ -50,7 +50,6 @@ function AddCarPage() {
     const {
         control,
         handleSubmit,
-        watch,
         setValue,
         setError,
         formState: { errors, isSubmitting },
@@ -65,7 +64,7 @@ function AddCarPage() {
         },
     });
 
-    const make = watch("make");
+    const make = useWatch({ control, name: "make" });
 
     const brandsQuery = useGetCarsBrands();
     const modelsQuery = useGetCarsBrandsByBrandModels(make, {
