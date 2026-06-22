@@ -60,14 +60,22 @@ export default defineConfig({
             stderr: "pipe",
         },
         {
-            command: `bun run --cwd ../apps/web dev --port ${WEB_PORT} --strictPort`,
+            // Serve a production build via `vite preview` rather than `vite
+            // dev`. With autoCodeSplitting each route is its own chunk; under
+            // `dev` those compile on-demand on first navigation, so the first
+            // visit to each route takes 20-30s cold and blows Playwright's
+            // assertion timeouts (flaky, slow). The prebuilt `preview` server
+            // has every chunk ready — fast and stable, and it exercises the
+            // real production artifact. The build is why this server gets a
+            // longer startup timeout than the API.
+            command: `bun run --cwd ../apps/web build && bun run --cwd ../apps/web preview --port ${WEB_PORT} --strictPort`,
             url: BASE_URL,
             env: {
                 API_PROXY_TARGET: API_ORIGIN,
                 VITE_API_PROXY_TARGET: API_ORIGIN,
             },
             reuseExistingServer: REUSE_EXISTING_SERVER,
-            timeout: 60_000,
+            timeout: 180_000,
             stdout: "ignore",
             stderr: "pipe",
         },

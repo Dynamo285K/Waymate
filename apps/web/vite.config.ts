@@ -11,6 +11,29 @@ export default defineConfig(({ mode }) => {
         "http://localhost:3000"
     ).replace(/\/$/, "");
 
+    // Same proxy rules for `vite dev` (server) and `vite preview`. The e2e
+    // suite runs against `vite preview` of the production build so code-split
+    // route chunks are prebuilt instead of compiled on-demand; preview uses
+    // its own `preview.proxy` and does NOT inherit `server.proxy`.
+    const proxy = {
+        "/api/auth": {
+            target: apiTarget,
+            changeOrigin: true,
+            // Auth routes already live under /api/auth on the API.
+            // Keep the public same-origin path identical so OAuth
+            // callback cookies are scoped to the web origin.
+        },
+        "/api": {
+            target: apiTarget,
+            changeOrigin: true,
+            // Proxy WebSocket upgrades too (chat realtime connects to
+            // /api/conversations/ws). Without this Vite only forwards
+            // plain HTTP and the upgrade handshake never reaches the API.
+            ws: true,
+            rewrite: (path: string) => path.replace(/^\/api/, ""),
+        },
+    };
+
     return {
         plugins: [
             tanstackRouter({ target: "react", autoCodeSplitting: true }),
@@ -26,24 +49,10 @@ export default defineConfig(({ mode }) => {
             // drift into a loud "port in use" error instead.
             port: 5173,
             strictPort: true,
-            proxy: {
-                "/api/auth": {
-                    target: apiTarget,
-                    changeOrigin: true,
-                    // Auth routes already live under /api/auth on the API.
-                    // Keep the public same-origin path identical so OAuth
-                    // callback cookies are scoped to the web origin.
-                },
-                "/api": {
-                    target: apiTarget,
-                    changeOrigin: true,
-                    // Proxy WebSocket upgrades too (chat realtime connects to
-                    // /api/conversations/ws). Without this Vite only forwards
-                    // plain HTTP and the upgrade handshake never reaches the API.
-                    ws: true,
-                    rewrite: (path) => path.replace(/^\/api/, ""),
-                },
-            },
+            proxy,
+        },
+        preview: {
+            proxy,
         },
         resolve: {
             dedupe: ["react", "react-dom"],
