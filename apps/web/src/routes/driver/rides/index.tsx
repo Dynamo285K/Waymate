@@ -9,6 +9,7 @@ import {
     useGetRidesMe,
     usePatchRidesByIdComplete,
     getGetRidesMeQueryKey,
+    getGetRidesMeQueryOptions,
 } from "../../../api-client/rides/rides";
 import { useCancelRide } from "../../../features/driver/hooks/useCancelRide";
 import { getErrorI18nKey } from "../../../lib/api-errors";
@@ -23,6 +24,16 @@ import {
 
 export const Route = createFileRoute("/driver/rides/")({
     validateSearch: driverRidesSearchSchema,
+    // Warm the React Query cache from the router loader so the fetch starts
+    // before the component mounts (parallel loading, no render waterfall).
+    // The component still reads the same query via useGetRidesMe.
+    loaderDeps: ({ search }) => ({ tab: search.tab }),
+    loader: ({ context: { queryClient }, deps: { tab } }) =>
+        queryClient.ensureQueryData(
+            getGetRidesMeQueryOptions({
+                timeframe: tab === "past" ? "PAST" : "UPCOMING",
+            })
+        ),
     component: DriverMyRidesPage,
 });
 

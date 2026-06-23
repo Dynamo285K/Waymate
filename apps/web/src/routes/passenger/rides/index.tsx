@@ -9,7 +9,10 @@ import { passengerRidesSearchSchema } from "../../../lib/passenger-rides-search-
 import { Button, RateDriverModal } from "@waymate/ui";
 import { useOpenConversation } from "../../../features/chat/hooks/useOpenConversation";
 import { ReportUserModal } from "../../../components/shared/ReportUserModal";
-import { useGetBookingsMe } from "../../../api-client/bookings/bookings";
+import {
+    useGetBookingsMe,
+    getGetBookingsMeQueryOptions,
+} from "../../../api-client/bookings/bookings";
 import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { useCancelBooking } from "../../../features/passenger/hooks/useCancelBooking";
 import { useSubmitReview } from "../../../hooks/shared/useSubmitReview";
@@ -23,6 +26,16 @@ import {
 
 export const Route = createFileRoute("/passenger/rides/")({
     validateSearch: passengerRidesSearchSchema,
+    // Warm the React Query cache from the router loader so the fetch starts
+    // before the component mounts (parallel loading, no render waterfall).
+    // The component still reads the same query via useGetBookingsMe.
+    loaderDeps: ({ search }) => ({ tab: search.tab }),
+    loader: ({ context: { queryClient }, deps: { tab } }) =>
+        queryClient.ensureQueryData(
+            getGetBookingsMeQueryOptions({
+                timeframe: tab === "past" ? "PAST" : "UPCOMING",
+            })
+        ),
     component: PassengerMyRidesPage,
 });
 
