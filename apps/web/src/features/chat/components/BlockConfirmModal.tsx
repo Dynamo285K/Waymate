@@ -26,16 +26,17 @@ export function BlockConfirmModal({
             onClose={onClose}
             theme={theme}
         >
-            <div className="w-modal-viewport max-w-md p-6">
+            <div className="w-full min-w-0 max-w-md p-5 sm:p-6">
                 <h2 className="text-lg font-bold text-text-primary mb-2">
                     {t("chat.blockConfirmTitle", { name: counterpartName })}
                 </h2>
-                <p className="text-sm text-text-secondary mb-6">
+                <p className="text-sm text-text-secondary mb-6 break-words">
                     {t("chat.blockConfirmText")}
                 </p>
-                <div className="flex gap-3 justify-end">
+                <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
                     <Button
                         variant="secondary"
+                        className="justify-center"
                         onClick={onClose}
                         disabled={isBlocking}
                     >
@@ -43,6 +44,7 @@ export function BlockConfirmModal({
                     </Button>
                     <Button
                         variant="red"
+                        className="justify-center"
                         onClick={onConfirm}
                         disabled={isBlocking}
                     >

@@ -30,7 +30,7 @@ export function UserProfileModal({
             onClose={onClose}
             theme={theme}
         >
-            <div className="w-modal-viewport max-w-md p-6 max-h-profile-modal-body overflow-y-auto">
+            <div className="w-full min-w-0 max-w-md p-5 sm:p-6 max-h-profile-modal-body overflow-y-auto">
                 <div className="flex justify-end">
                     <IconButton
                         ariaLabel={t("chat.back")}
@@ -45,7 +45,7 @@ export function UserProfileModal({
                         name={name}
                         size="lg"
                     />
-                    <h2 className="text-lg font-bold text-text-primary">
+                    <h2 className="text-lg font-bold text-text-primary break-words">
                         {name}
                     </h2>
                     {data && data.averageRating != null ? (
@@ -88,11 +88,11 @@ export function UserProfileModal({
                                         <span className="text-xs font-semibold text-text-primary">
                                             {review.rating.toFixed(1)}
                                         </span>
-                                        <span className="text-xs text-text-secondary">
+                                        <span className="text-xs text-text-secondary break-words">
                                             · {author}
                                         </span>
                                     </div>
-                                    <p className="text-sm text-text-primary whitespace-pre-wrap">
+                                    <p className="text-sm text-text-primary whitespace-pre-wrap break-words">
                                         {review.comment}
                                     </p>
                                 </li>

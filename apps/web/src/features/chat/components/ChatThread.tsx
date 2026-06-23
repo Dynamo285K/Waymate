@@ -52,7 +52,7 @@ export function ChatThread({
     return (
         <>
             <div
-                className={`flex-1 overflow-y-auto ${paddingClass} flex flex-col gap-4 bg-background`}
+                className={`min-h-0 flex-1 overflow-y-auto ${paddingClass} flex flex-col gap-4 bg-background`}
             >
                 {isLoading ? (
                     <div className="m-auto text-text-secondary">
@@ -90,13 +90,13 @@ export function ChatThread({
             {recipientBanned ? (
                 // The counterpart's account is banned — no composer at all, and
                 // no unblock (this isn't a block the user can lift).
-                <div className="px-6 py-4 border-t border-border bg-card max-600:px-4">
+                <div className="shrink-0 px-6 py-4 border-t border-border bg-card max-600:px-4">
                     <span className="text-sm text-text-secondary">
                         {bannedNotice}
                     </span>
                 </div>
             ) : blocked ? (
-                <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-border bg-card max-600:px-4 max-600:flex-wrap">
+                <div className="shrink-0 flex items-center justify-between gap-3 px-6 py-4 border-t border-border bg-card max-600:px-4 max-600:flex-wrap">
                     <span className="text-sm text-text-secondary">
                         {blockedNotice}
                     </span>
@@ -111,12 +111,14 @@ export function ChatThread({
                     )}
                 </div>
             ) : (
-                <MessageComposer
-                    placeholder={placeholder}
-                    onSend={(text) => {
-                        if (!isSending) onSend(text);
-                    }}
-                />
+                <div className="shrink-0">
+                    <MessageComposer
+                        placeholder={placeholder}
+                        onSend={(text) => {
+                            if (!isSending) onSend(text);
+                        }}
+                    />
+                </div>
             )}
         </>
     );
