@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Button, LockIcon, Modal } from "@waymate/ui";
+import { createFileRoute } from "@tanstack/react-router";
 import { AuthNavbarFrame } from "../components/navigation/AuthNavbarFrame";
 import { AvailableRideCard } from "../components/shared/AvailableRideCard";
+import { GuestBookModal } from "../components/shared/GuestBookModal";
 import { useRideSearch } from "../hooks/shared/useRideSearch";
 import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
 import { useGetRidesAvailable } from "../api-client/rides/rides";
 import { getErrorI18nKey } from "../lib/api-errors";
 import { formatRideDate, formatDuration } from "../lib/date-format";
+import { mapAvailableRides } from "../lib/available-rides-view";
 import { rideSearchSchema } from "../lib/ride-search-schema";
 import { requireAudience } from "../lib/route-guards";
 import { useLayout } from "../lib/use-layout";
@@ -21,7 +22,6 @@ export const Route = createFileRoute("/rides")({
 
 function RidesPage() {
     const { t } = useTranslation();
-    const navigate = useNavigate();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
     const authNavbarProps = useAuthNavbarProps({
         language,
@@ -68,30 +68,10 @@ function RidesPage() {
         date: dateStr,
     });
 
-    const availableRides = Array.isArray(availableRideRows)
-        ? availableRideRows.map((ride) => {
-              const driverName = [ride.driver.firstName, ride.driver.lastName]
-                  .filter(Boolean)
-                  .join(" ");
-
-              return {
-                  id: ride.rideId,
-                  from: ride.pickupStop.city,
-                  to: ride.dropoffStop.city,
-                  date: new Date(
-                      ride.pickupStop.plannedDepartureAt ?? ride.departureAt
-                  ),
-                  seatsLeft: ride.seatsLeft,
-                  duration: formatDuration(
-                      ride.departureAt,
-                      ride.arrivalEstimateAt
-                  ),
-                  driverName: driverName || t("roles.driver"),
-                  driverRating: ride.driver.averageRating ?? 0,
-                  price: ride.priceAmount ?? 0,
-              };
-          })
-        : [];
+    const availableRides = mapAvailableRides(
+        availableRideRows,
+        t("roles.driver")
+    );
 
     const count = showAllRides ? availableRides.length : (rides?.length ?? 0);
 
@@ -237,43 +217,10 @@ function RidesPage() {
                 )}
             </section>
 
-            <Modal
+            <GuestBookModal
                 open={showGuestModal}
                 onClose={() => setShowGuestModal(false)}
-            >
-                <div className="w-modal-viewport max-w-sm p-8 text-center flex flex-col gap-4">
-                    <div className="inline-flex justify-center text-primary">
-                        <LockIcon />
-                    </div>
-                    <h2 className="text-xl font-bold text-text-primary">
-                        {t("bookGuest.title")}
-                    </h2>
-                    <p className="text-text-secondary text-sm">
-                        {t("bookGuest.message")}
-                    </p>
-                    <div className="flex gap-3 mt-2">
-                        <Button
-                            variant="secondary"
-                            fullWidth
-                            onClick={() => {
-                                setShowGuestModal(false);
-                                navigate({ to: "/login" });
-                            }}
-                        >
-                            {t("bookGuest.login")}
-                        </Button>
-                        <Button
-                            fullWidth
-                            onClick={() => {
-                                setShowGuestModal(false);
-                                navigate({ to: "/register" });
-                            }}
-                        >
-                            {t("bookGuest.register")}
-                        </Button>
-                    </div>
-                </div>
-            </Modal>
+            />
         </div>
     );
 }

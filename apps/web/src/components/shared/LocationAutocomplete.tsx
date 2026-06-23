@@ -30,6 +30,12 @@ export function LocationAutocomplete({
     const [activeIndex, setActiveIndex] = useState(-1);
     const containerRef = useRef<HTMLDivElement>(null);
     const requestIdRef = useRef(0);
+    // Read inside the debounced search without making it a dependency: the
+    // query should re-fire on typing, not when geolocation resolves mid-edit.
+    const userLocationRef = useRef(userLocation);
+    useEffect(() => {
+        userLocationRef.current = userLocation;
+    }, [userLocation]);
 
     const [prevValueId, setPrevValueId] = useState(value?.id);
     if (value?.id !== prevValueId) {
@@ -57,16 +63,18 @@ export function LocationAutocomplete({
 
     useEffect(() => {
         if (inputValue.length < MIN_QUERY_LENGTH) return;
-        if (value && inputValue === value.address) return;
+        if (inputValue === value?.address) return;
 
         const id = ++requestIdRef.current;
+        const controller = new AbortController();
 
         const timer = setTimeout(async () => {
             setIsLoading(true);
             try {
                 const results = await fetchPhotonLocations(
                     inputValue,
-                    userLocation
+                    userLocationRef.current,
+                    controller.signal
                 );
 
                 if (id !== requestIdRef.current) return;
@@ -82,7 +90,10 @@ export function LocationAutocomplete({
             }
         }, DEBOUNCE_MS);
 
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
+        };
     }, [inputValue, value?.address]);
 
     function handleSelect(location: LocationSuggestion) {

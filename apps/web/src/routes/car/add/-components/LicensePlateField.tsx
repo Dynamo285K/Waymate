@@ -22,8 +22,8 @@ export function LicensePlateField({ control, error }: LicensePlateFieldProps) {
             </label>
             <div className="flex gap-2 mt-1 items-center">
                 {}
-                <div className="shrink-0 w-16 h-12 rounded-xl bg-slate-800 flex flex-col items-center justify-center text-white text-xs font-bold">
-                    <span className="text-yellow-300 tracking-widest text-plate">
+                <div className="shrink-0 w-16 h-12 rounded-xl bg-royal-blue flex flex-col items-center justify-center text-white text-xs font-bold">
+                    <span className="text-yellow tracking-widest text-plate">
                         ***
                     </span>
                     <span className="text-badge mt-0.5">SK</span>

@@ -1,4 +1,5 @@
 import { signOut } from "../../lib/auth";
+import { logger } from "../../lib/logger";
 
 // Full-page redirect (not SPA navigate) so every React Query cache entry,
 // in-memory user state, and TanStack Router preload is wiped — the next
@@ -16,7 +17,7 @@ export function useLogout() {
             // press on with the redirect. The next /login load runs the
             // route guard against the live server, which is the source of
             // truth for whether the user is really signed out.
-            console.error("Logout: signOut failed, continuing redirect:", err);
+            logger.error("Logout: signOut failed, continuing redirect:", err);
         }
         window.location.replace("/login");
     };

@@ -5,6 +5,7 @@ import {
     isIntegerInput,
     normalizePlate,
     parsePositiveInteger,
+    validateManualCarFields,
 } from "./offer-ride";
 import type { LocationSuggestion } from "../../../../components/shared/LocationAutocomplete";
 
@@ -136,5 +137,66 @@ describe("buildCreateRideBody", () => {
         expect(buildCreateRideBody({ ...base, pickupCity: null })).toBeNull();
         expect(buildCreateRideBody({ ...base, seats: "0" })).toBeNull();
         expect(buildCreateRideBody({ ...base, rideTime: "bad" })).toBeNull();
+    });
+});
+
+describe("validateManualCarFields", () => {
+    const valid = {
+        manualBrand: " Škoda ",
+        manualModel: " Octavia ",
+        manualPlate: "ba-123 ab",
+    };
+
+    it("accepts valid fields and returns trimmed/normalized values", () => {
+        const { errors, normalized } = validateManualCarFields(valid);
+        expect(errors).toEqual([]);
+        expect(normalized).toEqual({
+            brand: "Škoda",
+            model: "Octavia",
+            plate: "BA123AB",
+        });
+    });
+
+    it("flags every empty field as required", () => {
+        const { errors } = validateManualCarFields({
+            manualBrand: "  ",
+            manualModel: "",
+            manualPlate: " -- ",
+        });
+        expect(errors).toEqual([
+            { field: "manualBrand", message: "offerRide.requiredField" },
+            { field: "manualModel", message: "offerRide.requiredField" },
+            { field: "manualPlate", message: "offerRide.requiredField" },
+        ]);
+    });
+
+    it("flags a plate that is too short", () => {
+        const { errors } = validateManualCarFields({
+            ...valid,
+            manualPlate: "A",
+        });
+        expect(errors).toEqual([
+            { field: "manualPlate", message: "offerRide.plateLength" },
+        ]);
+    });
+
+    it("flags a plate that is too long", () => {
+        const { errors } = validateManualCarFields({
+            ...valid,
+            manualPlate: "ABC1234567890",
+        });
+        expect(errors).toEqual([
+            { field: "manualPlate", message: "offerRide.plateLength" },
+        ]);
+    });
+
+    it("reports required (not length) for an empty plate", () => {
+        const { errors } = validateManualCarFields({
+            ...valid,
+            manualPlate: "",
+        });
+        expect(errors).toEqual([
+            { field: "manualPlate", message: "offerRide.requiredField" },
+        ]);
     });
 });
