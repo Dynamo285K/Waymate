@@ -118,6 +118,7 @@ To manually add or update the UI library to the latest version, you should clear
 ```bash
 bun pm cache rm
 bun add @waymate/ui@latest
+bun install
 ```
 
 ### 4. Set up the database
@@ -252,6 +253,16 @@ service still has to be running; `bun run db:setup` from step 4 is enough.
 ```bash
 bun run dev
 ```
+
+### 9. Reviewer / Evaluator Access (Logging in)
+
+Since email delivery via Resend requires active API keys which are not provided in the repository, you will not be able to sign up or log in via the magic link flow as a new user.
+
+Instead, please log in using one of the pre-seeded development accounts created in step 5. You can use these credentials in the login form:
+
+- **Admin Account:** `admin@example.com` / `admin1234`
+- **Driver Account:** `driver.albert@example.com` / `driver1234` (Pre-seeded with cars, rides, and bookings)
+- **Passenger Account:** `passenger.cyril@example.com` / `passenger1234`
 
 ## UI Library
 
