@@ -66,13 +66,15 @@ export function LocationAutocomplete({
         if (inputValue === value?.address) return;
 
         const id = ++requestIdRef.current;
+        const controller = new AbortController();
 
         const timer = setTimeout(async () => {
             setIsLoading(true);
             try {
                 const results = await fetchPhotonLocations(
                     inputValue,
-                    userLocationRef.current
+                    userLocationRef.current,
+                    controller.signal
                 );
 
                 if (id !== requestIdRef.current) return;
@@ -88,7 +90,10 @@ export function LocationAutocomplete({
             }
         }, DEBOUNCE_MS);
 
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
+        };
     }, [inputValue, value?.address]);
 
     function handleSelect(location: LocationSuggestion) {

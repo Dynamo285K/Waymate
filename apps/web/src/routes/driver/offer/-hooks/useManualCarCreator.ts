@@ -8,6 +8,7 @@ import {
 } from "../../../../api-client/cars/cars";
 import type { CreateCarBody as ApiCreateCarBody } from "../../../../api-client/model/createCarBody";
 import { normalizePlate, parsePositiveInteger } from "../-lib/offer-ride";
+import { logger } from "../../../../lib/logger";
 import type { OfferRideCar } from "../-components/OfferRideForm";
 import type { useDriverCars } from "./useDriverCars";
 
@@ -154,7 +155,7 @@ export function useManualCarCreator({
                 queryKey: getGetCarsMeQueryKey(),
             });
         } catch (e) {
-            console.error("Failed to delete unused car", e);
+            logger.error("Failed to delete unused car", e);
         }
     }
 

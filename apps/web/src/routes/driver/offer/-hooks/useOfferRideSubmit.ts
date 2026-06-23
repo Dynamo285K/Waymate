@@ -8,6 +8,7 @@ import {
 } from "../../../../api-client/rides/rides";
 import type { LocationSuggestion } from "../../../../components/shared/LocationAutocomplete";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
+import { logger } from "../../../../lib/logger";
 import {
     buildCreateRideBody,
     normalizePlate,
@@ -19,7 +20,10 @@ import type {
 } from "../-components/schema";
 import type { useDriverCars } from "./useDriverCars";
 import type { EtaPreview } from "./useEtaPreview";
-import { useManualCarCreator, type CarModelOption } from "./useManualCarCreator";
+import {
+    useManualCarCreator,
+    type CarModelOption,
+} from "./useManualCarCreator";
 
 // The subset of the form's live values the submit flow reads. They come from
 // the page's `useWatch` so the publish-error reset stays reactive.
@@ -100,7 +104,7 @@ export function useOfferRideSubmit({
                 navigate({ to: "/driver/rides" });
             },
             onError: (error) => {
-                console.error("Publish ride failed", error);
+                logger.error("Publish ride failed", error);
                 setPublishError(
                     getErrorI18nKey(error, {}, "offerRide.publishError")
                 );
@@ -112,7 +116,7 @@ export function useOfferRideSubmit({
     // known overlap error, and defer the state write so any formKey sync (e.g.
     // from removing a just-created car) settles first.
     function reportPublishError(error: unknown) {
-        console.error("Publish ride failed", error);
+        logger.error("Publish ride failed", error);
         const errorMsg = getErrorI18nKey(
             error,
             {

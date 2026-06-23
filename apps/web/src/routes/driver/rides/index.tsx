@@ -1,26 +1,22 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@waymate/ui";
 import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { CompleteRideDialog } from "../../../features/driver/components/CompleteRideDialog";
 import {
     useGetRidesMe,
-    usePatchRidesByIdComplete,
-    getGetRidesMeQueryKey,
     getGetRidesMeQueryOptions,
 } from "../../../api-client/rides/rides";
-import { useCancelRide } from "../../../features/driver/hooks/useCancelRide";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { driverRidesSearchSchema } from "../../../lib/driver-rides-search-schema";
-import type { ApiMutationError } from "../../../lib/api-fetcher";
 import { useLayout } from "../../../lib/use-layout";
 import { DriverRideList } from "./-components/DriverRideList";
 import {
     mapRidesToDisplayed,
     type DriverDisplayedRide,
 } from "./-lib/driver-ride-view";
+import { useDriverRideActions } from "./-hooks/useDriverRideActions";
 
 export const Route = createFileRoute("/driver/rides/")({
     validateSearch: driverRidesSearchSchema,
@@ -40,15 +36,9 @@ export const Route = createFileRoute("/driver/rides/")({
 function DriverMyRidesPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const queryClient = useQueryClient();
     const { theme } = useLayout();
     const search = Route.useSearch();
     const [tab, setTab] = useState(search.tab === "past" ? "past" : "upcoming");
-    const [cancellingRideId, setCancellingRideId] = useState<string | null>(
-        null
-    );
-    const [rideToCancel, setRideToCancel] = useState<string | null>(null);
-    const [rideToComplete, setRideToComplete] = useState<string | null>(null);
     const timeframe = tab === "past" ? "PAST" : "UPCOMING";
     const {
         data: rides,
@@ -56,16 +46,8 @@ function DriverMyRidesPage() {
         isError,
         error,
     } = useGetRidesMe({ timeframe });
-    const cancelRide = useCancelRide();
-    const completeRide = usePatchRidesByIdComplete<ApiMutationError>({
-        mutation: {
-            onSuccess: () => {
-                void queryClient.invalidateQueries({
-                    queryKey: getGetRidesMeQueryKey(),
-                });
-            },
-        },
-    });
+    const actions = useDriverRideActions();
+    const { cancelRide, completeRide } = actions;
 
     const displayedRides = mapRidesToDisplayed(rides);
 
@@ -81,24 +63,6 @@ function DriverMyRidesPage() {
             to: "/driver/rides/rate",
             state: { ride },
         });
-    }
-
-    function handleConfirmCancel(reason: string) {
-        if (!rideToCancel) return;
-        setCancellingRideId(rideToCancel);
-        setRideToCancel(null);
-        cancelRide.mutate(
-            { rideId: rideToCancel, reason },
-            { onSettled: () => setCancellingRideId(null) }
-        );
-    }
-
-    function handleConfirmComplete() {
-        if (!rideToComplete) return;
-        completeRide.mutate(
-            { id: rideToComplete, data: {} },
-            { onSettled: () => setRideToComplete(null) }
-        );
     }
 
     return (
@@ -169,34 +133,34 @@ function DriverMyRidesPage() {
                         error={error}
                         tab={tab === "past" ? "past" : "upcoming"}
                         rides={displayedRides}
-                        cancellingRideId={cancellingRideId}
+                        cancellingRideId={actions.cancellingRideId}
                         isCancelPending={cancelRide.isPending}
                         isCompletePending={completeRide.isPending}
-                        rideToComplete={rideToComplete}
+                        rideToComplete={actions.rideToComplete}
                         onViewPassengers={handleViewPassengers}
-                        onCompleteRide={(rideId) => setRideToComplete(rideId)}
-                        onCancelRide={(rideId) => setRideToCancel(rideId)}
+                        onCompleteRide={actions.requestComplete}
+                        onCancelRide={actions.requestCancel}
                         onRatePassengers={handleRatePassengers}
                     />
                 </div>
             </section>
 
             <CancelRideDialog
-                open={rideToCancel !== null}
+                open={actions.rideToCancel !== null}
                 loading={cancelRide.isPending}
                 onOpenChange={(open) => {
-                    if (!open) setRideToCancel(null);
+                    if (!open) actions.requestCancel(null);
                 }}
-                onConfirm={handleConfirmCancel}
+                onConfirm={actions.confirmCancel}
             />
 
             <CompleteRideDialog
-                open={rideToComplete !== null}
+                open={actions.rideToComplete !== null}
                 loading={completeRide.isPending}
                 onOpenChange={(open) => {
-                    if (!open) setRideToComplete(null);
+                    if (!open) actions.requestComplete(null);
                 }}
-                onConfirm={handleConfirmComplete}
+                onConfirm={actions.confirmComplete}
             />
         </div>
     );

@@ -18,6 +18,7 @@ import {
 } from "../lib/auth-errors";
 import { useLayout } from "../lib/use-layout";
 import { requireAudience } from "../lib/route-guards";
+import { logger } from "../lib/logger";
 
 export const Route = createFileRoute("/login")({
     beforeLoad: requireAudience(["guest"]),
@@ -87,7 +88,7 @@ function LoginPage() {
         });
 
         if (error) {
-            console.error("Email sign-in failed", error);
+            logger.error("Email sign-in failed", error);
             setError("root", {
                 message: getEmailAuthErrorI18nKey(error, "login.error"),
             });
@@ -104,7 +105,7 @@ function LoginPage() {
             const { data, error } = await signInWithGoogle();
 
             if (error) {
-                console.error("Google sign-in failed", error);
+                logger.error("Google sign-in failed", error);
                 setError("root", {
                     message: getGoogleAuthErrorI18nKey(error, "login.error"),
                 });

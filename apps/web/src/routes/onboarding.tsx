@@ -20,6 +20,7 @@ import {
     phoneField,
 } from "@repo/shared/validation";
 import { requireAudience } from "../lib/route-guards";
+import { logger } from "../lib/logger";
 
 export const Route = createFileRoute("/onboarding")({
     beforeLoad: requireAudience(["user"]),
@@ -145,7 +146,7 @@ function OnboardingPage() {
             });
             navigate({ to: await getPostAuthPath() });
         } catch (error) {
-            console.error("Onboarding submit failed", error);
+            logger.error("Onboarding submit failed", error);
             setError("root", {
                 message: getErrorI18nKey(error, {}, "onboarding.error"),
             });

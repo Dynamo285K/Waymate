@@ -112,18 +112,20 @@ function calculateScore(
 
 export async function fetchPhotonLocations(
     query: string,
-    bias?: { lat: number; lng: number } | null
+    bias?: { lat: number; lng: number } | null,
+    signal?: AbortSignal
 ): Promise<LocationSuggestion[]> {
     if (!query || query.length < 2) return [];
     try {
-        const baseUrl = import.meta.env.VITE_PHOTON_BASE_URL || "https://photon.komoot.io";
+        const baseUrl =
+            import.meta.env.VITE_PHOTON_BASE_URL || "https://photon.komoot.io";
         let url = `${baseUrl}/api/?q=${encodeURIComponent(query)}&limit=100`;
 
         if (bias) {
             url += `&lat=${bias.lat}&lon=${bias.lng}`;
         }
 
-        const res = await fetch(url);
+        const res = await fetch(url, { signal });
         if (!res.ok) return [];
         const data = (await res.json()) as { features: PhotonFeature[] };
 

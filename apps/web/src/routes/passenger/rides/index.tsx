@@ -15,7 +15,6 @@ import {
 } from "../../../api-client/bookings/bookings";
 import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { useCancelBooking } from "../../../features/passenger/hooks/useCancelBooking";
-import { useSubmitReview } from "../../../hooks/shared/useSubmitReview";
 import type { UpcomingRide } from "../../../features/passenger/types";
 import { useLayout } from "../../../lib/use-layout";
 import { PassengerRideList } from "./-components/PassengerRideList";
@@ -23,6 +22,8 @@ import {
     mapBookingsToRides,
     type DisplayedRide,
 } from "./-lib/passenger-ride-view";
+import { useRateDriverFlow } from "./-hooks/useRateDriverFlow";
+import { useReportDriverFlow } from "./-hooks/useReportDriverFlow";
 
 export const Route = createFileRoute("/passenger/rides/")({
     validateSearch: passengerRidesSearchSchema,
@@ -49,16 +50,8 @@ function PassengerMyRidesPage() {
     const [tab, setTab] = useState(search.tab === "past" ? "past" : "upcoming");
     const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
     const cancelBooking = useCancelBooking();
-    const [ratingModalOpen, setRatingModalOpen] = useState(false);
-    const [ratingDriverName, setRatingDriverName] = useState("");
-    const [ratingDriverId, setRatingDriverId] = useState("");
-    const [ratingRideId, setRatingRideId] = useState("");
-    const submitReview = useSubmitReview();
-    const [reportTarget, setReportTarget] = useState<{
-        driverId: string;
-        driverName: string;
-        rideId: string;
-    } | null>(null);
+    const rateFlow = useRateDriverFlow();
+    const reportFlow = useReportDriverFlow();
     const [optimisticRide, setOptimisticRide] = useState<UpcomingRide | null>(
         null
     );
@@ -96,23 +89,6 @@ function PassengerMyRidesPage() {
                   ),
               ]
             : (bookingRides ?? []);
-
-    const handleReport = (ride: DisplayedRide) => {
-        if (!ride.driverId || !ride.rideId) return;
-        setReportTarget({
-            driverId: ride.driverId,
-            driverName: ride.driverName,
-            rideId: ride.rideId,
-        });
-    };
-
-    const handleRateDriver = (ride: DisplayedRide) => {
-        if (ride.alreadyReviewed) return;
-        setRatingDriverName(ride.driverName);
-        setRatingDriverId(ride.driverId ?? "");
-        setRatingRideId(ride.rideId ?? "");
-        setRatingModalOpen(true);
-    };
 
     return (
         <div
@@ -160,8 +136,8 @@ function PassengerMyRidesPage() {
                         rides={displayedRides}
                         onSendMessage={(rideId) => openConversation(rideId)}
                         onCancelBooking={(rideId) => setBookingToCancel(rideId)}
-                        onRateDriver={handleRateDriver}
-                        onReport={handleReport}
+                        onRateDriver={rateFlow.openFor}
+                        onReport={reportFlow.openFor}
                     />
                 </div>
             </section>
@@ -183,42 +159,26 @@ function PassengerMyRidesPage() {
             />
 
             <RateDriverModal
-                open={ratingModalOpen}
-                onOpenChange={setRatingModalOpen}
-                driverName={ratingDriverName}
+                open={rateFlow.isOpen}
+                onOpenChange={rateFlow.setIsOpen}
+                driverName={rateFlow.driverName}
                 theme={theme}
                 title={t("rateDriver.title")}
                 submitLabel={t("rateDriver.submit")}
                 placeholder={t("rateDriver.placeholder")}
-                isSubmitting={submitReview.isPending}
-                onSubmit={({ rating, review }) => {
-                    if (!ratingDriverId || !ratingRideId) return;
-                    submitReview.mutate(
-                        {
-                            data: {
-                                rideId: ratingRideId,
-                                subjectId: ratingDriverId,
-                                rating,
-                                comment: review || undefined,
-                            },
-                        },
-                        {
-                            onSuccess: () => {
-                                setRatingModalOpen(false);
-                                submitReview.reset();
-                            },
-                        }
-                    );
-                }}
+                isSubmitting={rateFlow.isSubmitting}
+                onSubmit={({ rating, review }) =>
+                    rateFlow.submit(rating, review)
+                }
             />
 
-            {reportTarget && (
+            {reportFlow.target && (
                 <ReportUserModal
-                    key={`${reportTarget.driverId}-${reportTarget.rideId}`}
-                    targetUserId={reportTarget.driverId}
-                    targetName={reportTarget.driverName}
-                    rideId={reportTarget.rideId}
-                    onClose={() => setReportTarget(null)}
+                    key={`${reportFlow.target.driverId}-${reportFlow.target.rideId}`}
+                    targetUserId={reportFlow.target.driverId}
+                    targetName={reportFlow.target.driverName}
+                    rideId={reportFlow.target.rideId}
+                    onClose={reportFlow.close}
                 />
             )}
         </div>
