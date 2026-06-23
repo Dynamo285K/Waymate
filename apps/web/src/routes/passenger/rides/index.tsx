@@ -7,17 +7,19 @@ import {
 } from "@tanstack/react-router";
 import { passengerRidesSearchSchema } from "../../../lib/passenger-rides-search-schema";
 import { Button, RateDriverModal } from "@waymate/ui";
-import { RideCard } from "../../../components/shared/RideCard";
 import { useOpenConversation } from "../../../features/chat/hooks/useOpenConversation";
 import { ReportUserModal } from "../../../components/shared/ReportUserModal";
 import { useGetBookingsMe } from "../../../api-client/bookings/bookings";
-import { getErrorI18nKey } from "../../../lib/api-errors";
-import { formatRideDate, formatDuration } from "../../../lib/date-format";
 import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { useCancelBooking } from "../../../features/passenger/hooks/useCancelBooking";
 import { useSubmitReview } from "../../../hooks/shared/useSubmitReview";
 import type { UpcomingRide } from "../../../features/passenger/types";
 import { useLayout } from "../../../lib/use-layout";
+import { PassengerRideList } from "./-components/PassengerRideList";
+import {
+    mapBookingsToRides,
+    type DisplayedRide,
+} from "./-lib/passenger-ride-view";
 
 export const Route = createFileRoute("/passenger/rides/")({
     validateSearch: passengerRidesSearchSchema,
@@ -71,36 +73,7 @@ function PassengerMyRidesPage() {
         }
     }, [incomingBooked]);
 
-    type DisplayedRide = UpcomingRide & {
-        driverId?: string;
-        rideId?: string;
-        alreadyReviewed?: boolean;
-    };
-
-    const bookingRides: DisplayedRide[] | undefined = bookings?.map(
-        (booking) => ({
-            id: booking.id,
-            from: booking.requestedPickupCity ?? booking.pickupCity,
-            to: booking.requestedDropoffCity ?? booking.dropoffCity,
-            date: booking.ride.departureAt,
-            price: booking.priceAmount,
-            duration: formatDuration(
-                booking.ride.departureAt,
-                booking.ride.arrivalEstimateAt
-            ),
-            driverName:
-                `${booking.driver.firstName ?? ""} ${booking.driver.lastName ?? ""}`.trim(),
-            driverRating: booking.driver.averageRating ?? 0,
-            seatsLeft: booking.seatsLeft,
-            status:
-                booking.bookingStatus === "CONFIRMED"
-                    ? ("confirmed" as const)
-                    : ("pending" as const),
-            driverId: booking.driver.id,
-            rideId: booking.ride.id,
-            alreadyReviewed: booking.myReviewOfDriver !== null,
-        })
-    );
+    const bookingRides = mapBookingsToRides(bookings);
     const displayedRides: DisplayedRide[] =
         tab === "upcoming" && optimisticRide
             ? [
@@ -111,16 +84,6 @@ function PassengerMyRidesPage() {
               ]
             : (bookingRides ?? []);
 
-    const rideLabels = {
-        seatsLeft: (count: number) => t("myRides.seatsLeft", { count }),
-        pendingConfirmation: t("myRides.pendingConfirmation"),
-        cancelBooking: t("myRides.cancelBooking"),
-        rateDriver: t("myRides.rateDriver"),
-        rated: t("myRides.rated"),
-        reportDriver: t("myRides.reportDriver"),
-        messageDriver: t("myRides.messageDriver"),
-    };
-
     const handleReport = (ride: DisplayedRide) => {
         if (!ride.driverId || !ride.rideId) return;
         setReportTarget({
@@ -128,6 +91,14 @@ function PassengerMyRidesPage() {
             driverName: ride.driverName,
             rideId: ride.rideId,
         });
+    };
+
+    const handleRateDriver = (ride: DisplayedRide) => {
+        if (ride.alreadyReviewed) return;
+        setRatingDriverName(ride.driverName);
+        setRatingDriverId(ride.driverId ?? "");
+        setRatingRideId(ride.rideId ?? "");
+        setRatingModalOpen(true);
     };
 
     return (
@@ -168,95 +139,17 @@ function PassengerMyRidesPage() {
                 </div>
 
                 <div className="flex flex-col gap-4 mt-6">
-                    {isLoading && (
-                        <p className="text-text-secondary">
-                            {t("myRides.loading")}
-                        </p>
-                    )}
-
-                    {isError && (
-                        <p className="text-text-secondary">
-                            {t(getErrorI18nKey(error, {}, "myRides.error"))}
-                        </p>
-                    )}
-
-                    {!isLoading && !isError && displayedRides.length === 0 && (
-                        <p className="text-text-secondary">
-                            {t("myRides.noResults")}
-                        </p>
-                    )}
-
-                    {!isLoading &&
-                        !isError &&
-                        tab === "upcoming" &&
-                        displayedRides.map((ride) => (
-                            <RideCard
-                                key={ride.id}
-                                variant="passenger-upcoming"
-                                from={ride.from}
-                                to={ride.to}
-                                datetime={formatRideDate(
-                                    typeof ride.date === "string"
-                                        ? new Date(ride.date)
-                                        : ride.date,
-                                    t("home.at")
-                                )}
-                                price={ride.price}
-                                duration={ride.duration}
-                                driverName={ride.driverName}
-                                driverRating={ride.driverRating}
-                                seatsLeft={ride.seatsLeft}
-                                status={ride.status}
-                                onSendMessage={() =>
-                                    openConversation(String(ride.id))
-                                }
-                                onCancelBooking={() =>
-                                    setBookingToCancel(String(ride.id))
-                                }
-                                onReport={
-                                    ride.driverId && ride.rideId
-                                        ? () => handleReport(ride)
-                                        : undefined
-                                }
-                                labels={rideLabels}
-                            />
-                        ))}
-
-                    {!isLoading &&
-                        !isError &&
-                        tab === "past" &&
-                        displayedRides.map((ride) => (
-                            <RideCard
-                                key={ride.id}
-                                variant="passenger-past"
-                                from={ride.from}
-                                to={ride.to}
-                                datetime={formatRideDate(
-                                    typeof ride.date === "string"
-                                        ? new Date(ride.date)
-                                        : ride.date,
-                                    t("home.at")
-                                )}
-                                price={ride.price}
-                                duration={ride.duration}
-                                driverName={ride.driverName}
-                                driverRating={ride.driverRating}
-                                alreadyReviewed={ride.alreadyReviewed}
-                                onRateDriver={() => {
-                                    if (ride.alreadyReviewed) return;
-                                    setRatingDriverName(ride.driverName);
-                                    setRatingDriverId(ride.driverId ?? "");
-                                    setRatingRideId(ride.rideId ?? "");
-                                    setRatingModalOpen(true);
-                                }}
-                                onReport={
-                                    ride.driverId && ride.rideId
-                                        ? () => handleReport(ride)
-                                        : undefined
-                                }
-                                labels={rideLabels}
-                            />
-                        ))}
+                    <PassengerRideList
+                        isLoading={isLoading}
+                        isError={isError}
+                        error={error}
+                        tab={tab === "past" ? "past" : "upcoming"}
+                        rides={displayedRides}
+                        onSendMessage={(rideId) => openConversation(rideId)}
+                        onCancelBooking={(rideId) => setBookingToCancel(rideId)}
+                        onRateDriver={handleRateDriver}
+                        onReport={handleReport}
+                    />
                 </div>
             </section>
 

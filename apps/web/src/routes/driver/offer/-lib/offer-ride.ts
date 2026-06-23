@@ -1,3 +1,4 @@
+import { PLATE_MAX_LENGTH, PLATE_MIN_LENGTH } from "@repo/shared/validation";
 import type { CreateRideBody } from "../../../../api-client/model/createRideBody";
 import type { LocationSuggestion } from "../../../../components/shared/LocationAutocomplete";
 
@@ -51,6 +52,54 @@ export function parsePositiveInteger(value: string): number | null {
 /** True when the string is empty or made up only of digits. */
 export function isIntegerInput(value: string): boolean {
     return /^\d*$/.test(value);
+}
+
+export type ManualCarFieldValues = {
+    manualBrand: string;
+    manualModel: string;
+    manualPlate: string;
+};
+
+export type ManualCarFieldName = "manualBrand" | "manualModel" | "manualPlate";
+
+export type ManualCarFieldError = {
+    field: ManualCarFieldName;
+    message: string;
+};
+
+export type ManualCarValidation = {
+    errors: ManualCarFieldError[];
+    /** Trimmed brand/model and normalized plate, ready for car creation. */
+    normalized: { brand: string; model: string; plate: string };
+};
+
+/**
+ * Validates the manual-car fields: brand, model and plate are required, and the
+ * plate must be within the configured length bounds. Pure — returns the list of
+ * field errors (i18n keys) plus the normalized values, leaving it to the caller
+ * to feed them into `setError`. Mirrors the messages used by the form schema.
+ */
+export function validateManualCarFields(
+    values: ManualCarFieldValues
+): ManualCarValidation {
+    const brand = values.manualBrand.trim();
+    const model = values.manualModel.trim();
+    const plate = normalizePlate(values.manualPlate);
+
+    const errors: ManualCarFieldError[] = [];
+    if (!brand) {
+        errors.push({ field: "manualBrand", message: "offerRide.requiredField" });
+    }
+    if (!model) {
+        errors.push({ field: "manualModel", message: "offerRide.requiredField" });
+    }
+    if (!plate) {
+        errors.push({ field: "manualPlate", message: "offerRide.requiredField" });
+    } else if (plate.length < PLATE_MIN_LENGTH || plate.length > PLATE_MAX_LENGTH) {
+        errors.push({ field: "manualPlate", message: "offerRide.plateLength" });
+    }
+
+    return { errors, normalized: { brand, model, plate } };
 }
 
 export type BuildRideBodyParams = {
