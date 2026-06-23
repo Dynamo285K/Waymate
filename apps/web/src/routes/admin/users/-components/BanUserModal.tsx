@@ -1,15 +1,14 @@
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import {
-    BanIcon,
-    Button,
-    CloseIcon,
-    IconButton,
-    Modal,
-    Textarea,
-} from "@waymate/ui";
+import { BanIcon, Button, Modal, Textarea } from "@waymate/ui";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminUsersErrorMap } from "../-lib/admin-errors";
+import {
+    AdminModalActions,
+    AdminModalBody,
+    AdminModalHeader,
+    adminActionButtonClass,
+} from "../../-components/AdminModalLayout";
 
 type BanUserModalProps = {
     theme: "light" | "dark";
@@ -20,7 +19,7 @@ type BanUserModalProps = {
     onConfirm: (reason: string | undefined) => void;
 };
 
-// The ban reason is optional, so the form needs no resolver — just a single
+// The ban reason is optional, so the form needs no resolver: just a single
 // RHF-owned field, kept consistent with the other moderation modals.
 type FormValues = { reason: string };
 
@@ -49,21 +48,14 @@ export function BanUserModal({
             onClose={onClose}
             theme={theme}
         >
-            <form
+            <AdminModalBody
+                as="form"
                 onSubmit={handleSubmit(onSubmit)}
-                className="w-modal-viewport max-w-lg p-8"
             >
-                <div className="flex justify-between items-center mb-5">
-                    <h2 className="text-xl font-bold text-text-primary">
-                        {t("admin.banUser")} — {userName}
-                    </h2>
-                    <IconButton
-                        ariaLabel="Close"
-                        icon={<CloseIcon />}
-                        variant="ghost"
-                        onClick={onClose}
-                    />
-                </div>
+                <AdminModalHeader
+                    title={`${t("admin.banUser")} - ${userName}`}
+                    onClose={onClose}
+                />
 
                 <div className="bg-danger-bg border border-danger-border rounded-xl p-4 mb-5 text-sm text-danger-text">
                     {t("admin.banWarning")}
@@ -93,10 +85,11 @@ export function BanUserModal({
                     </p>
                 )}
 
-                <div className="flex gap-3 justify-end">
+                <AdminModalActions>
                     <Button
                         type="button"
                         variant="secondary"
+                        className={adminActionButtonClass}
                         onClick={onClose}
                         disabled={isPending}
                     >
@@ -106,12 +99,13 @@ export function BanUserModal({
                         type="submit"
                         variant="red"
                         leftIcon={<BanIcon />}
+                        className={adminActionButtonClass}
                         disabled={isPending}
                     >
                         {t("admin.confirmBan")}
                     </Button>
-                </div>
-            </form>
+                </AdminModalActions>
+            </AdminModalBody>
         </Modal>
     );
 }

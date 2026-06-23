@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AuthNavbar, Button, LockIcon, Modal } from "@waymate/ui";
+import { Button, LockIcon, Modal } from "@waymate/ui";
 import type { SearchBoxCityOption } from "@waymate/ui";
 import type { Language } from "../components/controls/LanguageSwitcher";
+import { AuthNavbarFrame } from "../components/navigation/AuthNavbarFrame";
 import { HomeContent } from "../components/shared/HomeContent";
 import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
 import { useLayout } from "../lib/use-layout";
@@ -53,7 +54,7 @@ function HomePage({
             data-theme={theme}
             className="min-h-screen bg-background"
         >
-            <AuthNavbar {...authNavbarProps} />
+            <AuthNavbarFrame {...authNavbarProps} />
             <HomeContent
                 language={language}
                 onSearch={onSearch}

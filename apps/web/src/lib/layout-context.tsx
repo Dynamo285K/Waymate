@@ -38,6 +38,8 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+        document.documentElement.dataset.theme = theme;
+        document.body.dataset.theme = theme;
     }, [theme]);
 
     useEffect(() => {

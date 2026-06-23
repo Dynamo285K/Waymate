@@ -110,10 +110,10 @@ export function ReportUserModal({
         >
             <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="w-modal-viewport max-w-lg p-8"
+                className="w-full min-w-0 max-w-lg p-5 sm:p-8 max-h-modal-body overflow-y-auto"
             >
-                <div className="flex justify-between items-center mb-5">
-                    <h2 className="text-xl font-bold text-text-primary">
+                <div className="flex items-start justify-between gap-4 mb-5">
+                    <h2 className="text-xl font-bold text-text-primary min-w-0 break-words">
                         {t("report.title")} — {targetName}
                     </h2>
                     <IconButton
@@ -124,7 +124,7 @@ export function ReportUserModal({
                     />
                 </div>
 
-                <p className="text-sm text-text-secondary mb-5">
+                <p className="text-sm text-text-secondary mb-5 break-words">
                     {t("report.intro")}
                 </p>
 
@@ -175,9 +175,9 @@ export function ReportUserModal({
                         {...register("blockTarget")}
                         className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
                     />
-                    <span className="text-sm text-text-primary">
+                    <span className="text-sm text-text-primary min-w-0">
                         {t("report.blockUser")}
-                        <span className="block text-xs text-text-secondary">
+                        <span className="block text-xs text-text-secondary break-words">
                             {t("report.blockUserHint")}
                         </span>
                     </span>
@@ -189,10 +189,11 @@ export function ReportUserModal({
                     </p>
                 )}
 
-                <div className="flex gap-3 justify-end">
+                <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
                     <Button
                         type="button"
                         variant="secondary"
+                        className="justify-center"
                         onClick={onClose}
                         disabled={mutation.isPending}
                     >
@@ -201,6 +202,7 @@ export function ReportUserModal({
                     <Button
                         type="submit"
                         variant="red"
+                        className="justify-center"
                         disabled={!isValid || mutation.isPending}
                     >
                         {t("report.submit")}

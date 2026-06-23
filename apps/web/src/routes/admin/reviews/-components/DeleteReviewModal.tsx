@@ -2,6 +2,12 @@ import { useTranslation } from "react-i18next";
 import { Button, Modal, TrashIcon } from "@waymate/ui";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminReviewsErrorMap } from "../-lib/admin-review-errors";
+import {
+    AdminModalActions,
+    AdminModalBody,
+    AdminModalHeader,
+    adminActionButtonClass,
+} from "../../-components/AdminModalLayout";
 
 type DeleteReviewModalProps = {
     theme: "light" | "dark";
@@ -26,10 +32,12 @@ export function DeleteReviewModal({
             onClose={onClose}
             theme={theme}
         >
-            <div className="p-6">
-                <h2 className="text-xl font-bold text-text-primary mb-2">
-                    {t("admin.deleteReviewTitle")}
-                </h2>
+            <AdminModalBody>
+                <AdminModalHeader
+                    title={t("admin.deleteReviewTitle")}
+                    onClose={onClose}
+                />
+
                 <p className="text-sm text-text-secondary mb-6 leading-relaxed">
                     {t("admin.deleteReviewMessage")}
                 </p>
@@ -40,25 +48,26 @@ export function DeleteReviewModal({
                     </p>
                 )}
 
-                <div className="flex gap-3 justify-end">
+                <AdminModalActions>
                     <Button
                         variant="secondary"
+                        className={adminActionButtonClass}
                         onClick={onClose}
                         disabled={isPending}
                     >
                         {t("admin.cancel")}
                     </Button>
                     <Button
-                        variant="unstyled"
+                        variant="red"
                         leftIcon={<TrashIcon />}
+                        className={adminActionButtonClass}
                         disabled={isPending}
-                        className="px-4 py-3 rounded-xl bg-red font-semibold text-sm text-white cursor-pointer disabled:opacity-50"
                         onClick={onConfirm}
                     >
                         {t("admin.deleteReviewConfirm")}
                     </Button>
-                </div>
-            </div>
+                </AdminModalActions>
+            </AdminModalBody>
         </Modal>
     );
 }

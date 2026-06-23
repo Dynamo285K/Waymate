@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AuthNavbar, Button, Input } from "@waymate/ui";
+import { Button, Input } from "@waymate/ui";
+import { AuthNavbarFrame } from "../components/navigation/AuthNavbarFrame";
 import { FieldError } from "../components/shared/FieldError";
 import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
 import { usePatchUsersMeOnboarding } from "../api-client/users/users";
@@ -156,7 +157,7 @@ function OnboardingPage() {
             data-theme={theme}
             className="min-h-screen bg-background"
         >
-            <AuthNavbar {...authNavbarProps} />
+            <AuthNavbarFrame {...authNavbarProps} />
 
             <main className="flex min-h-register-content items-center justify-center px-4 py-12">
                 {!isLoadingProfile && (

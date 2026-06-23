@@ -1,9 +1,10 @@
 import {
     Avatar,
     Button,
-    StarIcon,
-    MapPinIcon,
+    CircleIcon,
     ClockIcon,
+    MapPinIcon,
+    StarIcon,
     UserIcon,
 } from "@waymate/ui";
 
@@ -73,8 +74,14 @@ export function RideCard(props: RideCardProps) {
     const hasDriver =
         props.variant === "passenger-upcoming" ||
         props.variant === "passenger-past";
+    const isPassengerRide = hasDriver;
+    const isDriverUpcoming = props.variant === "driver-upcoming";
+    const isDriverRide =
+        props.variant === "driver-upcoming" || props.variant === "driver-past";
     const passengerActionClassName =
-        "min-w-ride-action-min justify-center whitespace-normal text-center max-600:w-full";
+        "min-w-0 justify-center whitespace-nowrap text-center text-sm px-3 max-600:w-full";
+    const metaRowClassName =
+        "flex items-center gap-1.5 text-sm text-text-secondary icon-svg:w-4 icon-svg:h-4 icon-svg:text-text-secondary icon-svg:shrink-0";
 
     function seatsText(count: number) {
         return labels?.seatsLeft
@@ -87,7 +94,11 @@ export function RideCard(props: RideCardProps) {
             data-testid="ride-card"
             className="flex flex-col gap-4 py-5 px-6 bg-card border border-border rounded-2xl max-600:gap-3 max-600:p-4"
         >
-            <div className="flex justify-between items-start gap-6 max-600:gap-3">
+            <div
+                className={`flex justify-between items-start gap-6 max-600:gap-3 ${
+                    isDriverUpcoming ? "max-600:flex-col" : ""
+                }`}
+            >
                 <div className="flex flex-col gap-3 min-w-0 flex-1">
                     <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-2 min-w-0">
@@ -107,7 +118,13 @@ export function RideCard(props: RideCardProps) {
                 </div>
 
                 <div
-                    className={`flex flex-col items-end gap-2 shrink-0 ${hasDriver ? "" : "max-600:items-end"}`}
+                    className={`flex flex-col items-end gap-2 shrink-0 ${
+                        isDriverUpcoming
+                            ? "max-600:w-full"
+                            : hasDriver
+                              ? ""
+                              : "max-600:items-end"
+                    }`}
                 >
                     {hasDriver && (
                         <div className="flex items-center gap-3 min-w-0">
@@ -142,46 +159,6 @@ export function RideCard(props: RideCardProps) {
                             {"\u20ac"}
                         </span>
 
-                        {props.variant === "driver-upcoming" && (
-                            <>
-                                <div className="flex flex-wrap justify-end gap-2">
-                                    {labels?.viewPassengers !== "" && (
-                                        <Button
-                                            variant="secondary"
-                                            onClick={props.onViewPassengers}
-                                        >
-                                            {labels?.viewPassengers ??
-                                                "View passengers"}
-                                        </Button>
-                                    )}
-                                    {props.onCompleteRide && (
-                                        <Button
-                                            variant="outlineSuccess"
-                                            className="rounded-lg!"
-                                            onClick={props.onCompleteRide}
-                                        >
-                                            {labels?.completeRide ??
-                                                "Complete ride"}
-                                        </Button>
-                                    )}
-                                    {props.onCancelRide && (
-                                        <Button
-                                            variant="red"
-                                            onClick={props.onCancelRide}
-                                        >
-                                            {labels?.cancelRide ??
-                                                "Cancel ride"}
-                                        </Button>
-                                    )}
-                                </div>
-                                <span className="text-caption text-text-secondary text-right">
-                                    {props.seatsLeft === "full"
-                                        ? (labels?.full ?? "Full")
-                                        : seatsText(props.seatsLeft)}
-                                </span>
-                            </>
-                        )}
-
                         {props.variant === "driver-past" && (
                             <Button
                                 variant="black"
@@ -194,20 +171,28 @@ export function RideCard(props: RideCardProps) {
                 </div>
             </div>
 
-            <div className="flex items-end justify-between gap-4 max-600:flex-col max-600:items-stretch">
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 min-w-0 icon-svg:w-4 icon-svg:h-4 icon-svg:text-text-secondary icon-svg:shrink-0">
-                    <span className="inline-flex items-center gap-1.5 text-sm text-text-secondary">
+            <div
+                className={
+                    isPassengerRide
+                        ? "flex flex-col items-stretch gap-4"
+                        : isDriverRide
+                          ? "flex items-end justify-between gap-4 max-600:items-stretch"
+                          : "flex items-end justify-between gap-4 max-600:flex-col max-600:items-stretch"
+                }
+            >
+                <div className="flex min-w-0 flex-col items-start gap-1">
+                    <span className={metaRowClassName}>
                         <ClockIcon />
                         <span className="break-words">{datetime}</span>
                     </span>
                     {duration && (
-                        <span className="text-sm text-text-secondary">
-                            {"\u00b7 "}
-                            {duration}
+                        <span className={metaRowClassName}>
+                            <CircleIcon />
+                            <span className="break-words">{duration}</span>
                         </span>
                     )}
                     {props.variant === "driver-upcoming" && (
-                        <span className="inline-flex items-center gap-1.5 text-sm text-text-secondary">
+                        <span className={metaRowClassName}>
                             <UserIcon />
                             <span>
                                 {props.seatsLeft === "full"
@@ -216,17 +201,49 @@ export function RideCard(props: RideCardProps) {
                             </span>
                         </span>
                     )}
-                    {props.variant === "passenger-upcoming" &&
-                        props.seatsLeft !== undefined && (
-                            <span className="inline-flex items-center gap-1.5 text-sm text-text-secondary">
-                                <UserIcon />
-                                <span>{seatsText(props.seatsLeft)}</span>
-                            </span>
-                        )}
+                {props.variant === "passenger-upcoming" &&
+                    props.seatsLeft !== undefined && (
+                        <span className={metaRowClassName}>
+                            <UserIcon />
+                            <span>{seatsText(props.seatsLeft)}</span>
+                        </span>
+                    )}
                 </div>
 
+                {props.variant === "driver-upcoming" && (
+                    <div className="flex shrink-0 flex-col gap-2 max-600:w-36">
+                        {labels?.viewPassengers !== "" && (
+                            <Button
+                                variant="secondary"
+                                className="justify-center max-600:min-w-0 max-600:px-3 max-600:text-caption"
+                                onClick={props.onViewPassengers}
+                            >
+                                {labels?.viewPassengers ?? "View passengers"}
+                            </Button>
+                        )}
+                        {props.onCompleteRide && (
+                            <Button
+                                variant="outlineSuccess"
+                                className="justify-center rounded-lg! max-600:min-w-0 max-600:px-3 max-600:text-caption"
+                                onClick={props.onCompleteRide}
+                            >
+                                {labels?.completeRide ?? "Complete ride"}
+                            </Button>
+                        )}
+                        {props.onCancelRide && (
+                            <Button
+                                variant="red"
+                                className="justify-center max-600:min-w-0 max-600:px-3 max-600:text-caption"
+                                onClick={props.onCancelRide}
+                            >
+                                {labels?.cancelRide ?? "Cancel ride"}
+                            </Button>
+                        )}
+                    </div>
+                )}
+
                 {props.variant === "passenger-upcoming" && (
-                    <div className="flex flex-wrap justify-end gap-2 shrink-0 max-600:flex-col max-600:w-full">
+                    <div className="grid grid-cols-1 gap-2 shrink-0 sm:grid-cols-3">
                         {props.onSendMessage && (
                             <Button
                                 variant="secondary"
@@ -265,7 +282,7 @@ export function RideCard(props: RideCardProps) {
                 )}
 
                 {props.variant === "passenger-past" && (
-                    <div className="flex flex-wrap justify-end gap-2 shrink-0 max-600:flex-col max-600:w-full">
+                    <div className="grid grid-cols-1 gap-2 shrink-0 sm:grid-cols-2">
                         <Button
                             variant={
                                 props.alreadyReviewed ? "secondary" : "black"

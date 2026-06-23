@@ -57,7 +57,7 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
     // The sidebar component has no slot for a blocked indicator, so we tag the
     // name itself.
     const sidebarConversations = panel.conversations.map((c) =>
-        c.blocked ? { ...c, name: `${c.name} · ${t("chat.blockedShort")}` } : c
+        c.blocked ? { ...c, name: `${c.name} - ${t("chat.blockedShort")}` } : c
     );
 
     const threadBlockProps = {
@@ -78,8 +78,8 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
 
     return (
         <>
-            {/* Desktop: split view */}
-            <div className="hidden md:flex flex-1 overflow-hidden h-[calc(100vh_-_72px)]">
+            {/* Desktop/tablet: split view */}
+            <div className="hidden min-h-0 flex-1 overflow-hidden md:flex">
                 <ConversationSidebar
                     title={t("chat.messages")}
                     conversations={sidebarConversations}
@@ -87,14 +87,18 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
                     onConversationClick={panel.selectConversation}
                 />
                 {hasActive ? (
-                    <div className="flex flex-col flex-1 overflow-hidden">
-                        <ChatHeader
-                            name={panel.activeName ?? ""}
-                            labels={chatHeaderLabels}
-                            onViewProfileClick={() => setOpenModal("profile")}
-                            onReportUserClick={() => setOpenModal("report")}
-                            onBlockUserClick={onBlockToggle}
-                        />
+                    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                        <div className="shrink-0">
+                            <ChatHeader
+                                name={panel.activeName ?? ""}
+                                labels={chatHeaderLabels}
+                                onViewProfileClick={() =>
+                                    setOpenModal("profile")
+                                }
+                                onReportUserClick={() => setOpenModal("report")}
+                                onBlockUserClick={onBlockToggle}
+                            />
+                        </div>
                         <ChatThread
                             messages={panel.messages}
                             isLoading={panel.isLoadingMessages}
@@ -107,14 +111,14 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
                         />
                     </div>
                 ) : (
-                    <div className="flex flex-1 items-center justify-center text-text-secondary">
+                    <div className="flex min-h-0 flex-1 items-center justify-center text-text-secondary">
                         {t("chat.selectConversation")}
                     </div>
                 )}
             </div>
 
             {/* Mobile: list OR chat */}
-            <div className="flex md:hidden flex-1 flex-col overflow-hidden">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden md:hidden">
                 {!hasActive ? (
                     <ConversationSidebar
                         title={t("chat.messages")}
@@ -123,23 +127,27 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
                         onConversationClick={panel.selectConversation}
                     />
                 ) : (
-                    <div className="flex flex-col flex-1 overflow-hidden">
-                        <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
+                    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                        <div className="shrink-0 flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
                             <IconButton
                                 ariaLabel={t("chat.back")}
                                 icon={<BackIcon />}
                                 variant="ghost"
                                 onClick={panel.clearSelection}
                             />
-                            <ChatHeader
-                                name={panel.activeName ?? ""}
-                                labels={chatHeaderLabels}
-                                onViewProfileClick={() =>
-                                    setOpenModal("profile")
-                                }
-                                onReportUserClick={() => setOpenModal("report")}
-                                onBlockUserClick={onBlockToggle}
-                            />
+                            <div className="min-w-0 flex-1">
+                                <ChatHeader
+                                    name={panel.activeName ?? ""}
+                                    labels={chatHeaderLabels}
+                                    onViewProfileClick={() =>
+                                        setOpenModal("profile")
+                                    }
+                                    onReportUserClick={() =>
+                                        setOpenModal("report")
+                                    }
+                                    onBlockUserClick={onBlockToggle}
+                                />
+                            </div>
                         </div>
                         <ChatThread
                             messages={panel.messages}

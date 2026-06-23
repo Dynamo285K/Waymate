@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AuthNavbar, Button, LockIcon, Modal } from "@waymate/ui";
+import { Button, LockIcon, Modal } from "@waymate/ui";
+import { AuthNavbarFrame } from "../components/navigation/AuthNavbarFrame";
 import { AvailableRideCard } from "../components/shared/AvailableRideCard";
 import { useRideSearch } from "../hooks/shared/useRideSearch";
 import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
@@ -99,7 +100,7 @@ function RidesPage() {
             data-theme={theme}
             className="min-h-screen bg-background"
         >
-            <AuthNavbar {...authNavbarProps} />
+            <AuthNavbarFrame {...authNavbarProps} />
 
             <section className="w-full px-4 sm:max-w-3xl sm:mx-auto sm:px-8 py-8 sm:py-12">
                 <h2 className="text-2xl font-bold text-text-primary">

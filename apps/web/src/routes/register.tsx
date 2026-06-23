@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AuthNavbar, Button, RegisterBox } from "@waymate/ui";
+import { Button, RegisterBox } from "@waymate/ui";
+import { AuthNavbarFrame } from "../components/navigation/AuthNavbarFrame";
 import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
 import {
     getPostAuthPath,
@@ -124,7 +125,7 @@ function RegisterPage() {
             data-theme={theme}
             className="min-h-screen bg-background"
         >
-            <AuthNavbar {...authNavbarProps} />
+            <AuthNavbarFrame {...authNavbarProps} />
 
             <div className="flex items-center justify-center min-h-register-content px-4 py-12">
                 {registeredEmail ? (

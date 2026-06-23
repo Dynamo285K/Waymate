@@ -4,8 +4,6 @@ import {
     BanIcon,
     Button,
     CheckIcon,
-    CloseIcon,
-    IconButton,
     Modal,
 } from "@waymate/ui";
 import { useGetUsersAdminById } from "../../../../api-client/users/users";
@@ -15,6 +13,13 @@ import {
     fullName,
     formatDate,
 } from "../../../../features/admin/lib/admin-format";
+import {
+    AdminModalActions,
+    AdminModalBody,
+    AdminModalHeader,
+    adminActionButtonClass,
+    adminLabelClass,
+} from "../../-components/AdminModalLayout";
 import { StatusBadge } from "./StatusBadge";
 import { StatusHistoryEntry } from "./StatusHistoryEntry";
 
@@ -42,9 +47,6 @@ export function UserDetailModal({
     const { t } = useTranslation();
     const detailQuery = useGetUsersAdminById(userId);
 
-    const labelClass =
-        "text-xs font-bold text-text-secondary tracking-wider mb-1 block";
-
     const displayedName = detailQuery.data
         ? fullName(
               detailQuery.data.user.firstName,
@@ -58,18 +60,11 @@ export function UserDetailModal({
             onClose={onClose}
             theme={theme}
         >
-            <div className="w-modal-viewport max-w-2xl p-8 max-h-modal-body overflow-y-auto">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold text-text-primary">
-                        {t("admin.userProfile")}
-                    </h2>
-                    <IconButton
-                        ariaLabel="Close"
-                        icon={<CloseIcon />}
-                        variant="ghost"
-                        onClick={onClose}
-                    />
-                </div>
+            <AdminModalBody>
+                <AdminModalHeader
+                    title={t("admin.userProfile")}
+                    onClose={onClose}
+                />
 
                 {detailQuery.isLoading && (
                     <p className="text-text-secondary">
@@ -90,19 +85,19 @@ export function UserDetailModal({
 
                 {!detailQuery.isLoading && detailQuery.data && (
                     <>
-                        <div className="flex items-center gap-4 mb-6">
+                        <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center">
                             <Avatar
                                 name={displayedName}
                                 size="lg"
                             />
-                            <div>
+                            <div className="min-w-0">
                                 <p className="text-lg font-bold text-text-primary">
                                     {fullName(
                                         detailQuery.data.user.firstName,
                                         detailQuery.data.user.lastName
                                     ) || "—"}
                                 </p>
-                                <p className="text-sm text-text-secondary mb-1">
+                                <p className="text-sm text-text-secondary mb-1 break-words">
                                     {detailQuery.data.user.email}
                                 </p>
                                 <StatusBadge
@@ -111,15 +106,17 @@ export function UserDetailModal({
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-x-8 gap-y-4 mb-6">
+                        <div className="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-2 sm:gap-x-8">
                             <div>
-                                <p className={labelClass}>{t("admin.phone")}</p>
+                                <p className={adminLabelClass}>
+                                    {t("admin.phone")}
+                                </p>
                                 <p className="text-sm font-semibold text-text-primary">
                                     {detailQuery.data.user.phone ?? "—"}
                                 </p>
                             </div>
                             <div>
-                                <p className={labelClass}>
+                                <p className={adminLabelClass}>
                                     {t("admin.displayName")}
                                 </p>
                                 <p className="text-sm font-semibold text-text-primary">
@@ -127,7 +124,7 @@ export function UserDetailModal({
                                 </p>
                             </div>
                             <div>
-                                <p className={labelClass}>
+                                <p className={adminLabelClass}>
                                     {t("admin.joined")}
                                 </p>
                                 <p className="text-sm font-semibold text-text-primary">
@@ -138,7 +135,7 @@ export function UserDetailModal({
                                 </p>
                             </div>
                             <div>
-                                <p className={labelClass}>
+                                <p className={adminLabelClass}>
                                     {t("admin.lastActive")}
                                 </p>
                                 <p className="text-sm font-semibold text-text-primary">
@@ -148,9 +145,11 @@ export function UserDetailModal({
                                     )}
                                 </p>
                             </div>
-                            <div className="col-span-2">
-                                <p className={labelClass}>{t("admin.bio")}</p>
-                                <p className="text-sm text-text-primary whitespace-pre-wrap">
+                            <div className="sm:col-span-2">
+                                <p className={adminLabelClass}>
+                                    {t("admin.bio")}
+                                </p>
+                                <p className="text-sm text-text-primary whitespace-pre-wrap break-words">
                                     {detailQuery.data.user.bio ?? "—"}
                                 </p>
                             </div>
@@ -168,36 +167,41 @@ export function UserDetailModal({
                                 </p>
                             )}
 
-                        <div className="flex gap-2 flex-wrap mb-6">
-                            {detailQuery.data.user.userStatus === "BANNED" ? (
-                                <Button
-                                    variant="primary"
-                                    leftIcon={<CheckIcon />}
-                                    onClick={onUnban}
-                                    disabled={isSelf || isThisUserMutating}
-                                    title={
-                                        isSelf
-                                            ? t("admin.selfActionDisabled")
-                                            : undefined
-                                    }
-                                >
-                                    {t("admin.unbanUser")}
-                                </Button>
-                            ) : (
-                                <Button
-                                    variant="red"
-                                    leftIcon={<BanIcon />}
-                                    onClick={onRequestBan}
-                                    disabled={isSelf || isThisUserMutating}
-                                    title={
-                                        isSelf
-                                            ? t("admin.selfActionDisabled")
-                                            : undefined
-                                    }
-                                >
-                                    {t("admin.banUser")}
-                                </Button>
-                            )}
+                        <div className="mb-6">
+                            <AdminModalActions>
+                                {detailQuery.data.user.userStatus ===
+                                "BANNED" ? (
+                                    <Button
+                                        variant="primary"
+                                        leftIcon={<CheckIcon />}
+                                        className={adminActionButtonClass}
+                                        onClick={onUnban}
+                                        disabled={isSelf || isThisUserMutating}
+                                        title={
+                                            isSelf
+                                                ? t("admin.selfActionDisabled")
+                                                : undefined
+                                        }
+                                    >
+                                        {t("admin.unbanUser")}
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        variant="red"
+                                        leftIcon={<BanIcon />}
+                                        className={adminActionButtonClass}
+                                        onClick={onRequestBan}
+                                        disabled={isSelf || isThisUserMutating}
+                                        title={
+                                            isSelf
+                                                ? t("admin.selfActionDisabled")
+                                                : undefined
+                                        }
+                                    >
+                                        {t("admin.banUser")}
+                                    </Button>
+                                )}
+                            </AdminModalActions>
                         </div>
 
                         <h3 className="text-base font-bold text-text-primary mb-3">
@@ -219,7 +223,7 @@ export function UserDetailModal({
                         )}
                     </>
                 )}
-            </div>
+            </AdminModalBody>
         </Modal>
     );
 }

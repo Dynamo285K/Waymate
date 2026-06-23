@@ -73,14 +73,14 @@ export function AdminReviewsFilters({
     ];
 
     return (
-        <div className="flex flex-wrap gap-3 mb-6 items-center">
-            <div className="flex gap-1 bg-card border border-border rounded-xl p-1">
+        <div className="flex flex-col gap-3 mb-6 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="flex w-full gap-1 overflow-x-auto bg-card border border-border rounded-xl p-1 sm:w-auto">
                 {tabs.map((tab) => (
                     <Button
                         key={tab.key}
                         variant="unstyled"
                         onClick={() => onStatusFilterChange(tab.key)}
-                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5 ${
+                        className={`shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5 ${
                             statusFilter === tab.key
                                 ? "bg-text-primary text-card"
                                 : "text-text-secondary hover:text-text-primary"
@@ -130,7 +130,7 @@ export function AdminReviewsFilters({
                 }))}
             />
 
-            <div className="ml-auto min-w-55">
+            <div className="w-full sm:ml-auto sm:max-w-xs">
                 <SearchInput
                     value={searchInput}
                     onChange={onSearchInputChange}

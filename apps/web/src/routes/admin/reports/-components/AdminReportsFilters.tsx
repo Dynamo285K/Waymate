@@ -48,14 +48,14 @@ export function AdminReportsFilters({
     const { t } = useTranslation();
 
     return (
-        <div className="flex flex-wrap gap-3 mb-6 items-center">
-            <div className="flex gap-1 bg-card border border-border rounded-xl p-1">
+        <div className="flex flex-col gap-3 mb-6 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="flex w-full gap-1 overflow-x-auto bg-card border border-border rounded-xl p-1 sm:w-auto">
                 {STATUS_FILTERS.map((f) => (
                     <Button
                         key={f.key}
                         variant="unstyled"
                         onClick={() => onStatusFilterChange(f.key)}
-                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                        className={`shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
                             statusFilter === f.key
                                 ? "bg-text-primary text-card"
                                 : "text-text-secondary hover:text-text-primary"
@@ -74,7 +74,7 @@ export function AdminReportsFilters({
                     label: t(f.labelKey),
                 }))}
             />
-            <div className="ml-auto min-w-55">
+            <div className="w-full sm:ml-auto sm:max-w-xs">
                 <SearchInput
                     value={searchInput}
                     onChange={onSearchInputChange}

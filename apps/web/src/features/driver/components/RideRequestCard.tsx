@@ -42,7 +42,7 @@ export function RideRequestCard({
     labels,
 }: RideRequestCardProps) {
     return (
-        <div className="flex items-center justify-between gap-6 py-5 px-6 bg-card border border-border rounded-2xl max-sm:flex-wrap max-sm:gap-3 max-sm:p-4">
+        <div className="flex min-w-0 items-center justify-between gap-6 py-5 px-6 bg-card border border-border rounded-2xl max-sm:flex-wrap max-sm:gap-3 max-sm:p-4">
             <div className="flex items-center gap-4 shrink-0 max-sm:flex-1 max-sm:min-w-0">
                 <Avatar
                     name={name}
@@ -86,15 +86,16 @@ export function RideRequestCard({
                     </span>
                 </div>
             </div>
-            <div className="flex flex-col items-end gap-3 shrink-0 max-sm:w-full">
-                <span className="text-xl font-bold text-text-primary">
+            <div className="flex flex-col items-end gap-3 shrink-0 max-sm:w-full max-sm:min-w-0">
+                <span className="text-xl font-bold text-text-primary max-sm:self-end">
                     {price}
                     {currency === "EUR" ? "€" : currency}
                 </span>
-                <div className="flex gap-2 max-sm:w-full max-sm:justify-end">
+                <div className="flex gap-2 max-sm:grid max-sm:w-full max-sm:grid-cols-2">
                     <Button
                         variant="black"
                         leftIcon={<CheckIcon />}
+                        className="justify-center max-sm:min-w-0 max-sm:px-3"
                         onClick={onAccept}
                     >
                         {labels?.accept ?? "Accept"}
@@ -102,6 +103,7 @@ export function RideRequestCard({
                     <Button
                         variant="red"
                         leftIcon={<CloseIcon />}
+                        className="justify-center max-sm:min-w-0 max-sm:px-3"
                         onClick={onDecline}
                     >
                         {labels?.decline ?? "Decline"}

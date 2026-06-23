@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { CloseIcon, IconButton, Modal } from "@waymate/ui";
+import { Modal } from "@waymate/ui";
 import { useGetReportsAdminById } from "../../../../api-client/reports/reports";
 import type { ReportStatus } from "../../../../api-client/model/reportStatus";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
@@ -8,6 +8,13 @@ import {
     fullName,
     formatDate,
 } from "../../../../features/admin/lib/admin-format";
+import {
+    AdminModalBody,
+    AdminModalHeader,
+    adminLabelClass,
+    adminPanelClass,
+    adminTextPanelClass,
+} from "../../-components/AdminModalLayout";
 import { useReportTypeLabels } from "../-lib/admin-report-labels";
 import { ReportStatusBadge } from "./ReportStatusBadge";
 import { ReportStatusHistoryEntry } from "./ReportStatusHistoryEntry";
@@ -38,9 +45,6 @@ export function ReportDetailModal({
     const detailQuery = useGetReportsAdminById(reportId);
     const typeLabels = useReportTypeLabels();
 
-    const labelClass =
-        "text-xs font-bold text-text-secondary tracking-wider mb-1 block";
-
     const data = detailQuery.data;
 
     const reporterName = data
@@ -60,18 +64,11 @@ export function ReportDetailModal({
             onClose={onClose}
             theme={theme}
         >
-            <div className="w-modal-viewport max-w-2xl p-8 max-h-modal-body overflow-y-auto">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold text-text-primary">
-                        {t("admin.reports.detailTitle")}
-                    </h2>
-                    <IconButton
-                        ariaLabel="Close"
-                        icon={<CloseIcon />}
-                        variant="ghost"
-                        onClick={onClose}
-                    />
-                </div>
+            <AdminModalBody>
+                <AdminModalHeader
+                    title={t("admin.reports.detailTitle")}
+                    onClose={onClose}
+                />
 
                 {detailQuery.isLoading && (
                     <p className="text-text-secondary">
@@ -109,28 +106,28 @@ export function ReportDetailModal({
                         />
 
                         {data.report.ride && (
-                            <div className="border border-border rounded-xl p-4 mb-6">
-                                <p className={labelClass}>
+                            <div className={`${adminPanelClass} mb-6`}>
+                                <p className={adminLabelClass}>
                                     {t("admin.rideContext")}
                                 </p>
                                 <p className="text-sm font-semibold text-text-primary">
-                                    {data.report.ride.originCity} →{" "}
+                                    {data.report.ride.originCity} -{" "}
                                     {data.report.ride.destinationCity}
                                 </p>
                                 <p className="text-xs text-text-secondary mt-1">
                                     {formatDate(
                                         data.report.ride.departureAt,
-                                        "—"
+                                        "-"
                                     )}
                                 </p>
                             </div>
                         )}
 
                         <div className="mb-6">
-                            <p className={labelClass}>
+                            <p className={adminLabelClass}>
                                 {t("admin.reports.description")}
                             </p>
-                            <p className="text-sm text-text-primary whitespace-pre-wrap border border-border rounded-xl p-3 bg-background">
+                            <p className={adminTextPanelClass}>
                                 {data.report.description}
                             </p>
                         </div>
@@ -148,10 +145,10 @@ export function ReportDetailModal({
 
                         {data.report.resolutionReason && (
                             <div className="mb-6">
-                                <p className={labelClass}>
+                                <p className={adminLabelClass}>
                                     {t("admin.reports.resolutionReason")}
                                 </p>
-                                <p className="text-sm text-text-primary whitespace-pre-wrap border border-border rounded-xl p-3 bg-background">
+                                <p className={adminTextPanelClass}>
                                     {data.report.resolutionReason}
                                 </p>
                             </div>
@@ -194,7 +191,7 @@ export function ReportDetailModal({
                         )}
                     </>
                 )}
-            </div>
+            </AdminModalBody>
         </Modal>
     );
 }
