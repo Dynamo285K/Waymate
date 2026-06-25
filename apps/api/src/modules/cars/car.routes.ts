@@ -11,6 +11,7 @@ import {
     CreateCarBodySchema,
     CarIdParamsSchema,
     UpdateCarStatusBodySchema,
+    DeleteCarResponseSchema,
     CarBrandNameListSchema,
     CarBrandParamsSchema,
     CountryCodeList,
@@ -27,6 +28,7 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
         CarIdParams: CarIdParamsSchema,
         CreateCarBody: CreateCarBodySchema,
         UpdateCarStatusBody: UpdateCarStatusBodySchema,
+        DeleteCarResponse: DeleteCarResponseSchema,
         ErrorResponse: ErrorResponseSchema,
         CountryCodeResponseList: CountryCodeSchema.array(),
         CarBrandNameList: CarBrandNameListSchema,
@@ -130,12 +132,17 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
 
             .delete(
                 "/:id",
-                async ({ user, params }) =>
-                    await CarService.deleteCar(params.id, user.id),
+                async ({ user, params }) => {
+                    const deleted = await CarService.deleteCar(
+                        params.id,
+                        user.id
+                    );
+                    return { id: deleted.id };
+                },
                 {
                     params: CarIdParamsSchema,
                     response: {
-                        200: "Car",
+                        200: "DeleteCarResponse",
                         404: "ErrorResponse",
                         409: "ErrorResponse",
                         429: "ErrorResponse",

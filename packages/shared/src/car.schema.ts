@@ -92,7 +92,15 @@ export const UpdateCarStatusBodySchema = z.object({
     isActive: z.boolean(),
 });
 
+// DELETE /cars/:id acknowledges the soft-delete by echoing the id only, matching
+// the lightweight `{ id }` shape used by the other delete endpoints (e.g.
+// AdminDeleteReviewResponse) rather than returning the full deleted entity.
+export const DeleteCarResponseSchema = z.object({
+    id: CarIdSchema,
+});
+
 // Output API types (REQUEST PAYLOADS)
 export type CreateCarBody = z.infer<typeof CreateCarBodySchema>;
 export type CarIdParams = z.infer<typeof CarIdParamsSchema>;
 export type UpdateCarStatusBody = z.infer<typeof UpdateCarStatusBodySchema>;
+export type DeleteCarResponse = z.infer<typeof DeleteCarResponseSchema>;

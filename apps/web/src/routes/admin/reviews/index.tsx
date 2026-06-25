@@ -1,17 +1,7 @@
-import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@waymate/ui";
-import { useSetReviewStatus } from "./-hooks/useSetReviewStatus";
-import { useDeleteReview } from "./-hooks/useDeleteReview";
-import {
-    getGetReviewsAdminQueryKey,
-    getGetReviewsAdminCountsQueryKey,
-} from "../../../api-client/reviews/reviews";
-import type { AdminReviewListItem } from "../../../api-client/model/adminReviewListItem";
-import type { ReviewStatus } from "../../../api-client/model/reviewStatus";
-import { getErrorCode, getErrorI18nKey } from "../../../lib/api-errors";
+import { getErrorI18nKey } from "../../../lib/api-errors";
 import { AdminReviewsFilters } from "./-components/AdminReviewsFilters";
 import { AdminReviewsTable } from "./-components/AdminReviewsTable";
 import { ReviewDetailModal } from "./-components/ReviewDetailModal";
@@ -19,10 +9,8 @@ import { SetReviewStatusModal } from "./-components/SetReviewStatusModal";
 import { DeleteReviewModal } from "./-components/DeleteReviewModal";
 import { useAdminReviewsList } from "./-hooks/useAdminReviewsList";
 import { useReviewsFilters } from "./-hooks/useReviewsFilters";
-import {
-    ADMIN_REVIEW_NOT_FOUND_CODE,
-    adminReviewsErrorMap,
-} from "./-lib/admin-review-errors";
+import { useAdminReviewsActions } from "./-hooks/useAdminReviewsActions";
+import { adminReviewsErrorMap } from "./-lib/admin-review-errors";
 import { useLayout } from "../../../lib/use-layout";
 
 export const Route = createFileRoute("/admin/reviews/")({
@@ -31,113 +19,11 @@ export const Route = createFileRoute("/admin/reviews/")({
 
 function AdminReviewsPage() {
     const { t } = useTranslation();
-    const queryClient = useQueryClient();
     const { theme } = useLayout();
 
     const filters = useReviewsFilters();
     const list = useAdminReviewsList(filters.queryParams);
-
-    const [selectedReviewId, setSelectedReviewId] = useState<string | null>(
-        null
-    );
-    const [isDetailOpen, setIsDetailOpen] = useState(false);
-    const [pendingStatus, setPendingStatus] = useState<ReviewStatus | null>(
-        null
-    );
-    const [deleteTarget, setDeleteTarget] =
-        useState<AdminReviewListItem | null>(null);
-
-    const setReviewStatus = useSetReviewStatus();
-    const deleteReview = useDeleteReview();
-
-    const rowMutatingId = setReviewStatus.isPending
-        ? (setReviewStatus.variables?.id ?? null)
-        : deleteReview.isPending
-          ? (deleteReview.variables?.id ?? null)
-          : null;
-
-    const errorTargetForStatus = setReviewStatus.isError
-        ? (setReviewStatus.variables?.id ?? null)
-        : null;
-
-    const detailErrorForReview =
-        selectedReviewId && errorTargetForStatus === selectedReviewId
-            ? setReviewStatus.error
-            : null;
-    const modalError =
-        selectedReviewId && errorTargetForStatus === selectedReviewId
-            ? setReviewStatus.error
-            : null;
-
-    const detailIsMutating =
-        selectedReviewId !== null && rowMutatingId === selectedReviewId;
-
-    const handleMutationFailure = useCallback(
-        (error: unknown) => {
-            if (getErrorCode(error) === ADMIN_REVIEW_NOT_FOUND_CODE) {
-                void queryClient.invalidateQueries({
-                    queryKey: getGetReviewsAdminQueryKey(),
-                });
-                void queryClient.invalidateQueries({
-                    queryKey: getGetReviewsAdminCountsQueryKey(),
-                });
-                setSelectedReviewId(null);
-                setIsDetailOpen(false);
-                setPendingStatus(null);
-                setDeleteTarget(null);
-            }
-        },
-        [queryClient]
-    );
-
-    const handleConfirmStatus = (reason: string) => {
-        if (!selectedReviewId || !pendingStatus) return;
-        setReviewStatus.mutate(
-            {
-                reviewId: selectedReviewId,
-                status: pendingStatus,
-                reason,
-            },
-            {
-                onSuccess: () => setPendingStatus(null),
-                onError: handleMutationFailure,
-            }
-        );
-    };
-
-    const handleConfirmDelete = () => {
-        if (!deleteTarget) return;
-        deleteReview.mutate(deleteTarget.id, {
-            onSuccess: () => {
-                setDeleteTarget(null);
-                if (selectedReviewId === deleteTarget.id) {
-                    setSelectedReviewId(null);
-                }
-            },
-            onError: handleMutationFailure,
-        });
-    };
-
-    const openDetail = (id: string | null) => {
-        setReviewStatus.reset();
-        setPendingStatus(null);
-        setSelectedReviewId(id);
-        setIsDetailOpen(id !== null);
-    };
-
-    const handleToggleVisibility = (review: AdminReviewListItem) => {
-        setReviewStatus.reset();
-        setSelectedReviewId(review.id);
-        setIsDetailOpen(false);
-        setPendingStatus(
-            review.reviewStatus === "VISIBLE" ? "HIDDEN" : "VISIBLE"
-        );
-    };
-
-    const handleDeleteClick = (review: AdminReviewListItem) => {
-        deleteReview.reset();
-        setDeleteTarget(review);
-    };
+    const actions = useAdminReviewsActions(list.items);
 
     return (
         <div
@@ -180,10 +66,12 @@ function AdminReviewsPage() {
                         <>
                             <AdminReviewsTable
                                 items={list.items}
-                                rowMutatingId={rowMutatingId}
-                                onView={(r) => openDetail(r.id)}
-                                onToggleVisibility={handleToggleVisibility}
-                                onDelete={handleDeleteClick}
+                                rowMutatingId={actions.rowMutatingId}
+                                onView={(r) => actions.openDetail(r.id)}
+                                onToggleVisibility={
+                                    actions.handleToggleVisibility
+                                }
+                                onDelete={actions.handleDeleteClick}
                             />
 
                             {list.nextCursor && (
@@ -201,56 +89,39 @@ function AdminReviewsPage() {
                     )}
             </div>
 
-            {selectedReviewId && isDetailOpen && (
+            {actions.selectedReviewId && actions.isDetailOpen && (
                 <ReviewDetailModal
-                    key={selectedReviewId}
+                    key={actions.selectedReviewId}
                     theme={theme}
-                    reviewId={selectedReviewId}
-                    isThisReviewMutating={detailIsMutating}
-                    mutationErrorForThisReview={detailErrorForReview}
-                    onClose={() => openDetail(null)}
-                    onRequestStatus={(target) => setPendingStatus(target)}
-                    onRequestDelete={(id) => {
-                        const item = list.items.find((r) => r.id === id);
-                        if (item) handleDeleteClick(item);
-                    }}
+                    reviewId={actions.selectedReviewId}
+                    isThisReviewMutating={actions.detailIsMutating}
+                    mutationErrorForThisReview={actions.detailError}
+                    onClose={() => actions.openDetail(null)}
+                    onRequestStatus={actions.requestStatus}
+                    onRequestDelete={actions.requestDeleteById}
                 />
             )}
 
-            {selectedReviewId && pendingStatus && (
+            {actions.selectedReviewId && actions.pendingStatus && (
                 <SetReviewStatusModal
-                    key={`${selectedReviewId}-${pendingStatus}`}
+                    key={`${actions.selectedReviewId}-${actions.pendingStatus}`}
                     theme={theme}
-                    targetStatus={pendingStatus}
-                    isPending={
-                        setReviewStatus.isPending &&
-                        setReviewStatus.variables?.id === selectedReviewId
-                    }
-                    error={modalError}
-                    onClose={() => {
-                        setPendingStatus(null);
-                        if (!isDetailOpen) setSelectedReviewId(null);
-                    }}
-                    onConfirm={handleConfirmStatus}
+                    targetStatus={actions.pendingStatus}
+                    isPending={actions.statusModalIsPending}
+                    error={actions.statusModalError}
+                    onClose={actions.closeStatusModal}
+                    onConfirm={actions.handleConfirmStatus}
                 />
             )}
 
-            {deleteTarget && (
+            {actions.deleteTarget && (
                 <DeleteReviewModal
-                    key={deleteTarget.id}
+                    key={actions.deleteTarget.id}
                     theme={theme}
-                    isPending={
-                        deleteReview.isPending &&
-                        deleteReview.variables?.id === deleteTarget.id
-                    }
-                    error={
-                        deleteReview.isError &&
-                        deleteReview.variables?.id === deleteTarget.id
-                            ? deleteReview.error
-                            : null
-                    }
-                    onClose={() => setDeleteTarget(null)}
-                    onConfirm={handleConfirmDelete}
+                    isPending={actions.deleteModalIsPending}
+                    error={actions.deleteModalError}
+                    onClose={actions.closeDeleteModal}
+                    onConfirm={actions.handleConfirmDelete}
                 />
             )}
         </div>

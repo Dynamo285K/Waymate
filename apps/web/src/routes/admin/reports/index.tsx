@@ -1,27 +1,16 @@
-import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@waymate/ui";
-import { useSetReportStatus } from "./-hooks/useSetReportStatus";
-import { useSetUserStatus } from "../users/-hooks/useSetUserStatus";
 import { BanUserModal } from "../users/-components/BanUserModal";
-import {
-    getGetReportsAdminQueryKey,
-    getGetReportsAdminByIdQueryKey,
-} from "../../../api-client/reports/reports";
-import type { ReportStatus } from "../../../api-client/model/reportStatus";
-import { getErrorCode, getErrorI18nKey } from "../../../lib/api-errors";
+import { getErrorI18nKey } from "../../../lib/api-errors";
 import { AdminReportsFilters } from "./-components/AdminReportsFilters";
 import { AdminReportsTable } from "./-components/AdminReportsTable";
 import { ReportDetailModal } from "./-components/ReportDetailModal";
 import { SetReportStatusModal } from "./-components/SetReportStatusModal";
 import { useAdminReportsList } from "./-hooks/useAdminReportsList";
 import { useReportsFilters } from "./-hooks/useReportsFilters";
-import {
-    ADMIN_REPORT_NOT_FOUND_CODE,
-    adminReportsErrorMap,
-} from "./-lib/admin-report-errors";
+import { useAdminReportsActions } from "./-hooks/useAdminReportsActions";
+import { adminReportsErrorMap } from "./-lib/admin-report-errors";
 import { useLayout } from "../../../lib/use-layout";
 
 export const Route = createFileRoute("/admin/reports/")({
@@ -30,101 +19,11 @@ export const Route = createFileRoute("/admin/reports/")({
 
 function AdminReportsPage() {
     const { t } = useTranslation();
-    const queryClient = useQueryClient();
     const { theme } = useLayout();
 
     const filters = useReportsFilters();
     const list = useAdminReportsList(filters.queryParams);
-
-    const [selectedReportId, setSelectedReportId] = useState<string | null>(
-        null
-    );
-    const [pendingStatus, setPendingStatus] = useState<ReportStatus | null>(
-        null
-    );
-    const [banTarget, setBanTarget] = useState<{
-        id: string;
-        name: string;
-    } | null>(null);
-
-    const setReportStatus = useSetReportStatus();
-    const setUserStatus = useSetUserStatus();
-
-    const rowMutatingId = setReportStatus.isPending
-        ? (setReportStatus.variables?.id ?? null)
-        : null;
-
-    const errorTargetForStatus = setReportStatus.isError
-        ? (setReportStatus.variables?.id ?? null)
-        : null;
-
-    const detailErrorForReport =
-        selectedReportId && errorTargetForStatus === selectedReportId
-            ? setReportStatus.error
-            : null;
-    const modalError =
-        selectedReportId && errorTargetForStatus === selectedReportId
-            ? setReportStatus.error
-            : null;
-
-    const detailIsMutating =
-        selectedReportId !== null && rowMutatingId === selectedReportId;
-
-    const handleMutationFailure = useCallback(
-        (error: unknown) => {
-            if (getErrorCode(error) === ADMIN_REPORT_NOT_FOUND_CODE) {
-                void queryClient.invalidateQueries({
-                    queryKey: getGetReportsAdminQueryKey(),
-                });
-                setSelectedReportId(null);
-                setPendingStatus(null);
-            }
-        },
-        [queryClient]
-    );
-
-    const handleConfirm = (reason: string | undefined) => {
-        if (!selectedReportId || !pendingStatus) return;
-        setReportStatus.mutate(
-            {
-                reportId: selectedReportId,
-                status: pendingStatus,
-                reason,
-            },
-            {
-                onSuccess: () => setPendingStatus(null),
-                onError: handleMutationFailure,
-            }
-        );
-    };
-
-    const handleConfirmBan = (reason: string | undefined) => {
-        if (!banTarget) return;
-        const reportId = selectedReportId;
-        setUserStatus.mutate(
-            { userId: banTarget.id, status: "BANNED", reason },
-            {
-                onSuccess: () => {
-                    setBanTarget(null);
-                    // Refresh the detail so the target shows as banned and the
-                    // ban button is replaced by the "already banned" note.
-                    if (reportId) {
-                        void queryClient.invalidateQueries({
-                            queryKey: getGetReportsAdminByIdQueryKey(reportId),
-                        });
-                    }
-                },
-            }
-        );
-    };
-
-    const openDetail = (id: string | null) => {
-        setReportStatus.reset();
-        setUserStatus.reset();
-        setPendingStatus(null);
-        setBanTarget(null);
-        setSelectedReportId(id);
-    };
+    const actions = useAdminReportsActions();
 
     return (
         <div
@@ -167,8 +66,8 @@ function AdminReportsPage() {
                         <>
                             <AdminReportsTable
                                 items={list.items}
-                                rowMutatingId={rowMutatingId}
-                                onView={(r) => openDetail(r.id)}
+                                rowMutatingId={actions.rowMutatingId}
+                                onView={(r) => actions.openDetail(r.id)}
                             />
 
                             {list.nextCursor && (
@@ -186,42 +85,39 @@ function AdminReportsPage() {
                     )}
             </div>
 
-            {selectedReportId && (
+            {actions.selectedReportId && (
                 <ReportDetailModal
-                    key={selectedReportId}
+                    key={actions.selectedReportId}
                     theme={theme}
-                    reportId={selectedReportId}
-                    isThisReportMutating={detailIsMutating}
-                    mutationErrorForThisReport={detailErrorForReport}
-                    onClose={() => openDetail(null)}
-                    onRequestStatus={(target) => setPendingStatus(target)}
-                    onBanTarget={(target) => {
-                        setUserStatus.reset();
-                        setBanTarget(target);
-                    }}
+                    reportId={actions.selectedReportId}
+                    isThisReportMutating={actions.detailIsMutating}
+                    mutationErrorForThisReport={actions.detailError}
+                    onClose={() => actions.openDetail(null)}
+                    onRequestStatus={actions.requestStatus}
+                    onBanTarget={actions.requestBan}
                 />
             )}
 
-            {banTarget && (
+            {actions.banTarget && (
                 <BanUserModal
                     theme={theme}
-                    userName={banTarget.name}
-                    isPending={setUserStatus.isPending}
-                    error={setUserStatus.isError ? setUserStatus.error : null}
-                    onClose={() => setBanTarget(null)}
-                    onConfirm={handleConfirmBan}
+                    userName={actions.banTarget.name}
+                    isPending={actions.banModalIsPending}
+                    error={actions.banModalError}
+                    onClose={actions.closeBanModal}
+                    onConfirm={actions.handleConfirmBan}
                 />
             )}
 
-            {selectedReportId && pendingStatus && (
+            {actions.selectedReportId && actions.pendingStatus && (
                 <SetReportStatusModal
-                    key={`${selectedReportId}-${pendingStatus}`}
+                    key={`${actions.selectedReportId}-${actions.pendingStatus}`}
                     theme={theme}
-                    targetStatus={pendingStatus}
-                    isPending={rowMutatingId === selectedReportId}
-                    error={modalError}
-                    onClose={() => setPendingStatus(null)}
-                    onConfirm={handleConfirm}
+                    targetStatus={actions.pendingStatus}
+                    isPending={actions.statusModalIsPending}
+                    error={actions.statusModalError}
+                    onClose={actions.closeStatusModal}
+                    onConfirm={actions.handleConfirmStatus}
                 />
             )}
         </div>

@@ -94,7 +94,8 @@
       "Bash(awk '/^\\\\//{file=$0} /warning/{print file\" :: \"$0}' /tmp/claude-1000/-home-tomas-splujazda-sketch/bf9a0ee5-8ddf-4314-934b-6d1a6e59667d/scratchpad/lint.txt)",
       "Bash(grep -nA8 \"<AdminReportsFilters\" apps/web/src/routes/admin/reports/index.tsx)",
       "Bash(grep -nA5 \"<AdminUsersFilters\" apps/web/src/routes/admin/users/index.tsx)",
-      "Bash(grep -nA5 \"<AdminRidesFilters\" apps/web/src/routes/admin/rides/index.tsx)"
+      "Bash(grep -nA5 \"<AdminRidesFilters\" apps/web/src/routes/admin/rides/index.tsx)",
+      "Bash(grep -oE \"\\\\.\\(get|post|put|patch|delete\\)\\\\\\(['\\\\\"\\\\`][^'\\\\\"\\\\`]*\")"
     ]
   }
 }

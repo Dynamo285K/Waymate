@@ -148,6 +148,7 @@ export * from "./createRideBodyPricesItem";
 export * from "./createRideBodyStopsItem";
 export * from "./createRideResponse";
 export * from "./currency";
+export * from "./deleteCarResponse";
 export * from "./driverRideRequestItem";
 export * from "./driverRideRequestItemPassenger";
 export * from "./driverRideRequestList";

@@ -29,6 +29,7 @@ import type {
     CarModelList,
     CountryCodeResponseList,
     CreateCarBody,
+    DeleteCarResponse,
     ErrorResponse,
     UpdateCarStatusBody,
 } from ".././model";
@@ -847,8 +848,8 @@ export const getDeleteCarsByIdUrl = (id: CarId) => {
 export const deleteCarsById = async (
     id: CarId,
     options?: RequestInit
-): Promise<Car> => {
-    return apiFetcher<Car>(getDeleteCarsByIdUrl(id), {
+): Promise<DeleteCarResponse> => {
+    return apiFetcher<DeleteCarResponse>(getDeleteCarsByIdUrl(id), {
         ...options,
         method: "DELETE",
     });
