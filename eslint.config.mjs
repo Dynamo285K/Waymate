@@ -13,6 +13,8 @@ export default [
             "**/*.db",
             "**/*.sqlite",
             "**/*.sqlite3",
+            "**/.venv-docx/**",
+            "**/.venv/**",
         ],
     },
     js.configs.recommended,
