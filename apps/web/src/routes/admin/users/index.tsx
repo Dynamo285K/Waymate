@@ -1,22 +1,15 @@
-import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@waymate/ui";
-import { useSetUserStatus } from "./-hooks/useSetUserStatus";
-import { getGetUsersAdminQueryKey } from "../../../api-client/users/users";
-import type { AdminUserListItem } from "../../../api-client/model/adminUserListItem";
-import { getErrorCode, getErrorI18nKey } from "../../../lib/api-errors";
+import { getErrorI18nKey } from "../../../lib/api-errors";
 import { AdminUsersFilters } from "./-components/AdminUsersFilters";
 import { AdminUsersTable } from "./-components/AdminUsersTable";
 import { BanUserModal } from "./-components/BanUserModal";
 import { UserDetailModal } from "./-components/UserDetailModal";
 import { useAdminUsersList } from "./-hooks/useAdminUsersList";
 import { useUsersFilters } from "./-hooks/useUsersFilters";
-import {
-    ADMIN_USER_NOT_FOUND_CODE,
-    adminUsersErrorMap,
-} from "./-lib/admin-errors";
+import { useAdminUsersActions } from "./-hooks/useAdminUsersActions";
+import { adminUsersErrorMap } from "./-lib/admin-errors";
 import { fullName } from "../../../features/admin/lib/admin-format";
 import { authClient } from "../../../lib/auth-client";
 import { useLayout } from "../../../lib/use-layout";
@@ -27,86 +20,13 @@ export const Route = createFileRoute("/admin/users/")({
 
 function AdminUsersPage() {
     const { t } = useTranslation();
-    const queryClient = useQueryClient();
     const { theme } = useLayout();
     const { data: session } = authClient.useSession();
-    const user = session?.user;
-    const userId = user?.id;
+    const userId = session?.user?.id;
 
     const filters = useUsersFilters();
     const list = useAdminUsersList(filters.queryParams);
-
-    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-    const [banTarget, setBanTarget] = useState<AdminUserListItem | null>(null);
-
-    const setUserStatus = useSetUserStatus();
-
-    // The mutation hook exposes `variables` from the underlying mutation,
-    // which is the toVars-mapped shape `{ id, data: { ... } }`.
-    const statusMutatingId = setUserStatus.isPending
-        ? (setUserStatus.variables?.id ?? null)
-        : null;
-
-    const errorTargetForStatus = setUserStatus.isError
-        ? (setUserStatus.variables?.id ?? null)
-        : null;
-
-    const detailErrorForUser =
-        selectedUserId && errorTargetForStatus === selectedUserId
-            ? setUserStatus.error
-            : null;
-    const banErrorForTarget =
-        banTarget && errorTargetForStatus === banTarget.id
-            ? setUserStatus.error
-            : null;
-
-    const detailIsMutating =
-        selectedUserId !== null && statusMutatingId === selectedUserId;
-
-    const handleMutationFailure = useCallback(
-        (error: unknown) => {
-            if (getErrorCode(error) === ADMIN_USER_NOT_FOUND_CODE) {
-                void queryClient.invalidateQueries({
-                    queryKey: getGetUsersAdminQueryKey(),
-                });
-                setSelectedUserId(null);
-                setBanTarget(null);
-            }
-        },
-        [queryClient]
-    );
-
-    const handleConfirmBan = (reason: string | undefined) => {
-        if (!banTarget) return;
-        setUserStatus.mutate(
-            { userId: banTarget.id, status: "BANNED", reason },
-            {
-                onSuccess: () => setBanTarget(null),
-                onError: handleMutationFailure,
-            }
-        );
-    };
-
-    const handleUnban = (target: AdminUserListItem) => {
-        setUserStatus.mutate(
-            { userId: target.id, status: "ACTIVE" },
-            { onError: handleMutationFailure }
-        );
-    };
-
-    // Centralized open/close so any prior mutation state from a different
-    // target is cleared before the modal sees a fresh row. The `key` prop on
-    // each modal also blows away its local UI state on target switch, so no
-    // useEffect-on-prop-change is needed inside the modals.
-    const openDetail = (id: string | null) => {
-        setUserStatus.reset();
-        setSelectedUserId(id);
-    };
-
-    const openBan = (target: AdminUserListItem | null) => {
-        setUserStatus.reset();
-        setBanTarget(target);
-    };
+    const actions = useAdminUsersActions(list.items);
 
     return (
         <div
@@ -150,10 +70,10 @@ function AdminUsersPage() {
                             <AdminUsersTable
                                 items={list.items}
                                 currentUserId={userId}
-                                rowMutatingId={statusMutatingId}
-                                onView={(u) => openDetail(u.id)}
-                                onBan={(u) => openBan(u)}
-                                onUnban={handleUnban}
+                                rowMutatingId={actions.statusMutatingId}
+                                onView={(u) => actions.openDetail(u.id)}
+                                onBan={(u) => actions.openBan(u)}
+                                onUnban={actions.handleUnban}
                             />
 
                             {list.nextCursor && (
@@ -171,45 +91,34 @@ function AdminUsersPage() {
                     )}
             </div>
 
-            {selectedUserId && (
+            {actions.selectedUserId && (
                 <UserDetailModal
-                    key={selectedUserId}
+                    key={actions.selectedUserId}
                     theme={theme}
-                    userId={selectedUserId}
-                    isSelf={selectedUserId === userId}
-                    isThisUserMutating={detailIsMutating}
-                    mutationErrorForThisUser={detailErrorForUser}
-                    onClose={() => openDetail(null)}
-                    onRequestBan={() => {
-                        const target = list.items.find(
-                            (u) => u.id === selectedUserId
-                        );
-                        if (target) {
-                            setSelectedUserId(null);
-                            openBan(target);
-                        }
-                    }}
-                    onUnban={() => {
-                        const target = list.items.find(
-                            (u) => u.id === selectedUserId
-                        );
-                        if (target) handleUnban(target);
-                    }}
+                    userId={actions.selectedUserId}
+                    isSelf={actions.selectedUserId === userId}
+                    isThisUserMutating={actions.detailIsMutating}
+                    mutationErrorForThisUser={actions.detailErrorForUser}
+                    onClose={() => actions.openDetail(null)}
+                    onRequestBan={actions.banSelectedUser}
+                    onUnban={actions.unbanSelectedUser}
                 />
             )}
 
-            {banTarget && (
+            {actions.banTarget && (
                 <BanUserModal
-                    key={banTarget.id}
+                    key={actions.banTarget.id}
                     theme={theme}
                     userName={
-                        fullName(banTarget.firstName, banTarget.lastName) ||
-                        banTarget.email
+                        fullName(
+                            actions.banTarget.firstName,
+                            actions.banTarget.lastName
+                        ) || actions.banTarget.email
                     }
-                    isPending={statusMutatingId === banTarget.id}
-                    error={banErrorForTarget}
-                    onClose={() => openBan(null)}
-                    onConfirm={handleConfirmBan}
+                    isPending={actions.banModalIsPending}
+                    error={actions.banErrorForTarget}
+                    onClose={actions.closeBanModal}
+                    onConfirm={actions.handleConfirmBan}
                 />
             )}
         </div>
