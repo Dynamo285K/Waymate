@@ -29,7 +29,6 @@ default:
         - bun --version
         - bun install
 
-
 lint:
     stage: verify
     script:
