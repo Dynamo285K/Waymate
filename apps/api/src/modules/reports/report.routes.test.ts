@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { asc, eq } from "drizzle-orm";
 import { apiRequest, jsonRequest } from "../../../test/http";
 import {
     authenticatedRequest,

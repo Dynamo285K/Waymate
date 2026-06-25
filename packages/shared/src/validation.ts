@@ -12,10 +12,6 @@ import { z } from "zod";
 // Raw constants — used where a bare value is needed outside a zod schema:
 // imperative length checks and i18n message interpolation.
 
-/** E.164 phone number, e.g. +421901234567. */
-export const PHONE_REGEX = /^\+[1-9]\d{1,14}$/;
-export const PHONE_MAX_LENGTH = 16;
-
 /** License plate body after normalization (uppercased, alphanumeric only). */
 export const PLATE_REGEX = /^[A-Z0-9]+$/;
 export const PLATE_MIN_LENGTH = 2;
@@ -39,8 +35,8 @@ export const CAR_SEATS_MAX = 9;
 // so the rule chain itself is written exactly once and shared.
 
 /**
- * E.164 phone number. Does not trim or normalize, so a caller taking raw user
- * input should `.trim()` / normalize and `.pipe()` the result into this.
+ * E.164 phone number, e.g. +421901234567. Uses Zod's built-in `z.e164()`
+ * format. Does not trim or normalize, so a caller taking raw user input should
+ * `.trim()` / normalize and `.pipe()` the result into this.
  */
-export const phoneField = (message?: string) =>
-    z.string().regex(PHONE_REGEX, message).max(PHONE_MAX_LENGTH, message);
+export const phoneField = (message?: string) => z.e164(message);

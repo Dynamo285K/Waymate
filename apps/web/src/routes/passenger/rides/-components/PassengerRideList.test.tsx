@@ -1,6 +1,3 @@
-/* eslint-disable no-restricted-syntax -- the RideCard mock below uses raw
-   <button> elements purely as click targets for assertions; the design-system
-   Button is not relevant to this test scaffolding. */
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -21,7 +18,10 @@ vi.mock("../../../../components/shared/RideCard", () => ({
         onRateDriver?: () => void;
         onReport?: () => void;
     }) => (
-        <div data-testid="ride-card" data-variant={props.variant}>
+        <div
+            data-testid="ride-card"
+            data-variant={props.variant}
+        >
             <span>
                 {props.from} → {props.to}
             </span>

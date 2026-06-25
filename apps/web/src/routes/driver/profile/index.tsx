@@ -9,8 +9,14 @@ import { BlockedUsersSection } from "../../../components/shared/BlockedUsersSect
 import { useCancelRide } from "../../../features/driver/hooks/useCancelRide";
 import { useDeleteCar } from "./-hooks/useDeleteCar";
 import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
-import { useGetRidesMe } from "../../../api-client/rides/rides";
-import { useGetCarsMe } from "../../../api-client/cars/cars";
+import {
+    useGetRidesMe,
+    getGetRidesMeQueryOptions,
+} from "../../../api-client/rides/rides";
+import {
+    useGetCarsMe,
+    getGetCarsMeQueryOptions,
+} from "../../../api-client/cars/cars";
 import { useGetReviewsUsersByUserId } from "../../../api-client/reviews/reviews";
 import {
     formatMemberSince,
@@ -22,6 +28,18 @@ import { MyCarsColumn } from "./-components/MyCarsColumn";
 import { DeleteCarModal } from "./-components/DeleteCarModal";
 
 export const Route = createFileRoute("/driver/profile/")({
+    // Warm the React Query cache from the router loader so the profile's
+    // own-cars and upcoming-rides fetches start before the component mounts
+    // (parallel loading). The component reads the same queries via the hooks.
+    // The reviews-by-userId query stays in the component because it depends on
+    // the session user id, which is resolved client-side.
+    loader: ({ context: { queryClient } }) =>
+        Promise.all([
+            queryClient.ensureQueryData(getGetCarsMeQueryOptions()),
+            queryClient.ensureQueryData(
+                getGetRidesMeQueryOptions({ timeframe: "UPCOMING" })
+            ),
+        ]),
     component: DriverProfilePage,
 });
 

@@ -7,7 +7,7 @@ import {
 } from "../../../test/auth-helpers";
 import { getAnyCarModelId } from "../../../test/reference-data";
 import { db } from "../../db";
-import { carModels, cars, rides } from "../../db/schema";
+import { cars, rides } from "../../db/schema";
 import { CarErrorCodes } from "./car.errors";
 
 describe("CarRoutes", () => {

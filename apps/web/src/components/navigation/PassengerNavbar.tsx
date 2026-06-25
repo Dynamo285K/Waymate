@@ -1,6 +1,5 @@
 import {
     NavButton,
-    ProfileDropdown,
     ListIcon,
     MessageCircleIcon,
     SearchIcon,
@@ -9,12 +8,11 @@ import { type Language } from "../controls/LanguageSwitcher";
 import { type Role } from "../controls/RoleSwitcher";
 import { useNavbar } from "./use-navbar";
 import {
-    NavbarShell,
     NavbarLogo,
     NavbarBottomTabs,
-    NavbarProfileMenu,
-    NavbarProfileSettings,
     NavbarRoleControls,
+    NavbarProfileDropdownMenu,
+    RoleNavbarLayout,
 } from "./navbar-shared";
 import { RoleSwitcher } from "../controls/RoleSwitcher";
 
@@ -96,38 +94,28 @@ export function PassengerNavbar({
     );
 
     const profileMenu = (
-        <NavbarProfileMenu
+        <NavbarProfileDropdownMenu
             userName={userName}
+            userEmail={userEmail}
             theme={theme}
-        >
-            <div className="w-80 rounded-summary-card overflow-hidden bg-card border border-border shadow-dropdown-strong">
-                <div className="profile-dropdown-surface:w-full profile-dropdown-surface:rounded-none profile-dropdown-surface:border-0 profile-dropdown-surface:shadow-none">
-                    <ProfileDropdown
-                        name={userName}
-                        email={userEmail}
-                        onProfileClick={onProfileClick}
-                        onMyRidesClick={onMyRidesClick}
-                        onMessagesClick={onMessagesClick}
-                        onRatingsClick={onRatingsClick}
-                        onLogoutClick={onLogoutClick}
-                        labels={{
-                            profile: labels?.profile,
-                            myRides: labels?.dropdownMyRides,
-                            messages: labels?.messages,
-                            ratings: labels?.ratings,
-                            logout: labels?.logout,
-                        }}
-                    />
-                </div>
-                <NavbarProfileSettings
-                    language={language}
-                    onLanguageChange={onLanguageChange}
-                    themeLabel={themeLabel}
-                    themeIcon={themeIcon}
-                    onThemeToggle={onThemeToggle}
-                />
-            </div>
-        </NavbarProfileMenu>
+            language={language}
+            onLanguageChange={onLanguageChange}
+            themeLabel={themeLabel}
+            themeIcon={themeIcon}
+            onThemeToggle={onThemeToggle}
+            onProfileClick={onProfileClick}
+            onMyRidesClick={onMyRidesClick}
+            onMessagesClick={onMessagesClick}
+            onRatingsClick={onRatingsClick}
+            onLogoutClick={onLogoutClick}
+            labels={{
+                profile: labels?.profile,
+                myRides: labels?.dropdownMyRides,
+                messages: labels?.messages,
+                ratings: labels?.ratings,
+                logout: labels?.logout,
+            }}
+        />
     );
 
     const navButtons = (
@@ -215,45 +203,21 @@ export function PassengerNavbar({
     );
 
     return (
-        <NavbarShell navRef={navbarRef}>
-            {isDesktop && (
-                <div className="min-h-18 px-6 flex items-center justify-between gap-6">
-                    <div className="flex items-center gap-8 min-w-0">
-                        {logoImg}
-                        <nav
-                            className="flex items-center gap-5 flex-wrap"
-                            aria-label="Primary navigation"
-                        >
-                            {navButtons}
-                        </nav>
-                    </div>
-                    <div className="flex items-center gap-6 shrink-0">
-                        <NavbarRoleControls {...roleControlsProps} />
-                    </div>
-                </div>
-            )}
-            {isTablet && (
-                <div className="min-h-16 px-4 flex items-center justify-between gap-4">
-                    {logoImg}
-                    <div className="flex items-center gap-4 shrink-0">
-                        {compactRoleSwitcher}
-                        {profileMenu}
-                    </div>
-                    {bottomTabs}
-                </div>
-            )}
-            {isMobile && (
-                <div className="px-4 py-2.5">
-                    <div className="flex items-center justify-between gap-2">
-                        <div className="min-w-0">{logoImg}</div>
-                        <div className="flex items-center gap-3 shrink-0">
-                            {compactRoleSwitcher}
-                            {profileMenu}
-                        </div>
-                    </div>
-                    {bottomTabs}
-                </div>
-            )}
-        </NavbarShell>
+        <RoleNavbarLayout
+            navRef={navbarRef}
+            isDesktop={isDesktop}
+            isTablet={isTablet}
+            isMobile={isMobile}
+            logo={logoImg}
+            navButtons={navButtons}
+            desktopControls={<NavbarRoleControls {...roleControlsProps} />}
+            compactControls={
+                <>
+                    {compactRoleSwitcher}
+                    {profileMenu}
+                </>
+            }
+            bottomTabs={bottomTabs}
+        />
     );
 }

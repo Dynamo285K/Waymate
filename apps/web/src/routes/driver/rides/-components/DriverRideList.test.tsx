@@ -1,6 +1,3 @@
-/* eslint-disable no-restricted-syntax -- the RideCard mock below uses raw
-   <button> elements purely as click targets for assertions; the design-system
-   Button is not relevant to this test scaffolding. */
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -19,7 +16,10 @@ vi.mock("../../../../components/shared/RideCard", () => ({
         onRatePassengers?: () => void;
         labels?: { completeRide?: string; cancelRide?: string };
     }) => (
-        <div data-testid="ride-card" data-variant={props.variant}>
+        <div
+            data-testid="ride-card"
+            data-variant={props.variant}
+        >
             {props.onViewPassengers && (
                 <button onClick={props.onViewPassengers}>view</button>
             )}
@@ -43,7 +43,9 @@ vi.mock("../../../../components/shared/RideCard", () => ({
 const PAST = "2020-01-01T08:00:00.000Z";
 const FUTURE = "2999-01-01T08:00:00.000Z";
 
-function makeRide(overrides: Partial<DriverDisplayedRide> = {}): DriverDisplayedRide {
+function makeRide(
+    overrides: Partial<DriverDisplayedRide> = {}
+): DriverDisplayedRide {
     return {
         id: "r1",
         from: "Bratislava",

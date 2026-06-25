@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { RideIdSchema, RideStatusSchema } from "./ride.schema";
+import {
+    RideIdSchema,
+    RideStopIdSchema,
+    RideStatusSchema,
+} from "./ride.schema";
 import { bookingStatusValues } from "./status-values";
 import { CurrencySchema } from "./currency.schema";
 import {
@@ -14,8 +18,8 @@ export const BookingIdParamsSchema = z.object({
 export const CreateBookingBodySchema = z
     .object({
         rideId: RideIdSchema,
-        pickupStopId: z.string(),
-        dropoffStopId: z.string(),
+        pickupStopId: RideStopIdSchema,
+        dropoffStopId: RideStopIdSchema,
         seatCount: z.number().int().min(1, "You must book at least 1 seat"),
         dynamicPickup: z
             .object({

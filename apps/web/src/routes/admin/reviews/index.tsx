@@ -11,7 +11,6 @@ import {
 } from "../../../api-client/reviews/reviews";
 import type { AdminReviewListItem } from "../../../api-client/model/adminReviewListItem";
 import type { ReviewStatus } from "../../../api-client/model/reviewStatus";
-import type { GetReviewsAdminSubjectRole } from "../../../api-client/model/getReviewsAdminSubjectRole";
 import { getErrorCode, getErrorI18nKey } from "../../../lib/api-errors";
 import { AdminReviewsFilters } from "./-components/AdminReviewsFilters";
 import { AdminReviewsTable } from "./-components/AdminReviewsTable";
@@ -19,7 +18,7 @@ import { ReviewDetailModal } from "./-components/ReviewDetailModal";
 import { SetReviewStatusModal } from "./-components/SetReviewStatusModal";
 import { DeleteReviewModal } from "./-components/DeleteReviewModal";
 import { useAdminReviewsList } from "./-hooks/useAdminReviewsList";
-import { useDebounced } from "../../../hooks/shared/useDebounced";
+import { useReviewsFilters } from "./-hooks/useReviewsFilters";
 import {
     ADMIN_REVIEW_NOT_FOUND_CODE,
     adminReviewsErrorMap,
@@ -30,30 +29,13 @@ export const Route = createFileRoute("/admin/reviews/")({
     component: AdminReviewsPage,
 });
 
-type StatusFilter = "ALL" | ReviewStatus;
-
-const SEARCH_DEBOUNCE_MS = 300;
-
 function AdminReviewsPage() {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
     const { theme } = useLayout();
 
-    const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
-    const [ratingFilter, setRatingFilter] = useState<number | null>(null);
-    const [targetRoleFilter, setTargetRoleFilter] =
-        useState<GetReviewsAdminSubjectRole | null>(null);
-    const [searchInput, setSearchInput] = useState("");
-    const debouncedSearch = useDebounced(searchInput, SEARCH_DEBOUNCE_MS);
-
-    const trimmedSearch = debouncedSearch.trim();
-    const list = useAdminReviewsList({
-        status: statusFilter === "ALL" ? undefined : statusFilter,
-        minRating: ratingFilter ?? undefined,
-        maxRating: ratingFilter ?? undefined,
-        subjectRole: targetRoleFilter ?? undefined,
-        search: trimmedSearch.length > 0 ? trimmedSearch : undefined,
-    });
+    const filters = useReviewsFilters();
+    const list = useAdminReviewsList(filters.queryParams);
 
     const [selectedReviewId, setSelectedReviewId] = useState<string | null>(
         null
@@ -170,16 +152,7 @@ function AdminReviewsPage() {
                     {t("admin.reviewsSubtitle")}
                 </p>
 
-                <AdminReviewsFilters
-                    statusFilter={statusFilter}
-                    onStatusFilterChange={setStatusFilter}
-                    ratingFilter={ratingFilter}
-                    onRatingFilterChange={setRatingFilter}
-                    targetRoleFilter={targetRoleFilter}
-                    onTargetRoleFilterChange={setTargetRoleFilter}
-                    searchInput={searchInput}
-                    onSearchInputChange={setSearchInput}
-                />
+                <AdminReviewsFilters {...filters.controls} />
 
                 {list.isInitialLoading && (
                     <p className="text-text-secondary py-4">

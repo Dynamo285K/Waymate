@@ -11,14 +11,13 @@ import {
     getGetReportsAdminByIdQueryKey,
 } from "../../../api-client/reports/reports";
 import type { ReportStatus } from "../../../api-client/model/reportStatus";
-import type { ReportType } from "../../../api-client/model/reportType";
 import { getErrorCode, getErrorI18nKey } from "../../../lib/api-errors";
 import { AdminReportsFilters } from "./-components/AdminReportsFilters";
 import { AdminReportsTable } from "./-components/AdminReportsTable";
 import { ReportDetailModal } from "./-components/ReportDetailModal";
 import { SetReportStatusModal } from "./-components/SetReportStatusModal";
 import { useAdminReportsList } from "./-hooks/useAdminReportsList";
-import { useDebounced } from "../../../hooks/shared/useDebounced";
+import { useReportsFilters } from "./-hooks/useReportsFilters";
 import {
     ADMIN_REPORT_NOT_FOUND_CODE,
     adminReportsErrorMap,
@@ -29,27 +28,13 @@ export const Route = createFileRoute("/admin/reports/")({
     component: AdminReportsPage,
 });
 
-type StatusFilter = "ALL" | ReportStatus;
-type TypeFilter = "ALL" | ReportType;
-
-const SEARCH_DEBOUNCE_MS = 300;
-
 function AdminReportsPage() {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
     const { theme } = useLayout();
 
-    const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
-    const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
-    const [searchInput, setSearchInput] = useState("");
-    const debouncedSearch = useDebounced(searchInput, SEARCH_DEBOUNCE_MS);
-
-    const trimmedSearch = debouncedSearch.trim();
-    const list = useAdminReportsList({
-        status: statusFilter === "ALL" ? undefined : statusFilter,
-        reportType: typeFilter === "ALL" ? undefined : typeFilter,
-        search: trimmedSearch.length > 0 ? trimmedSearch : undefined,
-    });
+    const filters = useReportsFilters();
+    const list = useAdminReportsList(filters.queryParams);
 
     const [selectedReportId, setSelectedReportId] = useState<string | null>(
         null
@@ -154,14 +139,7 @@ function AdminReportsPage() {
                     {t("admin.reports.subtitle")}
                 </p>
 
-                <AdminReportsFilters
-                    statusFilter={statusFilter}
-                    onStatusFilterChange={setStatusFilter}
-                    typeFilter={typeFilter}
-                    onTypeFilterChange={setTypeFilter}
-                    searchInput={searchInput}
-                    onSearchInputChange={setSearchInput}
-                />
+                <AdminReportsFilters {...filters.controls} />
 
                 {list.isInitialLoading && (
                     <p className="text-text-secondary py-4">

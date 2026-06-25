@@ -1,7 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../../../db";
-import { sessions, users, rides, bookings, rideStatusHistory, bookingStatusHistory } from "../../../db/schema";
+import {
+    sessions,
+    users,
+    rides,
+    bookings,
+    rideStatusHistory,
+    bookingStatusHistory,
+} from "../../../db/schema";
 import { AdminUserService } from "./admin-user.service";
 import { createRideContext } from "../../../../test/factories";
 import { BookingService } from "../../bookings/booking.service";
@@ -160,7 +167,10 @@ describe("AdminUserService.setUserStatus", () => {
             dropoffStopId: otherDriverContext.dropoffStopId,
             seatCount: 1,
         });
-        await BookingService.confirmBooking(targetUserBookingId, otherDriverContext.driver.id);
+        await BookingService.confirmBooking(
+            targetUserBookingId,
+            otherDriverContext.driver.id
+        );
 
         // 3. Admin bans the target user (driverId)
         await AdminUserService.setUserStatus({
@@ -196,21 +206,33 @@ describe("AdminUserService.setUserStatus", () => {
             .select()
             .from(rideStatusHistory)
             .where(eq(rideStatusHistory.rideId, driverRideId));
-        const cancelRideHistory = rideHistory.find((h) => h.newStatus === "CANCELLED");
-        expect(cancelRideHistory?.reason).toBe("User account was banned by admin");
+        const cancelRideHistory = rideHistory.find(
+            (h) => h.newStatus === "CANCELLED"
+        );
+        expect(cancelRideHistory?.reason).toBe(
+            "User account was banned by admin"
+        );
 
         const passengerABookingHistory = await db
             .select()
             .from(bookingStatusHistory)
             .where(eq(bookingStatusHistory.bookingId, passengerABookingId));
-        const cancelPassengerABookingHistory = passengerABookingHistory.find((h) => h.newStatus === "CANCELLED");
-        expect(cancelPassengerABookingHistory?.reason).toBe("User account was banned by admin");
+        const cancelPassengerABookingHistory = passengerABookingHistory.find(
+            (h) => h.newStatus === "CANCELLED"
+        );
+        expect(cancelPassengerABookingHistory?.reason).toBe(
+            "User account was banned by admin"
+        );
 
         const targetBookingHistory = await db
             .select()
             .from(bookingStatusHistory)
             .where(eq(bookingStatusHistory.bookingId, targetUserBookingId));
-        const cancelTargetBookingHistory = targetBookingHistory.find((h) => h.newStatus === "CANCELLED");
-        expect(cancelTargetBookingHistory?.reason).toBe("User account was banned by admin");
+        const cancelTargetBookingHistory = targetBookingHistory.find(
+            (h) => h.newStatus === "CANCELLED"
+        );
+        expect(cancelTargetBookingHistory?.reason).toBe(
+            "User account was banned by admin"
+        );
     });
 });

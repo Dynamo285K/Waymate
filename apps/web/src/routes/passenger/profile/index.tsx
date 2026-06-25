@@ -7,7 +7,10 @@ import { useCancelBooking } from "../../../features/passenger/hooks/useCancelBoo
 import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { RideCard } from "../../../components/shared/RideCard";
 import { BlockedUsersSection } from "../../../components/shared/BlockedUsersSection";
-import { useGetBookingsMe } from "../../../api-client/bookings/bookings";
+import {
+    useGetBookingsMe,
+    getGetBookingsMeQueryOptions,
+} from "../../../api-client/bookings/bookings";
 import { useGetReviewsUsersByUserId } from "../../../api-client/reviews/reviews";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { formatRideDate, formatDuration } from "../../../lib/date-format";
@@ -16,6 +19,14 @@ import { getDisplayName } from "../../../lib/session-user";
 import { useLayout } from "../../../lib/use-layout";
 
 export const Route = createFileRoute("/passenger/profile/")({
+    // Warm the React Query cache from the router loader so the upcoming-bookings
+    // fetch starts before the component mounts. The component reads the same
+    // query via useGetBookingsMe. The reviews-by-userId query stays in the
+    // component because it depends on the client-resolved session user id.
+    loader: ({ context: { queryClient } }) =>
+        queryClient.ensureQueryData(
+            getGetBookingsMeQueryOptions({ timeframe: "UPCOMING" })
+        ),
     component: PassengerProfilePage,
 });
 

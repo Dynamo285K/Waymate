@@ -1,6 +1,12 @@
 import { type ReactNode, type RefObject } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { Avatar, Button, IconButton, ChevronDownIcon } from "@waymate/ui";
+import {
+    Avatar,
+    Button,
+    IconButton,
+    ChevronDownIcon,
+    ProfileDropdown,
+} from "@waymate/ui";
 import { LanguageSwitcher, type Language } from "../controls/LanguageSwitcher";
 import { RoleSwitcher, type Role } from "../controls/RoleSwitcher";
 import type { Theme } from "./use-navbar";
@@ -288,6 +294,169 @@ export function NavbarRoleControls({
             />
             {profileMenu}
         </>
+    );
+}
+
+export type ProfileDropdownLabels = {
+    profile?: string;
+    myRides?: string;
+    messages?: string;
+    ratings?: string;
+    logout?: string;
+};
+
+type ProfileSettingsProps = {
+    language: Language;
+    onLanguageChange: (value: Language) => void;
+    themeLabel: string;
+    themeIcon: ReactNode;
+    onThemeToggle?: () => void;
+};
+
+/**
+ * The avatar-triggered dropdown card — trigger + framed surface + the
+ * language/theme settings footer — shared by all three navbars. The dropdown
+ * body (role-specific `ProfileDropdown` vs `AdminProfileDropdown`) is passed in
+ * as children.
+ */
+export function NavbarProfileSurface({
+    userName,
+    theme,
+    children,
+    ...settings
+}: {
+    userName: string;
+    theme: Theme;
+    children: ReactNode;
+} & ProfileSettingsProps) {
+    return (
+        <NavbarProfileMenu
+            userName={userName}
+            theme={theme}
+        >
+            <div className="w-80 rounded-summary-card overflow-hidden bg-card border border-border shadow-dropdown-strong">
+                <div className="profile-dropdown-surface:w-full profile-dropdown-surface:rounded-none profile-dropdown-surface:border-0 profile-dropdown-surface:shadow-none">
+                    {children}
+                </div>
+                <NavbarProfileSettings {...settings} />
+            </div>
+        </NavbarProfileMenu>
+    );
+}
+
+/**
+ * The full avatar-triggered profile dropdown — the ProfileDropdown body plus the
+ * language/theme settings footer — shared verbatim by the passenger and driver
+ * navbars. Callers map their own label keys onto `labels` before passing them.
+ */
+export function NavbarProfileDropdownMenu({
+    userName,
+    userEmail,
+    theme,
+    onProfileClick,
+    onMyRidesClick,
+    onMessagesClick,
+    onRatingsClick,
+    onLogoutClick,
+    labels,
+    ...settings
+}: {
+    userName: string;
+    userEmail: string;
+    theme: Theme;
+    onProfileClick?: () => void;
+    onMyRidesClick?: () => void;
+    onMessagesClick?: () => void;
+    onRatingsClick?: () => void;
+    onLogoutClick?: () => void;
+    labels?: ProfileDropdownLabels;
+} & ProfileSettingsProps) {
+    return (
+        <NavbarProfileSurface
+            userName={userName}
+            theme={theme}
+            {...settings}
+        >
+            <ProfileDropdown
+                name={userName}
+                email={userEmail}
+                onProfileClick={onProfileClick}
+                onMyRidesClick={onMyRidesClick}
+                onMessagesClick={onMessagesClick}
+                onRatingsClick={onRatingsClick}
+                onLogoutClick={onLogoutClick}
+                labels={labels}
+            />
+        </NavbarProfileSurface>
+    );
+}
+
+/**
+ * The responsive shell (desktop row / tablet row / mobile stack + bottom tabs)
+ * shared by the passenger and driver navbars. The role-specific pieces are
+ * passed in as nodes; `compactControls` is the role-switcher + profile-menu
+ * cluster rendered on tablet and mobile.
+ */
+export function RoleNavbarLayout({
+    navRef,
+    isDesktop,
+    isTablet,
+    isMobile,
+    logo,
+    navButtons,
+    desktopControls,
+    compactControls,
+    bottomTabs,
+}: {
+    navRef: RefObject<HTMLElement | null>;
+    isDesktop: boolean;
+    isTablet: boolean;
+    isMobile: boolean;
+    logo: ReactNode;
+    navButtons: ReactNode;
+    desktopControls: ReactNode;
+    compactControls: ReactNode;
+    bottomTabs: ReactNode;
+}) {
+    return (
+        <NavbarShell navRef={navRef}>
+            {isDesktop && (
+                <div className="min-h-18 px-6 flex items-center justify-between gap-6">
+                    <div className="flex items-center gap-8 min-w-0">
+                        {logo}
+                        <nav
+                            className="flex items-center gap-5 flex-wrap"
+                            aria-label="Primary navigation"
+                        >
+                            {navButtons}
+                        </nav>
+                    </div>
+                    <div className="flex items-center gap-6 shrink-0">
+                        {desktopControls}
+                    </div>
+                </div>
+            )}
+            {isTablet && (
+                <div className="min-h-16 px-4 flex items-center justify-between gap-4">
+                    {logo}
+                    <div className="flex items-center gap-4 shrink-0">
+                        {compactControls}
+                    </div>
+                    {bottomTabs}
+                </div>
+            )}
+            {isMobile && (
+                <div className="px-4 py-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0">{logo}</div>
+                        <div className="flex items-center gap-3 shrink-0">
+                            {compactControls}
+                        </div>
+                    </div>
+                    {bottomTabs}
+                </div>
+            )}
+        </NavbarShell>
     );
 }
 
