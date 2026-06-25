@@ -1,11 +1,5 @@
 import { useTranslation } from "react-i18next";
-import {
-    Avatar,
-    BanIcon,
-    Button,
-    CheckIcon,
-    Modal,
-} from "@waymate/ui";
+import { Avatar, BanIcon, Button, CheckIcon, Modal } from "@waymate/ui";
 import { useGetUsersAdminById } from "../../../../api-client/users/users";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminUsersErrorMap } from "../-lib/admin-errors";

@@ -56,7 +56,8 @@ export function SavedCarPicker({
                                         className={selectItem}
                                     >
                                         <Select.ItemText>
-                                            {car.brand} {car.model} – {car.plate}
+                                            {car.brand} {car.model} –{" "}
+                                            {car.plate}
                                         </Select.ItemText>
                                     </Select.Item>
                                 ))}

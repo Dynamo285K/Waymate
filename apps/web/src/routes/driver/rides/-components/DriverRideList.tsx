@@ -39,7 +39,9 @@ export function DriverRideList({
     const { t } = useTranslation();
 
     if (isLoading) {
-        return <p className="text-text-secondary">{t("driverRides.loading")}</p>;
+        return (
+            <p className="text-text-secondary">{t("driverRides.loading")}</p>
+        );
     }
 
     if (isError) {
@@ -84,7 +86,8 @@ export function DriverRideList({
 
                 const isCancelling =
                     isCancelPending && cancellingRideId === ride.id;
-                const isCompleting = isCompletePending && rideToComplete === null;
+                const isCompleting =
+                    isCompletePending && rideToComplete === null;
                 const isActive = ride.rideStatus !== "COMPLETED";
                 const hasDeparted = new Date(ride.date) <= new Date();
 

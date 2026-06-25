@@ -1,11 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { asc, eq } from "drizzle-orm";
 import { db } from "../../db";
-import {
-    rides as ridesTable,
-    rideStops,
-    users,
-} from "../../db/schema";
+import { rides as ridesTable, rideStops, users } from "../../db/schema";
 import { ReviewService, REVIEW_WINDOW_DAYS } from "./review.service";
 import { ReviewError, ReviewErrorCodes } from "./review.errors";
 import { RideService } from "../rides/ride.service";

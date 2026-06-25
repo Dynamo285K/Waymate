@@ -145,8 +145,8 @@ async function main() {
                         n % 25 === 0
                             ? "BANNED"
                             : n % 17 === 0
-                                ? "SUSPENDED"
-                                : "ACTIVE";
+                              ? "SUSPENDED"
+                              : "ACTIVE";
                     return {
                         id: randomUUID(),
                         name: `${firstName} ${lastName}`,
@@ -377,16 +377,16 @@ async function main() {
                         stop.arrivalOffsetMinutes === undefined
                             ? null
                             : addMinutes(
-                                input.departureAt,
-                                stop.arrivalOffsetMinutes
-                            ),
+                                  input.departureAt,
+                                  stop.arrivalOffsetMinutes
+                              ),
                     plannedDepartureAt:
                         stop.departureOffsetMinutes === undefined
                             ? null
                             : addMinutes(
-                                input.departureAt,
-                                stop.departureOffsetMinutes
-                            ),
+                                  input.departureAt,
+                                  stop.departureOffsetMinutes
+                              ),
                     createdAt,
                     updatedAt,
                 }));
@@ -428,31 +428,31 @@ async function main() {
                 await tx.insert(rideStatusHistory).values(
                     input.rideStatus === "COMPLETED"
                         ? [
-                            {
-                                rideId,
-                                newStatus: "PLANNED" as const,
-                                changedByUserId: input.driverId,
-                                reason: "Fixture ride created",
-                                createdAt,
-                            },
-                            {
-                                rideId,
-                                oldStatus: "PLANNED" as const,
-                                newStatus: "COMPLETED" as const,
-                                changedByUserId: input.driverId,
-                                reason: "Fixture ride completed",
-                                createdAt: arrivalEstimateAt,
-                            },
-                        ]
+                              {
+                                  rideId,
+                                  newStatus: "PLANNED" as const,
+                                  changedByUserId: input.driverId,
+                                  reason: "Fixture ride created",
+                                  createdAt,
+                              },
+                              {
+                                  rideId,
+                                  oldStatus: "PLANNED" as const,
+                                  newStatus: "COMPLETED" as const,
+                                  changedByUserId: input.driverId,
+                                  reason: "Fixture ride completed",
+                                  createdAt: arrivalEstimateAt,
+                              },
+                          ]
                         : [
-                            {
-                                rideId,
-                                newStatus: "PLANNED" as const,
-                                changedByUserId: input.driverId,
-                                reason: "Fixture ride created",
-                                createdAt,
-                            },
-                        ]
+                              {
+                                  rideId,
+                                  newStatus: "PLANNED" as const,
+                                  changedByUserId: input.driverId,
+                                  reason: "Fixture ride created",
+                                  createdAt,
+                              },
+                          ]
                 );
 
                 // Populate ride_route_cells using OSRM so search works
@@ -560,27 +560,27 @@ async function main() {
                     },
                     ...(confirmedAt
                         ? [
-                            {
-                                bookingId,
-                                oldStatus: "PENDING" as const,
-                                newStatus: "CONFIRMED" as const,
-                                changedByUserId: input.ride.driverId,
-                                reason: "Fixture booking confirmed",
-                                createdAt: confirmedAt,
-                            },
-                        ]
+                              {
+                                  bookingId,
+                                  oldStatus: "PENDING" as const,
+                                  newStatus: "CONFIRMED" as const,
+                                  changedByUserId: input.ride.driverId,
+                                  reason: "Fixture booking confirmed",
+                                  createdAt: confirmedAt,
+                              },
+                          ]
                         : []),
                     ...(completedAt
                         ? [
-                            {
-                                bookingId,
-                                oldStatus: "CONFIRMED" as const,
-                                newStatus: "COMPLETED" as const,
-                                changedByUserId: input.ride.driverId,
-                                reason: "Fixture ride completed",
-                                createdAt: completedAt,
-                            },
-                        ]
+                              {
+                                  bookingId,
+                                  oldStatus: "CONFIRMED" as const,
+                                  newStatus: "COMPLETED" as const,
+                                  changedByUserId: input.ride.driverId,
+                                  reason: "Fixture ride completed",
+                                  createdAt: completedAt,
+                              },
+                          ]
                         : []),
                 ]);
 
