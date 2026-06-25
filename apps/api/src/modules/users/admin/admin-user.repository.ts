@@ -4,6 +4,7 @@ import {
     desc,
     eq,
     ilike,
+    inArray,
     isNull,
     lt,
     ne,
@@ -14,11 +15,15 @@ import type {
     AdminUserListItem,
     AdminUserStatusHistoryItem,
     UserStatus,
+    RideStatus,
 } from "@repo/shared";
 import type { Executor } from "../../../db";
 import { users as usersTable } from "../../../db/schema/user";
 import { userStatusHistory as userStatusHistoryTable } from "../../../db/schema/user_status_history";
 import { sessions as sessionsTable } from "../../../db/schema/session";
+import { rides as ridesTable } from "../../../db/schema/ride";
+import { rideStatusHistory as rideStatusHistoryTable } from "../../../db/schema/ride_status_history";
+import { bookings as bookingsTable } from "../../../db/schema/booking";
 
 const adminUserListColumns = {
     id: usersTable.id,
@@ -221,6 +226,67 @@ const insertUserStatusHistory = async (
     });
 };
 
+const findActiveRidesByDriverId = async (
+    executor: Executor,
+    driverId: string
+): Promise<{ id: string; rideStatus: RideStatus }[]> => {
+    return await executor
+        .select({ id: ridesTable.id, rideStatus: ridesTable.rideStatus })
+        .from(ridesTable)
+        .where(
+            and(
+                eq(ridesTable.driverId, driverId),
+                inArray(ridesTable.rideStatus, ["PLANNED", "IN_PROGRESS"]),
+                isNull(ridesTable.deletedAt)
+            )
+        );
+};
+
+const bulkCancelRides = async (
+    executor: Executor,
+    rideIds: string[]
+): Promise<void> => {
+    if (rideIds.length === 0) return;
+    await executor
+        .update(ridesTable)
+        .set({ rideStatus: "CANCELLED" })
+        .where(inArray(ridesTable.id, rideIds));
+};
+
+const bulkInsertRideStatusHistory = async (
+    executor: Executor,
+    items: {
+        rideId: string;
+        oldStatus: RideStatus;
+        newStatus: RideStatus;
+        changedByUserId: string;
+        reason: string;
+    }[]
+): Promise<void> => {
+    if (items.length === 0) return;
+    await executor.insert(rideStatusHistoryTable).values(items);
+};
+
+const findActiveBookingsByPassengerId = async (
+    executor: Executor,
+    passengerId: string
+) => {
+    return await executor
+        .select({
+            id: bookingsTable.id,
+            bookingStatus: bookingsTable.bookingStatus,
+            rideId: bookingsTable.rideId,
+        })
+        .from(bookingsTable)
+        .where(
+            and(
+                eq(bookingsTable.passengerId, passengerId),
+                inArray(bookingsTable.bookingStatus, ["PENDING", "CONFIRMED"]),
+                isNull(bookingsTable.deletedAt)
+            )
+        );
+};
+
 export const AdminUserRepository = {
     findUserList,
     findUserCreatedAt,
@@ -230,4 +296,8 @@ export const AdminUserRepository = {
     updateUserStatus,
     deleteSessionsByUserId,
     insertUserStatusHistory,
+    findActiveRidesByDriverId,
+    bulkCancelRides,
+    bulkInsertRideStatusHistory,
+    findActiveBookingsByPassengerId,
 };

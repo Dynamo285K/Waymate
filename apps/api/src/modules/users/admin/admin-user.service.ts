@@ -6,6 +6,7 @@ import type {
 import { db } from "../../../db";
 import { UserError, UserErrorCodes } from "../user.errors";
 import { AdminUserRepository } from "./admin-user.repository";
+import { RideRepository } from "../../rides/ride.repository";
 import type { AdminUserListFilters, SetUserStatusInput } from "./admin-user.types";
 
 const STATUS_HISTORY_DEFAULT_LIMIT = 50;
@@ -94,6 +95,85 @@ const setUserStatus = async ({
 
         if (newStatus === "BANNED" || newStatus === "DELETED") {
             await AdminUserRepository.deleteSessionsByUserId(tx, targetUserId);
+
+            const cancelReason =
+                newStatus === "BANNED"
+                    ? "User account was banned by admin"
+                    : "User account was deleted";
+
+            // 1. Cancel active rides (user as driver)
+            const activeRides = await AdminUserRepository.findActiveRidesByDriverId(
+                tx,
+                targetUserId
+            );
+
+            if (activeRides.length > 0) {
+                const rideIds = activeRides.map((r) => r.id);
+                await AdminUserRepository.bulkCancelRides(tx, rideIds);
+                await AdminUserRepository.bulkInsertRideStatusHistory(
+                    tx,
+                    activeRides.map((r) => ({
+                        rideId: r.id,
+                        oldStatus: r.rideStatus,
+                        newStatus: "CANCELLED" as const,
+                        changedByUserId: actorId,
+                        reason: cancelReason,
+                    }))
+                );
+
+                // Also cancel all active bookings for these rides
+                for (const rideId of rideIds) {
+                    const bookings = await RideRepository.findActiveBookingsByRideId(
+                        tx,
+                        rideId
+                    );
+                    if (bookings.length > 0) {
+                        const bookingIds = bookings.map((b) => b.id);
+                        await RideRepository.bulkCancelBookings(
+                            tx,
+                            bookingIds,
+                            actorId,
+                            cancelReason
+                        );
+                        await RideRepository.bulkInsertBookingStatusHistory(
+                            tx,
+                            bookings.map((b) => ({
+                                bookingId: b.id,
+                                oldStatus: b.bookingStatus,
+                                newStatus: "CANCELLED" as const,
+                                changedByUserId: actorId,
+                                reason: cancelReason,
+                            }))
+                        );
+                    }
+                }
+            }
+
+            // 2. Cancel active bookings (user as passenger)
+            const passengerBookings = await AdminUserRepository.findActiveBookingsByPassengerId(
+                tx,
+                targetUserId
+            );
+
+            if (passengerBookings.length > 0) {
+                const bookingIds = passengerBookings.map((b) => b.id);
+                await RideRepository.bulkCancelBookings(
+                    tx,
+                    bookingIds,
+                    actorId,
+                    cancelReason
+                );
+                await RideRepository.bulkInsertBookingStatusHistory(
+                    tx,
+                    passengerBookings.map((b) => ({
+                        bookingId: b.id,
+                        oldStatus: b.bookingStatus,
+                        newStatus: "CANCELLED" as const,
+                        changedByUserId: actorId,
+                        reason: cancelReason,
+                    }))
+                );
+            }
         }
 
         return updated;
