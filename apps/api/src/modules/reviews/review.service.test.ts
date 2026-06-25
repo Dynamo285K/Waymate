@@ -1,19 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { asc, eq } from "drizzle-orm";
 import { db } from "../../db";
-import {
-    carModels,
-    cars,
-    rides as ridesTable,
-    rideStops,
-    users,
-} from "../../db/schema";
+import { rides as ridesTable, rideStops, users } from "../../db/schema";
 import { ReviewService, REVIEW_WINDOW_DAYS } from "./review.service";
 import { ReviewError, ReviewErrorCodes } from "./review.errors";
 import { RideService } from "../rides/ride.service";
 import { BookingService } from "../bookings/booking.service";
-import { TEST_CITY_IDS } from "../../../test/reference-data";
-import type { CreateRideBody } from "@repo/shared";
 import {
     createRideContext,
     createTestCar,

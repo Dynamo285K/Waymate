@@ -4,6 +4,7 @@ import { RatingSummaryCard, RatingCard, TextLink } from "@waymate/ui";
 import {
     useGetReviewsMeAuthored,
     useGetReviewsUsersByUserId,
+    getGetReviewsMeAuthoredQueryOptions,
 } from "../../../api-client/reviews/reviews";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { ratingsSearchSchema } from "../../../lib/ratings-search-schema";
@@ -12,6 +13,12 @@ import { useLayout } from "../../../lib/use-layout";
 
 export const Route = createFileRoute("/driver/ratings/")({
     validateSearch: ratingsSearchSchema,
+    // Warm the React Query cache from the router loader so the authored-reviews
+    // fetch starts before the component mounts. The component reads the same
+    // query via useGetReviewsMeAuthored. The received-reviews query stays in the
+    // component because it depends on the client-resolved session user id.
+    loader: ({ context: { queryClient } }) =>
+        queryClient.ensureQueryData(getGetReviewsMeAuthoredQueryOptions()),
     component: DriverRatingsPage,
 });
 

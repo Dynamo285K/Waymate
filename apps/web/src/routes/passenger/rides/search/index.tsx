@@ -1,6 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
-import { useGetRidesAvailable } from "../../../../api-client/rides/rides";
+import {
+    useGetRidesAvailable,
+    getGetRidesAvailableQueryOptions,
+} from "../../../../api-client/rides/rides";
 import { useRideSearch } from "../../../../hooks/shared/useRideSearch";
 import { BookingErrorModal } from "../../../../features/passenger/components/BookingErrorModal";
 import { rideSearchSchema } from "../../../../lib/ride-search-schema";
@@ -12,6 +15,13 @@ import { SearchResultsList } from "./-components/SearchResultsList";
 
 export const Route = createFileRoute("/passenger/rides/search/")({
     validateSearch: rideSearchSchema,
+    // Warm the React Query cache from the router loader so the default
+    // available-rides fetch starts before the component mounts (parallel
+    // loading, no render waterfall). The component still reads the same query
+    // via useGetRidesAvailable; the search-params query stays in the component
+    // because it depends on validated search state.
+    loader: ({ context: { queryClient } }) =>
+        queryClient.ensureQueryData(getGetRidesAvailableQueryOptions()),
     component: PassengerRidesPage,
 });
 

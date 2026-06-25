@@ -3,11 +3,8 @@ import { and, asc, eq } from "drizzle-orm";
 import { db } from "../../db";
 import {
     bookings as bookingsTable,
-    carModels,
-    cars,
     reports as reportsTable,
     reportStatusHistory,
-    rides as ridesTable,
     rideStops,
     users,
 } from "../../db/schema";
@@ -15,8 +12,6 @@ import { ReportService } from "./report.service";
 import { ReportError, ReportErrorCodes } from "./report.errors";
 import { RideService } from "../rides/ride.service";
 import { BookingService } from "../bookings/booking.service";
-import { TEST_CITY_IDS } from "../../../test/reference-data";
-import type { CreateRideBody } from "@repo/shared";
 import {
     createRideContext,
     createTestCar,

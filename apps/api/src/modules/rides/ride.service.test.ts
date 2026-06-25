@@ -2,8 +2,6 @@ import { describe, it, expect } from "vitest";
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
 import {
-    carModels,
-    cars,
     rides,
     rideStops,
     prices,
@@ -14,7 +12,6 @@ import {
 } from "../../db/schema";
 import { RideService } from "./ride.service";
 import { RideError, RideErrorCodes } from "./ride.errors";
-import { TEST_CITY_IDS } from "../../../test/reference-data";
 import { CreateRideBodySchema, type CreateRideBody } from "@repo/shared";
 import { vi } from "vitest";
 import { fetchOsrmRouteCells } from "./eta/osrm.service";

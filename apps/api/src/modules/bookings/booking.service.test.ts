@@ -1,21 +1,16 @@
 import { describe, it, expect } from "vitest";
-import { asc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import {
     bookings as bookingsTable,
     bookingStatusHistory,
-    carModels,
-    cars,
     rides as ridesTable,
-    rideStops,
     users,
 } from "../../db/schema";
 import { BookingService } from "./booking.service";
 import { BookingError, BookingErrorCodes } from "./booking.errors";
 import { RideService } from "../rides/ride.service";
-import { TEST_CITY_IDS } from "../../../test/reference-data";
 import { createRideContext } from "../../../test/factories";
-import type { CreateRideBody } from "@repo/shared";
 
 async function insertTestUser() {
     const [user] = await db

@@ -16,8 +16,7 @@ import logoDark from "../../assets/logo_dark_mode.png";
 import {
     NavbarBottomTabs,
     NavbarLogo,
-    NavbarProfileMenu,
-    NavbarProfileSettings,
+    NavbarProfileSurface,
     NavbarShell,
 } from "./navbar-shared";
 import { useNavbar } from "./use-navbar";
@@ -93,28 +92,22 @@ export function AdminNavbar({
     );
 
     const profileMenu = (
-        <NavbarProfileMenu
+        <NavbarProfileSurface
             userName={userName}
             theme={theme}
+            language={language}
+            onLanguageChange={onLanguageChange}
+            themeLabel={themeLabel}
+            themeIcon={themeIcon}
+            onThemeToggle={onThemeToggle}
         >
-            <div className="w-80 rounded-summary-card overflow-hidden bg-card border border-border shadow-dropdown-strong">
-                <div className="profile-dropdown-surface:w-full profile-dropdown-surface:rounded-none profile-dropdown-surface:border-0 profile-dropdown-surface:shadow-none">
-                    <AdminProfileDropdown
-                        name={userName}
-                        email={userEmail}
-                        onLogoutClick={onLogoutClick}
-                        labels={{ logout: labels?.logout }}
-                    />
-                </div>
-                <NavbarProfileSettings
-                    language={language}
-                    onLanguageChange={onLanguageChange}
-                    themeLabel={themeLabel}
-                    themeIcon={themeIcon}
-                    onThemeToggle={onThemeToggle}
-                />
-            </div>
-        </NavbarProfileMenu>
+            <AdminProfileDropdown
+                name={userName}
+                email={userEmail}
+                onLogoutClick={onLogoutClick}
+                labels={{ logout: labels?.logout }}
+            />
+        </NavbarProfileSurface>
     );
 
     const navItems = [

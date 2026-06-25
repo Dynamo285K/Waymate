@@ -1,11 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
-import { TEST_CITY_IDS } from "../../../test/reference-data";
 import { jsonRequest, apiRequest } from "../../../test/http";
 import {
     authenticatedRequest,
     createSignedInUser,
-    createSignInUser,
 } from "../../../test/auth-helpers";
 import {
     createTestCar,
@@ -13,10 +11,8 @@ import {
     createRideContext,
 } from "../../../test/factories";
 import { db } from "../../db";
-import { carModels, cars, rides } from "../../db/schema";
-import { RideService } from "./ride.service";
+import { rides } from "../../db/schema";
 import { RideErrorCodes } from "./ride.errors";
-import type { CreateRideBody } from "@repo/shared";
 
 describe("RideRoutes public endpoints", () => {
     it("returns an empty list from GET /rides/available when no rides exist", async () => {

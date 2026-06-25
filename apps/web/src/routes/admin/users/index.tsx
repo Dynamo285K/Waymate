@@ -12,7 +12,7 @@ import { AdminUsersTable } from "./-components/AdminUsersTable";
 import { BanUserModal } from "./-components/BanUserModal";
 import { UserDetailModal } from "./-components/UserDetailModal";
 import { useAdminUsersList } from "./-hooks/useAdminUsersList";
-import { useDebounced } from "../../../hooks/shared/useDebounced";
+import { useUsersFilters } from "./-hooks/useUsersFilters";
 import {
     ADMIN_USER_NOT_FOUND_CODE,
     adminUsersErrorMap,
@@ -25,8 +25,6 @@ export const Route = createFileRoute("/admin/users/")({
     component: AdminUsersPage,
 });
 
-const SEARCH_DEBOUNCE_MS = 300;
-
 function AdminUsersPage() {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
@@ -35,13 +33,8 @@ function AdminUsersPage() {
     const user = session?.user;
     const userId = user?.id;
 
-    const [searchInput, setSearchInput] = useState("");
-    const debouncedSearch = useDebounced(searchInput, SEARCH_DEBOUNCE_MS);
-
-    const trimmedSearch = debouncedSearch.trim();
-    const list = useAdminUsersList({
-        search: trimmedSearch.length > 0 ? trimmedSearch : undefined,
-    });
+    const filters = useUsersFilters();
+    const list = useAdminUsersList(filters.queryParams);
 
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
     const [banTarget, setBanTarget] = useState<AdminUserListItem | null>(null);
@@ -128,10 +121,7 @@ function AdminUsersPage() {
                     {t("admin.usersSubtitle")}
                 </p>
 
-                <AdminUsersFilters
-                    searchInput={searchInput}
-                    onSearchInputChange={setSearchInput}
-                />
+                <AdminUsersFilters {...filters.controls} />
 
                 {list.isInitialLoading && (
                     <p className="text-text-secondary py-4">

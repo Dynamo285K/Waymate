@@ -1,6 +1,6 @@
 // Resets a previously-migrated database — does NOT create the schema.
 // Run `bun run --cwd apps/api db:migrate` first on a fresh DB.
-import { sql, eq, and, inArray } from "drizzle-orm";
+import { sql, eq, and } from "drizzle-orm";
 import { db } from "./index";
 import {
     carModels,

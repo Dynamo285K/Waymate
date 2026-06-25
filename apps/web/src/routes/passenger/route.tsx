@@ -39,6 +39,11 @@ function PassengerRouteLayout() {
 }
 
 function getPassengerActiveTab(pathname: string) {
+    // Check the more specific search path before the generic /passenger/rides
+    // prefix — /passenger/rides/search is the "find ride" page and would
+    // otherwise match "my-rides" first.
+    if (pathname.startsWith("/passenger/rides/search"))
+        return "find-ride" as const;
     if (pathname.startsWith("/passenger/rides")) return "my-rides" as const;
     if (pathname.startsWith("/passenger/chat")) return "chat" as const;
     return "find-ride" as const;

@@ -88,7 +88,7 @@ const EnvSchema = z.object({
     RESEND_API_KEY: z.string().min(1),
     GOOGLE_CLIENT_ID: z.string().min(1).optional(),
     GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
-    OSRM_BASE_URL: z.string().url().default("https://router.project-osrm.org"),
+    OSRM_BASE_URL: z.url().default("https://router.project-osrm.org"),
 });
 
 const parsed = EnvSchema.safeParse(process.env);

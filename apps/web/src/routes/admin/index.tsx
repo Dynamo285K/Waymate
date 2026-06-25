@@ -1,6 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
-import { useGetAdminDashboard } from "../../api-client/admin/admin";
+import {
+    useGetAdminDashboard,
+    getGetAdminDashboardQueryOptions,
+} from "../../api-client/admin/admin";
 import { useLayout } from "../../lib/use-layout";
 import { fillWeeklyRides, fillWeeklyRevenue } from "./-lib/dashboard-data";
 import { downloadDashboardReport } from "./-lib/dashboard-export";
@@ -9,6 +12,11 @@ import { PopularRoutesCard } from "./-components/PopularRoutesCard";
 import { UserMetricsCard } from "./-components/UserMetricsCard";
 
 export const Route = createFileRoute("/admin/")({
+    // Warm the React Query cache from the router loader so the dashboard fetch
+    // starts before the component mounts. The component still reads the same
+    // query via useGetAdminDashboard.
+    loader: ({ context: { queryClient } }) =>
+        queryClient.ensureQueryData(getGetAdminDashboardQueryOptions()),
     component: AdminDashboardPage,
 });
 

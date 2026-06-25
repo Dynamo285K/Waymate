@@ -17,6 +17,7 @@ import {
     useGetCarsBrandsByBrandModels,
     usePostCarsMe,
     getGetCarsMeQueryKey,
+    getGetCarsBrandsQueryOptions,
 } from "../../../api-client/cars/cars";
 import { authClient } from "../../../lib/auth-client";
 import { getDisplayName } from "../../../lib/session-user";
@@ -215,5 +216,11 @@ function AddCarPage() {
 
 export const Route = createFileRoute("/car/add/")({
     beforeLoad: requireAudience(["user"]),
+    // Warm the React Query cache with the (static) car-brands reference data so
+    // the make dropdown is populated before the component mounts. The component
+    // reads the same query via useGetCarsBrands; the per-brand models query
+    // stays in the component because it depends on the selected make.
+    loader: ({ context: { queryClient } }) =>
+        queryClient.ensureQueryData(getGetCarsBrandsQueryOptions()),
     component: AddCarPage,
 });

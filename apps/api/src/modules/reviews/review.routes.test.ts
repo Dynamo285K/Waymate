@@ -1,11 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { asc, eq } from "drizzle-orm";
 import { apiRequest, jsonRequest } from "../../../test/http";
 import {
     authenticatedRequest,
     createSignedInUser,
 } from "../../../test/auth-helpers";
-import { REVIEW_WINDOW_DAYS } from "./review.service";
 import { ReviewErrorCodes } from "./review.errors";
 import { createRideContext } from "../../../test/factories";
 // Builds a ride in the past, confirms a passenger, and completes the ride via SQL

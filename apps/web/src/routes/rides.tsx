@@ -6,7 +6,10 @@ import { AvailableRideCard } from "../components/shared/AvailableRideCard";
 import { GuestBookModal } from "../components/shared/GuestBookModal";
 import { useRideSearch } from "../hooks/shared/useRideSearch";
 import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
-import { useGetRidesAvailable } from "../api-client/rides/rides";
+import {
+    useGetRidesAvailable,
+    getGetRidesAvailableQueryOptions,
+} from "../api-client/rides/rides";
 import { getErrorI18nKey } from "../lib/api-errors";
 import { formatRideDate, formatDuration } from "../lib/date-format";
 import { mapAvailableRides } from "../lib/available-rides-view";
@@ -17,6 +20,13 @@ import { useLayout } from "../lib/use-layout";
 export const Route = createFileRoute("/rides")({
     beforeLoad: requireAudience(["guest", "user"]),
     validateSearch: rideSearchSchema,
+    // Warm the React Query cache from the router loader so the default
+    // available-rides fetch starts before the component mounts (parallel
+    // loading, no render waterfall). The component still reads the same query
+    // via useGetRidesAvailable; the search-params query stays in the component
+    // because it depends on validated search state.
+    loader: ({ context: { queryClient } }) =>
+        queryClient.ensureQueryData(getGetRidesAvailableQueryOptions()),
     component: RidesPage,
 });
 

@@ -7,6 +7,9 @@ import {
     StarIcon,
     UserIcon,
 } from "@waymate/ui";
+import { DriverUpcomingActions } from "./ride-card/DriverUpcomingActions";
+import { PassengerUpcomingActions } from "./ride-card/PassengerUpcomingActions";
+import { PassengerPastActions } from "./ride-card/PassengerPastActions";
 
 export type RideCardLabels = {
     seatsLeft?: (count: number) => string;
@@ -78,8 +81,6 @@ export function RideCard(props: RideCardProps) {
     const isDriverUpcoming = props.variant === "driver-upcoming";
     const isDriverRide =
         props.variant === "driver-upcoming" || props.variant === "driver-past";
-    const passengerActionClassName =
-        "min-w-0 justify-center whitespace-nowrap text-center text-sm px-3 max-600:w-full";
     const metaRowClassName =
         "flex items-center gap-1.5 text-sm text-text-secondary icon-svg:w-4 icon-svg:h-4 icon-svg:text-text-secondary icon-svg:shrink-0";
 
@@ -201,110 +202,41 @@ export function RideCard(props: RideCardProps) {
                             </span>
                         </span>
                     )}
-                {props.variant === "passenger-upcoming" &&
-                    props.seatsLeft !== undefined && (
-                        <span className={metaRowClassName}>
-                            <UserIcon />
-                            <span>{seatsText(props.seatsLeft)}</span>
-                        </span>
-                    )}
+                    {props.variant === "passenger-upcoming" &&
+                        props.seatsLeft !== undefined && (
+                            <span className={metaRowClassName}>
+                                <UserIcon />
+                                <span>{seatsText(props.seatsLeft)}</span>
+                            </span>
+                        )}
                 </div>
 
                 {props.variant === "driver-upcoming" && (
-                    <div className="flex shrink-0 flex-col gap-2 max-600:w-36">
-                        {labels?.viewPassengers !== "" && (
-                            <Button
-                                variant="secondary"
-                                className="justify-center max-600:min-w-0 max-600:px-3 max-600:text-caption"
-                                onClick={props.onViewPassengers}
-                            >
-                                {labels?.viewPassengers ?? "View passengers"}
-                            </Button>
-                        )}
-                        {props.onCompleteRide && (
-                            <Button
-                                variant="outlineSuccess"
-                                className="justify-center rounded-lg! max-600:min-w-0 max-600:px-3 max-600:text-caption"
-                                onClick={props.onCompleteRide}
-                            >
-                                {labels?.completeRide ?? "Complete ride"}
-                            </Button>
-                        )}
-                        {props.onCancelRide && (
-                            <Button
-                                variant="red"
-                                className="justify-center max-600:min-w-0 max-600:px-3 max-600:text-caption"
-                                onClick={props.onCancelRide}
-                            >
-                                {labels?.cancelRide ?? "Cancel ride"}
-                            </Button>
-                        )}
-                    </div>
+                    <DriverUpcomingActions
+                        labels={labels}
+                        onViewPassengers={props.onViewPassengers}
+                        onCompleteRide={props.onCompleteRide}
+                        onCancelRide={props.onCancelRide}
+                    />
                 )}
 
                 {props.variant === "passenger-upcoming" && (
-                    <div className="grid grid-cols-1 gap-2 shrink-0 sm:grid-cols-3">
-                        {props.onSendMessage && (
-                            <Button
-                                variant="secondary"
-                                className={passengerActionClassName}
-                                onClick={props.onSendMessage}
-                            >
-                                {labels?.messageDriver ?? "Message driver"}
-                            </Button>
-                        )}
-                        {props.status === "pending" && (
-                            <Button
-                                variant="secondary"
-                                className={passengerActionClassName}
-                            >
-                                {labels?.pendingConfirmation ??
-                                    "Pending confirmation"}
-                            </Button>
-                        )}
-                        <Button
-                            variant="red"
-                            className={passengerActionClassName}
-                            onClick={props.onCancelBooking}
-                        >
-                            {labels?.cancelBooking ?? "Cancel booking"}
-                        </Button>
-                        {props.status === "confirmed" && props.onReport && (
-                            <Button
-                                variant="secondary"
-                                className={passengerActionClassName}
-                                onClick={props.onReport}
-                            >
-                                {labels?.reportDriver ?? "Report driver"}
-                            </Button>
-                        )}
-                    </div>
+                    <PassengerUpcomingActions
+                        labels={labels}
+                        status={props.status}
+                        onSendMessage={props.onSendMessage}
+                        onCancelBooking={props.onCancelBooking}
+                        onReport={props.onReport}
+                    />
                 )}
 
                 {props.variant === "passenger-past" && (
-                    <div className="grid grid-cols-1 gap-2 shrink-0 sm:grid-cols-2">
-                        <Button
-                            variant={
-                                props.alreadyReviewed ? "secondary" : "black"
-                            }
-                            className={passengerActionClassName}
-                            onClick={props.onRateDriver}
-                            disabled={props.alreadyReviewed}
-                        >
-                            {props.alreadyReviewed
-                                ? (labels?.rated ?? "Rated")
-                                : (labels?.rateDriver ?? "Rate driver")}
-                        </Button>
-                        {props.onReport && (
-                            <Button
-                                variant="secondary"
-                                className={passengerActionClassName}
-                                onClick={props.onReport}
-                            >
-                                {labels?.reportDriver ?? "Report driver"}
-                            </Button>
-                        )}
-                    </div>
+                    <PassengerPastActions
+                        labels={labels}
+                        alreadyReviewed={props.alreadyReviewed}
+                        onRateDriver={props.onRateDriver}
+                        onReport={props.onReport}
+                    />
                 )}
             </div>
         </div>

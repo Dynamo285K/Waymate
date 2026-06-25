@@ -5,7 +5,6 @@ import {
     authenticatedRequest,
     createSignedInUser,
 } from "../../../test/auth-helpers";
-import { getAnyCarModelId } from "../../../test/reference-data";
 import { db } from "../../db";
 import { bookings as bookingsTable } from "../../db/schema";
 import { BookingService } from "./booking.service";
