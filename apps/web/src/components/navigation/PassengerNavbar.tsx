@@ -89,7 +89,10 @@ export function PassengerNavbar({
             activeKey={activeTab}
             role={role}
             onRoleChange={onRoleChange}
-            roleLabels={{ passenger: labels?.passenger, driver: labels?.driver }}
+            roleLabels={{
+                passenger: labels?.passenger,
+                driver: labels?.driver,
+            }}
             language={language}
             onLanguageChange={onLanguageChange}
             theme={theme}

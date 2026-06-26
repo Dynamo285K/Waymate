@@ -26,8 +26,7 @@ async function banUser(userId: string): Promise<void> {
 
 describe("ChatService.getOrCreateConversation", () => {
     it("opens a conversation for the driver and reuses it for the passenger", async () => {
-        const { driverId, passengerId, bookingId } =
-            await bookingChatContext();
+        const { driverId, passengerId, bookingId } = await bookingChatContext();
 
         const asDriver = await ChatService.getOrCreateConversation(
             bookingId,
@@ -61,8 +60,7 @@ describe("ChatService.getOrCreateConversation", () => {
     });
 
     it("refuses to open a conversation with a banned counterpart", async () => {
-        const { driverId, passengerId, bookingId } =
-            await bookingChatContext();
+        const { driverId, passengerId, bookingId } = await bookingChatContext();
         await banUser(passengerId);
 
         await expect(
@@ -73,8 +71,7 @@ describe("ChatService.getOrCreateConversation", () => {
 
 describe("ChatService.sendMessage", () => {
     it("stores a trimmed message and returns it", async () => {
-        const { driverId, passengerId, bookingId } =
-            await bookingChatContext();
+        const { driverId, passengerId, bookingId } = await bookingChatContext();
         const conversationId = await ChatService.getOrCreateConversation(
             bookingId,
             driverId
@@ -125,8 +122,7 @@ describe("ChatService.sendMessage", () => {
     });
 
     it("blocks sending when the pair is blocked", async () => {
-        const { driverId, passengerId, bookingId } =
-            await bookingChatContext();
+        const { driverId, passengerId, bookingId } = await bookingChatContext();
         const conversationId = await ChatService.getOrCreateConversation(
             bookingId,
             driverId
@@ -144,8 +140,7 @@ describe("ChatService.sendMessage", () => {
     });
 
     it("refuses to send to a banned counterpart", async () => {
-        const { driverId, passengerId, bookingId } =
-            await bookingChatContext();
+        const { driverId, passengerId, bookingId } = await bookingChatContext();
         const conversationId = await ChatService.getOrCreateConversation(
             bookingId,
             driverId
@@ -181,8 +176,7 @@ describe("ChatService.getMessages", () => {
     });
 
     it("returns messages oldest-first and honours the limit + before cursor", async () => {
-        const { driverId, passengerId, bookingId } =
-            await bookingChatContext();
+        const { driverId, passengerId, bookingId } = await bookingChatContext();
         const conversationId = await ChatService.getOrCreateConversation(
             bookingId,
             driverId
@@ -229,8 +223,7 @@ describe("ChatService.getMessages", () => {
 
 describe("ChatService.getConversations & markRead", () => {
     it("reports unread counts that clear after markRead", async () => {
-        const { driverId, passengerId, bookingId } =
-            await bookingChatContext();
+        const { driverId, passengerId, bookingId } = await bookingChatContext();
         const conversationId = await ChatService.getOrCreateConversation(
             bookingId,
             driverId
@@ -255,8 +248,7 @@ describe("ChatService.getConversations & markRead", () => {
     });
 
     it("flags conversations where the pair is blocked", async () => {
-        const { driverId, passengerId, bookingId } =
-            await bookingChatContext();
+        const { driverId, passengerId, bookingId } = await bookingChatContext();
         const conversationId = await ChatService.getOrCreateConversation(
             bookingId,
             driverId

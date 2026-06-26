@@ -111,7 +111,9 @@ export function useAdminUsersActions(items: AdminUserListItem[]) {
         unbanSelectedUser,
         // ban modal
         banTarget,
-        banModalIsPending: banTarget ? statusMutatingId === banTarget.id : false,
+        banModalIsPending: banTarget
+            ? statusMutatingId === banTarget.id
+            : false,
         banErrorForTarget,
         handleConfirmBan,
         closeBanModal: () => openBan(null),

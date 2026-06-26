@@ -125,9 +125,9 @@ describe("BlockService.unblockUser", () => {
         ).rejects.toMatchObject({ code: BlockErrorCodes.NotBlocked });
 
         // A's block is still in force.
-        await expect(
-            BlockService.isBlockedBetween(a.id, b.id)
-        ).resolves.toBe(true);
+        await expect(BlockService.isBlockedBetween(a.id, b.id)).resolves.toBe(
+            true
+        );
     });
 
     it("lets a user re-block after unblocking", async () => {
@@ -158,9 +158,9 @@ describe("BlockService.isBlockedBetween", () => {
         const a = await createTestUser();
         const b = await createTestUser();
 
-        await expect(
-            BlockService.isBlockedBetween(a.id, b.id)
-        ).resolves.toBe(false);
+        await expect(BlockService.isBlockedBetween(a.id, b.id)).resolves.toBe(
+            false
+        );
     });
 });
 
