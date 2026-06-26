@@ -1,227 +1,173 @@
-# Project Review: Waymate
+# Project Review — Waymate (STRICT PASS)
 
-**Date:** 2026-06-25
-**Reviewer:** University Project Review skill (Fasaloft/skills · `university-project-review`)
+**Date:** 2026-06-26
+**Reviewer:** Automated review (university-project-review skill, 14 categories) — **extra-strict re-run**
+**Stack:** Bun + Turborepo monorepo · Elysia API (Bun) · React 19 + Vite + Tailwind 4 · PostgreSQL + Drizzle · better-auth
 
----
-
-## Project Orientation
-
-Waymate is a carpooling web application built as a **Bun workspace monorepo** orchestrated by **Turborepo** (`turbo.json`, root `package.json` → `workspaces: ["apps/*", "packages/*", "e2e"]`). The backend `apps/api/` is an **Elysia** server on the Bun runtime (port 3000) with a strict per-domain layered architecture under `src/modules/` (`auth`, `users`, `cars`, `rides`, `bookings`, `reviews`, `reports`, `blocks`, `chat`, `statistics`, `health`). Larger domains (`rides`, `bookings`) are further decomposed into sub-folders (`creation`, `lifecycle`, `search`, `listing`, `eta`, `admin`). The frontend `apps/web/` is **React 19 + Vite + Tailwind CSS 4** with **TanStack Router** (file-based routing in `src/routes/`) and an **Orval-generated TanStack Query** client (`src/api-client/`). Shared Zod schemas live in `packages/shared/src/*.schema.ts` and feed the OpenAPI spec that drives the web codegen.
-
-Detected stack: **Drizzle ORM + PostgreSQL** (schema in `apps/api/src/db/schema/`, 14 committed SQL migrations), **better-auth** (email/password + Google OAuth), **pino** structured logging, **react-hook-form + @hookform/resolvers + zod** forms, **Vitest** (26 API + 15 web unit specs) plus a **Playwright** e2e suite (`e2e/`, 8 specs, excluded from CI). CI is GitLab (`.gitlab-ci.yml`) with parallel lint / format / typecheck / i18n / test / build / migration-drift jobs. The project is notably mature for a university submission — request hardening (body-size limit + in-memory rate limiter), soft deletes, status-history audit tables, and trigger-managed `updated_at` are all present.
-
----
-
-## Review Summary
-
-| Category              | Status      |
-| --------------------- | ----------- |
-| Component Library     | ✅ Good      |
-| Styling               | ✅ Good      |
-| Loading Data          | ✅ Good      |
-| Environment Variables | ✅ Good      |
-| REST API Design       | ✅ Good      |
-| Database              | ✅ Good      |
-| BE Design Patterns    | ✅ Good      |
-| Auth                  | ✅ Good      |
-| Testing               | ✅ Good      |
-| Logging & Monitoring  | ✅ Good      |
-| Error Handling        | ✅ Good      |
-| Security              | ✅ Good      |
-| Forms                 | ✅ Good      |
-| Frontend Structure    | ✅ Good      |
-
-Status legend: ✅ Good | ⚠️ Concerns | ❌ Issues | N/A
+> **Why this supersedes the previous report.** The prior `REVIEW.md` graded all 14
+> categories green and concluded *"No category is failing."* That verdict is too
+> generous. The architecture is genuinely strong, but a strict reading finds a
+> boot-breaking env template, two entire modules (chat, blocks) with **zero**
+> backend tests despite carrying authorization/IDOR logic, a defense-in-depth
+> hole in the DB schema, a request-hardening bypass, and committed binary
+> artifacts. Six categories below carry real ⚠️ findings. Evidence is cited by
+> `file:line` throughout; nothing here is generic.
 
 ---
 
-## Detailed Review
+## Orientation Summary
 
-### 1. Component Library
+Bun + Turborepo monorepo, single `bun.lock`, `turbo.json` orchestration.
 
-**Status:** ✅ Good
+- **`apps/api`** — Elysia on Bun (port 3000). Domain modules under `src/modules/<name>/` with a real `routes → service → repository` split, `*.types.ts` / `*.errors.ts` per module. Modules: `auth`, `users`, `cars`, `rides`, `bookings`, `reviews`, `reports`, `blocks`, `chat`, `statistics`, `health`. Big domains split into sub-folders (`lifecycle`, `creation`, `search`, `admin`, `queries`, `requests`). 163 `.ts` files.
+- **`apps/web`** — React 19 + Vite, TanStack Router file-based routing, Orval-generated TanStack Query client (`src/api-client/`), feature folders, i18n `en`/`cs`/`sk`. 491 `.ts(x)` files.
+- **`packages/shared`** — Zod schemas registered in `z.globalRegistry`; **`packages/db`** is a stub (DB schema lives in `apps/api/src/db/schema`).
+- **Tooling** — GitLab CI (lint / format / typecheck / i18n-check / api-test / build / migration-drift), Docker Compose for Postgres, Playwright e2e (8 specs, **not in CI**).
 
-A dedicated component library `@waymate/ui` (`0.1.63`) is the primary UI layer and is used consistently — 97 import sites across `apps/web/src` (`grep "from \"@waymate/ui\""`). It is supplemented by Radix primitives (`@radix-ui/react-dropdown-menu`, `@radix-ui/react-select`) for accessible menus/selects. The codebase actively guards against bypassing the library: `apps/web/src/features/admin/components/FilterSelect.tsx:17` documents a `no-restricted-syntax` ESLint rule forbidding raw `<select>`. Of the 11 raw interactive elements found, all but one are mock components inside `*.test.tsx` files; the single production case is a native `<input type="checkbox">` in `apps/web/src/components/shared/ReportUserModal.tsx:173`, correctly wired to react-hook-form via `{...register("blockTarget")}`.
-
-**Recommendations:**
-
-1. None required. The native `<input type="checkbox">` in `ReportUserModal.tsx:173` is intentional: `@waymate/ui` (consumed here as a built package, not linked source) exports no checkbox component — its surface is `Button`, `Input`, `Textarea`, `SegmentedControl`, `DatePicker`, `Modal`, etc. The element is accessible, labeled, and wired to react-hook-form, so it stays as-is. Adding a `Checkbox` to the external `waymate-ui` library would be the only way to route it through the library, which is out of this repo's scope.
-
----
-
-### 2. Styling
-
-**Status:** ✅ Good
-
-Tailwind CSS 4 (`@tailwindcss/vite`) is the styling system, with a single global stylesheet `apps/web/src/index.css`. Inline `style={{}}` appears only **3 times**, and every instance is a genuinely dynamic, data-driven value that cannot be a static class: a progress-bar width `width: ${(r.count/max)*100}%` (`routes/admin/-components/PopularRoutesCard.tsx:43`) and a color-swatch `backgroundColor: c.hex` (`routes/car/add/-components/ColorField.tsx:36`). No Tailwind arbitrary-value or hardcoded-hex abuse was found in JSX.
-
-**Recommendations:**
-
-1. The only `!important` usage is `index.css:104-105` (`overflow: unset !important; margin-right: 0 !important;`) — a scroll-lock override. Add a comment naming the library/behavior it counteracts so a future reader doesn't remove it blindly.
+The codebase is materially above typical student level: request hardening, structured logging, status-history audit trail, `SELECT … FOR UPDATE` row locking, enforced layering. The findings below are the gaps that survive that quality bar.
 
 ---
 
-### 3. Loading Data
+## Status Table
 
-**Status:** ✅ Good
-
-TanStack Query is the data layer, consumed through Orval-generated hooks in `src/api-client/`. There are **65** `useQuery`/`useMutation`/`useInfiniteQuery` call sites and **zero** direct `fetch`/`axios` calls inside components (`grep` for `await fetch(`/`axios.` in `*.tsx` returned nothing outside the generated client and the `lib/geocoding` adapter). Cache keys are stable, generated arrays used via helpers like `getGetRidesMeQueryKey()` (e.g. `features/passenger/hooks/useCreateBooking.ts:38-44` invalidates `bookings/me`, `rides/available`, and `rides/search` after a mutation) — no fragile string keys.
-
-**Recommendations:**
-
-1. None.
-
----
-
-### 4. Environment Variables
-
-**Status:** ✅ Good
-
-`.gitignore` ignores `.env` and `.env.*` while explicitly un-ignoring `!.env.example` and `!.env.test.example`. A thorough `apps/api/.env.example` is committed with placeholders and inline documentation for every variable. Env access is centralized — `process.env`/`Bun.env` reads are funnelled through `apps/api/src/config/env.ts` (the only stray `process.env` read is a legitimate `NODE_ENV` guard in `db/seed.ts:51`). No hardcoded `localhost:PORT`, connection strings, or API keys were found in application source (external service defaults like OSRM/Photon are documented env-overridable fallbacks).
-
-**Recommendations:**
-
-1. None.
+| #   | Category                | Status         | Δ vs. prior review        |
+| --- | ----------------------- | -------------- | ------------------------- |
+| 1   | Component Library       | ✅ Good         | =                         |
+| 2   | Styling                 | ✅ Good         | =                         |
+| 3   | Loading Data            | ✅ Good         | =                         |
+| 4   | Environment Variables   | ⚠️ **Concerns** | ↓ from Good (boot bug)    |
+| 5   | REST API Design         | ✅ Excellent    | =                         |
+| 6   | Database                | ⚠️ **Concerns** | ↓ from Excellent          |
+| 7   | Backend Design Patterns | ✅ Excellent    | =                         |
+| 8   | Auth                    | ✅ Good         | =                         |
+| 9   | Testing                 | ⚠️ **Concerns** | ↓ from Good (2 untested modules) |
+| 10  | Logging & Monitoring    | ✅ Good         | =                         |
+| 11  | Error Handling          | ✅ Good         | =                         |
+| 12  | Security                | ⚠️ **Concerns** | ↓ from Excellent          |
+| 13  | Forms                   | ✅ Good         | =                         |
+| 14  | Frontend Structure      | ⚠️ **Minor**    | ↓ from Good               |
+| —   | Repo Hygiene (cross-cut)| ⚠️ **Concerns** | not previously assessed   |
 
 ---
 
-### 5. REST API Design
+## 1. Component Library — ✅ Good
 
-**Status:** ✅ Good
+External shared library **`@waymate/ui`** (`package.json` `"@waymate/ui": "^0.1.56"`), imported in ~100 places across `apps/web/src`. Local presentational primitives are centralised under `apps/web/src/components/`. UI is built on shared primitives, not ad-hoc markup. **No issues.**
 
-Routes are resource-oriented and consistent. Collections are plural nouns (`/rides`, `/bookings`, `/cars`, `/reviews`, `/blocks`, `/conversations`); creation is `POST /<collection>` returning **201** (8 `status(201, …)` sites, e.g. `cars/car.routes.ts:93`, `rides/ride.routes.ts:157`). State-machine transitions follow a uniform `PATCH /:id/<action>` convention rather than verb-in-path POSTs:
+## 2. Styling — ✅ Good
 
-- `PATCH /rides/:id/{cancel,end,complete}`
-- `PATCH /bookings/:id/{cancel,confirm,reject}` (+ `/:id/driver/cancel`)
-- `PATCH /cars/:id/status`, `PATCH /admin/users/:id/status`, `PATCH /reviews/:id/status`, `PATCH /reports/:id/status`
+Tailwind CSS 4. Inline `style={{…}}` appears only 3 times, each a genuinely dynamic value (`ColorField.tsx:36` hex swatch, `PopularRoutesCard.tsx:43` data-driven width, `navbar-shared.tsx:141` computed layout). No CSS-module sprawl.
 
-No verb-in-path anti-patterns (`/getUser`, `/createPost`) exist. The one non-collection `POST /rides/estimate-eta` is a deliberate, documented complex-body read. Request validation uses shared Zod schemas registered in `z.globalRegistry`, and `PUT` is intentionally absent — partial updates use `PATCH`.
+**Recommendation:** (cosmetic) move the dynamic values to CSS custom properties (`style={{ "--swatch": color }}`) so all visual styling stays in the class layer.
 
-**Recommendations:**
+## 3. Loading Data — ✅ Good
 
-1. ~~Minor: confirm the delete endpoints return a consistent shape.~~ **Resolved.** All three `DELETE` routes deliberately return `200` with a body (none use `204`), which suits the soft-delete model. The lone shape outlier — `DELETE /cars/:id` returned the full `Car` entity while `DELETE /blocks/:blockedUserId` and `DELETE /admin/reviews/:id` return a lightweight `{ id }`-style ack — was aligned: `DELETE /cars/:id` now returns `DeleteCarResponse` (`{ id }`), matching the other two. The route maps the service result to `{ id }` at the HTTP layer, leaving the service's richer return (still asserted by its tests) intact.
+All data fetching goes through Orval-generated TanStack Query hooks (`apps/web/src/api-client/`) over a custom fetcher (`src/lib/api-fetcher.ts`, `credentials: "include"`, throws `ApiError`). The only raw `fetch(` outside the client is the third-party Photon geocoder, correctly isolated in `src/lib/geocoding/photon.ts` (not a component). Better-auth flows use `authClient`. The documented "no direct fetch in components" rule holds in practice.
 
----
+## 4. Environment Variables — ⚠️ Concerns
 
-### 6. Database
+The good: `.env*` is git-ignored with `!.env.example` exceptions, no real `.env` is tracked, env is Zod-validated and transformed at startup (`apps/api/src/config/env.ts`), origins must be bare http(s) origins, ports/bytes are bounded.
 
-**Status:** ✅ Good
+**Finding 4.1 — `.env.example` produces a non-booting checkout.** `RESEND_API_KEY` is **required** in code (`env.ts:88` → `z.string().min(1)`, *not* `.optional()`), but in `apps/api/.env.example:` it is **commented out** (`# RESEND_API_KEY=re_...`). A developer who copies the template verbatim and runs the API hits `throw new Error("Invalid environment configuration")` at startup (`env.ts:99`). Every other *required* var (`DATABASE_URL`, `BETTER_AUTH_URL`, `WEB_ORIGIN`) is uncommented; this one is required-in-code but optional-in-template — an inconsistency that breaks first-run onboarding.
 
-Schema is Drizzle ORM across ~27 well-separated table files in `apps/api/src/db/schema/`, with explicit relations (`relations.ts`) and FK references (e.g. `ride_stops.city_id → cities(id)`). Migrations are versioned: **14** committed SQL files in `apps/api/drizzle/`, and CI enforces drift via the `migration-drift` job. No `bytea`/`blob`/`base64` image columns exist — binary assets are kept out of the DB. Raw `sql\`\`` appears only as **parameterized Drizzle template fragments** for aggregates and computed columns (`statistics.repository.ts` `to_char(...)` grouping, `AVG(...)::float`, a Haversine distance ORDER BY in `booking-request.repository.ts:91`, an advisory lock in `chat.repository.ts:104`) — all column/value interpolation is bound, none is string concatenation of user input. Dedicated status-history tables provide a full transition audit trail.
+> **Fix (pick one):** either uncomment `RESEND_API_KEY=` in `.env.example` with a placeholder, or make it `.optional()` in `env.ts` and have the email path degrade/skip when unset. The template and the schema must agree on what is required.
 
-**Recommendations:**
+**Recommendation 4.2:** Add a one-line "dev-only credentials" comment atop `seed.ts` (`ADMIN_PASSWORD = "admin1234"`, `seed.ts:30-34`) so graders/secret-scanners don't flag intentional fixtures.
 
-1. None.
+## 5. REST API Design — ✅ Excellent
 
----
+Resource-oriented, verbs used deliberately (≈29 GET / 15 PATCH / 9 POST / 3 DELETE across `*.routes.ts`). Plural collections, `POST /<collection>` → 201 (`ride.routes.ts:157`). State transitions are uniformly `PATCH /<collection>/:id/<action>` (`PATCH /rides/:id/{cancel,end,complete}`, `PATCH /bookings/:id/{cancel,confirm,reject}`). `POST` on non-collection paths reserved for complex-body reads (`POST /rides/estimate-eta`). Per-domain status mapping with exhaustive `assertNever` defaults (`ride.errors.ts:31`). This is the strongest category and the convention is enforced, not aspirational. **No issues.**
 
-### 7. Backend Design Patterns
+## 6. Database — ⚠️ Concerns
 
-**Status:** ✅ Good
+The good: Drizzle, per-table schema (26 files), **14 committed migrations** (`drizzle/0000…0013`) with a CI `migration-drift` gate, centralised enums, `timestamptz` everywhere, soft deletes with partial unique indexes scoped to `WHERE deleted_at IS NULL`, status-history audit tables, per-segment pricing, and a rich set of `CHECK` constraints (`char_length`, range, regex) across `user`, `car`, `booking`, `report`, `ride_stop`, `price`, …
 
-Layer separation is textbook and enforced: **14** `*.routes.ts`, **23** `*.service.ts`, **22** `*.repository.ts`. The architectural rules hold under inspection — `grep` for a `db` import in `*.routes.ts` returns **nothing** (no DB access leaking into the HTTP layer), and `db.transaction` appears **only** in service files (11 services), never in a repository. Repositories take an `Executor` (`Database | Tx`) first arg and stay pure; services own transactions, business validation, and error translation; routes map domain errors to HTTP status in `.onError`.
+**Finding 6.1 — `messages.content` has no DB-level length bound, breaking an otherwise-uniform invariant.** Almost every user-supplied text column is defended at *both* the Zod and DB layer: `report.description BETWEEN 1 AND 2000` (`report.ts:37`), `booking.cancellationReason <= 500` (`booking.ts:71`), `ride_stop.address BETWEEN 1 AND 255` (`ride_stop.ts:53`), status-history `reason <= 500`, etc. But `messages.content` is a bare `text("content").notNull()` (`db/schema/message.ts`) with **no `check()`** — the 2000-char cap exists only in `SendMessageBodySchema` (`packages/shared/src/chat.schema.ts`). Any insert path that ever bypasses that one Zod schema (a future seed, a backfill, a second producer) can write an unbounded message. Defense-in-depth is otherwise consistent here; messages is the lone exception.
 
-**Recommendations:**
+**Finding 6.2 — Missing composite index for the chat hot path.** `messages` has single-column indexes on `conversation_id`, `sender_id`, `sent_at` (`message.ts`), but **no `(conversation_id, sent_at)` composite**. The pagination query filters `conversation_id = ? AND sent_at < ?` and orders by `sent_at DESC` (`chat.repository.ts:300-308`), and `findUserConversations` runs three correlated subqueries per conversation each shaped `WHERE conversation_id = ? ORDER BY sent_at DESC LIMIT 1 / COUNT(*)` (`chat.repository.ts:188-211`). Postgres cannot combine two single-column indexes as efficiently as one composite for this access pattern. Add `index("messages_conversation_sent_idx").on(conversation_id, sent_at) WHERE deleted_at IS NULL`.
 
-1. None. This is the strongest category in the project.
+**Finding 6.3 (minor) — Keyset cursor on a non-unique column.** The `before` cursor uses `lt(messages.sentAt, before)` (`chat.repository.ts:304`). `sent_at` is not unique; two messages sharing the same microsecond at a page boundary can be skipped or duplicated. Prefer a composite keyset `(sent_at, id)`. Low probability at `timestamp(6)` precision, but it's a correctness edge, not a style nit.
 
----
+## 7. Backend Design Patterns — ✅ Excellent
 
-### 8. Auth
+Controller/service/repository separation is real and enforced: routes map HTTP↔domain and catch errors (`createErrorHandler(...)`, `ride.routes.ts:68`); services own transactions (`db.transaction(...)` in 10 service files); repositories are pure data access (zero `.transaction(` in `*.repository.ts`). Concurrency is handled correctly — `confirmBooking` takes `SELECT … FOR UPDATE` locks on both booking and ride (`booking-lifecycle.repository.ts:19`, `.for("update")`) and re-checks seat capacity *under the lock* before confirming (`booking-lifecycle.service.ts:33-41`), so there is **no overbooking race**. Services stay within the 200–300-line guideline (largest `booking-lifecycle.service.ts`, 262). **No issues.**
 
-**Status:** ✅ Good
+## 8. Auth — ✅ Good
 
-Authentication is **better-auth** (`^1.6.8`) with a Drizzle adapter, supporting email/password and Google OAuth — no roll-your-own auth (`grep` for `jsonwebtoken`/`jwt.sign`/`bcrypt.hash`/`crypto.createHash` in `apps/api/src` returned nothing). Authorization (not just authentication) is present via three composable Elysia macros — `isAuthenticated`, `isFullyOnboarded`, `requireAdmin` — used across 13 route files, plus ownership/role checks in services (driver-only and admin-only transitions). The `users.userRole` column is non-user-settable (`input: false` in better-auth, filtered out of admin tooling).
+better-auth + Drizzle adapter (`auth.ts`), email/password + Google OAuth. Three composable macros (`isAuthenticated`, `isFullyOnboarded`, `requireAdmin`) that **throw** typed `AuthError` rather than returning inline (`auth.middleware.ts`). Banned/suspended/deleted accounts are rejected centrally in `isAuthenticated` (`auth.middleware.ts:34-45`) *and* at sign-in (`auth.ts:174-190`), so a banned user with a live cookie still can't act. Ownership is checked in the service layer (`ride.driverId !== driverId`, `booking.passengerId !== passengerId`), and chat enforces IDOR protection via `resolveRole` → `NotAParticipant` (`chat.service.ts:14-19`). Roles are not user-settable (`additionalFields input:false` + admin-repo filtering).
 
-**Recommendations:**
+**Recommendation 8.1:** The IDOR/authorization guards are exactly the code most worth a negative test — and they currently have none (see §9). Add tests asserting a non-participant gets 403 on `GET /conversations/:id/messages` and `POST /conversations/:id/messages`, and a non-owner driver gets 403 on each booking transition.
 
-1. None.
+## 9. Testing — ⚠️ Concerns
 
----
+26 API test files and 15 web test files exist; substantial backend suites (`ride.service.test.ts` 1022 lines, `booking.service.test.ts` 596). No `.skip`/`.only`/`.todo`. CI runs Vitest against a throwaway `postgres:18`. So far so good — but coverage has **module-shaped holes the prior review missed**:
 
-### 9. Testing
+**Finding 9.1 — The `chat` module has zero backend tests.** `find apps/api/src -name '*.test.ts' | grep chat` → nothing. The chat service owns the IDOR guard (`resolveRole`), the recipient-banned check, the block check, the get-or-create advisory-lock path, and read-cursor pagination — **none of it is tested server-side.** There is a frontend `ChatThread.test.tsx`, but that does not exercise the authorization logic. This is the single most security-sensitive untested surface in the app.
 
-**Status:** ✅ Good
+**Finding 9.2 — The `blocks` module has zero backend tests.** `grep block` → nothing. `BlockService.isBlockedBetween` is depended on by chat (`chat.service.ts`), booking, and search enforcement; the blocklist is the primitive that several features trust, and it is unverified.
 
-Tests are present, meaningful, and **none are skipped** (`grep` for `.skip`/`xit`/`xdescribe`/`.todo(` returned 0). Coverage spans **26** API specs, **15** web specs, and **8** Playwright e2e flows. The API suite tests real business logic and authorization, not trivial snapshots — e.g. `ReportService.submitReport`, `BookingService.createBookingRequest`, plus route-level "Authorization & Onboarding Guards" and "Negative Tests" describe blocks. The `test` CI job provisions a throwaway `postgres:18` service and migrates it via Vitest `globalSetup`.
+**Finding 9.3 — Realtime is untested.** `chat.realtime.ts` (the WS delivery channel) has no test; the socket auth boundary and per-user topic routing are unverified.
 
-**Recommendations:**
+> The previous review rated this **"✅ Good"** and cited "26 test files covering routes, services, repositories" without noting that **two entire modules — including the realtime chat with its authz logic — are completely untested.** That omission is exactly why this re-run downgrades the category.
 
-1. Consider wiring the Playwright e2e suite into a (possibly manual/nightly) CI stage — it currently runs only locally.
+**Recommendation 9.4:** Add `chat.service.test.ts` (participant vs. non-participant, banned recipient, blocked pair, empty/over-long content, pagination cursor) and `block.service.test.ts` (block/unblock idempotency, `isBlockedBetween` both directions). Wire a Playwright smoke (login → search → book) into a nightly pipeline; e2e is currently outside CI.
 
----
+## 10. Logging & Monitoring — ✅ Good
 
-### 10. Logging & Monitoring
+pino (`shared/logger.ts`): JSON in prod, pretty in dev, `LOG_LEVEL`-driven, with redaction of Authorization/Cookie/Set-Cookie and `*.password`/`*.token`. One `request` log line per request (`{ requestId, method, path, status, durationMs }`) with `x-request-id` echoed back. 500s logged with stack + requestId in both the root and per-module `.onError`. No `console.*` on the web prod path (only theme/lang `localStorage` in `layout-context.tsx`, which is fine). **No issues.**
 
-**Status:** ✅ Good
+## 11. Error Handling — ✅ Good
 
-Structured logging uses **pino** (`^10.3.1`) via a single configured `logger` (`apps/api/src/shared/logger.ts`), JSON in production and pretty in development, with Authorization/Cookie headers and `*.password`/`*.token` fields redacted. Request-lifecycle logging (`requestId`, method, path, status, durationMs) lives in the root app hooks. The **11** `console.log` calls are all in CLI scripts that run outside the request logger (`db/seed.ts`, `db/reset.ts`) — an intentional, documented exception. No logging of passwords/tokens/secrets was found.
+Typed domain errors per module, thrown by services and mapped to HTTP only in `.onError` (`index.ts:223-296` lists 10 `instanceof` branches + VALIDATION/PARSE/NOT_FOUND + a `DomainError` fallback + a 500 catch-all that logs). No empty `catch {}` in the backend. The four frontend `catch {}` blocks were inspected and are all legitimate fallbacks (currency-format fallback `admin-format.ts:42`, malformed-WS-frame ignore `useChatSocket.ts:131`, autocomplete reset `LocationAutocomplete.tsx:84`, geocoder fallback `photon.ts:353`) — not silent bug-swallowing.
 
-**Recommendations:**
+**Recommendation 11.1:** `photon.ts:353` catches *all* errors and returns `[]`, conflating a network failure with "no results". Consider logging at debug so a persistent geocoder outage is diagnosable.
 
-1. None.
+## 12. Security — ⚠️ Concerns
 
----
+The good: CORS is an allow-list, not a wildcard (`cors({ origin: allowedOrigins })`, origins Zod-validated); all raw SQL uses Drizzle parameterised `sql\`…${param}…\`` templates (no string concatenation, verified across `chat.repository.ts`, `booking-request.repository.ts:91`, schema checks); advisory locks and `FOR UPDATE` prevent the obvious races; no tracked secrets; logs redact sensitive fields; no `dangerouslySetInnerHTML`/`eval` in the web app; no tokens in `localStorage`.
 
-### 11. Error Handling
+**Finding 12.1 — Body-size limit is bypassable via chunked transfer.** The `MAX_REQUEST_BODY_BYTES` check only fires when a `Content-Length` header is present (`index.ts:182-193` — `if (header !== null)`). A request with `Transfer-Encoding: chunked` and no `Content-Length` skips the check entirely and streams an arbitrarily large body to the handler. CLAUDE.md *acknowledges* this ("chunked-without-Content-Length requests are skipped"), but acknowledging a hole doesn't close it — a strict review keeps this open rather than green. Enforce a hard byte cap while reading the body, not just from the header.
 
-**Status:** ✅ Good
+**Finding 12.2 — In-memory rate limiter: unbounded growth + weak window + replica drift.** `shared/rate-limit.ts` keeps counters in a process-global `Map` swept *at most once per window* (`sweepExpired`, line 27). A burst of distinct keys (per-IP × per-route) within one window grows the map unbounded until the next sweep — a cheap memory-pressure vector. It is also a **fixed window**, so a client can fire `2×max` across a window boundary, and counters are per-instance (CLAUDE.md notes the multi-replica caveat). Read endpoints (`GET /conversations/:id/messages`, ride search) have only the global 60/60s cap, so enumeration/scraping is loosely bounded. Back it with Redis and a sliding window before any multi-replica or abuse-sensitive deployment.
 
-The backend has a root catch-all `.onError` (`apps/api/src/index.ts:223`) plus per-module `.onError` factories that map typed domain errors (`AuthError`, `RideError`, `BookingError`, …) to HTTP status, log 500-class errors with stack + `requestId`, and avoid logging 4xx as errors. The frontend surfaces errors properly — 159 `isError`/`onError`/`ErrorBoundary` references and a router-wide `RouteErrorBoundary` default. The only "empty" catch is `signOut().catch(() => {})` in `routes/onboarding.tsx:84` — a deliberate fire-and-forget on logout, not a silent swallow of meaningful failure.
+**Note 12.3:** `getClientIp` (`index.ts:137-145`) correctly reads `X-Forwarded-For` from the end per `TRUSTED_PROXY_COUNT`, so bucket-escape via header prefill is prevented — good. This is contingent on the deployment actually running behind exactly that many trusted proxies; document it as an ops invariant.
 
-**Recommendations:**
+## 13. Forms — ✅ Good
 
-1. None.
+react-hook-form (23 files) + `zodResolver` (12 files) across `onboarding.tsx`, `register.tsx`, `car/add/index.tsx`, `profile/edit.tsx`. Matches the project's own "form state lives in `useForm`" convention; the ~48 `useState` occurrences are UI state, not form fields.
 
----
+**Recommendation 13.1:** Confirm the `<form>` elements inside dialog components (`CancelRideDialog.tsx`, `ReportUserModal.tsx`, `AdminModalLayout.tsx`) are wired to react-hook-form + a resolver rather than manual state, for consistency.
 
-### 12. Security
+## 14. Frontend Structure — ⚠️ Minor
 
-**Status:** ✅ Good
+Routes are lean; logic lives in co-located hooks (`useChatPanel.ts` 228, `useOfferRideSubmit.ts` 218) and `-`-prefixed private folders, per the file-router conventions. Page components are within budget (`onboarding.tsx` 245, `rides.tsx` 236).
 
-CORS is an explicit **allowlist**, not a wildcard — `cors({ origin: allowedOrigins, credentials: true, … })` (`index.ts:157`), with origins derived from `WEB_ORIGIN`/`CORS_ORIGINS`. No hardcoded secrets were found in source. All DB access is through Drizzle with parameterized `sql\`\`` fragments (no string interpolation of user input). `.gitignore` covers `.env`/`.env.*`. Beyond the basics, the app adds defense-in-depth: a per-IP in-memory rate limiter (global + stricter per-route caps), a `Content-Length` body-size limit returning `413`, and `X-Forwarded-For` parsing hardened against client spoofing via `TRUSTED_PROXY_COUNT`.
+**Finding 14.1 — Two files exceed the skill's own decomposition threshold.** `components/navigation/navbar-shared.tsx` is **494 lines** — over the skill's ~400-line "should decompose into sub-components" line. The prior review excused it as "a module exporting several primitives," which is true, but the skill's guidance is about file size, not component count: a 494-line file is harder to navigate regardless. `lib/geocoding/photon.ts` (356) is also large for a single helper. Split `navbar-shared.tsx` into one file per primitive under `components/navigation/`.
 
-**Recommendations:**
+## — Repo Hygiene (cross-cutting) — ⚠️ Concerns
 
-1. Production hardening note (not a code defect): the rate limiter is in-process and resets on restart / is per-replica — back it with Redis if a strict shared limit is required at scale (already documented in `CLAUDE.md`).
+**Finding H.1 — Binary build artifact committed.** `production-web-kit.zip` (a 12 KB binary) is tracked in git *alongside* its already-extracted directory `production-web-kit/` (`git ls-files` confirms both). The zip is redundant with the folder, isn't source, and bloats history on every change. Remove the `.zip` from tracking and add it to `.gitignore`.
 
----
-
-### 13. Forms
-
-**Status:** ✅ Good
-
-Forms use **react-hook-form** (`^7.74.0`) with **@hookform/resolvers** + **zod** schema validation — **79** `useForm`/`Controller`/`zodResolver` references across 46 `<form>`/`onSubmit` sites. The form-as-useState anti-pattern is absent: the highest `useState` density is `LocationAutocomplete.tsx` (7), which is genuine autocomplete widget state (query, results, open, highlighted index, loading) rather than hand-rolled form fields; form-bearing routes like `register.tsx` (3) delegate field state to `useForm`. Validation schemas are shared from `packages/shared`, not duplicated as manual `if` checks.
-
-**Recommendations:**
-
-1. None.
-
----
-
-### 14. Frontend Structure
-
-**Status:** ✅ Good
-
-The structure is strong — **54+** custom `use*` hooks extract logic out of components, **21** TanStack Router `loader`/`beforeLoad` usages place critical fetches in the route layer, and routes are decomposed into `-components/`/`-hooks/` co-located private modules. No god-components exist.
-
-The original ⚠️ flagged a cluster of admin list `index.tsx` files (`admin/reviews` 258 ln, `admin/reports` 229 ln, `admin/users` 217 ln) that mixed page orchestration with inline selection/modal/mutation state. **This has been resolved.** The modal/selection/mutation orchestration was extracted into co-located action hooks matching the existing `use*Filters` pattern:
-
-- `admin/reviews/-hooks/useAdminReviewsActions.ts`
-- `admin/reports/-hooks/useAdminReportsActions.ts`
-- `admin/users/-hooks/useAdminUsersActions.ts`
-
-The three pages are now lean orchestrators that compose `useFilters` + `useList` + `useActions` into markup — **129 / 125 / 126 lines** respectively (down from 258 / 229 / 217). Typecheck, ESLint, and the full 91-test web suite pass after the change.
-
-**Recommendations:**
-
-1. Apply the same `use<Entity>Filters` + `use<Entity>List` + `use<Entity>Actions` triad to any future list/detail page so route files stay lean.
-2. Treat ~250 lines as the soft ceiling that triggers decomposition of a route component.
-3. No action needed on the API side — backend service/repository files top out at 432 lines and are mostly declarative query builders, which is acceptable for that file type.
+**Finding H.2 — Design binaries in the source repo.** `ui_design/` tracks `.fig` Figma files and PNG logos. Defensible for a student deliverable, but these are large binaries better kept in design storage or Git LFS; note them so the repo doesn't accumulate more.
 
 ---
 
 ## Overall Assessment
 
-This is an exceptionally mature submission for a university software-engineering course, with strict backend layering, enforced migration/lint/i18n CI gates, real authorization, redacted structured logging, and production-grade request hardening that goes well beyond course expectations. The one Frontend Structure concern raised in the initial pass — a few admin list pages carrying inline selection/modal state — has since been refactored into co-located action hooks, so **all fourteen categories are now clean ✅**.
+Waymate is a **strong, production-minded codebase** — the layered backend, REST/state-machine discipline, row-locked booking concurrency, migration audit trail, structured logging, and request hardening are all real and well above student baseline. None of that is in dispute, and this review did not manufacture problems to balance the ledger.
+
+But the previous all-green verdict was **over-generous**, and a strict pass surfaces concrete, fixable gaps:
+
+**Must-fix (correctness / coverage):**
+1. `.env.example` doesn't boot — `RESEND_API_KEY` is required in `env.ts` but commented out in the template (§4.1).
+2. `chat` and `blocks` modules — including the realtime channel and the IDOR/authz guards — have **zero** backend tests (§9.1–9.3).
+
+**Should-fix (defense-in-depth / performance):**
+3. Add a DB `CHECK` on `messages.content` length to match every other text column (§6.1).
+4. Add the `(conversation_id, sent_at)` composite index for the chat hot path (§6.2).
+5. Close the chunked-body size-limit bypass (§12.1); cap and harden the in-memory rate limiter, or move to Redis (§12.2).
+
+**Nice-to-have (hygiene / robustness):**
+6. Drop `production-web-kit.zip` from git (§H.1); split `navbar-shared.tsx` (§14.1); composite keyset cursor for message pagination (§6.3); confirm dialog forms use react-hook-form (§13.1).
+
+Net: this is a high-quality project that does **not** deserve a clean sweep of greens. Two ⚠️ categories (Environment, Testing) carry findings a grader should care about; three more (Database, Security, Frontend) carry real-but-bounded gaps.
