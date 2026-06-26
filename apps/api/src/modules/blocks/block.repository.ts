@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull, or } from "drizzle-orm";
+import { and, desc, eq, isNull, or, sql, type SQL } from "drizzle-orm";
 import type { Executor } from "../../db";
 import { blocklist as blocklistTable } from "../../db/schema/blocklist";
 import { users as usersTable } from "../../db/schema/user";
@@ -89,7 +89,7 @@ const revokeActiveBlock = async (
     executor: Executor,
     blockerUserId: string,
     blockedUserId: string,
-    at: Date
+    at: Date | SQL = sql`now()`
 ): Promise<number> => {
     const updated = await executor
         .update(blocklistTable)
