@@ -14,7 +14,10 @@ workflow:
               PIPELINE_NAME: "Waymate Branch Pipeline"
 
 stages:
-    - verify
+    - static-analysis
+    - test
+    - build
+    - e2e
 
 default:
     image: oven/bun:1.3.10
@@ -30,27 +33,27 @@ default:
         - bun install
 
 lint:
-    stage: verify
+    stage: static-analysis
     script:
         - bun run lint
 
 format:
-    stage: verify
+    stage: static-analysis
     script:
         - bun run format:check
 
 typecheck:
-    stage: verify
+    stage: static-analysis
     script:
         - bun run typecheck
 
 i18n-check:
-    stage: verify
+    stage: static-analysis
     script:
         - bun run --cwd apps/web i18n:check
 
 test:
-    stage: verify
+    stage: test
     services:
         - name: postgres:18
           alias: postgres
@@ -72,12 +75,12 @@ test:
         - bun run test
 
 test-web:
-    stage: verify
+    stage: test
     script:
         - bun run --cwd apps/web test
 
 e2e:
-    stage: verify
+    stage: e2e
     services:
         - name: postgres:18
           alias: postgres
@@ -105,12 +108,12 @@ e2e:
         expire_in: 1 week
 
 build:
-    stage: verify
+    stage: build
     script:
         - bun run build
 
 migration-drift:
-    stage: verify
+    stage: static-analysis
     script:
         - bun run --cwd apps/api db:generate
         - |
