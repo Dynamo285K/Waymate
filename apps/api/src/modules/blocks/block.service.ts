@@ -55,8 +55,7 @@ const unblockUser = async (
     const affected = await BlockRepository.revokeActiveBlock(
         db,
         blockerId,
-        blockedUserId,
-        new Date()
+        blockedUserId
     );
     if (affected === 0) {
         throw new BlockError(BlockErrorCodes.NotBlocked);

@@ -9,7 +9,8 @@
         "install:browsers": "playwright install chromium"
     },
     "devDependencies": {
+        "@playwright/test": "^1.49.0",
         "@types/bun": "latest",
-        "@playwright/test": "^1.49.0"
+        "postgres": "^3.4.9"
     }
 }

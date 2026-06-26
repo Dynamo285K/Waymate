@@ -6,8 +6,8 @@ import { E2E_DATABASE_URL } from "./global-setup";
 // developer has running on the dev ports.
 const API_PORT = Number(process.env.E2E_API_PORT ?? 3010);
 const WEB_PORT = Number(process.env.E2E_WEB_PORT ?? 5174);
-const API_ORIGIN = `http://localhost:${API_PORT}`;
-const BASE_URL = `http://localhost:${WEB_PORT}`;
+const API_ORIGIN = `http://127.0.0.1:${API_PORT}`;
+const BASE_URL = `http://127.0.0.1:${WEB_PORT}`;
 const REUSE_EXISTING_SERVER = process.env.E2E_REUSE_EXISTING_SERVER === "1";
 
 // Env vars forwarded to the API webServer process. Keeping the e2e defaults
@@ -68,7 +68,7 @@ export default defineConfig({
             // has every chunk ready — fast and stable, and it exercises the
             // real production artifact. The build is why this server gets a
             // longer startup timeout than the API.
-            command: `bun run --cwd ../apps/web build && bun run --cwd ../apps/web preview --port ${WEB_PORT} --strictPort`,
+            command: `bun run --cwd ../apps/web build && bun run --cwd ../apps/web preview --port ${WEB_PORT} --strictPort --host 127.0.0.1`,
             url: BASE_URL,
             env: {
                 API_PROXY_TARGET: API_ORIGIN,

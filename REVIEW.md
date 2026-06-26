@@ -5,7 +5,7 @@
 **Stack:** Bun + Turborepo monorepo · Elysia API (Bun) · React 19 + Vite + Tailwind 4 · PostgreSQL + Drizzle · better-auth
 
 > **Why this supersedes the previous report.** The prior `REVIEW.md` graded all 14
-> categories green and concluded *"No category is failing."* That verdict is too
+> categories green and concluded _"No category is failing."_ That verdict is too
 > generous. The architecture is genuinely strong, but a strict reading finds a
 > boot-breaking env template, two entire modules (chat, blocks) with **zero**
 > backend tests despite carrying authorization/IDOR logic, a defense-in-depth
@@ -30,23 +30,23 @@ The codebase is materially above typical student level: request hardening, struc
 
 ## Status Table
 
-| #   | Category                | Status         | Δ vs. prior review        |
-| --- | ----------------------- | -------------- | ------------------------- |
-| 1   | Component Library       | ✅ Good         | =                         |
-| 2   | Styling                 | ✅ Good         | =                         |
-| 3   | Loading Data            | ✅ Good         | =                         |
-| 4   | Environment Variables   | ⚠️ **Concerns** | ↓ from Good (boot bug)    |
-| 5   | REST API Design         | ✅ Excellent    | =                         |
-| 6   | Database                | ⚠️ **Concerns** | ↓ from Excellent          |
-| 7   | Backend Design Patterns | ✅ Excellent    | =                         |
-| 8   | Auth                    | ✅ Good         | =                         |
-| 9   | Testing                 | ⚠️ **Concerns** | ↓ from Good (2 untested modules) |
-| 10  | Logging & Monitoring    | ✅ Good         | =                         |
-| 11  | Error Handling          | ✅ Good         | =                         |
-| 12  | Security                | ⚠️ **Concerns** | ↓ from Excellent          |
-| 13  | Forms                   | ✅ Good         | =                         |
-| 14  | Frontend Structure      | ⚠️ **Minor**    | ↓ from Good               |
-| —   | Repo Hygiene (cross-cut)| ⚠️ **Concerns** | not previously assessed   |
+| #   | Category                 | Status          | Δ vs. prior review               |
+| --- | ------------------------ | --------------- | -------------------------------- |
+| 1   | Component Library        | ✅ Good         | =                                |
+| 2   | Styling                  | ✅ Good         | =                                |
+| 3   | Loading Data             | ✅ Good         | =                                |
+| 4   | Environment Variables    | ⚠️ **Concerns** | ↓ from Good (boot bug)           |
+| 5   | REST API Design          | ✅ Excellent    | =                                |
+| 6   | Database                 | ⚠️ **Concerns** | ↓ from Excellent                 |
+| 7   | Backend Design Patterns  | ✅ Excellent    | =                                |
+| 8   | Auth                     | ✅ Good         | =                                |
+| 9   | Testing                  | ⚠️ **Concerns** | ↓ from Good (2 untested modules) |
+| 10  | Logging & Monitoring     | ✅ Good         | =                                |
+| 11  | Error Handling           | ✅ Good         | =                                |
+| 12  | Security                 | ⚠️ **Concerns** | ↓ from Excellent                 |
+| 13  | Forms                    | ✅ Good         | =                                |
+| 14  | Frontend Structure       | ⚠️ **Minor**    | ↓ from Good                      |
+| —   | Repo Hygiene (cross-cut) | ⚠️ **Concerns** | not previously assessed          |
 
 ---
 
@@ -68,7 +68,7 @@ All data fetching goes through Orval-generated TanStack Query hooks (`apps/web/s
 
 The good: `.env*` is git-ignored with `!.env.example` exceptions, no real `.env` is tracked, env is Zod-validated and transformed at startup (`apps/api/src/config/env.ts`), origins must be bare http(s) origins, ports/bytes are bounded.
 
-**Finding 4.1 — `.env.example` produces a non-booting checkout.** `RESEND_API_KEY` is **required** in code (`env.ts:88` → `z.string().min(1)`, *not* `.optional()`), but in `apps/api/.env.example:` it is **commented out** (`# RESEND_API_KEY=re_...`). A developer who copies the template verbatim and runs the API hits `throw new Error("Invalid environment configuration")` at startup (`env.ts:99`). Every other *required* var (`DATABASE_URL`, `BETTER_AUTH_URL`, `WEB_ORIGIN`) is uncommented; this one is required-in-code but optional-in-template — an inconsistency that breaks first-run onboarding.
+**Finding 4.1 — `.env.example` produces a non-booting checkout.** `RESEND_API_KEY` is **required** in code (`env.ts:88` → `z.string().min(1)`, _not_ `.optional()`), but in `apps/api/.env.example:` it is **commented out** (`# RESEND_API_KEY=re_...`). A developer who copies the template verbatim and runs the API hits `throw new Error("Invalid environment configuration")` at startup (`env.ts:99`). Every other _required_ var (`DATABASE_URL`, `BETTER_AUTH_URL`, `WEB_ORIGIN`) is uncommented; this one is required-in-code but optional-in-template — an inconsistency that breaks first-run onboarding.
 
 > **Fix (pick one):** either uncomment `RESEND_API_KEY=` in `.env.example` with a placeholder, or make it `.optional()` in `env.ts` and have the email path degrade/skip when unset. The template and the schema must agree on what is required.
 
@@ -82,7 +82,7 @@ Resource-oriented, verbs used deliberately (≈29 GET / 15 PATCH / 9 POST / 3 DE
 
 The good: Drizzle, per-table schema (26 files), **14 committed migrations** (`drizzle/0000…0013`) with a CI `migration-drift` gate, centralised enums, `timestamptz` everywhere, soft deletes with partial unique indexes scoped to `WHERE deleted_at IS NULL`, status-history audit tables, per-segment pricing, and a rich set of `CHECK` constraints (`char_length`, range, regex) across `user`, `car`, `booking`, `report`, `ride_stop`, `price`, …
 
-**Finding 6.1 — `messages.content` has no DB-level length bound, breaking an otherwise-uniform invariant.** Almost every user-supplied text column is defended at *both* the Zod and DB layer: `report.description BETWEEN 1 AND 2000` (`report.ts:37`), `booking.cancellationReason <= 500` (`booking.ts:71`), `ride_stop.address BETWEEN 1 AND 255` (`ride_stop.ts:53`), status-history `reason <= 500`, etc. But `messages.content` is a bare `text("content").notNull()` (`db/schema/message.ts`) with **no `check()`** — the 2000-char cap exists only in `SendMessageBodySchema` (`packages/shared/src/chat.schema.ts`). Any insert path that ever bypasses that one Zod schema (a future seed, a backfill, a second producer) can write an unbounded message. Defense-in-depth is otherwise consistent here; messages is the lone exception.
+**Finding 6.1 — `messages.content` has no DB-level length bound, breaking an otherwise-uniform invariant.** Almost every user-supplied text column is defended at _both_ the Zod and DB layer: `report.description BETWEEN 1 AND 2000` (`report.ts:37`), `booking.cancellationReason <= 500` (`booking.ts:71`), `ride_stop.address BETWEEN 1 AND 255` (`ride_stop.ts:53`), status-history `reason <= 500`, etc. But `messages.content` is a bare `text("content").notNull()` (`db/schema/message.ts`) with **no `check()`** — the 2000-char cap exists only in `SendMessageBodySchema` (`packages/shared/src/chat.schema.ts`). Any insert path that ever bypasses that one Zod schema (a future seed, a backfill, a second producer) can write an unbounded message. Defense-in-depth is otherwise consistent here; messages is the lone exception.
 
 **Finding 6.2 — Missing composite index for the chat hot path.** `messages` has single-column indexes on `conversation_id`, `sender_id`, `sent_at` (`message.ts`), but **no `(conversation_id, sent_at)` composite**. The pagination query filters `conversation_id = ? AND sent_at < ?` and orders by `sent_at DESC` (`chat.repository.ts:300-308`), and `findUserConversations` runs three correlated subqueries per conversation each shaped `WHERE conversation_id = ? ORDER BY sent_at DESC LIMIT 1 / COUNT(*)` (`chat.repository.ts:188-211`). Postgres cannot combine two single-column indexes as efficiently as one composite for this access pattern. Add `index("messages_conversation_sent_idx").on(conversation_id, sent_at) WHERE deleted_at IS NULL`.
 
@@ -90,11 +90,11 @@ The good: Drizzle, per-table schema (26 files), **14 committed migrations** (`dr
 
 ## 7. Backend Design Patterns — ✅ Excellent
 
-Controller/service/repository separation is real and enforced: routes map HTTP↔domain and catch errors (`createErrorHandler(...)`, `ride.routes.ts:68`); services own transactions (`db.transaction(...)` in 10 service files); repositories are pure data access (zero `.transaction(` in `*.repository.ts`). Concurrency is handled correctly — `confirmBooking` takes `SELECT … FOR UPDATE` locks on both booking and ride (`booking-lifecycle.repository.ts:19`, `.for("update")`) and re-checks seat capacity *under the lock* before confirming (`booking-lifecycle.service.ts:33-41`), so there is **no overbooking race**. Services stay within the 200–300-line guideline (largest `booking-lifecycle.service.ts`, 262). **No issues.**
+Controller/service/repository separation is real and enforced: routes map HTTP↔domain and catch errors (`createErrorHandler(...)`, `ride.routes.ts:68`); services own transactions (`db.transaction(...)` in 10 service files); repositories are pure data access (zero `.transaction(` in `*.repository.ts`). Concurrency is handled correctly — `confirmBooking` takes `SELECT … FOR UPDATE` locks on both booking and ride (`booking-lifecycle.repository.ts:19`, `.for("update")`) and re-checks seat capacity _under the lock_ before confirming (`booking-lifecycle.service.ts:33-41`), so there is **no overbooking race**. Services stay within the 200–300-line guideline (largest `booking-lifecycle.service.ts`, 262). **No issues.**
 
 ## 8. Auth — ✅ Good
 
-better-auth + Drizzle adapter (`auth.ts`), email/password + Google OAuth. Three composable macros (`isAuthenticated`, `isFullyOnboarded`, `requireAdmin`) that **throw** typed `AuthError` rather than returning inline (`auth.middleware.ts`). Banned/suspended/deleted accounts are rejected centrally in `isAuthenticated` (`auth.middleware.ts:34-45`) *and* at sign-in (`auth.ts:174-190`), so a banned user with a live cookie still can't act. Ownership is checked in the service layer (`ride.driverId !== driverId`, `booking.passengerId !== passengerId`), and chat enforces IDOR protection via `resolveRole` → `NotAParticipant` (`chat.service.ts:14-19`). Roles are not user-settable (`additionalFields input:false` + admin-repo filtering).
+better-auth + Drizzle adapter (`auth.ts`), email/password + Google OAuth. Three composable macros (`isAuthenticated`, `isFullyOnboarded`, `requireAdmin`) that **throw** typed `AuthError` rather than returning inline (`auth.middleware.ts`). Banned/suspended/deleted accounts are rejected centrally in `isAuthenticated` (`auth.middleware.ts:34-45`) _and_ at sign-in (`auth.ts:174-190`), so a banned user with a live cookie still can't act. Ownership is checked in the service layer (`ride.driverId !== driverId`, `booking.passengerId !== passengerId`), and chat enforces IDOR protection via `resolveRole` → `NotAParticipant` (`chat.service.ts:14-19`). Roles are not user-settable (`additionalFields input:false` + admin-repo filtering).
 
 **Recommendation 8.1:** The IDOR/authorization guards are exactly the code most worth a negative test — and they currently have none (see §9). Add tests asserting a non-participant gets 403 on `GET /conversations/:id/messages` and `POST /conversations/:id/messages`, and a non-owner driver gets 403 on each booking transition.
 
@@ -120,15 +120,15 @@ pino (`shared/logger.ts`): JSON in prod, pretty in dev, `LOG_LEVEL`-driven, with
 
 Typed domain errors per module, thrown by services and mapped to HTTP only in `.onError` (`index.ts:223-296` lists 10 `instanceof` branches + VALIDATION/PARSE/NOT_FOUND + a `DomainError` fallback + a 500 catch-all that logs). No empty `catch {}` in the backend. The four frontend `catch {}` blocks were inspected and are all legitimate fallbacks (currency-format fallback `admin-format.ts:42`, malformed-WS-frame ignore `useChatSocket.ts:131`, autocomplete reset `LocationAutocomplete.tsx:84`, geocoder fallback `photon.ts:353`) — not silent bug-swallowing.
 
-**Recommendation 11.1:** `photon.ts:353` catches *all* errors and returns `[]`, conflating a network failure with "no results". Consider logging at debug so a persistent geocoder outage is diagnosable.
+**Recommendation 11.1:** `photon.ts:353` catches _all_ errors and returns `[]`, conflating a network failure with "no results". Consider logging at debug so a persistent geocoder outage is diagnosable.
 
 ## 12. Security — ⚠️ Concerns
 
-The good: CORS is an allow-list, not a wildcard (`cors({ origin: allowedOrigins })`, origins Zod-validated); all raw SQL uses Drizzle parameterised `sql\`…${param}…\`` templates (no string concatenation, verified across `chat.repository.ts`, `booking-request.repository.ts:91`, schema checks); advisory locks and `FOR UPDATE` prevent the obvious races; no tracked secrets; logs redact sensitive fields; no `dangerouslySetInnerHTML`/`eval` in the web app; no tokens in `localStorage`.
+The good: CORS is an allow-list, not a wildcard (`cors({ origin: allowedOrigins })`, origins Zod-validated); all raw SQL uses Drizzle parameterised `sql\`…${param}…\``templates (no string concatenation, verified across`chat.repository.ts`, `booking-request.repository.ts:91`, schema checks); advisory locks and `FOR UPDATE`prevent the obvious races; no tracked secrets; logs redact sensitive fields; no`dangerouslySetInnerHTML`/`eval`in the web app; no tokens in`localStorage`.
 
-**Finding 12.1 — Body-size limit is bypassable via chunked transfer.** The `MAX_REQUEST_BODY_BYTES` check only fires when a `Content-Length` header is present (`index.ts:182-193` — `if (header !== null)`). A request with `Transfer-Encoding: chunked` and no `Content-Length` skips the check entirely and streams an arbitrarily large body to the handler. CLAUDE.md *acknowledges* this ("chunked-without-Content-Length requests are skipped"), but acknowledging a hole doesn't close it — a strict review keeps this open rather than green. Enforce a hard byte cap while reading the body, not just from the header.
+**Finding 12.1 — Body-size limit is bypassable via chunked transfer.** The `MAX_REQUEST_BODY_BYTES` check only fires when a `Content-Length` header is present (`index.ts:182-193` — `if (header !== null)`). A request with `Transfer-Encoding: chunked` and no `Content-Length` skips the check entirely and streams an arbitrarily large body to the handler. CLAUDE.md _acknowledges_ this ("chunked-without-Content-Length requests are skipped"), but acknowledging a hole doesn't close it — a strict review keeps this open rather than green. Enforce a hard byte cap while reading the body, not just from the header.
 
-**Finding 12.2 — In-memory rate limiter: unbounded growth + weak window + replica drift.** `shared/rate-limit.ts` keeps counters in a process-global `Map` swept *at most once per window* (`sweepExpired`, line 27). A burst of distinct keys (per-IP × per-route) within one window grows the map unbounded until the next sweep — a cheap memory-pressure vector. It is also a **fixed window**, so a client can fire `2×max` across a window boundary, and counters are per-instance (CLAUDE.md notes the multi-replica caveat). Read endpoints (`GET /conversations/:id/messages`, ride search) have only the global 60/60s cap, so enumeration/scraping is loosely bounded. Back it with Redis and a sliding window before any multi-replica or abuse-sensitive deployment.
+**Finding 12.2 — In-memory rate limiter: unbounded growth + weak window + replica drift.** `shared/rate-limit.ts` keeps counters in a process-global `Map` swept _at most once per window_ (`sweepExpired`, line 27). A burst of distinct keys (per-IP × per-route) within one window grows the map unbounded until the next sweep — a cheap memory-pressure vector. It is also a **fixed window**, so a client can fire `2×max` across a window boundary, and counters are per-instance (CLAUDE.md notes the multi-replica caveat). Read endpoints (`GET /conversations/:id/messages`, ride search) have only the global 60/60s cap, so enumeration/scraping is loosely bounded. Back it with Redis and a sliding window before any multi-replica or abuse-sensitive deployment.
 
 **Note 12.3:** `getClientIp` (`index.ts:137-145`) correctly reads `X-Forwarded-For` from the end per `TRUSTED_PROXY_COUNT`, so bucket-escape via header prefill is prevented — good. This is contingent on the deployment actually running behind exactly that many trusted proxies; document it as an ops invariant.
 
@@ -146,7 +146,7 @@ Routes are lean; logic lives in co-located hooks (`useChatPanel.ts` 228, `useOff
 
 ## — Repo Hygiene (cross-cutting) — ⚠️ Concerns
 
-**Finding H.1 — Binary build artifact committed.** `production-web-kit.zip` (a 12 KB binary) is tracked in git *alongside* its already-extracted directory `production-web-kit/` (`git ls-files` confirms both). The zip is redundant with the folder, isn't source, and bloats history on every change. Remove the `.zip` from tracking and add it to `.gitignore`.
+**Finding H.1 — Binary build artifact committed.** `production-web-kit.zip` (a 12 KB binary) is tracked in git _alongside_ its already-extracted directory `production-web-kit/` (`git ls-files` confirms both). The zip is redundant with the folder, isn't source, and bloats history on every change. Remove the `.zip` from tracking and add it to `.gitignore`.
 
 **Finding H.2 — Design binaries in the source repo.** `ui_design/` tracks `.fig` Figma files and PNG logos. Defensible for a student deliverable, but these are large binaries better kept in design storage or Git LFS; note them so the repo doesn't accumulate more.
 
@@ -159,15 +159,12 @@ Waymate is a **strong, production-minded codebase** — the layered backend, RES
 But the previous all-green verdict was **over-generous**, and a strict pass surfaces concrete, fixable gaps:
 
 **Must-fix (correctness / coverage):**
+
 1. `.env.example` doesn't boot — `RESEND_API_KEY` is required in `env.ts` but commented out in the template (§4.1).
 2. `chat` and `blocks` modules — including the realtime channel and the IDOR/authz guards — have **zero** backend tests (§9.1–9.3).
 
-**Should-fix (defense-in-depth / performance):**
-3. Add a DB `CHECK` on `messages.content` length to match every other text column (§6.1).
-4. Add the `(conversation_id, sent_at)` composite index for the chat hot path (§6.2).
-5. Close the chunked-body size-limit bypass (§12.1); cap and harden the in-memory rate limiter, or move to Redis (§12.2).
+**Should-fix (defense-in-depth / performance):** 3. Add a DB `CHECK` on `messages.content` length to match every other text column (§6.1). 4. Add the `(conversation_id, sent_at)` composite index for the chat hot path (§6.2). 5. Close the chunked-body size-limit bypass (§12.1); cap and harden the in-memory rate limiter, or move to Redis (§12.2).
 
-**Nice-to-have (hygiene / robustness):**
-6. Drop `production-web-kit.zip` from git (§H.1); split `navbar-shared.tsx` (§14.1); composite keyset cursor for message pagination (§6.3); confirm dialog forms use react-hook-form (§13.1).
+**Nice-to-have (hygiene / robustness):** 6. Drop `production-web-kit.zip` from git (§H.1); split `navbar-shared.tsx` (§14.1); composite keyset cursor for message pagination (§6.3); confirm dialog forms use react-hook-form (§13.1).
 
 Net: this is a high-quality project that does **not** deserve a clean sweep of greens. Two ⚠️ categories (Environment, Testing) carry findings a grader should care about; three more (Database, Security, Frontend) carry real-but-bounded gaps.

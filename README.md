@@ -264,6 +264,30 @@ Instead, please log in using one of the pre-seeded development accounts created 
 - **Driver Account:** `driver.albert@example.com` / `driver1234` (Pre-seeded with cars, rides, and bookings)
 - **Passenger Account:** `passenger.cyril@example.com` / `passenger1234`
 
+### 10. GitLab CI/CD Pipeline (Local Runner)
+
+The project pipeline (`.gitlab-ci.yml`) is configured to run verification jobs exclusively on runners tagged with `local-pc`. This creates a distributed pool of runners from developer machines, significantly speeding up the CI process compared to using shared university servers.
+
+To ensure your pipelines run when you push code, please set up a GitLab Runner on your local machine:
+
+1. Install `gitlab-runner` on your machine (e.g., `brew install gitlab-runner` on macOS).
+2. Go to the project in GitLab -> **Settings** -> **CI/CD** -> **Runners**.
+3. Click **Create project runner**, set the tag to `local-pc`, and click **Create runner**.
+4. Copy the generated token (`glrt-...`) and run the registration command in your terminal:
+    ```bash
+    gitlab-runner register \
+      --non-interactive \
+      --url "https://gitlab.fi.muni.cz/" \
+      --token "<YOUR_TOKEN>" \
+      --executor "docker" \
+      --docker-image "oven/bun:1.3.10"
+    ```
+5. **Enable parallel execution (Highly Recommended):** By default, local runners only process 1 job at a time. To run checks (`lint`, `typecheck`, etc.) simultaneously, edit your runner config:
+    - Open `~/.gitlab-runner/config.toml`
+    - Change the first line to `concurrent = 4` (or however many cores you want to allocate)
+    - Restart the runner (`brew services restart gitlab-runner` or `gitlab-runner restart`)
+6. Ensure your Docker daemon and runner service are active. Your machine will now automatically pick up CI jobs whenever it is online.
+
 ## UI Library
 
 Source repository: <https://gitlab.fi.muni.cz/xbartel/waymate-ui>

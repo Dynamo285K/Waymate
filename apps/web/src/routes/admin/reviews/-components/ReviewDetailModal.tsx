@@ -220,7 +220,9 @@ export function ReviewDetailModal({
                                         variant="outlineSuccess"
                                         leftIcon={<EyeOffIcon />}
                                         className={adminActionButtonClass}
-                                        onClick={() => onRequestStatus("HIDDEN")}
+                                        onClick={() =>
+                                            onRequestStatus("HIDDEN")
+                                        }
                                         disabled={isThisReviewMutating}
                                     >
                                         {t("admin.hideReview")}

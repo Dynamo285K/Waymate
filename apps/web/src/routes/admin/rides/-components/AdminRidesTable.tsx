@@ -56,8 +56,7 @@ export function AdminRidesTable({
                         // yet — disabled once it's in progress, completed, or
                         // already cancelled (the backend enforces PLANNED-only).
                         const cancelDisabled =
-                            isThisRowMutating ||
-                            ride.rideStatus !== "PLANNED";
+                            isThisRowMutating || ride.rideStatus !== "PLANNED";
                         return (
                             <tr
                                 key={ride.id}

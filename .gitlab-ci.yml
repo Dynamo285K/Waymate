@@ -14,12 +14,15 @@ workflow:
               PIPELINE_NAME: "Waymate Branch Pipeline"
 
 stages:
-    - verify
+    - static-analysis
+    - test
+    - build
+    - e2e
 
 default:
-    image: oven/bun:1.3.10
+    image: oven/bun:1.3.13
     tags:
-        - shared-fi
+        - local-pc
     cache:
         key: ${CI_COMMIT_REF_SLUG}
         paths:
@@ -29,37 +32,28 @@ default:
         - bun --version
         - bun install
 
-generate-lockfile:
-    stage: verify
-    script:
-        - echo "lockfile generated"
-    artifacts:
-        paths:
-            - bun.lock
-        expire_in: 1 day
-
 lint:
-    stage: verify
+    stage: static-analysis
     script:
         - bun run lint
 
 format:
-    stage: verify
+    stage: static-analysis
     script:
         - bun run format:check
 
 typecheck:
-    stage: verify
+    stage: static-analysis
     script:
         - bun run typecheck
 
 i18n-check:
-    stage: verify
+    stage: static-analysis
     script:
         - bun run --cwd apps/web i18n:check
 
 test:
-    stage: verify
+    stage: test
     services:
         - name: postgres:18
           alias: postgres
@@ -76,15 +70,17 @@ test:
         RESEND_API_KEY: "re_ci_dummy_key"
         NODE_ENV: "test"
     script:
+        - apt-get update && apt-get install -y postgresql-client
+        - until pg_isready -h postgres -p 5432 -U postgres; do sleep 1; done
         - bun run test
 
 test-web:
-    stage: verify
+    stage: test
     script:
         - bun run --cwd apps/web test
 
 e2e:
-    stage: verify
+    stage: e2e
     services:
         - name: postgres:18
           alias: postgres
@@ -101,6 +97,8 @@ e2e:
         # Pull the Chromium build matching the installed Playwright, plus its
         # OS libraries (the bun image lacks them).
         - bunx playwright install --with-deps chromium
+        - apt-get update && apt-get install -y postgresql-client
+        - until pg_isready -h postgres -p 5432 -U postgres; do sleep 1; done
         - bun run --cwd e2e test
     artifacts:
         when: on_failure
@@ -110,12 +108,12 @@ e2e:
         expire_in: 1 week
 
 build:
-    stage: verify
+    stage: build
     script:
         - bun run build
 
 migration-drift:
-    stage: verify
+    stage: static-analysis
     script:
         - bun run --cwd apps/api db:generate
         - |

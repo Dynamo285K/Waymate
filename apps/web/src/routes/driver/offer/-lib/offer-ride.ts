@@ -88,14 +88,26 @@ export function validateManualCarFields(
 
     const errors: ManualCarFieldError[] = [];
     if (!brand) {
-        errors.push({ field: "manualBrand", message: "offerRide.requiredField" });
+        errors.push({
+            field: "manualBrand",
+            message: "offerRide.requiredField",
+        });
     }
     if (!model) {
-        errors.push({ field: "manualModel", message: "offerRide.requiredField" });
+        errors.push({
+            field: "manualModel",
+            message: "offerRide.requiredField",
+        });
     }
     if (!plate) {
-        errors.push({ field: "manualPlate", message: "offerRide.requiredField" });
-    } else if (plate.length < PLATE_MIN_LENGTH || plate.length > PLATE_MAX_LENGTH) {
+        errors.push({
+            field: "manualPlate",
+            message: "offerRide.requiredField",
+        });
+    } else if (
+        plate.length < PLATE_MIN_LENGTH ||
+        plate.length > PLATE_MAX_LENGTH
+    ) {
         errors.push({ field: "manualPlate", message: "offerRide.plateLength" });
     }
 
