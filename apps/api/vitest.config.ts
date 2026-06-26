@@ -4,11 +4,17 @@ export default defineConfig({
     test: {
         environment: "node",
         include: ["src/**/*.test.ts"],
+        pool: "forks",
         fileParallelism: false,
         maxWorkers: 1,
         globalSetup: ["./test/global-setup.ts"],
         setupFiles: ["./test/load-env.ts", "./test/setup.ts"],
         hookTimeout: 30_000,
         testTimeout: 15_000,
+        server: {
+            deps: {
+                inline: ["zod"],
+            },
+        },
     },
 });
