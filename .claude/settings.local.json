@@ -95,7 +95,9 @@
       "Bash(grep -nA8 \"<AdminReportsFilters\" apps/web/src/routes/admin/reports/index.tsx)",
       "Bash(grep -nA5 \"<AdminUsersFilters\" apps/web/src/routes/admin/users/index.tsx)",
       "Bash(grep -nA5 \"<AdminRidesFilters\" apps/web/src/routes/admin/rides/index.tsx)",
-      "Bash(grep -oE \"\\\\.\\(get|post|put|patch|delete\\)\\\\\\(['\\\\\"\\\\`][^'\\\\\"\\\\`]*\")"
+      "Bash(grep -oE \"\\\\.\\(get|post|put|patch|delete\\)\\\\\\(['\\\\\"\\\\`][^'\\\\\"\\\\`]*\")",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(npx vitest *)"
     ]
   }
 }

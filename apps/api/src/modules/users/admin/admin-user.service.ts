@@ -7,7 +7,10 @@ import { db } from "../../../db";
 import { UserError, UserErrorCodes } from "../user.errors";
 import { AdminUserRepository } from "./admin-user.repository";
 import { RideRepository } from "../../rides/ride.repository";
-import type { AdminUserListFilters, SetUserStatusInput } from "./admin-user.types";
+import type {
+    AdminUserListFilters,
+    SetUserStatusInput,
+} from "./admin-user.types";
 
 const STATUS_HISTORY_DEFAULT_LIMIT = 50;
 
@@ -93,19 +96,33 @@ const setUserStatus = async ({
             reason,
         });
 
-        if (newStatus === "BANNED" || newStatus === "DELETED") {
+        // A suspended user is operationally identical to a banned one — the
+        // auth middleware blocks them on every request, so a suspended driver
+        // can no longer start/end their rides and a suspended passenger can't
+        // travel. Leaving their rides/bookings "live" would strand the
+        // counterparties, so SUSPENDED cascades the same cancellation as a ban.
+        // Note: cancellation is irreversible, so reactivating a suspended user
+        // does NOT restore their rides/bookings — reinstatement is a clean slate.
+        if (
+            newStatus === "BANNED" ||
+            newStatus === "DELETED" ||
+            newStatus === "SUSPENDED"
+        ) {
             await AdminUserRepository.deleteSessionsByUserId(tx, targetUserId);
 
             const cancelReason =
                 newStatus === "BANNED"
                     ? "User account was banned by admin"
-                    : "User account was deleted";
+                    : newStatus === "SUSPENDED"
+                      ? "User account was suspended by admin"
+                      : "User account was deleted";
 
             // 1. Cancel active rides (user as driver)
-            const activeRides = await AdminUserRepository.findActiveRidesByDriverId(
-                tx,
-                targetUserId
-            );
+            const activeRides =
+                await AdminUserRepository.findActiveRidesByDriverId(
+                    tx,
+                    targetUserId
+                );
 
             if (activeRides.length > 0) {
                 const rideIds = activeRides.map((r) => r.id);
@@ -123,10 +140,11 @@ const setUserStatus = async ({
 
                 // Also cancel all active bookings for these rides
                 for (const rideId of rideIds) {
-                    const bookings = await RideRepository.findActiveBookingsByRideId(
-                        tx,
-                        rideId
-                    );
+                    const bookings =
+                        await RideRepository.findActiveBookingsByRideId(
+                            tx,
+                            rideId
+                        );
                     if (bookings.length > 0) {
                         const bookingIds = bookings.map((b) => b.id);
                         await RideRepository.bulkCancelBookings(
@@ -150,10 +168,11 @@ const setUserStatus = async ({
             }
 
             // 2. Cancel active bookings (user as passenger)
-            const passengerBookings = await AdminUserRepository.findActiveBookingsByPassengerId(
-                tx,
-                targetUserId
-            );
+            const passengerBookings =
+                await AdminUserRepository.findActiveBookingsByPassengerId(
+                    tx,
+                    targetUserId
+                );
 
             if (passengerBookings.length > 0) {
                 const bookingIds = passengerBookings.map((b) => b.id);

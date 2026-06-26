@@ -235,4 +235,71 @@ describe("AdminUserService.setUserStatus", () => {
             "User account was banned by admin"
         );
     });
+
+    it("cascade cancels active rides and bookings when a user is suspended", async () => {
+        const admin = await insertAdminUser();
+
+        // Target is a driver (with a passenger) on one ride, and a passenger on
+        // another driver's ride — same shape as the ban cascade test.
+        const driverContext = await createRideContext({ withPassenger: true });
+        const targetUserId = driverContext.driver.id;
+        const driverRideId = driverContext.rideId;
+        const passengerBookingId = driverContext.bookingId!;
+
+        const otherDriverContext = await createRideContext();
+        const targetUserBookingId = await BookingService.createBookingRequest({
+            rideId: otherDriverContext.rideId,
+            passengerId: targetUserId,
+            pickupStopId: otherDriverContext.pickupStopId,
+            dropoffStopId: otherDriverContext.dropoffStopId,
+            seatCount: 1,
+        });
+        await BookingService.confirmBooking(
+            targetUserBookingId,
+            otherDriverContext.driver.id
+        );
+
+        await AdminUserService.setUserStatus({
+            actorId: admin.id,
+            targetUserId,
+            newStatus: "SUSPENDED",
+            reason: "Temporary suspension",
+        });
+
+        // Driver's own ride is cancelled, as are the passenger's booking on it
+        // and the target's own booking on someone else's ride.
+        const [cancelledRide] = await db
+            .select({ status: rides.rideStatus })
+            .from(rides)
+            .where(eq(rides.id, driverRideId));
+        expect(cancelledRide?.status).toBe("CANCELLED");
+
+        const [cancelledPassengerBooking] = await db
+            .select({ status: bookings.bookingStatus })
+            .from(bookings)
+            .where(eq(bookings.id, passengerBookingId));
+        expect(cancelledPassengerBooking?.status).toBe("CANCELLED");
+
+        const [cancelledTargetBooking] = await db
+            .select({ status: bookings.bookingStatus })
+            .from(bookings)
+            .where(eq(bookings.id, targetUserBookingId));
+        expect(cancelledTargetBooking?.status).toBe("CANCELLED");
+
+        // History records carry the suspension-specific reason.
+        const rideHistory = await db
+            .select()
+            .from(rideStatusHistory)
+            .where(eq(rideStatusHistory.rideId, driverRideId));
+        expect(
+            rideHistory.find((h) => h.newStatus === "CANCELLED")?.reason
+        ).toBe("User account was suspended by admin");
+
+        // Sessions are cleared, same as for a ban.
+        const remainingSessions = await db
+            .select({ id: sessions.id })
+            .from(sessions)
+            .where(eq(sessions.userId, targetUserId));
+        expect(remainingSessions).toHaveLength(0);
+    });
 });
