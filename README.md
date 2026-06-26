@@ -266,13 +266,13 @@ Instead, please log in using one of the pre-seeded development accounts created 
 
 ### 10. GitLab CI/CD Pipeline (Local Runner)
 
-The project pipeline (`.gitlab-ci.yml`) is configured to run verification jobs exclusively on runners tagged with `local-pc`. This creates a distributed pool of runners from developer machines, significantly speeding up the CI process compared to using shared university servers.
+The project pipeline (`.gitlab-ci.yml`) is configured to run verification jobs exclusively on a runner dynamically matching the user who pushed the code (using the tag `runner-$CI_GITLAB_USER_LOGIN`). This ensures that everyone's pipelines run on their own machines without stealing each other's jobs, speeding up the CI process compared to using shared university servers.
 
-To ensure pipelines run when you push code, please set up a GitLab Runner on your local machine:
+To ensure your pipelines run when you push code, please set up a GitLab Runner on your local machine:
 
 1. Install `gitlab-runner` on your machine (e.g., `brew install gitlab-runner` on macOS).
 2. Go to the project in GitLab -> **Settings** -> **CI/CD** -> **Runners**.
-3. Click **Create project runner**, set the tag to `local-pc`, and click **Create runner**.
+3. Click **Create project runner**. For the tag, enter `runner-<your.username>` (e.g., `runner-cvejn2` — use your exact GitLab login name), and click **Create runner**.
 4. Copy the generated token (`glrt-...`) and run the registration command in your terminal:
     ```bash
     gitlab-runner register \
@@ -282,7 +282,11 @@ To ensure pipelines run when you push code, please set up a GitLab Runner on you
       --executor "docker" \
       --docker-image "oven/bun:1.3.10"
     ```
-5. Ensure your Docker daemon and runner service are active. Your machine will now automatically pick up CI jobs whenever it is online.
+5. **Enable parallel execution (Highly Recommended):** By default, local runners only process 1 job at a time. To run checks (`lint`, `typecheck`, etc.) simultaneously, edit your runner config:
+    - Open `~/.gitlab-runner/config.toml`
+    - Change the first line to `concurrent = 4` (or however many cores you want to allocate)
+    - Restart the runner (`brew services restart gitlab-runner` or `gitlab-runner restart`)
+6. Ensure your Docker daemon and runner service are active. Your machine will now automatically pick up _only your_ CI jobs whenever you push code.
 
 ## UI Library
 
