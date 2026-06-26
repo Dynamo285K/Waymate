@@ -1,5 +1,4 @@
 import {
-    NavButton,
     PlusIcon,
     ListIcon,
     ListChecksIcon,
@@ -7,15 +6,7 @@ import {
 } from "@waymate/ui";
 import { type Language } from "../controls/LanguageSwitcher";
 import { type Role } from "../controls/RoleSwitcher";
-import { useNavbar } from "./use-navbar";
-import {
-    NavbarLogo,
-    NavbarBottomTabs,
-    NavbarRoleControls,
-    NavbarProfileDropdownMenu,
-    RoleNavbarLayout,
-} from "./navbar-shared";
-import { RoleSwitcher } from "../controls/RoleSwitcher";
+import { RoleNavbar, type RoleNavbarTab } from "./RoleNavbar";
 
 export type DriverNavbarTab =
     | "offer-ride"
@@ -82,164 +73,60 @@ export function DriverNavbar({
     onLogoutClick,
     labels,
 }: DriverNavbarProps) {
-    const {
-        navbarRef,
-        isDesktop,
-        isTablet,
-        isMobile,
-        logoSrc,
-        themeIcon,
-        themeLabel,
-    } = useNavbar({ breakpointWidth: 1024, theme });
+    const tabs: RoleNavbarTab[] = [
+        {
+            key: "offer-ride",
+            label: labels?.offerRide ?? "Offer ride",
+            icon: <PlusIcon />,
+            onClick: onOfferRideClick,
+        },
+        {
+            key: "my-rides",
+            label: labels?.myRides ?? "My rides",
+            icon: <ListIcon />,
+            onClick: onMyRidesClick,
+        },
+        {
+            key: "ride-requests",
+            label: labels?.rideRequests ?? "Ride requests",
+            icon: <ListChecksIcon />,
+            onClick: onRideRequestsClick,
+        },
+        {
+            key: "chat",
+            label: labels?.chat ?? "Chat",
+            icon: <MessageCircleIcon />,
+            onClick: onChatClick,
+            badge: chatBadge,
+        },
+    ];
 
-    const roleLabels = { passenger: labels?.passenger, driver: labels?.driver };
-
-    const logoImg = (
-        <NavbarLogo
-            logoSrc={logoSrc}
-            onLogoClick={onLogoClick}
-        />
-    );
-
-    const profileMenu = (
-        <NavbarProfileDropdownMenu
-            userName={userName}
-            userEmail={userEmail}
-            theme={theme}
+    return (
+        <RoleNavbar
+            tabs={tabs}
+            activeKey={activeTab}
+            role={role}
+            onRoleChange={onRoleChange}
+            roleLabels={{ passenger: labels?.passenger, driver: labels?.driver }}
             language={language}
             onLanguageChange={onLanguageChange}
-            themeLabel={themeLabel}
-            themeIcon={themeIcon}
+            theme={theme}
             onThemeToggle={onThemeToggle}
+            onLogoClick={onLogoClick}
+            userName={userName}
+            userEmail={userEmail}
             onProfileClick={onProfileClick}
             onMyRidesClick={onMyRidesClick}
             onMessagesClick={onMessagesClick}
             onRatingsClick={onRatingsClick}
             onLogoutClick={onLogoutClick}
-            labels={{
+            profileLabels={{
                 profile: labels?.profile,
                 myRides: labels?.dropdownMyRides,
                 messages: labels?.messages,
                 ratings: labels?.ratings,
                 logout: labels?.logout,
             }}
-        />
-    );
-
-    const navButtons = (
-        <>
-            <NavButton
-                icon={<PlusIcon />}
-                active={activeTab === "offer-ride"}
-                onClick={onOfferRideClick}
-            >
-                {labels?.offerRide ?? "Offer ride"}
-            </NavButton>
-            <NavButton
-                icon={<ListIcon />}
-                active={activeTab === "my-rides"}
-                onClick={onMyRidesClick}
-            >
-                {labels?.myRides ?? "My rides"}
-            </NavButton>
-            <NavButton
-                icon={<ListChecksIcon />}
-                active={activeTab === "ride-requests"}
-                onClick={onRideRequestsClick}
-            >
-                {labels?.rideRequests ?? "Ride requests"}
-            </NavButton>
-            <NavButton
-                icon={<MessageCircleIcon />}
-                active={activeTab === "chat"}
-                onClick={onChatClick}
-            >
-                <span className="inline-flex items-center gap-1.5">
-                    {labels?.chat ?? "Chat"}
-                    {chatBadge ? (
-                        <span
-                            className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-red text-white text-badge font-semibold leading-none"
-                            aria-label={`${chatBadge} unread`}
-                        >
-                            {chatBadge > 99 ? "99+" : chatBadge}
-                        </span>
-                    ) : null}
-                </span>
-            </NavButton>
-        </>
-    );
-
-    const roleControlsProps = {
-        role,
-        onRoleChange,
-        roleLabels,
-        language,
-        onLanguageChange,
-        themeLabel,
-        themeIcon,
-        onThemeToggle,
-        profileMenu,
-    };
-    const compactRoleSwitcher = (
-        <RoleSwitcher
-            value={role}
-            onChange={onRoleChange}
-            labels={roleLabels}
-            size="sm"
-        />
-    );
-    const bottomTabs = (
-        <NavbarBottomTabs
-            items={[
-                {
-                    key: "offer-ride",
-                    label: labels?.offerRide ?? "Offer ride",
-                    icon: <PlusIcon />,
-                    active: activeTab === "offer-ride",
-                    onClick: onOfferRideClick,
-                },
-                {
-                    key: "my-rides",
-                    label: labels?.myRides ?? "My rides",
-                    icon: <ListIcon />,
-                    active: activeTab === "my-rides",
-                    onClick: onMyRidesClick,
-                },
-                {
-                    key: "ride-requests",
-                    label: labels?.rideRequests ?? "Ride requests",
-                    icon: <ListChecksIcon />,
-                    active: activeTab === "ride-requests",
-                    onClick: onRideRequestsClick,
-                },
-                {
-                    key: "chat",
-                    label: labels?.chat ?? "Chat",
-                    icon: <MessageCircleIcon />,
-                    active: activeTab === "chat",
-                    badge: chatBadge,
-                    onClick: onChatClick,
-                },
-            ]}
-        />
-    );
-
-    return (
-        <RoleNavbarLayout
-            navRef={navbarRef}
-            isDesktop={isDesktop}
-            isTablet={isTablet}
-            isMobile={isMobile}
-            logo={logoImg}
-            navButtons={navButtons}
-            desktopControls={<NavbarRoleControls {...roleControlsProps} />}
-            compactControls={
-                <>
-                    {compactRoleSwitcher}
-                    {profileMenu}
-                </>
-            }
-            bottomTabs={bottomTabs}
         />
     );
 }
