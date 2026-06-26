@@ -14,6 +14,7 @@ workflow:
               PIPELINE_NAME: "Waymate Branch Pipeline"
 
 stages:
+    - temp
     - static-analysis
     - test
     - build
@@ -53,7 +54,7 @@ i18n-check:
         - bun run --cwd apps/web i18n:check
 
 test:
-    stage: test
+    stage: temp
     services:
         - name: postgres:18
           alias: postgres

@@ -10,11 +10,5 @@ export default defineConfig({
         setupFiles: ["./test/load-env.ts", "./test/setup.ts"],
         hookTimeout: 30_000,
         testTimeout: 15_000,
-        isolate: false,
-        server: {
-            deps: {
-                inline: ["zod"],
-            },
-        },
     },
 });
