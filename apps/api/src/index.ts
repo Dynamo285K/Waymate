@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { Elysia } from "elysia";
+import { Elysia, ParseError } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { openapi } from "@elysiajs/openapi";
 import * as z from "zod";
@@ -355,6 +355,52 @@ export const app = new Elysia()
         );
     })
     .mount(auth.handler)
+    .onParse(async ({ request, contentType }) => {
+        if (request.headers.get("transfer-encoding") !== "chunked") return;
+
+        if (!request.body) return;
+
+        const reader = request.body.getReader();
+        let total = 0;
+        const chunks: Uint8Array[] = [];
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            total += value.length;
+            if (total > env.MAX_REQUEST_BODY_BYTES) {
+                await reader.cancel();
+                const meta = requestMeta.get(request);
+                if (meta) meta.payloadTooLarge = true;
+                return "";
+            }
+            chunks.push(value);
+        }
+
+        const decoder = new TextDecoder();
+        let bodyStr = "";
+        for (const chunk of chunks) {
+            bodyStr += decoder.decode(chunk, { stream: true });
+        }
+        bodyStr += decoder.decode();
+
+        if (contentType?.startsWith("application/json")) {
+            try {
+                return JSON.parse(bodyStr);
+            } catch {
+                throw new ParseError();
+            }
+        }
+
+        return bodyStr;
+    })
+    .onTransform(({ request }) => {
+        const meta = requestMeta.get(request);
+        if (meta?.payloadTooLarge) {
+            throw new RequestError(RequestErrorCodes.PayloadTooLarge);
+        }
+    })
     .use(HealthRoutes)
     .use(UserRoutes)
     .use(CarRoutes)

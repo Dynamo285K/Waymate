@@ -1,9 +1,17 @@
 import Redis from "ioredis";
 import { env } from "../config/env";
 import { RateLimitError } from "./request-errors";
+import { logger } from "./logger";
 
 const redis = new Redis(env.REDIS_URL, {
     maxRetriesPerRequest: 1, // Fail fast if Redis is down
+});
+
+redis.on("error", (err) => {
+    // Only log if not in tests to avoid test log spam when Redis is stopped
+    if (env.NODE_ENV !== "test") {
+        logger.error({ err }, "Redis connection error");
+    }
 });
 
 // We register a Lua script for an atomic Token Bucket check.
@@ -80,6 +88,8 @@ export async function checkRateLimit(
         if (err instanceof RateLimitError) throw err;
 
         // If Redis is unreachable, fail open to avoid bringing down the API
-        console.error("Rate limit check failed or Redis is down:", err);
+        if (env.NODE_ENV !== "test") {
+            logger.error({ err }, "Rate limit check failed or Redis is down");
+        }
     }
 }

@@ -37,6 +37,42 @@ describe("Request hardening", () => {
         });
     });
 
+    it("rejects a chunked request whose body exceeds the limit with 413", async () => {
+        // Attackers can bypass the Content-Length check by using chunked encoding.
+        // Our custom onParse hook should intercept this, stream the chunks, and
+        // abort if the cumulative size exceeds MAX_REQUEST_BODY_BYTES.
+        const stream = new ReadableStream({
+            start(controller) {
+                const chunkSize = 50 * 1024; // 50KB
+                const numChunks = Math.ceil(
+                    (env.MAX_REQUEST_BODY_BYTES + 1024) / chunkSize
+                );
+                const chunk = new Uint8Array(chunkSize).fill(65); // 'A'
+
+                for (let i = 0; i < numChunks; i++) {
+                    controller.enqueue(chunk);
+                }
+                controller.close();
+            },
+        });
+
+        const response = await apiRequest("/rides", {
+            method: "POST",
+            headers: {
+                "transfer-encoding": "chunked",
+                "content-type": "application/json",
+            },
+            body: stream,
+            // @ts-expect-error fetch Request requires duplex for streams
+            duplex: "half",
+        });
+
+        expect(response.status).toBe(413);
+        await expect(response.json()).resolves.toEqual({
+            error: "PAYLOAD_TOO_LARGE",
+        });
+    });
+
     it("rate-limits a route past its per-route cap with 429 and a Retry-After header", async () => {
         // POST /rides has a per-route cap of 10/min. The rate-limit check runs
         // in `.onRequest` ahead of auth, so unauthenticated requests still
@@ -46,7 +82,7 @@ describe("Request hardening", () => {
         // limiter.
         const headers = {
             "content-type": "application/json",
-            "x-forwarded-for": "203.0.113.7",
+            "x-forwarded-for": crypto.randomUUID(),
         };
 
         for (let i = 0; i < 10; i++) {
