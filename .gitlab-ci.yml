@@ -57,6 +57,8 @@ test:
     services:
         - name: postgres:18
           alias: postgres
+        - name: redis:7-alpine
+          alias: redis
     variables:
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
@@ -86,6 +88,8 @@ e2e:
     services:
         - name: postgres:18
           alias: postgres
+        - name: redis:7-alpine
+          alias: redis
     variables:
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres

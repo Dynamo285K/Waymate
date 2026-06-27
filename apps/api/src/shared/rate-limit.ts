@@ -1,57 +1,85 @@
+import Redis from "ioredis";
+import { env } from "../config/env";
 import { RateLimitError } from "./request-errors";
 
-/**
- * In-memory fixed-window rate limiter.
- *
- * Replaces the previous Postgres-backed limiter, which did 1–2 writes per
- * request on the hot path and grew the `rate_limits` table without bound. This
- * keeps counters in process memory: on a single instance the limit is exact;
- * across replicas it is approximate (each instance holds its own window) and
- * everything resets on restart. Back it with Redis if a strict shared limit is
- * ever required. better-auth keeps its own DB-backed limiting for `/api/auth/*`
- * (see auth.ts) — this only covers our application routes.
- *
- * Semantics differ slightly from the old version: a window resets `windowMs`
- * after it opened, regardless of activity, rather than extending the cool-down
- * on every rejected attempt. This is the conventional fixed-window behaviour.
- */
-type Window = { count: number; resetAt: number };
+const redis = new Redis(env.REDIS_URL, {
+    maxRetriesPerRequest: 1, // Fail fast if Redis is down
+});
 
-const windows = new Map<string, Window>();
+// We register a Lua script for an atomic Token Bucket check.
+// ARGV[1]: maxTokens (burst limit)
+// ARGV[2]: windowMs (refill interval in milliseconds)
+// ARGV[3]: now (current timestamp in milliseconds)
+// Returns: [1, remaining_tokens] if allowed, [0, 0] if rejected.
+redis.defineCommand("consumeToken", {
+    numberOfKeys: 1,
+    lua: `
+local key = KEYS[1]
+local max_tokens = tonumber(ARGV[1])
+local window_ms = tonumber(ARGV[2])
+local now = tonumber(ARGV[3])
 
-// Distinct keys (e.g. one per client IP) would otherwise accumulate forever.
-// Sweep expired entries lazily — at most once per window — so there are no
-// timers keeping the process alive (matters for tests and graceful shutdown).
-let lastSweepAt = 0;
+local bucket = redis.call('HMGET', key, 'tokens', 'last_refill')
+local tokens = tonumber(bucket[1])
+local last_refill = tonumber(bucket[2])
 
-function sweepExpired(now: number, windowMs: number): void {
-    if (now - lastSweepAt < windowMs) return;
-    lastSweepAt = now;
-    for (const [key, window] of windows) {
-        if (now >= window.resetAt) windows.delete(key);
+if not tokens then
+    tokens = max_tokens
+    last_refill = now
+else
+    local elapsed = now - last_refill
+    local tokens_to_add = math.floor((elapsed / window_ms) * max_tokens)
+    if tokens_to_add > 0 then
+        tokens = math.min(tokens + tokens_to_add, max_tokens)
+        last_refill = now
+    end
+end
+
+if tokens > 0 then
+    tokens = tokens - 1
+    redis.call('HMSET', key, 'tokens', tokens, 'last_refill', last_refill)
+    -- Expire keys so Redis doesn't grow unbounded. 
+    redis.call('PEXPIRE', key, window_ms * 2)
+    return { 1, tokens }
+else
+    return { 0, 0 }
+end
+    `,
+});
+
+// Declare the injected command type on the redis instance
+declare module "ioredis" {
+    interface Redis {
+        consumeToken(
+            key: string,
+            maxTokens: number,
+            windowMs: number,
+            now: number
+        ): Promise<[number, number]>;
     }
 }
 
-export function checkRateLimit(
+export async function checkRateLimit(
     key: string,
     max: number,
     windowMs: number
-): void {
-    const now = Date.now();
-    sweepExpired(now, windowMs);
+): Promise<void> {
+    try {
+        const now = Date.now();
+        const [allowed] = await redis.consumeToken(key, max, windowMs, now);
 
-    const existing = windows.get(key);
-    if (!existing || now >= existing.resetAt) {
-        windows.set(key, { count: 1, resetAt: now + windowMs });
-        return;
-    }
+        if (allowed === 0) {
+            const timePerTokenMs = windowMs / max;
+            const retryAfterSeconds = Math.max(
+                1,
+                Math.ceil(timePerTokenMs / 1000)
+            );
+            throw new RateLimitError(retryAfterSeconds);
+        }
+    } catch (err) {
+        if (err instanceof RateLimitError) throw err;
 
-    existing.count += 1;
-    if (existing.count > max) {
-        const retryAfterSeconds = Math.max(
-            1,
-            Math.ceil((existing.resetAt - now) / 1000)
-        );
-        throw new RateLimitError(retryAfterSeconds);
+        // If Redis is unreachable, fail open to avoid bringing down the API
+        console.error("Rate limit check failed or Redis is down:", err);
     }
 }

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { apiRequest } from "../test/http";
 import { env } from "./config/env";
 
@@ -7,6 +7,16 @@ import { env } from "./config/env";
 // in shared/rate-limit.test.ts; this asserts it is actually wired into the HTTP
 // pipeline and produces the documented 413 / 429 responses.
 describe("Request hardening", () => {
+    let originalRateLimit: boolean;
+
+    beforeAll(() => {
+        originalRateLimit = env.RATE_LIMIT_ENABLED;
+        env.RATE_LIMIT_ENABLED = true;
+    });
+
+    afterAll(() => {
+        env.RATE_LIMIT_ENABLED = originalRateLimit;
+    });
     it("rejects a request whose Content-Length exceeds the limit with 413", async () => {
         // The body-size guard reads the Content-Length header in `.onRequest`,
         // before routing — the target path only has to be a non-GET route.
