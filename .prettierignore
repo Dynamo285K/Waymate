@@ -4,6 +4,7 @@ build
 coverage
 .turbo
 bun.lock
+.bun-cache
 *.db
 *.sqlite
 *.sqlite3
