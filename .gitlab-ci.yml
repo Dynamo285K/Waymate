@@ -68,6 +68,7 @@ test:
         # isolation is TRUNCATE in test/setup.ts. config/env.ts requires the
         # auth/origin vars even though the test suite never sends real email.
         DATABASE_URL: "postgres://postgres:postgres@postgres:5432/waymate_test"
+        REDIS_URL: "redis://redis:6379"
         BETTER_AUTH_URL: "http://localhost:3000"
         WEB_ORIGIN: "http://localhost:5173"
         RESEND_API_KEY: "re_ci_dummy_key"
@@ -100,6 +101,7 @@ e2e:
         # service. global-setup.ts (run by start-api.ts) recreates
         # `spolujazda_e2e_db` on this service and runs db:reset (migrate + seed).
         E2E_DATABASE_URL: "postgres://postgres:postgres@postgres:5432/spolujazda_e2e_db"
+        REDIS_URL: "redis://redis:6379"
     script:
         # Pull the Chromium build matching the installed Playwright, plus its
         # OS libraries (the bun image lacks them).
