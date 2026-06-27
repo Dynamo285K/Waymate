@@ -25,15 +25,13 @@ default:
     tags:
         - local-pc
     cache:
-        # Dependency cache keyed by bun.lockb
+        # Cache the global bun cache to speed up downloads,
+        # but do NOT cache node_modules because zipping 100k files is slower than bun install.
         - key:
               files:
                   - bun.lockb
           paths:
               - .bun-cache/
-              - node_modules/
-              - apps/*/node_modules/
-              - packages/*/node_modules/
         # Build output cache keyed by branch
         - key: ${CI_COMMIT_REF_SLUG}-turbo
           paths:
@@ -116,18 +114,17 @@ e2e:
         REDIS_URL: "redis://redis:6379"
         PLAYWRIGHT_BROWSERS_PATH: "$CI_PROJECT_DIR/.playwright-cache"
     cache:
-        # Inherit the default caches and append Playwright browser cache
         - key:
               files:
                   - bun.lockb
           paths:
               - .bun-cache/
-              - node_modules/
-              - apps/*/node_modules/
-              - packages/*/node_modules/
         - key: ${CI_COMMIT_REF_SLUG}-turbo
           paths:
               - .turbo/
+              - apps/*/.turbo/
+              - packages/*/.turbo/
+              - e2e/.turbo/
         - key: ${CI_COMMIT_REF_SLUG}-playwright
           paths:
               - .playwright-cache/
