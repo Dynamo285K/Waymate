@@ -38,6 +38,9 @@ default:
         - key: ${CI_COMMIT_REF_SLUG}-turbo
           paths:
               - .turbo/
+              - apps/*/.turbo/
+              - packages/*/.turbo/
+              - e2e/.turbo/
     before_script:
         - echo "//gitlab.fi.muni.cz/api/v4/projects/48090/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> ~/.npmrc
         - bun --version
@@ -94,6 +97,8 @@ test-web:
 
 e2e:
     stage: e2e
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     services:
         - name: postgres:18
           alias: postgres
