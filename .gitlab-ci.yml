@@ -84,7 +84,7 @@ test:
         RESEND_API_KEY: "re_ci_dummy_key"
         NODE_ENV: "test"
     script:
-        - bun run scripts/wait-for-db.ts
+        - bun run --cwd apps/api scripts/wait-for-db.ts
         - bun run test
 
 test-web:
@@ -130,7 +130,7 @@ e2e:
         # Pull the Chromium build matching the installed Playwright, plus its
         # OS libraries (the bun image lacks them).
         - bunx playwright install --with-deps chromium
-        - bun run scripts/wait-for-db.ts
+        - bun run --cwd apps/api scripts/wait-for-db.ts
         - bun run --cwd e2e test
     artifacts:
         when: on_failure
