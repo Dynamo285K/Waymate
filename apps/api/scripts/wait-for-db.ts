@@ -1,13 +1,19 @@
 import postgres from "postgres";
 
-const url = process.env.E2E_DATABASE_URL || process.env.DATABASE_URL;
+const rawUrl = process.env.E2E_DATABASE_URL || process.env.DATABASE_URL;
 
-if (!url) {
+if (!rawUrl) {
     console.error("No database URL provided for wait-for-db.ts");
     process.exit(1);
 }
 
-const sql = postgres(url, { max: 1, connect_timeout: 5 });
+// Connect to the default database created by the postgres service,
+// because specific databases (like spolujazda_e2e_db) might not exist yet.
+const urlObj = new URL(rawUrl);
+urlObj.pathname = `/${process.env.POSTGRES_DB || "postgres"}`;
+const finalUrl = urlObj.toString();
+
+const sql = postgres(finalUrl, { max: 1, connect_timeout: 5 });
 
 const check = async () => {
     try {
