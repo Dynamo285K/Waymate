@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { blocklist } from "../../db/schema";
 import { BlockService } from "./block.service";
-import { BlockError, BlockErrorCodes } from "./block.errors";
+import { BlockErrorCodes } from "./block.errors";
 import { createTestUser } from "../../../test/factories";
 
 describe("BlockService.blockUser", () => {

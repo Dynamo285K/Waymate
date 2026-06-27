@@ -30,7 +30,7 @@ default:
     before_script:
         - echo "//gitlab.fi.muni.cz/api/v4/projects/48090/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> ~/.npmrc
         - bun --version
-        - bun install
+        - timeout 2m bun install || timeout 2m bun install || timeout 2m bun install
 
 lint:
     stage: static-analysis
@@ -81,6 +81,8 @@ test-web:
 
 e2e:
     stage: e2e
+    rules:
+        - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     services:
         - name: postgres:18
           alias: postgres
