@@ -8,6 +8,7 @@
 export type RequestMeta = {
     requestId: string;
     startedAt: number;
+    payloadTooLarge?: boolean;
 };
 
 export const requestMeta = new WeakMap<Request, RequestMeta>();

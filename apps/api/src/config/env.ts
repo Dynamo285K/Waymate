@@ -57,6 +57,7 @@ const EnvSchema = z.object({
         .default("development"),
     PORT: z.coerce.number().int().min(1).max(65535).default(3000),
     DATABASE_URL: z.string().min(1),
+    REDIS_URL: z.string().min(1).default("redis://localhost:6379"),
     BETTER_AUTH_URL: z.url(),
     WEB_ORIGIN: OriginSchema,
     CORS_ORIGINS: OriginListSchema,

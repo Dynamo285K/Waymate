@@ -3,6 +3,7 @@ node_modules
 
 # bun
 bun.lockb
+.bun-cache
 
 # turbo
 .turbo
@@ -50,6 +51,7 @@ temp
 e2e/test-results/
 e2e/playwright-report/
 e2e/blob-report/
+.playwright-cache/
 
 # local bun config (contains auth tokens)
 bunfig.toml

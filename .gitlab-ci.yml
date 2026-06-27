@@ -1,5 +1,6 @@
 variables:
     PIPELINE_NAME: "Waymate CI"
+    BUN_INSTALL_CACHE_DIR: "$CI_PROJECT_DIR/.bun-cache"
 
 workflow:
     name: $PIPELINE_NAME
@@ -24,9 +25,20 @@ default:
     tags:
         - local-pc
     cache:
-        key: ${CI_COMMIT_REF_SLUG}
-        paths:
-            - .bun/install/cache
+        # Cache the global bun cache to speed up downloads,
+        # but do NOT cache node_modules because zipping 100k files is slower than bun install.
+        - key:
+              files:
+                  - bun.lockb
+          paths:
+              - .bun-cache/
+        # Build output cache keyed by branch
+        - key: ${CI_COMMIT_REF_SLUG}-turbo
+          paths:
+              - .turbo/
+              - apps/*/.turbo/
+              - packages/*/.turbo/
+              - e2e/.turbo/
     before_script:
         - echo "//gitlab.fi.muni.cz/api/v4/projects/48090/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> ~/.npmrc
         - bun --version
@@ -57,6 +69,8 @@ test:
     services:
         - name: postgres:18
           alias: postgres
+        - name: redis:7-alpine
+          alias: redis
     variables:
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
@@ -65,13 +79,13 @@ test:
         # isolation is TRUNCATE in test/setup.ts. config/env.ts requires the
         # auth/origin vars even though the test suite never sends real email.
         DATABASE_URL: "postgres://postgres:postgres@postgres:5432/waymate_test"
+        REDIS_URL: "redis://redis:6379"
         BETTER_AUTH_URL: "http://localhost:3000"
         WEB_ORIGIN: "http://localhost:5173"
         RESEND_API_KEY: "re_ci_dummy_key"
         NODE_ENV: "test"
     script:
-        - apt-get update && apt-get install -y postgresql-client
-        - until pg_isready -h postgres -p 5432 -U postgres; do sleep 1; done
+        - bun run --cwd apps/api scripts/wait-for-db.ts
         - bun run test
 
 test-web:
@@ -82,10 +96,12 @@ test-web:
 e2e:
     stage: e2e
     rules:
-        - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     services:
         - name: postgres:18
           alias: postgres
+        - name: redis:7-alpine
+          alias: redis
     variables:
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
@@ -95,12 +111,28 @@ e2e:
         # service. global-setup.ts (run by start-api.ts) recreates
         # `spolujazda_e2e_db` on this service and runs db:reset (migrate + seed).
         E2E_DATABASE_URL: "postgres://postgres:postgres@postgres:5432/spolujazda_e2e_db"
+        REDIS_URL: "redis://redis:6379"
+        PLAYWRIGHT_BROWSERS_PATH: "$CI_PROJECT_DIR/.playwright-cache"
+    cache:
+        - key:
+              files:
+                  - bun.lockb
+          paths:
+              - .bun-cache/
+        - key: ${CI_COMMIT_REF_SLUG}-turbo
+          paths:
+              - .turbo/
+              - apps/*/.turbo/
+              - packages/*/.turbo/
+              - e2e/.turbo/
+        - key: ${CI_COMMIT_REF_SLUG}-playwright
+          paths:
+              - .playwright-cache/
     script:
         # Pull the Chromium build matching the installed Playwright, plus its
         # OS libraries (the bun image lacks them).
         - bunx playwright install --with-deps chromium
-        - apt-get update && apt-get install -y postgresql-client
-        - until pg_isready -h postgres -p 5432 -U postgres; do sleep 1; done
+        - bun run --cwd apps/api scripts/wait-for-db.ts
         - bun run --cwd e2e test
     artifacts:
         when: on_failure
