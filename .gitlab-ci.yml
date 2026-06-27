@@ -1,5 +1,6 @@
 variables:
     PIPELINE_NAME: "Waymate CI"
+    BUN_INSTALL_CACHE_DIR: "$CI_PROJECT_DIR/.bun-cache"
 
 workflow:
     name: $PIPELINE_NAME
@@ -26,7 +27,7 @@ default:
     cache:
         key: ${CI_COMMIT_REF_SLUG}
         paths:
-            - .bun/install/cache
+            - .bun-cache
     before_script:
         - echo "//gitlab.fi.muni.cz/api/v4/projects/48090/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> ~/.npmrc
         - bun --version
