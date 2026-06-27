@@ -30,7 +30,7 @@ default:
     before_script:
         - echo "//gitlab.fi.muni.cz/api/v4/projects/48090/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> ~/.npmrc
         - bun --version
-        - bun install
+        - timeout 2m bun install || timeout 2m bun install || timeout 2m bun install
 
 lint:
     stage: static-analysis
