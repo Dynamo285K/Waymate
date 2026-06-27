@@ -25,9 +25,19 @@ default:
     tags:
         - local-pc
     cache:
-        key: ${CI_COMMIT_REF_SLUG}
-        paths:
-            - .bun-cache
+        # Dependency cache keyed by bun.lockb
+        - key:
+              files:
+                  - bun.lockb
+          paths:
+              - .bun-cache/
+              - node_modules/
+              - apps/*/node_modules/
+              - packages/*/node_modules/
+        # Build output cache keyed by branch
+        - key: ${CI_COMMIT_REF_SLUG}-turbo
+          paths:
+              - .turbo/
     before_script:
         - echo "//gitlab.fi.muni.cz/api/v4/projects/48090/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> ~/.npmrc
         - bun --version
@@ -85,8 +95,6 @@ test-web:
 
 e2e:
     stage: e2e
-    rules:
-        - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     services:
         - name: postgres:18
           alias: postgres
@@ -102,6 +110,23 @@ e2e:
         # `spolujazda_e2e_db` on this service and runs db:reset (migrate + seed).
         E2E_DATABASE_URL: "postgres://postgres:postgres@postgres:5432/spolujazda_e2e_db"
         REDIS_URL: "redis://redis:6379"
+        PLAYWRIGHT_BROWSERS_PATH: "$CI_PROJECT_DIR/.playwright-cache"
+    cache:
+        # Inherit the default caches and append Playwright browser cache
+        - key:
+              files:
+                  - bun.lockb
+          paths:
+              - .bun-cache/
+              - node_modules/
+              - apps/*/node_modules/
+              - packages/*/node_modules/
+        - key: ${CI_COMMIT_REF_SLUG}-turbo
+          paths:
+              - .turbo/
+        - key: ${CI_COMMIT_REF_SLUG}-playwright
+          paths:
+              - .playwright-cache/
     script:
         # Pull the Chromium build matching the installed Playwright, plus its
         # OS libraries (the bun image lacks them).
