@@ -81,6 +81,8 @@ test-web:
 
 e2e:
     stage: e2e
+    rules:
+        - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     services:
         - name: postgres:18
           alias: postgres
