@@ -20,7 +20,7 @@ const check = async () => {
         await sql`SELECT 1`;
         console.log("Database is ready!");
         process.exit(0);
-    } catch (e) {
+    } catch (_e) {
         setTimeout(check, 1000);
     }
 };

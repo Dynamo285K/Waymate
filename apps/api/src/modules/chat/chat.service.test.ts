@@ -219,6 +219,50 @@ describe("ChatService.getMessages", () => {
         );
         expect(older.map((m) => m.content)).toEqual(["msg-0", "msg-1"]);
     });
+
+    it("paginates stably when messages share the exact same sentAt", async () => {
+        const { driverId, bookingId } = await bookingChatContext();
+        const conversationId = await ChatService.getOrCreateConversation(
+            bookingId,
+            driverId
+        );
+
+        const base = new Date();
+
+        // Insert 3 messages with the exact same timestamp
+        await Promise.all(
+            ["m1", "m2", "m3"].map((content) =>
+                db
+                    .insert(messagesTable)
+                    .values({
+                        conversationId,
+                        senderId: driverId,
+                        content,
+                        messageType: "TEXT",
+                        sentAt: base,
+                    })
+                    .returning()
+            )
+        );
+
+        // Fetch all 3 to establish their order (ascending by default return)
+        const all = await ChatService.getMessages(conversationId, driverId, 3);
+        expect(all).toHaveLength(3);
+
+        // Paginate using the middle one as cursor (keyset pagination)
+        const cursorMsg = all[1];
+        const older = await ChatService.getMessages(
+            conversationId,
+            driverId,
+            1,
+            cursorMsg.sentAt,
+            cursorMsg.id
+        );
+
+        // It should precisely return the oldest one (which is all[0]) without skipping or duplicating
+        expect(older).toHaveLength(1);
+        expect(older[0].id).toBe(all[0].id);
+    });
 });
 
 describe("ChatService.getConversations & markRead", () => {

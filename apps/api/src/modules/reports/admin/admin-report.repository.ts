@@ -387,7 +387,7 @@ const findConversationMessagesForReport = async (
                 isNull(messagesTable.deletedAt)
             )
         )
-        .orderBy(asc(messagesTable.sentAt))
+        .orderBy(asc(messagesTable.sentAt), asc(messagesTable.id))
         .limit(limit);
 };
 

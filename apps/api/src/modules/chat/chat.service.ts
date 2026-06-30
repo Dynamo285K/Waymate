@@ -106,7 +106,8 @@ const getMessages = async (
     conversationId: string,
     userId: string,
     limit: number,
-    before?: Date
+    before?: Date,
+    beforeId?: string
 ): Promise<Message[]> => {
     const context = await ChatRepository.findConversationContext(
         db,
@@ -123,7 +124,8 @@ const getMessages = async (
         db,
         conversationId,
         limit,
-        before
+        before,
+        beforeId
     );
 };
 
