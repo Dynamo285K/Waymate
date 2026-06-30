@@ -1,4 +1,4 @@
-import { assertNever, DomainError } from "../../shared/errors";
+import { DomainError } from "../../shared/errors";
 
 export const ReviewErrorCodes = {
     ReviewNotFound: "REVIEW_NOT_FOUND",
@@ -15,30 +15,22 @@ export const ReviewErrorCodes = {
 export type ReviewErrorCode =
     (typeof ReviewErrorCodes)[keyof typeof ReviewErrorCodes];
 
+const REVIEW_ERROR_STATUS: Record<ReviewErrorCode, number> = {
+    [ReviewErrorCodes.ReviewNotFound]: 404,
+    [ReviewErrorCodes.RideNotFound]: 404,
+    [ReviewErrorCodes.AuthorNotInRide]: 403,
+    [ReviewErrorCodes.AlreadyExists]: 409,
+    [ReviewErrorCodes.RideNotCompleted]: 400,
+    [ReviewErrorCodes.RatingWindowClosed]: 400,
+    [ReviewErrorCodes.SelfReviewNotAllowed]: 400,
+    [ReviewErrorCodes.SubjectNotInRide]: 400,
+    [ReviewErrorCodes.InvalidPairing]: 400,
+};
+
 export class ReviewError extends DomainError {
     readonly code: ReviewErrorCode;
     constructor(code: ReviewErrorCode) {
-        super(code);
+        super(code, REVIEW_ERROR_STATUS[code]);
         this.code = code;
-    }
-}
-
-export function reviewErrorToHttpStatus(code: ReviewErrorCode): number {
-    switch (code) {
-        case ReviewErrorCodes.ReviewNotFound:
-        case ReviewErrorCodes.RideNotFound:
-            return 404;
-        case ReviewErrorCodes.AuthorNotInRide:
-            return 403;
-        case ReviewErrorCodes.AlreadyExists:
-            return 409;
-        case ReviewErrorCodes.RideNotCompleted:
-        case ReviewErrorCodes.RatingWindowClosed:
-        case ReviewErrorCodes.SelfReviewNotAllowed:
-        case ReviewErrorCodes.SubjectNotInRide:
-        case ReviewErrorCodes.InvalidPairing:
-            return 400;
-        default:
-            return assertNever(code);
     }
 }

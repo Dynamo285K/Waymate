@@ -1,4 +1,4 @@
-import { assertNever, DomainError } from "../../shared/errors";
+import { DomainError } from "../../shared/errors";
 
 export const ChatErrorCodes = {
     ConversationNotFound: "CHAT_CONVERSATION_NOT_FOUND",
@@ -13,27 +13,20 @@ export const ChatErrorCodes = {
 export type ChatErrorCode =
     (typeof ChatErrorCodes)[keyof typeof ChatErrorCodes];
 
+const CHAT_ERROR_STATUS: Record<ChatErrorCode, number> = {
+    [ChatErrorCodes.ConversationNotFound]: 404,
+    [ChatErrorCodes.BookingNotFound]: 404,
+    [ChatErrorCodes.NotAParticipant]: 403,
+    [ChatErrorCodes.Blocked]: 403,
+    [ChatErrorCodes.BlockedByOther]: 403,
+    [ChatErrorCodes.RecipientBanned]: 403,
+    [ChatErrorCodes.MessageEmpty]: 400,
+};
+
 export class ChatError extends DomainError {
     readonly code: ChatErrorCode;
     constructor(code: ChatErrorCode) {
-        super(code);
+        super(code, CHAT_ERROR_STATUS[code]);
         this.code = code;
-    }
-}
-
-export function chatErrorToHttpStatus(code: ChatErrorCode): number {
-    switch (code) {
-        case ChatErrorCodes.ConversationNotFound:
-        case ChatErrorCodes.BookingNotFound:
-            return 404;
-        case ChatErrorCodes.NotAParticipant:
-        case ChatErrorCodes.Blocked:
-        case ChatErrorCodes.BlockedByOther:
-        case ChatErrorCodes.RecipientBanned:
-            return 403;
-        case ChatErrorCodes.MessageEmpty:
-            return 400;
-        default:
-            return assertNever(code);
     }
 }

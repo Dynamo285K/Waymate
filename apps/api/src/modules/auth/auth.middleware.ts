@@ -98,9 +98,9 @@ function resolveAuthenticatedUser(request: Request): Promise<ResolvedAuth> {
     return promise;
 }
 
-// Macros throw AuthError instead of returning status(...) inline so every
-// module's .onError handler maps the failure through one shared code path
-// (authErrorToHttpStatus) — see CLAUDE.md "Authentication and authorization".
+// Macros throw AuthError instead of returning status(...) inline so the root
+// .onError maps the failure through the one shared DomainError path (each error
+// carries its httpStatus) — see CLAUDE.md "Authentication and authorization".
 export const isAuthenticated = new Elysia({ name: "better-auth" })
     .mount(auth.handler)
     .macro({

@@ -1,4 +1,4 @@
-import { assertNever, DomainError } from "../../shared/errors";
+import { DomainError } from "../../shared/errors";
 
 export const BookingErrorCodes = {
     BookingNotFound: "BOOKING_NOT_FOUND",
@@ -17,32 +17,24 @@ export const BookingErrorCodes = {
 export type BookingErrorCode =
     (typeof BookingErrorCodes)[keyof typeof BookingErrorCodes];
 
+const BOOKING_ERROR_STATUS: Record<BookingErrorCode, number> = {
+    [BookingErrorCodes.BookingNotFound]: 404,
+    [BookingErrorCodes.RideNotFoundOrUnavailable]: 404,
+    [BookingErrorCodes.UnauthorizedAction]: 403,
+    [BookingErrorCodes.Blocked]: 403,
+    [BookingErrorCodes.NotEnoughSeats]: 409,
+    [BookingErrorCodes.AlreadyBooked]: 409,
+    [BookingErrorCodes.InvalidStops]: 400,
+    [BookingErrorCodes.AlreadyCancelled]: 400,
+    [BookingErrorCodes.InvalidStatusTransition]: 400,
+    [BookingErrorCodes.PriceNotFound]: 400,
+    [BookingErrorCodes.SelfBookingNotAllowed]: 400,
+};
+
 export class BookingError extends DomainError {
     readonly code: BookingErrorCode;
     constructor(code: BookingErrorCode) {
-        super(code);
+        super(code, BOOKING_ERROR_STATUS[code]);
         this.code = code;
-    }
-}
-
-export function bookingErrorToHttpStatus(code: BookingErrorCode): number {
-    switch (code) {
-        case BookingErrorCodes.BookingNotFound:
-        case BookingErrorCodes.RideNotFoundOrUnavailable:
-            return 404;
-        case BookingErrorCodes.UnauthorizedAction:
-        case BookingErrorCodes.Blocked:
-            return 403;
-        case BookingErrorCodes.NotEnoughSeats:
-        case BookingErrorCodes.AlreadyBooked:
-            return 409;
-        case BookingErrorCodes.InvalidStops:
-        case BookingErrorCodes.AlreadyCancelled:
-        case BookingErrorCodes.InvalidStatusTransition:
-        case BookingErrorCodes.PriceNotFound:
-        case BookingErrorCodes.SelfBookingNotAllowed:
-            return 400;
-        default:
-            return assertNever(code);
     }
 }

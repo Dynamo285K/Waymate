@@ -5,8 +5,6 @@ import {
     ReportActionResponseSchema,
 } from "@repo/shared";
 import { isFullyOnboarded } from "../auth/auth.middleware";
-import { createErrorHandler } from "../auth/auth.errors";
-import { ReportError, reportErrorToHttpStatus } from "./report.errors";
 import { ReportService } from "./report.service";
 import { AdminReportRoutes } from "./admin/admin-report.routes";
 
@@ -19,7 +17,6 @@ export const ReportRoutes = new Elysia({
         ReportActionResponse: ReportActionResponseSchema,
         ErrorResponse: ErrorResponseSchema,
     })
-    .onError(createErrorHandler(ReportError, reportErrorToHttpStatus))
     .use(isFullyOnboarded)
     .guard({ auth: true, onboarded: true }, (app) =>
         app.post(

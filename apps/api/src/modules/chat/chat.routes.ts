@@ -2,8 +2,6 @@ import { Elysia } from "elysia";
 import { ChatService } from "./chat.service";
 import { ChatRealtime } from "./chat.realtime";
 import { isFullyOnboarded } from "../auth/auth.middleware";
-import { createErrorHandler } from "../auth/auth.errors";
-import { ChatError, chatErrorToHttpStatus } from "./chat.errors";
 import { logger } from "../../shared/logger";
 import {
     ErrorResponseSchema,
@@ -37,8 +35,6 @@ export const ChatRoutes = new Elysia({
     .use(isFullyOnboarded)
     .guard({ auth: true, onboarded: true }, (app) =>
         app
-            .onError(createErrorHandler(ChatError, chatErrorToHttpStatus))
-
             .get(
                 "/",
                 async ({ user }) => {

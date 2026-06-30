@@ -2,7 +2,6 @@ import { Elysia } from "elysia";
 import { RideService } from "./ride.service";
 import { auth } from "../auth/auth";
 import { isFullyOnboarded } from "../auth/auth.middleware";
-import { createErrorHandler } from "../auth/auth.errors";
 import { AdminRideRoutes } from "./admin/admin-ride.routes";
 
 // /available and /search are public (guests can browse), so we can't use the
@@ -18,7 +17,6 @@ const resolveViewerId = async (
         return undefined;
     }
 };
-import { RideError, rideErrorToHttpStatus } from "./ride.errors";
 import {
     ErrorResponseSchema,
     RideSchema,
@@ -65,7 +63,6 @@ export const RideRoutes = new Elysia({ prefix: "/rides", tags: ["Rides"] })
         EstimateEtaBody: EstimateEtaBodySchema,
         EstimateEtaResponse: EstimateEtaResponseSchema,
     })
-    .onError(createErrorHandler(RideError, rideErrorToHttpStatus))
     .get(
         "/available",
         async ({ request }) => {

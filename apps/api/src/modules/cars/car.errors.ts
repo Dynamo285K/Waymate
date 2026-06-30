@@ -1,4 +1,4 @@
-import { assertNever, DomainError } from "../../shared/errors";
+import { DomainError } from "../../shared/errors";
 
 export const CarErrorCodes = {
     ModelNotFound: "CAR_MODEL_NOT_FOUND",
@@ -9,24 +9,17 @@ export const CarErrorCodes = {
 
 export type CarErrorCode = (typeof CarErrorCodes)[keyof typeof CarErrorCodes];
 
+const CAR_ERROR_STATUS: Record<CarErrorCode, number> = {
+    [CarErrorCodes.ModelNotFound]: 400,
+    [CarErrorCodes.DuplicatePlate]: 409,
+    [CarErrorCodes.CarNotFound]: 404,
+    [CarErrorCodes.CarInUse]: 409,
+};
+
 export class CarError extends DomainError {
     readonly code: CarErrorCode;
     constructor(code: CarErrorCode) {
-        super(code);
+        super(code, CAR_ERROR_STATUS[code]);
         this.code = code;
-    }
-}
-
-export function carErrorToHttpStatus(code: CarErrorCode): number {
-    switch (code) {
-        case CarErrorCodes.CarNotFound:
-            return 404;
-        case CarErrorCodes.DuplicatePlate:
-        case CarErrorCodes.CarInUse:
-            return 409;
-        case CarErrorCodes.ModelNotFound:
-            return 400;
-        default:
-            return assertNever(code);
     }
 }

@@ -1,8 +1,6 @@
 import { Elysia } from "elysia";
 import { CarService } from "./car.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
-import { createErrorHandler } from "../auth/auth.errors";
-import { CarError, carErrorToHttpStatus } from "./car.errors";
 import {
     ErrorResponseSchema,
     CarSchema,
@@ -34,7 +32,6 @@ export const CarRoutes = new Elysia({ prefix: "/cars", tags: ["Cars"] })
         CarBrandNameList: CarBrandNameListSchema,
         CarBrandParams: CarBrandParamsSchema,
     })
-    .onError(createErrorHandler(CarError, carErrorToHttpStatus))
     .use(isFullyOnboarded)
     .guard({ auth: true, onboarded: true }, (app) =>
         app

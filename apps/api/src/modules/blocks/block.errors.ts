@@ -1,4 +1,4 @@
-import { assertNever, DomainError } from "../../shared/errors";
+import { DomainError } from "../../shared/errors";
 
 export const BlockErrorCodes = {
     CannotBlockSelf: "BLOCK_CANNOT_BLOCK_SELF",
@@ -9,22 +9,16 @@ export const BlockErrorCodes = {
 export type BlockErrorCode =
     (typeof BlockErrorCodes)[keyof typeof BlockErrorCodes];
 
+const BLOCK_ERROR_STATUS: Record<BlockErrorCode, number> = {
+    [BlockErrorCodes.CannotBlockSelf]: 400,
+    [BlockErrorCodes.TargetNotFound]: 404,
+    [BlockErrorCodes.NotBlocked]: 404,
+};
+
 export class BlockError extends DomainError {
     readonly code: BlockErrorCode;
     constructor(code: BlockErrorCode) {
-        super(code);
+        super(code, BLOCK_ERROR_STATUS[code]);
         this.code = code;
-    }
-}
-
-export function blockErrorToHttpStatus(code: BlockErrorCode): number {
-    switch (code) {
-        case BlockErrorCodes.CannotBlockSelf:
-            return 400;
-        case BlockErrorCodes.TargetNotFound:
-        case BlockErrorCodes.NotBlocked:
-            return 404;
-        default:
-            return assertNever(code);
     }
 }

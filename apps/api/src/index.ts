@@ -10,41 +10,20 @@ import { HealthRoutes } from "./modules/health/health.routes";
 import { UserRoutes } from "./modules/users/user.routes";
 import { CarRoutes } from "./modules/cars/car.routes";
 import { RideRoutes } from "./modules/rides/ride.routes";
-import { RideError, rideErrorToHttpStatus } from "./modules/rides/ride.errors";
-import {
-    BookingError,
-    bookingErrorToHttpStatus,
-} from "./modules/bookings/booking.errors";
-import { CarError, carErrorToHttpStatus } from "./modules/cars/car.errors";
 import { startRideAutoEndWorker } from "./modules/rides/lifecycle/ride.auto-end";
 import { BookingRoutes } from "./modules/bookings/booking.routes";
 import { ChatRoutes } from "./modules/chat/chat.routes";
-import { ChatError, chatErrorToHttpStatus } from "./modules/chat/chat.errors";
 import { ChatRealtime } from "./modules/chat/chat.realtime";
 import { ReviewRoutes } from "./modules/reviews/review.routes";
-import {
-    ReviewError,
-    reviewErrorToHttpStatus,
-} from "./modules/reviews/review.errors";
 import { ReportRoutes } from "./modules/reports/report.routes";
 import { BlockRoutes } from "./modules/blocks/block.routes";
-import {
-    BlockError,
-    blockErrorToHttpStatus,
-} from "./modules/blocks/block.errors";
-import {
-    ReportError,
-    reportErrorToHttpStatus,
-} from "./modules/reports/report.errors";
 import { StatisticsRoutes } from "./modules/statistics/statistics.routes";
 import { checkRateLimit } from "./shared/rate-limit";
 import {
     RateLimitError,
     RequestError,
     RequestErrorCodes,
-    requestErrorToHttpStatus,
 } from "./shared/request-errors";
-import { AuthError, authErrorToHttpStatus } from "./modules/auth/auth.errors";
 import { DomainError } from "./shared/errors";
 import { logger } from "./shared/logger";
 import { requestMeta } from "./shared/request-meta";
@@ -221,71 +200,25 @@ export const app = new Elysia()
         }
     })
     .onError(({ code, error, status, set, request }) => {
+        // Rate limiting is the one domain error needing an extra header, so it
+        // is handled before the generic branch (it is itself a DomainError).
         if (error instanceof RateLimitError) {
             set.headers["retry-after"] = String(error.retryAfterSeconds);
             return status(429, { error: error.code });
         }
-        if (error instanceof RequestError) {
-            return status(requestErrorToHttpStatus(error.code), {
-                error: error.code,
-            });
-        }
-        // AuthError is thrown by globally-registered macros (`isAuthenticated`,
-        // `requireAdmin`, …). Because those plugins carry a `name`, Elysia
-        // hoists their resolve callbacks to the app scope, which means errors
-        // bypass per-module `.onError` handlers and land here. Map them to the
-        // same 401/403 shape the modules would have produced.
-        if (error instanceof AuthError) {
-            return status(authErrorToHttpStatus(error.code), {
-                error: error.code,
-            });
-        }
-        if (error instanceof RideError) {
-            return status(rideErrorToHttpStatus(error.code), {
-                error: error.code,
-            });
-        }
-        if (error instanceof BookingError) {
-            return status(bookingErrorToHttpStatus(error.code), {
-                error: error.code,
-            });
-        }
-        if (error instanceof ChatError) {
-            return status(chatErrorToHttpStatus(error.code), {
-                error: error.code,
-            });
-        }
-        if (error instanceof BlockError) {
-            return status(blockErrorToHttpStatus(error.code), {
-                error: error.code,
-            });
-        }
-        if (error instanceof CarError) {
-            return status(carErrorToHttpStatus(error.code), {
-                error: error.code,
-            });
-        }
-        if (error instanceof ReportError) {
-            return status(reportErrorToHttpStatus(error.code), {
-                error: error.code,
-            });
-        }
-        if (error instanceof ReviewError) {
-            return status(reviewErrorToHttpStatus(error.code), {
-                error: error.code,
-            });
+        // Every domain error carries its own HTTP status: auth-guard failures
+        // (`isAuthenticated`, `requireAdmin`, …), request hardening, and all
+        // module errors. Elysia hoists named-plugin guards to app scope, so
+        // those bypass module handlers and land here — this single branch maps
+        // them all to the same `{ error: code }` shape.
+        if (error instanceof DomainError) {
+            return status(error.httpStatus, { error: error.code });
         }
         if (code === "VALIDATION" || code === "PARSE") {
             return status(400, { error: "VALIDATION" });
         }
         if (code === "NOT_FOUND") {
             return status(404, { error: "NOT_FOUND" });
-        }
-        // Domain errors that bypassed per-module .onError handlers due to
-        // Elysia's named-plugin hoisting. Surface the error code to the
-        // client so frontends can map it; use 409 as a safe non-5xx status.
-        if (error instanceof DomainError) {
-            return status(409, { error: error.code });
         }
         const meta = requestMeta.get(request);
         logger.error(

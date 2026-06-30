@@ -1,4 +1,4 @@
-import { assertNever, DomainError } from "../../shared/errors";
+import { DomainError } from "../../shared/errors";
 
 export const ReportErrorCodes = {
     SelfReportNotAllowed: "REPORT_CANNOT_REPORT_SELF",
@@ -14,29 +14,21 @@ export const ReportErrorCodes = {
 export type ReportErrorCode =
     (typeof ReportErrorCodes)[keyof typeof ReportErrorCodes];
 
+const REPORT_ERROR_STATUS: Record<ReportErrorCode, number> = {
+    [ReportErrorCodes.TargetUserNotFound]: 404,
+    [ReportErrorCodes.RideNotFound]: 404,
+    [ReportErrorCodes.ReportNotFound]: 404,
+    [ReportErrorCodes.TargetNotAllowed]: 403,
+    [ReportErrorCodes.SelfReportNotAllowed]: 400,
+    [ReportErrorCodes.ReportReasonRequired]: 400,
+    [ReportErrorCodes.DuplicateOpenReport]: 409,
+    [ReportErrorCodes.ReportInvalidTransition]: 409,
+};
+
 export class ReportError extends DomainError {
     readonly code: ReportErrorCode;
     constructor(code: ReportErrorCode) {
-        super(code);
+        super(code, REPORT_ERROR_STATUS[code]);
         this.code = code;
-    }
-}
-
-export function reportErrorToHttpStatus(code: ReportErrorCode): number {
-    switch (code) {
-        case ReportErrorCodes.TargetUserNotFound:
-        case ReportErrorCodes.RideNotFound:
-        case ReportErrorCodes.ReportNotFound:
-            return 404;
-        case ReportErrorCodes.TargetNotAllowed:
-            return 403;
-        case ReportErrorCodes.SelfReportNotAllowed:
-        case ReportErrorCodes.ReportReasonRequired:
-            return 400;
-        case ReportErrorCodes.DuplicateOpenReport:
-        case ReportErrorCodes.ReportInvalidTransition:
-            return 409;
-        default:
-            return assertNever(code);
     }
 }

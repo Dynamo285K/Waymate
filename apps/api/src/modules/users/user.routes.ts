@@ -1,8 +1,6 @@
 import { Elysia } from "elysia";
 import { UserService } from "./user.service";
 import { isAuthenticated } from "../auth/auth.middleware";
-import { createErrorHandler } from "../auth/auth.errors";
-import { UserError, userErrorToHttpStatus } from "./user.errors";
 import { AdminUserRoutes } from "./admin/admin-user.routes";
 import {
     ErrorResponseSchema,
@@ -18,7 +16,6 @@ export const UserRoutes = new Elysia({ prefix: "/users", tags: ["Users"] })
         UpdateUserBody: UpdateUserBodySchema,
         ErrorResponse: ErrorResponseSchema,
     })
-    .onError(createErrorHandler(UserError, userErrorToHttpStatus))
     .use(isAuthenticated)
     .guard({ auth: true }, (app) =>
         app
