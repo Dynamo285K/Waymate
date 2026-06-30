@@ -12,7 +12,7 @@ import { usePatchUsersMeOnboarding } from "../api-client/users/users";
 import type { ApiMutationError } from "../lib/api-fetcher";
 import { getErrorI18nKey } from "../lib/api-errors";
 import { getPostAuthPath, signOut } from "../lib/auth";
-import { authClient } from "../lib/auth-client";
+import { useSession } from "../lib/use-session";
 import { useLayout } from "../lib/use-layout";
 import {
     NAME_MAX_LENGTH,
@@ -109,7 +109,7 @@ function OnboardingPage() {
         data: session,
         isPending: isLoadingProfile,
         error: loadError,
-    } = authClient.useSession();
+    } = useSession();
     const user = session?.user;
 
     useEffect(() => {
@@ -127,13 +127,9 @@ function OnboardingPage() {
         });
     }, [user, isLoadingProfile, reset]);
 
-    const onboardMutation = usePatchUsersMeOnboarding<ApiMutationError>({
-        mutation: {
-            onSuccess: () => {
-                authClient.$store.notify("$sessionSignal");
-            },
-        },
-    });
+    // No onSuccess refresh needed: getPostAuthPath() invalidates ["session"]
+    // right after submit, so the session cache is fresh before we navigate.
+    const onboardMutation = usePatchUsersMeOnboarding<ApiMutationError>();
 
     async function onSubmit(values: OnboardingFormValues) {
         try {

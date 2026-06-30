@@ -1,10 +1,27 @@
 import { redirect } from "@tanstack/react-router";
-import type { QueryClient } from "@tanstack/react-query";
+import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import { authClient } from "./auth-client";
 
 export interface RouterContext {
     queryClient: QueryClient;
 }
+
+// Single source of the current session. Every route guard reads it through the
+// query cache, so a navigation that matches several guarded routes (plus the
+// post-login redirect) shares ONE /get-session call instead of one per
+// consumer. Auth mutations (sign-in/out, profile edits) invalidate this key —
+// see auth.ts — so a stale session never gates a route.
+export const SESSION_QUERY_KEY = ["session"] as const;
+
+export const sessionQueryOptions = queryOptions({
+    queryKey: SESSION_QUERY_KEY,
+    queryFn: async () => (await authClient.getSession()).data,
+    // ponytail: 30s reuse window — a navigation burst shares one fetch, and a
+    // guard past the window refetches so server-side session changes (expiry,
+    // ban, role) surface within 30s. Auth mutations invalidate for immediate
+    // freshness. Bump if even per-30s refetches matter.
+    staleTime: 30_000,
+});
 
 // The app has exactly three audiences. Every route declares which of them may
 // reach it; everyone else is bounced to their own home. Keeping the model
@@ -36,8 +53,15 @@ export function hasCompletedOnboarding(user: {
 
 export const requireAudience =
     (allowed: ReadonlyArray<Audience>) =>
-    async ({ location }: { location: { pathname: string } }): Promise<void> => {
-        const { data: session } = await authClient.getSession();
+    async ({
+        context,
+        location,
+    }: {
+        context: RouterContext;
+        location: { pathname: string };
+    }): Promise<void> => {
+        const session =
+            await context.queryClient.fetchQuery(sessionQueryOptions);
         const user = session?.user;
         const current = audienceFromRole(user?.role);
 

@@ -19,7 +19,7 @@ import {
     getGetCarsMeQueryKey,
     getGetCarsBrandsQueryOptions,
 } from "../../../api-client/cars/cars";
-import { authClient } from "../../../lib/auth-client";
+import { useSession } from "../../../lib/use-session";
 import { getDisplayName } from "../../../lib/session-user";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { requireAudience } from "../../../lib/route-guards";
@@ -39,7 +39,7 @@ function AddCarPage() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
-    const { data: session } = authClient.useSession();
+    const { data: session } = useSession();
     const user = session?.user;
     const userName = user ? getDisplayName(user) : undefined;
     const userEmail = user?.email;

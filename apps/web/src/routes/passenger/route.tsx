@@ -1,7 +1,7 @@
 import { Outlet, createFileRoute, useLocation } from "@tanstack/react-router";
 import { PassengerNavbar } from "../../components/navigation/PassengerNavbar";
 import { usePassengerNavbarProps } from "../../hooks/shared/usePassengerNavbarProps";
-import { authClient } from "../../lib/auth-client";
+import { useSession } from "../../lib/use-session";
 import { requireAudience } from "../../lib/route-guards";
 import { getDisplayName } from "../../lib/session-user";
 import { useLayout } from "../../lib/use-layout";
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/passenger")({
 function PassengerRouteLayout() {
     const location = useLocation();
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
-    const { data: session } = authClient.useSession();
+    const { data: session } = useSession();
     const user = session?.user;
 
     const navbarProps = usePassengerNavbarProps({

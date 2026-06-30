@@ -1,7 +1,9 @@
 import type { authClient } from "./auth-client";
 
+// Derived from getSession — the source the ["session"] query (and useSession
+// hook) actually reads — rather than the retired useSession nanostore.
 export type SessionUser = NonNullable<
-    ReturnType<typeof authClient.useSession>["data"]
+    Awaited<ReturnType<typeof authClient.getSession>>["data"]
 >["user"];
 
 export function getDisplayName(user: SessionUser): string {

@@ -1,5 +1,5 @@
 import { useGetConversations } from "../../../api-client/chat/chat";
-import { authClient } from "../../../lib/auth-client";
+import { useSession } from "../../../lib/use-session";
 
 /**
  * Total unread messages across all of the signed-in user's conversations, for
@@ -8,7 +8,7 @@ import { authClient } from "../../../lib/auth-client";
  * mounting it per-navbar costs nothing beyond a shared, deduped query.
  */
 export function useUnreadCount(): number {
-    const { data: session } = authClient.useSession();
+    const { data: session } = useSession();
     const enabled = Boolean(session?.user);
 
     const { data } = useGetConversations({ query: { enabled } });

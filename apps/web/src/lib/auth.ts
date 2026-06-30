@@ -1,6 +1,11 @@
 import { patchUsersMeProfile } from "../api-client/users/users";
 import { authClient } from "./auth-client";
-import { hasCompletedOnboarding } from "./route-guards";
+import { queryClient } from "./query-client";
+import {
+    hasCompletedOnboarding,
+    SESSION_QUERY_KEY,
+    sessionQueryOptions,
+} from "./route-guards";
 
 export function signUpWithEmail(params: { email: string; password: string }) {
     return authClient.signUp.email({
@@ -39,6 +44,8 @@ export async function signOut() {
             `Sign-out failed: ${error.message ?? error.code ?? "unknown"}`
         );
     }
+    // Guards must see "guest" immediately, without a network round trip.
+    queryClient.setQueryData(SESSION_QUERY_KEY, null);
 }
 
 export function requestPasswordReset(params: { email: string }) {
@@ -55,20 +62,27 @@ export function resetPassword(params: { token: string; newPassword: string }) {
     });
 }
 
-export function updateCurrentUserProfile(params: {
+export async function updateCurrentUserProfile(params: {
     firstName?: string;
     lastName?: string;
     displayName?: string;
     phone?: string;
     bio?: string;
 }) {
-    return patchUsersMeProfile(params);
+    const result = await patchUsersMeProfile(params);
+    // firstName/lastName/phone gate onboarding — refresh so guards don't bounce
+    // a just-onboarded user back to /onboarding from a stale cache.
+    await queryClient.invalidateQueries({ queryKey: SESSION_QUERY_KEY });
+    return result;
 }
 
 export async function getPostAuthPath(): Promise<
     "/onboarding" | "/admin" | "/passenger"
 > {
-    const { data: session } = await authClient.getSession();
+    // Just authenticated — drop the pre-login (guest) cache so this read and
+    // the guards on the upcoming navigation reflect the new user.
+    await queryClient.invalidateQueries({ queryKey: SESSION_QUERY_KEY });
+    const session = await queryClient.fetchQuery(sessionQueryOptions);
     const user = session?.user;
 
     if (!user || !hasCompletedOnboarding(user)) {

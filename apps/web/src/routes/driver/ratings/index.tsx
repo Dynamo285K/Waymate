@@ -8,7 +8,7 @@ import {
 } from "../../../api-client/reviews/reviews";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { ratingsSearchSchema } from "../../../lib/ratings-search-schema";
-import { authClient } from "../../../lib/auth-client";
+import { useSession } from "../../../lib/use-session";
 import { useLayout } from "../../../lib/use-layout";
 
 export const Route = createFileRoute("/driver/ratings/")({
@@ -26,7 +26,7 @@ function DriverRatingsPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { theme } = useLayout();
-    const { data: session } = authClient.useSession();
+    const { data: session } = useSession();
     const user = session?.user;
     const userId = user?.id;
     const search = Route.useSearch();

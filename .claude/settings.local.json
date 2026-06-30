@@ -97,7 +97,10 @@
       "Bash(grep -nA5 \"<AdminRidesFilters\" apps/web/src/routes/admin/rides/index.tsx)",
       "Bash(grep -oE \"\\\\.\\(get|post|put|patch|delete\\)\\\\\\(['\\\\\"\\\\`][^'\\\\\"\\\\`]*\")",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(npx vitest *)"
+      "Bash(npx vitest *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\('vitest:', p.devDependencies?.vitest||p.dependencies?.vitest\\); console.log\\('scripts:', JSON.stringify\\(p.scripts\\)\\)\")",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\('root vitest:', p.devDependencies?.vitest\\)\")",
+      "Bash(bunx vitest *)"
     ]
   }
 }

@@ -11,7 +11,7 @@ import { useUsersFilters } from "./-hooks/useUsersFilters";
 import { useAdminUsersActions } from "./-hooks/useAdminUsersActions";
 import { adminUsersErrorMap } from "./-lib/admin-errors";
 import { fullName } from "../../../features/admin/lib/admin-format";
-import { authClient } from "../../../lib/auth-client";
+import { useSession } from "../../../lib/use-session";
 import { useLayout } from "../../../lib/use-layout";
 
 export const Route = createFileRoute("/admin/users/")({
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/admin/users/")({
 function AdminUsersPage() {
     const { t } = useTranslation();
     const { theme } = useLayout();
-    const { data: session } = authClient.useSession();
+    const { data: session } = useSession();
     const userId = session?.user?.id;
 
     const filters = useUsersFilters();
