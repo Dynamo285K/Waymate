@@ -10,7 +10,7 @@ import type {
     bookingStatusValues,
     PopularRoute,
 } from "@repo/shared";
-import type { Car } from "../cars";
+import type { Car } from "../cars/car.types";
 
 export type { PopularRoute };
 

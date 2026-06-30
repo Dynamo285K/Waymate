@@ -38,7 +38,7 @@ Fresh-DB sequence: `db:migrate` → `seed:cities` → `seed`. Order matters now 
 
 Schema changes go through `db:generate` and the resulting SQL in `apps/api/drizzle/` is committed alongside the schema diff — that's the audit trail and the only path that ships to shared environments. `db:push` exists for fast local iteration before a change is PR-ready, but never use it on a database anyone else relies on.
 
-Start the local database (PostgreSQL via Docker):
+Start the local infrastructure — PostgreSQL and Redis (the rate limiter's backing store) via Docker:
 
 ```bash
 docker compose up -d
@@ -51,6 +51,7 @@ DATABASE_URL=postgres://postgres:postgres@localhost:5432/spolujazda_db
 BETTER_AUTH_URL=http://localhost:3000
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
+# REDIS_URL is optional — defaults to redis://localhost:6379 (the docker-compose service)
 ```
 
 The API runs on port **3000** in dev mode. OpenAPI docs are served at `/openapi` (Scalar UI) and `/openapi/json` (raw spec) via `@elysiajs/openapi`.
@@ -77,23 +78,23 @@ packages/shared/ — stub package (shared types not yet extracted)
 
 Every domain module follows the same layered pattern:
 
-| File              | Responsibility                                                                         |
-| ----------------- | -------------------------------------------------------------------------------------- |
-| `*.routes.ts`     | HTTP route definitions, request validation, error-to-status mapping                    |
-| `*.service.ts`    | Business logic, orchestration, and **transactions** (`db.transaction`). Imports `db`.  |
-| `*.repository.ts` | Pure Drizzle queries. Each function takes an `Executor` (`db \| tx`) as its first arg. |
-| `*.types.ts`      | TypeScript types (DB row inferences, service/repository contracts, view models)        |
-| `*.errors.ts`     | Plain string error constants thrown by the service                                     |
+| File              | Responsibility                                                                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `*.routes.ts`     | HTTP route definitions and request validation                                                                                   |
+| `*.service.ts`    | Business logic, orchestration, and **transactions** (`db.transaction`). Imports `db`.                                           |
+| `*.repository.ts` | Pure Drizzle queries. Each function takes an `Executor` (`db \| tx`) as its first arg.                                          |
+| `*.types.ts`      | TypeScript types (DB row inferences, service/repository contracts, view models)                                                 |
+| `*.errors.ts`     | The module's `DomainError` subclass, its error-code constants, and the code→HTTP-status map that sets each error's `httpStatus` |
 
 Zod request/response schemas live in `packages/shared/src/*.schema.ts` — not co-located with modules — so the same schema definitions can be reused by the web client. They are registered in `z.globalRegistry` (see `packages/shared/src/register.ts`) so cross-schema references render as `$ref`s in the OpenAPI spec.
 
-Current modules: `auth`, `users`, `cars`, `rides`, `bookings`, `reviews`, `health`.
+Current modules: `auth`, `users`, `cars`, `rides`, `bookings`, `reviews`, `reports`, `blocks`, `chat`, `statistics`, `health`.
 
 **Layering rules:**
 
 - Repository functions are pure data access. They take `executor: Executor` first (where `Executor = Database | Tx`, both exported from `apps/api/src/db/index.ts`) and contain no `db.transaction()` calls, no business validation, and no error mapping. They return rows or simple DTOs.
 - Services are the only layer that imports `db` directly and the only layer that calls `db.transaction(async (tx) => …)`. Inside a transaction, services call repository functions with `tx`; outside, they pass `db`. Services own all branching, status-history writes, business validation (e.g. self-booking, capacity, rating-window), and translation of low-level errors (e.g. Postgres unique-violation) into domain errors.
-- Routes catch domain errors thrown by services and map them to HTTP status codes.
+- Services throw typed `DomainError` subclasses; each error carries its own `httpStatus` (set from a per-module code→status `Record`). A single root `.onError` maps any `DomainError` with `status(error.httpStatus, { error: error.code })` — modules do not define their own `.onError`.
 
 **REST conventions:**
 
@@ -113,7 +114,7 @@ Three Elysia macros guard routes:
 - `isFullyOnboarded` — additionally requires `user.firstName`, `user.lastName`, and `user.phone` to be set; returns `403 ONBOARDING_REQUIRED` otherwise
 - `requireAdmin` — composes `isAuthenticated` (not `isFullyOnboarded`) and additionally requires `user.role === "ADMIN"`; returns `403 FORBIDDEN` otherwise
 
-When a guard fails, the macro **throws** `AuthError` (`apps/api/src/modules/auth/auth.errors.ts`) — never `return status(...)` inline. Each module's `.onError` then catches it via `instanceof AuthError` and maps it through `authErrorToHttpStatus`, the same shape used for module-specific domain errors (`AdminError`, `RideError`, …). The rule: macros and services throw typed domain errors; only `.onError` translates them to HTTP responses.
+When a guard fails, the macro **throws** `AuthError` (`apps/api/src/modules/auth/auth.errors.ts`) — never `return status(...)` inline. `AuthError` is a `DomainError` like any module error: it carries an `httpStatus` (401/403) and is caught by the single root `.onError`, which maps every `DomainError` the same way (`status(error.httpStatus, { error: error.code })`). The rule: macros and services throw typed domain errors; only the root `.onError` translates them to HTTP responses.
 
 Most routes (Cars, Rides) require `isFullyOnboarded`. User profile routes use `isAuthenticated`.
 
@@ -126,7 +127,7 @@ Two cross-cutting checks fire in the root `.onRequest` hook (`apps/api/src/index
 - **Body size limit** — rejects requests whose `Content-Length` exceeds `MAX_REQUEST_BODY_BYTES` (default 100 KiB) with HTTP `413 PAYLOAD_TOO_LARGE`. `GET`/`HEAD`/`OPTIONS` and chunked-without-Content-Length requests are skipped.
 - **Rate limiting** — global default of 60 req / 60s per client IP, plus stricter per-route caps (e.g. `POST /rides` 10/min, `POST /bookings` 20/min, `PATCH /admin/users/:id/status` 30/min). Both checks run on a matching request, so route-specific caps stack with the global one. Returns `429 RATE_LIMITED` with a `Retry-After` header. `/health`, `/api/auth/*`, and `/openapi*` are excluded — better-auth has its own per-endpoint rate-limit config (`apps/api/src/modules/auth/auth.ts`) for the auth flow.
 
-Both throw `RequestError` (`apps/api/src/shared/request-errors.ts`) and are caught by the root `.onError`. Rate-limit counters live **in process memory** (`apps/api/src/shared/rate-limit.ts`, an in-memory fixed-window limiter) — they are exact on a single instance, approximate across replicas (each holds its own window), and reset on restart; back them with Redis if a strict shared limit is needed. better-auth keeps its own DB-backed rate limiting for `/api/auth/*`. Client IP is read from `x-forwarded-for` at the position set by `TRUSTED_PROXY_COUNT` (default 1 — the last hop), counted from the end so a client cannot escape its bucket by prefilling the header. Production must run behind exactly that many trusted reverse proxies.
+Both throw `RequestError` (`apps/api/src/shared/request-errors.ts`) and are caught by the root `.onError`. Rate limiting is a **Redis-backed token bucket** (`apps/api/src/shared/rate-limit.ts`): an atomic Lua script (`consumeToken`) refills and decrements a per-IP bucket in Redis (`REDIS_URL`), so the limit is shared and exact across all replicas. If Redis is unreachable the check **fails open** (logs and allows the request) rather than taking down the API. better-auth keeps its own DB-backed rate limiting for `/api/auth/*`. Client IP is read from `x-forwarded-for` at the position set by `TRUSTED_PROXY_COUNT` (default 1 — the last hop), counted from the end so a client cannot escape its bucket by prefilling the header. Production must run behind exactly that many trusted reverse proxies.
 
 Limits are constants in `apps/api/src/index.ts` for now — tuning them requires a redeploy. Promote to env vars when ops need to tweak without code changes.
 
@@ -138,7 +139,7 @@ Request lifecycle logging lives in the root app (`apps/api/src/index.ts`):
 
 - The root `.onRequest` mints a `requestId` (UUID), stashes it with a start time in a per-request `WeakMap` (`apps/api/src/shared/request-meta.ts`), and echoes it back as the `x-request-id` response header.
 - The root `.onAfterResponse` emits one `request` log line per request: `{ requestId, method, path, status, durationMs }`. It reads the final HTTP status from `set.status`, which Elysia populates reliably for routed responses (success, in-handler `status(...)`, and `.onError` mappings). Genuinely unmatched paths swallowed by the mounted better-auth handler are the one exception — they log `200` even though the client gets `404`.
-- 500-class errors are logged with the full error (stack) and `requestId` in two places: the root `.onError` catch-all, and the per-module `.onError` factory (`createErrorHandler` in `apps/api/src/modules/auth/auth.errors.ts`) where it returns `INTERNAL_SERVER_ERROR`. Expected domain / auth / validation errors (4xx) are NOT logged as errors — they only appear in the `request` line.
+- 500-class errors are logged with the full error (stack) and `requestId` in the root `.onError` catch-all, where any error that is not a `DomainError` / validation / parse / not-found becomes `INTERNAL_SERVER_ERROR`. Expected domain / auth / validation errors (4xx) are NOT logged as errors — they only appear in the `request` line.
 
 CLI scripts (`db/seed.ts`, `db/seed-cities.ts`) and the env-validation failure path (`config/env.ts`) intentionally stay on `console.*` — they run before/outside the request logger.
 

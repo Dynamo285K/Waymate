@@ -1,4 +1,4 @@
-import { assertNever, DomainError } from "./errors";
+import { DomainError } from "./errors";
 
 export const RequestErrorCodes = {
     PayloadTooLarge: "PAYLOAD_TOO_LARGE",
@@ -8,10 +8,15 @@ export const RequestErrorCodes = {
 export type RequestErrorCode =
     (typeof RequestErrorCodes)[keyof typeof RequestErrorCodes];
 
+const REQUEST_ERROR_STATUS: Record<RequestErrorCode, number> = {
+    [RequestErrorCodes.PayloadTooLarge]: 413,
+    [RequestErrorCodes.RateLimited]: 429,
+};
+
 export class RequestError extends DomainError {
     readonly code: RequestErrorCode;
     constructor(code: RequestErrorCode) {
-        super(code);
+        super(code, REQUEST_ERROR_STATUS[code]);
         this.code = code;
     }
 }
@@ -21,16 +26,5 @@ export class RateLimitError extends RequestError {
     constructor(retryAfterSeconds: number) {
         super(RequestErrorCodes.RateLimited);
         this.retryAfterSeconds = retryAfterSeconds;
-    }
-}
-
-export function requestErrorToHttpStatus(code: RequestErrorCode): number {
-    switch (code) {
-        case RequestErrorCodes.PayloadTooLarge:
-            return 413;
-        case RequestErrorCodes.RateLimited:
-            return 429;
-        default:
-            return assertNever(code);
     }
 }

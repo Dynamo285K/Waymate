@@ -1,8 +1,6 @@
 import { Elysia } from "elysia";
 import { BlockService } from "./block.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
-import { createErrorHandler } from "../auth/auth.errors";
-import { BlockError, blockErrorToHttpStatus } from "./block.errors";
 import {
     ErrorResponseSchema,
     CreateBlockBodySchema,
@@ -24,8 +22,6 @@ export const BlockRoutes = new Elysia({ prefix: "/blocks", tags: ["Blocks"] })
     .use(isFullyOnboarded)
     .guard({ auth: true, onboarded: true }, (app) =>
         app
-            .onError(createErrorHandler(BlockError, blockErrorToHttpStatus))
-
             .get(
                 "/",
                 async ({ user }) => await BlockService.listBlocks(user.id),

@@ -1,8 +1,6 @@
 import { Elysia } from "elysia";
 import { ReviewService } from "./review.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
-import { createErrorHandler } from "../auth/auth.errors";
-import { ReviewError, reviewErrorToHttpStatus } from "./review.errors";
 import { AdminReviewRoutes } from "./admin/admin-review.routes";
 import {
     ErrorResponseSchema,
@@ -27,7 +25,6 @@ export const ReviewRoutes = new Elysia({
         AuthoredReviewList: AuthoredReviewListSchema,
         ErrorResponse: ErrorResponseSchema,
     })
-    .onError(createErrorHandler(ReviewError, reviewErrorToHttpStatus))
     .use(isFullyOnboarded)
     .guard({ auth: true, onboarded: true }, (app) =>
         app

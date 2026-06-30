@@ -1,4 +1,4 @@
-import { assertNever, DomainError } from "../../shared/errors";
+import { DomainError } from "../../shared/errors";
 
 export const RideErrorCodes = {
     CarNotAvailableForDriver: "RIDE_CAR_NOT_AVAILABLE_FOR_DRIVER",
@@ -19,32 +19,25 @@ export const RideErrorCodes = {
 export type RideErrorCode =
     (typeof RideErrorCodes)[keyof typeof RideErrorCodes];
 
+const RIDE_ERROR_STATUS: Record<RideErrorCode, number> = {
+    [RideErrorCodes.RideNotFound]: 404,
+    [RideErrorCodes.RideNotFoundOrNotOwner]: 404,
+    [RideErrorCodes.CarNotAvailableForDriver]: 403,
+    [RideErrorCodes.InvalidPriceStopOrders]: 400,
+    [RideErrorCodes.RideAlreadyCancelled]: 400,
+    [RideErrorCodes.RideAlreadyCompleted]: 400,
+    [RideErrorCodes.RideAlreadyDeparted]: 400,
+    [RideErrorCodes.RideNotCompletable]: 400,
+    [RideErrorCodes.RideNotDeparted]: 400,
+    [RideErrorCodes.TooManySeats]: 400,
+    [RideErrorCodes.UnknownCity]: 400,
+    [RideErrorCodes.DriverAlreadyHasRideInTimeframe]: 400,
+};
+
 export class RideError extends DomainError {
     readonly code: RideErrorCode;
     constructor(code: RideErrorCode) {
-        super(code);
+        super(code, RIDE_ERROR_STATUS[code]);
         this.code = code;
-    }
-}
-
-export function rideErrorToHttpStatus(code: RideErrorCode): number {
-    switch (code) {
-        case RideErrorCodes.RideNotFound:
-        case RideErrorCodes.RideNotFoundOrNotOwner:
-            return 404;
-        case RideErrorCodes.CarNotAvailableForDriver:
-            return 403;
-        case RideErrorCodes.InvalidPriceStopOrders:
-        case RideErrorCodes.RideAlreadyCancelled:
-        case RideErrorCodes.RideAlreadyCompleted:
-        case RideErrorCodes.RideAlreadyDeparted:
-        case RideErrorCodes.RideNotCompletable:
-        case RideErrorCodes.RideNotDeparted:
-        case RideErrorCodes.TooManySeats:
-        case RideErrorCodes.UnknownCity:
-        case RideErrorCodes.DriverAlreadyHasRideInTimeframe:
-            return 400;
-        default:
-            return assertNever(code);
     }
 }

@@ -1,8 +1,6 @@
 import { Elysia } from "elysia";
 import { BookingService } from "./booking.service";
 import { isFullyOnboarded } from "../auth/auth.middleware";
-import { createErrorHandler } from "../auth/auth.errors";
-import { BookingError, bookingErrorToHttpStatus } from "./booking.errors";
 import {
     ErrorResponseSchema,
     BookingIdParamsSchema,
@@ -35,9 +33,7 @@ export const BookingRoutes = new Elysia({
     .use(isFullyOnboarded)
     .guard({ auth: true, onboarded: true }, (app) =>
         app
-            .onError(createErrorHandler(BookingError, bookingErrorToHttpStatus))
             // PASSENGER ROUTES
-
             .get(
                 "/requests",
                 async ({ user }) => {
