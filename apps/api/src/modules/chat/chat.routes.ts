@@ -91,7 +91,8 @@ export const ChatRoutes = new Elysia({
                         params.id,
                         user.id,
                         query.limit,
-                        query.before
+                        query.before,
+                        query.beforeId
                     );
                 },
                 {

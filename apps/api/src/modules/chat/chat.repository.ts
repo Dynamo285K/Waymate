@@ -190,7 +190,7 @@ const findUserConversations = async (executor: Executor, userId: string) => {
         FROM ${messagesTable}
         WHERE ${messagesTable.conversationId} = ${conversationsTable.id}
           AND ${messagesTable.deletedAt} IS NULL
-        ORDER BY ${messagesTable.sentAt} DESC
+        ORDER BY ${messagesTable.sentAt} DESC, ${messagesTable.id} DESC
         LIMIT 1
     )`;
 
@@ -292,7 +292,8 @@ const findConversationMessages = async (
     executor: Executor,
     conversationId: string,
     limit: number,
-    before?: Date
+    before?: Date,
+    beforeId?: string
 ): Promise<Message[]> => {
     const rows = await executor
         .select(messageColumns)
@@ -301,10 +302,14 @@ const findConversationMessages = async (
             and(
                 eq(messagesTable.conversationId, conversationId),
                 messageNotSoftDeleted,
-                before ? lt(messagesTable.sentAt, before) : undefined
+                before && beforeId
+                    ? sql`(${messagesTable.sentAt}, ${messagesTable.id}) < (${before.toISOString()}, ${beforeId})`
+                    : before
+                      ? lt(messagesTable.sentAt, before)
+                      : undefined
             )
         )
-        .orderBy(desc(messagesTable.sentAt))
+        .orderBy(desc(messagesTable.sentAt), desc(messagesTable.id))
         .limit(limit);
 
     return rows.reverse();

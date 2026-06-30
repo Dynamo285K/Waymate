@@ -21,6 +21,7 @@ export const SendMessageBodySchema = z.object({
 export const MessagesQuerySchema = z.object({
     limit: z.coerce.number().int().min(1).max(100).default(50),
     before: z.coerce.date().optional(),
+    beforeId: z.uuid().optional(),
 });
 
 export const ConversationRoleSchema = z.enum(["DRIVER", "PASSENGER"]);
