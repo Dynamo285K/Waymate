@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getGetConversationsQueryKey } from "../../api-client/chat/chat";
 import type { Message } from "../../api-client/model/message";
 import { API_BASE_URL } from "../../lib/api-fetcher";
-import { authClient } from "../../lib/auth-client";
+import { useSession } from "../../lib/use-session";
 import { applyMessageToCache } from "../../lib/chat-cache";
 
 // Server -> client events pushed over `GET /conversations/ws`. Dates arrive as
@@ -61,7 +61,7 @@ function isChatSocketEvent(value: unknown): value is ChatSocketEvent {
  */
 export function useChatSocket(options: UseChatSocketOptions = {}): void {
     const { onEvent } = options;
-    const { data: session } = authClient.useSession();
+    const { data: session } = useSession();
     const userId = session?.user?.id;
     const enabled = options.enabled ?? Boolean(userId);
 

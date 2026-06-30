@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ProfileHeroCard } from "@waymate/ui";
-import { authClient } from "../../../lib/auth-client";
+import { useSession } from "../../../lib/use-session";
 import { getDisplayName } from "../../../lib/session-user";
 import { useLayout } from "../../../lib/use-layout";
 import { BlockedUsersSection } from "../../../components/shared/BlockedUsersSection";
@@ -47,7 +47,7 @@ function DriverProfilePage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { language, theme } = useLayout();
-    const { data: session } = authClient.useSession();
+    const { data: session } = useSession();
     const user = session?.user;
     const userId = user?.id;
 

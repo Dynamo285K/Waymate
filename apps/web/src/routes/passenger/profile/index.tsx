@@ -14,7 +14,7 @@ import {
 import { useGetReviewsUsersByUserId } from "../../../api-client/reviews/reviews";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { formatRideDate, formatDuration } from "../../../lib/date-format";
-import { authClient } from "../../../lib/auth-client";
+import { useSession } from "../../../lib/use-session";
 import { getDisplayName } from "../../../lib/session-user";
 import { useLayout } from "../../../lib/use-layout";
 
@@ -34,7 +34,7 @@ function PassengerProfilePage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { language, theme } = useLayout();
-    const { data: session } = authClient.useSession();
+    const { data: session } = useSession();
     const user = session?.user;
     const userId = user?.id;
     const userName = user ? getDisplayName(user) : undefined;

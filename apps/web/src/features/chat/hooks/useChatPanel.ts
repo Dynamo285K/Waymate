@@ -16,7 +16,7 @@ import {
     getGetBlocksQueryKey,
 } from "../../../api-client/blocks/blocks";
 import type { ConversationListItem } from "../../../api-client/model/conversationListItem";
-import { authClient } from "../../../lib/auth-client";
+import { useSession } from "../../../lib/use-session";
 import {
     applyMessageToCache,
     clearUnreadInCache,
@@ -80,7 +80,7 @@ export function useChatPanel(initialConversationId?: string | null): ChatPanel {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
     const navigate = useNavigate();
-    const { data: session } = authClient.useSession();
+    const { data: session } = useSession();
     const userId = session?.user?.id;
 
     // The live socket runs app-wide from the navbar (see useUnreadCount); the

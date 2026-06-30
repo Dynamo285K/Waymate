@@ -15,7 +15,7 @@ import { PassengerNavbar } from "../../components/navigation/PassengerNavbar";
 import { useDriverNavbarProps } from "../../features/driver/hooks/useDriverNavbarProps";
 import { usePassengerNavbarProps } from "../../hooks/shared/usePassengerNavbarProps";
 import { updateCurrentUserProfile } from "../../lib/auth";
-import { authClient } from "../../lib/auth-client";
+import { useSession } from "../../lib/use-session";
 import { getDisplayName } from "../../lib/session-user";
 import { getErrorI18nKey } from "../../lib/api-errors";
 import {
@@ -52,7 +52,7 @@ function EditProfilePage() {
         role === "driver" ? "/driver/profile" : "/passenger/profile";
 
     const { language, theme, onLanguageChange, onThemeToggle } = useLayout();
-    const { data: session } = authClient.useSession();
+    const { data: session } = useSession();
     const user = session?.user;
     const userName = user ? getDisplayName(user) : undefined;
     const userEmail = user?.email;
@@ -75,9 +75,10 @@ function EditProfilePage() {
     });
 
     const updateProfile = useMutation({
+        // updateCurrentUserProfile invalidates ["session"], so the session
+        // observers refresh on their own — no manual store notify.
         mutationFn: updateCurrentUserProfile,
         onSuccess: () => {
-            authClient.$store.notify("$sessionSignal");
             navigate({ to: backPath });
         },
     });

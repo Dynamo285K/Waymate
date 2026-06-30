@@ -26,7 +26,7 @@ import {
 } from "./shared/request-errors";
 import { DomainError } from "./shared/errors";
 import { logger } from "./shared/logger";
-import { requestMeta } from "./shared/request-meta";
+import { requestContext, requestMeta } from "./shared/request-meta";
 
 const allowedOrigins = Array.from(
     new Set([env.WEB_ORIGIN, ...env.CORS_ORIGINS])
@@ -152,10 +152,14 @@ export const app = new Elysia()
         // Stash requestId + start time BEFORE any check that may throw so even
         // rejected requests (413, 429) get a request line with timing.
         const requestId = randomUUID();
-        requestMeta.set(request, {
+        const meta = {
             requestId,
             startedAt: performance.now(),
-        });
+        };
+        requestMeta.set(request, meta);
+        // Bind the same meta to the async context so every downstream log line
+        // (services, repos, helpers) inherits requestId via the logger mixin.
+        requestContext.enterWith(meta);
         set.headers["x-request-id"] = requestId;
 
         if (!METHODS_WITHOUT_BODY.has(request.method)) {
