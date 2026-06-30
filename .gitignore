@@ -57,4 +57,5 @@ e2e/blob-report/
 bunfig.toml
 
 # Claude
-.claude/settings.local.json 
+.claude/settings.local.json
+.claude/settings.json

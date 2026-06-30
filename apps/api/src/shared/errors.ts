@@ -11,12 +11,11 @@
  */
 export abstract class DomainError extends Error {
     abstract readonly code: string;
+    readonly httpStatus: number;
 
-    constructor(
-        code: string,
-        readonly httpStatus: number
-    ) {
+    constructor(code: string, httpStatus: number) {
         super(code);
         this.name = this.constructor.name;
+        this.httpStatus = httpStatus;
     }
 }

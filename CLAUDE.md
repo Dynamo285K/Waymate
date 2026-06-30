@@ -78,12 +78,12 @@ packages/shared/ — stub package (shared types not yet extracted)
 
 Every domain module follows the same layered pattern:
 
-| File              | Responsibility                                                                         |
-| ----------------- | -------------------------------------------------------------------------------------- |
-| `*.routes.ts`     | HTTP route definitions and request validation                                          |
-| `*.service.ts`    | Business logic, orchestration, and **transactions** (`db.transaction`). Imports `db`.  |
-| `*.repository.ts` | Pure Drizzle queries. Each function takes an `Executor` (`db \| tx`) as its first arg. |
-| `*.types.ts`      | TypeScript types (DB row inferences, service/repository contracts, view models)        |
+| File              | Responsibility                                                                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `*.routes.ts`     | HTTP route definitions and request validation                                                                                   |
+| `*.service.ts`    | Business logic, orchestration, and **transactions** (`db.transaction`). Imports `db`.                                           |
+| `*.repository.ts` | Pure Drizzle queries. Each function takes an `Executor` (`db \| tx`) as its first arg.                                          |
+| `*.types.ts`      | TypeScript types (DB row inferences, service/repository contracts, view models)                                                 |
 | `*.errors.ts`     | The module's `DomainError` subclass, its error-code constants, and the code→HTTP-status map that sets each error's `httpStatus` |
 
 Zod request/response schemas live in `packages/shared/src/*.schema.ts` — not co-located with modules — so the same schema definitions can be reused by the web client. They are registered in `z.globalRegistry` (see `packages/shared/src/register.ts`) so cross-schema references render as `$ref`s in the OpenAPI spec.
