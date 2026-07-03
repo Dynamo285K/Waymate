@@ -23,7 +23,7 @@ import { logger } from "../lib/logger";
 export const Route = createFileRoute("/login")({
     beforeLoad: requireAudience(["guest"]),
     validateSearch: z.object({
-        error: z.string().optional(),
+        error: z.string().optional().catch(undefined),
     }),
     component: LoginPage,
 });
