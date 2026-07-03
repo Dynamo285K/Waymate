@@ -5,7 +5,7 @@
     "": {
       "name": "Waymate",
       "dependencies": {
-        "@waymate/ui": "^0.1.56",
+        "@waymate/ui": "^0.1.63",
       },
       "devDependencies": {
         "@eslint/js": "^9.39.4",
