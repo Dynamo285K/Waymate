@@ -1,5 +1,8 @@
 import { app } from "../src/index";
-import { fillMissingComponentSchemas } from "../src/openapi/post-process";
+import {
+    fillMissingComponentSchemas,
+    repairRequestBodies,
+} from "../src/openapi/post-process";
 
 const res = await app.handle(new Request("http://localhost/openapi/json"));
 
@@ -8,7 +11,11 @@ if (!res.ok) {
     process.exit(1);
 }
 
-const spec = fillMissingComponentSchemas(await res.json());
+// Repair bodies before filling components so any $refs the repair introduces
+// get their schemas rendered too.
+const spec = fillMissingComponentSchemas(
+    repairRequestBodies(await res.json(), app.getGlobalRoutes())
+);
 const out = import.meta.dir + "/../openapi.json";
 await Bun.write(out, JSON.stringify(spec, null, 2) + "\n");
 

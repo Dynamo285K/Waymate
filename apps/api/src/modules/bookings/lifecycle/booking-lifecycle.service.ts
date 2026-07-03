@@ -1,12 +1,13 @@
 import { db } from "../../../db";
 import { BookingRepository } from "../booking.repository";
 import { BookingError, BookingErrorCodes } from "../booking.errors";
+import { NotificationService } from "../../notifications/notification.service";
 
 export const confirmBooking = async (
     bookingId: string,
     driverId: string
 ): Promise<string> => {
-    return await db.transaction(async (tx) => {
+    const { id, created } = await db.transaction(async (tx) => {
         const booking = await BookingRepository.lockBookingById(tx, bookingId);
 
         if (!booking || booking.bookingStatus !== "PENDING") {
@@ -63,6 +64,21 @@ export const confirmBooking = async (
             reason: "Driver confirmed booking",
         });
 
+        const payloadBase = await NotificationService.ridePayload(
+            tx,
+            booking.rideId
+        );
+
+        const created = [
+            await NotificationService.create(tx, {
+                userId: booking.passengerId,
+                type: "BOOKING_CONFIRMED",
+                referenceEntityType: "BOOKING",
+                referenceEntityId: updatedBooking.id,
+                payload: { ...payloadBase, bookingId: updatedBooking.id },
+            }),
+        ];
+
         const newConfirmedSeats = confirmedSeats + booking.seatCount;
         const seatsLeft = Math.max(0, ride.offeredSeats - newConfirmedSeats);
 
@@ -82,11 +98,25 @@ export const confirmBooking = async (
                     changedByUserId: driverId,
                     reason: "System auto-rejected: Ride reached maximum capacity",
                 });
+
+                created.push(
+                    await NotificationService.create(tx, {
+                        userId: pending.passengerId,
+                        type: "BOOKING_REJECTED",
+                        referenceEntityType: "BOOKING",
+                        referenceEntityId: pending.id,
+                        payload: { ...payloadBase, bookingId: pending.id },
+                    })
+                );
             }
         }
 
-        return updatedBooking.id;
+        return { id: updatedBooking.id, created };
     });
+
+    NotificationService.publishCreated(created);
+
+    return id;
 };
 
 export const rejectBooking = async (
@@ -94,7 +124,7 @@ export const rejectBooking = async (
     driverId: string,
     reason?: string
 ): Promise<string> => {
-    return await db.transaction(async (tx) => {
+    const { id, created } = await db.transaction(async (tx) => {
         const booking = await BookingRepository.lockBookingById(tx, bookingId);
 
         if (!booking || booking.bookingStatus !== "PENDING") {
@@ -138,8 +168,23 @@ export const rejectBooking = async (
             reason: rejectionReason,
         });
 
-        return updatedBooking.id;
+        const created = await NotificationService.create(tx, {
+            userId: booking.passengerId,
+            type: "BOOKING_REJECTED",
+            referenceEntityType: "BOOKING",
+            referenceEntityId: updatedBooking.id,
+            payload: {
+                ...(await NotificationService.ridePayload(tx, booking.rideId)),
+                bookingId: updatedBooking.id,
+            },
+        });
+
+        return { id: updatedBooking.id, created: [created] };
     });
+
+    NotificationService.publishCreated(created);
+
+    return id;
 };
 
 export const cancelBookingByPassenger = async (
@@ -147,7 +192,7 @@ export const cancelBookingByPassenger = async (
     passengerId: string,
     reason?: string
 ): Promise<string> => {
-    return await db.transaction(async (tx) => {
+    const { id, created } = await db.transaction(async (tx) => {
         const booking = await BookingRepository.lockBookingById(tx, bookingId);
 
         if (!booking) {
@@ -191,8 +236,42 @@ export const cancelBookingByPassenger = async (
             reason: cancelReason,
         });
 
-        return updatedBooking.id;
+        // Notify the driver. Plain lookup, not lockRideForBooking — the ride
+        // row itself is not mutated by a passenger cancellation.
+        const driverId = await BookingRepository.findRideDriverId(
+            tx,
+            booking.rideId
+        );
+
+        const created = driverId
+            ? [
+                  await NotificationService.create(tx, {
+                      userId: driverId,
+                      type: "BOOKING_CANCELLED",
+                      referenceEntityType: "BOOKING",
+                      referenceEntityId: updatedBooking.id,
+                      payload: {
+                          ...(await NotificationService.ridePayload(
+                              tx,
+                              booking.rideId
+                          )),
+                          bookingId: updatedBooking.id,
+                          cancelledBy: "PASSENGER" as const,
+                          actorName: await NotificationService.actorName(
+                              tx,
+                              passengerId
+                          ),
+                      },
+                  }),
+              ]
+            : [];
+
+        return { id: updatedBooking.id, created };
     });
+
+    NotificationService.publishCreated(created);
+
+    return id;
 };
 
 export const cancelBookingByDriver = async (
@@ -200,7 +279,7 @@ export const cancelBookingByDriver = async (
     driverId: string,
     reason?: string
 ): Promise<string> => {
-    return await db.transaction(async (tx) => {
+    const { id, created } = await db.transaction(async (tx) => {
         const booking = await BookingRepository.lockBookingById(tx, bookingId);
 
         if (!booking) {
@@ -257,6 +336,22 @@ export const cancelBookingByDriver = async (
             reason: cancelReason,
         });
 
-        return updatedBooking.id;
+        const created = await NotificationService.create(tx, {
+            userId: booking.passengerId,
+            type: "BOOKING_CANCELLED",
+            referenceEntityType: "BOOKING",
+            referenceEntityId: updatedBooking.id,
+            payload: {
+                ...(await NotificationService.ridePayload(tx, booking.rideId)),
+                bookingId: updatedBooking.id,
+                cancelledBy: "DRIVER" as const,
+            },
+        });
+
+        return { id: updatedBooking.id, created: [created] };
     });
+
+    NotificationService.publishCreated(created);
+
+    return id;
 };

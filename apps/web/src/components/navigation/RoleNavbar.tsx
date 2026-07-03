@@ -39,6 +39,7 @@ export type RoleNavbarProps = {
     onLogoClick?: () => void;
     userName: string;
     userEmail: string;
+    notificationBell?: ReactNode;
     profileLabels?: ProfileDropdownLabels;
     onProfileClick?: () => void;
     onMyRidesClick?: () => void;
@@ -66,6 +67,7 @@ export function RoleNavbar({
     onLogoClick,
     userName,
     userEmail,
+    notificationBell,
     profileLabels,
     onProfileClick,
     onMyRidesClick,
@@ -145,6 +147,7 @@ export function RoleNavbar({
         themeLabel,
         themeIcon,
         onThemeToggle,
+        notificationBell,
         profileMenu,
     };
 
@@ -182,6 +185,7 @@ export function RoleNavbar({
             compactControls={
                 <>
                     {compactRoleSwitcher}
+                    {notificationBell}
                     {profileMenu}
                 </>
             }

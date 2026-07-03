@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { conversationTypeValues, messageTypeValues } from "./status-values";
+import { NotificationEventSchema } from "./notification.schema";
 import { PublicUserPreviewSchema } from "./user.schema";
 
 export const ConversationIdParamsSchema = z.object({
@@ -82,6 +83,7 @@ export const ChatReadEventSchema = z.object({
 export const ChatSocketEventSchema = z.discriminatedUnion("type", [
     ChatMessageEventSchema,
     ChatReadEventSchema,
+    NotificationEventSchema,
 ]);
 
 export type ConversationRole = z.infer<typeof ConversationRoleSchema>;

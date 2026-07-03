@@ -49,14 +49,16 @@ export const updateRideStatusToCancelled = async (
 export const findActiveBookingsByRideId = async (
     executor: Executor,
     rideId: string
-): Promise<{ id: string; bookingStatus: BookingStatus }[]> => {
+): Promise<
+    { id: string; bookingStatus: BookingStatus; passengerId: string }[]
+> => {
     return await executor.query.bookings.findMany({
         where: and(
             eq(bookingsTable.rideId, rideId),
             inArray(bookingsTable.bookingStatus, ["PENDING", "CONFIRMED"]),
             bookingNotSoftDeleted
         ),
-        columns: { id: true, bookingStatus: true },
+        columns: { id: true, bookingStatus: true, passengerId: true },
     });
 };
 
@@ -125,14 +127,16 @@ export const updateRideToEnded = async (
 export const findConfirmedBookingsByRideId = async (
     executor: Executor,
     rideId: string
-): Promise<{ id: string; bookingStatus: BookingStatus }[]> => {
+): Promise<
+    { id: string; bookingStatus: BookingStatus; passengerId: string }[]
+> => {
     return await executor.query.bookings.findMany({
         where: and(
             eq(bookingsTable.rideId, rideId),
             eq(bookingsTable.bookingStatus, "CONFIRMED"),
             bookingNotSoftDeleted
         ),
-        columns: { id: true, bookingStatus: true },
+        columns: { id: true, bookingStatus: true, passengerId: true },
     });
 };
 

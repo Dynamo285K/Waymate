@@ -214,13 +214,14 @@ export function NavbarProfileSettings({
     );
 }
 
-/** Theme toggle + language switcher + profile menu, in that row order. */
+/** Theme toggle + language switcher + bell + profile menu, in that row order. */
 export function NavbarControlsRow({
     language,
     onLanguageChange,
     themeLabel,
     themeIcon,
     onThemeToggle,
+    notificationBell,
     profileMenu,
 }: {
     language: Language;
@@ -228,6 +229,7 @@ export function NavbarControlsRow({
     themeLabel: string;
     themeIcon: ReactNode;
     onThemeToggle?: () => void;
+    notificationBell?: ReactNode;
     profileMenu: ReactNode;
 }) {
     return (
@@ -246,6 +248,7 @@ export function NavbarControlsRow({
                     onChange={onLanguageChange}
                 />
             </div>
+            {notificationBell}
             <div className="ml-auto">{profileMenu}</div>
         </div>
     );
@@ -260,6 +263,7 @@ type RoleControlsProps = {
     themeLabel: string;
     themeIcon: ReactNode;
     onThemeToggle?: () => void;
+    notificationBell?: ReactNode;
     profileMenu: ReactNode;
 };
 
@@ -273,6 +277,7 @@ export function NavbarRoleControls({
     themeLabel,
     themeIcon,
     onThemeToggle,
+    notificationBell,
     profileMenu,
 }: RoleControlsProps) {
     return (
@@ -292,6 +297,7 @@ export function NavbarRoleControls({
                 variant="default"
                 onClick={onThemeToggle}
             />
+            {notificationBell}
             {profileMenu}
         </>
     );
@@ -470,6 +476,7 @@ export function NavbarRolePanel({
     themeLabel,
     themeIcon,
     onThemeToggle,
+    notificationBell,
     profileMenu,
 }: RoleControlsProps) {
     return (
@@ -487,6 +494,7 @@ export function NavbarRolePanel({
                 themeLabel={themeLabel}
                 themeIcon={themeIcon}
                 onThemeToggle={onThemeToggle}
+                notificationBell={notificationBell}
                 profileMenu={profileMenu}
             />
         </>

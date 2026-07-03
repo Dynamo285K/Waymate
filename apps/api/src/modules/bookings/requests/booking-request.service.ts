@@ -2,12 +2,13 @@ import { db } from "../../../db";
 import { BookingRepository } from "../booking.repository";
 import { BookingError, BookingErrorCodes } from "../booking.errors";
 import { BlockService } from "../../blocks/block.service";
+import { NotificationService } from "../../notifications/notification.service";
 import type { CreateBookingInput } from "../booking.types";
 
 export const createBookingRequest = async (
     payload: CreateBookingInput
 ): Promise<string> => {
-    return await db.transaction(async (tx) => {
+    const { bookingId, created } = await db.transaction(async (tx) => {
         const ride = await BookingRepository.lockRideForBooking(
             tx,
             payload.rideId
@@ -138,6 +139,26 @@ export const createBookingRequest = async (
             reason: "Passenger requested booking",
         });
 
-        return newBooking.id;
+        const created = await NotificationService.create(tx, {
+            userId: ride.driverId,
+            type: "BOOKING_REQUEST",
+            referenceEntityType: "BOOKING",
+            referenceEntityId: newBooking.id,
+            payload: {
+                ...(await NotificationService.ridePayload(tx, payload.rideId)),
+                bookingId: newBooking.id,
+                actorName: await NotificationService.actorName(
+                    tx,
+                    payload.passengerId
+                ),
+                seatCount: payload.seatCount,
+            },
+        });
+
+        return { bookingId: newBooking.id, created: [created] };
     });
+
+    NotificationService.publishCreated(created);
+
+    return bookingId;
 };

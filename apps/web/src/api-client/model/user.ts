@@ -40,9 +40,8 @@ export interface User {
      */
     displayName: string | null;
     /**
-     * @maxLength 16
      * @nullable
-     * @pattern ^\+[1-9]\d{1,14}$
+     * @pattern ^\+[1-9]\d{6,14}$
      */
     phone: string | null;
     /** @nullable */

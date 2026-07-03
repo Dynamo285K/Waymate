@@ -3,10 +3,12 @@ import type { ChatSocketEvent, Message } from "@repo/shared";
 
 // Minimal slice of the Bun `Server` we depend on. The WebSocket route subscribes
 // each connection to its user topic; this hub publishes events to those topics
-// from outside the socket handler (i.e. from the chat service after a REST
-// write commits). Publishing is in-process pub/sub — exact on a single
-// instance, but each replica only reaches sockets it owns, so back this with a
-// shared broker (e.g. Redis) before scaling horizontally.
+// from outside the socket handler (i.e. from a service after a REST write
+// commits). The per-user topic is the app's general delivery channel — chat
+// events and in-app notifications both travel over it. Publishing is
+// in-process pub/sub — exact on a single instance, but each replica only
+// reaches sockets it owns, so back this with a shared broker (e.g. Redis)
+// before scaling horizontally.
 type Broadcaster = {
     publish: (topic: string, data: string) => unknown;
 };
@@ -66,6 +68,7 @@ const notifyRead = (
 export const ChatRealtime = {
     userTopic,
     setBroadcaster,
+    publishToUser,
     notifyMessage,
     notifyRead,
 };

@@ -2,6 +2,7 @@ import { eq, and } from "drizzle-orm";
 import type { Executor } from "../../../db";
 import { bookings as bookingsTable } from "../../../db/schema/booking";
 import { bookingStatusHistory as bookingStatusHistoryTable } from "../../../db/schema";
+import { rides as ridesTable } from "../../../db/schema/ride";
 import {
     bookingNotSoftDeleted,
     type BookingRow,
@@ -35,6 +36,21 @@ export const findPendingBookingsForRide = async (
                 bookingNotSoftDeleted
             )
         );
+};
+
+// Plain (unlocked) driver lookup — for notifying the driver about a passenger
+// cancellation without taking the ride row lock.
+export const findRideDriverId = async (
+    executor: Executor,
+    rideId: string
+): Promise<string | null> => {
+    const [ride] = await executor
+        .select({ driverId: ridesTable.driverId })
+        .from(ridesTable)
+        .where(eq(ridesTable.id, rideId))
+        .limit(1);
+
+    return ride?.driverId ?? null;
 };
 
 // Whitelisted update surface for booking status transitions.

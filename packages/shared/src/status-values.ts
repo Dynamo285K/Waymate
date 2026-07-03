@@ -48,6 +48,8 @@ export const conversationTypeValues = ["RIDE", "BOOKING", "SUPPORT"] as const;
 
 export const messageTypeValues = ["TEXT", "SYSTEM"] as const;
 
+// New values must be appended at the end: drizzle-kit then emits plain
+// `ALTER TYPE ... ADD VALUE` instead of a destructive enum recreate.
 export const notificationTypeValues = [
     "BOOKING_REQUEST",
     "BOOKING_CONFIRMED",
@@ -55,6 +57,9 @@ export const notificationTypeValues = [
     "MESSAGE_RECEIVED",
     "RIDE_UPDATED",
     "REVIEW_RECEIVED",
+    "BOOKING_REJECTED",
+    "RIDE_CANCELLED",
+    "RIDE_COMPLETED",
 ] as const;
 
 export const deliveryStatusValues = [

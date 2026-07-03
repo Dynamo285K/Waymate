@@ -14,6 +14,7 @@ import {
 import {
     lockBookingById,
     findPendingBookingsForRide,
+    findRideDriverId,
     updateBookingFields,
     insertBookingStatusHistory,
 } from "./lifecycle/booking-lifecycle.repository";
@@ -34,6 +35,7 @@ export const BookingRepository = {
     sumSeatsForRide,
     findActiveBookingByPassenger,
     findPendingBookingsForRide,
+    findRideDriverId,
     insertBooking,
     updateBookingFields,
     insertBookingStatusHistory,

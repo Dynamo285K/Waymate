@@ -57,6 +57,29 @@ export function formatDayLabel(
     }).format(date);
 }
 
+// Compact relative timestamp for notification rows: "5 min ago", "2 h ago",
+// falling back to a short date once it's more than a week old.
+export function formatRelativeTime(value: string | Date): string {
+    const locale = LOCALE_MAP[i18n.language] ?? "en-US";
+    const date = new Date(value);
+    const diffMs = date.getTime() - Date.now();
+    const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+
+    const minutes = Math.round(diffMs / 60_000);
+    if (Math.abs(minutes) < 60) return rtf.format(minutes, "minute");
+
+    const hours = Math.round(diffMs / 3_600_000);
+    if (Math.abs(hours) < 24) return rtf.format(hours, "hour");
+
+    const days = Math.round(diffMs / 86_400_000);
+    if (Math.abs(days) < 7) return rtf.format(days, "day");
+
+    return new Intl.DateTimeFormat(locale, {
+        day: "numeric",
+        month: "short",
+    }).format(date);
+}
+
 export function formatRideDate(date: Date, atLabel: string): string {
     const locale = LOCALE_MAP[i18n.language] ?? "en-US";
     const datePart = new Intl.DateTimeFormat(locale, {

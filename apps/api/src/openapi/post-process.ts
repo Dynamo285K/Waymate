@@ -142,13 +142,8 @@ function collectRefs(node: unknown, into: Set<string>): void {
     for (const value of Object.values(obj)) collectRefs(value, into);
 }
 
-function renderSchemaById(id: string): unknown | undefined {
-    const exportName = `${id}Schema`;
-    const candidate = (sharedSchemas as Record<string, unknown>)[exportName];
-    if (!candidate || typeof candidate !== "object" || !("_zod" in candidate)) {
-        return undefined;
-    }
-    const json = z.toJSONSchema(candidate as z.ZodType, {
+function renderZodSchema(schema: z.ZodType): unknown {
+    const json = z.toJSONSchema(schema, {
         target: "draft-7",
         unrepresentable: "any",
         override: (ctx) => {
@@ -159,6 +154,65 @@ function renderSchemaById(id: string): unknown | undefined {
         },
     });
     return openApiifyJsonSchema(json);
+}
+
+function renderSchemaById(id: string): unknown | undefined {
+    const exportName = `${id}Schema`;
+    const candidate = (sharedSchemas as Record<string, unknown>)[exportName];
+    if (!candidate || typeof candidate !== "object" || !("_zod" in candidate)) {
+        return undefined;
+    }
+    return renderZodSchema(candidate as z.ZodType);
+}
+
+type RouteLike = {
+    method: string;
+    path: string;
+    hooks?: { body?: unknown; detail?: { hide?: boolean } };
+};
+
+/**
+ * Restores request-body schemas the openapi plugin drops. The root `.onParse`
+ * hook (chunked-body size limit in index.ts) makes every route carry a custom
+ * parser, and @elysiajs/openapi renders `content: {}` for bodies whenever it
+ * sees one (it only maps *named* parsers to content types). Every body in this
+ * API is JSON, so rebuild `application/json` from each route's own body
+ * schema: `$ref` for `.model()` names, inline render for direct Zod schemas.
+ */
+export function repairRequestBodies(
+    spec: JsonObject,
+    routes: RouteLike[]
+): JsonObject {
+    const paths = spec.paths as JsonObject | undefined;
+    if (!paths) return spec;
+
+    for (const route of routes) {
+        const body = route.hooks?.body;
+        const method = route.method.toLowerCase();
+        if (!body || method === "get" || method === "head") continue;
+
+        const specPath = route.path.replace(/:([^/]+)/g, "{$1}");
+        const operation = (paths[specPath] as JsonObject | undefined)?.[
+            method
+        ] as JsonObject | undefined;
+        const requestBody = operation?.requestBody as JsonObject | undefined;
+        if (!requestBody) continue;
+
+        const content = requestBody.content as JsonObject | undefined;
+        if (content && Object.keys(content).length > 0) continue;
+
+        let schema: unknown;
+        if (typeof body === "string") {
+            schema = { $ref: `#/components/schemas/${body}` };
+        } else if (typeof body === "object" && "_zod" in body) {
+            schema = renderZodSchema(body as z.ZodType);
+        }
+        if (!schema) continue;
+
+        requestBody.content = { "application/json": { schema } };
+    }
+
+    return spec;
 }
 
 export function fillMissingComponentSchemas(spec: JsonObject): JsonObject {

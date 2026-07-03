@@ -541,6 +541,49 @@
         "title": "Zablokovaní uživatelé",
         "unblock": "Odblokovat"
     },
+    "notifications": {
+        "title": "Oznámení",
+        "bellAria": "Oznámení",
+        "unreadBadgeAria": "{{count}} nepřečtených oznámení",
+        "empty": "Zatím žádná oznámení",
+        "markAllRead": "Označit vše jako přečtené",
+        "open": "Otevřít",
+        "newMessage": "Nová zpráva",
+        "someone": "Někdo",
+        "yourRide": "vaší jízdě",
+        "types": {
+            "BOOKING_REQUEST": {
+                "title": "Nová žádost o rezervaci",
+                "body": "{{actorName}} žádá o {{seatCount}} místo/míst na trase {{route}}"
+            },
+            "BOOKING_CONFIRMED": {
+                "title": "Rezervace potvrzena",
+                "body": "Vaše rezervace na trase {{route}} byla potvrzena"
+            },
+            "BOOKING_REJECTED": {
+                "title": "Rezervace zamítnuta",
+                "body": "Vaše rezervace na trase {{route}} byla zamítnuta"
+            },
+            "BOOKING_CANCELLED": {
+                "byPassenger": {
+                    "title": "Rezervace zrušena",
+                    "body": "{{actorName}} zrušil(a) svou rezervaci na trase {{route}}"
+                },
+                "byDriver": {
+                    "title": "Rezervace zrušena",
+                    "body": "Vaši rezervaci na trase {{route}} zrušil řidič"
+                }
+            },
+            "RIDE_CANCELLED": {
+                "title": "Jízda zrušena",
+                "body": "Jízda {{route}} byla zrušena"
+            },
+            "RIDE_COMPLETED": {
+                "title": "Jízda dokončena",
+                "body": "Jízda {{route}} je dokončena — nyní můžete ohodnotit řidiče"
+            }
+        }
+    },
     "roles": {
         "passenger": "Cestující",
         "driver": "Řidič"
