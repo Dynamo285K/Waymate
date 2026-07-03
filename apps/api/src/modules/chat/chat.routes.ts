@@ -6,8 +6,10 @@ import { logger } from "../../shared/logger";
 import {
     ErrorResponseSchema,
     ConversationIdParamsSchema,
+    ConversationMessageParamsSchema,
     CreateConversationBodySchema,
     SendMessageBodySchema,
+    EditMessageBodySchema,
     MessagesQuerySchema,
     MessageSchema,
     MessageListSchema,
@@ -22,8 +24,10 @@ export const ChatRoutes = new Elysia({
 })
     .model({
         ConversationIdParams: ConversationIdParamsSchema,
+        ConversationMessageParams: ConversationMessageParamsSchema,
         CreateConversationBody: CreateConversationBodySchema,
         SendMessageBody: SendMessageBodySchema,
+        EditMessageBody: EditMessageBodySchema,
         MessagesQuery: MessagesQuerySchema,
         Message: MessageSchema,
         MessageList: MessageListSchema,
@@ -133,6 +137,58 @@ export const ChatRoutes = new Elysia({
                     detail: {
                         description:
                             "Sends a text message to a conversation the authenticated user takes part in",
+                    },
+                }
+            )
+
+            .patch(
+                "/:id/messages/:messageId",
+                async ({ user, params, body }) =>
+                    await ChatService.editMessage(
+                        params.id,
+                        params.messageId,
+                        user.id,
+                        body.content
+                    ),
+                {
+                    params: ConversationMessageParamsSchema,
+                    body: "EditMessageBody",
+                    response: {
+                        200: "Message",
+                        400: "ErrorResponse",
+                        403: "ErrorResponse",
+                        404: "ErrorResponse",
+                        413: "ErrorResponse",
+                        429: "ErrorResponse",
+                        500: "ErrorResponse",
+                    },
+                    detail: {
+                        description:
+                            "Edits the authenticated user's own message. Allowed for 15 minutes after sending; sets editedAt",
+                    },
+                }
+            )
+
+            .delete(
+                "/:id/messages/:messageId",
+                async ({ user, params }) =>
+                    await ChatService.deleteMessage(
+                        params.id,
+                        params.messageId,
+                        user.id
+                    ),
+                {
+                    params: ConversationMessageParamsSchema,
+                    response: {
+                        200: "Message",
+                        403: "ErrorResponse",
+                        404: "ErrorResponse",
+                        429: "ErrorResponse",
+                        500: "ErrorResponse",
+                    },
+                    detail: {
+                        description:
+                            "Soft-deletes the authenticated user's own message (tombstone with masked content). Allowed for 15 minutes after sending; idempotent",
                     },
                 }
             )

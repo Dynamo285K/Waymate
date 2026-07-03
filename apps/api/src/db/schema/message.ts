@@ -28,9 +28,13 @@ export const messages = pgTable(
             "message_content_length_check",
             sql`char_length(${table.content}) BETWEEN 1 AND 2000`
         ),
-        index("messages_conversation_sent_idx")
-            .on(table.conversationId, table.sentAt.desc(), table.id.desc())
-            .where(sql`${table.deletedAt} IS NULL`),
+        // Full (not partial) index: thread queries include soft-deleted rows
+        // since deleted messages render as tombstones.
+        index("messages_conversation_sent_idx").on(
+            table.conversationId,
+            table.sentAt.desc(),
+            table.id.desc()
+        ),
         index("messages_sender_id_idx").on(table.senderId),
         index("messages_sent_at_idx").on(table.sentAt),
     ]

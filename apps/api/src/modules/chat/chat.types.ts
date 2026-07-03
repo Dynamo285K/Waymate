@@ -39,4 +39,8 @@ export type ConversationListItem = {
     unreadCount: number;
     updatedAt: Date;
     isBlocked: boolean;
+    // Ride route + departure so the inbox can label ride-scoped threads.
+    rideOriginCity: string | null;
+    rideDestinationCity: string | null;
+    rideDepartureAt: Date | null;
 };

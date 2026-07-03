@@ -15,7 +15,7 @@ const prettyOptions: PrettyOptions = {
     singleLine: true,
     // Fields rendered inline below are dropped from the trailing object so
     // they aren't printed twice.
-    ignore: "pid,hostname,requestId,method,path,status,durationMs",
+    ignore: "pid,hostname,requestId,method,path,status,durationMs,errorCode",
     messageFormat: (log, messageKey, _levelLabel, { colors }) => {
         const id = log.requestId
             ? `${colors.gray(String(log.requestId))}  `
@@ -30,7 +30,12 @@ const prettyOptions: PrettyOptions = {
                       : colors.green;
             // requestId only on non-2xx — on success it's noise you never grep.
             const errId = status >= 400 ? id : "";
-            return `${errId}${log.method} ${log.path} ${colors.gray("→")} ${paint(String(log.status))} ${log.durationMs}ms`;
+            // Failed requests carry the stable error code (set by the root
+            // .onError) so a 400 names its cause right in the log line.
+            const errCode = log.errorCode
+                ? ` ${paint(String(log.errorCode))}`
+                : "";
+            return `${errId}${log.method} ${log.path} ${colors.gray("→")} ${paint(String(log.status))} ${log.durationMs}ms${errCode}`;
         }
         // Service/error logs (osrm_parse_failed, unhandled_error, …) keep the id
         // always — these are exactly the lines you correlate back to a request.

@@ -12,6 +12,7 @@ const sampleMessage: Message = {
     content: "hi",
     sentAt: new Date(),
     editedAt: null,
+    deletedAt: null,
 };
 
 afterEach(() => {
@@ -82,6 +83,35 @@ describe("ChatRealtime.notifyMessage", () => {
                 sampleMessage
             )
         ).not.toThrow();
+    });
+});
+
+describe("ChatRealtime.notifyMessageUpdated", () => {
+    it("publishes the message-updated event to both participants' topics", () => {
+        const publish = vi.fn();
+        ChatRealtime.setBroadcaster({ publish });
+
+        const driverId = crypto.randomUUID();
+        const passengerId = crypto.randomUUID();
+        ChatRealtime.notifyMessageUpdated(
+            driverId,
+            passengerId,
+            sampleMessage.conversationId,
+            sampleMessage
+        );
+
+        expect(publish).toHaveBeenCalledTimes(2);
+        const topics = publish.mock.calls.map((c) => c[0]);
+        expect(topics).toEqual(
+            expect.arrayContaining([
+                ChatRealtime.userTopic(driverId),
+                ChatRealtime.userTopic(passengerId),
+            ])
+        );
+
+        const payload = JSON.parse(publish.mock.calls[0]![1] as string);
+        expect(payload.type).toBe("message-updated");
+        expect(payload.message.id).toBe(sampleMessage.id);
     });
 });
 

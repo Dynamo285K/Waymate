@@ -437,11 +437,16 @@ export const UpdateReportStatusBodySchema = z
 // Read-only view of the booking-scoped conversation between a report's reporter
 // and target, surfaced to admins for moderation context. `available` is false
 // when the report has no ride or the two parties never opened a chat.
+// Unlike the user-facing thread, deleted messages keep their ORIGINAL content
+// here (flagged via deletedAt) — moderation must see what was said even after
+// the author tombstoned it.
 export const AdminReportConversationMessageSchema = z.object({
     id: z.uuid(),
     senderId: UserIdSchema,
     content: z.string(),
     sentAt: z.date(),
+    editedAt: z.date().nullable(),
+    deletedAt: z.date().nullable(),
 });
 
 export const AdminReportConversationSchema = z.object({

@@ -18,6 +18,64 @@ const resolveRole = (
     throw new ChatError(ChatErrorCodes.NotAParticipant);
 };
 
+// How long after sending a message its author may edit or delete it.
+const MESSAGE_MODIFY_WINDOW_MS = 15 * 60 * 1000;
+
+// A deleted message stays in threads as a tombstone, but its real content must
+// never leave the server. Applied everywhere messages are read or broadcast.
+const maskDeleted = (message: Message): Message =>
+    message.deletedAt ? { ...message, content: "" } : message;
+
+// Shared preamble of editMessage/deleteMessage: participant check + ownership
+// + only user-authored TEXT messages + the modification window.
+const findOwnModifiableMessage = async (
+    conversationId: string,
+    messageId: string,
+    userId: string
+): Promise<{ context: ConversationParticipants; message: Message }> => {
+    const context = await ChatRepository.findConversationContext(
+        db,
+        conversationId
+    );
+    if (!context) {
+        throw new ChatError(ChatErrorCodes.ConversationNotFound);
+    }
+    resolveRole(context, userId);
+
+    const message = await ChatRepository.findMessageInConversation(
+        db,
+        conversationId,
+        messageId
+    );
+    if (!message || message.messageType !== "TEXT") {
+        throw new ChatError(ChatErrorCodes.MessageNotFound);
+    }
+    if (message.senderId !== userId) {
+        throw new ChatError(ChatErrorCodes.NotMessageSender);
+    }
+
+    return { context, message };
+};
+
+const assertWithinModifyWindow = (message: Message): void => {
+    if (Date.now() - message.sentAt.getTime() > MESSAGE_MODIFY_WINDOW_MS) {
+        throw new ChatError(ChatErrorCodes.MessageWindowExpired);
+    }
+};
+
+const publishUpdated = (
+    context: ConversationParticipants,
+    conversationId: string,
+    message: Message
+): void => {
+    ChatRealtime.notifyMessageUpdated(
+        context.driverId,
+        context.passengerId,
+        conversationId,
+        message
+    );
+};
+
 const getOrCreateConversation = async (
     bookingId: string,
     userId: string
@@ -31,15 +89,21 @@ const getOrCreateConversation = async (
 
         const role = resolveRole(context, userId);
 
+        // Threads are ride-scoped: the same driver↔passenger pair gets one
+        // thread per ride, so conversations stay tied to the ride they concern
+        // (and admin report moderation resolves exactly the reported ride's
+        // thread via conversations.ride_id).
         await ChatRepository.lockConversationPair(
             tx,
             context.driverId,
-            context.passengerId
+            context.passengerId,
+            context.rideId
         );
-        const existing = await ChatRepository.findPairConversationId(
+        const existing = await ChatRepository.findRideConversationId(
             tx,
             context.driverId,
-            context.passengerId
+            context.passengerId,
+            context.rideId
         );
         if (existing) {
             return existing;
@@ -75,7 +139,9 @@ const getConversations = async (
         db,
         lastMessageIds
     );
-    const messageById = new Map(lastMessages.map((m) => [m.id, m]));
+    const messageById = new Map(
+        lastMessages.map((m) => [m.id, maskDeleted(m)])
+    );
 
     return rows.map((row) => {
         const myRole: ConversationRole =
@@ -98,6 +164,9 @@ const getConversations = async (
             unreadCount: row.unreadCount,
             updatedAt: row.updatedAt,
             isBlocked: row.isBlocked,
+            rideOriginCity: row.rideOriginCity,
+            rideDestinationCity: row.rideDestinationCity,
+            rideDepartureAt: row.rideDepartureAt,
         };
     });
 };
@@ -120,13 +189,15 @@ const getMessages = async (
 
     resolveRole(context, userId);
 
-    return await ChatRepository.findConversationMessages(
+    const messages = await ChatRepository.findConversationMessages(
         db,
         conversationId,
         limit,
         before,
         beforeId
     );
+
+    return messages.map(maskDeleted);
 };
 
 const sendMessage = async (
@@ -193,6 +264,85 @@ const sendMessage = async (
     return message;
 };
 
+// Edit the caller's own message. Deliberately no block/banned checks —
+// managing content you already sent is always allowed (nothing new reaches
+// the counterpart beyond a changed wording, and delete must never be
+// blockable).
+const editMessage = async (
+    conversationId: string,
+    messageId: string,
+    userId: string,
+    content: string
+): Promise<Message> => {
+    const trimmed = content.trim();
+    if (trimmed.length === 0) {
+        throw new ChatError(ChatErrorCodes.MessageEmpty);
+    }
+
+    const { context, message } = await findOwnModifiableMessage(
+        conversationId,
+        messageId,
+        userId
+    );
+
+    // A tombstoned message is gone as an editable resource.
+    if (message.deletedAt) {
+        throw new ChatError(ChatErrorCodes.MessageNotFound);
+    }
+    assertWithinModifyWindow(message);
+
+    const updated = await ChatRepository.updateMessageContent(
+        db,
+        messageId,
+        trimmed
+    );
+    if (!updated) {
+        // Race: deleted between the check and the guarded update.
+        throw new ChatError(ChatErrorCodes.MessageNotFound);
+    }
+
+    publishUpdated(context, conversationId, updated);
+
+    return updated;
+};
+
+// Soft-delete (tombstone) the caller's own message. Re-issuing the delete is a
+// no-op that returns the existing tombstone, matching the project's
+// idempotent-transition convention.
+const deleteMessage = async (
+    conversationId: string,
+    messageId: string,
+    userId: string
+): Promise<Message> => {
+    const { context, message } = await findOwnModifiableMessage(
+        conversationId,
+        messageId,
+        userId
+    );
+
+    if (message.deletedAt) {
+        return maskDeleted(message);
+    }
+    assertWithinModifyWindow(message);
+
+    const deleted = await ChatRepository.softDeleteMessage(db, messageId);
+    if (!deleted) {
+        // Race: another delete won; re-read for the idempotent response.
+        const current = await ChatRepository.findMessageInConversation(
+            db,
+            conversationId,
+            messageId
+        );
+        if (!current) throw new ChatError(ChatErrorCodes.MessageNotFound);
+        return maskDeleted(current);
+    }
+
+    const tombstone = maskDeleted(deleted);
+    publishUpdated(context, conversationId, tombstone);
+
+    return tombstone;
+};
+
 const markRead = async (
     conversationId: string,
     userId: string
@@ -223,5 +373,7 @@ export const ChatService = {
     getConversations,
     getMessages,
     sendMessage,
+    editMessage,
+    deleteMessage,
     markRead,
 };

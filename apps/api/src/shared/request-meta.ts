@@ -11,6 +11,11 @@ export type RequestMeta = {
     requestId: string;
     startedAt: number;
     payloadTooLarge?: boolean;
+    // Stable error code of a 4xx response (domain code, "VALIDATION", …), set
+    // by the root `.onError` so the request log line names WHY a request
+    // failed — the status alone doesn't distinguish e.g. a self-booking from
+    // invalid stops.
+    errorCode?: string;
 };
 
 export const requestMeta = new WeakMap<Request, RequestMeta>();

@@ -158,3 +158,26 @@ migration-drift:
                 git status --short apps/api/drizzle
                 exit 1
             fi
+
+openapi-drift:
+    stage: static-analysis
+    variables:
+        # openapi:dump imports the whole app, so config/env.ts requires these —
+        # but nothing connects at import time (DB/Redis clients are lazy), so
+        # dummy values are enough.
+        DATABASE_URL: "postgres://ci:ci@localhost:5432/ci"
+        REDIS_URL: "redis://localhost:6379"
+        BETTER_AUTH_URL: "http://localhost:3000"
+        WEB_ORIGIN: "http://localhost:5173"
+        RESEND_API_KEY: "re_ci_dummy_key"
+    script:
+        - bun run --cwd apps/api openapi:dump
+        # The dump writes compact JSON; the committed file is Prettier-formatted.
+        - bunx prettier --write apps/api/openapi.json
+        - |
+            if [ -n "$(git status --porcelain apps/api/openapi.json)" ]; then
+                echo "apps/api/openapi.json drifted from the API routes/schemas."
+                echo "Run 'bun run --cwd apps/api openapi:dump && bun run format' locally, commit the spec, and re-run 'bun run --cwd apps/web codegen' if the client changed."
+                git --no-pager diff --stat -- apps/api/openapi.json
+                exit 1
+            fi

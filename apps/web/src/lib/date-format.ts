@@ -31,6 +31,16 @@ export function formatTime(date: Date): string {
     }).format(date);
 }
 
+// Short numeric date ("12. 7." / "7/12") for compact labels like the chat
+// inbox's ride tag.
+export function formatShortDate(value: string | Date): string {
+    const locale = LOCALE_MAP[i18n.language] ?? "en-US";
+    return new Intl.DateTimeFormat(locale, {
+        day: "numeric",
+        month: "numeric",
+    }).format(new Date(value));
+}
+
 // Day-group label for chat separators: "Today" / "Yesterday" (labels passed in
 // by the caller for i18n) or a formatted date, with the year only when it
 // differs from the current one.

@@ -49,6 +49,23 @@ const notifyMessage = (
     publishToUser(passengerId, event);
 };
 
+// Broadcast an edited or deleted (tombstoned) message to both parties so open
+// threads replace it by id. The message must already be masked when deleted.
+const notifyMessageUpdated = (
+    driverId: string,
+    passengerId: string,
+    conversationId: string,
+    message: Message
+): void => {
+    const event: ChatSocketEvent = {
+        type: "message-updated",
+        conversationId,
+        message,
+    };
+    publishToUser(driverId, event);
+    publishToUser(passengerId, event);
+};
+
 // Tell the counterpart that this user has read the conversation up to now, so
 // their unread badge / read receipts update live.
 const notifyRead = (
@@ -70,5 +87,6 @@ export const ChatRealtime = {
     setBroadcaster,
     publishToUser,
     notifyMessage,
+    notifyMessageUpdated,
     notifyRead,
 };
