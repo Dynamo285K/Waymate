@@ -541,6 +541,49 @@
         "title": "Blocked users",
         "unblock": "Unblock"
     },
+    "notifications": {
+        "title": "Notifications",
+        "bellAria": "Notifications",
+        "unreadBadgeAria": "{{count}} unread notifications",
+        "empty": "No notifications yet",
+        "markAllRead": "Mark all as read",
+        "open": "Open",
+        "newMessage": "New message",
+        "someone": "Someone",
+        "yourRide": "your ride",
+        "types": {
+            "BOOKING_REQUEST": {
+                "title": "New booking request",
+                "body": "{{actorName}} requested {{seatCount}} seat(s) on {{route}}"
+            },
+            "BOOKING_CONFIRMED": {
+                "title": "Booking confirmed",
+                "body": "Your booking on {{route}} was confirmed"
+            },
+            "BOOKING_REJECTED": {
+                "title": "Booking rejected",
+                "body": "Your booking on {{route}} was rejected"
+            },
+            "BOOKING_CANCELLED": {
+                "byPassenger": {
+                    "title": "Booking cancelled",
+                    "body": "{{actorName}} cancelled their booking on {{route}}"
+                },
+                "byDriver": {
+                    "title": "Booking cancelled",
+                    "body": "Your booking on {{route}} was cancelled by the driver"
+                }
+            },
+            "RIDE_CANCELLED": {
+                "title": "Ride cancelled",
+                "body": "The ride {{route}} was cancelled"
+            },
+            "RIDE_COMPLETED": {
+                "title": "Ride completed",
+                "body": "The ride {{route}} is complete — you can now rate the driver"
+            }
+        }
+    },
     "roles": {
         "passenger": "Passenger",
         "driver": "Driver"

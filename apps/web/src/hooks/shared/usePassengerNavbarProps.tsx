@@ -4,6 +4,7 @@ import type { Language } from "../../components/controls/LanguageSwitcher";
 import { toUiLanguage } from "../../lib/language";
 import { useLogout } from "./useLogout";
 import { useUnreadCount } from "../../features/chat/hooks/useUnreadCount";
+import { NotificationBell } from "../../features/notifications/components/NotificationBell";
 
 export function usePassengerNavbarProps(params: {
     activeTab?: "find-ride" | "my-rides" | "chat";
@@ -22,6 +23,7 @@ export function usePassengerNavbarProps(params: {
     return {
         ...params,
         chatBadge,
+        notificationBell: <NotificationBell />,
         language: toUiLanguage(params.language),
         role: "passenger" as const,
         onRoleChange: (r: "passenger" | "driver") =>

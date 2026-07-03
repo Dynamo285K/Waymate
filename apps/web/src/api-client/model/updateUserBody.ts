@@ -23,10 +23,7 @@ export interface UpdateUserBody {
      * @pattern ^\S+$
      */
     displayName?: string;
-    /**
-     * @maxLength 16
-     * @pattern ^\+[1-9]\d{1,14}$
-     */
+    /** @pattern ^\+[1-9]\d{6,14}$ */
     phone?: string;
     /** @maxLength 500 */
     bio?: string;

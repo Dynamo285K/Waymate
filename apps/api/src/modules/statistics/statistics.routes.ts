@@ -6,7 +6,10 @@ import {
 import { StatisticsService } from "./statistics.service";
 import { requireAdmin } from "../auth/auth.middleware";
 
-export const StatisticsRoutes = new Elysia({ prefix: "/admin" })
+export const StatisticsRoutes = new Elysia({
+    prefix: "/admin",
+    tags: ["Admin"],
+})
     .use(requireAdmin)
     .model({
         AdminDashboardResponse: AdminDashboardResponseSchema,

@@ -1,4 +1,5 @@
-import { index, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { index, jsonb, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import type { NotificationPayload } from "@repo/shared";
 import { users } from "./user";
 import { deliveryStatusEnum, notificationTypeEnum } from "./enums";
 import { timestamptz } from "./timestamps";
@@ -15,6 +16,9 @@ export const notifications = pgTable(
         referenceEntityId: uuid("reference_entity_id"),
         title: text("title").notNull(),
         body: text("body").notNull(),
+        // Structured params for client-side localization; title/body above are
+        // the English fallback. Dates inside must be ISO strings.
+        payload: jsonb("payload").$type<NotificationPayload>(),
         deliveryStatus: deliveryStatusEnum("delivery_status").notNull(),
         readAt: timestamptz("read_at"),
         sentAt: timestamptz("sent_at"),

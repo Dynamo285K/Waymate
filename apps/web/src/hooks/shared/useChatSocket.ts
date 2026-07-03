@@ -1,15 +1,20 @@
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getGetConversationsQueryKey } from "../../api-client/chat/chat";
+import {
+    getGetNotificationsQueryKey,
+    getGetNotificationsUnreadCountQueryKey,
+} from "../../api-client/notifications/notifications";
 import type { Message } from "../../api-client/model/message";
+import type { Notification } from "../../api-client/model/notification";
 import { API_BASE_URL } from "../../lib/api-fetcher";
 import { useSession } from "../../lib/use-session";
 import { applyMessageToCache } from "../../lib/chat-cache";
 
 // Server -> client events pushed over `GET /conversations/ws`. Dates arrive as
-// JSON strings, matching the orval-generated `Message` model used in the query
-// cache (the backend's @repo/shared union types them as `Date` — don't import
-// that here or cache writes won't line up).
+// JSON strings, matching the orval-generated models used in the query cache
+// (the backend's @repo/shared union types them as `Date` — don't import that
+// here or cache writes won't line up).
 export type ChatMessageEvent = {
     type: "message";
     conversationId: string;
@@ -23,7 +28,15 @@ export type ChatReadEvent = {
     lastReadAt: string;
 };
 
-export type ChatSocketEvent = ChatMessageEvent | ChatReadEvent;
+export type NotificationEvent = {
+    type: "notification";
+    notification: Notification;
+};
+
+export type ChatSocketEvent =
+    | ChatMessageEvent
+    | ChatReadEvent
+    | NotificationEvent;
 
 type UseChatSocketOptions = {
     // Defaults to "connect while signed in". Pass false to hold the socket
@@ -47,7 +60,7 @@ function chatSocketUrl(): string {
 function isChatSocketEvent(value: unknown): value is ChatSocketEvent {
     if (!value || typeof value !== "object") return false;
     const type = (value as { type?: unknown }).type;
-    return type === "message" || type === "read";
+    return type === "message" || type === "read" || type === "notification";
 }
 
 /**
@@ -100,6 +113,15 @@ export function useChatSocket(options: UseChatSocketOptions = {}): void {
                         queryKey: getGetConversationsQueryKey(),
                     });
                 }
+            } else if (event.type === "notification") {
+                // Refetch rather than patch: the list is cursor-paginated and
+                // cheap, and the badge must stay exact.
+                void queryClient.invalidateQueries({
+                    queryKey: getGetNotificationsQueryKey(),
+                });
+                void queryClient.invalidateQueries({
+                    queryKey: getGetNotificationsUnreadCountQueryKey(),
+                });
             }
             // `read` events carry the counterpart's progress, which the cache
             // doesn't model — forward to the consumer only.

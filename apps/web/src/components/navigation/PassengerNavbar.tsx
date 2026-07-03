@@ -1,3 +1,4 @@
+import { type ReactNode } from "react";
 import { ListIcon, MessageCircleIcon, SearchIcon } from "@waymate/ui";
 import { type Language } from "../controls/LanguageSwitcher";
 import { type Role } from "../controls/RoleSwitcher";
@@ -29,6 +30,7 @@ export type PassengerNavbarProps = {
     onThemeToggle?: () => void;
     userName?: string;
     userEmail?: string;
+    notificationBell?: ReactNode;
     onLogoClick?: () => void;
     onFindRideClick?: () => void;
     onMyRidesClick?: () => void;
@@ -51,6 +53,7 @@ export function PassengerNavbar({
     onThemeToggle,
     userName = "Tomáš Olbert",
     userEmail = "najviacpracujuci@gmail.com",
+    notificationBell,
     onLogoClick,
     onFindRideClick,
     onMyRidesClick,
@@ -100,6 +103,7 @@ export function PassengerNavbar({
             onLogoClick={onLogoClick}
             userName={userName}
             userEmail={userEmail}
+            notificationBell={notificationBell}
             onProfileClick={onProfileClick}
             onMyRidesClick={onMyRidesClick}
             onMessagesClick={onMessagesClick}

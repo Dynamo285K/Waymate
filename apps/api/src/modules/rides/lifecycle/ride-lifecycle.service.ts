@@ -1,6 +1,8 @@
 import { db } from "../../../db";
 import { RideRepository } from "../ride.repository";
 import { RideError, RideErrorCodes } from "../ride.errors";
+import { NotificationService } from "../../notifications/notification.service";
+import type { CreatedNotification } from "../../notifications/notification.types";
 import type { EndRideInput } from "../ride.types";
 
 export const cancelRide = async (
@@ -8,7 +10,7 @@ export const cancelRide = async (
     driverId: string,
     reason?: string
 ): Promise<string> => {
-    return await db.transaction(async (tx) => {
+    const { id, created } = await db.transaction(async (tx) => {
         const existingRide = await RideRepository.findRideForCancel(
             tx,
             rideId,
@@ -48,6 +50,8 @@ export const cancelRide = async (
             rideId
         );
 
+        const created: CreatedNotification[] = [];
+
         if (activeBookings.length > 0) {
             const cancelReason = "Ride was cancelled by the driver";
             const activeBookingIds = activeBookings.map((b) => b.id);
@@ -71,10 +75,31 @@ export const cancelRide = async (
                 tx,
                 bookingHistoryInserts
             );
+
+            const payloadBase = await NotificationService.ridePayload(
+                tx,
+                rideId
+            );
+
+            for (const booking of activeBookings) {
+                created.push(
+                    await NotificationService.create(tx, {
+                        userId: booking.passengerId,
+                        type: "RIDE_CANCELLED",
+                        referenceEntityType: "RIDE",
+                        referenceEntityId: rideId,
+                        payload: { ...payloadBase, bookingId: booking.id },
+                    })
+                );
+            }
         }
 
-        return updatedRide.id;
+        return { id: updatedRide.id, created };
     });
+
+    NotificationService.publishCreated(created);
+
+    return id;
 };
 
 export const endRide = async (input: EndRideInput): Promise<string> => {
@@ -88,7 +113,7 @@ export const endRide = async (input: EndRideInput): Promise<string> => {
     const endedByUserId = input.source === "AUTO" ? null : actorUserId;
     const endReason = input.reason || defaultEndReason(input.source);
 
-    return await db.transaction(async (tx) => {
+    const { id, created } = await db.transaction(async (tx) => {
         const ride = await RideRepository.findRideForEnd(
             tx,
             input.rideId,
@@ -100,7 +125,7 @@ export const endRide = async (input: EndRideInput): Promise<string> => {
         }
 
         if (ride.rideStatus === "COMPLETED") {
-            return ride.id;
+            return { id: ride.id, created: [] as CreatedNotification[] };
         }
 
         if (
@@ -134,7 +159,10 @@ export const endRide = async (input: EndRideInput): Promise<string> => {
             );
 
             if (currentRide?.rideStatus === "COMPLETED") {
-                return currentRide.id;
+                return {
+                    id: currentRide.id,
+                    created: [] as CreatedNotification[],
+                };
             }
 
             if (currentRide) {
@@ -161,6 +189,8 @@ export const endRide = async (input: EndRideInput): Promise<string> => {
                 input.rideId
             );
 
+        const created: CreatedNotification[] = [];
+
         if (confirmedBookings.length > 0) {
             const bookingIds = confirmedBookings.map((b) => b.id);
 
@@ -176,10 +206,31 @@ export const endRide = async (input: EndRideInput): Promise<string> => {
                     reason: endReason,
                 }))
             );
+
+            const payloadBase = await NotificationService.ridePayload(
+                tx,
+                input.rideId
+            );
+
+            for (const booking of confirmedBookings) {
+                created.push(
+                    await NotificationService.create(tx, {
+                        userId: booking.passengerId,
+                        type: "RIDE_COMPLETED",
+                        referenceEntityType: "RIDE",
+                        referenceEntityId: input.rideId,
+                        payload: { ...payloadBase, bookingId: booking.id },
+                    })
+                );
+            }
         }
 
-        return updatedRide.id;
+        return { id: updatedRide.id, created };
     });
+
+    NotificationService.publishCreated(created);
+
+    return id;
 };
 
 const defaultEndReason = (source: EndRideInput["source"]) => {

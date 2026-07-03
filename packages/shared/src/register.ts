@@ -11,6 +11,7 @@ import * as currencySchemas from "./currency.schema";
 import * as decimalSchemas from "./decimal.schema";
 import * as errorSchemas from "./error-response.schema";
 import * as healthSchemas from "./health.schema";
+import * as notificationSchemas from "./notification.schema";
 import * as reportSchemas from "./report.schema";
 import * as reviewSchemas from "./review.schema";
 import * as rideSchemas from "./ride.schema";
@@ -28,6 +29,7 @@ const allModules = [
     decimalSchemas,
     errorSchemas,
     healthSchemas,
+    notificationSchemas,
     reportSchemas,
     reviewSchemas,
     rideSchemas,

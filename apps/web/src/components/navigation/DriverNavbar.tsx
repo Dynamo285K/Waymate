@@ -1,3 +1,4 @@
+import { type ReactNode } from "react";
 import {
     PlusIcon,
     ListIcon,
@@ -39,6 +40,7 @@ export type DriverNavbarProps = {
     onThemeToggle?: () => void;
     userName?: string;
     userEmail?: string;
+    notificationBell?: ReactNode;
     onLogoClick?: () => void;
     onOfferRideClick?: () => void;
     onMyRidesClick?: () => void;
@@ -62,6 +64,7 @@ export function DriverNavbar({
     onThemeToggle,
     userName = "Tomáš Olbert",
     userEmail = "najviacpracujuci@gmail.com",
+    notificationBell,
     onLogoClick,
     onOfferRideClick,
     onMyRidesClick,
@@ -118,6 +121,7 @@ export function DriverNavbar({
             onLogoClick={onLogoClick}
             userName={userName}
             userEmail={userEmail}
+            notificationBell={notificationBell}
             onProfileClick={onProfileClick}
             onMyRidesClick={onMyRidesClick}
             onMessagesClick={onMessagesClick}

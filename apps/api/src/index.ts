@@ -17,6 +17,7 @@ import { ChatRealtime } from "./modules/chat/chat.realtime";
 import { ReviewRoutes } from "./modules/reviews/review.routes";
 import { ReportRoutes } from "./modules/reports/report.routes";
 import { BlockRoutes } from "./modules/blocks/block.routes";
+import { NotificationRoutes } from "./modules/notifications/notification.routes";
 import { StatisticsRoutes } from "./modules/statistics/statistics.routes";
 import { checkRateLimit } from "./shared/rate-limit";
 import {
@@ -347,6 +348,7 @@ export const app = new Elysia()
     .use(ReviewRoutes)
     .use(ReportRoutes)
     .use(BlockRoutes)
+    .use(NotificationRoutes)
     .use(StatisticsRoutes);
 
 export type App = typeof app;
