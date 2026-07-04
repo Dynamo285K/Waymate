@@ -1,9 +1,9 @@
 import { app } from "../src/index";
-import {
-    fillMissingComponentSchemas,
-    repairRequestBodies,
-} from "../src/openapi/post-process";
 
+// The document is fully post-processed by the app itself (the root
+// `.onAfterHandle` in src/index.ts repairs request bodies and fills missing
+// component schemas), so this script only persists what the live
+// `/openapi/json` route serves.
 const res = await app.handle(new Request("http://localhost/openapi/json"));
 
 if (!res.ok) {
@@ -11,11 +11,7 @@ if (!res.ok) {
     process.exit(1);
 }
 
-// Repair bodies before filling components so any $refs the repair introduces
-// get their schemas rendered too.
-const spec = fillMissingComponentSchemas(
-    repairRequestBodies(await res.json(), app.getGlobalRoutes())
-);
+const spec = await res.json();
 const out = import.meta.dir + "/../openapi.json";
 await Bun.write(out, JSON.stringify(spec, null, 2) + "\n");
 

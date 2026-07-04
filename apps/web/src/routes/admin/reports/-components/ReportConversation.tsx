@@ -68,8 +68,27 @@ export function ReportConversation({
                                     {" · "}
                                     {formatDate(m.sentAt, "—")}
                                 </span>
+                                {/* Moderation sees deleted messages with their
+                                    original content — badge them so it's clear
+                                    users no longer see this text. */}
+                                {m.deletedAt && (
+                                    <span className="ml-2 rounded-full bg-red px-1.5 py-0.5 text-badge font-semibold text-white">
+                                        {t("admin.reports.deletedMessage")}
+                                    </span>
+                                )}
+                                {m.editedAt && !m.deletedAt && (
+                                    <span className="ml-2 font-normal italic text-text-secondary">
+                                        {t("chat.edited")}
+                                    </span>
+                                )}
                             </span>
-                            <span className="text-sm text-text-primary whitespace-pre-wrap">
+                            <span
+                                className={`text-sm whitespace-pre-wrap ${
+                                    m.deletedAt
+                                        ? "text-text-secondary line-through"
+                                        : "text-text-primary"
+                                }`}
+                            >
                                 {m.content}
                             </span>
                         </div>

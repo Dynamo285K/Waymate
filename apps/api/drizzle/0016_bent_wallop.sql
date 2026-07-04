@@ -1,0 +1,2 @@
+DROP INDEX "messages_conversation_sent_idx";--> statement-breakpoint
+CREATE INDEX "messages_conversation_sent_idx" ON "messages" USING btree ("conversation_id","sent_at" DESC NULLS LAST,"id" DESC NULLS LAST);

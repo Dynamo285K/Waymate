@@ -1,11 +1,17 @@
 import { describe, it, expect } from "vitest";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { db } from "../../db";
-import { messages as messagesTable, users } from "../../db/schema";
+import { messages as messagesTable, rideStops, users } from "../../db/schema";
 import { ChatService } from "./chat.service";
 import { ChatErrorCodes } from "./chat.errors";
 import { BlockService } from "../blocks/block.service";
-import { createRideContext, createTestUser } from "../../../test/factories";
+import { RideService } from "../rides/ride.service";
+import { BookingService } from "../bookings/booking.service";
+import {
+    buildRideBody,
+    createRideContext,
+    createTestUser,
+} from "../../../test/factories";
 
 /**
  * Sets up a ride with a confirmed passenger and returns the two participants
@@ -38,8 +44,64 @@ describe("ChatService.getOrCreateConversation", () => {
             bookingId,
             passengerId
         );
-        // Exactly one thread per driver↔passenger pair.
+        // Exactly one thread per driver↔passenger pair per ride.
         expect(asPassenger).toBe(asDriver);
+    });
+
+    it("opens a separate thread for the same pair on a different ride", async () => {
+        const ctx = await createRideContext({ withPassenger: true });
+
+        // Second ride by the same driver, booked by the same passenger.
+        const secondRideId = await RideService.createRide(
+            ctx.driver.id,
+            buildRideBody(
+                ctx.car.id,
+                new Date(Date.now() + 48 * 60 * 60 * 1000)
+            )
+        );
+        const stops = await db
+            .select()
+            .from(rideStops)
+            .where(eq(rideStops.rideId, secondRideId))
+            .orderBy(asc(rideStops.stopOrder));
+        const secondBookingId = await BookingService.createBookingRequest({
+            rideId: secondRideId,
+            passengerId: ctx.passenger!.id,
+            pickupStopId: stops[0].id,
+            dropoffStopId: stops[stops.length - 1].id,
+            seatCount: 1,
+        });
+
+        const firstThread = await ChatService.getOrCreateConversation(
+            ctx.bookingId!,
+            ctx.driver.id
+        );
+        const secondThread = await ChatService.getOrCreateConversation(
+            secondBookingId,
+            ctx.driver.id
+        );
+
+        expect(secondThread).not.toBe(firstThread);
+        // Re-opening either booking keeps returning its ride's thread.
+        await expect(
+            ChatService.getOrCreateConversation(
+                secondBookingId,
+                ctx.passenger!.id
+            )
+        ).resolves.toBe(secondThread);
+    });
+
+    it("exposes the ride route and departure on inbox items", async () => {
+        const ctx = await createRideContext({ withPassenger: true });
+        await ChatService.getOrCreateConversation(
+            ctx.bookingId!,
+            ctx.driver.id
+        );
+
+        const [item] = await ChatService.getConversations(ctx.driver.id);
+        expect(item.rideOriginCity).toBe("Bratislava");
+        expect(item.rideDestinationCity).toBe("Trnava");
+        expect(item.rideDepartureAt).toBeInstanceOf(Date);
     });
 
     it("rejects a user who is neither driver nor passenger (IDOR guard)", async () => {
@@ -319,5 +381,220 @@ describe("ChatService.getConversations & markRead", () => {
         await expect(
             ChatService.markRead(conversationId, outsider.id)
         ).rejects.toMatchObject({ code: ChatErrorCodes.NotAParticipant });
+    });
+});
+
+describe("ChatService.editMessage", () => {
+    async function conversationWithMessage() {
+        const { driverId, passengerId, bookingId } = await bookingChatContext();
+        const conversationId = await ChatService.getOrCreateConversation(
+            bookingId,
+            driverId
+        );
+        const message = await ChatService.sendMessage(
+            conversationId,
+            driverId,
+            "original"
+        );
+        return { driverId, passengerId, conversationId, message };
+    }
+
+    async function backdateMessage(messageId: string, minutes: number) {
+        await db
+            .update(messagesTable)
+            .set({ sentAt: new Date(Date.now() - minutes * 60_000) })
+            .where(eq(messagesTable.id, messageId));
+    }
+
+    it("updates the content and sets editedAt", async () => {
+        const { driverId, conversationId, message } =
+            await conversationWithMessage();
+
+        const edited = await ChatService.editMessage(
+            conversationId,
+            message.id,
+            driverId,
+            "edited content"
+        );
+
+        expect(edited.content).toBe("edited content");
+        expect(edited.editedAt).toBeInstanceOf(Date);
+
+        const [reloaded] = await ChatService.getMessages(
+            conversationId,
+            driverId,
+            50
+        );
+        expect(reloaded.content).toBe("edited content");
+    });
+
+    it("rejects editing someone else's message", async () => {
+        const { passengerId, conversationId, message } =
+            await conversationWithMessage();
+
+        await expect(
+            ChatService.editMessage(
+                conversationId,
+                message.id,
+                passengerId,
+                "hijacked"
+            )
+        ).rejects.toMatchObject({ code: ChatErrorCodes.NotMessageSender });
+    });
+
+    it("rejects a non-participant (IDOR guard)", async () => {
+        const { conversationId, message } = await conversationWithMessage();
+        const outsider = await createTestUser();
+
+        await expect(
+            ChatService.editMessage(
+                conversationId,
+                message.id,
+                outsider.id,
+                "nope"
+            )
+        ).rejects.toMatchObject({ code: ChatErrorCodes.NotAParticipant });
+    });
+
+    it("rejects an unknown message and an empty body", async () => {
+        const { driverId, conversationId, message } =
+            await conversationWithMessage();
+
+        await expect(
+            ChatService.editMessage(
+                conversationId,
+                crypto.randomUUID(),
+                driverId,
+                "whatever"
+            )
+        ).rejects.toMatchObject({ code: ChatErrorCodes.MessageNotFound });
+
+        await expect(
+            ChatService.editMessage(conversationId, message.id, driverId, "   ")
+        ).rejects.toMatchObject({ code: ChatErrorCodes.MessageEmpty });
+    });
+
+    it("rejects editing after the 15-minute window", async () => {
+        const { driverId, conversationId, message } =
+            await conversationWithMessage();
+        await backdateMessage(message.id, 16);
+
+        await expect(
+            ChatService.editMessage(
+                conversationId,
+                message.id,
+                driverId,
+                "too late"
+            )
+        ).rejects.toMatchObject({
+            code: ChatErrorCodes.MessageWindowExpired,
+        });
+    });
+
+    it("rejects editing a deleted message", async () => {
+        const { driverId, conversationId, message } =
+            await conversationWithMessage();
+        await ChatService.deleteMessage(conversationId, message.id, driverId);
+
+        await expect(
+            ChatService.editMessage(
+                conversationId,
+                message.id,
+                driverId,
+                "resurrect"
+            )
+        ).rejects.toMatchObject({ code: ChatErrorCodes.MessageNotFound });
+    });
+});
+
+describe("ChatService.deleteMessage", () => {
+    async function conversationWithMessage() {
+        const { driverId, passengerId, bookingId } = await bookingChatContext();
+        const conversationId = await ChatService.getOrCreateConversation(
+            bookingId,
+            driverId
+        );
+        const message = await ChatService.sendMessage(
+            conversationId,
+            driverId,
+            "to be deleted"
+        );
+        return { driverId, passengerId, conversationId, message };
+    }
+
+    it("tombstones the message: deletedAt set, content masked everywhere", async () => {
+        const { driverId, passengerId, conversationId, message } =
+            await conversationWithMessage();
+
+        const deleted = await ChatService.deleteMessage(
+            conversationId,
+            message.id,
+            driverId
+        );
+        expect(deleted.deletedAt).toBeInstanceOf(Date);
+        expect(deleted.content).toBe("");
+
+        // The tombstone still appears in the thread, masked.
+        const thread = await ChatService.getMessages(
+            conversationId,
+            passengerId,
+            50
+        );
+        const tombstone = thread.find((m) => m.id === message.id);
+        expect(tombstone).toBeDefined();
+        expect(tombstone!.content).toBe("");
+        expect(tombstone!.deletedAt).toBeInstanceOf(Date);
+    });
+
+    it("is idempotent — re-deleting returns the existing tombstone", async () => {
+        const { driverId, conversationId, message } =
+            await conversationWithMessage();
+
+        const first = await ChatService.deleteMessage(
+            conversationId,
+            message.id,
+            driverId
+        );
+        const second = await ChatService.deleteMessage(
+            conversationId,
+            message.id,
+            driverId
+        );
+        expect(second.deletedAt!.getTime()).toBe(first.deletedAt!.getTime());
+    });
+
+    it("rejects deleting someone else's message and after the window", async () => {
+        const { driverId, passengerId, conversationId, message } =
+            await conversationWithMessage();
+
+        await expect(
+            ChatService.deleteMessage(conversationId, message.id, passengerId)
+        ).rejects.toMatchObject({ code: ChatErrorCodes.NotMessageSender });
+
+        await db
+            .update(messagesTable)
+            .set({ sentAt: new Date(Date.now() - 16 * 60_000) })
+            .where(eq(messagesTable.id, message.id));
+
+        await expect(
+            ChatService.deleteMessage(conversationId, message.id, driverId)
+        ).rejects.toMatchObject({
+            code: ChatErrorCodes.MessageWindowExpired,
+        });
+    });
+
+    it("keeps a deleted last message as the masked inbox preview and out of unread", async () => {
+        const { driverId, passengerId, conversationId, message } =
+            await conversationWithMessage();
+
+        await ChatService.deleteMessage(conversationId, message.id, driverId);
+
+        const inbox = await ChatService.getConversations(passengerId);
+        const item = inbox.find((c) => c.id === conversationId)!;
+        expect(item.lastMessage?.id).toBe(message.id);
+        expect(item.lastMessage?.content).toBe("");
+        expect(item.lastMessage?.deletedAt).toBeInstanceOf(Date);
+        // Deleted messages never count as unread for the counterpart.
+        expect(item.unreadCount).toBe(0);
     });
 });

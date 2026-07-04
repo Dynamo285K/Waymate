@@ -58,6 +58,32 @@ export function applyMessageToCache(
     return found;
 }
 
+// Replaces an edited or deleted (tombstoned) message by id in the cached
+// thread pages and in the inbox preview when it is the conversation's last
+// message. Shared by the realtime socket and the edit/delete mutations. On a
+// deletion the caller should additionally invalidate the conversations query —
+// the unread count may have changed server-side.
+export function applyMessageUpdateToCache(
+    queryClient: QueryClient,
+    conversationId: string,
+    message: Message
+): void {
+    queryClient.setQueriesData<Message[]>(
+        { queryKey: getGetConversationsByIdMessagesQueryKey(conversationId) },
+        (current) => current?.map((m) => (m.id === message.id ? message : m))
+    );
+
+    queryClient.setQueryData<ConversationList>(
+        getGetConversationsQueryKey(),
+        (list) =>
+            list?.map((c) =>
+                c.id === conversationId && c.lastMessage?.id === message.id
+                    ? { ...c, lastMessage: message }
+                    : c
+            )
+    );
+}
+
 // Clears the unread badge for a conversation in the inbox cache — used after the
 // current user marks it read, since the server only broadcasts the read receipt
 // to the counterpart, not back to the reader.

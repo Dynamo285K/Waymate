@@ -234,6 +234,43 @@ describe("AdminReportService.getReportConversation", () => {
             "moderation please"
         );
     });
+
+    it("shows deleted messages with their original content (flagged)", async () => {
+        const { ctx, reportId, adminId } = await fileReport();
+
+        const conversationId = await ChatService.getOrCreateConversation(
+            ctx.bookingId!,
+            ctx.driver.id
+        );
+        const message = await ChatService.sendMessage(
+            conversationId,
+            ctx.driver.id,
+            "incriminating and deleted"
+        );
+        await ChatService.deleteMessage(
+            conversationId,
+            message.id,
+            ctx.driver.id
+        );
+
+        // Users only see a masked tombstone…
+        const userThread = await ChatService.getMessages(
+            conversationId,
+            ctx.driver.id,
+            50
+        );
+        expect(userThread.find((m) => m.id === message.id)!.content).toBe("");
+
+        // …but moderation sees the original text, flagged as deleted.
+        const result = await AdminReportService.getReportConversation(
+            reportId,
+            adminId
+        );
+        const adminView = result.messages.find((m) => m.id === message.id);
+        expect(adminView).toBeDefined();
+        expect(adminView!.content).toBe("incriminating and deleted");
+        expect(adminView!.deletedAt).toBeInstanceOf(Date);
+    });
 });
 
 describe("AdminReportService.getReportDetail", () => {

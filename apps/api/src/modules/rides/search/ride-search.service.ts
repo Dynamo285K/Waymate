@@ -14,6 +14,33 @@ export const getPopularRoutes = async () => {
     return await RideRepository.findPopularRoutes(db, POPULAR_ROUTES_LIMIT);
 };
 
+const SEARCH_STOP_RADIUS_KM = 25;
+
+type StopCandidate = {
+    lat: number;
+    lng: number;
+    [key: string]: unknown;
+};
+
+// Exported for unit tests — the first-match variant of this helper caused
+// search to resolve pickup and dropoff to the same stop on short rides.
+export const nearestStopWithin = <T extends StopCandidate>(
+    lat: number,
+    lng: number,
+    stops: T[]
+): T | null => {
+    let best: T | null = null;
+    let bestDist = Infinity;
+    for (const stop of stops) {
+        const dist = haversineKm(lat, lng, stop.lat, stop.lng);
+        if (dist <= SEARCH_STOP_RADIUS_KM && dist < bestDist) {
+            best = stop;
+            bestDist = dist;
+        }
+    }
+    return best;
+};
+
 export const searchRides = async (
     query: SearchRidesQuery,
     viewerId?: string
@@ -63,22 +90,21 @@ export const searchRides = async (
     for (const ride of finalRides) {
         const stopsForRide = allStops.filter((s) => s.rideId === ride.rideId);
 
-        let actualPickupStop = null;
-        let actualDropoffStop = null;
-
-        for (const stop of stopsForRide) {
-            if (haversineKm(startLat, startLng, stop.lat, stop.lng) <= 25) {
-                actualPickupStop = stop;
-                break;
-            }
-        }
-
-        for (const stop of stopsForRide) {
-            if (haversineKm(destLat, destLng, stop.lat, stop.lng) <= 25) {
-                actualDropoffStop = stop;
-                break;
-            }
-        }
+        // Match the NEAREST stop within the radius, not the first one found —
+        // on rides whose stops are closer together than the 25 km radius (e.g.
+        // Náchod → Velké Poříčí, 6 km apart), first-match resolved both the
+        // pickup and the dropoff to stop 0 and the resulting booking payload
+        // (pickup == dropoff) was rejected as BOOKING_INVALID_STOPS.
+        const actualPickupStop = nearestStopWithin(
+            startLat,
+            startLng,
+            stopsForRide
+        );
+        const actualDropoffStop = nearestStopWithin(
+            destLat,
+            destLng,
+            stopsForRide
+        );
 
         if (actualPickupStop) {
             ride.pickupStop.pickupStopId = actualPickupStop.id;
@@ -119,7 +145,9 @@ export const searchRides = async (
         }
 
         if (actualPickupStop && actualDropoffStop) {
-            if (actualPickupStop.stopOrder > actualDropoffStop.stopOrder) {
+            // `>=`: a ride where both ends resolve to the SAME stop is not
+            // bookable either (the API rejects pickup == dropoff).
+            if (actualPickupStop.stopOrder >= actualDropoffStop.stopOrder) {
                 continue;
             }
 

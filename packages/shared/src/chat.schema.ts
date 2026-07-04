@@ -7,11 +7,24 @@ export const ConversationIdParamsSchema = z.object({
     id: z.uuid("Invalid conversation ID"),
 });
 
+export const ConversationMessageParamsSchema = z.object({
+    id: z.uuid("Invalid conversation ID"),
+    messageId: z.uuid("Invalid message ID"),
+});
+
 export const CreateConversationBodySchema = z.object({
     bookingId: z.uuid("Invalid booking ID"),
 });
 
 export const SendMessageBodySchema = z.object({
+    content: z
+        .string()
+        .trim()
+        .min(1, "Message cannot be empty")
+        .max(2000, "Message is too long"),
+});
+
+export const EditMessageBodySchema = z.object({
     content: z
         .string()
         .trim()
@@ -32,9 +45,12 @@ export const MessageSchema = z.object({
     conversationId: z.uuid(),
     senderId: z.uuid(),
     messageType: z.enum(messageTypeValues),
+    // Empty string for deleted messages — the real content never leaves the
+    // server once a message is tombstoned (deletedAt set).
     content: z.string(),
     sentAt: z.date(),
     editedAt: z.date().nullable(),
+    deletedAt: z.date().nullable(),
 });
 
 export const MessageListSchema = MessageSchema.array();
@@ -51,6 +67,12 @@ export const ConversationListItemSchema = z.object({
     unreadCount: z.number().int(),
     updatedAt: z.date(),
     isBlocked: z.boolean(),
+    // Route + departure of the conversation's ride — threads are ride-scoped,
+    // so the inbox needs these to tell two threads with the same counterpart
+    // apart ("Brno → Praha 12. 7.").
+    rideOriginCity: z.string().nullable(),
+    rideDestinationCity: z.string().nullable(),
+    rideDepartureAt: z.date().nullable(),
 });
 
 export const ConversationListSchema = ConversationListItemSchema.array();
@@ -80,9 +102,18 @@ export const ChatReadEventSchema = z.object({
     lastReadAt: z.date(),
 });
 
+// Broadcast after a message is edited or deleted (tombstoned); carries the
+// full updated message so clients can replace it by id.
+export const ChatMessageUpdatedEventSchema = z.object({
+    type: z.literal("message-updated"),
+    conversationId: z.uuid(),
+    message: MessageSchema,
+});
+
 export const ChatSocketEventSchema = z.discriminatedUnion("type", [
     ChatMessageEventSchema,
     ChatReadEventSchema,
+    ChatMessageUpdatedEventSchema,
     NotificationEventSchema,
 ]);
 
@@ -91,4 +122,7 @@ export type Message = z.infer<typeof MessageSchema>;
 export type ConversationListItem = z.infer<typeof ConversationListItemSchema>;
 export type ChatMessageEvent = z.infer<typeof ChatMessageEventSchema>;
 export type ChatReadEvent = z.infer<typeof ChatReadEventSchema>;
+export type ChatMessageUpdatedEvent = z.infer<
+    typeof ChatMessageUpdatedEventSchema
+>;
 export type ChatSocketEvent = z.infer<typeof ChatSocketEventSchema>;

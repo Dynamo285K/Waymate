@@ -4,7 +4,11 @@ import { cors } from "@elysiajs/cors";
 import { openapi } from "@elysiajs/openapi";
 import * as z from "zod";
 import { env } from "./config/env";
-import { openApiifyJsonSchema } from "./openapi/post-process";
+import {
+    fillMissingComponentSchemas,
+    openApiifyJsonSchema,
+    repairRequestBodies,
+} from "./openapi/post-process";
 import { auth } from "./modules/auth/auth";
 import { HealthRoutes } from "./modules/health/health.routes";
 import { UserRoutes } from "./modules/users/user.routes";
@@ -132,6 +136,11 @@ function shouldSkipRateLimit(path: string): boolean {
     return false;
 }
 
+// Filled in right after `app` is constructed. The openapi post-process hook
+// below needs the app's route table, but referencing `app` inside its own
+// initializer chain trips TS7022 (self-referential type inference).
+let getAppRoutes: () => Parameters<typeof repairRequestBodies>[1] = () => [];
+
 export const app = new Elysia()
     .use(
         cors({
@@ -205,10 +214,18 @@ export const app = new Elysia()
         }
     })
     .onError(({ code, error, status, set, request }) => {
+        // Stash the stable error code so the `request` log line below names
+        // why the request failed — expected 4xx are not logged as errors, and
+        // the bare status can't distinguish e.g. self-booking from bad stops.
+        const recordErrorCode = (errorCode: string) => {
+            const meta = requestMeta.get(request);
+            if (meta) meta.errorCode = errorCode;
+        };
         // Rate limiting is the one domain error needing an extra header, so it
         // is handled before the generic branch (it is itself a DomainError).
         if (error instanceof RateLimitError) {
             set.headers["retry-after"] = String(error.retryAfterSeconds);
+            recordErrorCode(error.code);
             return status(429, { error: error.code });
         }
         // Every domain error carries its own HTTP status: auth-guard failures
@@ -217,15 +234,19 @@ export const app = new Elysia()
         // those bypass module handlers and land here — this single branch maps
         // them all to the same `{ error: code }` shape.
         if (error instanceof DomainError) {
+            recordErrorCode(error.code);
             return status(error.httpStatus, { error: error.code });
         }
         if (code === "VALIDATION" || code === "PARSE") {
+            recordErrorCode("VALIDATION");
             return status(400, { error: "VALIDATION" });
         }
         if (code === "NOT_FOUND") {
+            recordErrorCode("NOT_FOUND");
             return status(404, { error: "NOT_FOUND" });
         }
         const meta = requestMeta.get(request);
+        if (meta) meta.errorCode = "INTERNAL_SERVER_ERROR";
         logger.error(
             { err: error, requestId: meta?.requestId },
             "unhandled_error"
@@ -250,8 +271,26 @@ export const app = new Elysia()
                 path: url.pathname,
                 status,
                 durationMs,
+                // Present only on failed requests (set by the root .onError).
+                ...(meta.errorCode ? { errorCode: meta.errorCode } : {}),
             },
             "request"
+        );
+    })
+    // The openapi plugin only maps *named* parsers to content types, so the
+    // root `.onParse` above (chunked-body size limit) makes it render every
+    // request body as `content: {}`. Post-process the rendered document before
+    // it leaves the server — the Scalar UI and `openapi:dump` both read this
+    // route. The plugin caches the spec object and the repairs are idempotent,
+    // so the work effectively runs once.
+    .onAfterHandle(({ path, response }) => {
+        if (path !== "/openapi/json") return;
+        if (!response || typeof response !== "object") return;
+        return fillMissingComponentSchemas(
+            repairRequestBodies(
+                response as Record<string, unknown>,
+                getAppRoutes()
+            )
         );
     })
     .use(
@@ -350,6 +389,8 @@ export const app = new Elysia()
     .use(BlockRoutes)
     .use(NotificationRoutes)
     .use(StatisticsRoutes);
+
+getAppRoutes = () => app.routes;
 
 export type App = typeof app;
 export type Auth = typeof auth;

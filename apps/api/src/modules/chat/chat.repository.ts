@@ -14,6 +14,7 @@ import { conversations as conversationsTable } from "../../db/schema/conversatio
 import { messages as messagesTable } from "../../db/schema/message";
 import { bookings as bookingsTable } from "../../db/schema/booking";
 import { rides as ridesTable } from "../../db/schema/ride";
+import { rideStops as rideStopsTable } from "../../db/schema/ride_stop";
 import { users as usersTable } from "../../db/schema/user";
 import { blocklist as blocklistTable } from "../../db/schema/blocklist";
 import type { ConversationParticipants, ConversationType } from "./chat.types";
@@ -33,6 +34,7 @@ const messageColumns = {
     content: messagesTable.content,
     sentAt: messagesTable.sentAt,
     editedAt: messagesTable.editedAt,
+    deletedAt: messagesTable.deletedAt,
 };
 
 // Resolve the two parties of a booking-scoped conversation from the booking and
@@ -90,28 +92,32 @@ const isUserBanned = async (
     return row ? row.banned || row.userStatus === "BANNED" : false;
 };
 
-// Serialize get-or-create for one driver↔passenger pair: a transaction-scoped
-// advisory lock so two concurrent "open conversation" requests for the same
-// pair can't both slip past the find-by-pair below and each insert a thread.
-// Auto-released when the surrounding transaction commits or rolls back. hashtext
-// collisions only cause occasional extra serialization, never wrong results.
+// Serialize get-or-create for one driver↔passenger pair on one ride: a
+// transaction-scoped advisory lock so two concurrent "open conversation"
+// requests for the same pair+ride can't both slip past the find below and each
+// insert a thread. Auto-released when the surrounding transaction commits or
+// rolls back. hashtext collisions only cause occasional extra serialization,
+// never wrong results.
 const lockConversationPair = async (
     executor: Executor,
     driverId: string,
-    passengerId: string
+    passengerId: string,
+    rideId: string
 ): Promise<void> => {
     await executor.execute(
-        sql`SELECT pg_advisory_xact_lock(hashtext(${driverId}), hashtext(${passengerId}))`
+        sql`SELECT pg_advisory_xact_lock(hashtext(${driverId} || ':' || ${rideId}), hashtext(${passengerId}))`
     );
 };
 
-// The single conversation between a given driver and passenger, regardless of
-// which booking first opened it — there is exactly one thread per pair. Returns
-// the oldest match so the choice is stable if duplicates ever exist.
-const findPairConversationId = async (
+// The conversation between a given driver and passenger FOR ONE RIDE — threads
+// are ride-scoped, so the same pair gets a fresh thread per ride (and admin
+// report moderation can resolve exactly the reported ride's conversation).
+// Returns the oldest match so the choice is stable if duplicates ever exist.
+const findRideConversationId = async (
     executor: Executor,
     driverId: string,
-    passengerId: string
+    passengerId: string,
+    rideId: string
 ): Promise<string | null> => {
     const [row] = await executor
         .select({ id: conversationsTable.id })
@@ -124,6 +130,7 @@ const findPairConversationId = async (
         .where(
             and(
                 conversationNotSoftDeleted,
+                eq(ridesTable.id, rideId),
                 eq(ridesTable.driverId, driverId),
                 eq(bookingsTable.passengerId, passengerId)
             )
@@ -185,11 +192,12 @@ const insertConversation = async (
 const findUserConversations = async (executor: Executor, userId: string) => {
     const lastReadThreshold = sql`CASE WHEN ${ridesTable.driverId} = ${userId} THEN ${conversationsTable.driverLastReadAt} ELSE ${conversationsTable.passengerLastReadAt} END`;
 
+    // Deleted messages stay the last message (rendered as a tombstone), so no
+    // deleted_at filter here — but they must never count as unread below.
     const lastMessageId = sql<string | null>`(
         SELECT ${messagesTable.id}
         FROM ${messagesTable}
         WHERE ${messagesTable.conversationId} = ${conversationsTable.id}
-          AND ${messagesTable.deletedAt} IS NULL
         ORDER BY ${messagesTable.sentAt} DESC, ${messagesTable.id} DESC
         LIMIT 1
     )`;
@@ -207,8 +215,26 @@ const findUserConversations = async (executor: Executor, userId: string) => {
         SELECT MAX(${messagesTable.sentAt})
         FROM ${messagesTable}
         WHERE ${messagesTable.conversationId} = ${conversationsTable.id}
-          AND ${messagesTable.deletedAt} IS NULL
     ), ${conversationsTable.updatedAt})`;
+
+    // Route endpoints of the conversation's ride — stop 0 is the origin, the
+    // highest stopOrder the destination (city is denormalized on ride_stops).
+    // The inbox uses these to label ride-scoped threads.
+    const rideOriginCity = sql<string | null>`(
+        SELECT ${rideStopsTable.city}
+        FROM ${rideStopsTable}
+        WHERE ${rideStopsTable.rideId} = ${ridesTable.id}
+        ORDER BY ${rideStopsTable.stopOrder} ASC
+        LIMIT 1
+    )`;
+
+    const rideDestinationCity = sql<string | null>`(
+        SELECT ${rideStopsTable.city}
+        FROM ${rideStopsTable}
+        WHERE ${rideStopsTable.rideId} = ${ridesTable.id}
+        ORDER BY ${rideStopsTable.stopOrder} DESC
+        LIMIT 1
+    )`;
 
     const isBlocked = sql<boolean>`EXISTS (
         SELECT 1 FROM ${blocklistTable}
@@ -250,6 +276,9 @@ const findUserConversations = async (executor: Executor, userId: string) => {
             lastMessageId,
             unreadCount,
             isBlocked,
+            rideOriginCity,
+            rideDestinationCity,
+            rideDepartureAt: ridesTable.departureAt,
         })
         .from(conversationsTable)
         .innerJoin(
@@ -274,6 +303,8 @@ const findUserConversations = async (executor: Executor, userId: string) => {
         .orderBy(desc(lastActivityAt));
 };
 
+// Hydrates inbox lastMessage previews — the ids may point at deleted
+// (tombstoned) messages, so no soft-delete filter; the service masks content.
 const findMessagesByIds = async (
     executor: Executor,
     ids: string[]
@@ -283,11 +314,21 @@ const findMessagesByIds = async (
     return await executor
         .select(messageColumns)
         .from(messagesTable)
-        .where(and(inArray(messagesTable.id, ids), messageNotSoftDeleted));
+        .where(inArray(messagesTable.id, ids));
 };
 
 // Messages in a conversation, newest first, optionally before a cursor.
 // Returned ascending (oldest first) so the client can append in render order.
+// Includes soft-deleted rows — they render as tombstones (service masks the
+// content before it leaves the server).
+//
+// Ordering and the cursor comparison both use MILLISECOND precision: the
+// column stores microseconds, but a JS Date (and therefore any cursor a
+// client can send back) only carries milliseconds — comparing the truncated
+// cursor against the full-precision column would silently skip messages sent
+// in the same millisecond as the cursor. The id tie-break keeps it exact.
+const sentAtMs = sql`date_trunc('milliseconds', ${messagesTable.sentAt})`;
+
 const findConversationMessages = async (
     executor: Executor,
     conversationId: string,
@@ -301,18 +342,67 @@ const findConversationMessages = async (
         .where(
             and(
                 eq(messagesTable.conversationId, conversationId),
-                messageNotSoftDeleted,
                 before && beforeId
-                    ? sql`(${messagesTable.sentAt}, ${messagesTable.id}) < (${before.toISOString()}, ${beforeId})`
+                    ? sql`(${sentAtMs}, ${messagesTable.id}) < (${before.toISOString()}, ${beforeId})`
                     : before
                       ? lt(messagesTable.sentAt, before)
                       : undefined
             )
         )
-        .orderBy(desc(messagesTable.sentAt), desc(messagesTable.id))
+        .orderBy(sql`${sentAtMs} DESC`, desc(messagesTable.id))
         .limit(limit);
 
     return rows.reverse();
+};
+
+// Single message lookup scoped to its conversation. Includes deleted rows so
+// the service can distinguish "gone" from "tombstoned" (idempotent delete).
+const findMessageInConversation = async (
+    executor: Executor,
+    conversationId: string,
+    messageId: string
+): Promise<Message | null> => {
+    const [row] = await executor
+        .select(messageColumns)
+        .from(messagesTable)
+        .where(
+            and(
+                eq(messagesTable.id, messageId),
+                eq(messagesTable.conversationId, conversationId)
+            )
+        )
+        .limit(1);
+
+    return row ?? null;
+};
+
+// Guarded on deleted_at IS NULL so an edit can never resurrect or alter a
+// tombstoned message even if checks raced. updatedAt is owned by the trigger.
+const updateMessageContent = async (
+    executor: Executor,
+    messageId: string,
+    content: string
+): Promise<Message | null> => {
+    const [updated] = await executor
+        .update(messagesTable)
+        .set({ content, editedAt: new Date() })
+        .where(and(eq(messagesTable.id, messageId), messageNotSoftDeleted))
+        .returning(messageColumns);
+
+    return updated ?? null;
+};
+
+const softDeleteMessage = async (
+    executor: Executor,
+    messageId: string
+): Promise<Message | null> => {
+    const [deleted] = await executor
+        .update(messagesTable)
+        .set({ deletedAt: new Date() })
+        .where(and(eq(messagesTable.id, messageId), messageNotSoftDeleted))
+        .returning(messageColumns);
+
+    return deleted ?? null;
 };
 
 const insertMessage = async (
@@ -357,12 +447,15 @@ export const ChatRepository = {
     findBookingContext,
     isUserBanned,
     lockConversationPair,
-    findPairConversationId,
+    findRideConversationId,
     findConversationContext,
     insertConversation,
     findUserConversations,
     findMessagesByIds,
     findConversationMessages,
+    findMessageInConversation,
+    updateMessageContent,
+    softDeleteMessage,
     insertMessage,
     updateLastReadAt,
 };

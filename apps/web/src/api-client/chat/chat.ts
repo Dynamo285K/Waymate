@@ -26,6 +26,7 @@ import type {
     ConversationList,
     ConversationReadResponse,
     CreateConversationBody,
+    EditMessageBody,
     ErrorResponse,
     GetConversationsByIdMessagesParams,
     Message,
@@ -570,6 +571,216 @@ export const usePostConversationsByIdMessages = <
 > => {
     const mutationOptions =
         getPostConversationsByIdMessagesMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+/**
+ * Edits the authenticated user's own message. Allowed for 15 minutes after sending; sets editedAt
+ */
+export const getPatchConversationsByIdMessagesByMessageIdUrl = (
+    id: string,
+    messageId: string
+) => {
+    return `/conversations/${id}/messages/${messageId}`;
+};
+
+export const patchConversationsByIdMessagesByMessageId = async (
+    id: string,
+    messageId: string,
+    editMessageBody: EditMessageBody,
+    options?: RequestInit
+): Promise<Message> => {
+    return apiFetcher<Message>(
+        getPatchConversationsByIdMessagesByMessageIdUrl(id, messageId),
+        {
+            ...options,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                ...options?.headers,
+            },
+            body: JSON.stringify(editMessageBody),
+        }
+    );
+};
+
+export const getPatchConversationsByIdMessagesByMessageIdMutationOptions = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof patchConversationsByIdMessagesByMessageId>>,
+        TError,
+        { id: string; messageId: string; data: EditMessageBody },
+        TContext
+    >;
+    request?: SecondParameter<typeof apiFetcher>;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof patchConversationsByIdMessagesByMessageId>>,
+    TError,
+    { id: string; messageId: string; data: EditMessageBody },
+    TContext
+> => {
+    const mutationKey = ["patchConversationsByIdMessagesByMessageId"];
+    const { mutation: mutationOptions, request: requestOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey }, request: undefined };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof patchConversationsByIdMessagesByMessageId>>,
+        { id: string; messageId: string; data: EditMessageBody }
+    > = (props) => {
+        const { id, messageId, data } = props ?? {};
+
+        return patchConversationsByIdMessagesByMessageId(
+            id,
+            messageId,
+            data,
+            requestOptions
+        );
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type PatchConversationsByIdMessagesByMessageIdMutationResult =
+    NonNullable<
+        Awaited<ReturnType<typeof patchConversationsByIdMessagesByMessageId>>
+    >;
+export type PatchConversationsByIdMessagesByMessageIdMutationBody =
+    EditMessageBody;
+export type PatchConversationsByIdMessagesByMessageIdMutationError =
+    ErrorResponse;
+
+export const usePatchConversationsByIdMessagesByMessageId = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<
+                ReturnType<typeof patchConversationsByIdMessagesByMessageId>
+            >,
+            TError,
+            { id: string; messageId: string; data: EditMessageBody },
+            TContext
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseMutationResult<
+    Awaited<ReturnType<typeof patchConversationsByIdMessagesByMessageId>>,
+    TError,
+    { id: string; messageId: string; data: EditMessageBody },
+    TContext
+> => {
+    const mutationOptions =
+        getPatchConversationsByIdMessagesByMessageIdMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+/**
+ * Soft-deletes the authenticated user's own message (tombstone with masked content). Allowed for 15 minutes after sending; idempotent
+ */
+export const getDeleteConversationsByIdMessagesByMessageIdUrl = (
+    id: string,
+    messageId: string
+) => {
+    return `/conversations/${id}/messages/${messageId}`;
+};
+
+export const deleteConversationsByIdMessagesByMessageId = async (
+    id: string,
+    messageId: string,
+    options?: RequestInit
+): Promise<Message> => {
+    return apiFetcher<Message>(
+        getDeleteConversationsByIdMessagesByMessageIdUrl(id, messageId),
+        {
+            ...options,
+            method: "DELETE",
+        }
+    );
+};
+
+export const getDeleteConversationsByIdMessagesByMessageIdMutationOptions = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof deleteConversationsByIdMessagesByMessageId>>,
+        TError,
+        { id: string; messageId: string },
+        TContext
+    >;
+    request?: SecondParameter<typeof apiFetcher>;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof deleteConversationsByIdMessagesByMessageId>>,
+    TError,
+    { id: string; messageId: string },
+    TContext
+> => {
+    const mutationKey = ["deleteConversationsByIdMessagesByMessageId"];
+    const { mutation: mutationOptions, request: requestOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey }, request: undefined };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof deleteConversationsByIdMessagesByMessageId>>,
+        { id: string; messageId: string }
+    > = (props) => {
+        const { id, messageId } = props ?? {};
+
+        return deleteConversationsByIdMessagesByMessageId(
+            id,
+            messageId,
+            requestOptions
+        );
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteConversationsByIdMessagesByMessageIdMutationResult =
+    NonNullable<
+        Awaited<ReturnType<typeof deleteConversationsByIdMessagesByMessageId>>
+    >;
+
+export type DeleteConversationsByIdMessagesByMessageIdMutationError =
+    ErrorResponse;
+
+export const useDeleteConversationsByIdMessagesByMessageId = <
+    TError = ErrorResponse,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<
+                ReturnType<typeof deleteConversationsByIdMessagesByMessageId>
+            >,
+            TError,
+            { id: string; messageId: string },
+            TContext
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseMutationResult<
+    Awaited<ReturnType<typeof deleteConversationsByIdMessagesByMessageId>>,
+    TError,
+    { id: string; messageId: string },
+    TContext
+> => {
+    const mutationOptions =
+        getDeleteConversationsByIdMessagesByMessageIdMutationOptions(options);
 
     return useMutation(mutationOptions, queryClient);
 };

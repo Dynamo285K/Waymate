@@ -9,7 +9,10 @@ import type { Message } from "../../api-client/model/message";
 import type { Notification } from "../../api-client/model/notification";
 import { API_BASE_URL } from "../../lib/api-fetcher";
 import { useSession } from "../../lib/use-session";
-import { applyMessageToCache } from "../../lib/chat-cache";
+import {
+    applyMessageToCache,
+    applyMessageUpdateToCache,
+} from "../../lib/chat-cache";
 
 // Server -> client events pushed over `GET /conversations/ws`. Dates arrive as
 // JSON strings, matching the orval-generated models used in the query cache
@@ -28,6 +31,12 @@ export type ChatReadEvent = {
     lastReadAt: string;
 };
 
+export type ChatMessageUpdatedEvent = {
+    type: "message-updated";
+    conversationId: string;
+    message: Message;
+};
+
 export type NotificationEvent = {
     type: "notification";
     notification: Notification;
@@ -36,6 +45,7 @@ export type NotificationEvent = {
 export type ChatSocketEvent =
     | ChatMessageEvent
     | ChatReadEvent
+    | ChatMessageUpdatedEvent
     | NotificationEvent;
 
 type UseChatSocketOptions = {
@@ -60,7 +70,12 @@ function chatSocketUrl(): string {
 function isChatSocketEvent(value: unknown): value is ChatSocketEvent {
     if (!value || typeof value !== "object") return false;
     const type = (value as { type?: unknown }).type;
-    return type === "message" || type === "read" || type === "notification";
+    return (
+        type === "message" ||
+        type === "read" ||
+        type === "message-updated" ||
+        type === "notification"
+    );
 }
 
 /**
@@ -109,6 +124,19 @@ export function useChatSocket(options: UseChatSocketOptions = {}): void {
                 // just opened by the counterpart): refetch the inbox so it
                 // shows up.
                 if (!found) {
+                    void queryClient.invalidateQueries({
+                        queryKey: getGetConversationsQueryKey(),
+                    });
+                }
+            } else if (event.type === "message-updated") {
+                applyMessageUpdateToCache(
+                    queryClient,
+                    event.conversationId,
+                    event.message
+                );
+                // A deletion can change the unread count server-side (deleted
+                // messages never count) — refetch the inbox to stay exact.
+                if (event.message.deletedAt) {
                     void queryClient.invalidateQueries({
                         queryKey: getGetConversationsQueryKey(),
                     });

@@ -113,6 +113,13 @@
       "when": 1783019154197,
       "tag": "0015_damp_champions",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1783064528701,
+      "tag": "0016_bent_wallop",
+      "breakpoints": true
     }
   ]
 }

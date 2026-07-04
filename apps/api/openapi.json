@@ -2778,6 +2778,196 @@
                 "operationId": "postConversationsByIdMessages"
             }
         },
+        "/conversations/{id}/messages/{messageId}": {
+            "patch": {
+                "tags": ["Chat"],
+                "description": "Edits the authenticated user's own message. Allowed for 15 minutes after sending; sets editedAt",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        }
+                    },
+                    {
+                        "name": "messageId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EditMessageBody"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Message"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Response for status 400",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Response for status 403",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Response for status 404",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "Response for status 413",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Response for status 429",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "patchConversationsByIdMessagesByMessageId"
+            },
+            "delete": {
+                "tags": ["Chat"],
+                "description": "Soft-deletes the authenticated user's own message (tombstone with masked content). Allowed for 15 minutes after sending; idempotent",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        }
+                    },
+                    {
+                        "name": "messageId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Message"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Response for status 403",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Response for status 404",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Response for status 429",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "deleteConversationsByIdMessagesByMessageId"
+            }
+        },
         "/conversations/{id}/read": {
             "patch": {
                 "tags": ["Chat"],
@@ -6812,6 +7002,23 @@
                 "required": ["id"],
                 "additionalProperties": false
             },
+            "ConversationMessageParams": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "messageId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
+                },
+                "required": ["id", "messageId"],
+                "additionalProperties": false
+            },
             "CreateConversationBody": {
                 "type": "object",
                 "properties": {
@@ -6825,6 +7032,18 @@
                 "additionalProperties": false
             },
             "SendMessageBody": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2000
+                    }
+                },
+                "required": ["content"],
+                "additionalProperties": false
+            },
+            "EditMessageBody": {
                 "type": "object",
                 "properties": {
                     "content": {
@@ -6891,6 +7110,11 @@
                         "nullable": true,
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "deletedAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
                     }
                 },
                 "required": [
@@ -6900,7 +7124,8 @@
                     "messageType",
                     "content",
                     "sentAt",
-                    "editedAt"
+                    "editedAt",
+                    "deletedAt"
                 ],
                 "additionalProperties": false
             },
@@ -8926,6 +9151,19 @@
                     },
                     "isBlocked": {
                         "type": "boolean"
+                    },
+                    "rideOriginCity": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "rideDestinationCity": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "rideDepartureAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
                     }
                 },
                 "required": [
@@ -8939,7 +9177,10 @@
                     "lastMessage",
                     "unreadCount",
                     "updatedAt",
-                    "isBlocked"
+                    "isBlocked",
+                    "rideOriginCity",
+                    "rideDestinationCity",
+                    "rideDepartureAt"
                 ],
                 "additionalProperties": false
             },
@@ -9021,9 +9262,26 @@
                     "sentAt": {
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "editedAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "deletedAt": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "date-time"
                     }
                 },
-                "required": ["id", "senderId", "content", "sentAt"],
+                "required": [
+                    "id",
+                    "senderId",
+                    "content",
+                    "sentAt",
+                    "editedAt",
+                    "deletedAt"
+                ],
                 "additionalProperties": false
             },
             "BlockReason": {

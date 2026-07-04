@@ -1,16 +1,12 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-    ConversationSidebar,
-    BackIcon,
-    ChatHeader,
-    IconButton,
-} from "@waymate/ui";
+import { ConversationSidebar, BackIcon, IconButton } from "@waymate/ui";
 import { useLayout } from "../../../lib/use-layout";
 import { ReportUserModal } from "../../../components/shared/ReportUserModal";
 import { UserProfileModal } from "../../../components/shared/UserProfileModal";
 import { useChatPanel } from "../hooks/useChatPanel";
 import { ChatThread } from "./ChatThread";
+import { ChatThreadHeader } from "./ChatThreadHeader";
 import { BlockConfirmModal } from "./BlockConfirmModal";
 
 // Real-data chat experience (driver + passenger share this). The route renders
@@ -60,6 +56,30 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
         c.blocked ? { ...c, name: `${c.name} - ${t("chat.blockedShort")}` } : c
     );
 
+    const threadHeader = (
+        <ChatThreadHeader
+            name={panel.activeName ?? ""}
+            rideLabel={panel.activeRideLabel}
+            onRideClick={panel.openActiveRide}
+            rideLinkTitle={t("chat.viewRide")}
+            theme={theme}
+            menuLabel={t("chat.conversationActions")}
+            labels={chatHeaderLabels}
+            onViewProfileClick={() => setOpenModal("profile")}
+            onReportUserClick={() => setOpenModal("report")}
+            onBlockUserClick={onBlockToggle}
+        />
+    );
+
+    const threadPagingProps = {
+        hasOlder: panel.hasOlderMessages,
+        isLoadingOlder: panel.isLoadingOlder,
+        onLoadOlder: panel.loadOlderMessages,
+        onEditMessage: panel.editMessage,
+        onDeleteMessage: panel.deleteMessage,
+        theme,
+    };
+
     const threadBlockProps = {
         blocked: panel.isThreadBlocked,
         blockedNotice: panel.isCounterpartBlockedByMe
@@ -88,16 +108,8 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
                 />
                 {hasActive ? (
                     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-                        <div className="shrink-0">
-                            <ChatHeader
-                                name={panel.activeName ?? ""}
-                                labels={chatHeaderLabels}
-                                onViewProfileClick={() =>
-                                    setOpenModal("profile")
-                                }
-                                onReportUserClick={() => setOpenModal("report")}
-                                onBlockUserClick={onBlockToggle}
-                            />
+                        <div className="shrink-0 border-b border-border bg-card px-6 py-3">
+                            {threadHeader}
                         </div>
                         <ChatThread
                             messages={panel.messages}
@@ -107,6 +119,7 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
                             loadingLabel={t("chat.loading")}
                             onSend={panel.sendMessage}
                             paddingClass="px-6 py-6"
+                            {...threadPagingProps}
                             {...threadBlockProps}
                         />
                     </div>
@@ -135,19 +148,7 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
                                 variant="ghost"
                                 onClick={panel.clearSelection}
                             />
-                            <div className="min-w-0 flex-1">
-                                <ChatHeader
-                                    name={panel.activeName ?? ""}
-                                    labels={chatHeaderLabels}
-                                    onViewProfileClick={() =>
-                                        setOpenModal("profile")
-                                    }
-                                    onReportUserClick={() =>
-                                        setOpenModal("report")
-                                    }
-                                    onBlockUserClick={onBlockToggle}
-                                />
-                            </div>
+                            <div className="min-w-0 flex-1">{threadHeader}</div>
                         </div>
                         <ChatThread
                             messages={panel.messages}
@@ -157,6 +158,7 @@ export function ChatPanel({ initialConversationId }: ChatPanelProps = {}) {
                             loadingLabel={t("chat.loading")}
                             onSend={panel.sendMessage}
                             paddingClass="px-4 py-4"
+                            {...threadPagingProps}
                             {...threadBlockProps}
                         />
                     </div>

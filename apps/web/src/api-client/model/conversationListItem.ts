@@ -36,4 +36,10 @@ export interface ConversationListItem {
     unreadCount: number;
     updatedAt: string;
     isBlocked: boolean;
+    /** @nullable */
+    rideOriginCity: string | null;
+    /** @nullable */
+    rideDestinationCity: string | null;
+    /** @nullable */
+    rideDepartureAt: string | null;
 }

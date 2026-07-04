@@ -13,4 +13,8 @@ export interface AdminReportConversationMessage {
     senderId: UserId;
     content: string;
     sentAt: string;
+    /** @nullable */
+    editedAt: string | null;
+    /** @nullable */
+    deletedAt: string | null;
 }

@@ -368,6 +368,10 @@ const findConversationIdForReport = async (
     return row ?? null;
 };
 
+// Includes soft-deleted messages WITH their original content — users only see
+// a masked tombstone, but moderation needs what was actually said (deleting a
+// message must not hide evidence from a report review). `deletedAt` lets the
+// UI badge those rows.
 const findConversationMessagesForReport = async (
     executor: Executor,
     conversationId: string,
@@ -379,14 +383,11 @@ const findConversationMessagesForReport = async (
             senderId: messagesTable.senderId,
             content: messagesTable.content,
             sentAt: messagesTable.sentAt,
+            editedAt: messagesTable.editedAt,
+            deletedAt: messagesTable.deletedAt,
         })
         .from(messagesTable)
-        .where(
-            and(
-                eq(messagesTable.conversationId, conversationId),
-                isNull(messagesTable.deletedAt)
-            )
-        )
+        .where(eq(messagesTable.conversationId, conversationId))
         .orderBy(asc(messagesTable.sentAt), asc(messagesTable.id))
         .limit(limit);
 };
