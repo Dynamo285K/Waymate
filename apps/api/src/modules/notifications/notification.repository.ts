@@ -20,6 +20,15 @@ const insertNotification = async (
 
 // Notifications for a user, newest first, optionally before a tuple cursor
 // (same pattern as chat's findConversationMessages).
+//
+// Ordering and the cursor comparison both use MILLISECOND precision: the
+// column stores microseconds, but a JS Date (and therefore any cursor a
+// client can send back) only carries milliseconds. Comparing a ms-truncated
+// cursor against the full-precision column silently skips rows created in
+// the same millisecond as the cursor; truncating both sides and tie-breaking
+// on id keeps pagination exact.
+const createdAtMs = sql`date_trunc('milliseconds', ${notificationsTable.createdAt})`;
+
 const listByUser = async (
     executor: Executor,
     userId: string,
@@ -34,16 +43,13 @@ const listByUser = async (
             and(
                 eq(notificationsTable.userId, userId),
                 before && beforeId
-                    ? sql`(${notificationsTable.createdAt}, ${notificationsTable.id}) < (${before.toISOString()}, ${beforeId})`
+                    ? sql`(${createdAtMs}, ${notificationsTable.id}) < (${before.toISOString()}, ${beforeId})`
                     : before
                       ? lt(notificationsTable.createdAt, before)
                       : undefined
             )
         )
-        .orderBy(
-            desc(notificationsTable.createdAt),
-            desc(notificationsTable.id)
-        )
+        .orderBy(sql`${createdAtMs} DESC`, desc(notificationsTable.id))
         .limit(limit);
 };
 

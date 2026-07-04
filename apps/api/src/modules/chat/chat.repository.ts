@@ -321,6 +321,14 @@ const findMessagesByIds = async (
 // Returned ascending (oldest first) so the client can append in render order.
 // Includes soft-deleted rows — they render as tombstones (service masks the
 // content before it leaves the server).
+//
+// Ordering and the cursor comparison both use MILLISECOND precision: the
+// column stores microseconds, but a JS Date (and therefore any cursor a
+// client can send back) only carries milliseconds — comparing the truncated
+// cursor against the full-precision column would silently skip messages sent
+// in the same millisecond as the cursor. The id tie-break keeps it exact.
+const sentAtMs = sql`date_trunc('milliseconds', ${messagesTable.sentAt})`;
+
 const findConversationMessages = async (
     executor: Executor,
     conversationId: string,
@@ -335,13 +343,13 @@ const findConversationMessages = async (
             and(
                 eq(messagesTable.conversationId, conversationId),
                 before && beforeId
-                    ? sql`(${messagesTable.sentAt}, ${messagesTable.id}) < (${before.toISOString()}, ${beforeId})`
+                    ? sql`(${sentAtMs}, ${messagesTable.id}) < (${before.toISOString()}, ${beforeId})`
                     : before
                       ? lt(messagesTable.sentAt, before)
                       : undefined
             )
         )
-        .orderBy(desc(messagesTable.sentAt), desc(messagesTable.id))
+        .orderBy(sql`${sentAtMs} DESC`, desc(messagesTable.id))
         .limit(limit);
 
     return rows.reverse();
