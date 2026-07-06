@@ -159,7 +159,7 @@ export const RideSearchResultItemSchema = z.object({
     seatsLeft: z.number().int(),
     driver: PublicUserPreviewWithRatingSchema,
     pickupStop: z.object({
-        pickupStopId: RideStopIdSchema,
+        pickupStopId: RideStopIdSchema.or(z.literal("dynamic")),
         isDynamic: z.boolean().optional(),
         lat: z.number().optional(),
         lng: z.number().optional(),
@@ -168,7 +168,7 @@ export const RideSearchResultItemSchema = z.object({
         distanceKm: z.number().optional(),
     }),
     dropoffStop: z.object({
-        dropoffStopId: RideStopIdSchema,
+        dropoffStopId: RideStopIdSchema.or(z.literal("dynamic")),
         isDynamic: z.boolean().optional(),
         lat: z.number().optional(),
         lng: z.number().optional(),
@@ -191,12 +191,12 @@ export const AvailableRideItemSchema = z.object({
     seatsLeft: z.number().int(),
     driver: PublicUserPreviewWithRatingSchema,
     pickupStop: z.object({
-        pickupStopId: RideStopIdSchema,
+        pickupStopId: RideStopIdSchema.or(z.literal("dynamic")),
         city: z.string(),
         plannedDepartureAt: z.date().nullable(),
     }),
     dropoffStop: z.object({
-        dropoffStopId: RideStopIdSchema,
+        dropoffStopId: RideStopIdSchema.or(z.literal("dynamic")),
         city: z.string(),
         plannedArrivalAt: z.date().nullable(),
     }),

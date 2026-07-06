@@ -39,6 +39,26 @@ function PassengerHomePage() {
                             rideId: ride.rideId,
                             pickupStopId: ride.pickupStopId,
                             dropoffStopId: ride.dropoffStopId,
+                            dynamicPickup:
+                                ride.pickupStop?.isDynamic &&
+                                ride.pickupStop.lat &&
+                                ride.pickupStop.lng
+                                    ? {
+                                          lat: ride.pickupStop.lat,
+                                          lng: ride.pickupStop.lng,
+                                          city: ride.pickupStop.city,
+                                      }
+                                    : undefined,
+                            dynamicDropoff:
+                                ride.dropoffStop?.isDynamic &&
+                                ride.dropoffStop.lat &&
+                                ride.dropoffStop.lng
+                                    ? {
+                                          lat: ride.dropoffStop.lat,
+                                          lng: ride.dropoffStop.lng,
+                                          city: ride.dropoffStop.city,
+                                      }
+                                    : undefined,
                         },
                         {
                             onSuccess: (booking) => {

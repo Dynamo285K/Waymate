@@ -14,7 +14,7 @@ export const getPopularRoutes = async () => {
     return await RideRepository.findPopularRoutes(db, POPULAR_ROUTES_LIMIT);
 };
 
-const SEARCH_STOP_RADIUS_KM = 25;
+const SEARCH_STOP_RADIUS_KM = 5;
 
 type StopCandidate = {
     lat: number;
@@ -95,16 +95,43 @@ export const searchRides = async (
         // Náchod → Velké Poříčí, 6 km apart), first-match resolved both the
         // pickup and the dropoff to stop 0 and the resulting booking payload
         // (pickup == dropoff) was rejected as BOOKING_INVALID_STOPS.
-        const actualPickupStop = nearestStopWithin(
+        let actualPickupStop = nearestStopWithin(
             startLat,
             startLng,
             stopsForRide
         );
-        const actualDropoffStop = nearestStopWithin(
+        let actualDropoffStop = nearestStopWithin(
             destLat,
             destLng,
             stopsForRide
         );
+
+        // If both ends snapped to the same explicit stop (can happen on short searches),
+        // we revert the one that is further away back to a dynamic stop, so the passenger
+        // can still book the ride (with one explicit and one dynamic stop).
+        if (
+            actualPickupStop &&
+            actualDropoffStop &&
+            actualPickupStop.id === actualDropoffStop.id
+        ) {
+            const startDist = haversineKm(
+                startLat,
+                startLng,
+                actualPickupStop.lat,
+                actualPickupStop.lng
+            );
+            const destDist = haversineKm(
+                destLat,
+                destLng,
+                actualDropoffStop.lat,
+                actualDropoffStop.lng
+            );
+            if (startDist < destDist) {
+                actualDropoffStop = null;
+            } else {
+                actualPickupStop = null;
+            }
+        }
 
         if (actualPickupStop) {
             ride.pickupStop.pickupStopId = actualPickupStop.id;
