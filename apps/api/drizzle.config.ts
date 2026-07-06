@@ -1,7 +1,7 @@
 import { defineConfig } from "drizzle-kit";
 
 const env = typeof Bun !== "undefined" ? Bun.env : process.env;
-const databaseUrl = env.DIRECT_URL || env.DATABASE_URL;
+const databaseUrl = env.DATABASE_URL;
 
 export default defineConfig({
     dialect: "postgresql",
