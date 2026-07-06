@@ -18,8 +18,8 @@ export const BookingIdParamsSchema = z.object({
 export const CreateBookingBodySchema = z
     .object({
         rideId: RideIdSchema,
-        pickupStopId: RideStopIdSchema,
-        dropoffStopId: RideStopIdSchema,
+        pickupStopId: RideStopIdSchema.or(z.literal("dynamic")),
+        dropoffStopId: RideStopIdSchema.or(z.literal("dynamic")),
         seatCount: z.number().int().min(1, "You must book at least 1 seat"),
         dynamicPickup: z
             .object({

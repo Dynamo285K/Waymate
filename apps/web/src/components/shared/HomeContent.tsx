@@ -20,6 +20,18 @@ type AvailableRide = {
     rideId?: string;
     pickupStopId?: string;
     dropoffStopId?: string;
+    pickupStop?: {
+        isDynamic?: boolean;
+        lat?: number;
+        lng?: number;
+        city: string;
+    };
+    dropoffStop?: {
+        isDynamic?: boolean;
+        lat?: number;
+        lng?: number;
+        city: string;
+    };
     from: string;
     to: string;
     date: Date;
