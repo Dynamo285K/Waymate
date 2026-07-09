@@ -21,4 +21,4 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-CMD bun run --cwd apps/api db:migrate && bun run apps/api/src/index.ts
+CMD bun run apps/api/src/index.ts
