@@ -4,7 +4,7 @@ import { $ } from "bun";
 
 async function run() {
     console.log("Dropping and recreating public & drizzle schemas...");
-    const client = postgres(env.DATABASE_URL, { max: 1 });
+    const client = postgres(env.DIRECT_URL || env.DATABASE_URL, { max: 1 });
 
     await client.unsafe(
         "DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public;"
