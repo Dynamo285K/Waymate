@@ -1,13 +1,21 @@
-// CI stub for @waymate/ui — returns no-op components when the real package
-// is not installed. Tests that import @waymate/ui components will render null.
+// CI stub for @waymate/ui — minimal functional components when the real package
+// is not installed. Tests render with these no-op implementations.
 import { createElement, type ReactNode } from "react";
 
-const noop = () => null;
-const passChildren = ({ children }: { children?: ReactNode }) =>
-    createElement("div", null, children);
+type AnyProps = {
+    children?: ReactNode;
+    onClick?: () => void;
+    open?: boolean;
+    [key: string]: unknown;
+};
 
-export const Button = noop;
-export const Modal = passChildren;
-export const Avatar = noop;
-export const NavButton = noop;
-export const ChevronDownIcon = noop;
+export const Button = ({ children, onClick }: AnyProps) =>
+    createElement("button", { type: "button", onClick }, children);
+
+export const Modal = ({ children, open }: AnyProps) =>
+    open ? createElement("div", null, children) : null;
+
+export const Avatar = () => null;
+export const NavButton = ({ children, onClick }: AnyProps) =>
+    createElement("button", { type: "button", onClick }, children);
+export const ChevronDownIcon = () => null;
