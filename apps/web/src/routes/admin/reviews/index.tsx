@@ -1,16 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/Button";
-import { useSetReviewStatus } from "./-hooks/useSetReviewStatus";
-import { useDeleteReview } from "./-hooks/useDeleteReview";
-import {
-    getGetReviewsAdminQueryKey,
-    getGetReviewsAdminCountsQueryKey,
-} from "../../../api-client/reviews/reviews";
-import type { AdminReviewListItem } from "../../../api-client/model/adminReviewListItem";
-import type { ReviewStatus } from "../../../api-client/model/reviewStatus";
-import type { GetReviewsAdminSubjectRole } from "../../../api-client/model/getReviewsAdminSubjectRole";
-import { getErrorCode, getErrorI18nKey } from "../../../lib/api-errors";
+import { getErrorI18nKey } from "../../../lib/api-errors";
 import { AdminReviewsFilters } from "./-components/AdminReviewsFilters";
 import { AdminReviewsTable } from "./-components/AdminReviewsTable";
 import { ReviewDetailModal } from "./-components/ReviewDetailModal";

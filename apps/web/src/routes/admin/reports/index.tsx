@@ -1,8 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/Button";
-import { useSetReportStatus } from "./-hooks/useSetReportStatus";
-import { useSetUserStatus } from "../users/-hooks/useSetUserStatus";
 import { BanUserModal } from "../users/-components/BanUserModal";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { AdminReportsFilters } from "./-components/AdminReportsFilters";

@@ -1,10 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/Button";
-import { useSetUserStatus } from "./-hooks/useSetUserStatus";
-import { getGetUsersAdminQueryKey } from "../../../api-client/users/users";
-import type { AdminUserListItem } from "../../../api-client/model/adminUserListItem";
-import { getErrorCode, getErrorI18nKey } from "../../../lib/api-errors";
+import { getErrorI18nKey } from "../../../lib/api-errors";
 import { AdminUsersFilters } from "./-components/AdminUsersFilters";
 import { AdminUsersTable } from "./-components/AdminUsersTable";
 import { BanUserModal } from "./-components/BanUserModal";
