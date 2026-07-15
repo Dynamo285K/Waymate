@@ -22,29 +22,37 @@ export async function createSignInUser(options: CreateSignInUserOptions = {}) {
     const { role = "USER", onboarded = true } = options;
     const email = `auth-${crypto.randomUUID()}@example.com`;
 
-    const [user] = await db
-        .insert(users)
-        .values({
-            name: "Auth Test User",
-            email,
-            emailVerified: true,
-            userRole: role,
-            firstName: onboarded ? "Auth" : null,
-            lastName: onboarded ? "User" : null,
-            phone: onboarded ? "+421900111222" : null,
-        })
-        .returning();
-    if (!user) throw new Error("Failed to insert sign-in user");
-
+    // Hash the password before entering the transaction so the async hash
+    // operation doesn't hold the transaction open longer than necessary.
     const authContext = await auth.$context;
-    await db.insert(accounts).values({
-        id: crypto.randomUUID(),
-        userId: user.id,
-        accountId: user.id,
-        providerId: "credential",
-        password: await authContext.password.hash(TEST_PASSWORD),
-        createdAt: new Date(),
-        updatedAt: new Date(),
+    const hashedPassword = await authContext.password.hash(TEST_PASSWORD);
+
+    const user = await db.transaction(async (tx) => {
+        const [inserted] = await tx
+            .insert(users)
+            .values({
+                name: "Auth Test User",
+                email,
+                emailVerified: true,
+                userRole: role,
+                firstName: onboarded ? "Auth" : null,
+                lastName: onboarded ? "User" : null,
+                phone: onboarded ? "+421900111222" : null,
+            })
+            .returning();
+        if (!inserted) throw new Error("Failed to insert sign-in user");
+
+        await tx.insert(accounts).values({
+            id: crypto.randomUUID(),
+            userId: inserted.id,
+            accountId: inserted.id,
+            providerId: "credential",
+            password: hashedPassword,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        });
+
+        return inserted;
     });
 
     return { user, email, password: TEST_PASSWORD };
