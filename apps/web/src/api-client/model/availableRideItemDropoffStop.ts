@@ -5,10 +5,10 @@
  * Carpooling backend powering the Waymate web app.
  * OpenAPI spec version: 0.1.0
  */
-import type { RideStopId } from "./rideStopId";
+import type { AvailableRideItemDropoffStopDropoffStopId } from "./availableRideItemDropoffStopDropoffStopId";
 
 export type AvailableRideItemDropoffStop = {
-    dropoffStopId: RideStopId;
+    dropoffStopId: AvailableRideItemDropoffStopDropoffStopId;
     city: string;
     /** @nullable */
     plannedArrivalAt: string | null;

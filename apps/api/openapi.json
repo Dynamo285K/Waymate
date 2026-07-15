@@ -6744,10 +6744,26 @@
                         "$ref": "#/components/schemas/RideId"
                     },
                     "pickupStopId": {
-                        "$ref": "#/components/schemas/RideStopId"
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/RideStopId"
+                            },
+                            {
+                                "type": "string",
+                                "enum": ["dynamic"]
+                            }
+                        ]
                     },
                     "dropoffStopId": {
-                        "$ref": "#/components/schemas/RideStopId"
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/RideStopId"
+                            },
+                            {
+                                "type": "string",
+                                "enum": ["dynamic"]
+                            }
+                        ]
                     },
                     "seatCount": {
                         "type": "integer",
@@ -8746,7 +8762,15 @@
                         "type": "object",
                         "properties": {
                             "pickupStopId": {
-                                "$ref": "#/components/schemas/RideStopId"
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/components/schemas/RideStopId"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "enum": ["dynamic"]
+                                    }
+                                ]
                             },
                             "isDynamic": {
                                 "type": "boolean"
@@ -8780,7 +8804,15 @@
                         "type": "object",
                         "properties": {
                             "dropoffStopId": {
-                                "$ref": "#/components/schemas/RideStopId"
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/components/schemas/RideStopId"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "enum": ["dynamic"]
+                                    }
+                                ]
                             },
                             "isDynamic": {
                                 "type": "boolean"
@@ -8876,7 +8908,15 @@
                         "type": "object",
                         "properties": {
                             "pickupStopId": {
-                                "$ref": "#/components/schemas/RideStopId"
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/components/schemas/RideStopId"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "enum": ["dynamic"]
+                                    }
+                                ]
                             },
                             "city": {
                                 "type": "string"
@@ -8898,7 +8938,15 @@
                         "type": "object",
                         "properties": {
                             "dropoffStopId": {
-                                "$ref": "#/components/schemas/RideStopId"
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/components/schemas/RideStopId"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "enum": ["dynamic"]
+                                    }
+                                ]
                             },
                             "city": {
                                 "type": "string"
