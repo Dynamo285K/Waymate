@@ -1,11 +1,15 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
+import path from "path";
 
 // Vitest runs component/hook tests against jsdom. CSS is skipped — these tests
 // assert behaviour, not styling — and the generated API client is excluded
 // (it carries no logic worth testing).
 export default defineConfig({
     plugins: [react()],
+    resolve: {
+        alias: { "@": path.resolve(__dirname, "src") },
+    },
     test: {
         environment: "jsdom",
         setupFiles: ["./src/test/setup.ts"],

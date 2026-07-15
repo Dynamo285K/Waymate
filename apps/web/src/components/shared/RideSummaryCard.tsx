@@ -1,11 +1,9 @@
-import {
-    Button,
-    CircleIcon,
-    ClockIcon,
-    MapPinIcon,
-    UserIcon,
-    VerticalLineIcon,
-} from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { CircleIcon } from "@/components/ui/icons/CircleIcon";
+import { ClockIcon } from "@/components/ui/icons/ClockIcon";
+import { MapPinIcon } from "@/components/ui/icons/MapPinIcon";
+import { UserIcon } from "@/components/ui/icons/UserIcon";
+import { VerticalLineIcon } from "@/components/ui/icons/VerticalLineIcon";
 
 export type RideSummaryCardProps = {
     pickup: string;

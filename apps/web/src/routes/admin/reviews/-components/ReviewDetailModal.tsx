@@ -1,12 +1,10 @@
 import { useTranslation } from "react-i18next";
-import {
-    Avatar,
-    Button,
-    EyeIcon,
-    EyeOffIcon,
-    Modal,
-    TrashIcon,
-} from "@waymate/ui";
+import { Avatar } from "@/components/ui/Avatar";
+import { Button } from "@/components/ui/Button";
+import { EyeIcon } from "@/components/ui/icons/EyeIcon";
+import { EyeOffIcon } from "@/components/ui/icons/EyeOffIcon";
+import { Modal } from "@/components/ui/Modal";
+import { TrashIcon } from "@/components/ui/icons/TrashIcon";
 import { useGetReviewsAdminById } from "../../../../api-client/reviews/reviews";
 import type { ReviewStatus } from "../../../../api-client/model/reviewStatus";
 import { getErrorI18nKey } from "../../../../lib/api-errors";

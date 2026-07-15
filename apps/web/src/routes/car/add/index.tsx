@@ -7,7 +7,8 @@ import {
     useNavigate,
     useLocation,
 } from "@tanstack/react-router";
-import { Button, TextLink } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { TextLink } from "@/components/ui/TextLink";
 import { DriverNavbar } from "../../../components/navigation/DriverNavbar";
 import { PassengerNavbar } from "../../../components/navigation/PassengerNavbar";
 import { useDriverNavbarProps } from "../../../features/driver/hooks/useDriverNavbarProps";

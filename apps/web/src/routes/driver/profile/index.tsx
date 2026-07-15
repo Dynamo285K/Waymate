@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ProfileHeroCard } from "@waymate/ui";
+import { ProfileHeroCard } from "@/components/shared/ProfileHeroCard";
 import { useSession } from "../../../lib/use-session";
+import { authClient } from "../../../lib/auth-client";
 import { getDisplayName } from "../../../lib/session-user";
 import { useLayout } from "../../../lib/use-layout";
 import { BlockedUsersSection } from "../../../components/shared/BlockedUsersSection";

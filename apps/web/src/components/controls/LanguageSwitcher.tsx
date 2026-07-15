@@ -1,4 +1,4 @@
-import { SegmentedControl } from "@waymate/ui";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 
 export type Language = "en" | "sk" | "cz";
 

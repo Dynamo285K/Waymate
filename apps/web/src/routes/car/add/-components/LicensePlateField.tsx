@@ -1,6 +1,6 @@
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Input } from "@waymate/ui";
+import { Input } from "@/components/ui/Input";
 import { FieldError } from "../../../../components/shared/FieldError";
 import { PLATE_MAX_LENGTH, PLATE_MIN_LENGTH } from "@repo/shared/validation";
 import { labelClass } from "../-field-styles";

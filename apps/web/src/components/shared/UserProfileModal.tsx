@@ -1,5 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { Avatar, CloseIcon, IconButton, Modal, StarIcon } from "@waymate/ui";
+import { Avatar } from "@/components/ui/Avatar";
+import { CloseIcon } from "@/components/ui/icons/CloseIcon";
+import { IconButton } from "@/components/ui/IconButton";
+import { Modal } from "@/components/ui/Modal";
+import { StarIcon } from "@/components/ui/icons/StarIcon";
 import { useGetReviewsUsersByUserId } from "../../api-client/reviews/reviews";
 import { useLayout } from "../../lib/use-layout";
 

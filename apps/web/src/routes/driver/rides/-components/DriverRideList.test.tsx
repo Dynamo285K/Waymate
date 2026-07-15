@@ -6,7 +6,7 @@ import { DriverRideList } from "./DriverRideList";
 import type { DriverDisplayedRide } from "../-lib/driver-ride-view";
 
 // Stub RideCard so the tests assert this component's wiring and the per-ride
-// complete/cancel guards rather than the @waymate/ui card internals.
+// complete/cancel guards rather than the card internals.
 vi.mock("../../../../components/shared/RideCard", () => ({
     RideCard: (props: {
         variant: string;

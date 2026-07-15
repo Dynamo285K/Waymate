@@ -1,5 +1,7 @@
 import { useTranslation } from "react-i18next";
-import { Button, Modal, TrashIcon } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
+import { TrashIcon } from "@/components/ui/icons/TrashIcon";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminReviewsErrorMap } from "../-lib/admin-review-errors";
 import {

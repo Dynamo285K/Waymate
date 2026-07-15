@@ -1,6 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { Button, IconButton } from "@waymate/ui";
-import { EyeIcon, EyeOffIcon, TrashIcon } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { IconButton } from "@/components/ui/IconButton";
+import { EyeIcon } from "@/components/ui/icons/EyeIcon";
+import { EyeOffIcon } from "@/components/ui/icons/EyeOffIcon";
+import { TrashIcon } from "@/components/ui/icons/TrashIcon";
 import type { AdminReviewListItem } from "../../../../api-client/model/adminReviewListItem";
 import {
     fullName,

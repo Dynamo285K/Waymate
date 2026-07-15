@@ -1,11 +1,9 @@
-import {
-    Avatar,
-    Button,
-    CircleIcon,
-    ClockIcon,
-    StarIcon,
-    UserIcon,
-} from "@waymate/ui";
+import { Avatar } from "@/components/ui/Avatar";
+import { Button } from "@/components/ui/Button";
+import { CircleIcon } from "@/components/ui/icons/CircleIcon";
+import { ClockIcon } from "@/components/ui/icons/ClockIcon";
+import { StarIcon } from "@/components/ui/icons/StarIcon";
+import { UserIcon } from "@/components/ui/icons/UserIcon";
 
 export type AvailableRideCardLabels = {
     seatsLeft?: (count: number) => string;

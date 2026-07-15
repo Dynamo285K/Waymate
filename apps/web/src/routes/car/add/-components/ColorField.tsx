@@ -1,6 +1,6 @@
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Button } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
 import { FieldError } from "../../../../components/shared/FieldError";
 import { labelClass } from "../-field-styles";
 import { COLORS, type CarFormControl } from "../-schema";

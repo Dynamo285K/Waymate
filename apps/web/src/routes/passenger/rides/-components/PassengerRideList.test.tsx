@@ -6,8 +6,8 @@ import { PassengerRideList } from "./PassengerRideList";
 import type { DisplayedRide } from "../-lib/passenger-ride-view";
 
 // Stub RideCard so the tests assert this component's wiring (which callbacks it
-// passes, with which arguments) rather than the @waymate/ui card internals. The
-// stub renders a button per provided callback so absent callbacks are testable.
+// passes, with which arguments) rather than the card internals. The stub renders
+// a button per provided callback so absent callbacks are testable.
 vi.mock("../../../../components/shared/RideCard", () => ({
     RideCard: (props: {
         variant: string;

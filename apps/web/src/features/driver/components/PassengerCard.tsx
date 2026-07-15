@@ -1,4 +1,6 @@
-import { Avatar, Button, StarIcon } from "@waymate/ui";
+import { Avatar } from "@/components/ui/Avatar";
+import { Button } from "@/components/ui/Button";
+import { StarIcon } from "@/components/ui/icons/StarIcon";
 
 export type PassengerCardLabels = {
     seatsReserved?: (count: number) => string;

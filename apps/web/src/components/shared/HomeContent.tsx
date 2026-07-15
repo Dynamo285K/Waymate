@@ -1,7 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { enUS, sk as skLocale, cs } from "date-fns/locale";
-import { SearchBox, PopularRouteChip, Button } from "@waymate/ui";
-import type { SearchBoxCityOption } from "@waymate/ui";
+import { SearchBox } from "@/components/shared/SearchBox";
+import { PopularRouteChip } from "@/components/shared/PopularRouteChip";
+import { Button } from "@/components/ui/Button";
+import type { SearchBoxCityOption } from "@/components/shared/SearchBox";
 import type { Language } from "../controls/LanguageSwitcher";
 import { AvailableRideCard } from "./AvailableRideCard";
 import { HomeStatsSection } from "./HomeStatsSection";

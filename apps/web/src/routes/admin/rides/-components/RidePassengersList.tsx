@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Avatar } from "@waymate/ui";
+import { Avatar } from "@/components/ui/Avatar";
 import type { AdminRideDetailBookingsItem } from "../../../../api-client/model/adminRideDetailBookingsItem";
 import { fullName } from "../../../../features/admin/lib/admin-format";
 

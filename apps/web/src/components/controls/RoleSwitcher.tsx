@@ -1,4 +1,4 @@
-import { Button } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
 
 export type Role = "passenger" | "driver";
 

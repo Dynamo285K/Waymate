@@ -1,11 +1,9 @@
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import {
-    FieldLabel,
-    FormSectionCard,
-    CircleIcon,
-    MapPinIcon,
-} from "@waymate/ui";
+import { FieldLabel } from "@/components/ui/FieldLabel";
+import { FormSectionCard } from "@/components/shared/FormSectionCard";
+import { CircleIcon } from "@/components/ui/icons/CircleIcon";
+import { MapPinIcon } from "@/components/ui/icons/MapPinIcon";
 import { LocationAutocomplete } from "../../../../components/shared/LocationAutocomplete";
 import type { OfferRideFormInput } from "./schema";
 

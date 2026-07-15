@@ -19,7 +19,8 @@
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "format": "prettier . --write",
-        "format:check": "prettier . --check"
+        "format:check": "prettier . --check",
+        "pipeline": "bun scripts/pipeline.mjs"
     },
     "devDependencies": {
         "@eslint/js": "^9.39.4",
@@ -29,8 +30,5 @@
         "turbo": "^2.9.6",
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.59.0"
-    },
-    "dependencies": {
-        "@waymate/ui": "^0.1.63"
     }
 }

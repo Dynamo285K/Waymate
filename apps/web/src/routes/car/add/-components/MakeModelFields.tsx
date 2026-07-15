@@ -1,7 +1,7 @@
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as Select from "@radix-ui/react-select";
-import { ChevronDownIcon } from "@waymate/ui";
+import { ChevronDownIcon } from "@/components/ui/icons/ChevronDownIcon";
 import { FieldError } from "../../../../components/shared/FieldError";
 import type { CarModel } from "../../../../api-client/model/carModel";
 import { inputClass, labelClass } from "../-field-styles";

@@ -1,5 +1,7 @@
 import { useTranslation } from "react-i18next";
-import { Avatar, BanIcon, Button } from "@waymate/ui";
+import { Avatar } from "@/components/ui/Avatar";
+import { BanIcon } from "@/components/ui/icons/BanIcon";
+import { Button } from "@/components/ui/Button";
 import type { AdminReportDetail } from "../../../../api-client/model/adminReportDetail";
 
 const labelClass =

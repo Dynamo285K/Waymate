@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { CarCard, Button } from "@waymate/ui";
+import { CarCard } from "@/features/driver/components/CarCard";
+import { Button } from "@/components/ui/Button";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 
 type ProfileCar = {

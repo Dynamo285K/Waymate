@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { Button, SearchInput } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { SearchInput } from "@/components/ui/SearchInput";
 import type { RideStatus } from "../../../../api-client/model/rideStatus";
 
 type StatusFilter = "ALL" | RideStatus;

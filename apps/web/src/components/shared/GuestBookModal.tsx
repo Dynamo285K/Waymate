@@ -1,6 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
-import { Button, LockIcon, Modal } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { LockIcon } from "@/components/ui/icons/LockIcon";
+import { Modal } from "@/components/ui/Modal";
 
 interface GuestBookModalProps {
     open: boolean;

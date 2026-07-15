@@ -1,6 +1,9 @@
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { BanIcon, Button, Modal, Textarea } from "@waymate/ui";
+import { BanIcon } from "@/components/ui/icons/BanIcon";
+import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
+import { Textarea } from "@/components/ui/Textarea";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminUsersErrorMap } from "../-lib/admin-errors";
 import {

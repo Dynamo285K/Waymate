@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Button, LockIcon, Modal } from "@waymate/ui";
-import type { SearchBoxCityOption } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { LockIcon } from "@/components/ui/icons/LockIcon";
+import { Modal } from "@/components/ui/Modal";
+import type { SearchBoxCityOption } from "@/components/shared/SearchBox";
 import type { Language } from "../components/controls/LanguageSwitcher";
 import { AuthNavbarFrame } from "../components/navigation/AuthNavbarFrame";
 import { HomeContent } from "../components/shared/HomeContent";

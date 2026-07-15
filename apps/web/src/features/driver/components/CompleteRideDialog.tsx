@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { Modal, Button } from "@waymate/ui";
+import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/Button";
 import { useLayout } from "../../../lib/use-layout";
 
 type CompleteRideDialogProps = {

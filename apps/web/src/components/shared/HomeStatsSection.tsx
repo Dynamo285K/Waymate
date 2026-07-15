@@ -1,5 +1,8 @@
 import { useTranslation } from "react-i18next";
-import { LeafIcon, StarIcon, StatCard, UsersIcon } from "@waymate/ui";
+import { LeafIcon } from "@/components/ui/icons/LeafIcon";
+import { StarIcon } from "@/components/ui/icons/StarIcon";
+import { StatCard } from "@/components/shared/StatCard";
+import { UsersIcon } from "@/components/ui/icons/UsersIcon";
 import { FeatureVisual } from "./FeatureVisual";
 
 export function HomeStatsSection() {

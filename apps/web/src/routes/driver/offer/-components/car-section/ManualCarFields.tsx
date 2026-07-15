@@ -1,7 +1,10 @@
 import * as Select from "@radix-ui/react-select";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { FieldLabel, Input, CarIcon, ChevronDownIcon } from "@waymate/ui";
+import { FieldLabel } from "@/components/ui/FieldLabel";
+import { Input } from "@/components/ui/Input";
+import { CarIcon } from "@/components/ui/icons/CarIcon";
+import { ChevronDownIcon } from "@/components/ui/icons/ChevronDownIcon";
 import { PLATE_MAX_LENGTH, PLATE_MIN_LENGTH } from "@repo/shared/validation";
 import type { OfferRideFormInput } from "../schema";
 import {

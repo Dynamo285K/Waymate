@@ -103,7 +103,7 @@ https://your-app.vercel.app/api/auth/callback/google
 
 ## UI library
 
-Components come from `@waymate/ui` (private GitLab package — see root README for `CI_JOB_TOKEN` setup).
+Components live in `src/components/ui/`, `src/components/shared/`, `src/components/navigation/`, and feature-specific `src/features/*/components/`.
 
 ## i18n parity check
 

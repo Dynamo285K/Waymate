@@ -1,6 +1,8 @@
 import * as Select from "@radix-ui/react-select";
 import { useTranslation } from "react-i18next";
-import { FieldLabel, CarIcon, ChevronDownIcon } from "@waymate/ui";
+import { FieldLabel } from "@/components/ui/FieldLabel";
+import { CarIcon } from "@/components/ui/icons/CarIcon";
+import { ChevronDownIcon } from "@/components/ui/icons/ChevronDownIcon";
 import type { OfferRideCar } from "../CarSection";
 import {
     selectTrigger,

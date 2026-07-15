@@ -1,15 +1,13 @@
-import {
-    AdminProfileDropdown,
-    AlertIcon,
-    DashboardIcon,
-    IconButton,
-    ListIcon,
-    MoonIcon,
-    NavButton,
-    StarIcon,
-    SunIcon,
-    UserIcon,
-} from "@waymate/ui";
+import { AdminProfileDropdown } from "@/components/navigation/AdminProfileDropdown";
+import { AlertIcon } from "@/components/ui/icons/AlertIcon";
+import { DashboardIcon } from "@/components/ui/icons/DashboardIcon";
+import { IconButton } from "@/components/ui/IconButton";
+import { ListIcon } from "@/components/ui/icons/ListIcon";
+import { MoonIcon } from "@/components/ui/icons/MoonIcon";
+import { NavButton } from "@/components/navigation/NavButton";
+import { StarIcon } from "@/components/ui/icons/StarIcon";
+import { SunIcon } from "@/components/ui/icons/SunIcon";
+import { UserIcon } from "@/components/ui/icons/UserIcon";
 import type { Language } from "../controls/LanguageSwitcher";
 import logoLight from "../../assets/logo_light_mode.png";
 import logoDark from "../../assets/logo_dark_mode.png";

@@ -1,5 +1,7 @@
 import { type ReactNode } from "react";
-import { ListIcon, MessageCircleIcon, SearchIcon } from "@waymate/ui";
+import { ListIcon } from "@/components/ui/icons/ListIcon";
+import { MessageCircleIcon } from "@/components/ui/icons/MessageCircleIcon";
+import { SearchIcon } from "@/components/ui/icons/SearchIcon";
 import { type Language } from "../controls/LanguageSwitcher";
 import { type Role } from "../controls/RoleSwitcher";
 import { RoleNavbar, type RoleNavbarTab } from "./RoleNavbar";

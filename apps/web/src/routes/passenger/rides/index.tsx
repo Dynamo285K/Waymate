@@ -6,7 +6,8 @@ import {
     useNavigate,
 } from "@tanstack/react-router";
 import { passengerRidesSearchSchema } from "../../../lib/passenger-rides-search-schema";
-import { Button, RateDriverModal } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { RateDriverModal } from "@/features/passenger/components/RateDriverModal";
 import { useOpenConversation } from "../../../features/chat/hooks/useOpenConversation";
 import { ReportUserModal } from "../../../components/shared/ReportUserModal";
 import {

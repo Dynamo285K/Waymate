@@ -1,12 +1,10 @@
 import { type ReactNode, type RefObject } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import {
-    Avatar,
-    Button,
-    IconButton,
-    ChevronDownIcon,
-    ProfileDropdown,
-} from "@waymate/ui";
+import { Avatar } from "@/components/ui/Avatar";
+import { Button } from "@/components/ui/Button";
+import { IconButton } from "@/components/ui/IconButton";
+import { ChevronDownIcon } from "@/components/ui/icons/ChevronDownIcon";
+import { ProfileDropdown } from "@/components/navigation/ProfileDropdown";
 import { LanguageSwitcher, type Language } from "../controls/LanguageSwitcher";
 import { RoleSwitcher, type Role } from "../controls/RoleSwitcher";
 import type { Theme } from "./use-navbar";

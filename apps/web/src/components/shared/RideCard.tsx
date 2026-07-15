@@ -1,12 +1,10 @@
-import {
-    Avatar,
-    Button,
-    CircleIcon,
-    ClockIcon,
-    MapPinIcon,
-    StarIcon,
-    UserIcon,
-} from "@waymate/ui";
+import { Avatar } from "@/components/ui/Avatar";
+import { Button } from "@/components/ui/Button";
+import { CircleIcon } from "@/components/ui/icons/CircleIcon";
+import { ClockIcon } from "@/components/ui/icons/ClockIcon";
+import { MapPinIcon } from "@/components/ui/icons/MapPinIcon";
+import { StarIcon } from "@/components/ui/icons/StarIcon";
+import { UserIcon } from "@/components/ui/icons/UserIcon";
 import { DriverUpcomingActions } from "./ride-card/DriverUpcomingActions";
 import { PassengerUpcomingActions } from "./ride-card/PassengerUpcomingActions";
 import { PassengerPastActions } from "./ride-card/PassengerPastActions";

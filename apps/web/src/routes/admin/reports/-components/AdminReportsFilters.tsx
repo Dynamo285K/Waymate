@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { Button, SearchInput } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { SearchInput } from "@/components/ui/SearchInput";
 import { FilterSelect } from "../../../../features/admin/components/FilterSelect";
 import type { ReportStatus } from "../../../../api-client/model/reportStatus";
 import type { ReportType } from "../../../../api-client/model/reportType";

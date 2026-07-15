@@ -1,13 +1,11 @@
 import { useTranslation } from "react-i18next";
-import {
-    BoltIcon,
-    CoinsIcon,
-    FeatureCard,
-    LeafIcon,
-    MessageCircleIcon,
-    ShieldIcon,
-    StarIcon,
-} from "@waymate/ui";
+import { BoltIcon } from "@/components/ui/icons/BoltIcon";
+import { CoinsIcon } from "@/components/ui/icons/CoinsIcon";
+import { FeatureCard } from "@/components/shared/FeatureCard";
+import { LeafIcon } from "@/components/ui/icons/LeafIcon";
+import { MessageCircleIcon } from "@/components/ui/icons/MessageCircleIcon";
+import { ShieldIcon } from "@/components/ui/icons/ShieldIcon";
+import { StarIcon } from "@/components/ui/icons/StarIcon";
 import { FeatureVisual } from "./FeatureVisual";
 
 type HomeFeaturesSectionProps = {

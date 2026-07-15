@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Button } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
 import { RideRequestCard } from "../../../features/driver/components/RideRequestCard";
 import { formatRideDate as formatDate } from "../../../lib/date-format";
 import { getErrorI18nKey } from "../../../lib/api-errors";

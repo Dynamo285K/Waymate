@@ -1,5 +1,5 @@
 import * as Select from "@radix-ui/react-select";
-import { ChevronDownIcon } from "@waymate/ui";
+import { ChevronDownIcon } from "@/components/ui/icons/ChevronDownIcon";
 
 export type FilterSelectOption<T extends string> = {
     value: T;

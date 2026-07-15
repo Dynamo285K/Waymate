@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Button } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
 import { useAdminCancelRide } from "./-hooks/useAdminCancelRide";
 import { getGetRidesAdminQueryKey } from "../../../api-client/rides/rides";
 import type { AdminRideListItem } from "../../../api-client/model/adminRideListItem";

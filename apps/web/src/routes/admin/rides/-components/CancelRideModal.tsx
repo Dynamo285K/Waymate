@@ -2,7 +2,10 @@ import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { Button, CloseIcon, Modal, Textarea } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { CloseIcon } from "@/components/ui/icons/CloseIcon";
+import { Modal } from "@/components/ui/Modal";
+import { Textarea } from "@/components/ui/Textarea";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminRidesErrorMap } from "../-lib/admin-ride-errors";
 import {

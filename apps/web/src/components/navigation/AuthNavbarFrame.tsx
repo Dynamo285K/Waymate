@@ -1,5 +1,5 @@
 import { type ComponentProps } from "react";
-import { AuthNavbar } from "@waymate/ui";
+import { AuthNavbar } from "@/components/navigation/AuthNavbar";
 
 type AuthNavbarFrameProps = ComponentProps<typeof AuthNavbar>;
 

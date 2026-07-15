@@ -1,6 +1,6 @@
 import type { Locale } from "date-fns";
 import { useTranslation } from "react-i18next";
-import { Button } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
 import type { EtaPreview } from "../-hooks/useEtaPreview";
 import { RouteSection } from "./RouteSection";
 import { ScheduleSection } from "./ScheduleSection";

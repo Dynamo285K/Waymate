@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Button } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
 import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { CompleteRideDialog } from "../../../features/driver/components/CompleteRideDialog";
 import {

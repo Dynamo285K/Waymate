@@ -8,7 +8,9 @@ import {
     useNavigate,
     useLocation,
 } from "@tanstack/react-router";
-import { Input, Button, Textarea } from "@waymate/ui";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { Textarea } from "@/components/ui/Textarea";
 import { FieldError } from "../../components/shared/FieldError";
 import { DriverNavbar } from "../../components/navigation/DriverNavbar";
 import { PassengerNavbar } from "../../components/navigation/PassengerNavbar";

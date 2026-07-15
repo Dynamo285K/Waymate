@@ -2,13 +2,11 @@ import * as Select from "@radix-ui/react-select";
 import type { Locale } from "date-fns";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import {
-    DatePicker,
-    FieldLabel,
-    FormSectionCard,
-    CalendarIcon,
-    ClockIcon,
-} from "@waymate/ui";
+import { DatePicker } from "@/components/ui/DatePicker";
+import { FieldLabel } from "@/components/ui/FieldLabel";
+import { FormSectionCard } from "@/components/shared/FormSectionCard";
+import { CalendarIcon } from "@/components/ui/icons/CalendarIcon";
+import { ClockIcon } from "@/components/ui/icons/ClockIcon";
 import { formatTime } from "../../../../lib/date-format";
 import type { EtaPreview } from "../-hooks/useEtaPreview";
 import type { OfferRideFormInput } from "./schema";
