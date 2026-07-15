@@ -22,10 +22,13 @@ export async function createSignInUser(options: CreateSignInUserOptions = {}) {
     const { role = "USER", onboarded = true } = options;
     const email = `auth-${crypto.randomUUID()}@example.com`;
 
-    // Hash the password before entering the transaction so the async hash
-    // operation doesn't hold the transaction open longer than necessary.
-    const authContext = await auth.$context;
-    const hashedPassword = await authContext.password.hash(TEST_PASSWORD);
+    // In test mode, better-auth is configured with a trivial fast hash (see
+    // emailAndPassword.password in auth.ts). Use the same scheme here so
+    // sign-in verification succeeds and we skip the bcrypt cost-10 overhead.
+    const hashedPassword =
+        process.env.NODE_ENV === "test"
+            ? `__test__${TEST_PASSWORD}`
+            : await (await auth.$context).password.hash(TEST_PASSWORD);
 
     const user = await db.transaction(async (tx) => {
         const [inserted] = await tx
