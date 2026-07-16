@@ -60,7 +60,9 @@ export default defineConfig(({ mode }) => {
             dedupe: ["react", "react-dom"],
             alias: {
                 "@": path.resolve(__dirname, "src"),
-                ...(existsSync(path.resolve(__dirname, "node_modules/@waymate/ui"))
+                ...(existsSync(
+                    path.resolve(__dirname, "node_modules/@waymate/ui")
+                )
                     ? {}
                     : {
                           "@waymate/ui": path.resolve(
