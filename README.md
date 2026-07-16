@@ -221,4 +221,3 @@ To ensure your pipelines run when you push code, please set up a GitLab Runner o
     - Change the first line to `concurrent = 4` (or however many cores you want to allocate)
     - Restart the runner (`brew services restart gitlab-runner` or `gitlab-runner restart`)
 6. Ensure your Docker daemon and runner service are active. Your machine will now automatically pick up CI jobs whenever it is online.
-
