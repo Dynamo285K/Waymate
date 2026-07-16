@@ -10,7 +10,7 @@ import { existsSync } from "fs";
 // In CI @waymate/ui is not installed — alias it to a stub so Vite doesn't
 // error on import resolution. Locally the package is present and we skip the
 // alias so the real module is used.
-const waymateUiAlias = existsSync(
+const waymateUiAlias: Record<string, string> = existsSync(
     path.resolve(__dirname, "node_modules/@waymate/ui")
 )
     ? {}
