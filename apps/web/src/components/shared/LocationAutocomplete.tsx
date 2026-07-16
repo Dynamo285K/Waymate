@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { Input, LoaderCircleIcon, MapPinIcon } from "@waymate/ui";
+import { Input } from "@/components/ui/Input";
+import { LoaderCircleIcon } from "@/components/ui/icons/LoaderCircleIcon";
+import { MapPinIcon } from "@/components/ui/icons/MapPinIcon";
 import { useUserLocation } from "../../hooks/shared/useUserLocation";
 import { fetchPhotonLocations } from "../../lib/geocoding/photon";
 import type { LocationSuggestion } from "../../lib/geocoding/photon";

@@ -7,7 +7,7 @@ The repository uses **Bun workspaces** together with **Turborepo** to manage mul
 
 This repository is currently prepared as the technical foundation for the project.  
 The monorepo structure has already been initialized and verified.
-The actual implementation of the frontend, backend, database layer, and shared UI library will be added incrementally as project functionality is developed.
+The actual implementation of the frontend, backend, database layer, and shared packages will be added incrementally as project functionality is developed.
 
 ## Tech Stack
 
@@ -22,7 +22,6 @@ Current / planned application stack:
 - **Tailwind CSS** — frontend styling
 - **Elysia** — backend API
 - **Drizzle ORM** — database access layer
-- **Custom UI component library** — shared UI components in a separate repository `waymate-ui`
 
 ## Repository Structure
 
@@ -30,7 +29,6 @@ Current / planned application stack:
       web/              # frontend application
       api/              # backend application
     packages/
-      ui/               # custom UI component library
       db/               # database layer
       shared/           # shared types and utilities
     documentation/      # project documentation
@@ -51,77 +49,13 @@ git clone <repository-url>
 cd waymate
 ```
 
-### 2. Authenticate to the GitLab Package Registry
-
-`@waymate/ui` is published to the GitLab Package Registry of the
-[`waymate-ui`](https://gitlab.fi.muni.cz/xbartel/waymate-ui) project. The
-project's `.npmrc` reads the auth token from the `CI_JOB_TOKEN` environment
-variable. CI sets this automatically; locally you need to provide it yourself
-through a GitLab Personal Access Token.
-
-1. Open <https://gitlab.fi.muni.cz/-/user_settings/personal_access_tokens>.
-2. Create a token with the scope you need:
-    - **`read_api`** — enough to install the package (most contributors).
-    - **`api`** — required only if you also intend to publish new versions of
-      `@waymate/ui` to the registry.
-
-    Copy the value — GitLab shows it only once.
-
-3. Export it as `CI_JOB_TOKEN` so Bun can substitute it into `.npmrc` at
-   install time. The exact command depends on your shell / OS — pick the
-   matching row, replace `<token>`, and run it once. After that, **open a new
-   terminal** so the variable is loaded.
-
-    | Shell / OS   | Command                                                 |
-    | ------------ | ------------------------------------------------------- |
-    | Linux + bash | `echo 'export CI_JOB_TOKEN=<token>' >> ~/.bashrc`       |
-    | Linux + zsh  | `echo 'export CI_JOB_TOKEN=<token>' >> ~/.zshrc`        |
-    | macOS + bash | `echo 'export CI_JOB_TOKEN=<token>' >> ~/.bash_profile` |
-    | macOS + zsh  | `echo 'export CI_JOB_TOKEN=<token>' >> ~/.zshrc`        |
-    | Windows CMD  | `setx CI_JOB_TOKEN <token>`                             |
-
-    If you use [direnv](https://direnv.net/), you can instead drop
-    `export CI_JOB_TOKEN=<token>` into a `.envrc` outside the repo (or into a
-    git-ignored one) and `direnv allow` it.
-
-    Do **not** commit the token, and do **not** put it into the project `.npmrc`
-    — that file uses `${CI_JOB_TOKEN}` on purpose so each developer (and CI)
-    provides their own value.
-
-#### Alternative: write the token into `~/.npmrc`
-
-If you'd rather not manage a shell env var, you can put the token directly
-into your **user-level** `~/.npmrc` (not the project one):
-
-```
-//gitlab.fi.muni.cz/api/v4/projects/48090/packages/npm/:_authToken=<token>
-```
-
-Bun reads `~/.npmrc` in addition to the project `.npmrc`, and the user-level
-entry takes precedence over the `${CI_JOB_TOKEN}` placeholder, so
-`bun install` will work without `CI_JOB_TOKEN` being set. The trade-off is
-that the token sits on disk in plaintext — keep `~/.npmrc` `chmod 600` and
-remember to rotate it if your machine is shared.
-
-### 3. Install dependencies
+### 2. Install dependencies
 
 ```bash
 bun install
 ```
 
-#### Adding or Updating `@waymate/ui`
-
-If you are getting a `401 Unauthorized` error when installing, make sure you have correctly created and exported your GitLab Personal Access Token as `CI_JOB_TOKEN` (see Step 2).
-
-To manually add or update the UI library to the latest version, you should clear Bun's package cache first, as it aggressively caches packages from the registry:
-
-```bash
-bun pm cache rm
-bun add @waymate/ui@latest
-bun install
-```
-
-### 4. Set up the database
+### 3. Set up the database
 
 The API talks to a local PostgreSQL running in Docker. You need:
 
@@ -161,7 +95,7 @@ The API enables CORS for `WEB_ORIGIN`. To allow additional hosts (e.g. a
 production web origin different from the dev one), set `CORS_ORIGINS` in
 `apps/api/.env` as a comma-separated list of full URLs.
 
-### 5. Apply migrations and seed development data
+### 4. Apply migrations and seed development data
 
 The database container is empty after step 4 — schema and fixtures are
 applied separately. For a fresh local database run these two commands in
@@ -199,7 +133,7 @@ bun run --cwd apps/api db:reset
 
 This script will safely drop the `public` schema and the `drizzle` migration history schema, effectively returning your database to an empty slate. It will then automatically run `db:migrate` and `seed` to reconstruct the entire state from scratch based on your current SQL migrations.
 
-### 6. Run backend tests
+### 5. Run backend tests
 
 Backend tests live under `apps/api/src/**/*.test.ts` and run with Vitest:
 
@@ -229,7 +163,7 @@ The suite contains two backend layers:
   `GET /cities`, and public ride search validation. Authenticated route flows
   are intentionally left to targeted auth/e2e coverage.
 
-### 7. Run end-to-end tests
+### 6. Run end-to-end tests
 
 E2E tests live in `e2e/tests` and run with Playwright:
 
@@ -248,13 +182,13 @@ The e2e runner starts its own API and web dev servers on separate ports
 migrations, then runs `seed:cities` and `seed`. The local Postgres Docker
 service still has to be running; `bun run db:setup` from step 4 is enough.
 
-### 8. Run the project
+### 7. Run the project
 
 ```bash
 bun run dev
 ```
 
-### 9. Reviewer / Evaluator Access (Logging in)
+### 8. Reviewer / Evaluator Access (Logging in)
 
 Since email delivery via Resend requires active API keys which are not provided in the repository, you will not be able to sign up or log in via the magic link flow as a new user.
 
@@ -264,7 +198,7 @@ Instead, please log in using one of the pre-seeded development accounts created 
 - **Driver Account:** `driver.albert@example.com` / `driver1234` (Pre-seeded with cars, rides, and bookings)
 - **Passenger Account:** `passenger.cyril@example.com` / `passenger1234`
 
-### 10. GitLab CI/CD Pipeline (Local Runner)
+### 9. GitLab CI/CD Pipeline (Local Runner)
 
 The project pipeline (`.gitlab-ci.yml`) is configured to run verification jobs exclusively on runners tagged with `local-pc`. This creates a distributed pool of runners from developer machines, significantly speeding up the CI process compared to using shared university servers.
 
@@ -287,25 +221,3 @@ To ensure your pipelines run when you push code, please set up a GitLab Runner o
     - Change the first line to `concurrent = 4` (or however many cores you want to allocate)
     - Restart the runner (`brew services restart gitlab-runner` or `gitlab-runner restart`)
 6. Ensure your Docker daemon and runner service are active. Your machine will now automatically pick up CI jobs whenever it is online.
-
-## UI Library
-
-Source repository: <https://gitlab.fi.muni.cz/xbartel/waymate-ui>
-
-`@waymate/ui` contains **reusable primitives only** (Button, Avatar, Modal, DatePicker, icons, …). App-specific components (navbars, ride cards, OfferRideForm, …) live in `apps/web/src/components/` and are imported by relative path.
-
-Reusable primitives:
-
-```tsx
-import { Button, Avatar, Modal } from "@waymate/ui";
-```
-
-App-specific components:
-
-```tsx
-import { DriverNavbar } from "../components/navigation/DriverNavbar";
-import { RideCard } from "../components/RideCard";
-import { OfferRideForm } from "../components/OfferRideForm";
-```
-
-Styles are loaded automatically via `apps/web/src/index.css`.

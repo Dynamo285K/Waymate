@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ConversationSidebar, BackIcon, IconButton } from "@waymate/ui";
+import { ConversationSidebar } from "@/features/chat/components/ConversationSidebar";
+import { BackIcon } from "@/components/ui/icons/BackIcon";
+import { IconButton } from "@/components/ui/IconButton";
 import { useLayout } from "../../../lib/use-layout";
 import { ReportUserModal } from "../../../components/shared/ReportUserModal";
 import { UserProfileModal } from "../../../components/shared/UserProfileModal";

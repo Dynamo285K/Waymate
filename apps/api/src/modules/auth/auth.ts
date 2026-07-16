@@ -140,6 +140,23 @@ export const auth = betterAuth({
         enabled: true,
         requireEmailVerification: true,
 
+        // In tests, skip bcrypt (cost 10) and use a trivial reversible marker so
+        // createSignedInUser() doesn't blow the 15s test timeout under full-suite load.
+        ...(env.NODE_ENV === "test"
+            ? {
+                  password: {
+                      hash: async (p: string) => `__test__${p}`,
+                      verify: async ({
+                          hash,
+                          password,
+                      }: {
+                          hash: string;
+                          password: string;
+                      }) => hash === `__test__${password}`,
+                  },
+              }
+            : {}),
+
         sendResetPassword: async ({ user, url }) => {
             await sendAuthEmail({
                 to: user.email,

@@ -1,5 +1,7 @@
 import { useTranslation } from "react-i18next";
-import { Button, CheckIcon, CloseIcon } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { CheckIcon } from "@/components/ui/icons/CheckIcon";
+import { CloseIcon } from "@/components/ui/icons/CloseIcon";
 import type { ReportStatus } from "../../../../api-client/model/reportStatus";
 
 // Workflow: OPEN can go to INVESTIGATING / RESOLVED / DISMISSED.

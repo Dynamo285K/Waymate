@@ -1,6 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { RatingSummaryCard, RatingCard, TextLink } from "@waymate/ui";
+import { RatingSummaryCard } from "@/components/shared/RatingSummaryCard";
+import { RatingCard } from "@/components/shared/RatingCard";
+import { TextLink } from "@/components/ui/TextLink";
 import {
     useGetReviewsMeAuthored,
     useGetReviewsUsersByUserId,

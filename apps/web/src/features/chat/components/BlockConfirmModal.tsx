@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { Button, Modal } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
 
 type BlockConfirmModalProps = {
     open: boolean;

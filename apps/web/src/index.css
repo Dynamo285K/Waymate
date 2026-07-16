@@ -1,4 +1,4 @@
-@import "@waymate/ui/dist/index.css";
+@import "./styles/tokens.css";
 @import "tailwindcss";
 
 @theme inline {

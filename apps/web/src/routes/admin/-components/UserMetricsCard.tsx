@@ -1,13 +1,11 @@
 import { useTranslation } from "react-i18next";
-import {
-    AlertIcon,
-    Button,
-    CarIcon,
-    ClockIcon,
-    DownloadIcon,
-    UserIcon,
-    UsersIcon,
-} from "@waymate/ui";
+import { AlertIcon } from "@/components/ui/icons/AlertIcon";
+import { Button } from "@/components/ui/Button";
+import { CarIcon } from "@/components/ui/icons/CarIcon";
+import { ClockIcon } from "@/components/ui/icons/ClockIcon";
+import { DownloadIcon } from "@/components/ui/icons/DownloadIcon";
+import { UserIcon } from "@/components/ui/icons/UserIcon";
+import { UsersIcon } from "@/components/ui/icons/UsersIcon";
 import type { AdminDashboardUserMetrics } from "../../../api-client/model/adminDashboardUserMetrics";
 import { DashboardCard } from "./DashboardCard";
 

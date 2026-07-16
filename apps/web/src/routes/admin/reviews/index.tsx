@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
-import { Button } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { AdminReviewsFilters } from "./-components/AdminReviewsFilters";
 import { AdminReviewsTable } from "./-components/AdminReviewsTable";

@@ -1,5 +1,6 @@
 import type { ErrorComponentProps } from "@tanstack/react-router";
-import { AlertIcon, Button } from "@waymate/ui";
+import { AlertIcon } from "@/components/ui/icons/AlertIcon";
+import { Button } from "@/components/ui/Button";
 
 // Last-resort fallback rendered by TanStack Router when a route component or
 // loader throws. Without it, a single render-time error (e.g. an undefined

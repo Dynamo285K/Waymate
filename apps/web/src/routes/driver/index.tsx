@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Button, PlusIcon } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { PlusIcon } from "@/components/ui/icons/PlusIcon";
 import { CancelRideDialog } from "../../components/shared/CancelRideDialog";
 import { CompleteRideDialog } from "../../features/driver/components/CompleteRideDialog";
 import {

@@ -1,6 +1,10 @@
 import { useTranslation } from "react-i18next";
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
-import { Button, Input, LockIcon, SendIcon, TextLink } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { LockIcon } from "@/components/ui/icons/LockIcon";
+import { SendIcon } from "@/components/ui/icons/SendIcon";
+import { TextLink } from "@/components/ui/TextLink";
 import { FieldError } from "../../../components/shared/FieldError";
 import type { ForgotPasswordFormValues } from "../-hooks/useForgotPasswordFlow";
 import { ProgressDots } from "./ProgressDots";

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { SearchInput } from "@waymate/ui";
+import { SearchInput } from "@/components/ui/SearchInput";
 
 type AdminUsersFiltersProps = {
     searchInput: string;

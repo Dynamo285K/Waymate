@@ -1,5 +1,7 @@
 import { useTranslation } from "react-i18next";
-import { Button, MailIcon, TextLink } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { MailIcon } from "@/components/ui/icons/MailIcon";
+import { TextLink } from "@/components/ui/TextLink";
 import { ProgressDots } from "./ProgressDots";
 import { StepVisual } from "./StepVisual";
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ProfileHeroCard } from "@waymate/ui";
+import { ProfileHeroCard } from "@/components/shared/ProfileHeroCard";
 import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { useCancelBooking } from "../../../features/passenger/hooks/useCancelBooking";
 import type { Language } from "../../../components/controls/LanguageSwitcher";

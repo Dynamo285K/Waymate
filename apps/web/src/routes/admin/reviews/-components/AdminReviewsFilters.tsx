@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { Button, SearchInput } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { SearchInput } from "@/components/ui/SearchInput";
 import { FilterSelect } from "../../../../features/admin/components/FilterSelect";
 import { useGetReviewsAdminCounts } from "../../../../api-client/reviews/reviews";
 import type { ReviewStatus } from "../../../../api-client/model/reviewStatus";

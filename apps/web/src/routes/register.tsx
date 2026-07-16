@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Button, RegisterBox } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { RegisterBox } from "@/components/shared/RegisterBox";
 import { AuthNavbarFrame } from "../components/navigation/AuthNavbarFrame";
 import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
 import {

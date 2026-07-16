@@ -1,5 +1,6 @@
 import type { FormEventHandler, ReactNode } from "react";
-import { CloseIcon, IconButton } from "@waymate/ui";
+import { CloseIcon } from "@/components/ui/icons/CloseIcon";
+import { IconButton } from "@/components/ui/IconButton";
 
 type AdminModalBodyProps = {
     children: ReactNode;

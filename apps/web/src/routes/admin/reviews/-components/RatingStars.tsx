@@ -1,4 +1,4 @@
-import { StarIcon } from "@waymate/ui";
+import { StarIcon } from "@/components/ui/icons/StarIcon";
 
 export function RatingStars({ rating }: { rating: number }) {
     return (

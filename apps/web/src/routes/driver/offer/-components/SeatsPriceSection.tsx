@@ -1,12 +1,10 @@
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import {
-    FieldLabel,
-    FormSectionCard,
-    Input,
-    CoinsIcon,
-    UserIcon,
-} from "@waymate/ui";
+import { FieldLabel } from "@/components/ui/FieldLabel";
+import { FormSectionCard } from "@/components/shared/FormSectionCard";
+import { Input } from "@/components/ui/Input";
+import { CoinsIcon } from "@/components/ui/icons/CoinsIcon";
+import { UserIcon } from "@/components/ui/icons/UserIcon";
 import { isIntegerInput } from "../-lib/offer-ride";
 import type { OfferRideFormInput } from "./schema";
 

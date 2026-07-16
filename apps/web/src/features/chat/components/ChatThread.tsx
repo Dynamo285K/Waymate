@@ -1,13 +1,11 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import {
-    Button,
-    MessageBubble,
-    MessageComposer,
-    PenIcon,
-    TrashIcon,
-} from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { MessageBubble } from "@/features/chat/components/MessageBubble";
+import { MessageComposer } from "@/features/chat/components/MessageComposer";
+import { PenIcon } from "@/components/ui/icons/PenIcon";
+import { TrashIcon } from "@/components/ui/icons/TrashIcon";
 import { formatDayLabel } from "../../../lib/date-format";
 import { type MessageView } from "../hooks/useChatPanel";
 import { DeleteMessageConfirmModal } from "./DeleteMessageConfirmModal";

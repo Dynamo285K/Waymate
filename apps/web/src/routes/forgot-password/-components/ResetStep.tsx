@@ -1,6 +1,9 @@
 import { useTranslation } from "react-i18next";
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
-import { Button, CheckIcon, LockIcon, PasswordInput } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { CheckIcon } from "@/components/ui/icons/CheckIcon";
+import { LockIcon } from "@/components/ui/icons/LockIcon";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { FieldError } from "../../../components/shared/FieldError";
 import type { ForgotPasswordFormValues } from "../-hooks/useForgotPasswordFlow";
 import { ProgressDots } from "./ProgressDots";

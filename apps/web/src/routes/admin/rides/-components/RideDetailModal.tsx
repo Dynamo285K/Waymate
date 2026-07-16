@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { Button, Modal } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
 import { useGetRidesAdminById } from "../../../../api-client/rides/rides";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminRidesErrorMap } from "../-lib/admin-ride-errors";

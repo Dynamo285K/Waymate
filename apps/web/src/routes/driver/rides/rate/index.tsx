@@ -4,14 +4,12 @@ import {
     useNavigate,
     useLocation,
 } from "@tanstack/react-router";
-import {
-    DollarIcon,
-    MapIcon,
-    RatePassengerCard,
-    StatCard,
-    TextLink,
-    UsersIcon,
-} from "@waymate/ui";
+import { DollarIcon } from "@/components/ui/icons/DollarIcon";
+import { MapIcon } from "@/components/ui/icons/MapIcon";
+import { RatePassengerCard } from "@/features/driver/components/RatePassengerCard";
+import { StatCard } from "@/components/shared/StatCard";
+import { TextLink } from "@/components/ui/TextLink";
+import { UsersIcon } from "@/components/ui/icons/UsersIcon";
 import { useGetRidesByIdPassengers } from "../../../../api-client/rides/rides";
 import { useSubmitReview } from "../../../../hooks/shared/useSubmitReview";
 import { getErrorI18nKey } from "../../../../lib/api-errors";

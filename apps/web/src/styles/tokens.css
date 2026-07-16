@@ -1,0 +1,118 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+
+:root {
+    /* Public aliases kept for non-Tailwind consumers; Tailwind maps to --wm-color-* in index.css. */
+    --color-bg: var(--wm-color-bg);
+    --color-card: var(--wm-color-card);
+    --color-text-primary: var(--wm-color-text-primary);
+    --color-text-secondary: var(--wm-color-text-secondary);
+    --color-border: var(--wm-color-border);
+    --color-primary: var(--wm-color-primary);
+    --color-primary-hover: var(--wm-color-primary-hover);
+    --color-secondary: var(--wm-color-secondary);
+    --color-secondary-hover: var(--wm-color-secondary-hover);
+    --color-input-bg: var(--wm-color-input-bg);
+    --color-button: var(--wm-color-button);
+    --color-button-hover: var(--wm-color-button-hover);
+    --color-dark-green: var(--wm-color-dark-green);
+    --color-light-green: var(--wm-color-light-green);
+    --color-yellow: var(--wm-color-yellow);
+    --color-dark-yellow: var(--wm-color-dark-yellow);
+    --color-red: var(--wm-color-red);
+    --color-rose: var(--wm-color-rose);
+    --color-lila: var(--wm-color-lila);
+    --color-royal-blue: var(--wm-color-royal-blue);
+    --color-warning-border: var(--wm-color-warning-border);
+    --color-warning-bg: var(--wm-color-warning-bg);
+    --color-warning-text: var(--wm-color-warning-text);
+    --color-danger-border: var(--wm-color-danger-border);
+    --color-danger-bg: var(--wm-color-danger-bg);
+    --color-danger-text: var(--wm-color-danger-text);
+    --color-success-border: var(--wm-color-success-border);
+    --color-success-bg: var(--wm-color-success-bg);
+    --color-success-text: var(--wm-color-success-text);
+
+    /* LIGHT MODE */
+    --wm-color-bg: #f5f5f5;
+    --wm-color-card: #ffffff;
+
+    --wm-color-text-primary: #111827;
+    --wm-color-text-secondary: #6b7280;
+
+    --wm-color-border: #e5e7eb;
+
+    --wm-color-primary: #11ad32;
+    --wm-color-primary-hover: #0e8f29;
+
+    --wm-color-secondary: #ffffff;
+    --wm-color-secondary-hover: #f2f4f7;
+
+    --wm-color-input-bg: #ffffff;
+
+    --wm-color-button: #111827;
+    --wm-color-button-hover: #1f2937;
+
+    --wm-color-dark-green: #16a34a;
+    --wm-color-light-green: #22c55e;
+    --wm-color-yellow: #f5e535;
+    --wm-color-dark-yellow: #ffbb00;
+    --wm-color-red: #e70000;
+    --wm-color-rose: #dc006a;
+    --wm-color-lila: #9176fa;
+    --wm-color-royal-blue: #2500b8;
+
+    --wm-color-warning-border: #fde68a;
+    --wm-color-warning-bg: #fffbeb;
+    --wm-color-warning-text: #92400e;
+
+    --wm-color-danger-border: #fecaca;
+    --wm-color-danger-bg: #fef2f2;
+    --wm-color-danger-text: #991b1b;
+
+    --wm-color-success-border: #bbf7d0;
+    --wm-color-success-bg: #f0fdf4;
+    --wm-color-success-text: #166534;
+}
+
+[data-theme="dark"] {
+    /* DARK MODE */
+    --wm-color-bg: #030712;
+    --wm-color-card: #101828;
+
+    --wm-color-text-primary: #f8fafc;
+    --wm-color-text-secondary: #d9d9d9;
+
+    --wm-color-border: #253247;
+
+    --wm-color-primary: #22c55e;
+    --wm-color-primary-hover: #16a34a;
+
+    --wm-color-secondary: #101828;
+    --wm-color-secondary-hover: #1f2937;
+
+    --wm-color-input-bg: #111827;
+
+    --wm-color-button: #11ad32;
+    --wm-color-button-hover: #0e8f29;
+
+    --wm-color-dark-green: #16a34a;
+    --wm-color-light-green: #22c55e;
+    --wm-color-yellow: #f5e535;
+    --wm-color-dark-yellow: #ffbb00;
+    --wm-color-red: #e70000;
+    --wm-color-rose: #dc006a;
+    --wm-color-lila: #9176fa;
+    --wm-color-royal-blue: #2500b8;
+
+    --wm-color-warning-border: #854d0e;
+    --wm-color-warning-bg: #1c1200;
+    --wm-color-warning-text: #fde68a;
+
+    --wm-color-danger-border: #991b1b;
+    --wm-color-danger-bg: #450a0a;
+    --wm-color-danger-text: #fecaca;
+
+    --wm-color-success-border: #166534;
+    --wm-color-success-bg: #052e16;
+    --wm-color-success-text: #bbf7d0;
+}

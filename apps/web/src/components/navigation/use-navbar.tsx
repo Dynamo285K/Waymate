@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { MoonIcon, SunIcon } from "@waymate/ui";
+import { MoonIcon } from "@/components/ui/icons/MoonIcon";
+import { SunIcon } from "@/components/ui/icons/SunIcon";
 import { useBreakpoint } from "../../hooks/shared/useBreakpoint";
 import logoLight from "../../assets/logo_light_mode.png";
 import logoDark from "../../assets/logo_dark_mode.png";

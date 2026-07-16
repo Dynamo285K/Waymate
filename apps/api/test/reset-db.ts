@@ -1,7 +1,5 @@
 import postgres from "postgres";
 import { env } from "../src/config/env";
-import { db } from "../src/db";
-import { carModels } from "../src/db/schema";
 import { carCatalog } from "@repo/shared/car-catalog";
 
 let client: postgres.Sql | null = null;
@@ -43,11 +41,15 @@ export async function resetDatabase(): Promise<void> {
         .join(", ");
     await sql.unsafe(`TRUNCATE TABLE ${list} RESTART IDENTITY CASCADE`);
 
-    // Re-seed reference data via drizzle so the camelCase → snake_case
-    // column mapping (modelName → model_name, nameNormalized →
-    // name_normalized) is handled by the schema.
-
-    await db.insert(carModels).values(carCatalog);
+    // Re-seed car_models on the same single-connection sql client that ran the
+    // TRUNCATE. Using the shared Drizzle pool here risks the INSERT landing on
+    // a pooled connection that has a stale implicit transaction from a previous
+    // test, making the row invisible to queries on other connections.
+    const seedRows = carCatalog.map(({ brand, modelName }) => ({
+        brand,
+        model_name: modelName,
+    }));
+    await sql`INSERT INTO car_models ${sql(seedRows)}`;
 }
 
 export async function closeResetClient(): Promise<void> {

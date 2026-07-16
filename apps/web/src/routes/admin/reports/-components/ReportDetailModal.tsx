@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Modal } from "@waymate/ui";
+import { Modal } from "@/components/ui/Modal";
 import { useGetReportsAdminById } from "../../../../api-client/reports/reports";
 import type { ReportStatus } from "../../../../api-client/model/reportStatus";
 import { getErrorI18nKey } from "../../../../lib/api-errors";

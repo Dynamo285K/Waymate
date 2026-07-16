@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { Button, Modal } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
 import { useLayout } from "../../../lib/use-layout";
 import { getErrorCode, getErrorI18nKey } from "../../../lib/api-errors";
 

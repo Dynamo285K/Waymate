@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { Avatar, Button } from "@waymate/ui";
+import { Avatar } from "@/components/ui/Avatar";
+import { Button } from "@/components/ui/Button";
 import type { AdminReportListItem } from "../../../../api-client/model/adminReportListItem";
 import {
     fullName,

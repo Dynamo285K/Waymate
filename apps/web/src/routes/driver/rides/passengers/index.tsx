@@ -5,7 +5,9 @@ import {
     useNavigate,
     useLocation,
 } from "@tanstack/react-router";
-import { StatCard, TextLink, UsersIcon } from "@waymate/ui";
+import { StatCard } from "@/components/shared/StatCard";
+import { TextLink } from "@/components/ui/TextLink";
+import { UsersIcon } from "@/components/ui/icons/UsersIcon";
 import { PassengerCard } from "../../../../features/driver/components/PassengerCard";
 import { useOpenConversation } from "../../../../features/chat/hooks/useOpenConversation";
 import { CancelRideDialog } from "../../../../components/shared/CancelRideDialog";

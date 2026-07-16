@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
 import { useGetReportsAdminByIdConversation } from "../../../../api-client/reports/reports";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { adminReportsErrorMap } from "../-lib/admin-report-errors";

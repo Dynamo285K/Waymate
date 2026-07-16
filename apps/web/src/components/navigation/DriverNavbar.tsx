@@ -1,10 +1,8 @@
 import { type ReactNode } from "react";
-import {
-    PlusIcon,
-    ListIcon,
-    ListChecksIcon,
-    MessageCircleIcon,
-} from "@waymate/ui";
+import { PlusIcon } from "@/components/ui/icons/PlusIcon";
+import { ListIcon } from "@/components/ui/icons/ListIcon";
+import { ListChecksIcon } from "@/components/ui/icons/ListChecksIcon";
+import { MessageCircleIcon } from "@/components/ui/icons/MessageCircleIcon";
 import { type Language } from "../controls/LanguageSwitcher";
 import { type Role } from "../controls/RoleSwitcher";
 import { RoleNavbar, type RoleNavbarTab } from "./RoleNavbar";
