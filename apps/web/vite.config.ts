@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import path from "path";
+import { existsSync } from "fs";
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), "");
@@ -57,7 +58,17 @@ export default defineConfig(({ mode }) => {
         },
         resolve: {
             dedupe: ["react", "react-dom"],
-            alias: { "@": path.resolve(__dirname, "src") },
+            alias: {
+                "@": path.resolve(__dirname, "src"),
+                ...(existsSync(path.resolve(__dirname, "node_modules/@waymate/ui"))
+                    ? {}
+                    : {
+                          "@waymate/ui": path.resolve(
+                              __dirname,
+                              "src/waymate-ui-mock.ts"
+                          ),
+                      }),
+            },
         },
     };
 });
