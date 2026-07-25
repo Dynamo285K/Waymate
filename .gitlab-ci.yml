@@ -129,9 +129,9 @@ e2e:
           paths:
               - .playwright-cache/
     script:
-        # Pull the Chromium build matching the installed Playwright, plus its
-        # OS libraries (the bun image lacks them).
-        - bunx playwright install --with-deps chromium
+        # Pull the Chromium build matching the e2e workspace's Playwright version,
+        # plus its OS libraries (the bun image lacks them).
+        - bun run --cwd e2e install:browsers
         - bun run --cwd apps/api scripts/wait-for-db.ts
         - bun run --cwd e2e test
     artifacts:

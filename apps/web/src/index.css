@@ -66,7 +66,22 @@
         320px,
         var(--radix-select-content-available-height)
     );
+    --spacing-sidebar: 320px;
+    --spacing-content: 640px;
     --spacing-admin-table-user: 140px;
+
+    --breakpoint-600: 600px;
+
+    --text-auth-title: 1.875rem;
+    --text-title: 1.5rem;
+    --text-panel-title: 1.5rem;
+    --text-mobile-title: 1.375rem;
+    --text-subtitle: 1.375rem;
+    --text-route: 1rem;
+    --text-control: 0.9375rem;
+    --text-caption: 0.8125rem;
+    --text-badge: 0.625rem;
+    --text-plate: 0.8125rem;
 
     --radius-control: 10px;
     --radius-summary-card: 18px;
@@ -98,6 +113,10 @@
 @custom-variant radix-disabled (&[data-disabled]);
 @custom-variant radix-highlighted (&[data-highlighted]);
 @custom-variant radix-checked (&[data-state="checked"]);
+
+body {
+    font-family: "Inter", sans-serif;
+}
 
 /* Prevent Radix Select from locking page scroll — dropdowns are not modals */
 body[data-scroll-locked] {
