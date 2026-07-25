@@ -66,6 +66,7 @@
         320px,
         var(--radix-select-content-available-height)
     );
+    --spacing-sidebar: 320px;
     --spacing-admin-table-user: 140px;
 
     --radius-control: 10px;
