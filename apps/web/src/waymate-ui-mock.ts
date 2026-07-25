@@ -17,5 +17,10 @@ export const Modal = ({ children, open }: AnyProps) =>
 
 export const Avatar = () => null;
 export const NavButton = ({ children, onClick, icon }: AnyProps) =>
-    createElement("button", { type: "button", onClick }, icon as ReactNode, children);
+    createElement(
+        "button",
+        { type: "button", onClick },
+        icon as ReactNode,
+        children
+    );
 export const ChevronDownIcon = () => null;
