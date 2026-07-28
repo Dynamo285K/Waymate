@@ -11,6 +11,7 @@ import {
     BookingActionResponseSchema,
     PassengerBookingListItemSchema,
     PassengerBookingListSchema,
+    PassengerBookingDetailSchema,
     DriverRideRequestListSchema,
 } from "@repo/shared";
 
@@ -27,6 +28,7 @@ export const BookingRoutes = new Elysia({
         BookingActionResponse: BookingActionResponseSchema,
         PassengerBookingListItem: PassengerBookingListItemSchema,
         PassengerBookingList: PassengerBookingListSchema,
+        PassengerBookingDetail: PassengerBookingDetailSchema,
         DriverRideRequestList: DriverRideRequestListSchema,
         ErrorResponse: ErrorResponseSchema,
     })
@@ -70,6 +72,30 @@ export const BookingRoutes = new Elysia({
                     detail: {
                         description:
                             "Returns bookings created by the authenticated passenger filtered by timeframe",
+                    },
+                }
+            )
+
+            .get(
+                "/:id",
+                async ({ user, params }) => {
+                    return await BookingService.getBookingDetailForPassenger(
+                        params.id,
+                        user.id
+                    );
+                },
+                {
+                    params: "BookingIdParams",
+                    response: {
+                        200: "PassengerBookingDetail",
+                        403: "ErrorResponse",
+                        404: "ErrorResponse",
+                        429: "ErrorResponse",
+                        500: "ErrorResponse",
+                    },
+                    detail: {
+                        description:
+                            "Returns full details for one of the authenticated passenger's own bookings",
                     },
                 }
             )

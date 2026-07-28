@@ -1,6 +1,7 @@
 import {
     getPendingRequestsForDriver,
     getPassengerBookings,
+    getBookingDetailForPassenger,
 } from "./queries/booking-query.service";
 import { createBookingRequest } from "./requests/booking-request.service";
 import {
@@ -13,6 +14,7 @@ import {
 export const BookingService = {
     getPendingRequestsForDriver,
     getPassengerBookings,
+    getBookingDetailForPassenger,
     createBookingRequest,
     confirmBooking,
     rejectBooking,
