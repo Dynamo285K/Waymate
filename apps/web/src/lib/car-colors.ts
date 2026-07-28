@@ -3,7 +3,7 @@
 // colors from a single source of truth.
 export const COLORS = [
     { value: "WHITE", label: "White", hex: "#f8fafc", border: "#cbd5e1" },
-    { value: "BLACK", label: "Black", hex: "#111827", border: "#111827" },
+    { value: "BLACK", label: "Black", hex: "#000000", border: "#000000" },
     { value: "SILVER", label: "Silver", hex: "#c0c0c0", border: "#c0c0c0" },
     { value: "GRAY", label: "Gray", hex: "#6b7280", border: "#6b7280" },
     { value: "RED", label: "Red", hex: "#dc2626", border: "#dc2626" },

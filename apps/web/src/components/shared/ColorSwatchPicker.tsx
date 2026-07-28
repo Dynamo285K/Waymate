@@ -27,7 +27,7 @@ export function ColorSwatchPicker({
                     className="flex flex-col items-center gap-1"
                 >
                     <span
-                        className={`w-10 h-10 rounded-full border-2 border-solid transition-all ${value === c.value ? "ring-2 ring-offset-2 ring-primary scale-110" : ""}`}
+                        className={`w-10 h-10 rounded-full border-2 border-solid outline-1 outline-offset-2 outline-border transition-all ${value === c.value ? "ring-2 ring-offset-2 ring-primary scale-110" : ""}`}
                         style={{
                             backgroundColor: c.hex,
                             borderColor: c.border,
