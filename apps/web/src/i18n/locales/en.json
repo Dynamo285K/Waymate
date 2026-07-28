@@ -718,6 +718,19 @@
         "adding": "Adding...",
         "addButton": "Add car"
     },
+    "carColor": {
+        "WHITE": "White",
+        "BLACK": "Black",
+        "SILVER": "Silver",
+        "GRAY": "Gray",
+        "RED": "Red",
+        "BLUE": "Blue",
+        "BROWN": "Brown",
+        "GREEN": "Green",
+        "YELLOW": "Yellow",
+        "ORANGE": "Orange",
+        "OTHER": "Other"
+    },
     "completeRideDialog": {
         "title": "Complete ride?",
         "message": "Are you sure you want to mark this ride as completed? This action will move the ride to past rides for all participants.",

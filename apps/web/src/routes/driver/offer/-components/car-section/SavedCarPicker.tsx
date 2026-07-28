@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { FieldLabel } from "@/components/ui/FieldLabel";
 import { CarIcon } from "@/components/ui/icons/CarIcon";
 import { ChevronDownIcon } from "@/components/ui/icons/ChevronDownIcon";
-import { getCarColorLabel } from "@/lib/car-colors";
+import { getCarColorI18nKey } from "@/lib/car-colors";
 import type { OfferRideCar } from "../CarSection";
 import {
     selectTrigger,
@@ -27,6 +27,7 @@ export function SavedCarPicker({
 }: SavedCarPickerProps) {
     const { t } = useTranslation();
     const selectedCar = savedCars.find((c) => c.id === selectedCarId);
+    const colorKey = getCarColorI18nKey(selectedCar?.color);
 
     return (
         <div className="flex flex-col gap-5">
@@ -99,7 +100,7 @@ export function SavedCarPicker({
                         {t("offerRide.carColor")}
                     </p>
                     <p className="mt-1 text-sm font-semibold text-text-primary">
-                        {getCarColorLabel(selectedCar?.color) ?? "—"}
+                        {colorKey ? t(colorKey) : "—"}
                     </p>
                 </div>
             </div>

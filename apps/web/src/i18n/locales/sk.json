@@ -718,6 +718,19 @@
         "adding": "Pridávam...",
         "addButton": "Pridať auto"
     },
+    "carColor": {
+        "WHITE": "Biela",
+        "BLACK": "Čierna",
+        "SILVER": "Strieborná",
+        "GRAY": "Sivá",
+        "RED": "Červená",
+        "BLUE": "Modrá",
+        "BROWN": "Hnedá",
+        "GREEN": "Zelená",
+        "YELLOW": "Žltá",
+        "ORANGE": "Oranžová",
+        "OTHER": "Iná"
+    },
     "completeRideDialog": {
         "title": "Dokončiť jazdu?",
         "message": "Naozaj chcete označiť túto jazdu ako dokončenú? Táto akcia presunie jazdu do minulých jázd pre všetkých účastníkov.",

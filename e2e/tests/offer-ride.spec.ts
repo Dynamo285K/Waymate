@@ -78,6 +78,8 @@ test.describe("offer a ride", () => {
 
         await page.getByPlaceholder("e.g., ABC 1234").fill("BA999XX");
 
+        await page.getByRole("button", { name: "White" }).click();
+
         await page
             .getByTestId("publish-ride-wrapper")
             .locator("button")

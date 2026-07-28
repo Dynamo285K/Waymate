@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/Button";
 import { COLORS, type CarColor } from "@/lib/car-colors";
 
@@ -14,6 +15,8 @@ export function ColorSwatchPicker({
     onChange,
     className,
 }: ColorSwatchPickerProps) {
+    const { t } = useTranslation();
+
     return (
         <div
             className={`flex gap-3 flex-wrap${className ? ` ${className}` : ""}`}
@@ -34,7 +37,7 @@ export function ColorSwatchPicker({
                         }}
                     />
                     <span className="text-xs text-text-secondary">
-                        {c.label}
+                        {t(`carColor.${c.value}`)}
                     </span>
                 </Button>
             ))}
