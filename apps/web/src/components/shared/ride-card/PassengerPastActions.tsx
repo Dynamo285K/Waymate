@@ -2,7 +2,7 @@ import { Button } from "@waymate/ui";
 import type { RideCardLabels } from "../RideCard";
 
 const actionClassName =
-    "min-w-0 justify-center whitespace-nowrap text-center text-sm px-3 max-600:w-full";
+    "min-w-0 justify-center whitespace-nowrap text-center text-xs px-3 py-1.5 max-600:w-full";
 
 export function PassengerPastActions({
     labels,
@@ -16,7 +16,16 @@ export function PassengerPastActions({
     onReport?: () => void;
 }) {
     return (
-        <div className="grid grid-cols-1 gap-2 shrink-0 sm:grid-cols-2">
+        <div className="flex flex-wrap justify-end gap-2 shrink-0 max-600:flex-col">
+            {onReport && (
+                <Button
+                    variant="red"
+                    className={actionClassName}
+                    onClick={onReport}
+                >
+                    {labels?.reportDriver ?? "Report driver"}
+                </Button>
+            )}
             <Button
                 variant={alreadyReviewed ? "secondary" : "black"}
                 className={actionClassName}
@@ -27,15 +36,6 @@ export function PassengerPastActions({
                     ? (labels?.rated ?? "Rated")
                     : (labels?.rateDriver ?? "Rate driver")}
             </Button>
-            {onReport && (
-                <Button
-                    variant="secondary"
-                    className={actionClassName}
-                    onClick={onReport}
-                >
-                    {labels?.reportDriver ?? "Report driver"}
-                </Button>
-            )}
         </div>
     );
 }

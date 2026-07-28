@@ -1,6 +1,8 @@
 import {
     findPendingRequestsForDriver,
     findBookingsByPassengerId,
+    findBookingDetailById,
+    findCoPassengersForRide,
     sumSeatsForRide,
 } from "./queries/booking-query.repository";
 import {
@@ -28,6 +30,8 @@ export type {
 export const BookingRepository = {
     findPendingRequestsForDriver,
     findBookingsByPassengerId,
+    findBookingDetailById,
+    findCoPassengersForRide,
     lockRideForBooking,
     lockBookingById,
     findRideStops,

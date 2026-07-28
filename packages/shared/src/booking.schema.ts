@@ -4,7 +4,7 @@ import {
     RideStopIdSchema,
     RideStatusSchema,
 } from "./ride.schema";
-import { bookingStatusValues } from "./status-values";
+import { bookingStatusValues, carColors } from "./status-values";
 import { CurrencySchema } from "./currency.schema";
 import {
     PublicUserPreviewSchema,
@@ -91,6 +91,34 @@ export const PassengerBookingListItemSchema = z.object({
 
 export const PassengerBookingListSchema =
     PassengerBookingListItemSchema.array();
+
+export const PassengerBookingDetailSchema = z.object({
+    id: z.uuid(),
+    bookingStatus: z.enum(bookingStatusValues),
+    priceAmount: z.number().int(),
+    currency: CurrencySchema,
+    ride: z.object({
+        id: RideIdSchema,
+        departureAt: z.date(),
+        arrivalEstimateAt: z.date().nullable(),
+        rideStatus: RideStatusSchema,
+        offeredSeats: z.number().int(),
+    }),
+    driver: PublicUserPreviewWithRatingSchema,
+    car: z.object({
+        brand: z.string(),
+        modelName: z.string(),
+        spz: z.string(),
+        color: z.enum(carColors).nullable(),
+    }),
+    pickupCity: z.string(),
+    dropoffCity: z.string(),
+    requestedPickupCity: z.string().nullable(),
+    requestedDropoffCity: z.string().nullable(),
+    originalStartCity: z.string(),
+    originalEndCity: z.string(),
+    coPassengers: PublicUserPreviewSchema.array(),
+});
 
 export const DriverRideRequestItemSchema = z.object({
     id: z.uuid(),

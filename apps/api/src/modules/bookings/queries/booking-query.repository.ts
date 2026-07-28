@@ -17,6 +17,8 @@ import { rides as ridesTable } from "../../../db/schema/ride";
 import { rideStops as rideStopsTable } from "../../../db/schema/ride_stop";
 import { users as usersTable } from "../../../db/schema/user";
 import { reviews as reviewsTable } from "../../../db/schema/review";
+import { cars as carsTable } from "../../../db/schema/car";
+import { carModels as carModelsTable } from "../../../db/schema/car_model";
 import {
     bookingNotSoftDeleted,
     rideNotSoftDeleted,
@@ -24,6 +26,8 @@ import {
 import type {
     DriverRideRequestItem,
     PassengerBookingListRow,
+    PassengerBookingDetailRow,
+    CoPassenger,
     BookingTimeframe,
     BookingStatus,
 } from "../booking.types";
@@ -277,6 +281,141 @@ export const findBookingsByPassengerId = async (
         .orderBy(desc(bookingsTable.createdAt));
 
     return rows as PassengerBookingListRow[];
+};
+
+// Not scoped to the requesting passenger — ownership is checked by the
+// service layer (BookingNotFound vs UnauthorizedAction), matching the
+// convention already used by cancelBookingByPassenger.
+export const findBookingDetailById = async (
+    executor: Executor,
+    bookingId: string
+): Promise<PassengerBookingDetailRow | null> => {
+    const driverRatings = executor
+        .select({
+            subjectId: reviewsTable.subjectId,
+            averageRating: sql<number>`AVG(${reviewsTable.rating})::float`.as(
+                "averageRating"
+            ),
+            reviewCount: sql<number>`COUNT(${reviewsTable.id})::int`.as(
+                "reviewCount"
+            ),
+        })
+        .from(reviewsTable)
+        .where(
+            and(
+                eq(reviewsTable.reviewStatus, "VISIBLE"),
+                isNull(reviewsTable.deletedAt)
+            )
+        )
+        .groupBy(reviewsTable.subjectId)
+        .as("booking_detail_driver_ratings");
+
+    const rows = await executor
+        .select({
+            id: bookingsTable.id,
+            passengerId: bookingsTable.passengerId,
+            bookingStatus: bookingsTable.bookingStatus,
+            priceAmount: bookingsTable.priceAmount,
+            currency: bookingsTable.currency,
+            ride: {
+                id: ridesTable.id,
+                departureAt: ridesTable.departureAt,
+                arrivalEstimateAt: ridesTable.arrivalEstimateAt,
+                rideStatus: ridesTable.rideStatus,
+                offeredSeats: ridesTable.offeredSeats,
+            },
+            driver: {
+                id: usersTable.id,
+                firstName: usersTable.firstName,
+                lastName: usersTable.lastName,
+                profilePhotoUrl: usersTable.profilePhotoUrl,
+                averageRating: driverRatings.averageRating,
+                reviewCount: sql<number>`COALESCE(${driverRatings.reviewCount}, 0)::int`,
+            },
+            car: {
+                brand: carModelsTable.brand,
+                modelName: carModelsTable.modelName,
+                spz: carsTable.spz,
+                color: carsTable.color,
+            },
+            pickupCity: pickupStops.city,
+            dropoffCity: dropoffStops.city,
+            requestedPickupCity: bookingsTable.requestedPickupCity,
+            requestedDropoffCity: bookingsTable.requestedDropoffCity,
+            originalStartCity: sql<string>`(${executor
+                .select({ city: rideStopsTable.city })
+                .from(rideStopsTable)
+                .where(
+                    and(
+                        eq(rideStopsTable.rideId, ridesTable.id),
+                        eq(rideStopsTable.isDynamic, false)
+                    )
+                )
+                .orderBy(asc(rideStopsTable.stopOrder))
+                .limit(1)})`,
+            originalEndCity: sql<string>`(${executor
+                .select({ city: rideStopsTable.city })
+                .from(rideStopsTable)
+                .where(
+                    and(
+                        eq(rideStopsTable.rideId, ridesTable.id),
+                        eq(rideStopsTable.isDynamic, false)
+                    )
+                )
+                .orderBy(desc(rideStopsTable.stopOrder))
+                .limit(1)})`,
+        })
+        .from(bookingsTable)
+        .innerJoin(ridesTable, eq(bookingsTable.rideId, ridesTable.id))
+        .innerJoin(usersTable, eq(ridesTable.driverId, usersTable.id))
+        .innerJoin(carsTable, eq(ridesTable.carId, carsTable.id))
+        .innerJoin(carModelsTable, eq(carsTable.modelId, carModelsTable.id))
+        .leftJoin(
+            driverRatings,
+            eq(driverRatings.subjectId, ridesTable.driverId)
+        )
+        .innerJoin(pickupStops, eq(bookingsTable.pickupStopId, pickupStops.id))
+        .innerJoin(
+            dropoffStops,
+            eq(bookingsTable.dropoffStopId, dropoffStops.id)
+        )
+        .where(
+            and(
+                eq(bookingsTable.id, bookingId),
+                bookingNotSoftDeleted,
+                rideNotSoftDeleted
+            )
+        )
+        .limit(1);
+
+    return (rows[0] as PassengerBookingDetailRow | undefined) ?? null;
+};
+
+// Other CONFIRMED passengers sharing the same ride, excluding the requester.
+export const findCoPassengersForRide = async (
+    executor: Executor,
+    rideId: string,
+    excludePassengerId: string
+): Promise<CoPassenger[]> => {
+    const rows = await executor
+        .select({
+            id: usersTable.id,
+            firstName: usersTable.firstName,
+            lastName: usersTable.lastName,
+            profilePhotoUrl: usersTable.profilePhotoUrl,
+        })
+        .from(bookingsTable)
+        .innerJoin(usersTable, eq(bookingsTable.passengerId, usersTable.id))
+        .where(
+            and(
+                eq(bookingsTable.rideId, rideId),
+                ne(bookingsTable.passengerId, excludePassengerId),
+                eq(bookingsTable.bookingStatus, "CONFIRMED"),
+                bookingNotSoftDeleted
+            )
+        );
+
+    return rows;
 };
 
 export const sumSeatsForRide = async (

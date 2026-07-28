@@ -1979,6 +1979,77 @@
                 "operationId": "getBookingsMe"
             }
         },
+        "/bookings/{id}": {
+            "get": {
+                "tags": ["Bookings"],
+                "description": "Returns full details for one of the authenticated passenger's own bookings",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response for status 200",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PassengerBookingDetail"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Response for status 403",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Response for status 404",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Response for status 429",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Response for status 500",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "getBookingsById"
+            }
+        },
         "/bookings/": {
             "post": {
                 "tags": ["Bookings"],
@@ -6999,6 +7070,147 @@
                 "items": {
                     "$ref": "#/components/schemas/PassengerBookingListItem"
                 }
+            },
+            "PassengerBookingDetail": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "bookingStatus": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "CONFIRMED",
+                            "REJECTED",
+                            "CANCELLED",
+                            "COMPLETED",
+                            "NO_SHOW"
+                        ]
+                    },
+                    "priceAmount": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency"
+                    },
+                    "ride": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "$ref": "#/components/schemas/RideId"
+                            },
+                            "departureAt": {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "arrivalEstimateAt": {
+                                "nullable": true,
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "rideStatus": {
+                                "$ref": "#/components/schemas/RideStatus"
+                            },
+                            "offeredSeats": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "departureAt",
+                            "arrivalEstimateAt",
+                            "rideStatus",
+                            "offeredSeats"
+                        ],
+                        "additionalProperties": false
+                    },
+                    "driver": {
+                        "$ref": "#/components/schemas/PublicUserPreviewWithRating"
+                    },
+                    "car": {
+                        "type": "object",
+                        "properties": {
+                            "brand": {
+                                "type": "string"
+                            },
+                            "modelName": {
+                                "type": "string"
+                            },
+                            "spz": {
+                                "type": "string"
+                            },
+                            "color": {
+                                "nullable": true,
+                                "type": "string",
+                                "enum": [
+                                    "WHITE",
+                                    "BLACK",
+                                    "SILVER",
+                                    "GRAY",
+                                    "RED",
+                                    "BLUE",
+                                    "BROWN",
+                                    "GREEN",
+                                    "YELLOW",
+                                    "ORANGE",
+                                    "OTHER"
+                                ]
+                            }
+                        },
+                        "required": ["brand", "modelName", "spz", "color"],
+                        "additionalProperties": false
+                    },
+                    "pickupCity": {
+                        "type": "string"
+                    },
+                    "dropoffCity": {
+                        "type": "string"
+                    },
+                    "requestedPickupCity": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "requestedDropoffCity": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "originalStartCity": {
+                        "type": "string"
+                    },
+                    "originalEndCity": {
+                        "type": "string"
+                    },
+                    "coPassengers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PublicUserPreview"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "bookingStatus",
+                    "priceAmount",
+                    "currency",
+                    "ride",
+                    "driver",
+                    "car",
+                    "pickupCity",
+                    "dropoffCity",
+                    "requestedPickupCity",
+                    "requestedDropoffCity",
+                    "originalStartCity",
+                    "originalEndCity",
+                    "coPassengers"
+                ],
+                "additionalProperties": false
             },
             "DriverRideRequestList": {
                 "type": "array",

@@ -3,6 +3,7 @@ import type { bookings } from "../../db/schema/booking";
 import type { bookingStatusHistory } from "../../db/schema"; // Import rovnaký ako si mal v ride.repository.ts
 import type { User } from "../users/user.types";
 import type { Ride } from "../rides/ride.types";
+import type { Car } from "../cars/car.types";
 
 export type Booking = InferSelectModel<typeof bookings>;
 export type BookingStatusHistory = InferSelectModel<
@@ -58,6 +59,49 @@ export type PassengerBookingListRow = Omit<
 > & {
     myReviewOfDriverId: string | null;
     myReviewOfDriverRating: number | null;
+};
+
+export type CoPassenger = Pick<
+    User,
+    "id" | "firstName" | "lastName" | "profilePhotoUrl"
+>;
+
+// Full detail behind the passenger's "View details" card — fetched on demand
+// for a single booking, unlike the lighter PassengerBookingListItem rows.
+export type PassengerBookingDetail = {
+    id: string;
+    bookingStatus: BookingStatus;
+    priceAmount: number;
+    currency: string;
+    ride: Pick<
+        Ride,
+        | "id"
+        | "departureAt"
+        | "arrivalEstimateAt"
+        | "rideStatus"
+        | "offeredSeats"
+    >;
+    driver: Pick<User, "id" | "firstName" | "lastName" | "profilePhotoUrl"> & {
+        averageRating: number | null;
+        reviewCount: number;
+    };
+    car: Pick<Car, "spz" | "color"> & { brand: string; modelName: string };
+    pickupCity: string;
+    dropoffCity: string;
+    requestedPickupCity: string | null;
+    requestedDropoffCity: string | null;
+    originalStartCity: string;
+    originalEndCity: string;
+    coPassengers: CoPassenger[];
+};
+
+// Raw row shape returned by the repository — passengerId (for the service's
+// ownership check) instead of coPassengers (fetched separately).
+export type PassengerBookingDetailRow = Omit<
+    PassengerBookingDetail,
+    "coPassengers"
+> & {
+    passengerId: string;
 };
 
 export type DriverRideRequestItem = {

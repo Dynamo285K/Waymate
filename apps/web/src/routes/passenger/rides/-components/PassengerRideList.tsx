@@ -14,6 +14,7 @@ export type PassengerRideListProps = {
     onCancelBooking: (rideId: string) => void;
     onRateDriver: (ride: DisplayedRide) => void;
     onReport: (ride: DisplayedRide) => void;
+    onViewDetails: (rideId: string) => void;
 };
 
 /** Renders the passenger My-rides list (loading/error/empty + ride cards). */
@@ -27,6 +28,7 @@ export function PassengerRideList({
     onCancelBooking,
     onRateDriver,
     onReport,
+    onViewDetails,
 }: PassengerRideListProps) {
     const { t } = useTranslation();
 
@@ -38,6 +40,7 @@ export function PassengerRideList({
         rated: t("myRides.rated"),
         reportDriver: t("myRides.reportDriver"),
         messageDriver: t("myRides.messageDriver"),
+        viewDetails: t("myRides.viewDetails"),
     };
 
     const formatDatetime = (date: Date | string) =>
@@ -83,7 +86,7 @@ export function PassengerRideList({
                         status={ride.status}
                         onSendMessage={() => onSendMessage(String(ride.id))}
                         onCancelBooking={() => onCancelBooking(String(ride.id))}
-                        onReport={reportHandler(ride)}
+                        onViewDetails={() => onViewDetails(String(ride.id))}
                         labels={labels}
                     />
                 ))}

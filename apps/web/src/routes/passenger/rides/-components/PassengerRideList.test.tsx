@@ -17,6 +17,7 @@ vi.mock("../../../../components/shared/RideCard", () => ({
         onCancelBooking?: () => void;
         onRateDriver?: () => void;
         onReport?: () => void;
+        onViewDetails?: () => void;
     }) => (
         <div
             data-testid="ride-card"
@@ -35,6 +36,9 @@ vi.mock("../../../../components/shared/RideCard", () => ({
                 <button onClick={props.onRateDriver}>rate</button>
             )}
             {props.onReport && <button onClick={props.onReport}>report</button>}
+            {props.onViewDetails && (
+                <button onClick={props.onViewDetails}>view-details</button>
+            )}
         </div>
     ),
 }));
@@ -72,6 +76,7 @@ function renderList(props: Partial<Parameters<typeof PassengerRideList>[0]>) {
             onCancelBooking={noop}
             onRateDriver={noop}
             onReport={noop}
+            onViewDetails={noop}
             {...props}
         />
     );
@@ -95,29 +100,30 @@ describe("PassengerRideList", () => {
         expect(screen.getByText("No rides found.")).toBeInTheDocument();
     });
 
-    it("wires message/cancel/report on upcoming cards", async () => {
+    it("wires message/cancel/view-details on upcoming cards", async () => {
         const onSendMessage = vi.fn();
         const onCancelBooking = vi.fn();
-        const onReport = vi.fn();
+        const onViewDetails = vi.fn();
         const ride = makeRide();
         renderList({
             tab: "upcoming",
             rides: [ride],
             onSendMessage,
             onCancelBooking,
-            onReport,
+            onViewDetails,
         });
 
         const card = screen.getByTestId("ride-card");
         expect(card).toHaveAttribute("data-variant", "passenger-upcoming");
+        expect(screen.queryByText("report")).not.toBeInTheDocument();
 
         await userEvent.click(screen.getByText("message"));
         await userEvent.click(screen.getByText("cancel-booking"));
-        await userEvent.click(screen.getByText("report"));
+        await userEvent.click(screen.getByText("view-details"));
 
         expect(onSendMessage).toHaveBeenCalledWith("b1");
         expect(onCancelBooking).toHaveBeenCalledWith("b1");
-        expect(onReport).toHaveBeenCalledWith(ride);
+        expect(onViewDetails).toHaveBeenCalledWith("b1");
     });
 
     it("renders past cards with rate + report, not booking actions", () => {
@@ -131,9 +137,9 @@ describe("PassengerRideList", () => {
         expect(screen.queryByText("message")).not.toBeInTheDocument();
     });
 
-    it("omits the report action when the driver or ride id is missing", () => {
+    it("omits the report action on past cards when the driver or ride id is missing", () => {
         renderList({
-            tab: "upcoming",
+            tab: "past",
             rides: [makeRide({ driverId: undefined })],
         });
         expect(screen.queryByText("report")).not.toBeInTheDocument();

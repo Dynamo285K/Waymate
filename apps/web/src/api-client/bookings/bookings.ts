@@ -28,6 +28,7 @@ import type {
     DriverRideRequestList,
     ErrorResponse,
     GetBookingsMeParams,
+    PassengerBookingDetail,
     PassengerBookingList,
     RejectBookingBody,
 } from ".././model";
@@ -356,6 +357,173 @@ export function useGetBookingsMe<
     queryKey: DataTag<QueryKey, TData, TError>;
 } {
     const queryOptions = getGetBookingsMeQueryOptions(params, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * Returns full details for one of the authenticated passenger's own bookings
+ */
+export const getGetBookingsByIdUrl = (id: string) => {
+    return `/bookings/${id}`;
+};
+
+export const getBookingsById = async (
+    id: string,
+    options?: RequestInit
+): Promise<PassengerBookingDetail> => {
+    return apiFetcher<PassengerBookingDetail>(getGetBookingsByIdUrl(id), {
+        ...options,
+        method: "GET",
+    });
+};
+
+export const getGetBookingsByIdQueryKey = (id?: string) => {
+    return [`/bookings/${id}`] as const;
+};
+
+export const getGetBookingsByIdQueryOptions = <
+    TData = Awaited<ReturnType<typeof getBookingsById>>,
+    TError = ErrorResponse,
+>(
+    id: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getBookingsById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    }
+) => {
+    const { query: queryOptions, request: requestOptions } = options ?? {};
+
+    const queryKey = queryOptions?.queryKey ?? getGetBookingsByIdQueryKey(id);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof getBookingsById>>
+    > = () => getBookingsById(id, requestOptions);
+
+    return {
+        queryKey,
+        queryFn,
+        enabled: !!id,
+        ...queryOptions,
+    } as UseQueryOptions<
+        Awaited<ReturnType<typeof getBookingsById>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetBookingsByIdQueryResult = NonNullable<
+    Awaited<ReturnType<typeof getBookingsById>>
+>;
+export type GetBookingsByIdQueryError = ErrorResponse;
+
+export function useGetBookingsById<
+    TData = Awaited<ReturnType<typeof getBookingsById>>,
+    TError = ErrorResponse,
+>(
+    id: string,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getBookingsById>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getBookingsById>>,
+                    TError,
+                    Awaited<ReturnType<typeof getBookingsById>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetBookingsById<
+    TData = Awaited<ReturnType<typeof getBookingsById>>,
+    TError = ErrorResponse,
+>(
+    id: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getBookingsById>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof getBookingsById>>,
+                    TError,
+                    Awaited<ReturnType<typeof getBookingsById>>
+                >,
+                "initialData"
+            >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetBookingsById<
+    TData = Awaited<ReturnType<typeof getBookingsById>>,
+    TError = ErrorResponse,
+>(
+    id: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getBookingsById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetBookingsById<
+    TData = Awaited<ReturnType<typeof getBookingsById>>,
+    TError = ErrorResponse,
+>(
+    id: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof getBookingsById>>,
+                TError,
+                TData
+            >
+        >;
+        request?: SecondParameter<typeof apiFetcher>;
+    },
+    queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getGetBookingsByIdQueryOptions(id, options);
 
     const query = useQuery(queryOptions, queryClient) as UseQueryResult<
         TData,
