@@ -35,7 +35,7 @@ export function PassengerUpcomingActions({
                 </Button>
             )}
             <Button
-                variant="outline"
+                variant="red"
                 className={actionClassName}
                 onClick={onCancelBooking}
             >
