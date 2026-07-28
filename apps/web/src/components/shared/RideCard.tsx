@@ -74,10 +74,6 @@ export type RideCardProps =
 export function RideCard(props: RideCardProps) {
     const { from, to, datetime, price, duration, labels } = props;
 
-    // The passenger-upcoming variant returns early below with its own layout,
-    // so from here on "has a driver to show" only applies to passenger-past.
-    const hasDriver = props.variant === "passenger-past";
-    const isPassengerRide = hasDriver;
     const isDriverUpcoming = props.variant === "driver-upcoming";
     const isDriverRide =
         props.variant === "driver-upcoming" || props.variant === "driver-past";
@@ -186,6 +182,86 @@ export function RideCard(props: RideCardProps) {
         );
     }
 
+    // Passenger-past uses the same compact two-column layout as
+    // passenger-upcoming (route/meta on the left, driver/price/actions on the
+    // right) so both cards are the same short height.
+    if (props.variant === "passenger-past") {
+        return (
+            <div
+                data-testid="ride-card"
+                className="flex flex-col py-4 px-5 bg-card border border-border rounded-2xl max-600:p-4"
+            >
+                <div className="flex justify-between items-stretch gap-6 max-600:flex-col max-600:gap-3">
+                    <div className="flex flex-col justify-between gap-2 min-w-0 flex-1">
+                        <div className="flex flex-col min-w-0">
+                            <div className="flex items-center gap-2 min-w-0">
+                                <span className="w-3 h-3 rounded-full border-2 border-text-primary shrink-0" />
+                                <span className="text-route font-semibold text-text-primary min-w-0 break-words">
+                                    {from}
+                                </span>
+                            </div>
+                            <div className="w-0.5 h-5 bg-text-secondary ml-1.25" />
+                            <div className="flex items-center gap-2 min-w-0 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-text-primary icon-svg:shrink-0">
+                                <MapPinIcon />
+                                <span className="text-route font-semibold text-text-primary min-w-0 break-words">
+                                    {to}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                            <span className={metaRowClassName}>
+                                <ClockIcon />
+                                <span className="break-words">{datetime}</span>
+                            </span>
+                            {duration && (
+                                <span className={metaRowClassName}>
+                                    <CircleIcon />
+                                    <span className="break-words">
+                                        {duration}
+                                    </span>
+                                </span>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col items-end justify-between gap-3 shrink-0">
+                        <div className="flex flex-col items-end gap-2">
+                            <div className="flex items-center gap-3 min-w-0">
+                                <Avatar
+                                    name={props.driverName}
+                                    size="md"
+                                />
+                                <div className="flex flex-col gap-0.5 min-w-0">
+                                    <span className="text-control font-semibold text-text-primary break-words">
+                                        {props.driverName}
+                                    </span>
+                                    <div className="flex items-center gap-1 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-dark-yellow icon-svg:fill-dark-yellow icon-svg:shrink-0">
+                                        <StarIcon />
+                                        <span className="text-caption text-text-secondary">
+                                            {props.driverRating.toFixed(1)}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span className="text-subtitle font-bold text-text-primary">
+                                {price}
+                                {"€"}
+                            </span>
+                        </div>
+
+                        <PassengerPastActions
+                            labels={labels}
+                            alreadyReviewed={props.alreadyReviewed}
+                            onRateDriver={props.onRateDriver}
+                            onReport={props.onReport}
+                        />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div
             data-testid="ride-card"
@@ -218,31 +294,9 @@ export function RideCard(props: RideCardProps) {
                     className={`flex flex-col items-end gap-2 shrink-0 ${
                         isDriverUpcoming
                             ? "max-600:w-full"
-                            : hasDriver
-                              ? ""
-                              : "max-600:items-end"
+                            : "max-600:items-end"
                     }`}
                 >
-                    {props.variant === "passenger-past" && (
-                        <div className="flex items-center gap-3 min-w-0">
-                            <Avatar
-                                name={props.driverName}
-                                size="md"
-                            />
-                            <div className="flex flex-col gap-0.5 min-w-0">
-                                <span className="text-control font-semibold text-text-primary break-words">
-                                    {props.driverName}
-                                </span>
-                                <div className="flex items-center gap-1 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-dark-yellow icon-svg:fill-dark-yellow icon-svg:shrink-0">
-                                    <StarIcon />
-                                    <span className="text-caption text-text-secondary">
-                                        {props.driverRating.toFixed(1)}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
                     <div className="flex flex-col items-end gap-2 max-600:items-end">
                         <span className="text-subtitle font-bold text-text-primary">
                             {price}
@@ -263,11 +317,9 @@ export function RideCard(props: RideCardProps) {
 
             <div
                 className={
-                    isPassengerRide
-                        ? "flex flex-col items-stretch gap-4"
-                        : isDriverRide
-                          ? "flex items-end justify-between gap-4 max-600:items-stretch"
-                          : "flex items-end justify-between gap-4 max-600:flex-col max-600:items-stretch"
+                    isDriverRide
+                        ? "flex items-end justify-between gap-4 max-600:items-stretch"
+                        : "flex items-end justify-between gap-4 max-600:flex-col max-600:items-stretch"
                 }
             >
                 <div className="flex min-w-0 flex-col items-start gap-1">
@@ -299,15 +351,6 @@ export function RideCard(props: RideCardProps) {
                         onViewPassengers={props.onViewPassengers}
                         onCompleteRide={props.onCompleteRide}
                         onCancelRide={props.onCancelRide}
-                    />
-                )}
-
-                {props.variant === "passenger-past" && (
-                    <PassengerPastActions
-                        labels={labels}
-                        alreadyReviewed={props.alreadyReviewed}
-                        onRateDriver={props.onRateDriver}
-                        onReport={props.onReport}
                     />
                 )}
             </div>

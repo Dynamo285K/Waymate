@@ -75,7 +75,11 @@ export type PassengerBookingDetail = {
     currency: string;
     ride: Pick<
         Ride,
-        "id" | "departureAt" | "arrivalEstimateAt" | "rideStatus" | "offeredSeats"
+        | "id"
+        | "departureAt"
+        | "arrivalEstimateAt"
+        | "rideStatus"
+        | "offeredSeats"
     >;
     driver: Pick<User, "id" | "firstName" | "lastName" | "profilePhotoUrl"> & {
         averageRating: number | null;

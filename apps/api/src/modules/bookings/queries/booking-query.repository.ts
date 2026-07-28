@@ -379,7 +379,13 @@ export const findBookingDetailById = async (
             dropoffStops,
             eq(bookingsTable.dropoffStopId, dropoffStops.id)
         )
-        .where(and(eq(bookingsTable.id, bookingId), bookingNotSoftDeleted, rideNotSoftDeleted))
+        .where(
+            and(
+                eq(bookingsTable.id, bookingId),
+                bookingNotSoftDeleted,
+                rideNotSoftDeleted
+            )
+        )
         .limit(1);
 
     return (rows[0] as PassengerBookingDetailRow | undefined) ?? null;
