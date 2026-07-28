@@ -85,7 +85,7 @@ export const BookingRoutes = new Elysia({
                     );
                 },
                 {
-                    params: "BookingIdParams",
+                    params: BookingIdParamsSchema,
                     response: {
                         200: "PassengerBookingDetail",
                         403: "ErrorResponse",
