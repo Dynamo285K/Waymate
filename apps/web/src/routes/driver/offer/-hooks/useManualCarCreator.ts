@@ -7,15 +7,15 @@ import {
     getGetCarsMeQueryKey,
 } from "../../../../api-client/cars/cars";
 import type { CreateCarBody as ApiCreateCarBody } from "../../../../api-client/model/createCarBody";
+import type { CarColor } from "@/lib/car-colors";
 import { normalizePlate, parsePositiveInteger } from "../-lib/offer-ride";
 import { logger } from "../../../../lib/logger";
 import type { OfferRideCar } from "../-components/OfferRideForm";
 import type { useDriverCars } from "./useDriverCars";
 
-// The manual-car form only ever creates Slovak cars; colour is left unset.
+// The manual-car form only ever creates Slovak cars.
 type CreateCarBody = ApiCreateCarBody & {
     countryCode: "SK";
-    color: "OTHER";
 };
 
 type CreatedCarRow = {
@@ -34,6 +34,7 @@ type ManualCarInput = {
     brand: string;
     model: string;
     plate: string;
+    color: CarColor;
     seats: string;
 };
 
@@ -88,6 +89,7 @@ export function useManualCarCreator({
         brand,
         model,
         plate,
+        color,
         seats,
     }: ManualCarInput): Promise<string | null> {
         const modelId = await getModelId(brand, model);
@@ -101,7 +103,7 @@ export function useManualCarCreator({
             modelId,
             spz: plate,
             countryCode: "SK",
-            color: "OTHER",
+            color,
             seatsTotal: Math.min(Math.max(offeredSeats + 1, 2), 9),
         };
 
@@ -134,6 +136,7 @@ export function useManualCarCreator({
             brand,
             model,
             plate,
+            color,
         };
 
         addLocalCar(savedCar);

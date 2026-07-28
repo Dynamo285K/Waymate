@@ -353,6 +353,7 @@
         "noCars": "You do not have any saved cars yet. Enter the car manually for this ride.",
         "carBrand": "Car brand",
         "carModel": "Car model",
+        "carColor": "Car color",
         "selectCarBrand": "Select brand",
         "selectCarModel": "Select model",
         "loadingCarBrands": "Loading brands...",

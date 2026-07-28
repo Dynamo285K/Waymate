@@ -24,6 +24,7 @@ const car = (id: string) => ({
     brand: "Škoda",
     modelName: "Fabia",
     spz: `BA${id}`,
+    color: "BLUE" as const,
 });
 
 describe("useDriverCars", () => {
@@ -92,11 +93,18 @@ describe("useDriverCars", () => {
                 brand: "VW",
                 model: "Golf",
                 plate: "BA999XX",
+                color: "BLACK",
             })
         );
 
         expect(result.current.driverCars).toEqual([
-            { id: "local-1", brand: "VW", model: "Golf", plate: "BA999XX" },
+            {
+                id: "local-1",
+                brand: "VW",
+                model: "Golf",
+                plate: "BA999XX",
+                color: "BLACK",
+            },
         ]);
     });
 });

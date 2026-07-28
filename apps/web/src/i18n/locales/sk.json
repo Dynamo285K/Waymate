@@ -353,6 +353,7 @@
         "noCars": "Zatiaľ nemáte uložené žiadne auto. Pre túto jazdu ho zadajte ručne.",
         "carBrand": "Značka auta",
         "carModel": "Model auta",
+        "carColor": "Farba auta",
         "selectCarBrand": "Vyberte značku",
         "selectCarModel": "Vyberte model",
         "loadingCarBrands": "Načítavam značky...",
