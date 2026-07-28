@@ -493,7 +493,21 @@
         "rateDriver": "Rate driver",
         "rated": "Rated",
         "reportDriver": "Report driver",
-        "messageDriver": "Message driver"
+        "messageDriver": "Message driver",
+        "viewDetails": "View details"
+    },
+    "rideDetails": {
+        "title": "Ride details",
+        "loading": "Loading ride details...",
+        "error": "Failed to load ride details. Please try again.",
+        "route": "Route",
+        "pickup": "Pickup",
+        "dropoff": "Dropoff",
+        "driver": "Driver",
+        "vehicle": "Vehicle",
+        "unknownColor": "Unknown color",
+        "passengers": "Passengers",
+        "noCoPassengers": "You're the only passenger on this ride."
     },
     "bookGuest": {
         "title": "Create an account to book",

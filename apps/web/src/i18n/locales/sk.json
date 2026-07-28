@@ -493,7 +493,21 @@
         "rateDriver": "Ohodnotiť vodiča",
         "rated": "Ohodnotené",
         "reportDriver": "Nahlásiť vodiča",
-        "messageDriver": "Napísať vodičovi"
+        "messageDriver": "Napísať vodičovi",
+        "viewDetails": "Zobraziť detaily"
+    },
+    "rideDetails": {
+        "title": "Detaily jazdy",
+        "loading": "Načítavam detaily jazdy...",
+        "error": "Nepodarilo sa načítať detaily jazdy. Skúste to znova.",
+        "route": "Trasa",
+        "pickup": "Nástup",
+        "dropoff": "Výstup",
+        "driver": "Vodič",
+        "vehicle": "Vozidlo",
+        "unknownColor": "Neznáma farba",
+        "passengers": "Spolucestujúci",
+        "noCoPassengers": "Ste jediný cestujúci na tejto jazde."
     },
     "bookGuest": {
         "title": "Vytvorte účet pre rezerváciu",

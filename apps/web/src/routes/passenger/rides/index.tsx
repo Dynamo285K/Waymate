@@ -19,6 +19,7 @@ import { useCancelBooking } from "../../../features/passenger/hooks/useCancelBoo
 import type { UpcomingRide } from "../../../features/passenger/types";
 import { useLayout } from "../../../lib/use-layout";
 import { PassengerRideList } from "./-components/PassengerRideList";
+import { RideDetailsModal } from "./-components/RideDetailsModal";
 import {
     mapBookingsToRides,
     type DisplayedRide,
@@ -50,6 +51,9 @@ function PassengerMyRidesPage() {
     const { openConversation } = useOpenConversation("/passenger/chat");
     const [tab, setTab] = useState(search.tab === "past" ? "past" : "upcoming");
     const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
+    const [detailsBookingId, setDetailsBookingId] = useState<string | null>(
+        null
+    );
     const cancelBooking = useCancelBooking();
     const rateFlow = useRateDriverFlow();
     const reportFlow = useReportDriverFlow();
@@ -139,6 +143,7 @@ function PassengerMyRidesPage() {
                         onCancelBooking={(rideId) => setBookingToCancel(rideId)}
                         onRateDriver={rateFlow.openFor}
                         onReport={reportFlow.openFor}
+                        onViewDetails={setDetailsBookingId}
                     />
                 </div>
             </section>
@@ -180,6 +185,18 @@ function PassengerMyRidesPage() {
                     targetName={reportFlow.target.driverName}
                     rideId={reportFlow.target.rideId}
                     onClose={reportFlow.close}
+                />
+            )}
+
+            {detailsBookingId && (
+                <RideDetailsModal
+                    bookingId={detailsBookingId}
+                    theme={theme}
+                    onClose={() => setDetailsBookingId(null)}
+                    onReportDriver={(target) => {
+                        setDetailsBookingId(null);
+                        reportFlow.open(target);
+                    }}
                 />
             )}
         </div>
