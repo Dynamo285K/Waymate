@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { FieldLabel } from "@/components/ui/FieldLabel";
 import { CarIcon } from "@/components/ui/icons/CarIcon";
 import { ChevronDownIcon } from "@/components/ui/icons/ChevronDownIcon";
+import { getCarColorI18nKey } from "@/lib/car-colors";
 import type { OfferRideCar } from "../CarSection";
 import {
     selectTrigger,
@@ -26,6 +27,7 @@ export function SavedCarPicker({
 }: SavedCarPickerProps) {
     const { t } = useTranslation();
     const selectedCar = savedCars.find((c) => c.id === selectedCarId);
+    const colorKey = getCarColorI18nKey(selectedCar?.color);
 
     return (
         <div className="flex flex-col gap-5">
@@ -85,12 +87,20 @@ export function SavedCarPicker({
                         {selectedCar?.model ?? "—"}
                     </p>
                 </div>
-                <div className="col-span-full py-3 px-4 rounded-xl border border-border bg-background max-md:col-span-1">
+                <div className="py-3 px-4 rounded-xl border border-border bg-background">
                     <p className="m-0 text-badge font-bold uppercase tracking-badge text-text-secondary">
                         {t("offerRide.licensePlate")}
                     </p>
                     <p className="mt-1 text-sm font-semibold text-text-primary">
                         {selectedCar?.plate ?? "—"}
+                    </p>
+                </div>
+                <div className="py-3 px-4 rounded-xl border border-border bg-background">
+                    <p className="m-0 text-badge font-bold uppercase tracking-badge text-text-secondary">
+                        {t("offerRide.carColor")}
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-text-primary">
+                        {colorKey ? t(colorKey) : "—"}
                     </p>
                 </div>
             </div>

@@ -1,4 +1,5 @@
 import { PLATE_MAX_LENGTH, PLATE_MIN_LENGTH } from "@repo/shared/validation";
+import type { CarColor } from "@/lib/car-colors";
 import type { CreateRideBody } from "../../../../api-client/model/createRideBody";
 import type { LocationSuggestion } from "../../../../components/shared/LocationAutocomplete";
 
@@ -58,9 +59,14 @@ export type ManualCarFieldValues = {
     manualBrand: string;
     manualModel: string;
     manualPlate: string;
+    manualColor: CarColor | null;
 };
 
-export type ManualCarFieldName = "manualBrand" | "manualModel" | "manualPlate";
+export type ManualCarFieldName =
+    | "manualBrand"
+    | "manualModel"
+    | "manualPlate"
+    | "manualColor";
 
 export type ManualCarFieldError = {
     field: ManualCarFieldName;
@@ -69,15 +75,20 @@ export type ManualCarFieldError = {
 
 export type ManualCarValidation = {
     errors: ManualCarFieldError[];
-    /** Trimmed brand/model and normalized plate, ready for car creation. */
-    normalized: { brand: string; model: string; plate: string };
+    /** Trimmed brand/model, normalized plate, and color, ready for car creation. */
+    normalized: {
+        brand: string;
+        model: string;
+        plate: string;
+        color: CarColor | null;
+    };
 };
 
 /**
- * Validates the manual-car fields: brand, model and plate are required, and the
- * plate must be within the configured length bounds. Pure — returns the list of
- * field errors (i18n keys) plus the normalized values, leaving it to the caller
- * to feed them into `setError`. Mirrors the messages used by the form schema.
+ * Validates the manual-car fields: brand, model, plate and color are required,
+ * and the plate must be within the configured length bounds. Pure — returns the
+ * list of field errors (i18n keys) plus the normalized values, leaving it to the
+ * caller to feed them into `setError`. Mirrors the messages used by the form schema.
  */
 export function validateManualCarFields(
     values: ManualCarFieldValues
@@ -85,6 +96,7 @@ export function validateManualCarFields(
     const brand = values.manualBrand.trim();
     const model = values.manualModel.trim();
     const plate = normalizePlate(values.manualPlate);
+    const color = values.manualColor;
 
     const errors: ManualCarFieldError[] = [];
     if (!brand) {
@@ -110,8 +122,14 @@ export function validateManualCarFields(
     ) {
         errors.push({ field: "manualPlate", message: "offerRide.plateLength" });
     }
+    if (!color) {
+        errors.push({
+            field: "manualColor",
+            message: "offerRide.requiredField",
+        });
+    }
 
-    return { errors, normalized: { brand, model, plate } };
+    return { errors, normalized: { brand, model, plate, color } };
 }
 
 export type BuildRideBodyParams = {

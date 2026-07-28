@@ -353,6 +353,7 @@
         "noCars": "Zatím nemáte uložené žádné auto. Pro tuto jízdu ho zadejte ručně.",
         "carBrand": "Značka auta",
         "carModel": "Model auta",
+        "carColor": "Barva auta",
         "selectCarBrand": "Vyberte značku",
         "selectCarModel": "Vyberte model",
         "loadingCarBrands": "Načítám značky...",
@@ -716,6 +717,19 @@
         "plateLength": "SPZ musí mít {{min}}-{{max}} znaků.",
         "adding": "Přidávám...",
         "addButton": "Přidat auto"
+    },
+    "carColor": {
+        "WHITE": "Bílá",
+        "BLACK": "Černá",
+        "SILVER": "Stříbrná",
+        "GRAY": "Šedá",
+        "RED": "Červená",
+        "BLUE": "Modrá",
+        "BROWN": "Hnědá",
+        "GREEN": "Zelená",
+        "YELLOW": "Žlutá",
+        "ORANGE": "Oranžová",
+        "OTHER": "Jiná"
     },
     "completeRideDialog": {
         "title": "Dokončit jízdu?",

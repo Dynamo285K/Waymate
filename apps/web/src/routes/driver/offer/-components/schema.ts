@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { CarColor } from "@/lib/car-colors";
 import type { LocationSuggestion } from "../../../../components/shared/LocationAutocomplete";
 import { combineDateAndTime, parsePositiveInteger } from "../-lib/offer-ride";
 
@@ -60,6 +61,7 @@ export const offerRideSchema = z
         manualBrand: z.string(),
         manualModel: z.string(),
         manualPlate: z.string(),
+        manualColor: z.custom<CarColor | null>(),
     })
     .refine(
         (values) => {

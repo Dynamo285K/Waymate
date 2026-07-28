@@ -7,6 +7,7 @@ import {
     getGetRidesMeQueryKey,
 } from "../../../../api-client/rides/rides";
 import type { LocationSuggestion } from "../../../../components/shared/LocationAutocomplete";
+import type { CarColor } from "@/lib/car-colors";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { logger } from "../../../../lib/logger";
 import {
@@ -37,6 +38,7 @@ type OfferRideSubmitValues = {
     manualBrand: string;
     manualModel: string;
     manualPlate: string;
+    manualColor: CarColor | null;
 };
 
 type UseOfferRideSubmitParams = {
@@ -79,6 +81,7 @@ export function useOfferRideSubmit({
         manualBrand,
         manualModel,
         manualPlate,
+        manualColor,
     } = values;
 
     // Submission/server state — not form fields, so they stay in useState.
@@ -86,7 +89,7 @@ export function useOfferRideSubmit({
     const [publishError, setPublishError] = useState("");
 
     // Clear a stale publish error as soon as any field of the form changes.
-    const formKey = `${pickupCity?.id ?? ""}|${dropoffCity?.id ?? ""}|${rideDate?.toISOString() ?? ""}|${rideTime}|${seats}|${price}|${carMode}|${selectedCarId}|${manualBrand}|${manualModel}|${manualPlate}`;
+    const formKey = `${pickupCity?.id ?? ""}|${dropoffCity?.id ?? ""}|${rideDate?.toISOString() ?? ""}|${rideTime}|${seats}|${price}|${carMode}|${selectedCarId}|${manualBrand}|${manualModel}|${manualPlate}|${manualColor ?? ""}`;
     const [prevFormKey, setPrevFormKey] = useState(formKey);
     if (formKey !== prevFormKey) {
         setPrevFormKey(formKey);
@@ -159,7 +162,8 @@ export function useOfferRideSubmit({
             }
             return;
         }
-        const { brand, model, plate } = normalized;
+        // Validated above: errors is empty only when color is non-null.
+        const { brand, model, plate, color } = normalized;
 
         const alreadySaved = driverCars.find(
             (existing) =>
@@ -171,7 +175,13 @@ export function useOfferRideSubmit({
         try {
             const carId =
                 alreadySaved?.id ??
-                (await createCar({ brand, model, plate, seats }));
+                (await createCar({
+                    brand,
+                    model,
+                    plate,
+                    color: color!,
+                    seats,
+                }));
 
             if (!carId) {
                 setPublishError("offerRide.carCreateError");

@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { FormSectionCard } from "@/components/shared/FormSectionCard";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import type { CarColor } from "@/lib/car-colors";
 import { SavedCarPicker } from "./car-section/SavedCarPicker";
 import { ManualCarFields } from "./car-section/ManualCarFields";
 
@@ -9,6 +10,7 @@ export type OfferRideCar = {
     brand: string;
     model: string;
     plate: string;
+    color: CarColor | null;
 };
 
 export type CarSectionProps = {

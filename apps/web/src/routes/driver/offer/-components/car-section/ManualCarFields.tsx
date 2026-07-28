@@ -5,6 +5,8 @@ import { FieldLabel } from "@/components/ui/FieldLabel";
 import { Input } from "@/components/ui/Input";
 import { CarIcon } from "@/components/ui/icons/CarIcon";
 import { ChevronDownIcon } from "@/components/ui/icons/ChevronDownIcon";
+import { ColorSwatchPicker } from "@/components/shared/ColorSwatchPicker";
+import type { CarColor } from "@/lib/car-colors";
 import { PLATE_MAX_LENGTH, PLATE_MIN_LENGTH } from "@repo/shared/validation";
 import type { OfferRideFormInput } from "../schema";
 import {
@@ -39,6 +41,7 @@ export function ManualCarFields({
     const manualBrand = watch("manualBrand");
     const manualModel = watch("manualModel");
     const manualPlate = watch("manualPlate");
+    const manualColor = watch("manualColor");
 
     const handleBrandChange = (value: string) => {
         setValue("manualBrand", value, { shouldValidate: isSubmitted });
@@ -56,6 +59,11 @@ export function ManualCarFields({
             shouldValidate: isSubmitted,
         });
         clearErrors("manualPlate");
+    };
+
+    const handleColorChange = (value: CarColor) => {
+        setValue("manualColor", value, { shouldValidate: isSubmitted });
+        clearErrors("manualColor");
     };
 
     return (
@@ -176,6 +184,18 @@ export function ManualCarFields({
                                 min: PLATE_MIN_LENGTH,
                                 max: PLATE_MAX_LENGTH,
                             })}
+                        </p>
+                    )}
+                </div>
+                <div className="col-span-full flex flex-col gap-2.5">
+                    <FieldLabel label={t("offerRide.carColor")} />
+                    <ColorSwatchPicker
+                        value={manualColor}
+                        onChange={handleColorChange}
+                    />
+                    {errors.manualColor?.message && (
+                        <p className="-mt-0.5 text-danger-text text-xs font-semibold">
+                            {t(errors.manualColor.message)}
                         </p>
                     )}
                 </div>

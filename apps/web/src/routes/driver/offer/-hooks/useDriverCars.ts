@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { useGetCarsMe } from "../../../../api-client/cars/cars";
+import type { CarColor } from "@/lib/car-colors";
 import type { OfferRideCar } from "../-components/OfferRideForm";
 
 export type CarMode = "saved" | "manual";
@@ -9,6 +10,7 @@ type UserCarRow = {
     brand: string;
     modelName: string;
     spz: string;
+    color: CarColor | null;
 };
 
 function toOfferRideCar(car: UserCarRow): OfferRideCar {
@@ -17,6 +19,7 @@ function toOfferRideCar(car: UserCarRow): OfferRideCar {
         brand: car.brand,
         model: car.modelName,
         plate: car.spz,
+        color: car.color,
     };
 }
 

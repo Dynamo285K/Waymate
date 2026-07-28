@@ -43,6 +43,7 @@ function DriverOfferRidePage() {
             manualBrand: "",
             manualModel: "",
             manualPlate: "",
+            manualColor: null,
         },
     });
     const { control, handleSubmit, setError, clearErrors } = methods;
@@ -61,6 +62,7 @@ function DriverOfferRidePage() {
         manualBrand,
         manualModel,
         manualPlate,
+        manualColor,
     ] = useWatch({
         control,
         name: [
@@ -73,6 +75,7 @@ function DriverOfferRidePage() {
             "manualBrand",
             "manualModel",
             "manualPlate",
+            "manualColor",
         ],
     });
 
@@ -100,6 +103,7 @@ function DriverOfferRidePage() {
             manualBrand,
             manualModel,
             manualPlate,
+            manualColor,
         },
         car,
         etaPreview,
@@ -115,7 +119,12 @@ function DriverOfferRidePage() {
 
     function handleCarModeChange(mode: "saved" | "manual") {
         car.selectCarMode(mode);
-        clearErrors(["manualBrand", "manualModel", "manualPlate"]);
+        clearErrors([
+            "manualBrand",
+            "manualModel",
+            "manualPlate",
+            "manualColor",
+        ]);
     }
 
     const datePickerLocale =

@@ -145,6 +145,7 @@ describe("validateManualCarFields", () => {
         manualBrand: " Škoda ",
         manualModel: " Octavia ",
         manualPlate: "ba-123 ab",
+        manualColor: "RED" as const,
     };
 
     it("accepts valid fields and returns trimmed/normalized values", () => {
@@ -154,6 +155,7 @@ describe("validateManualCarFields", () => {
             brand: "Škoda",
             model: "Octavia",
             plate: "BA123AB",
+            color: "RED",
         });
     });
 
@@ -162,11 +164,13 @@ describe("validateManualCarFields", () => {
             manualBrand: "  ",
             manualModel: "",
             manualPlate: " -- ",
+            manualColor: null,
         });
         expect(errors).toEqual([
             { field: "manualBrand", message: "offerRide.requiredField" },
             { field: "manualModel", message: "offerRide.requiredField" },
             { field: "manualPlate", message: "offerRide.requiredField" },
+            { field: "manualColor", message: "offerRide.requiredField" },
         ]);
     });
 

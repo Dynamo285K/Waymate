@@ -1,9 +1,9 @@
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/Button";
+import { ColorSwatchPicker } from "@/components/shared/ColorSwatchPicker";
 import { FieldError } from "../../../../components/shared/FieldError";
 import { labelClass } from "../-field-styles";
-import { COLORS, type CarFormControl } from "../-schema";
+import type { CarFormControl } from "../-schema";
 
 type ColorFieldProps = {
     control: CarFormControl;
@@ -22,28 +22,11 @@ export function ColorField({ control, error }: ColorFieldProps) {
                 control={control}
                 name="color"
                 render={({ field }) => (
-                    <div className="flex gap-3 mt-3 flex-wrap">
-                        {COLORS.map((c) => (
-                            <Button
-                                key={c.value}
-                                type="button"
-                                variant="unstyled"
-                                onClick={() => field.onChange(c.value)}
-                                className="flex flex-col items-center gap-1"
-                            >
-                                <span
-                                    className={`w-10 h-10 rounded-full border-2 border-solid transition-all ${field.value === c.value ? "ring-2 ring-offset-2 ring-primary scale-110" : ""}`}
-                                    style={{
-                                        backgroundColor: c.hex,
-                                        borderColor: c.border,
-                                    }}
-                                />
-                                <span className="text-xs text-text-secondary">
-                                    {c.label}
-                                </span>
-                            </Button>
-                        ))}
-                    </div>
+                    <ColorSwatchPicker
+                        value={field.value}
+                        onChange={field.onChange}
+                        className="mt-3"
+                    />
                 )}
             />
             <FieldError className="mt-2">{error && t(error)}</FieldError>
