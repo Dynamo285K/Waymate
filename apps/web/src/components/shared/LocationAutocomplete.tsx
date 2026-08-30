@@ -175,10 +175,11 @@ export function LocationAutocomplete({
                             key={loc.id}
                             role="option"
                             aria-selected={idx === activeIndex}
-                            className={`flex items-center gap-2 px-4 py-3 text-sm cursor-pointer transition-colors ${idx === activeIndex
+                            className={`flex items-center gap-2 px-4 py-3 text-sm cursor-pointer transition-colors ${
+                                idx === activeIndex
                                     ? "bg-background"
                                     : "hover:bg-background"
-                                } text-text-primary`}
+                            } text-text-primary`}
                             onMouseDown={() => handleSelect(loc)}
                             onMouseEnter={() => setActiveIndex(idx)}
                         >

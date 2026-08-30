@@ -36,7 +36,9 @@ export async function fetchMapboxLocations(
 
     const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
     if (!token) {
-        console.error("Missing VITE_MAPBOX_ACCESS_TOKEN in environment variables");
+        console.error(
+            "Missing VITE_MAPBOX_ACCESS_TOKEN in environment variables"
+        );
         return [];
     }
 
@@ -49,8 +51,11 @@ export async function fetchMapboxLocations(
         url.searchParams.set("access_token", token);
         url.searchParams.set("autocomplete", "true");
         // Focus on practical places for a carpooling app
-        url.searchParams.set("types", "place,locality,neighborhood,address,poi");
-        
+        url.searchParams.set(
+            "types",
+            "place,locality,neighborhood,address,poi"
+        );
+
         if (language) {
             url.searchParams.set("language", `${language},en`); // Prefer user's language, fallback to English
         } else {
@@ -70,15 +75,20 @@ export async function fetchMapboxLocations(
             const [lng, lat] = f.center;
 
             // Extract country code from context
-            const countryContext = f.context?.find((c) => c.id.startsWith("country"));
-            const countryCode = (countryContext?.short_code?.toUpperCase() || "SK") as CountryCode;
+            const countryContext = f.context?.find((c) =>
+                c.id.startsWith("country")
+            );
+            const countryCode = (countryContext?.short_code?.toUpperCase() ||
+                "SK") as CountryCode;
 
             // Extract city from context or self
             let city = "";
             if (f.id.startsWith("place")) {
                 city = f.text;
             } else {
-                const placeContext = f.context?.find((c) => c.id.startsWith("place"));
+                const placeContext = f.context?.find((c) =>
+                    c.id.startsWith("place")
+                );
                 if (placeContext) {
                     city = placeContext.text;
                 }
