@@ -47,7 +47,7 @@ type LocationInputProps = {
 };
 
 const DEBOUNCE_MS = 500;
-const MIN_QUERY_LENGTH = 2;
+const MIN_QUERY_LENGTH = 3;
 
 function isValidSeatValue(value: string, maxSeats: number) {
     if (value === "") return true;
@@ -191,11 +191,10 @@ function LocationInput({
                     {suggestions.map((city, idx) => (
                         <li
                             key={city.id}
-                            className={`flex items-center gap-2.5 py-2.5 px-3 text-control text-text-primary rounded-lg cursor-pointer transition-[background-color] duration-150 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-text-secondary [&_svg]:shrink-0 ${
-                                activeIndex === idx
+                            className={`flex items-center gap-2.5 py-2.5 px-3 text-control text-text-primary rounded-lg cursor-pointer transition-[background-color] duration-150 [&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:text-text-secondary [&_svg]:shrink-0 ${activeIndex === idx
                                     ? "bg-secondary-hover"
                                     : "hover:bg-secondary-hover"
-                            }`}
+                                }`}
                             role="option"
                             aria-selected={activeIndex === idx}
                             onMouseDown={() => handleSelect(city)}
