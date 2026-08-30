@@ -178,26 +178,16 @@ export const findAvailableRides = async (
 };
 
 // Top origin → destination pairs by ride count, used for the home page
-// "popular routes" chips. Counts the advertised (non-dynamic) endpoints of
-// every non-deleted ride, mirroring the admin dashboard's definition.
+// "popular routes" chips. Considers every valid stop-pair within each ride
+// (originStop.stopOrder < destStop.stopOrder), not just first→last, so a
+// ride Bratislava→Trenčín→Žilina contributes to all three route combos.
+// Dynamic stops are excluded to keep chips stable.
 export const findPopularRoutes = async (
     executor: Executor,
     limit: number
 ): Promise<PopularRoute[]> => {
     const originStops = aliasedTable(rideStopsTable, "popular_origin_stops");
     const destStops = aliasedTable(rideStopsTable, "popular_dest_stops");
-
-    const lastStopOrders = executor
-        .select({
-            rideId: rideStopsTable.rideId,
-            stopOrder: sql<number>`MAX(${rideStopsTable.stopOrder})`.as(
-                "stopOrder"
-            ),
-        })
-        .from(rideStopsTable)
-        .where(eq(rideStopsTable.isDynamic, false))
-        .groupBy(rideStopsTable.rideId)
-        .as("popular_last_stop_orders");
 
     const rows = await executor
         .select({
@@ -207,22 +197,22 @@ export const findPopularRoutes = async (
             destinationCity: destStops.city,
             destLat: sql<number>`AVG(${destStops.lat})::float`,
             destLng: sql<number>`AVG(${destStops.lng})::float`,
-            count: sql<number>`COUNT(${ridesTable.id})::int`,
+            count: sql<number>`COUNT(DISTINCT ${ridesTable.id})::int`,
         })
         .from(ridesTable)
         .innerJoin(
             originStops,
             and(
                 eq(originStops.rideId, ridesTable.id),
-                eq(originStops.stopOrder, 0)
+                eq(originStops.isDynamic, false)
             )
         )
-        .innerJoin(lastStopOrders, eq(lastStopOrders.rideId, ridesTable.id))
         .innerJoin(
             destStops,
             and(
                 eq(destStops.rideId, ridesTable.id),
-                eq(destStops.stopOrder, lastStopOrders.stopOrder)
+                eq(destStops.isDynamic, false),
+                sql`${originStops.stopOrder} < ${destStops.stopOrder}`
             )
         )
         .where(
@@ -233,7 +223,7 @@ export const findPopularRoutes = async (
             )
         )
         .groupBy(originStops.city, destStops.city)
-        .orderBy(desc(sql`COUNT(${ridesTable.id})`))
+        .orderBy(desc(sql`COUNT(DISTINCT ${ridesTable.id})`))
         .limit(limit);
 
     return rows;
