@@ -57,9 +57,7 @@ export async function fetchMapboxLocations(
         );
 
         if (language) {
-            url.searchParams.set("language", `${language},en`); // Prefer user's language, fallback to English
-        } else {
-            url.searchParams.set("language", "en"); // Fallback
+            url.searchParams.set("language", language); // Prefer user's language, fallback to local name
         }
 
         if (bias) {
