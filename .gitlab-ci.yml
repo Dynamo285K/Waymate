@@ -19,6 +19,7 @@ stages:
     - test
     - build
     - e2e
+    - deploy
 
 default:
     image: oven/bun:1.3.13
@@ -212,3 +213,12 @@ openapi-drift:
                 git --no-pager diff --stat -- apps/api/openapi.json
                 exit 1
             fi
+
+trigger-deployments:
+    stage: deploy
+    rules:
+        - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
+    script:
+        - echo "Triggering Production Deployments..."
+        - if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then curl -X POST "$RENDER_DEPLOY_HOOK_URL"; fi
+        - if [ -n "$CLOUDFLARE_DEPLOY_HOOK_URL" ]; then curl -X POST "$CLOUDFLARE_DEPLOY_HOOK_URL"; fi
