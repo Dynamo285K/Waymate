@@ -3,6 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "cache-trigger": "echo 1",
         "test": "playwright test",
         "test:headed": "playwright test --headed",
         "test:ui": "playwright test --ui",
