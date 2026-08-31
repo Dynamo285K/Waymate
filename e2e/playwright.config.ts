@@ -73,10 +73,6 @@ export default defineConfig({
             env: {
                 API_PROXY_TARGET: API_ORIGIN,
                 VITE_API_PROXY_TARGET: API_ORIGIN,
-                // Dummy token so fetchMapboxLocations doesn't bail before
-                // making a network request. The E2E tests mock the Mapbox
-                // API via page.route(), so no real calls are made.
-                VITE_MAPBOX_ACCESS_TOKEN: "pk.e2e_dummy_token",
             },
             reuseExistingServer: REUSE_EXISTING_SERVER,
             timeout: 180_000,

@@ -145,6 +145,8 @@ e2e:
 
 build:
     stage: build
+    variables:
+        VITE_MAPBOX_ACCESS_TOKEN: "pk.e2e_dummy_token"
     script:
         - bun run build
     artifacts:
