@@ -20,6 +20,7 @@
         "lint:fix": "eslint . --fix",
         "format": "prettier . --write",
         "format:check": "prettier . --check",
+        "validate": "bun run format:check && bun run lint && bun run typecheck && bun run test && bun run build && bun run test:e2e",
         "pipeline": "bun scripts/pipeline.mjs"
     },
     "devDependencies": {
