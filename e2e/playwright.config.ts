@@ -68,7 +68,7 @@ export default defineConfig({
             // has every chunk ready — fast and stable, and it exercises the
             // real production artifact. The build is why this server gets a
             // longer startup timeout than the API.
-            command: `bun run --cwd ../apps/web build && bun run --cwd ../apps/web preview --port ${WEB_PORT} --strictPort --host 127.0.0.1`,
+            command: `bun run --cwd ../apps/web preview --port ${WEB_PORT} --strictPort --host 127.0.0.1`,
             url: BASE_URL,
             env: {
                 API_PROXY_TARGET: API_ORIGIN,
