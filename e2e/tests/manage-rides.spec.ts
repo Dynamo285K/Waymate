@@ -56,9 +56,12 @@ async function publishRide(
     await expect(page).toHaveURL(/\/driver\/rides$/);
 }
 
+import { mockMapboxGeocoding } from "./mock-geocoding";
+
 test.describe("manage rides", () => {
-    test.beforeEach(async ({ context }) => {
+    test.beforeEach(async ({ page, context }) => {
         await context.clearCookies();
+        await mockMapboxGeocoding(page);
     });
 
     test("driver can publish and then cancel a ride", async ({ page }) => {

@@ -1,8 +1,10 @@
 import { test, expect } from "@playwright/test";
+import { mockMapboxGeocoding } from "./mock-geocoding";
 
 test.describe("search for rides", () => {
     test.beforeEach(async ({ page, context }) => {
         await context.clearCookies();
+        await mockMapboxGeocoding(page);
         await page.goto("/");
         await expect(page.locator("h1").first()).toBeVisible();
     });

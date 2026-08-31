@@ -42,9 +42,12 @@ async function fillRideDetails(page: Page, day: string = "15") {
     await page.getByTestId("offer-price").locator("input").fill("10");
 }
 
+import { mockMapboxGeocoding } from "./mock-geocoding";
+
 test.describe("offer a ride", () => {
     test.beforeEach(async ({ page, context }) => {
         await context.clearCookies();
+        await mockMapboxGeocoding(page);
         await login(page, DRIVER_EMAIL, DRIVER_PASSWORD);
         await expect(page).toHaveURL(/\/passenger$/);
         await page.goto("/driver/offer");
