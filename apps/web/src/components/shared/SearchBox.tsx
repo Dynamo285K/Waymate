@@ -47,7 +47,7 @@ type LocationInputProps = {
 };
 
 const DEBOUNCE_MS = 500;
-const MIN_QUERY_LENGTH = 2;
+const MIN_QUERY_LENGTH = 3;
 
 function isValidSeatValue(value: string, maxSeats: number) {
     if (value === "") return true;

@@ -14,7 +14,7 @@ import {
     useGetRidesAvailable,
     useGetRidesPopularRoutes,
 } from "../../api-client/rides/rides";
-import { fetchPhotonLocations } from "../../lib/geocoding/photon";
+import { fetchMapboxLocations } from "../../lib/geocoding/mapbox";
 import { useUserLocation } from "../../hooks/shared/useUserLocation";
 
 type AvailableRide = {
@@ -64,7 +64,7 @@ export function HomeContent({
     onViewAllRides,
     onBook,
 }: HomeContentProps) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const userLocation = useUserLocation();
     const {
         data: availableRideRows,
@@ -119,9 +119,10 @@ export function HomeContent({
                 <div className="mt-8 w-full max-w-2xl">
                     <SearchBox
                         onSearchCities={async (q) => {
-                            const results = await fetchPhotonLocations(
+                            const results = await fetchMapboxLocations(
                                 q,
-                                userLocation
+                                userLocation,
+                                i18n.language
                             );
                             return results.map((c) => ({
                                 id: c.id,

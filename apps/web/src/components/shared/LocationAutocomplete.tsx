@@ -2,12 +2,13 @@ import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/Input";
 import { LoaderCircleIcon } from "@/components/ui/icons/LoaderCircleIcon";
 import { MapPinIcon } from "@/components/ui/icons/MapPinIcon";
+import { useTranslation } from "react-i18next";
 import { useUserLocation } from "../../hooks/shared/useUserLocation";
-import { fetchPhotonLocations } from "../../lib/geocoding/photon";
-import type { LocationSuggestion } from "../../lib/geocoding/photon";
+import { fetchMapboxLocations } from "../../lib/geocoding/mapbox";
+import type { LocationSuggestion } from "../../lib/geocoding/mapbox";
 
 const DEBOUNCE_MS = 500;
-const MIN_QUERY_LENGTH = 2;
+const MIN_QUERY_LENGTH = 3;
 
 export type { LocationSuggestion };
 
@@ -24,6 +25,7 @@ export function LocationAutocomplete({
     placeholder = "Search location…",
     label,
 }: LocationAutocompleteProps) {
+    const { i18n } = useTranslation();
     const [inputValue, setInputValue] = useState(value?.address ?? "");
     const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
     const [open, setOpen] = useState(false);
@@ -73,9 +75,10 @@ export function LocationAutocomplete({
         const timer = setTimeout(async () => {
             setIsLoading(true);
             try {
-                const results = await fetchPhotonLocations(
+                const results = await fetchMapboxLocations(
                     inputValue,
                     userLocationRef.current,
+                    i18n.language,
                     controller.signal
                 );
 
