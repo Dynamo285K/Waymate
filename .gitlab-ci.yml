@@ -182,7 +182,7 @@ openapi-drift:
     script:
         - bun run --cwd apps/api openapi:dump
         # The dump writes compact JSON; the committed file is Prettier-formatted.
-        - bunx prettier --write apps/api/openapi.json
+        - bun run prettier --write apps/api/openapi.json
         - |
             if [ -n "$(git status --porcelain apps/api/openapi.json)" ]; then
                 echo "apps/api/openapi.json drifted from the API routes/schemas."
