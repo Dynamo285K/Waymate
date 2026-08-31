@@ -1,5 +1,7 @@
 import type { MutateOptions } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import {
     usePostBookings,
     getGetBookingsMeQueryKey,
@@ -11,6 +13,7 @@ import {
 import type { BookingActionResponse } from "../../../api-client/model/bookingActionResponse";
 import type { CreateBookingBody } from "../../../api-client/model/createBookingBody";
 import type { ApiMutationError } from "../../../lib/api-fetcher";
+import { getErrorI18nKey } from "../../../lib/api-errors";
 
 type DynamicStop = { lat: number; lng: number; city: string };
 
@@ -30,10 +33,16 @@ type MutationVars = { data: CreateBookingBody };
 
 export function useCreateBooking() {
     const queryClient = useQueryClient();
+    const { t } = useTranslation();
 
     const mutation = usePostBookings<ApiMutationError>({
         mutation: {
+            onError: (error) =>
+                toast.error(
+                    t(getErrorI18nKey(error, {}, "toast.bookingError"))
+                ),
             onSuccess: () => {
+                toast.success(t("toast.bookingSuccess"));
                 void queryClient.invalidateQueries({
                     queryKey: getGetBookingsMeQueryKey(),
                 });

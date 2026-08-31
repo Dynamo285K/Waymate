@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/Button";
@@ -12,6 +13,7 @@ import {
 } from "../../api-client/rides/rides";
 import { useCancelRide } from "../../features/driver/hooks/useCancelRide";
 import type { ApiMutationError } from "../../lib/api-fetcher";
+import { getErrorI18nKey } from "../../lib/api-errors";
 import {
     useAcceptRideRequest,
     useDeclineRideRequest,
@@ -42,7 +44,18 @@ function DriverHomePage() {
     const [rideToComplete, setRideToComplete] = useState<string | null>(null);
     const completeRide = usePatchRidesByIdComplete<ApiMutationError>({
         mutation: {
+            onError: (error) =>
+                toast.error(
+                    t(
+                        getErrorI18nKey(
+                            error,
+                            {},
+                            "toast.completeRideError"
+                        )
+                    )
+                ),
             onSuccess: () => {
+                toast.success(t("toast.completeRideSuccess"));
                 void queryClient.invalidateQueries({
                     queryKey: getGetRidesMeQueryKey(),
                 });

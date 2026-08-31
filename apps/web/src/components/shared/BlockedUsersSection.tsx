@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import {
@@ -26,10 +27,13 @@ export function BlockedUsersSection() {
 
     const unblock = useDeleteBlocksByBlockedUserId({
         mutation: {
-            onSuccess: () =>
+            onError: () => toast.error(t("toast.unblockError")),
+            onSuccess: () => {
+                toast.success(t("toast.unblockSuccess"));
                 queryClient.invalidateQueries({
                     queryKey: getGetBlocksQueryKey(),
-                }),
+                });
+            },
         },
     });
 

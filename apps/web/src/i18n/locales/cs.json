@@ -755,5 +755,32 @@
     "cancelBookingDriverDialog": {
         "title": "Zrušit rezervaci cestujícího?",
         "message": "Opravdu chcete zrušit rezervaci tohoto cestujícího? Tuto akci nelze vrátit zpět."
+    },
+    "errorBoundary": {
+        "title": "Něco se pokazilo",
+        "description": "Tuto stránku se nepodařilo načíst. Zkuste to znovu — pokud problém přetrvává, obnovte aplikaci.",
+        "tryAgain": "Zkusit znovu",
+        "goHome": "Na úvod"
+    },
+    "toast": {
+        "bookingSuccess": "Jízda byla úspěšně zarezervována!",
+        "bookingError": "Nepodařilo se zarezervovat jízdu. Zkuste to znovu.",
+        "cancelBookingSuccess": "Rezervace byla zrušena.",
+        "cancelRideSuccess": "Jízda byla zrušena.",
+        "cancelRideError": "Nepodařilo se zrušit jízdu. Zkuste to znovu.",
+        "completeRideSuccess": "Jízda byla označena jako dokončená.",
+        "completeRideError": "Nepodařilo se dokončit jízdu. Zkuste to znovu.",
+        "reviewSuccess": "Hodnocení bylo odesláno. Děkujeme!",
+        "reportSuccess": "Nahlášení bylo odesláno. Brzy ho prověříme.",
+        "unblockSuccess": "Uživatel byl odblokován.",
+        "unblockError": "Nepodařilo se odblokovat uživatele. Zkuste to znovu.",
+        "acceptRequestSuccess": "Žádost o jízdu byla přijata.",
+        "acceptRequestError": "Nepodařilo se přijmout žádost. Zkuste to znovu.",
+        "declineRequestSuccess": "Žádost o jízdu byla odmítnuta.",
+        "declineRequestError": "Nepodařilo se odmítnout žádost. Zkuste to znovu.",
+        "cancelBookingDriverSuccess": "Rezervace cestujícího byla zrušena.",
+        "cancelBookingDriverError": "Nepodařilo se zrušit rezervaci. Zkuste to znovu.",
+        "adminCancelRideSuccess": "Jízda byla zrušena administrátorem.",
+        "adminCancelRideError": "Nepodařilo se zrušit jízdu. Zkuste to znovu."
     }
 }

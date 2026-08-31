@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { RideCard } from "../../../../components/shared/RideCard";
+import { RideCardSkeletonGrid } from "../../../../components/shared/RideCardSkeleton";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { formatRideDate } from "../../../../lib/date-format";
 import type { DisplayedRide } from "../-lib/passenger-ride-view";
@@ -53,7 +54,7 @@ export function PassengerRideList({
         ride.driverId && ride.rideId ? () => onReport(ride) : undefined;
 
     if (isLoading) {
-        return <p className="text-text-secondary">{t("myRides.loading")}</p>;
+        return <RideCardSkeletonGrid count={3} />;
     }
 
     if (isError) {

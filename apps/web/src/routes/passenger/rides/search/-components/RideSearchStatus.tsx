@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { RideCardSkeletonGrid } from "../../../../../components/shared/RideCardSkeleton";
 import { getErrorI18nKey } from "../../../../../lib/api-errors";
 
 type RideSearchStatusProps = {
@@ -39,7 +40,9 @@ export function RideSearchStatus({
             )}
 
             {showAllRides && areAvailableRidesLoading && (
-                <p className="text-text-secondary mt-1">{t("rides.loading")}</p>
+                <div className="mt-4">
+                    <RideCardSkeletonGrid count={3} />
+                </div>
             )}
 
             {showAllRides && areAvailableRidesError && (
@@ -55,7 +58,9 @@ export function RideSearchStatus({
             )}
 
             {canSearch && isLoading && (
-                <p className="text-text-secondary mt-1">{t("rides.loading")}</p>
+                <div className="mt-4">
+                    <RideCardSkeletonGrid count={3} />
+                </div>
             )}
 
             {canSearch && !isLoading && !isError && (

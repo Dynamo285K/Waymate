@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/Button";
 import { RideCard } from "../../../components/shared/RideCard";
+import { RideCardSkeletonGrid } from "../../../components/shared/RideCardSkeleton";
 import { formatRideDate as formatDate } from "../../../lib/date-format";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import type { DriverUpcomingRide } from "../../../features/driver/hooks/useDriverDashboardData";
@@ -48,9 +49,7 @@ export function UpcomingRidesSection({
                 </h2>
                 <div className="flex flex-col gap-3">
                     {isLoading && (
-                        <p className="text-text-secondary">
-                            {t("driverRides.loading")}
-                        </p>
+                        <RideCardSkeletonGrid count={2} />
                     )}
                     {isError && (
                         <p className="text-text-secondary">

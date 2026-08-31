@@ -7,6 +7,7 @@ import type { SearchBoxCityOption } from "@/components/shared/SearchBox";
 import type { Language } from "../controls/LanguageSwitcher";
 import { AvailableRideCard } from "./AvailableRideCard";
 import { HomeStatsSection } from "./HomeStatsSection";
+import { RideCardSkeletonGrid } from "./RideCardSkeleton";
 import { HomeFeaturesSection } from "./HomeFeaturesSection";
 import { formatRideDate, formatDuration } from "../../lib/date-format";
 import { toUiLanguage } from "../../lib/language";
@@ -215,9 +216,7 @@ export function HomeContent({
                 </p>
                 <div className="flex flex-col gap-3">
                     {areAvailableRidesLoading && (
-                        <p className="text-text-secondary">
-                            {t("rides.loading")}
-                        </p>
+                        <RideCardSkeletonGrid count={3} />
                     )}
                     {areAvailableRidesError && (
                         <p className="text-text-secondary">
