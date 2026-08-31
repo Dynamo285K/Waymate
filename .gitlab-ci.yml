@@ -35,6 +35,8 @@ default:
               - .bun-cache/
         # Build output cache keyed by branch
         - key: ${CI_COMMIT_REF_SLUG}-turbo
+          fallback_keys:
+              - main-turbo
           paths:
               - .turbo/
               - apps/*/.turbo/
@@ -122,6 +124,8 @@ e2e:
           paths:
               - .bun-cache/
         - key: ${CI_COMMIT_REF_SLUG}-turbo
+          fallback_keys:
+              - main-turbo
           paths:
               - .turbo/
               - apps/*/.turbo/
