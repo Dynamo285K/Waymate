@@ -68,15 +68,11 @@ export default defineConfig({
             // has every chunk ready — fast and stable, and it exercises the
             // real production artifact. The build is why this server gets a
             // longer startup timeout than the API.
-            command: `bun run --cwd ../apps/web build && bun run --cwd ../apps/web preview --port ${WEB_PORT} --strictPort --host 127.0.0.1`,
+            command: `bun run --cwd ../apps/web preview --port ${WEB_PORT} --strictPort --host 127.0.0.1`,
             url: BASE_URL,
             env: {
                 API_PROXY_TARGET: API_ORIGIN,
                 VITE_API_PROXY_TARGET: API_ORIGIN,
-                // Dummy token so fetchMapboxLocations doesn't bail before
-                // making a network request. The E2E tests mock the Mapbox
-                // API via page.route(), so no real calls are made.
-                VITE_MAPBOX_ACCESS_TOKEN: "pk.e2e_dummy_token",
             },
             reuseExistingServer: REUSE_EXISTING_SERVER,
             timeout: 180_000,

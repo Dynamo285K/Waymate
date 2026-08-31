@@ -95,6 +95,8 @@ test-web:
 
 e2e:
     stage: e2e
+    needs:
+        - build
     rules:
         - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     services:
@@ -143,8 +145,15 @@ e2e:
 
 build:
     stage: build
+    variables:
+        VITE_MAPBOX_ACCESS_TOKEN: "pk.e2e_dummy_token"
     script:
         - bun run build
+    artifacts:
+        paths:
+            - apps/web/dist/
+            - apps/api/dist/
+        expire_in: 1 day
 
 migration-drift:
     stage: static-analysis
