@@ -216,9 +216,19 @@ openapi-drift:
 
 trigger-deployments:
     stage: deploy
+    image: alpine:latest
+    before_script: [] # Skips bun install
     rules:
-        - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+        - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"'
     script:
-        - echo "Triggering Production Deployments..."
-        - if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then curl -X POST "$RENDER_DEPLOY_HOOK_URL"; fi
-        - if [ -n "$CLOUDFLARE_DEPLOY_HOOK_URL" ]; then curl -X POST "$CLOUDFLARE_DEPLOY_HOOK_URL"; fi
+        - apk add --no-cache curl
+        - |
+            if [ "$CI_COMMIT_BRANCH" = "main" ]; then
+                echo "Triggering Production Deployments..."
+                if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then curl -X POST "$RENDER_DEPLOY_HOOK_URL"; fi
+                if [ -n "$CLOUDFLARE_DEPLOY_HOOK_URL" ]; then curl -X POST "$CLOUDFLARE_DEPLOY_HOOK_URL"; fi
+            else
+                echo "Dry-run (MR): Deploy job syntax and environment are working correctly."
+                echo "Webhooks will be triggered once merged into main."
+            fi
