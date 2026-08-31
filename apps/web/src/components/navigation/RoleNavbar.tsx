@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import { NavButton } from "@waymate/ui";
+import { NavButton } from "./NavButton";
 import { type Language } from "../controls/LanguageSwitcher";
 import { RoleSwitcher, type Role } from "../controls/RoleSwitcher";
 import { useNavbar, type Theme } from "./use-navbar";
