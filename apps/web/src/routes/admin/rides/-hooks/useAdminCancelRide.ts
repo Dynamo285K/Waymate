@@ -29,13 +29,7 @@ export function useAdminCancelRide() {
         mutation: {
             onError: (error) =>
                 toast.error(
-                    t(
-                        getErrorI18nKey(
-                            error,
-                            {},
-                            "toast.adminCancelRideError"
-                        )
-                    )
+                    t(getErrorI18nKey(error, {}, "toast.adminCancelRideError"))
                 ),
             onSuccess: (_data, variables) => {
                 toast.success(t("toast.adminCancelRideSuccess"));

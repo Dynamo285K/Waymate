@@ -73,13 +73,7 @@ export function useAcceptRideRequest() {
             onError: (error, vars, context) => {
                 handlers.onError(error, vars, context);
                 toast.error(
-                    t(
-                        getErrorI18nKey(
-                            error,
-                            {},
-                            "toast.acceptRequestError"
-                        )
-                    )
+                    t(getErrorI18nKey(error, {}, "toast.acceptRequestError"))
                 );
             },
             onSuccess: () => {
@@ -116,13 +110,7 @@ export function useDeclineRideRequest() {
             onError: (error, vars, context) => {
                 handlers.onError(error, vars, context);
                 toast.error(
-                    t(
-                        getErrorI18nKey(
-                            error,
-                            {},
-                            "toast.declineRequestError"
-                        )
-                    )
+                    t(getErrorI18nKey(error, {}, "toast.declineRequestError"))
                 );
             },
             onSuccess: () => {

@@ -48,9 +48,7 @@ export function UpcomingRidesSection({
                     {t("driver.home.upcomingRides")}
                 </h2>
                 <div className="flex flex-col gap-3">
-                    {isLoading && (
-                        <RideCardSkeletonGrid count={2} />
-                    )}
+                    {isLoading && <RideCardSkeletonGrid count={2} />}
                     {isError && (
                         <p className="text-text-secondary">
                             {t(getErrorI18nKey(error, {}, "driverRides.error"))}

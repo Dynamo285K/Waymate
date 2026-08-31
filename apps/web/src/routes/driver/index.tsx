@@ -46,13 +46,7 @@ function DriverHomePage() {
         mutation: {
             onError: (error) =>
                 toast.error(
-                    t(
-                        getErrorI18nKey(
-                            error,
-                            {},
-                            "toast.completeRideError"
-                        )
-                    )
+                    t(getErrorI18nKey(error, {}, "toast.completeRideError"))
                 ),
             onSuccess: () => {
                 toast.success(t("toast.completeRideSuccess"));
