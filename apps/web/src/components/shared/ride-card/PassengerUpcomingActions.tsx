@@ -1,4 +1,4 @@
-import { Button } from "@waymate/ui";
+import { Button } from "@/components/ui/Button";
 import type { RideCardLabels } from "../RideCard";
 
 const actionClassName =
