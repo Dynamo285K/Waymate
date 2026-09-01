@@ -491,7 +491,10 @@
         "rated": "Ohodnotené",
         "reportDriver": "Nahlásiť vodiča",
         "messageDriver": "Napísať vodičovi",
-        "viewDetails": "Zobraziť detaily"
+        "viewDetails": "Zobraziť detaily",
+        "cancelled": "Zrušené",
+        "rejected": "Zamietnuté",
+        "noShow": "Nedostavil(a) sa"
     },
     "rideDetails": {
         "title": "Detaily jazdy",

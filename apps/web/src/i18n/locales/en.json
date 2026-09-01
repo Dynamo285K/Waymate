@@ -491,7 +491,10 @@
         "rated": "Rated",
         "reportDriver": "Report driver",
         "messageDriver": "Message driver",
-        "viewDetails": "View details"
+        "viewDetails": "View details",
+        "cancelled": "Cancelled",
+        "rejected": "Rejected",
+        "noShow": "No show"
     },
     "rideDetails": {
         "title": "Ride details",
