@@ -34,7 +34,7 @@ export function UserProfileModal({
             onClose={onClose}
             theme={theme}
         >
-            <div className="w-full min-w-0 max-w-md p-5 sm:p-6 max-h-profile-modal-body overflow-y-auto">
+            <div className="w-full min-w-64 sm:min-w-80 max-w-md p-5 sm:p-6 max-h-profile-modal-body overflow-y-auto">
                 <div className="flex justify-end">
                     <IconButton
                         ariaLabel={t("chat.back")}
