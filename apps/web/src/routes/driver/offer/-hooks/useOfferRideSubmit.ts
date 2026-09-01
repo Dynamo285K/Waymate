@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import type { SubmitHandler, UseFormSetError } from "react-hook-form";
 import {
     usePostRides,
@@ -64,6 +66,7 @@ export function useOfferRideSubmit({
 }: UseOfferRideSubmitParams) {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const { t } = useTranslation();
 
     const { driverCars, carMode, selectedCarId } = car;
     const { createCar, deleteCreatedCar } = useManualCarCreator({
@@ -101,6 +104,7 @@ export function useOfferRideSubmit({
             onSuccess: async () => {
                 setPublishedMessage("offerRide.published");
                 setPublishError("");
+                toast.success(t("toast.offerRideSuccess"));
                 await queryClient.invalidateQueries({
                     queryKey: getGetRidesMeQueryKey(),
                 });
@@ -108,9 +112,13 @@ export function useOfferRideSubmit({
             },
             onError: (error) => {
                 logger.error("Publish ride failed", error);
-                setPublishError(
-                    getErrorI18nKey(error, {}, "offerRide.publishError")
+                const errorKey = getErrorI18nKey(
+                    error,
+                    {},
+                    "toast.offerRideError"
                 );
+                toast.error(t(errorKey));
+                setPublishError(errorKey);
             },
         },
     });
@@ -126,8 +134,9 @@ export function useOfferRideSubmit({
                 RIDE_DRIVER_ALREADY_HAS_RIDE_IN_TIMEFRAME:
                     "offerRide.overlappingRide",
             },
-            "offerRide.publishError"
+            "toast.offerRideError"
         );
+        toast.error(t(errorMsg));
         setTimeout(() => setPublishError(errorMsg), 0);
     }
 

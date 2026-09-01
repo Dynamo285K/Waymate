@@ -369,7 +369,6 @@
         "carCreateError": "Nepodařilo se uložit auto. Zkontrolujte detaily auta.",
         "estimatedArrival": "Předpokládaný čas příjezdu: {{time}}",
         "estimatedArrivalLoading": "Počítá se předpokládaný čas příjezdu...",
-        "publishError": "Nepodařilo se zveřejnit jízdu. Zkuste to prosím znovu.",
         "overlappingRide": "V tomto čase již máte naplánovanou jinou jízdu."
     },
     "rideRequests": {
@@ -778,6 +777,8 @@
         "cancelBookingDriverSuccess": "Rezervace cestujícího byla zrušena.",
         "cancelBookingDriverError": "Nepodařilo se zrušit rezervaci. Zkuste to znovu.",
         "adminCancelRideSuccess": "Jízda byla zrušena administrátorem.",
-        "adminCancelRideError": "Nepodařilo se zrušit jízdu. Zkuste to znovu."
+        "adminCancelRideError": "Nepodařilo se zrušit jízdu. Zkuste to znovu.",
+        "offerRideSuccess": "Jízda byla úspěšně vytvořena!",
+        "offerRideError": "Nepodařilo se vytvořit jízdu. Zkuste to znovu."
     }
 }

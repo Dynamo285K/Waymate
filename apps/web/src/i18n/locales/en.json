@@ -369,7 +369,6 @@
         "carCreateError": "Could not save this car. Please check the car details.",
         "estimatedArrival": "Estimated arrival time: {{time}}",
         "estimatedArrivalLoading": "Calculating estimated arrival time...",
-        "publishError": "Failed to publish the ride. Please try again.",
         "overlappingRide": "You already have a ride scheduled at this time."
     },
     "rideRequests": {
@@ -778,6 +777,8 @@
         "cancelBookingDriverSuccess": "Passenger booking cancelled.",
         "cancelBookingDriverError": "Failed to cancel the booking. Please try again.",
         "adminCancelRideSuccess": "Ride cancelled by admin.",
-        "adminCancelRideError": "Failed to cancel the ride. Please try again."
+        "adminCancelRideError": "Failed to cancel the ride. Please try again.",
+        "offerRideSuccess": "Ride created successfully!",
+        "offerRideError": "Failed to create the ride. Please try again."
     }
 }
