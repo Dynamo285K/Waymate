@@ -6,6 +6,7 @@ import { CancelRideDialog } from "../../../components/shared/CancelRideDialog";
 import { useCancelBooking } from "../../../features/passenger/hooks/useCancelBooking";
 import type { Language } from "../../../components/controls/LanguageSwitcher";
 import { RideCard } from "../../../components/shared/RideCard";
+import { RideCardSkeletonGrid } from "../../../components/shared/RideCardSkeleton";
 import { BlockedUsersSection } from "../../../components/shared/BlockedUsersSection";
 import {
     useGetBookingsMe,
@@ -131,11 +132,7 @@ function PassengerProfilePage() {
                         {t("profile.myUpcomingRides")}
                     </h2>
 
-                    {ridesLoading && (
-                        <p className="text-text-secondary">
-                            {t("myRides.loading")}
-                        </p>
-                    )}
+                    {ridesLoading && <RideCardSkeletonGrid count={2} />}
 
                     {ridesError && (
                         <p className="text-text-secondary">

@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
 import { RideRequestCard } from "../../../features/driver/components/RideRequestCard";
+import { RideRequestCardSkeletonGrid } from "../../../features/driver/components/RideRequestCardSkeleton";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import { formatRideDate as formatDate } from "../../../lib/date-format";
 import {
@@ -78,11 +79,7 @@ function DriverRideRequestsPage() {
                     {t("rideRequests.subtitle")}
                 </p>
                 <div className="flex flex-col gap-4">
-                    {isLoading && (
-                        <p className="text-text-secondary text-center py-12">
-                            {t("driverRides.loading")}
-                        </p>
-                    )}
+                    {isLoading && <RideRequestCardSkeletonGrid count={3} />}
                     {isError && (
                         <p className="text-text-secondary text-center py-12">
                             {t(

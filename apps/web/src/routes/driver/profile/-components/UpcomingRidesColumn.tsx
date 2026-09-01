@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { RideCard } from "../../../../components/shared/RideCard";
+import { RideCardSkeletonGrid } from "../../../../components/shared/RideCardSkeleton";
 import { formatRideDate } from "../../../../lib/date-format";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import type { UpcomingRide } from "../-lib/driver-profile";
@@ -33,11 +34,7 @@ export function UpcomingRidesColumn({
             <h2 className="text-lg font-bold text-text-primary">
                 {t("profile.myUpcomingRides")}
             </h2>
-            {loading && (
-                <p className="text-text-secondary">
-                    {t("driverRides.loading")}
-                </p>
-            )}
+            {loading && <RideCardSkeletonGrid count={2} />}
 
             {hasError && (
                 <p className="text-text-secondary">

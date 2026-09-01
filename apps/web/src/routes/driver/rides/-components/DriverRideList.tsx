@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { RideCard } from "../../../../components/shared/RideCard";
+import { RideCardSkeletonGrid } from "../../../../components/shared/RideCardSkeleton";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { formatRideDate } from "../../../../lib/date-format";
 import type { DriverDisplayedRide } from "../-lib/driver-ride-view";
@@ -39,9 +40,7 @@ export function DriverRideList({
     const { t } = useTranslation();
 
     if (isLoading) {
-        return (
-            <p className="text-text-secondary">{t("driverRides.loading")}</p>
-        );
+        return <RideCardSkeletonGrid count={3} />;
     }
 
     if (isError) {
