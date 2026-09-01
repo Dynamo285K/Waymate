@@ -3,6 +3,7 @@ import { RideCard } from "../../../../components/shared/RideCard";
 import { RideCardSkeletonGrid } from "../../../../components/shared/RideCardSkeleton";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 import { formatRideDate } from "../../../../lib/date-format";
+import { authClient } from "../../../../lib/auth-client";
 import type { DisplayedRide } from "../-lib/passenger-ride-view";
 
 export type PassengerRideListProps = {
@@ -32,6 +33,8 @@ export function PassengerRideList({
     onViewDetails,
 }: PassengerRideListProps) {
     const { t } = useTranslation();
+    const { data: sessionData } = authClient.useSession();
+    const user = sessionData?.user;
 
     const labels = {
         seatsLeft: (count: number) => t("myRides.seatsLeft", { count }),
@@ -43,6 +46,8 @@ export function PassengerRideList({
         messageDriver: t("myRides.messageDriver"),
         viewDetails: t("myRides.viewDetails"),
         cancelled: t("myRides.cancelled"),
+        cancelledByYou: t("myRides.cancelledByYou"),
+        cancelledByDriver: t("myRides.cancelledByDriver"),
         rejected: t("myRides.rejected"),
         noShow: t("myRides.noShow"),
     };
@@ -113,6 +118,8 @@ export function PassengerRideList({
                     driverRating={ride.driverRating}
                     alreadyReviewed={ride.alreadyReviewed}
                     bookingStatus={ride.bookingStatus}
+                    cancelledByUserId={ride.cancelledByUserId}
+                    currentUserId={user?.id}
                     onRateDriver={() => onRateDriver(ride)}
                     onReport={reportHandler(ride)}
                     labels={labels}

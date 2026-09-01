@@ -87,6 +87,7 @@ export const PassengerBookingListItemSchema = z.object({
             rating: z.number().int().min(1).max(5),
         })
         .nullable(),
+    cancelledByUserId: z.uuid().nullable().optional(),
 });
 
 export const PassengerBookingListSchema =

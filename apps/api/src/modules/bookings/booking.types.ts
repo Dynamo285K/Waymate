@@ -50,6 +50,7 @@ export type PassengerBookingListItem = {
     originalStartCity: string;
     originalEndCity: string;
     myReviewOfDriver: { id: string; rating: number } | null;
+    cancelledByUserId: string | null;
 };
 
 // Raw row shape returned by the repository before service-level reshape.

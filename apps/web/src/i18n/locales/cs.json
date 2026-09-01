@@ -493,6 +493,8 @@
         "messageDriver": "Napsat řidiči",
         "viewDetails": "Zobrazit detaily",
         "cancelled": "Zrušeno",
+        "cancelledByYou": "Zrušeno vámi",
+        "cancelledByDriver": "Zrušeno řidičem",
         "rejected": "Zamítnuto",
         "noShow": "Nedostavil(a) se"
     },

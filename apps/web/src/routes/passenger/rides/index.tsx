@@ -88,7 +88,11 @@ function PassengerMyRidesPage() {
     const displayedRides: DisplayedRide[] =
         tab === "upcoming" && optimisticRide
             ? [
-                  optimisticRide,
+                  {
+                      ...optimisticRide,
+                      bookingStatus: "PENDING",
+                      cancelledByUserId: null,
+                  } as DisplayedRide,
                   ...(bookingRides ?? []).filter(
                       (ride) => ride.id !== optimisticRide.id
                   ),

@@ -493,6 +493,8 @@
         "messageDriver": "Message driver",
         "viewDetails": "View details",
         "cancelled": "Cancelled",
+        "cancelledByYou": "Cancelled by you",
+        "cancelledByDriver": "Cancelled by driver",
         "rejected": "Rejected",
         "noShow": "No show"
     },

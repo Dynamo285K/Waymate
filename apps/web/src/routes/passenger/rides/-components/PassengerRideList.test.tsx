@@ -54,6 +54,8 @@ function makeRide(overrides: Partial<DisplayedRide> = {}): DisplayedRide {
         driverName: "Jane Doe",
         driverRating: 4.5,
         seatsLeft: 2,
+        bookingStatus: "PENDING",
+        cancelledByUserId: null,
         status: "confirmed",
         driverId: "d1",
         rideId: "r1",

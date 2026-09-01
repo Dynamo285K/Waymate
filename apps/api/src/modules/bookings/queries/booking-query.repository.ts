@@ -10,6 +10,7 @@ import {
     ne,
     sql,
     asc,
+    or,
 } from "drizzle-orm";
 import type { Executor } from "../../../db";
 import { bookings as bookingsTable } from "../../../db/schema/booking";
@@ -193,7 +194,17 @@ export const findBookingsByPassengerId = async (
             inArray(bookingsTable.bookingStatus, ["PENDING", "CONFIRMED"])
         );
     } else if (timeframe === "PAST") {
-        filters.push(lt(ridesTable.departureAt, now));
+        const pastCondition = or(
+            lt(ridesTable.departureAt, now),
+            inArray(bookingsTable.bookingStatus, [
+                "REJECTED",
+                "CANCELLED",
+                "NO_SHOW",
+            ])
+        );
+        if (pastCondition) {
+            filters.push(pastCondition);
+        }
         filters.push(
             inArray(bookingsTable.bookingStatus, [
                 "CONFIRMED",
@@ -254,6 +265,7 @@ export const findBookingsByPassengerId = async (
             seatsLeft: sql<number>`GREATEST(0, ${ridesTable.offeredSeats} - COALESCE(${capacityByRide.occupiedSeats}, 0))::int`,
             myReviewOfDriverId: myReviewOfDriverTable.id,
             myReviewOfDriverRating: myReviewOfDriverTable.rating,
+            cancelledByUserId: bookingsTable.cancelledByUserId,
         })
         .from(bookingsTable)
         .innerJoin(ridesTable, eq(bookingsTable.rideId, ridesTable.id))
