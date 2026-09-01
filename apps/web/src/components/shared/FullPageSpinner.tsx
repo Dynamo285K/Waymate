@@ -6,7 +6,7 @@ export function FullPageSpinner() {
     return (
         <div className="min-h-screen bg-background flex items-center justify-center">
             <div
-                className="w-8 h-8 rounded-full border-3 border-border border-t-primary animate-spin"
+                className="w-9 h-9 rounded-full border-[3px] border-border border-t-primary animate-spin"
                 role="status"
                 aria-label="Loading"
             />

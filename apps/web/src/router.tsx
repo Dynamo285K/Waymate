@@ -4,6 +4,7 @@ import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { routeTree } from "./routeTree.gen";
 import { RouteErrorBoundary } from "./components/shared/RouteErrorBoundary";
+import { FullPageSpinner } from "./components/shared/FullPageSpinner";
 
 NProgress.configure({ showSpinner: false });
 
@@ -12,6 +13,8 @@ export function createAppRouter(queryClient: QueryClient) {
         routeTree,
         context: { queryClient },
         defaultErrorComponent: RouteErrorBoundary,
+        defaultPendingComponent: FullPageSpinner,
+        defaultPendingMs: 0,
     });
 
     router.subscribe("onBeforeLoad", ({ pathChanged }) => {
