@@ -84,8 +84,8 @@ function renderList(props: Partial<Parameters<typeof DriverRideList>[0]>) {
 
 describe("DriverRideList", () => {
     it("shows loading / error / empty states", () => {
-        const { rerender } = renderList({ isLoading: true });
-        expect(screen.getByText("Loading rides...")).toBeInTheDocument();
+        const { rerender, container } = renderList({ isLoading: true });
+        expect(container.querySelector(".animate-pulse")).toBeInTheDocument();
 
         rerender(
             <DriverRideList

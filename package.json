@@ -16,12 +16,13 @@
         "db:generate": "turbo db:generate",
         "db:migrate": "turbo db:migrate",
         "test": "bun run --cwd apps/api test:run",
+        "test:web": "bun run --cwd apps/web test",
         "test:e2e": "bun run --cwd e2e test",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "format": "prettier . --write",
         "format:check": "prettier . --check",
-        "validate": "bun run i18n:check && bun run format:check && bun run lint && bun run typecheck && bun run test && bun run build && bun run test:e2e",
+        "validate": "bun run i18n:check && bun run format:check && bun run lint && bun run typecheck && bun run test && bun run test:web && bun run build && bun run test:e2e",
         "pipeline": "bun scripts/pipeline.mjs"
     },
     "devDependencies": {
