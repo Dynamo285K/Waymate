@@ -458,7 +458,6 @@
         "backToProfile": "← Zpět na můj profil",
         "cancelRide": "Zrušit jízdu",
         "fallbackName": "Uživatel",
-        "loadingCars": "Načítám auta...",
         "noCars": "Zatím nemáte uložená žádná auta.",
         "deleteCar": {
             "title": "Odebrat auto?",
@@ -484,7 +483,6 @@
         "title": "Moje jízdy",
         "upcoming": "Nadcházející",
         "past": "Minulé",
-        "loading": "Načítám jízdy...",
         "error": "Nepodařilo se načíst vaše jízdy. Zkuste to znovu.",
         "noResults": "Nebyly nalezeny žádné jízdy.",
         "seatsLeft": "{{count}} míst zbývá",
@@ -528,9 +526,8 @@
         "errorTitle": "Rezervaci nelze vytvořit"
     },
     "rides": {
-        "found": "Nalezeno {{count}} jízd",
-        "loading": "Hledám jízdy...",
-        "error": "Nepodařilo se načíst jízdy. Přihlaste se a zkuste znovu.",
+        "found": "Našli jsme {{count}} jízd",
+        "error": "Nepodařilo se načíst jízdy. Prosím, přihlaste se a zkuste to znovu.",
         "noResults": "Pro tuto trasu a datum nebyly nalezeny žádné jízdy.",
         "noSearchParams": "Zadejte odjezd, cíl a datum pro vyhledání jízd."
     },

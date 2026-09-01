@@ -458,7 +458,6 @@
         "backToProfile": "← Späť na môj profil",
         "cancelRide": "Zrušiť jazdu",
         "fallbackName": "Používateľ",
-        "loadingCars": "Načítavam autá...",
         "noCars": "Zatiaľ nemáte uložené žiadne autá.",
         "deleteCar": {
             "title": "Odstrániť auto?",
@@ -484,7 +483,6 @@
         "title": "Moje jazdy",
         "upcoming": "Nadchádzajúce",
         "past": "Minulé",
-        "loading": "Načítavam jazdy...",
         "error": "Nepodarilo sa načítať vaše jazdy. Skúste to znova.",
         "noResults": "Nenašli sa žiadne jazdy.",
         "seatsLeft": "{{count}} miest zostáva",
@@ -528,9 +526,8 @@
         "errorTitle": "Rezerváciu sa nepodarilo vytvoriť"
     },
     "rides": {
-        "found": "Nájdených {{count}} jázd",
-        "loading": "Hľadám jazdy...",
-        "error": "Nepodarilo sa načítať jazdy. Prihláste sa a skúste znova.",
+        "found": "Našli sme {{count}} jázd",
+        "error": "Nepodarilo sa načítať jazdy. Prosím, prihláste sa a skúste to znova.",
         "noResults": "Pre túto trasu a dátum neboli nájdené žiadne jazdy.",
         "noSearchParams": "Zadajte odchod, cieľ a dátum pre vyhľadanie jázd."
     },

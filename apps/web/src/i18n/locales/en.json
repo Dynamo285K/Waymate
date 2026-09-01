@@ -458,7 +458,6 @@
         "backToProfile": "← Back to My Profile",
         "cancelRide": "Cancel ride",
         "fallbackName": "User",
-        "loadingCars": "Loading cars...",
         "noCars": "You have no saved cars yet.",
         "deleteCar": {
             "title": "Remove car?",
@@ -484,7 +483,6 @@
         "title": "My Rides",
         "upcoming": "Upcoming",
         "past": "Past",
-        "loading": "Loading rides...",
         "error": "Failed to load your rides. Please try again.",
         "noResults": "No rides found.",
         "seatsLeft": "{{count}} seats left",
@@ -529,7 +527,6 @@
     },
     "rides": {
         "found": "{{count}} rides found",
-        "loading": "Searching for rides...",
         "error": "Failed to load rides. Please log in and try again.",
         "noResults": "No rides found for this route and date.",
         "noSearchParams": "Enter a departure, destination and date to find rides."
