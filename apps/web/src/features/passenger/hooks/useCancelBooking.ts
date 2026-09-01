@@ -27,6 +27,7 @@ export function useCancelBooking() {
                     t(getErrorI18nKey(error, {}, "cancelBookingDialog.error"))
                 ),
             onSuccess: () => {
+                toast.success(t("toast.cancelBookingSuccess"));
                 void queryClient.invalidateQueries({
                     queryKey: getGetBookingsMeQueryKey(),
                 });

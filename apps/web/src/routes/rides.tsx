@@ -4,6 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AuthNavbarFrame } from "../components/navigation/AuthNavbarFrame";
 import { AvailableRideCard } from "../components/shared/AvailableRideCard";
 import { GuestBookModal } from "../components/shared/GuestBookModal";
+import { RideCardSkeletonGrid } from "../components/shared/RideCardSkeleton";
 import { useRideSearch } from "../hooks/shared/useRideSearch";
 import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
 import {
@@ -104,9 +105,9 @@ function RidesPage() {
                 )}
 
                 {showAllRides && areAvailableRidesLoading && (
-                    <p className="text-text-secondary mt-1">
-                        {t("rides.loading")}
-                    </p>
+                    <div className="mt-4">
+                        <RideCardSkeletonGrid count={3} />
+                    </div>
                 )}
 
                 {showAllRides && areAvailableRidesError && (
@@ -128,9 +129,9 @@ function RidesPage() {
                 )}
 
                 {canSearch && isLoading && (
-                    <p className="text-text-secondary mt-1">
-                        {t("rides.loading")}
-                    </p>
+                    <div className="mt-4">
+                        <RideCardSkeletonGrid count={3} />
+                    </div>
                 )}
 
                 {canSearch && isError && (

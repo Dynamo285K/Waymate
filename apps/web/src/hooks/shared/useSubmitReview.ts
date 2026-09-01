@@ -20,6 +20,7 @@ export function useSubmitReview() {
             onError: (error) =>
                 toast.error(t(getErrorI18nKey(error, {}, "rateDriver.error"))),
             onSuccess: (_data, variables) => {
+                toast.success(t("toast.reviewSuccess"));
                 void queryClient.invalidateQueries({
                     queryKey: getGetReviewsMeAuthoredQueryKey(),
                 });

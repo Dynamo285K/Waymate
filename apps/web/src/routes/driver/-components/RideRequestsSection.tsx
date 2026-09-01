@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/Button";
 import { RideRequestCard } from "../../../features/driver/components/RideRequestCard";
+import { RideRequestCardSkeletonGrid } from "../../../features/driver/components/RideRequestCardSkeleton";
 import { formatRideDate as formatDate } from "../../../lib/date-format";
 import { getErrorI18nKey } from "../../../lib/api-errors";
 import type { DriverRequestViewModel } from "../../../features/driver/hooks/useDriverDashboardData";
@@ -47,11 +48,7 @@ export function RideRequestsSection({
                     {t("driver.home.rideRequestsSubtitle")}
                 </p>
                 <div className="flex flex-col gap-3">
-                    {isLoading && (
-                        <p className="text-text-secondary">
-                            {t("driverRides.loading")}
-                        </p>
-                    )}
+                    {isLoading && <RideRequestCardSkeletonGrid count={2} />}
                     {isError && (
                         <p className="text-text-secondary">
                             {t(

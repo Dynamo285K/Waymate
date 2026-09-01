@@ -369,7 +369,6 @@
         "carCreateError": "Nepodarilo sa uložiť auto. Skontrolujte detaily auta.",
         "estimatedArrival": "Predpokladaný čas príchodu: {{time}}",
         "estimatedArrivalLoading": "Počíta sa predpokladaný čas príchodu...",
-        "publishError": "Nepodarilo sa uverejniť jazdu. Skúste to znova.",
         "overlappingRide": "V tomto čase už máte naplánovanú inú jazdu."
     },
     "rideRequests": {
@@ -458,7 +457,6 @@
         "backToProfile": "← Späť na môj profil",
         "cancelRide": "Zrušiť jazdu",
         "fallbackName": "Používateľ",
-        "loadingCars": "Načítavam autá...",
         "noCars": "Zatiaľ nemáte uložené žiadne autá.",
         "deleteCar": {
             "title": "Odstrániť auto?",
@@ -484,7 +482,6 @@
         "title": "Moje jazdy",
         "upcoming": "Nadchádzajúce",
         "past": "Minulé",
-        "loading": "Načítavam jazdy...",
         "error": "Nepodarilo sa načítať vaše jazdy. Skúste to znova.",
         "noResults": "Nenašli sa žiadne jazdy.",
         "seatsLeft": "{{count}} miest zostáva",
@@ -528,9 +525,8 @@
         "errorTitle": "Rezerváciu sa nepodarilo vytvoriť"
     },
     "rides": {
-        "found": "Nájdených {{count}} jázd",
-        "loading": "Hľadám jazdy...",
-        "error": "Nepodarilo sa načítať jazdy. Prihláste sa a skúste znova.",
+        "found": "Našli sme {{count}} jázd",
+        "error": "Nepodarilo sa načítať jazdy. Prosím, prihláste sa a skúste to znova.",
         "noResults": "Pre túto trasu a dátum neboli nájdené žiadne jazdy.",
         "noSearchParams": "Zadajte odchod, cieľ a dátum pre vyhľadanie jázd."
     },
@@ -755,5 +751,34 @@
     "cancelBookingDriverDialog": {
         "title": "Zrušiť rezerváciu cestujúceho?",
         "message": "Naozaj chcete zrušiť rezerváciu tohto cestujúceho? Túto akciu nie je možné vrátiť späť."
+    },
+    "errorBoundary": {
+        "title": "Niečo sa pokazilo",
+        "description": "Túto stránku sa nepodarilo načítať. Skúste to znova — ak problém pretrváva, obnovte aplikáciu.",
+        "tryAgain": "Skúsiť znova",
+        "goHome": "Na úvod"
+    },
+    "toast": {
+        "bookingSuccess": "Jazda bola úspešne zarezervovaná!",
+        "bookingError": "Nepodarilo sa zarezervovať jazdu. Skúste to znova.",
+        "cancelBookingSuccess": "Rezervácia bola zrušená.",
+        "cancelRideSuccess": "Jazda bola zrušená.",
+        "cancelRideError": "Nepodarilo sa zrušiť jazdu. Skúste to znova.",
+        "completeRideSuccess": "Jazda bola označená ako dokončená.",
+        "completeRideError": "Nepodarilo sa dokončiť jazdu. Skúste to znova.",
+        "reviewSuccess": "Hodnotenie bolo odoslané. Ďakujeme!",
+        "reportSuccess": "Nahlásenie bolo odoslané. Čoskoro ho preskúmame.",
+        "unblockSuccess": "Používateľ bol odblokovaný.",
+        "unblockError": "Nepodarilo sa odblokovať používateľa. Skúste to znova.",
+        "acceptRequestSuccess": "Žiadosť o jazdu bola prijatá.",
+        "acceptRequestError": "Nepodarilo sa prijať žiadosť. Skúste to znova.",
+        "declineRequestSuccess": "Žiadosť o jazdu bola odmietnutá.",
+        "declineRequestError": "Nepodarilo sa odmietnuť žiadosť. Skúste to znova.",
+        "cancelBookingDriverSuccess": "Rezervácia cestujúceho bola zrušená.",
+        "cancelBookingDriverError": "Nepodarilo sa zrušiť rezerváciu. Skúste to znova.",
+        "adminCancelRideSuccess": "Jazda bola zrušená administrátorom.",
+        "adminCancelRideError": "Nepodarilo sa zrušiť jazdu. Skúste to znova.",
+        "offerRideSuccess": "Jazda bola úspešne vytvorená!",
+        "offerRideError": "Nepodarilo sa vytvoriť jazdu. Skúste to znova."
     }
 }

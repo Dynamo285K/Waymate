@@ -1,4 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import {
     usePatchBookingsByIdDriverCancel,
     getGetBookingsRequestsQueryKey,
@@ -8,6 +10,7 @@ import {
     getGetRidesMeQueryKey,
 } from "../../../../../api-client/rides/rides";
 import type { ApiMutationError } from "../../../../../lib/api-fetcher";
+import { getErrorI18nKey } from "../../../../../lib/api-errors";
 
 type CancelBookingByDriverInput = {
     bookingId: string;
@@ -17,10 +20,22 @@ type CancelBookingByDriverInput = {
 
 export function useCancelBookingByDriver() {
     const queryClient = useQueryClient();
+    const { t } = useTranslation();
 
     const mutation = usePatchBookingsByIdDriverCancel<ApiMutationError>({
         mutation: {
+            onError: (error) =>
+                toast.error(
+                    t(
+                        getErrorI18nKey(
+                            error,
+                            {},
+                            "toast.cancelBookingDriverError"
+                        )
+                    )
+                ),
             onSuccess: () => {
+                toast.success(t("toast.cancelBookingDriverSuccess"));
                 void queryClient.invalidateQueries({
                     queryKey: getGetRidesMeQueryKey(),
                 });

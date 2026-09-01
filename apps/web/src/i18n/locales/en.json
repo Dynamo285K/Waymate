@@ -369,7 +369,6 @@
         "carCreateError": "Could not save this car. Please check the car details.",
         "estimatedArrival": "Estimated arrival time: {{time}}",
         "estimatedArrivalLoading": "Calculating estimated arrival time...",
-        "publishError": "Failed to publish the ride. Please try again.",
         "overlappingRide": "You already have a ride scheduled at this time."
     },
     "rideRequests": {
@@ -458,7 +457,6 @@
         "backToProfile": "← Back to My Profile",
         "cancelRide": "Cancel ride",
         "fallbackName": "User",
-        "loadingCars": "Loading cars...",
         "noCars": "You have no saved cars yet.",
         "deleteCar": {
             "title": "Remove car?",
@@ -484,7 +482,6 @@
         "title": "My Rides",
         "upcoming": "Upcoming",
         "past": "Past",
-        "loading": "Loading rides...",
         "error": "Failed to load your rides. Please try again.",
         "noResults": "No rides found.",
         "seatsLeft": "{{count}} seats left",
@@ -529,7 +526,6 @@
     },
     "rides": {
         "found": "{{count}} rides found",
-        "loading": "Searching for rides...",
         "error": "Failed to load rides. Please log in and try again.",
         "noResults": "No rides found for this route and date.",
         "noSearchParams": "Enter a departure, destination and date to find rides."
@@ -755,5 +751,34 @@
     "cancelBookingDriverDialog": {
         "title": "Cancel passenger booking?",
         "message": "Are you sure you want to cancel this passenger's booking? This action cannot be undone."
+    },
+    "errorBoundary": {
+        "title": "Something went wrong",
+        "description": "This page failed to load. Try again — if the problem persists, reload the app.",
+        "tryAgain": "Try again",
+        "goHome": "Go home"
+    },
+    "toast": {
+        "bookingSuccess": "Ride booked successfully!",
+        "bookingError": "Failed to book the ride. Please try again.",
+        "cancelBookingSuccess": "Booking cancelled.",
+        "cancelRideSuccess": "Ride cancelled.",
+        "cancelRideError": "Failed to cancel the ride. Please try again.",
+        "completeRideSuccess": "Ride marked as completed.",
+        "completeRideError": "Failed to complete the ride. Please try again.",
+        "reviewSuccess": "Rating submitted. Thank you!",
+        "reportSuccess": "Report submitted. We'll review it shortly.",
+        "unblockSuccess": "User unblocked.",
+        "unblockError": "Failed to unblock user. Please try again.",
+        "acceptRequestSuccess": "Ride request accepted.",
+        "acceptRequestError": "Failed to accept the request. Please try again.",
+        "declineRequestSuccess": "Ride request declined.",
+        "declineRequestError": "Failed to decline the request. Please try again.",
+        "cancelBookingDriverSuccess": "Passenger booking cancelled.",
+        "cancelBookingDriverError": "Failed to cancel the booking. Please try again.",
+        "adminCancelRideSuccess": "Ride cancelled by admin.",
+        "adminCancelRideError": "Failed to cancel the ride. Please try again.",
+        "offerRideSuccess": "Ride created successfully!",
+        "offerRideError": "Failed to create the ride. Please try again."
     }
 }

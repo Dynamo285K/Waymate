@@ -1,4 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import {
     useGetBookingsRequests,
     usePatchBookingsByIdConfirm,
@@ -8,6 +10,7 @@ import {
 import { getGetRidesMeQueryKey } from "../../../api-client/rides/rides";
 import type { DriverRideRequestItem } from "../../../api-client/model/driverRideRequestItem";
 import type { ApiMutationError } from "../../../lib/api-fetcher";
+import { getErrorI18nKey } from "../../../lib/api-errors";
 
 export type DriverRideRequest = DriverRideRequestItem;
 
@@ -59,12 +62,27 @@ function useOptimisticRemoval<TVars extends { id: string }>() {
 
 export function useAcceptRideRequest() {
     const handlers = useOptimisticRemoval<{ id: string }>();
+    const { t } = useTranslation();
 
     const mutation = usePatchBookingsByIdConfirm<
         ApiMutationError,
         { previous?: DriverRideRequest[] }
     >({
-        mutation: handlers,
+        mutation: {
+            onMutate: handlers.onMutate,
+            onError: (error, vars, context) => {
+                handlers.onError(error, vars, context);
+                toast.error(
+                    t(getErrorI18nKey(error, {}, "toast.acceptRequestError"))
+                );
+            },
+            onSuccess: () => {
+                toast.success(t("toast.acceptRequestSuccess"));
+            },
+            onSettled: () => {
+                handlers.onSettled();
+            },
+        },
     });
 
     return {
@@ -81,12 +99,27 @@ export function useDeclineRideRequest() {
         id: string;
         data: { reason?: string };
     }>();
+    const { t } = useTranslation();
 
     const mutation = usePatchBookingsByIdReject<
         ApiMutationError,
         { previous?: DriverRideRequest[] }
     >({
-        mutation: handlers,
+        mutation: {
+            onMutate: handlers.onMutate,
+            onError: (error, vars, context) => {
+                handlers.onError(error, vars, context);
+                toast.error(
+                    t(getErrorI18nKey(error, {}, "toast.declineRequestError"))
+                );
+            },
+            onSuccess: () => {
+                toast.success(t("toast.declineRequestSuccess"));
+            },
+            onSettled: () => {
+                handlers.onSettled();
+            },
+        },
     });
 
     return {

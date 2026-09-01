@@ -83,9 +83,9 @@ function renderList(props: Partial<Parameters<typeof PassengerRideList>[0]>) {
 }
 
 describe("PassengerRideList", () => {
-    it("shows the loading message", () => {
-        renderList({ isLoading: true });
-        expect(screen.getByText("Loading rides...")).toBeInTheDocument();
+    it("shows the loading skeleton", () => {
+        const { container } = renderList({ isLoading: true });
+        expect(container.querySelector(".animate-pulse")).toBeInTheDocument();
     });
 
     it("shows the fallback error message", () => {

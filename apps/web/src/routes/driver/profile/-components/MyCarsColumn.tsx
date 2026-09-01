@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { CarCard } from "@/features/driver/components/CarCard";
+import { CarCardSkeletonGrid } from "@/features/driver/components/CarCardSkeleton";
 import { Button } from "@/components/ui/Button";
 import { getErrorI18nKey } from "../../../../lib/api-errors";
 
@@ -32,11 +33,7 @@ export function MyCarsColumn({
                 </h2>
                 <Button onClick={onAddCar}>{t("profile.addCar")}</Button>
             </div>
-            {loading && (
-                <p className="text-text-secondary">
-                    {t("profile.loadingCars")}
-                </p>
-            )}
+            {loading && <CarCardSkeletonGrid count={1} />}
             {Boolean(error) && (
                 <p className="text-text-secondary">
                     {t(getErrorI18nKey(error, {}, "profile.carsError"))}

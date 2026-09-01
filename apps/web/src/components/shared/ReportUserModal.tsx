@@ -2,6 +2,7 @@ import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { CloseIcon } from "@/components/ui/icons/CloseIcon";
 import { IconButton } from "@/components/ui/IconButton";
@@ -86,6 +87,7 @@ export function ReportUserModal({
     const mutation = usePostReports({
         mutation: {
             onSuccess: async () => {
+                toast.success(t("toast.reportSuccess"));
                 await queryClient.invalidateQueries({
                     queryKey: getGetReportsAdminQueryKey(),
                 });
