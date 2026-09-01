@@ -491,7 +491,10 @@
         "rated": "Ohodnoceno",
         "reportDriver": "Nahlásit řidiče",
         "messageDriver": "Napsat řidiči",
-        "viewDetails": "Zobrazit detaily"
+        "viewDetails": "Zobrazit detaily",
+        "cancelled": "Zrušeno",
+        "rejected": "Zamítnuto",
+        "noShow": "Nedostavil(a) se"
     },
     "rideDetails": {
         "title": "Detaily jízdy",

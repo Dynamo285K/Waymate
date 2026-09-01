@@ -24,6 +24,9 @@ export type RideCardLabels = {
     completeRide?: string;
     ratePassengers?: string;
     viewDetails?: string;
+    cancelled?: string;
+    rejected?: string;
+    noShow?: string;
 };
 
 type RideCardBaseProps = {
@@ -63,6 +66,13 @@ type PassengerPastProps = RideCardBaseProps & {
     onRateDriver: () => void;
     alreadyReviewed?: boolean;
     onReport?: () => void;
+    bookingStatus?:
+        | "CONFIRMED"
+        | "COMPLETED"
+        | "REJECTED"
+        | "CANCELLED"
+        | "NO_SHOW"
+        | "PENDING";
 };
 
 export type RideCardProps =
@@ -253,6 +263,7 @@ export function RideCard(props: RideCardProps) {
                         <PassengerPastActions
                             labels={labels}
                             alreadyReviewed={props.alreadyReviewed}
+                            bookingStatus={props.bookingStatus}
                             onRateDriver={props.onRateDriver}
                             onReport={props.onReport}
                         />

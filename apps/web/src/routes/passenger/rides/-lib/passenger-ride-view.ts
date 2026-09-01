@@ -8,6 +8,7 @@ export type DisplayedRide = UpcomingRide & {
     driverId?: string;
     rideId?: string;
     alreadyReviewed?: boolean;
+    bookingStatus?: PassengerBookingListItem["bookingStatus"];
 };
 
 /**
@@ -39,5 +40,6 @@ export function mapBookingsToRides(
         driverId: booking.driver.id,
         rideId: booking.ride.id,
         alreadyReviewed: booking.myReviewOfDriver !== null,
+        bookingStatus: booking.bookingStatus,
     }));
 }

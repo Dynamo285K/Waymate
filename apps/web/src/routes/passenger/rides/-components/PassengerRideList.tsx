@@ -42,6 +42,9 @@ export function PassengerRideList({
         reportDriver: t("myRides.reportDriver"),
         messageDriver: t("myRides.messageDriver"),
         viewDetails: t("myRides.viewDetails"),
+        cancelled: t("myRides.cancelled"),
+        rejected: t("myRides.rejected"),
+        noShow: t("myRides.noShow"),
     };
 
     const formatDatetime = (date: Date | string) =>
@@ -109,6 +112,7 @@ export function PassengerRideList({
                     driverName={ride.driverName}
                     driverRating={ride.driverRating}
                     alreadyReviewed={ride.alreadyReviewed}
+                    bookingStatus={ride.bookingStatus}
                     onRateDriver={() => onRateDriver(ride)}
                     onReport={reportHandler(ride)}
                     labels={labels}
