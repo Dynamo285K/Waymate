@@ -1,5 +1,6 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { Avatar, ChevronDownIcon } from "@waymate/ui";
+import { Avatar } from "@/components/ui/Avatar";
+import { ChevronDownIcon } from "@/components/ui/icons/ChevronDownIcon";
 
 type ChatThreadHeaderProps = {
     name: string;
