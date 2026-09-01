@@ -27,6 +27,8 @@ export type RideCardLabels = {
     cancelled?: string;
     rejected?: string;
     noShow?: string;
+    cancelledByYou?: string;
+    cancelledByDriver?: string;
 };
 
 type RideCardBaseProps = {
@@ -66,6 +68,8 @@ type PassengerPastProps = RideCardBaseProps & {
     onRateDriver: () => void;
     alreadyReviewed?: boolean;
     onReport?: () => void;
+    cancelledByUserId?: string | null;
+    currentUserId?: string | null;
     bookingStatus?:
         | "CONFIRMED"
         | "COMPLETED"
@@ -264,6 +268,8 @@ export function RideCard(props: RideCardProps) {
                             labels={labels}
                             alreadyReviewed={props.alreadyReviewed}
                             bookingStatus={props.bookingStatus}
+                            cancelledByUserId={props.cancelledByUserId}
+                            currentUserId={props.currentUserId}
                             onRateDriver={props.onRateDriver}
                             onReport={props.onReport}
                         />

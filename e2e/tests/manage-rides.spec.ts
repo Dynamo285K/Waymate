@@ -136,5 +136,83 @@ test.describe("manage rides", () => {
         const cancelResponse = await cancelPromise;
         expect(cancelResponse.status()).toBe(200);
         await expect(dialog).not.toBeVisible();
+
+        // Navigate to Past rides tab and verify "Cancelled by you" text
+        await page.getByRole("button", { name: /past|minulé/i }).click();
+
+        const pastRideCard = page
+            .getByTestId("ride-card")
+            .filter({ hasText: "Trnava" })
+            .first();
+
+        await expect(pastRideCard).toBeVisible();
+        await expect(pastRideCard).toContainText(
+            /Cancelled by you|Zrušené vami|Zrušeno vámi/i
+        );
+    });
+
+    test("passenger books a ride and driver cancels it", async ({ page }) => {
+        // Driver creates a fresh, unique ride
+        await login(page, DRIVER_EMAIL, DRIVER_PASSWORD);
+        await expect(page).toHaveURL(/\/passenger$/);
+        await publishRide(page, "Bratislava", "Zilina", "19", "15");
+
+        // Switch to passenger
+        await page.context().clearCookies();
+        await login(page, "passenger.cyril@example.com", "passenger1234");
+        await expect(page).toHaveURL(/\/passenger$/);
+
+        // Book the specific ride
+        const specificRide = page
+            .locator(".available-ride-card", { hasText: "Zilina" })
+            .first();
+        await expect(specificRide).toBeVisible();
+        await specificRide.getByRole("button", { name: "Book" }).click();
+        await expect(page).toHaveURL(/\/passenger\/rides$/);
+
+        // Switch back to driver
+        await page.context().clearCookies();
+        await login(page, DRIVER_EMAIL, DRIVER_PASSWORD);
+        await expect(page).toHaveURL(/\/passenger$/);
+
+        // Go to driver's ride requests and accept the booking (if needed, or driver just goes to My rides)
+        // Wait, driver can just cancel the ride entirely, which cancels all bookings
+        await page.goto("/driver/rides");
+        const driverRideCard = page
+            .getByTestId("ride-card")
+            .filter({ hasText: "Zilina" })
+            .first();
+        const driverCancelBtn = driverRideCard.getByRole("button", {
+            name: /cancel|zrušiť/i,
+        });
+        await driverCancelBtn.click();
+
+        const dialog = page.getByRole("dialog");
+        await expect(dialog).toBeVisible();
+        const cancelPromise = page.waitForResponse(
+            (r) =>
+                r.url().includes("/cancel") && r.request().method() === "PATCH"
+        );
+        await dialog.getByRole("button", { name: /confirm|potvrdiť/i }).click();
+        const cancelResponse2 = await cancelPromise;
+        expect(cancelResponse2.status()).toBe(200);
+
+        // Switch back to passenger to verify past rides
+        await page.context().clearCookies();
+        await login(page, "passenger.cyril@example.com", "passenger1234");
+        await expect(page).toHaveURL(/\/passenger$/);
+        await page.goto("/passenger/rides");
+
+        await page.getByRole("button", { name: /past|minulé/i }).click();
+
+        const pastRideCard2 = page
+            .getByTestId("ride-card")
+            .filter({ hasText: "Zilina" })
+            .first();
+
+        await expect(pastRideCard2).toBeVisible();
+        await expect(pastRideCard2).toContainText(
+            /Cancelled by driver|Zrušené vodičom|Zrušeno řidičem/i
+        );
     });
 });

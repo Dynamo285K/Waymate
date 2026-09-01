@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import type { RideCardLabels } from "../RideCard";
+import type { PassengerBookingListItem } from "@/api-client/model/passengerBookingListItem";
 
 const actionClassName =
     "min-w-0 justify-center whitespace-nowrap text-center text-xs px-3 py-1.5 max-600:w-full";
@@ -8,18 +9,16 @@ export function PassengerPastActions({
     labels,
     alreadyReviewed,
     bookingStatus,
+    cancelledByUserId,
+    currentUserId,
     onRateDriver,
     onReport,
 }: {
     labels?: RideCardLabels;
     alreadyReviewed?: boolean;
-    bookingStatus?:
-        | "CONFIRMED"
-        | "COMPLETED"
-        | "REJECTED"
-        | "CANCELLED"
-        | "NO_SHOW"
-        | "PENDING";
+    bookingStatus?: PassengerBookingListItem["bookingStatus"];
+    cancelledByUserId?: string | null;
+    currentUserId?: string | null;
     onRateDriver: () => void;
     onReport?: () => void;
 }) {
@@ -28,14 +27,34 @@ export function PassengerPastActions({
         ["REJECTED", "CANCELLED", "NO_SHOW"].includes(bookingStatus)
     ) {
         let statusText = labels?.cancelled ?? "Cancelled";
-        if (bookingStatus === "REJECTED")
+        let textColor = "text-text-secondary";
+
+        if (bookingStatus === "CANCELLED") {
+            if (
+                cancelledByUserId &&
+                currentUserId &&
+                cancelledByUserId === currentUserId
+            ) {
+                statusText = labels?.cancelledByYou ?? "Cancelled by you";
+            } else if (
+                cancelledByUserId &&
+                currentUserId &&
+                cancelledByUserId !== currentUserId
+            ) {
+                statusText = labels?.cancelledByDriver ?? "Cancelled by driver";
+                textColor = "text-red";
+            }
+        } else if (bookingStatus === "REJECTED") {
             statusText = labels?.rejected ?? "Rejected";
-        if (bookingStatus === "NO_SHOW")
+            textColor = "text-red";
+        } else if (bookingStatus === "NO_SHOW") {
             statusText = labels?.noShow ?? "No show";
+            textColor = "text-red";
+        }
 
         return (
             <div className="flex h-full items-end justify-end">
-                <span className="text-subtitle font-medium text-text-tertiary">
+                <span className={`text-control font-semibold ${textColor}`}>
                     {statusText}
                 </span>
             </div>

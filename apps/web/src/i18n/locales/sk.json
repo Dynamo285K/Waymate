@@ -493,6 +493,8 @@
         "messageDriver": "Napísať vodičovi",
         "viewDetails": "Zobraziť detaily",
         "cancelled": "Zrušené",
+        "cancelledByYou": "Zrušené vami",
+        "cancelledByDriver": "Zrušené vodičom",
         "rejected": "Zamietnuté",
         "noShow": "Nedostavil(a) sa"
     },
