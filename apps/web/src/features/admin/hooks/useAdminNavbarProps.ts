@@ -1,13 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
-import type { Language } from "../../../components/controls/LanguageSwitcher";
-import { toUiLanguage } from "../../../lib/language";
 import { useLogout } from "../../../hooks/shared/useLogout";
 
 export function useAdminNavbarProps(params: {
     activeTab?: "dashboard" | "rides" | "users" | "reviews" | "reports";
-    language: Language;
-    onLanguageChange: (lang: Language) => void;
     theme: "light" | "dark";
     onThemeToggle: () => void;
     userName?: string;
@@ -19,7 +15,6 @@ export function useAdminNavbarProps(params: {
 
     return {
         ...params,
-        language: toUiLanguage(params.language),
         onLogoClick: () => navigate({ to: "/admin" }),
         onDashboardClick: () => navigate({ to: "/admin" }),
         onRidesClick: () => navigate({ to: "/admin/rides" }),

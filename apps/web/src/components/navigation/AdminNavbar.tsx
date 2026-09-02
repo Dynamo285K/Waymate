@@ -8,7 +8,7 @@ import { NavButton } from "@/components/navigation/NavButton";
 import { StarIcon } from "@/components/ui/icons/StarIcon";
 import { SunIcon } from "@/components/ui/icons/SunIcon";
 import { UserIcon } from "@/components/ui/icons/UserIcon";
-import type { Language } from "../controls/LanguageSwitcher";
+
 import logoLight from "../../assets/logo_light_mode.png";
 import logoDark from "../../assets/logo_dark_mode.png";
 import {
@@ -38,8 +38,6 @@ export type AdminNavbarLabels = {
 
 export type AdminNavbarProps = {
     activeTab?: AdminNavbarTab;
-    language: Language;
-    onLanguageChange: (value: Language) => void;
     theme?: "light" | "dark";
     onThemeToggle?: () => void;
     userName?: string;
@@ -58,8 +56,6 @@ export type AdminNavbarProps = {
 
 export function AdminNavbar({
     activeTab,
-    language,
-    onLanguageChange,
     theme = "light",
     onThemeToggle,
     userName = "Admin",
@@ -73,8 +69,10 @@ export function AdminNavbar({
     onLogoutClick,
     labels,
 }: AdminNavbarProps) {
-    const { navbarRef, isDesktop, isTablet, isMobile, themeIcon, themeLabel } =
-        useNavbar({ breakpointWidth: 1024, theme });
+    const { navbarRef, isDesktop, isTablet, isMobile, themeLabel } = useNavbar({
+        breakpointWidth: 1024,
+        theme,
+    });
 
     const logoImg = (
         <NavbarLogo
@@ -93,11 +91,6 @@ export function AdminNavbar({
         <NavbarProfileSurface
             userName={userName}
             theme={theme}
-            language={language}
-            onLanguageChange={onLanguageChange}
-            themeLabel={themeLabel}
-            themeIcon={themeIcon}
-            onThemeToggle={onThemeToggle}
         >
             <AdminProfileDropdown
                 name={userName}
