@@ -97,11 +97,6 @@ export function RoleNavbar({
             userName={userName}
             userEmail={userEmail}
             theme={theme}
-            language={language}
-            onLanguageChange={onLanguageChange}
-            themeLabel={themeLabel}
-            themeIcon={themeIcon}
-            onThemeToggle={onThemeToggle}
             onProfileClick={onProfileClick}
             onMyRidesClick={onMyRidesClick}
             onMessagesClick={onMessagesClick}

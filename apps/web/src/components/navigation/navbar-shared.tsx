@@ -309,30 +309,20 @@ export type ProfileDropdownLabels = {
     logout?: string;
 };
 
-type ProfileSettingsProps = {
-    language: Language;
-    onLanguageChange: (value: Language) => void;
-    themeLabel: string;
-    themeIcon: ReactNode;
-    onThemeToggle?: () => void;
-};
-
 /**
- * The avatar-triggered dropdown card — trigger + framed surface + the
- * language/theme settings footer — shared by all three navbars. The dropdown
- * body (role-specific `ProfileDropdown` vs `AdminProfileDropdown`) is passed in
- * as children.
+ * The avatar-triggered dropdown card — trigger + framed surface — shared by
+ * all three navbars. The dropdown body (role-specific `ProfileDropdown` vs
+ * `AdminProfileDropdown`) is passed in as children.
  */
 export function NavbarProfileSurface({
     userName,
     theme,
     children,
-    ...settings
 }: {
     userName: string;
     theme: Theme;
     children: ReactNode;
-} & ProfileSettingsProps) {
+}) {
     return (
         <NavbarProfileMenu
             userName={userName}
@@ -342,16 +332,15 @@ export function NavbarProfileSurface({
                 <div className="profile-dropdown-surface:w-full profile-dropdown-surface:rounded-none profile-dropdown-surface:border-0 profile-dropdown-surface:shadow-none">
                     {children}
                 </div>
-                <NavbarProfileSettings {...settings} />
             </div>
         </NavbarProfileMenu>
     );
 }
 
 /**
- * The full avatar-triggered profile dropdown — the ProfileDropdown body plus the
- * language/theme settings footer — shared verbatim by the passenger and driver
- * navbars. Callers map their own label keys onto `labels` before passing them.
+ * The full avatar-triggered profile dropdown — the ProfileDropdown body
+ * shared verbatim by the passenger and driver navbars. Callers map their
+ * own label keys onto `labels` before passing them.
  */
 export function NavbarProfileDropdownMenu({
     userName,
@@ -363,7 +352,6 @@ export function NavbarProfileDropdownMenu({
     onRatingsClick,
     onLogoutClick,
     labels,
-    ...settings
 }: {
     userName: string;
     userEmail: string;
@@ -374,12 +362,11 @@ export function NavbarProfileDropdownMenu({
     onRatingsClick?: () => void;
     onLogoutClick?: () => void;
     labels?: ProfileDropdownLabels;
-} & ProfileSettingsProps) {
+}) {
     return (
         <NavbarProfileSurface
             userName={userName}
             theme={theme}
-            {...settings}
         >
             <ProfileDropdown
                 name={userName}
