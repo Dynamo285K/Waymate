@@ -165,6 +165,8 @@ function DriverPassengersPage() {
                                         booking.dropoffStop?.city ??
                                         undefined
                                     }
+                                    price={booking.priceAmount}
+                                    currency={booking.currency}
                                     onSendMessage={() =>
                                         openConversation(booking.bookingId)
                                     }

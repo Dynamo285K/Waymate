@@ -40,29 +40,37 @@ export function RideRequestCard({
     labels,
 }: RideRequestCardProps) {
     return (
-        <div className="flex min-w-0 items-center justify-between gap-6 py-5 px-6 bg-card border border-border rounded-2xl max-sm:flex-wrap max-sm:gap-3 max-sm:p-4">
-            <div className="flex items-center gap-4 shrink-0 max-sm:flex-1 max-sm:min-w-0">
-                <Avatar
-                    name={name}
-                    size="lg"
-                />
-                <div className="flex flex-col gap-0.75">
-                    <span className="text-base font-semibold text-text-primary whitespace-nowrap">
-                        {name}
-                    </span>
-                    <div className="flex items-center gap-1 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-dark-yellow icon-svg:fill-dark-yellow icon-svg:shrink-0">
-                        <StarIcon />
-                        <span className="text-sm text-text-secondary">
-                            {rating.toFixed(1)}
+        <div className="flex min-w-0 items-center justify-between gap-6 py-5 px-6 bg-card border border-border rounded-2xl max-sm:flex-col max-sm:items-stretch max-sm:gap-4 max-sm:p-4">
+            <div className="flex items-start justify-between max-sm:w-full shrink-0">
+                <div className="flex items-center gap-4 min-w-0">
+                    <Avatar
+                        name={name}
+                        size="lg"
+                    />
+                    <div className="flex flex-col gap-0.75 min-w-0">
+                        <span className="text-base font-semibold text-text-primary whitespace-nowrap overflow-hidden text-ellipsis">
+                            {name}
+                        </span>
+                        <div className="flex items-center gap-1 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-dark-yellow icon-svg:fill-dark-yellow icon-svg:shrink-0">
+                            <StarIcon />
+                            <span className="text-sm text-text-secondary">
+                                {rating.toFixed(1)}
+                            </span>
+                        </div>
+                        <span className="text-sm text-text-secondary whitespace-nowrap overflow-hidden text-ellipsis">
+                            {labels?.seatsRequired
+                                ? labels.seatsRequired(seatsRequired)
+                                : `${seatsRequired} seat(s) required`}
                         </span>
                     </div>
-                    <span className="text-sm text-text-secondary whitespace-nowrap">
-                        {labels?.seatsRequired
-                            ? labels.seatsRequired(seatsRequired)
-                            : `${seatsRequired} seat(s) required`}
-                    </span>
                 </div>
+                {/* Mobile Price */}
+                <span className="hidden max-sm:block text-xl font-bold text-text-primary mt-2">
+                    {price}
+                    {currency === "EUR" ? "€" : currency}
+                </span>
             </div>
+
             <div className="flex flex-col flex-1 max-sm:w-full max-sm:flex-none">
                 <div className="flex items-center gap-2">
                     <span className="w-3 h-3 rounded-full border-2 border-text-primary shrink-0" />
@@ -84,8 +92,10 @@ export function RideRequestCard({
                     </span>
                 </div>
             </div>
+
             <div className="flex flex-col items-end gap-3 shrink-0 max-sm:w-full max-sm:min-w-0">
-                <span className="text-xl font-bold text-text-primary max-sm:self-end">
+                {/* Desktop Price */}
+                <span className="text-xl font-bold text-text-primary max-sm:hidden">
                     {price}
                     {currency === "EUR" ? "€" : currency}
                 </span>
