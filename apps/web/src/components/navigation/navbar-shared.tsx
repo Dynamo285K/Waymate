@@ -352,6 +352,7 @@ export function NavbarProfileDropdownMenu({
     onRatingsClick,
     onLogoutClick,
     labels,
+    mobileSettingsNode,
 }: {
     userName: string;
     userEmail: string;
@@ -362,6 +363,7 @@ export function NavbarProfileDropdownMenu({
     onRatingsClick?: () => void;
     onLogoutClick?: () => void;
     labels?: ProfileDropdownLabels;
+    mobileSettingsNode?: ReactNode;
 }) {
     return (
         <NavbarProfileSurface
@@ -378,6 +380,7 @@ export function NavbarProfileDropdownMenu({
                 onLogoutClick={onLogoutClick}
                 labels={labels}
             />
+            {mobileSettingsNode}
         </NavbarProfileSurface>
     );
 }

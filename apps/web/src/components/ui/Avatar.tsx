@@ -25,7 +25,7 @@ export function Avatar({ name, src, size = "md" }: AvatarProps) {
 
     return (
         <div
-            className={`inline-flex items-center justify-center rounded-full bg-border text-text-primary font-semibold overflow-hidden ${sizes[size]}`}
+            className={`inline-flex shrink-0 items-center justify-center rounded-full bg-border text-text-primary font-semibold overflow-hidden ${sizes[size]}`}
         >
             {src && !imgError ? (
                 <img

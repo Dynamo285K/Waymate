@@ -15,6 +15,8 @@ type ProfileDropdownItemProps = {
 const itemBase =
     "w-full min-h-14 px-4.5 border-0 border-t border-border bg-transparent text-text-secondary cursor-pointer text-left transition-[background,color] duration-200 flex items-center gap-3 hover:bg-background hover:text-text-primary first:border-t-0";
 
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+
 function ProfileDropdownItem({
     icon,
     label,
@@ -22,18 +24,20 @@ function ProfileDropdownItem({
     danger = false,
 }: ProfileDropdownItemProps) {
     return (
-        <button
-            type="button"
-            className={`${itemBase} ${danger ? "hover:text-red" : ""}`}
-            onClick={onClick}
-        >
-            <span className="inline-flex items-center justify-center text-inherit [&_svg]:w-5 [&_svg]:h-5">
-                {icon}
-            </span>
-            <span className="text-control leading-[22px] font-medium">
-                {label}
-            </span>
-        </button>
+        <DropdownMenu.Item asChild>
+            <button
+                type="button"
+                className={`${itemBase} ${danger ? "hover:text-red" : ""}`}
+                onClick={onClick}
+            >
+                <span className="inline-flex items-center justify-center text-inherit [&_svg]:w-5 [&_svg]:h-5">
+                    {icon}
+                </span>
+                <span className="text-control leading-[22px] font-medium">
+                    {label}
+                </span>
+            </button>
+        </DropdownMenu.Item>
     );
 }
 

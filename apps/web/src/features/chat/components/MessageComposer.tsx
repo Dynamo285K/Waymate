@@ -26,7 +26,7 @@ export function MessageComposer({
     }
 
     return (
-        <div className="w-full py-3 px-6 flex items-center gap-3 bg-card border-t border-border box-border">
+        <div className="w-full py-3 px-6 flex items-center gap-3 bg-card border-t border-border box-border max-600:px-4 max-600:py-2.5">
             <input
                 type="text"
                 className="flex-1 h-12 border border-border rounded-full px-4.5 bg-input text-text-primary text-sm outline-none box-border placeholder:text-text-secondary focus:border-primary focus:shadow-focus"

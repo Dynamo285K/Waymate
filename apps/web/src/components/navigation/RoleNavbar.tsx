@@ -9,6 +9,7 @@ import {
     NavbarRoleControls,
     NavbarProfileDropdownMenu,
     RoleNavbarLayout,
+    NavbarProfileSettings,
     type RoleLabels,
     type ProfileDropdownLabels,
 } from "./navbar-shared";
@@ -103,6 +104,17 @@ export function RoleNavbar({
             onRatingsClick={onRatingsClick}
             onLogoutClick={onLogoutClick}
             labels={profileLabels}
+            mobileSettingsNode={
+                isMobile || isTablet ? (
+                    <NavbarProfileSettings
+                        language={language}
+                        onLanguageChange={onLanguageChange}
+                        themeLabel={themeLabel}
+                        themeIcon={themeIcon}
+                        onThemeToggle={onThemeToggle}
+                    />
+                ) : null
+            }
         />
     );
 

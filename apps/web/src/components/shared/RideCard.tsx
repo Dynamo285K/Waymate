@@ -88,9 +88,6 @@ export type RideCardProps =
 export function RideCard(props: RideCardProps) {
     const { from, to, datetime, price, duration, labels } = props;
 
-    const isDriverUpcoming = props.variant === "driver-upcoming";
-    const isDriverRide =
-        props.variant === "driver-upcoming" || props.variant === "driver-past";
     const metaRowClassName =
         "flex items-center gap-1.5 text-sm text-text-secondary icon-svg:w-4 icon-svg:h-4 icon-svg:text-text-secondary icon-svg:shrink-0";
 
@@ -109,7 +106,21 @@ export function RideCard(props: RideCardProps) {
                 data-testid="ride-card"
                 className="flex flex-col py-4 px-5 bg-card border border-border rounded-2xl max-600:p-4"
             >
-                <div className="flex justify-between items-stretch gap-6 max-600:flex-col max-600:gap-3">
+                {/* Mobile Header: Meta + Price */}
+                <div className="hidden max-600:flex justify-between items-center mb-4">
+                    <div className="flex flex-col gap-1">
+                        <span className={metaRowClassName}>
+                            <ClockIcon />
+                            <span className="break-words">{datetime}</span>
+                        </span>
+                    </div>
+                    <span className="text-subtitle font-bold text-text-primary">
+                        {price}
+                        {"€"}
+                    </span>
+                </div>
+
+                <div className="flex justify-between items-stretch gap-6 max-600:flex-col max-600:gap-4">
                     <div className="flex flex-col gap-2 min-w-0 flex-1">
                         <div className="flex flex-col min-w-0">
                             <div className="flex items-center gap-2 min-w-0">
@@ -131,13 +142,13 @@ export function RideCard(props: RideCardProps) {
                             <TextLink
                                 variant="muted"
                                 onClick={props.onViewDetails}
-                                className="self-start"
+                                className="self-start max-600:hidden"
                             >
                                 {labels?.viewDetails ?? "View details"}
                             </TextLink>
                         )}
 
-                        <div className="flex flex-col gap-1 mt-1">
+                        <div className="flex flex-col gap-1 mt-1 max-600:hidden">
                             <span className={metaRowClassName}>
                                 <ClockIcon />
                                 <span className="break-words">{datetime}</span>
@@ -159,8 +170,10 @@ export function RideCard(props: RideCardProps) {
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-end justify-between gap-3 shrink-0">
-                        <div className="flex flex-col items-end gap-2">
+                    <div className="hidden max-600:block h-px bg-border w-full" />
+
+                    <div className="flex flex-col items-end justify-between gap-3 shrink-0 max-600:flex-row max-600:items-center">
+                        <div className="flex flex-col items-end gap-2 max-600:flex-row max-600:items-center">
                             <div className="flex items-center gap-3 min-w-0">
                                 <Avatar
                                     name={props.driverName}
@@ -178,7 +191,7 @@ export function RideCard(props: RideCardProps) {
                                     </div>
                                 </div>
                             </div>
-                            <span className="text-subtitle font-bold text-text-primary">
+                            <span className="text-subtitle font-bold text-text-primary max-600:hidden">
                                 {price}
                                 {"€"}
                             </span>
@@ -205,8 +218,22 @@ export function RideCard(props: RideCardProps) {
                 data-testid="ride-card"
                 className="flex flex-col py-4 px-5 bg-card border border-border rounded-2xl max-600:p-4"
             >
-                <div className="flex justify-between items-stretch gap-6 max-600:flex-col max-600:gap-3">
-                    <div className="flex flex-col justify-between gap-2 min-w-0 flex-1">
+                {/* Mobile Header: Meta + Price */}
+                <div className="hidden max-600:flex justify-between items-center mb-4">
+                    <div className="flex flex-col gap-1">
+                        <span className={metaRowClassName}>
+                            <ClockIcon />
+                            <span className="break-words">{datetime}</span>
+                        </span>
+                    </div>
+                    <span className="text-subtitle font-bold text-text-primary">
+                        {price}
+                        {"€"}
+                    </span>
+                </div>
+
+                <div className="flex justify-between items-stretch gap-6 max-600:flex-col max-600:gap-4">
+                    <div className="flex flex-col gap-2 min-w-0 flex-1">
                         <div className="flex flex-col min-w-0">
                             <div className="flex items-center gap-2 min-w-0">
                                 <span className="w-3 h-3 rounded-full border-2 border-text-primary shrink-0" />
@@ -223,7 +250,7 @@ export function RideCard(props: RideCardProps) {
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-1 mt-1 max-600:hidden">
                             <span className={metaRowClassName}>
                                 <ClockIcon />
                                 <span className="break-words">{datetime}</span>
@@ -239,8 +266,10 @@ export function RideCard(props: RideCardProps) {
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-end justify-between gap-3 shrink-0">
-                        <div className="flex flex-col items-end gap-2">
+                    <div className="hidden max-600:block h-px bg-border w-full" />
+
+                    <div className="flex flex-col items-end justify-between gap-3 shrink-0 max-600:flex-row max-600:items-center">
+                        <div className="flex flex-col items-end gap-2 max-600:flex-row max-600:items-center">
                             <div className="flex items-center gap-3 min-w-0">
                                 <Avatar
                                     name={props.driverName}
@@ -258,7 +287,7 @@ export function RideCard(props: RideCardProps) {
                                     </div>
                                 </div>
                             </div>
-                            <span className="text-subtitle font-bold text-text-primary">
+                            <span className="text-subtitle font-bold text-text-primary max-600:hidden">
                                 {price}
                                 {"€"}
                             </span>
@@ -282,14 +311,25 @@ export function RideCard(props: RideCardProps) {
     return (
         <div
             data-testid="ride-card"
-            className="flex flex-col gap-4 py-5 px-6 bg-card border border-border rounded-2xl max-600:gap-3 max-600:p-4"
+            className="flex flex-col py-4 px-5 bg-card border border-border rounded-2xl max-600:p-4"
         >
-            <div
-                className={`flex justify-between items-start gap-6 max-600:gap-3 ${
-                    isDriverUpcoming ? "max-600:flex-col" : ""
-                }`}
-            >
-                <div className="flex flex-col gap-3 min-w-0 flex-1">
+            {/* Mobile Header: Datetime + Price */}
+            <div className="hidden max-600:flex justify-between items-center mb-4">
+                <div className="flex flex-col gap-1">
+                    <span className={metaRowClassName}>
+                        <ClockIcon />
+                        <span className="break-words">{datetime}</span>
+                    </span>
+                </div>
+                <span className="text-subtitle font-bold text-text-primary">
+                    {price}
+                    {"€"}
+                </span>
+            </div>
+
+            <div className="flex justify-between items-stretch gap-6 max-600:flex-col max-600:gap-4">
+                <div className="flex flex-col gap-2 min-w-0 flex-1">
+                    {/* Route */}
                     <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-2 min-w-0">
                             <span className="w-3 h-3 rounded-full border-2 border-text-primary shrink-0" />
@@ -305,71 +345,63 @@ export function RideCard(props: RideCardProps) {
                             </span>
                         </div>
                     </div>
+
+                    {/* Meta */}
+                    <div className="flex flex-col gap-1 mt-1">
+                        <span className={`max-600:hidden ${metaRowClassName}`}>
+                            <ClockIcon />
+                            <span className="break-words">{datetime}</span>
+                        </span>
+                        {duration && (
+                            <span className={metaRowClassName}>
+                                <CircleIcon />
+                                <span className="break-words">{duration}</span>
+                            </span>
+                        )}
+                        {props.variant === "driver-upcoming" && (
+                            <span className={metaRowClassName}>
+                                <UserIcon />
+                                <span>
+                                    {props.seatsLeft === "full"
+                                        ? (labels?.full ?? "Full")
+                                        : seatsText(props.seatsLeft)}
+                                </span>
+                            </span>
+                        )}
+                    </div>
                 </div>
 
-                <div
-                    className={`flex flex-col items-end gap-2 shrink-0 ${
-                        isDriverUpcoming
-                            ? "max-600:w-full"
-                            : "max-600:items-end"
-                    }`}
-                >
-                    <div className="flex flex-col items-end gap-2 max-600:items-end">
+                {/* Mobile Divider */}
+                <div className="hidden max-600:block h-px bg-border w-full" />
+
+                <div className="flex flex-col items-end justify-between gap-3 shrink-0 max-600:flex-row max-600:items-center">
+                    <div className="flex flex-col items-end gap-2 max-600:hidden">
                         <span className="text-subtitle font-bold text-text-primary">
                             {price}
-                            {"\u20ac"}
+                            {"€"}
                         </span>
+                    </div>
 
+                    <div className="flex flex-col items-end gap-3 max-600:w-full max-600:flex-row max-600:justify-end">
+                        {props.variant === "driver-upcoming" && (
+                            <DriverUpcomingActions
+                                labels={labels}
+                                onViewPassengers={props.onViewPassengers}
+                                onCompleteRide={props.onCompleteRide}
+                                onCancelRide={props.onCancelRide}
+                            />
+                        )}
                         {props.variant === "driver-past" && (
                             <Button
                                 variant="black"
                                 onClick={props.onRatePassengers}
+                                className="max-600:w-full"
                             >
                                 {labels?.ratePassengers ?? "Rate passengers"}
                             </Button>
                         )}
                     </div>
                 </div>
-            </div>
-
-            <div
-                className={
-                    isDriverRide
-                        ? "flex items-end justify-between gap-4 max-600:items-stretch"
-                        : "flex items-end justify-between gap-4 max-600:flex-col max-600:items-stretch"
-                }
-            >
-                <div className="flex min-w-0 flex-col items-start gap-1">
-                    <span className={metaRowClassName}>
-                        <ClockIcon />
-                        <span className="break-words">{datetime}</span>
-                    </span>
-                    {duration && (
-                        <span className={metaRowClassName}>
-                            <CircleIcon />
-                            <span className="break-words">{duration}</span>
-                        </span>
-                    )}
-                    {props.variant === "driver-upcoming" && (
-                        <span className={metaRowClassName}>
-                            <UserIcon />
-                            <span>
-                                {props.seatsLeft === "full"
-                                    ? (labels?.full ?? "Full")
-                                    : seatsText(props.seatsLeft)}
-                            </span>
-                        </span>
-                    )}
-                </div>
-
-                {props.variant === "driver-upcoming" && (
-                    <DriverUpcomingActions
-                        labels={labels}
-                        onViewPassengers={props.onViewPassengers}
-                        onCompleteRide={props.onCompleteRide}
-                        onCancelRide={props.onCancelRide}
-                    />
-                )}
             </div>
         </div>
     );

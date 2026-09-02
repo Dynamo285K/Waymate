@@ -27,13 +27,20 @@ function DriverRouteLayout() {
         userEmail: user?.email,
     });
 
+    const activeTab = getDriverActiveTab(location.pathname);
+    const isChat = activeTab === "chat";
+
     return (
         <div
             data-theme={theme}
-            className="min-h-screen bg-background pb-24 lg:pb-0"
+            className={`${isChat ? "h-[100dvh] overflow-hidden" : "min-h-screen"} flex flex-col bg-background`}
         >
             <DriverNavbar {...navbarProps} />
-            <Outlet />
+            <main
+                className={`flex flex-col flex-1 min-h-0 ${isChat ? "pb-[73px] lg:pb-0" : "pb-24 lg:pb-0"}`}
+            >
+                <Outlet />
+            </main>
         </div>
     );
 }
