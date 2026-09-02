@@ -64,7 +64,6 @@ export function ChatThreadHeader({
                         className="block max-w-full cursor-pointer truncate border-0 bg-transparent p-0 text-left text-xs text-text-secondary transition-colors hover:text-primary hover:underline"
                     >
                         {rideLabel}
-                        <span aria-hidden="true"> →</span>
                     </button>
                 )}
             </div>

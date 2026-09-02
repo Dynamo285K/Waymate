@@ -60,7 +60,7 @@
     --spacing-register-content: calc(100vh - 72px);
     --spacing-chat-panel: calc(100dvh - 72px);
     --spacing-chat-panel-tablet: calc(100dvh - 136px);
-    --spacing-chat-panel-mobile: calc(100dvh - 168px);
+    --spacing-chat-panel-mobile: calc(100dvh - 132px);
     --spacing-radix-select-trigger: var(--radix-select-trigger-width);
     --spacing-radix-select-list: min(
         320px,

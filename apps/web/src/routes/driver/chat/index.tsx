@@ -12,18 +12,10 @@ export const Route = createFileRoute("/driver/chat/")({
 function DriverChatPage() {
     const { conversation } = Route.useSearch();
     const { theme } = useLayout();
-    const breakpoint = useBreakpoint(1024);
-    const heightClass =
-        breakpoint === "desktop"
-            ? "h-chat-panel"
-            : breakpoint === "tablet"
-              ? "h-chat-panel-tablet"
-              : "h-chat-panel-mobile";
-
     return (
         <div
             data-theme={theme}
-            className={`${heightClass} bg-background flex flex-col overflow-hidden`}
+            className="flex-1 w-full bg-background flex flex-col overflow-hidden"
         >
             <ChatPanel initialConversationId={conversation} />
         </div>
