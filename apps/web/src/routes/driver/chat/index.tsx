@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createFileRoute } from "@tanstack/react-router";
 import { ChatPanel } from "../../../features/chat/components/ChatPanel";
-import { useBreakpoint } from "../../../hooks/shared/useBreakpoint";
+
 import { useLayout } from "../../../lib/use-layout";
 
 export const Route = createFileRoute("/driver/chat/")({
