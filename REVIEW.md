@@ -30,23 +30,23 @@ The codebase is materially above typical student level: request hardening, struc
 
 ## Status Table
 
-| #   | Category                 | Status          | Δ vs. prior review               |
-| --- | ------------------------ | --------------- | -------------------------------- |
-| 1   | Component Library        | ✅ Good         | =                                |
-| 2   | Styling                  | ✅ Good         | =                                |
-| 3   | Loading Data             | ✅ Good         | =                                |
-| 4   | Environment Variables    | ✅ Good         | =                                |
-| 5   | REST API Design          | ✅ Excellent    | =                                |
-| 6   | Database                 | ✅ Excellent    | =                                |
-| 7   | Backend Design Patterns  | ✅ Excellent    | =                                |
-| 8   | Auth                     | ✅ Good         | =                                |
-| 9   | Testing                  | ✅ Good         | =                                |
-| 10  | Logging & Monitoring     | ✅ Good         | =                                |
-| 11  | Error Handling           | ✅ Good         | =                                |
-| 12  | Security                 | ✅ Excellent    | =                                |
-| 13  | Forms                    | ✅ Good         | =                                |
-| 14  | Frontend Structure       | ⚠️ **Minor**    | ↓ from Good                      |
-| —   | Repo Hygiene (cross-cut) | ⚠️ **Minor**    | not previously assessed          |
+| #   | Category                 | Status       | Δ vs. prior review      |
+| --- | ------------------------ | ------------ | ----------------------- |
+| 1   | Component Library        | ✅ Good      | =                       |
+| 2   | Styling                  | ✅ Good      | =                       |
+| 3   | Loading Data             | ✅ Good      | =                       |
+| 4   | Environment Variables    | ✅ Good      | =                       |
+| 5   | REST API Design          | ✅ Excellent | =                       |
+| 6   | Database                 | ✅ Excellent | =                       |
+| 7   | Backend Design Patterns  | ✅ Excellent | =                       |
+| 8   | Auth                     | ✅ Good      | =                       |
+| 9   | Testing                  | ✅ Good      | =                       |
+| 10  | Logging & Monitoring     | ✅ Good      | =                       |
+| 11  | Error Handling           | ✅ Good      | =                       |
+| 12  | Security                 | ✅ Excellent | =                       |
+| 13  | Forms                    | ✅ Good      | =                       |
+| 14  | Frontend Structure       | ⚠️ **Minor** | ↓ from Good             |
+| —   | Repo Hygiene (cross-cut) | ⚠️ **Minor** | not previously assessed |
 
 ---
 
@@ -90,7 +90,7 @@ better-auth + Drizzle adapter (`auth.ts`), email/password + Google OAuth. Three 
 
 ## 9. Testing — ✅ Good
 
-26 API test files and 15 web test files exist; substantial backend suites (`ride.service.test.ts` 1022 lines, `booking.service.test.ts` 596). No `.skip`/`.only`/`.todo`. CI runs Vitest against a throwaway `postgres:18`. 
+26 API test files and 15 web test files exist; substantial backend suites (`ride.service.test.ts` 1022 lines, `booking.service.test.ts` 596). No `.skip`/`.only`/`.todo`. CI runs Vitest against a throwaway `postgres:18`.
 
 Crucially, **the `chat` and `blocks` modules are rigorously tested**. `chat.service.test.ts` (600+ lines) covers IDOR guards (`resolveRole`), recipient-banned checks, block checks, and the keyset pagination cursor perfectly. `block.service.test.ts` verifies idempotency and directional blocking.
 
