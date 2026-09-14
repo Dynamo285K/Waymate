@@ -13,7 +13,7 @@ export const Route = createFileRoute("/admin")({
 
 function AdminRouteLayout() {
     const location = useLocation();
-    const { theme, onThemeToggle } = useLayout();
+    const { theme, onThemeToggle, language, onLanguageChange } = useLayout();
     const { data: session } = useSession();
     const user = session?.user;
 
@@ -21,6 +21,8 @@ function AdminRouteLayout() {
         activeTab: getAdminActiveTab(location.pathname),
         theme,
         onThemeToggle,
+        language,
+        onLanguageChange,
         userName: user ? getDisplayName(user) : undefined,
         userEmail: user?.email,
     });

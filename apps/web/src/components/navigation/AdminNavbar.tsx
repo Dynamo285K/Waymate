@@ -3,17 +3,20 @@ import { AlertIcon } from "@/components/ui/icons/AlertIcon";
 import { DashboardIcon } from "@/components/ui/icons/DashboardIcon";
 import { IconButton } from "@/components/ui/IconButton";
 import { ListIcon } from "@/components/ui/icons/ListIcon";
-import { MoonIcon } from "@/components/ui/icons/MoonIcon";
 import { NavButton } from "@/components/navigation/NavButton";
 import { StarIcon } from "@/components/ui/icons/StarIcon";
-import { SunIcon } from "@/components/ui/icons/SunIcon";
 import { UserIcon } from "@/components/ui/icons/UserIcon";
+import {
+    LanguageSwitcher,
+    type Language,
+} from "@/components/controls/LanguageSwitcher";
 
 import logoLight from "../../assets/logo_light_mode.png";
 import logoDark from "../../assets/logo_dark_mode.png";
 import {
     NavbarBottomTabs,
     NavbarLogo,
+    NavbarProfileSettings,
     NavbarProfileSurface,
     NavbarShell,
 } from "./navbar-shared";
@@ -40,6 +43,8 @@ export type AdminNavbarProps = {
     activeTab?: AdminNavbarTab;
     theme?: "light" | "dark";
     onThemeToggle?: () => void;
+    language: Language;
+    onLanguageChange: (value: Language) => void;
     userName?: string;
     userEmail?: string;
     onLogoClick?: () => void;
@@ -58,6 +63,8 @@ export function AdminNavbar({
     activeTab,
     theme = "light",
     onThemeToggle,
+    language,
+    onLanguageChange,
     userName = "Admin",
     userEmail = "admin@waymate.com",
     onLogoClick,
@@ -69,10 +76,11 @@ export function AdminNavbar({
     onLogoutClick,
     labels,
 }: AdminNavbarProps) {
-    const { navbarRef, isDesktop, isTablet, isMobile, themeLabel } = useNavbar({
-        breakpointWidth: 1024,
-        theme,
-    });
+    const { navbarRef, isDesktop, isTablet, isMobile, themeIcon, themeLabel } =
+        useNavbar({
+            breakpointWidth: 1024,
+            theme,
+        });
 
     const logoImg = (
         <NavbarLogo
@@ -98,6 +106,15 @@ export function AdminNavbar({
                 onLogoutClick={onLogoutClick}
                 labels={{ logout: labels?.logout }}
             />
+            {(isMobile || isTablet) && (
+                <NavbarProfileSettings
+                    language={language}
+                    onLanguageChange={onLanguageChange}
+                    themeLabel={themeLabel}
+                    themeIcon={themeIcon}
+                    onThemeToggle={onThemeToggle}
+                />
+            )}
         </NavbarProfileSurface>
     );
 
@@ -172,16 +189,14 @@ export function AdminNavbar({
                         </div>
                         <div className="flex items-center gap-5 shrink-0">
                             {adminBadge}
+                            <LanguageSwitcher
+                                value={language}
+                                onChange={onLanguageChange}
+                            />
                             <div className="inline-flex rounded-full bg-card shadow-control-floating">
                                 <IconButton
                                     ariaLabel={themeLabel}
-                                    icon={
-                                        theme === "dark" ? (
-                                            <SunIcon />
-                                        ) : (
-                                            <MoonIcon />
-                                        )
-                                    }
+                                    icon={themeIcon}
                                     variant="default"
                                     onClick={onThemeToggle}
                                 />
