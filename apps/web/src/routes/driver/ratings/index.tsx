@@ -1,5 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import {
+    createFileRoute,
+    useNavigate,
+    useRouter,
+} from "@tanstack/react-router";
 import { RatingSummaryCard } from "@/components/shared/RatingSummaryCard";
 import { RatingCard } from "@/components/shared/RatingCard";
 import { TextLink } from "@/components/ui/TextLink";
@@ -27,16 +31,25 @@ export const Route = createFileRoute("/driver/ratings/")({
 function DriverRatingsPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const router = useRouter();
     const { theme } = useLayout();
     const { data: session } = useSession();
     const user = session?.user;
     const userId = user?.id;
     const search = Route.useSearch();
-    const view = search.view === "authored" ? "authored" : "received";
-    const receivedReviews = useGetReviewsUsersByUserId(userId ?? "", {
-        query: { enabled: Boolean(userId) },
+    const isOwnProfile = !search.userId || search.userId === userId;
+    const targetUserId = search.userId ?? userId;
+    const view =
+        isOwnProfile && search.view === "authored" ? "authored" : "received";
+    const receivedReviews = useGetReviewsUsersByUserId(targetUserId ?? "", {
+        query: { enabled: Boolean(targetUserId) },
     });
-    const authoredReviews = useGetReviewsMeAuthored();
+    // "Authored" reviews are always the logged-in user's own — there's no
+    // endpoint to fetch reviews authored by an arbitrary user, so this view
+    // only applies on the current user's own ratings page.
+    const authoredReviews = useGetReviewsMeAuthored({
+        query: { enabled: isOwnProfile },
+    });
     const isReceived = view === "received";
     const isLoading = isReceived
         ? receivedReviews.isLoading
@@ -80,14 +93,28 @@ function DriverRatingsPage() {
                 <div className="text-sm mb-4">
                     <TextLink
                         variant="muted"
-                        onClick={() => navigate({ to: "/driver/profile" })}
+                        onClick={() =>
+                            isOwnProfile
+                                ? navigate({ to: "/driver/profile" })
+                                : router.history.back()
+                        }
                     >
-                        {t("profile.backToProfile")}
+                        {isOwnProfile
+                            ? t("profile.backToProfile")
+                            : t("ratings.back")}
                     </TextLink>
                 </div>
 
                 <h1 className="text-2xl font-bold text-text-primary mb-6">
-                    {isReceived ? t("ratings.title") : t("ratings.myRatings")}
+                    {!isOwnProfile
+                        ? search.name
+                            ? t("ratings.userTitleNamed", {
+                                  name: search.name,
+                              })
+                            : t("ratings.userTitle")
+                        : isReceived
+                          ? t("ratings.title")
+                          : t("ratings.myRatings")}
                 </h1>
 
                 <RatingSummaryCard

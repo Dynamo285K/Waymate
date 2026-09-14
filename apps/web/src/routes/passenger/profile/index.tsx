@@ -72,6 +72,7 @@ function PassengerProfilePage() {
                 booking.ride.departureAt,
                 booking.ride.arrivalEstimateAt
             ),
+            driverId: booking.driver.id,
             driverName:
                 `${booking.driver.firstName ?? ""} ${
                     booking.driver.lastName ?? ""
@@ -169,6 +170,7 @@ function PassengerProfilePage() {
                                 price={ride.price}
                                 duration={ride.duration}
                                 seatsLeft={ride.seatsLeft}
+                                driverId={ride.driverId}
                                 driverName={ride.driverName}
                                 driverRating={ride.driverRating}
                                 status={ride.status}

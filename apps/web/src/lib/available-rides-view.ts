@@ -9,6 +9,7 @@ export interface AvailableRideCardModel {
     date: Date;
     seatsLeft: number;
     duration?: string;
+    driverId: string;
     driverName: string;
     driverRating: number;
     price: number;
@@ -39,6 +40,7 @@ export function mapAvailableRides(
             ),
             seatsLeft: ride.seatsLeft,
             duration: formatDuration(ride.departureAt, ride.arrivalEstimateAt),
+            driverId: ride.driver.id,
             driverName: driverName || driverFallback,
             driverRating: ride.driver.averageRating ?? 0,
             price: ride.priceAmount ?? 0,

@@ -176,6 +176,7 @@ function RidesPage() {
                                     )}
                                     duration={ride.duration}
                                     seatsLeft={ride.seatsLeft}
+                                    driverId={ride.driverId}
                                     driverName={ride.driverName}
                                     driverRating={ride.driverRating}
                                     price={ride.price}
@@ -211,6 +212,7 @@ function RidesPage() {
                                     ride.arrivalEstimateAt
                                 )}
                                 seatsLeft={ride.seatsLeft}
+                                driverId={ride.driver.id}
                                 driverName={`${ride.driver.firstName} ${ride.driver.lastName}`}
                                 driverRating={ride.driver.averageRating ?? 0}
                                 price={ride.priceAmount ?? 0}

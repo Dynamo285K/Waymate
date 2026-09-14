@@ -77,6 +77,7 @@ export function RideRequestsSection({
                         requests.map((request) => (
                             <RideRequestCard
                                 key={request.id}
+                                userId={request.passengerId}
                                 name={request.name}
                                 rating={request.rating}
                                 seatsRequired={request.seatsRequired}

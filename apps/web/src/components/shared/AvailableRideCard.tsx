@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/Button";
 import { CircleIcon } from "@/components/ui/icons/CircleIcon";
 import { ClockIcon } from "@/components/ui/icons/ClockIcon";
 import { MapPinIcon } from "@/components/ui/icons/MapPinIcon";
-import { StarIcon } from "@/components/ui/icons/StarIcon";
 import { UserIcon } from "@/components/ui/icons/UserIcon";
+import { RatingLink } from "./RatingLink";
 
 export type AvailableRideCardLabels = {
     seatsLeft?: (count: number) => string;
@@ -20,6 +20,7 @@ export type AvailableRideCardProps = {
     datetime: string;
     duration?: string;
     seatsLeft: number;
+    driverId: string;
     driverName: string;
     driverRating: number;
     price: number;
@@ -36,6 +37,7 @@ export function AvailableRideCard({
     datetime,
     duration,
     seatsLeft,
+    driverId,
     driverName,
     driverRating,
     price,
@@ -64,7 +66,7 @@ export function AvailableRideCard({
                 <div className="flex flex-col gap-1">
                     <span className={metaRowClassName}>
                         <ClockIcon />
-                        <span className="break-words">{datetime}</span>
+                        <span className="wrap-break-word">{datetime}</span>
                     </span>
                 </div>
                 <span className="text-subtitle font-bold text-text-primary">
@@ -89,14 +91,14 @@ export function AvailableRideCard({
                 <div className="hidden max-600:flex flex-col min-w-0 w-full">
                     <div className="flex items-center gap-2 min-w-0">
                         <span className="w-3 h-3 rounded-full border-2 border-text-primary shrink-0" />
-                        <span className="text-route font-semibold text-text-primary min-w-0 break-words">
+                        <span className="text-route font-semibold text-text-primary min-w-0 wrap-break-word">
                             {from}
                         </span>
                     </div>
                     <div className="w-0.5 h-5 bg-text-secondary ml-1.25" />
                     <div className="flex items-center gap-2 min-w-0 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-text-primary icon-svg:shrink-0">
                         <MapPinIcon />
-                        <span className="text-route font-semibold text-text-primary min-w-0 break-words">
+                        <span className="text-route font-semibold text-text-primary min-w-0 wrap-break-word">
                             {to}
                         </span>
                     </div>
@@ -135,15 +137,16 @@ export function AvailableRideCard({
                         size="sm"
                     />
                     <div className="flex min-w-0 flex-col gap-0.5">
-                        <span className="text-control font-semibold text-text-primary break-words max-600:text-left">
+                        <span className="text-control font-semibold text-text-primary wrap-break-word max-600:text-left">
                             {driverName}
                         </span>
-                        <div className="flex items-center gap-1 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-dark-yellow icon-svg:fill-dark-yellow icon-svg:shrink-0 max-600:justify-start">
-                            <StarIcon />
-                            <span className="text-caption text-text-secondary">
-                                {driverRating.toFixed(1)}
-                            </span>
-                        </div>
+                        <RatingLink
+                            userId={driverId}
+                            name={driverName}
+                            rating={driverRating}
+                            to="/driver/ratings"
+                            className="max-600:justify-start"
+                        />
                     </div>
                 </div>
 

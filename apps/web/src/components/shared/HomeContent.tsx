@@ -40,6 +40,7 @@ type AvailableRide = {
     date: Date;
     duration?: string;
     seatsLeft: number;
+    driverId: string;
     driverName: string;
     driverRating: number;
     price: number;
@@ -99,6 +100,7 @@ export function HomeContent({
                       ride.departureAt,
                       ride.arrivalEstimateAt
                   ),
+                  driverId: ride.driver.id,
                   driverName: driverName || t("roles.driver"),
                   driverRating: ride.driver.averageRating ?? 0,
                   price: ride.priceAmount ?? 0,
@@ -243,6 +245,7 @@ export function HomeContent({
                                 )}
                                 duration={ride.duration}
                                 seatsLeft={ride.seatsLeft}
+                                driverId={ride.driverId}
                                 driverName={ride.driverName}
                                 driverRating={ride.driverRating}
                                 price={ride.price}

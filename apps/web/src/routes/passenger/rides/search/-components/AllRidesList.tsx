@@ -34,6 +34,7 @@ export function AllRidesList({ rows, seats, book }: AllRidesListProps) {
             date: departure,
             duration: formatDuration(ride.departureAt, ride.arrivalEstimateAt),
             seatsLeft: ride.seatsLeft,
+            driverId: ride.driver.id,
             driverName: driverName || t("roles.driver"),
             driverRating: ride.driver.averageRating ?? 0,
             price: (ride.priceAmount ?? 0) * seats,
@@ -52,6 +53,7 @@ export function AllRidesList({ rows, seats, book }: AllRidesListProps) {
                     datetime={formatRideDate(ride.date, t("home.at"))}
                     duration={ride.duration}
                     seatsLeft={ride.seatsLeft}
+                    driverId={ride.driverId}
                     driverName={ride.driverName}
                     driverRating={ride.driverRating}
                     price={ride.price}
