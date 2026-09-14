@@ -1,11 +1,14 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { useLogout } from "../../../hooks/shared/useLogout";
+import type { Language } from "../../../components/controls/LanguageSwitcher";
 
 export function useAdminNavbarProps(params: {
     activeTab?: "dashboard" | "rides" | "users" | "reviews" | "reports";
     theme: "light" | "dark";
     onThemeToggle: () => void;
+    language: Language;
+    onLanguageChange: (value: Language) => void;
     userName?: string;
     userEmail?: string;
 }) {
