@@ -59,3 +59,24 @@ bunfig.toml
 # Claude
 .claude/settings.local.json
 .claude/settings.json
+
+# Terraform plugins and modules
+**/.terraform/*
+
+# Terraform state (contains passwords and sensitive data!)
+*.tfstate
+*.tfstate.*
+
+# Terraform variables (often contain secrets!)
+*.tfvars
+*.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
+
+# Terraform plan output (can contain sensitive data)
+*.tfplan
+*.plan
+
+# Terraform crash logs
+crash.log
+crash.*.log

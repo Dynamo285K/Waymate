@@ -54,6 +54,8 @@ lint:
 
 format:
     stage: static-analysis
+    tags:
+        - cloud-micro
     script:
         - bun run format:check
 
@@ -64,6 +66,8 @@ typecheck:
 
 i18n-check:
     stage: static-analysis
+    tags:
+        - cloud-micro
     script:
         - bun run --cwd apps/web i18n:check
 
