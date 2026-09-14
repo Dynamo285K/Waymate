@@ -41,6 +41,7 @@ export const AdminReviewRoutes = new Elysia({ prefix: "/admin" })
                         status: query.status,
                         minRating: query.minRating,
                         maxRating: query.maxRating,
+                        subjectRole: query.subjectRole,
                         search: query.search,
                     });
                 },

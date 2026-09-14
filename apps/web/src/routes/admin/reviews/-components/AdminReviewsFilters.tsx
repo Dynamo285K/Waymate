@@ -74,64 +74,73 @@ export function AdminReviewsFilters({
     ];
 
     return (
-        <div className="flex flex-col gap-3 mb-6 sm:flex-row sm:flex-wrap sm:items-center">
-            <div className="flex w-full gap-1 overflow-x-auto bg-card border border-border rounded-xl p-1 sm:w-auto">
-                {tabs.map((tab) => (
-                    <Button
-                        key={tab.key}
-                        variant="unstyled"
-                        onClick={() => onStatusFilterChange(tab.key)}
-                        className={`shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5 ${
-                            statusFilter === tab.key
-                                ? "bg-text-primary text-card"
-                                : "text-text-secondary hover:text-text-primary"
-                        }`}
-                    >
-                        {tab.label}
-                        {tab.count !== undefined && (
-                            <span
-                                className={`text-xs font-bold ${
-                                    statusFilter === tab.key
-                                        ? "opacity-80"
-                                        : "text-text-secondary"
-                                }`}
-                            >
-                                {tab.count}
-                            </span>
-                        )}
-                    </Button>
-                ))}
+        <div className="flex flex-col gap-3 mb-6 lg:flex-row lg:flex-wrap lg:items-center">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:contents">
+                <div className="flex w-full gap-1 overflow-x-auto bg-card border border-border rounded-xl p-1 sm:min-w-0 sm:flex-1 lg:flex-none lg:w-auto">
+                    {tabs.map((tab) => (
+                        <Button
+                            key={tab.key}
+                            variant="unstyled"
+                            onClick={() => onStatusFilterChange(tab.key)}
+                            className={`shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5 ${
+                                statusFilter === tab.key
+                                    ? "bg-text-primary text-card"
+                                    : "text-text-secondary hover:text-text-primary"
+                            }`}
+                        >
+                            {tab.label}
+                            {tab.count !== undefined && (
+                                <span
+                                    className={`text-xs font-bold ${
+                                        statusFilter === tab.key
+                                            ? "opacity-80"
+                                            : "text-text-secondary"
+                                    }`}
+                                >
+                                    {tab.count}
+                                </span>
+                            )}
+                        </Button>
+                    ))}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 lg:contents">
+                    <FilterSelect
+                        ariaLabel={t("admin.allRatings")}
+                        value={
+                            ratingFilter === null ? "all" : String(ratingFilter)
+                        }
+                        onValueChange={(value) =>
+                            onRatingFilterChange(
+                                value === "all" ? null : Number(value)
+                            )
+                        }
+                        options={ratingOptions.map((opt) => ({
+                            value:
+                                opt.value === null ? "all" : String(opt.value),
+                            label: opt.label,
+                        }))}
+                    />
+
+                    <FilterSelect
+                        ariaLabel={t("admin.allTargets")}
+                        value={targetRoleFilter ?? "ALL"}
+                        onValueChange={(value) =>
+                            onTargetRoleFilterChange(
+                                value === "ALL"
+                                    ? null
+                                    : (value as GetReviewsAdminSubjectRole)
+                            )
+                        }
+                        options={targetOptions.map((opt) => ({
+                            value: opt.value ?? "ALL",
+                            label: opt.label,
+                        }))}
+                    />
+                </div>
             </div>
 
-            <FilterSelect
-                ariaLabel={t("admin.allRatings")}
-                value={ratingFilter === null ? "all" : String(ratingFilter)}
-                onValueChange={(value) =>
-                    onRatingFilterChange(value === "all" ? null : Number(value))
-                }
-                options={ratingOptions.map((opt) => ({
-                    value: opt.value === null ? "all" : String(opt.value),
-                    label: opt.label,
-                }))}
-            />
-
-            <FilterSelect
-                ariaLabel={t("admin.allTargets")}
-                value={targetRoleFilter ?? "ALL"}
-                onValueChange={(value) =>
-                    onTargetRoleFilterChange(
-                        value === "ALL"
-                            ? null
-                            : (value as GetReviewsAdminSubjectRole)
-                    )
-                }
-                options={targetOptions.map((opt) => ({
-                    value: opt.value ?? "ALL",
-                    label: opt.label,
-                }))}
-            />
-
-            <div className="w-full sm:ml-auto sm:max-w-xs">
+            <div className="w-full lg:ml-auto lg:w-48 lg:min-w-0 lg:flex-1 xl:max-w-xs">
                 <SearchInput
                     value={searchInput}
                     onChange={onSearchInputChange}

@@ -14,7 +14,7 @@ export function AdminUsersFilters({
 
     return (
         <div className="flex flex-col gap-3 mb-6">
-            <div className="w-full sm:max-w-sm">
+            <div className="w-full">
                 <SearchInput
                     placeholder={t("admin.searchUsers")}
                     value={searchInput}
