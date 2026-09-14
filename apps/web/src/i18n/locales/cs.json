@@ -469,6 +469,9 @@
         "title": "Moje hodnocení",
         "totalRatings": "Celkem hodnocení",
         "myRatings": "Moje hodnocení",
+        "userTitle": "Hodnocení",
+        "userTitleNamed": "Hodnocení - {{name}}",
+        "back": "← Zpět",
         "loading": "Načítám hodnocení...",
         "empty": "Zatím žádná hodnocení."
     },

@@ -89,6 +89,7 @@ export function PassengerRideList({
                         datetime={formatDatetime(ride.date)}
                         price={ride.price}
                         duration={ride.duration}
+                        driverId={ride.driverId ?? ""}
                         driverName={ride.driverName}
                         driverRating={ride.driverRating}
                         seatsLeft={ride.seatsLeft}
@@ -114,6 +115,7 @@ export function PassengerRideList({
                     datetime={formatDatetime(ride.date)}
                     price={ride.price}
                     duration={ride.duration}
+                    driverId={ride.driverId ?? ""}
                     driverName={ride.driverName}
                     driverRating={ride.driverRating}
                     alreadyReviewed={ride.alreadyReviewed}

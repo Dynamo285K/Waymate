@@ -45,6 +45,7 @@ export function SearchResultsList({
                         originalEndCity={ride.originalEndCity}
                         datetime={formatRideDate(departure, t("home.at"))}
                         seatsLeft={ride.seatsLeft}
+                        driverId={ride.driver.id}
                         driverName={driverName}
                         driverRating={ride.driver.averageRating ?? 0}
                         price={(ride.priceAmount ?? 0) * seats}

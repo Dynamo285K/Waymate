@@ -45,6 +45,7 @@ function DriverRideRequestsPage() {
 
             return {
                 id: request.id,
+                passengerId: request.passenger.id,
                 name: fullName || t("rideRequests.passenger"),
                 rating: request.passenger.averageRating ?? 0,
                 seatsRequired: request.seatCount,
@@ -110,6 +111,7 @@ function DriverRideRequestsPage() {
                         displayedRequests.map((request) => (
                             <RideRequestCard
                                 key={request.id}
+                                userId={request.passengerId}
                                 name={request.name}
                                 rating={request.rating}
                                 seatsRequired={request.seatsRequired}

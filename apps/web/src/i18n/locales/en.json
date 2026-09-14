@@ -469,6 +469,9 @@
         "title": "My Ratings",
         "totalRatings": "Total Ratings",
         "myRatings": "My ratings",
+        "userTitle": "Ratings",
+        "userTitleNamed": "Ratings - {{name}}",
+        "back": "← Back",
         "loading": "Loading ratings...",
         "empty": "No ratings yet."
     },

@@ -150,6 +150,7 @@ function DriverPassengersPage() {
                             return (
                                 <PassengerCard
                                     key={booking.bookingId}
+                                    userId={booking.passenger.id}
                                     name={passengerName}
                                     rating={
                                         booking.passenger.averageRating ?? 0

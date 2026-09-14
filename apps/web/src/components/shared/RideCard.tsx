@@ -4,8 +4,8 @@ import { TextLink } from "@/components/ui/TextLink";
 import { CircleIcon } from "@/components/ui/icons/CircleIcon";
 import { ClockIcon } from "@/components/ui/icons/ClockIcon";
 import { MapPinIcon } from "@/components/ui/icons/MapPinIcon";
-import { StarIcon } from "@/components/ui/icons/StarIcon";
 import { UserIcon } from "@/components/ui/icons/UserIcon";
+import { RatingLink } from "./RatingLink";
 import { DriverUpcomingActions } from "./ride-card/DriverUpcomingActions";
 import { PassengerUpcomingActions } from "./ride-card/PassengerUpcomingActions";
 import { PassengerPastActions } from "./ride-card/PassengerPastActions";
@@ -53,6 +53,7 @@ type DriverUpcomingProps = RideCardBaseProps & {
 };
 type PassengerUpcomingProps = RideCardBaseProps & {
     variant: "passenger-upcoming";
+    driverId: string;
     driverName: string;
     driverRating: number;
     seatsLeft?: number;
@@ -63,6 +64,7 @@ type PassengerUpcomingProps = RideCardBaseProps & {
 };
 type PassengerPastProps = RideCardBaseProps & {
     variant: "passenger-past";
+    driverId: string;
     driverName: string;
     driverRating: number;
     onRateDriver: () => void;
@@ -183,12 +185,12 @@ export function RideCard(props: RideCardProps) {
                                     <span className="text-control font-semibold text-text-primary break-words">
                                         {props.driverName}
                                     </span>
-                                    <div className="flex items-center gap-1 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-dark-yellow icon-svg:fill-dark-yellow icon-svg:shrink-0">
-                                        <StarIcon />
-                                        <span className="text-caption text-text-secondary">
-                                            {props.driverRating.toFixed(1)}
-                                        </span>
-                                    </div>
+                                    <RatingLink
+                                        userId={props.driverId}
+                                        name={props.driverName}
+                                        rating={props.driverRating}
+                                        to="/driver/ratings"
+                                    />
                                 </div>
                             </div>
                             <span className="text-subtitle font-bold text-text-primary max-600:hidden">
@@ -279,12 +281,12 @@ export function RideCard(props: RideCardProps) {
                                     <span className="text-control font-semibold text-text-primary break-words">
                                         {props.driverName}
                                     </span>
-                                    <div className="flex items-center gap-1 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-dark-yellow icon-svg:fill-dark-yellow icon-svg:shrink-0">
-                                        <StarIcon />
-                                        <span className="text-caption text-text-secondary">
-                                            {props.driverRating.toFixed(1)}
-                                        </span>
-                                    </div>
+                                    <RatingLink
+                                        userId={props.driverId}
+                                        name={props.driverName}
+                                        rating={props.driverRating}
+                                        to="/driver/ratings"
+                                    />
                                 </div>
                             </div>
                             <span className="text-subtitle font-bold text-text-primary max-600:hidden">

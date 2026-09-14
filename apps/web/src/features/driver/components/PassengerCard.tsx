@@ -1,9 +1,9 @@
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
-import { StarIcon } from "@/components/ui/icons/StarIcon";
 import { MessageCircleIcon } from "@/components/ui/icons/MessageCircleIcon";
 import { CloseIcon } from "@/components/ui/icons/CloseIcon";
 import { AlertIcon } from "@/components/ui/icons/AlertIcon";
+import { RatingLink } from "@/components/shared/RatingLink";
 
 export type PassengerCardLabels = {
     seatsReserved?: (count: number) => string;
@@ -13,6 +13,7 @@ export type PassengerCardLabels = {
 };
 
 export type PassengerCardProps = {
+    userId: string;
     name: string;
     rating: number;
     seatsReserved: number;
@@ -27,6 +28,7 @@ export type PassengerCardProps = {
 };
 
 export function PassengerCard({
+    userId,
     name,
     rating,
     seatsReserved,
@@ -51,12 +53,13 @@ export function PassengerCard({
                         <span className="text-base font-semibold text-text-primary whitespace-nowrap overflow-hidden text-ellipsis">
                             {name}
                         </span>
-                        <div className="flex items-center gap-1 icon-svg:w-3.5 icon-svg:h-3.5 icon-svg:text-dark-yellow icon-svg:fill-dark-yellow icon-svg:shrink-0">
-                            <StarIcon />
-                            <span className="text-sm text-text-secondary">
-                                {rating.toFixed(1)}
-                            </span>
-                        </div>
+                        <RatingLink
+                            userId={userId}
+                            name={name}
+                            rating={rating}
+                            to="/passenger/ratings"
+                            textClassName="text-sm text-text-secondary"
+                        />
                         {from && to && (
                             <span className="text-sm text-text-secondary whitespace-nowrap overflow-hidden text-ellipsis">
                                 {from} → {to}

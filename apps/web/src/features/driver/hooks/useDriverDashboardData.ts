@@ -21,6 +21,7 @@ export type DriverUpcomingRide = {
 
 export type DriverRequestViewModel = {
     id: string;
+    passengerId: string;
     name: string;
     rating: number;
     seatsRequired: number;
@@ -103,6 +104,7 @@ export function useDriverDashboardData(): DriverDashboardData {
 
         return {
             id: request.id,
+            passengerId: request.passenger.id,
             name: fullName || t("rideRequests.passenger"),
             rating: request.passenger.averageRating ?? 0,
             seatsRequired: request.seatCount,

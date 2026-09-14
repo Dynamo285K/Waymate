@@ -469,6 +469,9 @@
         "title": "Moje hodnotenia",
         "totalRatings": "Celkom hodnotení",
         "myRatings": "Moje hodnotenia",
+        "userTitle": "Hodnotenia",
+        "userTitleNamed": "Hodnotenia - {{name}}",
+        "back": "← Späť",
         "loading": "Načítavam hodnotenia...",
         "empty": "Zatiaľ žiadne hodnotenia."
     },
