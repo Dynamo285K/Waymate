@@ -12,8 +12,7 @@ COPY packages/shared/package.json ./packages/shared/package.json
 COPY packages/db/package.json ./packages/db/package.json
 COPY e2e/package.json ./e2e/package.json
 
-RUN --mount=type=secret,id=_npmrc,dst=/app/.npmrc \
-    bun install --frozen-lockfile
+RUN bun install --frozen-lockfile
 
 COPY . .
 
