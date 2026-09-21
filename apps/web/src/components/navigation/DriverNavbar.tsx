@@ -106,6 +106,7 @@ export function DriverNavbar({
         <RoleNavbar
             tabs={tabs}
             activeKey={activeTab}
+            breakpointWidth={1440}
             role={role}
             onRoleChange={onRoleChange}
             roleLabels={{

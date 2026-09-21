@@ -416,10 +416,10 @@ export function RoleNavbarLayout({
         <NavbarShell navRef={navRef}>
             {isDesktop && (
                 <div className="min-h-18 px-6 flex items-center justify-between gap-6">
-                    <div className="flex items-center gap-8 min-w-0">
+                    <div className="flex items-center gap-8 shrink-0">
                         {logo}
                         <nav
-                            className="flex items-center gap-5 flex-wrap"
+                            className="flex items-center gap-5"
                             aria-label="Primary navigation"
                         >
                             {navButtons}
