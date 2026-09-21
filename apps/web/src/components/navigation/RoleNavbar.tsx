@@ -89,7 +89,11 @@ export function RoleNavbar({
         logoSrc,
         themeIcon,
         themeLabel,
-    } = useNavbar({ breakpointWidth, theme });
+    } = useNavbar({
+        breakpointWidth,
+        theme,
+        resetKey: `${language}-${tabs.length}`,
+    });
 
     const logo = (
         <NavbarLogo

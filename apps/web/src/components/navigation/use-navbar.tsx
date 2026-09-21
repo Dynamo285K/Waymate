@@ -16,17 +16,42 @@ export type Theme = "light" | "dark";
 export function useNavbar({
     breakpointWidth,
     theme,
+    resetKey,
 }: {
     breakpointWidth: number;
     theme: Theme;
+    /** When this value changes the dynamic breakpoint resets to
+     *  `breakpointWidth` so the desktop layout gets a fresh measurement.
+     *  Typically derived from language / tab count. */
+    resetKey?: string | number;
 }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const navbarRef = useRef<HTMLElement>(null);
+    const [dynamicBreakpoint, setDynamicBreakpoint] = useState(breakpointWidth);
 
-    const breakpoint = useBreakpoint(breakpointWidth);
+    useEffect(() => {
+        setDynamicBreakpoint(breakpointWidth);
+    }, [breakpointWidth, resetKey]);
+
+    const breakpoint = useBreakpoint(dynamicBreakpoint);
     const isDesktop = breakpoint === "desktop";
     const isTablet = breakpoint === "tablet";
     const isMobile = breakpoint === "mobile";
+
+    useEffect(() => {
+        const el = navbarRef.current;
+        if (!el || !isDesktop) return;
+
+        const observer = new ResizeObserver(() => {
+            if (el.scrollWidth > el.clientWidth) {
+                // The navbar content needs more space than is available!
+                // Dynamically raise the breakpoint to exactly what is needed + buffer.
+                setDynamicBreakpoint(el.scrollWidth + 2);
+            }
+        });
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [isDesktop]);
 
     useEffect(() => {
         function handleClickOutside(e: MouseEvent) {

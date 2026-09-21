@@ -83,6 +83,7 @@ export function AdminNavbar({
             // collapse to the compact tablet layout.
             breakpointWidth: 1400,
             theme,
+            resetKey: language,
         });
 
     const logoImg = (
@@ -181,7 +182,7 @@ export function AdminNavbar({
             <NavbarShell navRef={navbarRef}>
                 {isDesktop && (
                     <div className="min-h-18 px-6 flex items-center justify-between gap-6">
-                        <div className="flex items-center gap-8 min-w-0">
+                        <div className="flex items-center gap-8 shrink-0">
                             {logoImg}
                             <nav
                                 className="flex items-center gap-5"
