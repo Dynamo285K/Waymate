@@ -419,7 +419,7 @@ export function RoleNavbarLayout({
                     <div className="flex items-center gap-8 min-w-0">
                         {logo}
                         <nav
-                            className="flex items-center gap-5 flex-wrap"
+                            className="flex items-center gap-5"
                             aria-label="Primary navigation"
                         >
                             {navButtons}

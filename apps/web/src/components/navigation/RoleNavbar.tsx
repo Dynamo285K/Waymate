@@ -30,6 +30,10 @@ export type RoleNavbarTab = {
 export type RoleNavbarProps = {
     tabs: RoleNavbarTab[];
     activeKey?: string;
+    /** Width (px) above which the layout is "desktop". Defaults to 1360.
+     *  Override when the tab count or label length differs (e.g. Driver with
+     *  4 tabs in Slovak needs a higher threshold than Passenger with 3). */
+    breakpointWidth?: number;
     role: Role;
     onRoleChange: (value: Role) => void;
     roleLabels: RoleLabels;
@@ -58,6 +62,7 @@ export type RoleNavbarProps = {
 export function RoleNavbar({
     tabs,
     activeKey,
+    breakpointWidth = 1360,
     role,
     onRoleChange,
     roleLabels,
@@ -84,7 +89,7 @@ export function RoleNavbar({
         logoSrc,
         themeIcon,
         themeLabel,
-    } = useNavbar({ breakpointWidth: 1024, theme });
+    } = useNavbar({ breakpointWidth, theme });
 
     const logo = (
         <NavbarLogo

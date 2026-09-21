@@ -78,7 +78,10 @@ export function AdminNavbar({
 }: AdminNavbarProps) {
     const { navbarRef, isDesktop, isTablet, isMobile, themeIcon, themeLabel } =
         useNavbar({
-            breakpointWidth: 1024,
+            // Admin has 5 nav items + admin-badge + language + theme + avatar;
+            // 1400 px gives each control enough breathing room before we
+            // collapse to the compact tablet layout.
+            breakpointWidth: 1400,
             theme,
         });
 
@@ -181,7 +184,7 @@ export function AdminNavbar({
                         <div className="flex items-center gap-8 min-w-0">
                             {logoImg}
                             <nav
-                                className="flex items-center gap-5 flex-wrap"
+                                className="flex items-center gap-5"
                                 aria-label="Admin navigation"
                             >
                                 {navTabs}
