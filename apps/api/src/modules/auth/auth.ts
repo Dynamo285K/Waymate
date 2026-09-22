@@ -223,6 +223,12 @@ export const auth = betterAuth({
                 email.toLowerCase()
             );
             if (existing?.user) {
+                if (!existing.user.emailVerified) {
+                    throw new APIError("UNPROCESSABLE_ENTITY", {
+                        code: "USER_EXISTS_UNVERIFIED",
+                        message: "User exists but email is not verified.",
+                    });
+                }
                 throw new APIError("UNPROCESSABLE_ENTITY", {
                     code: "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL",
                     message: "User already exists. Use another email.",

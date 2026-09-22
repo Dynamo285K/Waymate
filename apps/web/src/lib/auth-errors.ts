@@ -57,6 +57,10 @@ export function getEmailAuthErrorI18nKey(
         return "login.suspended";
     }
 
+    if (code === "EMAIL_NOT_VERIFIED" || message.includes("NOT VERIFIED")) {
+        return "login.emailNotVerified";
+    }
+
     if (error.status && error.status >= 500) return "errors.server";
     return fallback;
 }

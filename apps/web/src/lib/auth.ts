@@ -62,6 +62,13 @@ export function resetPassword(params: { token: string; newPassword: string }) {
     });
 }
 
+export function sendVerificationEmail(params: { email: string }) {
+    return authClient.sendVerificationEmail({
+        email: params.email,
+        callbackURL: `${window.location.origin}/onboarding`,
+    });
+}
+
 export async function updateCurrentUserProfile(params: {
     firstName?: string;
     lastName?: string;

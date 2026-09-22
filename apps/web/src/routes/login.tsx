@@ -11,6 +11,7 @@ import {
     getPostAuthPath,
     signInWithEmail,
     signInWithGoogle,
+    sendVerificationEmail,
 } from "../lib/auth";
 import {
     getEmailAuthErrorI18nKey,
@@ -52,6 +53,8 @@ function LoginPage() {
         onThemeToggle,
     });
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+    const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+    const [isResending, setIsResending] = useState(false);
 
     async function finishLogin() {
         navigate({ to: await getPostAuthPath() });
@@ -82,6 +85,7 @@ function LoginPage() {
     }, [search.error, setError]);
 
     const onSubmit: SubmitHandler<LoginFormValues> = async (values) => {
+        setUnverifiedEmail(null);
         const { error } = await signInWithEmail({
             email: values.email.trim(),
             password: values.password,
@@ -89,6 +93,12 @@ function LoginPage() {
 
         if (error) {
             logger.error("Email sign-in failed", error);
+            if (
+                error.code === "EMAIL_NOT_VERIFIED" ||
+                error.message?.includes("NOT VERIFIED")
+            ) {
+                setUnverifiedEmail(values.email.trim());
+            }
             setError("root", {
                 message: getEmailAuthErrorI18nKey(error, "login.error"),
             });
@@ -97,6 +107,25 @@ function LoginPage() {
 
         await finishLogin();
     };
+
+    async function handleResendVerification() {
+        if (!unverifiedEmail) return;
+        setIsResending(true);
+        try {
+            await sendVerificationEmail({ email: unverifiedEmail });
+            setError("root", {
+                message: t(
+                    "login.verificationEmailSent",
+                    "Verification email sent! Please check your inbox."
+                ),
+            });
+            setUnverifiedEmail(null);
+        } catch (error) {
+            logger.error("Failed to resend verification email", error);
+        } finally {
+            setIsResending(false);
+        }
+    }
 
     async function handleGoogleLogin() {
         clearErrors();
@@ -123,7 +152,7 @@ function LoginPage() {
         }
     }
 
-    const submitting = isSubmitting || isGoogleLoading;
+    const submitting = isSubmitting || isGoogleLoading || isResending;
 
     return (
         <div
@@ -167,6 +196,8 @@ function LoginPage() {
                         navigate({ to: "/forgot-password" })
                     }
                     onCreateAccountClick={() => navigate({ to: "/register" })}
+                    showResendVerification={!!unverifiedEmail}
+                    onResendVerificationClick={handleResendVerification}
                     labels={{
                         title: t("login.title"),
                         emailLabel: t("login.emailLabel"),
@@ -181,6 +212,10 @@ function LoginPage() {
                         or: t("login.or"),
                         noAccount: t("login.noAccount"),
                         createAccount: t("login.createAccount"),
+                        resendVerification: t(
+                            "login.resendVerification",
+                            "Resend verification email"
+                        ),
                     }}
                 />
             </div>

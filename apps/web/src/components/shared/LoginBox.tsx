@@ -22,6 +22,7 @@ export type LoginBoxLabels = {
     or?: string;
     noAccount?: string;
     createAccount?: string;
+    resendVerification?: string;
 };
 
 export type LoginBoxProps = {
@@ -31,6 +32,7 @@ export type LoginBoxProps = {
     passwordError?: string;
     message?: string;
     isSubmitting?: boolean;
+    showResendVerification?: boolean;
     onEmailChange?: (value: string) => void;
     onPasswordChange?: (value: string) => void;
     onSubmit?: () => void;
@@ -38,6 +40,7 @@ export type LoginBoxProps = {
     onGoogleLoginClick?: () => void;
     onForgotPasswordClick?: () => void;
     onCreateAccountClick?: () => void;
+    onResendVerificationClick?: () => void;
     labels?: LoginBoxLabels;
 };
 
@@ -48,6 +51,7 @@ export function LoginBox({
     passwordError,
     message,
     isSubmitting,
+    showResendVerification,
     onEmailChange,
     onPasswordChange,
     onSubmit,
@@ -55,6 +59,7 @@ export function LoginBox({
     onGoogleLoginClick,
     onForgotPasswordClick,
     onCreateAccountClick,
+    onResendVerificationClick,
     labels,
 }: LoginBoxProps) {
     const handleSubmit = (event: { preventDefault(): void }) => {
@@ -138,9 +143,17 @@ export function LoginBox({
                     </div>
 
                     {message && (
-                        <p className="m-0 text-sm leading-5 text-red text-center">
-                            {message}
-                        </p>
+                        <div className="flex flex-col items-center gap-2">
+                            <p className="m-0 text-sm leading-5 text-red text-center">
+                                {message}
+                            </p>
+                            {showResendVerification && (
+                                <TextLink onClick={onResendVerificationClick}>
+                                    {labels?.resendVerification ??
+                                        "Resend verification email"}
+                                </TextLink>
+                            )}
+                        </div>
                     )}
 
                     <Button
