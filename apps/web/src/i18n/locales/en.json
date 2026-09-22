@@ -27,7 +27,10 @@
         "invalidEmail": "Enter a valid email address.",
         "passwordTooShort": "Password must be at least 8 characters.",
         "banned": "Your account has been suspended. Please contact support for more information.",
-        "error": "Login failed. Please check your credentials and try again."
+        "error": "Login failed. Please check your credentials and try again.",
+        "emailNotVerified": "Your email has not been verified yet.",
+        "resendVerification": "Resend verification email",
+        "verificationEmailSent": "Verification email sent! Please check your inbox."
     },
     "register": {
         "title": "Create account",

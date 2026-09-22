@@ -5,6 +5,7 @@ import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/Button";
+import { TextLink } from "@/components/ui/TextLink";
 import { RegisterBox } from "@/components/shared/RegisterBox";
 import { AuthNavbarFrame } from "../components/navigation/AuthNavbarFrame";
 import { useAuthNavbarProps } from "../hooks/shared/useAuthNavbarProps";
@@ -12,6 +13,7 @@ import {
     getPostAuthPath,
     signInWithGoogle,
     signUpWithEmail,
+    sendVerificationEmail,
 } from "../lib/auth";
 import {
     getEmailAuthErrorI18nKey,
@@ -56,6 +58,8 @@ function RegisterPage() {
     });
     const [registeredEmail, setRegisteredEmail] = useState("");
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+    const [isResending, setIsResending] = useState(false);
+    const [resendMessage, setResendMessage] = useState<string | null>(null);
 
     const {
         handleSubmit,
@@ -81,6 +85,11 @@ function RegisterPage() {
         });
 
         if (error) {
+            if (error.code === "USER_EXISTS_UNVERIFIED") {
+                await sendVerificationEmail({ email: trimmedEmail });
+                setRegisteredEmail(trimmedEmail);
+                return;
+            }
             if (error.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL") {
                 setError("email", { message: "register.emailAlreadyInUse" });
                 return;
@@ -120,7 +129,25 @@ function RegisterPage() {
         }
     }
 
-    const submitting = isSubmitting || isGoogleLoading;
+    async function handleResendVerification() {
+        if (!registeredEmail) return;
+        setIsResending(true);
+        try {
+            await sendVerificationEmail({ email: registeredEmail });
+            setResendMessage(
+                t(
+                    "login.verificationEmailSent",
+                    "Verification email sent! Please check your inbox."
+                )
+            );
+        } catch (error) {
+            logger.error("Failed to resend verification email", error);
+        } finally {
+            setIsResending(false);
+        }
+    }
+
+    const submitting = isSubmitting || isGoogleLoading || isResending;
 
     return (
         <div
@@ -141,10 +168,27 @@ function RegisterPage() {
                                     registeredEmail || t("register.yourEmail"),
                             })}
                         </p>
-                        <div className="mt-6">
+                        <div className="mt-6 flex flex-col items-center gap-4">
                             <Button onClick={() => navigate({ to: "/login" })}>
                                 {t("register.backToLogin")}
                             </Button>
+
+                            <div className="flex flex-col items-center gap-1">
+                                {resendMessage && (
+                                    <p className="m-0 text-sm leading-5 text-text-primary text-center">
+                                        {resendMessage}
+                                    </p>
+                                )}
+                                <TextLink
+                                    variant="primary"
+                                    onClick={handleResendVerification}
+                                >
+                                    {t(
+                                        "login.resendVerification",
+                                        "Resend verification email"
+                                    )}
+                                </TextLink>
+                            </div>
                         </div>
                     </section>
                 ) : (
