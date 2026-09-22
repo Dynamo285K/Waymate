@@ -32,15 +32,15 @@ async function sendAuthEmail({
 const googleProvider =
     env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
         ? {
-            google: {
-                clientId: env.GOOGLE_CLIENT_ID,
-                clientSecret: env.GOOGLE_CLIENT_SECRET,
-                mapProfileToUser: () => ({
-                    name: "User",
-                    image: undefined,
-                }),
-            },
-        }
+              google: {
+                  clientId: env.GOOGLE_CLIENT_ID,
+                  clientSecret: env.GOOGLE_CLIENT_SECRET,
+                  mapProfileToUser: () => ({
+                      name: "User",
+                      image: undefined,
+                  }),
+              },
+          }
         : {};
 
 async function findAuthUserByEmail(email: string) {
@@ -144,17 +144,17 @@ export const auth = betterAuth({
         // createSignedInUser() doesn't blow the 15s test timeout under full-suite load.
         ...(env.NODE_ENV === "test"
             ? {
-                password: {
-                    hash: async (p: string) => `__test__${p}`,
-                    verify: async ({
-                        hash,
-                        password,
-                    }: {
-                        hash: string;
-                        password: string;
-                    }) => hash === `__test__${password}`,
-                },
-            }
+                  password: {
+                      hash: async (p: string) => `__test__${p}`,
+                      verify: async ({
+                          hash,
+                          password,
+                      }: {
+                          hash: string;
+                          password: string;
+                      }) => hash === `__test__${password}`,
+                  },
+              }
             : {}),
 
         sendResetPassword: async ({ user, url }) => {
