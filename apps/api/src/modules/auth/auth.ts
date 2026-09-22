@@ -10,7 +10,7 @@ import { db } from "../../db";
 import * as schema from "../../db/schema";
 
 const resend = new Resend(env.RESEND_API_KEY);
-const authEmailFrom = "onboarding@resend.dev";
+const authEmailFrom = "Wezmesa <noreply@wezmesa.world>";
 
 async function sendAuthEmail({
     to,
