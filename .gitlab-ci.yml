@@ -31,7 +31,7 @@ default:
         # but do NOT cache node_modules because zipping 100k files is slower than bun install.
         - key:
               files:
-                  - bun.lockb
+                  - bun.lock
           paths:
               - .bun-cache/
         # Build output cache keyed by branch
@@ -121,7 +121,7 @@ e2e:
     cache:
         - key:
               files:
-                  - bun.lockb
+                  - bun.lock
           paths:
               - .bun-cache/
         - key: ${CI_COMMIT_REF_SLUG}-turbo
