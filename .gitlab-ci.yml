@@ -51,6 +51,7 @@ lint:
     stage: static-analysis
     script:
         - bun run lint
+        - echo "ref protected = $CI_COMMIT_REF_PROTECTED"
 
 format:
     stage: static-analysis
