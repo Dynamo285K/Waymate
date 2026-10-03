@@ -14,7 +14,6 @@ workflow:
           variables:
               PIPELINE_NAME: "Waymate Branch Pipeline"
 
-# Cache templates, reused below via YAML anchors.
 .bun-cache: &bun_cache
     # Cache the global bun cache to speed up downloads,
     # but do NOT cache node_modules because zipping 100k files is slower than bun install.
@@ -23,13 +22,8 @@ workflow:
             - bun.lock
     paths:
         - .bun-cache/
-    # Read-only everywhere; `lint` is the single writer. Fine with one runner
-    # (or a shared remote cache): with several runners holding local caches,
-    # a single writer would only fill the cache on its own machine.
     policy: pull
 
-# Only jobs that run Turbo use this, each under its own key, so a job that
-# never touches Turbo can't overwrite another job's fresh results.
 .turbo-cache: &turbo_cache
     paths:
         - .turbo/
@@ -56,8 +50,6 @@ default:
 
 lint:
     stage: static-analysis
-    # The only job that saves the Bun cache. It runs in every pipeline, so a
-    # cleared cache is recreated, and saves even when linting itself fails.
     cache:
         - <<: *bun_cache
           policy: pull-push
@@ -139,9 +131,6 @@ e2e:
         PLAYWRIGHT_BROWSERS_PATH: "$CI_PROJECT_DIR/.playwright-cache"
     cache:
         - *bun_cache
-        # One browser per Playwright version, shared by all branches. The exact
-        # version is pinned in e2e/package.json, so the key changes exactly
-        # when a new browser is needed; e2e downloads and saves it once.
         - key:
               prefix: playwright
               files:
@@ -182,9 +171,6 @@ build:
 migration-drift:
     stage: static-analysis
     script:
-        # Snapshot the committed migrations, regenerate, and compare. `diff`
-        # ships with the image; any non-zero exit (difference, error, or a
-        # missing `diff`) fails the job.
         - cp -r apps/api/drizzle /tmp/drizzle-before
         - bun run --cwd apps/api db:generate
         - |
@@ -224,7 +210,6 @@ trigger-deployments:
     cache: []
     dependencies: []
     interruptible: false
-    # Safety net above the 10-minute verification window.
     timeout: 15m
     variables:
         PRODUCTION_API_URL: "https://api.wezmesa.world"
@@ -235,6 +220,4 @@ trigger-deployments:
         - apk add --no-cache curl jq
         - curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL"
         - curl -fsS -X POST "$CLOUDFLARE_DEPLOY_HOOK_URL"
-        # The hooks only confirm the deploy was accepted; wait until production
-        # actually serves this commit.
         - sh scripts/wait-for-deploy.sh "API=$PRODUCTION_API_URL/health" "Web=$PRODUCTION_WEB_URL/version.json"
