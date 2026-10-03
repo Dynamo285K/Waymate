@@ -4,7 +4,7 @@
         "build": {
             "dependsOn": ["^build"],
             "outputs": ["dist/**"],
-            "env": ["CF_PAGES_COMMIT_SHA", "CI_COMMIT_SHA"]
+            "env": ["CF_PAGES_COMMIT_SHA"]
         },
         "dev": {
             "cache": false,

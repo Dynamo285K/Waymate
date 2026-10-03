@@ -50,10 +50,7 @@ export default defineConfig(({ mode }) => {
                         type: "asset",
                         fileName: "version.json",
                         source: JSON.stringify({
-                            commit:
-                                process.env.CF_PAGES_COMMIT_SHA ??
-                                process.env.CI_COMMIT_SHA ??
-                                "dev",
+                            commit: process.env.CF_PAGES_COMMIT_SHA ?? "dev",
                         }),
                     });
                 },
