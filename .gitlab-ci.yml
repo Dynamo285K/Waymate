@@ -48,7 +48,7 @@ default:
         - *bun_cache
     before_script:
         - bun --version
-        - bun install
+        - bun install --frozen-lockfile
 
 lint:
     stage: static-analysis
@@ -213,7 +213,7 @@ openapi-drift:
 
 trigger-deployments:
     stage: deploy
-    image: alpine:latest
+    image: alpine:3.24
     before_script: [] # Skips bun install
     cache: []
     dependencies: []
