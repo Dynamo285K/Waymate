@@ -221,3 +221,14 @@ To ensure your pipelines run when you push code, please set up a GitLab Runner o
     - Change the first line to `concurrent = 4` (or however many cores you want to allocate)
     - Restart the runner (`brew services restart gitlab-runner` or `gitlab-runner restart`)
 6. Ensure your Docker daemon and runner service are active. Your machine will now automatically pick up CI jobs whenever it is online.
+
+#### CI image for e2e
+
+The `e2e` job runs in a custom image with Chromium and its system libraries preinstalled (`ci/Dockerfile`), so it doesn't install them on every run. The image tag is derived from the Bun version in `package.json` (`packageManager`) and the Playwright version in `bun.lock`. When either changes, the `ci-image-check` job fails until you rebuild the image:
+
+```bash
+docker login gitlab.fi.muni.cz:5050   # personal access token with write_registry
+ci/build-image.sh                     # builds and pushes …/ci:bun<version>-pw<version>-<UTC build time>
+```
+
+Then set `CI_IMAGE` in `.gitlab-ci.yml` to the tag the script prints. Rebuild it occasionally even without version changes to pick up security patches in the base image. Each build gets its own tag (the build time), because the runner caches images by tag and would never pull a rebuilt image under an existing tag.
