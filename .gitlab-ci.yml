@@ -1,6 +1,8 @@
 variables:
     PIPELINE_NAME: "Waymate CI"
     BUN_INSTALL_CACHE_DIR: "$CI_PROJECT_DIR/.bun-cache"
+    # Built by ci/build-image.sh; ci-image-check fails if the tag drifts from package.json/bun.lock.
+    CI_IMAGE: "gitlab.fi.muni.cz:5050/xcvejn2/splujazda-sketch/ci:bun1.3.13-pw1.61.0-202610032024"
 
 workflow:
     name: $PIPELINE_NAME
@@ -78,6 +80,22 @@ i18n-check:
     script:
         - bun run --cwd apps/web i18n:check
 
+ci-image-check:
+    stage: static-analysis
+    before_script: []
+    cache: []
+    script:
+        - . ci/versions.sh
+        - |
+            case "$CI_IMAGE" in
+                *":$CI_IMAGE_TAG-"*) echo "CI image matches $CI_IMAGE_TAG" ;;
+                *)
+                    echo "CI_IMAGE ($CI_IMAGE) does not match package.json/bun.lock ($CI_IMAGE_TAG)."
+                    echo "Run ci/build-image.sh and update CI_IMAGE in .gitlab-ci.yml."
+                    exit 1
+                    ;;
+            esac
+
 test:
     stage: test
     services:
@@ -109,6 +127,8 @@ test-web:
 
 e2e:
     stage: e2e
+    # Chromium and its system libraries are preinstalled in the CI image.
+    image: $CI_IMAGE
     needs:
         - build
     rules:
@@ -128,19 +148,7 @@ e2e:
         # `spolujazda_e2e_db` on this service and runs db:reset (migrate + seed).
         E2E_DATABASE_URL: "postgres://postgres:postgres@postgres:5432/spolujazda_e2e_db"
         REDIS_URL: "redis://redis:6379"
-        PLAYWRIGHT_BROWSERS_PATH: "$CI_PROJECT_DIR/.playwright-cache"
-    cache:
-        - *bun_cache
-        - key:
-              prefix: playwright
-              files:
-                  - e2e/package.json
-          paths:
-              - .playwright-cache/
     script:
-        # Pull the Chromium build matching the e2e workspace's Playwright version,
-        # plus its OS libraries (the bun image lacks them).
-        - bun run --cwd e2e install:browsers
         - bun run --cwd apps/api scripts/wait-for-db.ts
         - bun run --cwd e2e test
     artifacts:
