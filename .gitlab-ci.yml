@@ -181,15 +181,15 @@ build:
 migration-drift:
     stage: static-analysis
     script:
-        - apt-get update -qq && apt-get install -y -qq --no-install-recommends git
+        # Snapshot the committed migrations, regenerate, and compare. `diff`
+        # ships with the image; any non-zero exit (difference, error, or a
+        # missing `diff`) fails the job.
+        - cp -r apps/api/drizzle /tmp/drizzle-before
         - bun run --cwd apps/api db:generate
         - |
-            drift="$(git status --porcelain apps/api/drizzle)"
-            if [ -n "$drift" ]; then
+            if ! diff -r /tmp/drizzle-before apps/api/drizzle; then
                 echo "Schema in apps/api/src/db/schema/ drifted from apps/api/drizzle/."
                 echo "Run 'bun run --cwd apps/api db:generate' locally and commit the new migration."
-                git --no-pager diff -- apps/api/drizzle
-                git status --short apps/api/drizzle
                 exit 1
             fi
 
@@ -205,16 +205,14 @@ openapi-drift:
         WEB_ORIGIN: "http://localhost:5173"
         RESEND_API_KEY: "re_ci_dummy_key"
     script:
-        - apt-get update -qq && apt-get install -y -qq --no-install-recommends git
+        - cp apps/api/openapi.json /tmp/openapi-before.json
         - bun run --cwd apps/api openapi:dump
         # The dump writes compact JSON; the committed file is Prettier-formatted.
         - bun run prettier --write apps/api/openapi.json
         - |
-            drift="$(git status --porcelain apps/api/openapi.json)"
-            if [ -n "$drift" ]; then
+            if ! diff -u /tmp/openapi-before.json apps/api/openapi.json; then
                 echo "apps/api/openapi.json drifted from the API routes/schemas."
                 echo "Run 'bun run --cwd apps/api openapi:dump && bun run format' locally, commit the spec, and re-run 'bun run --cwd apps/web codegen' if the client changed."
-                git --no-pager diff --stat -- apps/api/openapi.json
                 exit 1
             fi
 
