@@ -4747,9 +4747,12 @@
                     "db": {
                         "type": "string",
                         "enum": ["up", "down"]
+                    },
+                    "commit": {
+                        "type": "string"
                     }
                 },
-                "required": ["status", "db"],
+                "required": ["status", "db", "commit"],
                 "additionalProperties": false
             },
             "User": {

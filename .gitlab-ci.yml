@@ -223,9 +223,17 @@ trigger-deployments:
     image: alpine:latest
     before_script: [] # Skips bun install
     interruptible: false
+    # Safety net above the 10-minute verification window.
+    timeout: 15m
+    variables:
+        PRODUCTION_API_URL: "https://api.wezmesa.world"
+        PRODUCTION_WEB_URL: "https://wezmesa.world"
     rules:
         - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"'
     script:
-        - apk add --no-cache curl
+        - apk add --no-cache curl jq
         - curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL"
         - curl -fsS -X POST "$CLOUDFLARE_DEPLOY_HOOK_URL"
+        # The hooks only confirm the deploy was accepted; wait until production
+        # actually serves this commit.
+        - sh scripts/wait-for-deploy.sh "API=$PRODUCTION_API_URL/health" "Web=$PRODUCTION_WEB_URL/version.json"
