@@ -208,6 +208,8 @@ trigger-deployments:
     stage: deploy
     image: alpine:latest
     before_script: [] # Skips bun install
+    cache: []
+    dependencies: []
     interruptible: false
     # Safety net above the 10-minute verification window.
     timeout: 15m
