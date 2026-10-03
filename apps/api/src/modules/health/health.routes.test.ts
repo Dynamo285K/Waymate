@@ -9,6 +9,7 @@ describe("HealthRoutes", () => {
         await expect(response.json()).resolves.toMatchObject({
             status: "ok",
             db: "up",
+            commit: expect.any(String),
         });
     });
 });

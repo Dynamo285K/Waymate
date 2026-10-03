@@ -40,6 +40,24 @@ export default defineConfig(({ mode }) => {
             tanstackRouter({ target: "react", autoCodeSplitting: true }),
             react(),
             tailwindcss(),
+            {
+                // dist/version.json tells the deploy job which commit is live.
+                // Cloudflare Pages sets CF_PAGES_COMMIT_SHA during its builds.
+                name: "version-json",
+                apply: "build",
+                generateBundle() {
+                    this.emitFile({
+                        type: "asset",
+                        fileName: "version.json",
+                        source: JSON.stringify({
+                            commit:
+                                process.env.CF_PAGES_COMMIT_SHA ??
+                                process.env.CI_COMMIT_SHA ??
+                                "dev",
+                        }),
+                    });
+                },
+            },
         ],
         server: {
             // Pinned: the API's Better Auth `trustedOrigins` is built from

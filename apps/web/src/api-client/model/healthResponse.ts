@@ -11,4 +11,5 @@ import type { HealthResponseDb } from "./healthResponseDb";
 export interface HealthResponse {
     status: HealthResponseStatus;
     db: HealthResponseDb;
+    commit: string;
 }

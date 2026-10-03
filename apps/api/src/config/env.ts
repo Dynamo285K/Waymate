@@ -90,6 +90,9 @@ const EnvSchema = z.object({
     GOOGLE_CLIENT_ID: z.string().min(1).optional(),
     GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
     OSRM_BASE_URL: z.url().default("https://router.project-osrm.org"),
+    // Set by Render for git-backed deploys. /health exposes it so the deploy
+    // job can verify that production actually runs the commit it just shipped.
+    RENDER_GIT_COMMIT: z.string().min(1).default("unknown"),
 });
 
 const parsed = EnvSchema.safeParse(process.env);
