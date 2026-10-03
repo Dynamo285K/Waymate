@@ -10,7 +10,7 @@
         "install:browsers": "playwright install --with-deps chromium"
     },
     "devDependencies": {
-        "@playwright/test": "^1.49.0",
+        "@playwright/test": "1.61.0",
         "@types/bun": "latest",
         "postgres": "^3.4.9"
     }
