@@ -23,6 +23,10 @@ workflow:
             - bun.lock
     paths:
         - .bun-cache/
+    # Read-only everywhere; `lint` is the single writer. Fine with one runner
+    # (or a shared remote cache): with several runners holding local caches,
+    # a single writer would only fill the cache on its own machine.
+    policy: pull
 
 # Only jobs that run Turbo use this, each under its own key, so a job that
 # never touches Turbo can't overwrite another job's fresh results.
@@ -52,6 +56,12 @@ default:
 
 lint:
     stage: static-analysis
+    # The only job that saves the Bun cache. It runs in every pipeline, so a
+    # cleared cache is recreated, and saves even when linting itself fails.
+    cache:
+        - <<: *bun_cache
+          policy: pull-push
+          when: always
     script:
         - bun run lint
 
