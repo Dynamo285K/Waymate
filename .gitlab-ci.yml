@@ -132,12 +132,15 @@ e2e:
               - apps/*/.turbo/
               - packages/*/.turbo/
               - e2e/.turbo/
-        - key: ${CI_COMMIT_REF_SLUG}-playwright
-          fallback_keys:
-              - main-playwright
+        # One browser per Playwright version, shared by all branches. The exact
+        # version is pinned in e2e/package.json, so the key changes exactly
+        # when a new browser is needed; e2e downloads and saves it once.
+        - key:
+              prefix: playwright
+              files:
+                  - e2e/package.json
           paths:
               - .playwright-cache/
-          policy: pull
     script:
         # Pull the Chromium build matching the e2e workspace's Playwright version,
         # plus its OS libraries (the bun image lacks them).
@@ -150,21 +153,6 @@ e2e:
             - e2e/playwright-report/
             - e2e/test-results/
         expire_in: 1 week
-
-update-playwright-cache:
-    stage: build
-    rules:
-        - changes:
-              - e2e/package.json
-    variables:
-        PLAYWRIGHT_BROWSERS_PATH: "$CI_PROJECT_DIR/.playwright-cache"
-    cache:
-        - key: ${CI_COMMIT_REF_SLUG}-playwright
-          paths:
-              - .playwright-cache/
-          policy: push
-    script:
-        - bun run --cwd e2e install:browsers
 
 build:
     stage: build
