@@ -29,8 +29,6 @@ workflow:
 .turbo-cache: &turbo_cache
     paths:
         - .turbo/
-        - apps/*/.turbo/
-        - packages/*/.turbo/
 
 stages:
     - static-analysis
