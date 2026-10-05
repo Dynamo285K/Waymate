@@ -76,29 +76,26 @@ export function MyPage(props: MyPageProps) {
 
 Copy `.env.example` to `.env.local` if you need to override defaults:
 
-- `API_PROXY_TARGET` — where the local Vite `/api/*` proxy forwards requests. Vercel does not read this file; production proxying is configured in `apps/web/vercel.json`. Default in local Vite dev: `http://localhost:3000`. Set it if the API runs elsewhere, without a trailing slash.
+- `API_PROXY_TARGET` — where the local Vite `/api/*` proxy (dev and preview only) forwards requests. Default: `http://localhost:3000`. Set it if the API runs elsewhere, without a trailing slash.
 - `VITE_API_PROXY_TARGET` — backward-compatible local alias for `API_PROXY_TARGET`.
-- `VITE_API_BASE_URL` — base URL the generated API client uses. Default: `/api` (i.e. through the same-origin proxy). Override only if you intentionally want the browser to call the API directly.
+- `VITE_API_BASE_URL` — base URL the generated API client uses. Default: `/api` (the local proxy). Production sets it to the API origin, see below.
 
-## Vercel deployment
+## Cloudflare Pages deployment
 
-Deploy this app as a Vercel monorepo project with Root Directory set to `apps/web`. Keep `VITE_API_BASE_URL` unset so the browser keeps calling same-origin `/api/*`.
+Production is built and served by Cloudflare Pages. After the `main` pipeline passes, the `trigger-deployments` CI job starts the build through a deploy hook and waits until `/version.json` reports the new commit (`CF_PAGES_COMMIT_SHA`). `public/_headers` keeps `version.json` uncached.
 
-The Vercel rewrites in `apps/web/vercel.json` forward:
+Cloudflare Pages has no `/api` proxy, so the browser calls the API directly. Set these build variables in Cloudflare Pages:
 
-- `/api/auth/*` to the API's real `/api/auth/*` Better Auth routes
-- `/api/*` to the API with the first `/api` stripped, matching local Vite dev
+- `VITE_API_BASE_URL` — the API origin, e.g. `https://api.wezmesa.world`
+- `VITE_AUTH_BASE_URL` — the API origin followed by `/api/auth`
+- `VITE_MAPBOX_ACCESS_TOKEN`
 
-The Render API URL is hardcoded there because local development does not use `vercel.json`. Update it if the Render service URL changes.
+Vite bakes them into the bundle at build time, so changing them needs a new deploy.
 
-Keep `VITE_API_BASE_URL` and `VITE_AUTH_BASE_URL` unset unless you intentionally want the browser to bypass the same-origin proxy.
-
-On the API deployment, set `BETTER_AUTH_URL` and `WEB_ORIGIN` to your Vercel frontend origin, for example `https://your-app.vercel.app`. Add preview/staging frontend origins to `CORS_ORIGINS` if they should also be allowed to make authenticated requests.
-
-For Google OAuth, add this authorized redirect URI in Google Cloud:
+On the API, set `WEB_ORIGIN` to the frontend origin (`https://wezmesa.world`) so CORS and Better Auth accept its requests, and add any other frontend origins to `CORS_ORIGINS`. `BETTER_AUTH_URL` is the public URL the auth routes are served from. For Google OAuth, register this redirect URI in Google Cloud:
 
 ```txt
-https://your-app.vercel.app/api/auth/callback/google
+<BETTER_AUTH_URL>/api/auth/callback/google
 ```
 
 ## UI library
