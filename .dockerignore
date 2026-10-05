@@ -7,9 +7,9 @@ node_modules
 .npmrc
 bunfig.toml
 
-.env
-.env.*
-!.env.example
+**/.env
+**/.env.*
+!**/.env.example
 
 dist
 build
